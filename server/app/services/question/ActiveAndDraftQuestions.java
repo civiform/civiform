@@ -21,7 +21,6 @@ import services.question.types.QuestionDefinition;
  * because it does not have any mechanism for a refresh.
  */
 public final class ActiveAndDraftQuestions {
-
   private final ImmutableList<QuestionDefinition> activeQuestions;
   private final ImmutableList<QuestionDefinition> draftQuestions;
   private final ImmutableMap<
@@ -43,6 +42,11 @@ public final class ActiveAndDraftQuestions {
   }
 
   private ActiveAndDraftQuestions(VersionRepository repository) {
+    // Note: previewPublishNewSynchronizedVersion has an unexpected
+    // interaction with active and draft when this method is called within a
+    // transaction; it'll mutate the objects here which is undesired.
+    // See the issue for more details.
+    // TODO(#10703): Fix this.
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();
