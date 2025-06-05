@@ -39,14 +39,6 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findByHostUrlAndUrlPathAndCompatibilityLevel_succeeds() {
-    ApiBridgeConfigurationModel model =
-        repo.insert(createBridgeConfigurationModel()).toCompletableFuture().join();
-    ApiBridgeConfigurationModel persistedModel = refetchModelFromDb(model);
-    assertThat(persistedModel).usingRecursiveComparison().isEqualTo(model);
-  }
-
-  @Test
   public void insert_persists() {
     ApiBridgeConfigurationModel model =
         repo.insert(createBridgeConfigurationModel()).toCompletableFuture().join();
@@ -110,6 +102,12 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
     assertThat(optionalPersistedModel.isPresent()).isFalse();
   }
 
+  @Test
+  public void delete_returns_false_when_id_to_delete_does_not_exist() {
+    boolean wasDeleted = repo.delete(Long.MAX_VALUE).toCompletableFuture().join();
+    assertThat(wasDeleted).isFalse();
+  }
+
   private ApiBridgeDefinition createBridgeDefinitions() {
     return new ApiBridgeDefinition(
         ImmutableList.of(
@@ -137,6 +135,8 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
         .setEnabled(true);
   }
 
+  // Calling this exercises the findByHostUrlAndUrlPathAndCompatibilityLevel method
+  // which is why it doesn't have a separate test
   private ApiBridgeConfigurationModel refetchModelFromDb(ApiBridgeConfigurationModel model) {
     Optional<ApiBridgeConfigurationModel> optionalPersistedModel =
         repo.findByHostUrlAndUrlPathAndCompatibilityLevel(

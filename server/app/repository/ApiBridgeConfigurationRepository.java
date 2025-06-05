@@ -87,7 +87,11 @@ public final class ApiBridgeConfigurationRepository {
         dbExecutionContext);
   }
 
-  /** Delete a new {@link ApiBridgeConfigurationModel} record asynchronously. */
+  /**
+   * Delete a new {@link ApiBridgeConfigurationModel} record asynchronously.
+   *
+   * @return returns true if a row was deleted
+   */
   public CompletionStage<Boolean> delete(Long id) {
     return supplyAsync(
         () -> database.delete(ApiBridgeConfigurationModel.class, id) == 1, dbExecutionContext);
