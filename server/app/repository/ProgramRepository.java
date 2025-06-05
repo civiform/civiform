@@ -140,6 +140,20 @@ public final class ProgramRepository {
     return names.build();
   }
 
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
+    List<SqlRow> rows =
+        database
+            .sqlQuery("SELECT DISTINCT name FROM programs WHERE program_type <> 'external'")
+            .findList();
+
+    for (SqlRow row : rows) {
+      names.add(row.getString("name"));
+    }
+
+    return names.build();
+  }
+
   /**
    * Retrieves the program definition for the given program.
    *
