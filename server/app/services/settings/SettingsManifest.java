@@ -721,7 +721,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
-  /** This email address receives error notifications from CiviForm when things break. */
+  /**
+   * This email address receives error notifications from CiviForm when there is an internal server
+   * error or a durable job fails.
+   */
   public Optional<String> getItEmailAddress(RequestHeader request) {
     return getString("IT_EMAIL_ADDRESS", request);
   }
@@ -1984,8 +1987,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "IT_EMAIL_ADDRESS",
-                          "This email address receives error notifications from CiviForm when"
-                              + " things break.",
+                          "This email address receives error notifications from CiviForm when there"
+                              + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
