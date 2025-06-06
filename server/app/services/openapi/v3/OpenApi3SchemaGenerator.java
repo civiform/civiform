@@ -24,10 +24,12 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.export.enums.RevisionState;
 import services.openapi.AbstractOpenApiSchemaGenerator;
 import services.openapi.DefinitionType;
 import services.openapi.Format;
@@ -186,6 +188,19 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                       + " timezone is provided, and the beginning"
                                                       + " of the day when no time is provided.")
                                               .schema(new StringSchema()))
+                                      .addParametersItem(
+                                          new QueryParameter()
+                                              .name("revisionState")
+                                              .description(
+                                                  "The revision state of applications to include in"
+                                                      + " results. When omitted, applications of"
+                                                      + " all revision states are returned.")
+                                              .schema(
+                                                  new StringSchema()
+                                                      ._enum(
+                                                          Arrays.asList(
+                                                              RevisionState.CURRENT.name(),
+                                                              RevisionState.OBSOLETE.name()))))
                                       .addParametersItem(
                                           new QueryParameter()
                                               .name("pageSize")

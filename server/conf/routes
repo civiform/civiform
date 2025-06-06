@@ -215,7 +215,7 @@ POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:
 
 # API
 GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
-GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
+GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], revisionState: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
 
 # API Docs
 GET     /docs/api/programs                            controllers.docs.ApiDocsController.index(request: Request)
