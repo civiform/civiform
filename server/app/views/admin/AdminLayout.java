@@ -3,34 +3,48 @@ package views.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.ul;
 import static views.BaseHtmlView.asRedirectElement;
 import static views.ViewUtils.makeSvgTextButton;
 
 import auth.CiviFormProfile;
+import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.TranslationLocales;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
 import views.components.Icons;
+import views.components.SvgTag;
+import views.components.TextFormatter;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /** Contains methods rendering common compoments used across admin pages. */
@@ -261,5 +275,135 @@ public final class AdminLayout extends BaseHtmlLayout {
         .withHref(href)
         .withClasses(
             "px-3", "opacity-75", StyleUtils.hover("opacity-100"), StyleUtils.joinStyles(styles));
+  }
+
+  // maybeBadgeForImport = empty, maybeDuplicateHandlingForImport = empty
+
+  /**
+   * Renders a question for import, including info about the question and possibly its
+   * duplicate-handling options
+   *
+   * @param questionDefinition the question definition to render
+   * @param badgeForImport a badge indicating if the question is new or a duplicate
+   * @param maybeDuplicateHandlingForImport a div tag containing the duplicate handling options, if
+   *     this question is a duplicate
+   * @return a div tag containing the rendered question
+   */
+  public static DivTag renderQuestionForImport(
+      QuestionDefinition questionDefinition,
+      DivTag badgeForImport,
+      Optional<FieldsetTag> maybeDuplicateHandlingForImport) {
+    return renderQuestion(
+        questionDefinition,
+        /* malformedQuestionDefinition= */ false,
+        /* editButtonsForProgramPage= */ ImmutableList.of(),
+        Optional.of(badgeForImport),
+        maybeDuplicateHandlingForImport);
+  }
+
+  /**
+   * Renders a question for a program, including info about the question and possibly some editing
+   * controls
+   *
+   * @param questionDefinition the question definition to render
+   * @param malformedQuestionDefinition whether there is an issue with the definition
+   * @param editButtonsForProgramPage the div tags containing buttons/icons showing the options to
+   *     edit the question
+   * @return a div tag containing the rendered question
+   */
+  public static DivTag renderQuestionForProgramPage(
+      QuestionDefinition questionDefinition,
+      boolean malformedQuestionDefinition,
+      ImmutableList<DomContent> editButtonsForProgramPage) {
+    return renderQuestion(
+        questionDefinition,
+        malformedQuestionDefinition,
+        editButtonsForProgramPage,
+        /* maybeBadgeForImport= */ Optional.empty(),
+        /* maybeDuplicateHandlingForImport= */ Optional.empty());
+  }
+
+  /**
+   * Renders an individual question, including the description and any toggles or tags that should
+   * be shown next to the question in the list of questions.
+   */
+  private static DivTag renderQuestion(
+      QuestionDefinition questionDefinition,
+      boolean malformedQuestionDefinition,
+      ImmutableList<DomContent> editButtonsForProgramPage,
+      Optional<DivTag> maybeBadgeForImport,
+      Optional<FieldsetTag> maybeDuplicateHandlingForImport) {
+    DivTag cardDiv =
+        div()
+            .withData("testid", "question-admin-name-" + questionDefinition.getName())
+            .withClasses(
+                ReferenceClasses.PROGRAM_QUESTION,
+                "my-2",
+                iffElse(malformedQuestionDefinition, "border-2", "border"),
+                iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
+                "px-4",
+                "py-2",
+                "items-center",
+                "rounded-md",
+                StyleUtils.hover("text-gray-800", "bg-gray-100"))
+            .with(
+                div()
+                    .withClasses("flex", "mt-2", "mb-4")
+                    .condWith(
+                        !malformedQuestionDefinition && questionDefinition.isUniversal(),
+                        ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
+                    .condWith(maybeBadgeForImport.isPresent(), maybeBadgeForImport.get()));
+    SvgTag icon =
+        Icons.questionTypeSvg(questionDefinition.getQuestionType())
+            .withClasses("shrink-0", "h-12", "w-6");
+    String questionHelpText =
+        questionDefinition.getQuestionHelpText().isEmpty()
+            ? ""
+            : questionDefinition.getQuestionHelpText().getDefault();
+
+    DivTag content =
+        div()
+            .withClass("flex-grow")
+            .with(
+                iff(
+                    malformedQuestionDefinition,
+                    p("This is not pointing at the latest version")
+                        .withClasses("text-red-500", "font-bold")),
+                iff(
+                    malformedQuestionDefinition,
+                    p("Edit the program and try republishing").withClass("text-red-500")),
+                div()
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            questionDefinition.getQuestionText().getDefault()))
+                    .withData("testid", "question-div"),
+                div()
+                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
+                    .withClasses("mt-1", "text-sm"),
+                p(String.format("Admin ID: %s", questionDefinition.getName()))
+                    .withClasses("mt-1", "text-sm"),
+                iff(
+                    // Only show multi-option text during program import
+                    maybeDuplicateHandlingForImport.isPresent()
+                        && questionDefinition.getQuestionType().isMultiOptionType(),
+                    getOptions((MultiOptionQuestionDefinition) questionDefinition)));
+
+    DivTag row =
+        div()
+            .withClasses("flex", "gap-4", "items-center")
+            .with(icon, content)
+            .condWith(
+                maybeDuplicateHandlingForImport.isPresent(), maybeDuplicateHandlingForImport.get())
+            .with(editButtonsForProgramPage);
+
+    return cardDiv.with(row);
+  }
+
+  private static UlTag getOptions(MultiOptionQuestionDefinition question) {
+    UlTag options = ul().withClasses("list-disc", "mx-4", "mt-2");
+    for (QuestionOption option : question.getOptions()) {
+      options.with(li(option.optionText().getDefault()));
+    }
+    return options;
   }
 }
