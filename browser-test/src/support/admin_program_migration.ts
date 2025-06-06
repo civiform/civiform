@@ -157,8 +157,21 @@ export class AdminProgramMigration {
     for (const [adminName, option] of questionsToOption) {
       await this.page
         .getByTestId('question-admin-name-' + adminName)
-        .getByText(option)
+        // Specify only exact matches, since there are alerts that reference similar text
+        .getByText(option, {exact: true})
         .click()
+    }
+  }
+
+  async expectOptionsDisabledForQuestion(
+    questionsToOption: Map<string, string>,
+  ) {
+    for (const [adminName, option] of questionsToOption) {
+      await expect(
+        this.page
+          .getByTestId('question-admin-name-' + adminName)
+          .getByText(option, {exact: true}),
+      ).toBeDisabled()
     }
   }
 

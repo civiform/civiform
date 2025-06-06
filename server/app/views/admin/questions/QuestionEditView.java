@@ -31,7 +31,6 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -548,24 +547,21 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-not-universal-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
                               "cf-pai-tag-set-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-tag-set-not-universal-alert",
