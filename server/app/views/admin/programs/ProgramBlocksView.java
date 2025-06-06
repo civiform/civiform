@@ -7,7 +7,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iff;
-import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
@@ -55,8 +54,6 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.ProgramQuestionBank;
-import views.components.SvgTag;
-import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -700,57 +697,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionsCount,
       boolean malformedQuestionDefinition,
       Request request) {
-    DivTag ret =
-        div()
-            .withData("testid", "question-admin-name-" + questionDefinition.getName())
-            .withClasses(
-                ReferenceClasses.PROGRAM_QUESTION,
-                "my-2",
-                iffElse(malformedQuestionDefinition, "border-2", "border"),
-                iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
-                "px-4",
-                "py-2",
-                "items-center",
-                "rounded-md",
-                StyleUtils.hover("text-gray-800", "bg-gray-100"));
-    ret.condWith(
-        !malformedQuestionDefinition && questionDefinition.isUniversal(),
-        ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
-
-    DivTag row = div().withClasses("flex", "gap-4", "items-center");
-    SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType())
-            .withClasses("shrink-0", "h-12", "w-6");
-    String questionHelpText =
-        questionDefinition.getQuestionHelpText().isEmpty()
-            ? ""
-            : questionDefinition.getQuestionHelpText().getDefault();
-
-    DivTag content =
-        div()
-            .withClass("flex-grow")
-            .with(
-                iff(
-                    malformedQuestionDefinition,
-                    p("This is not pointing at the latest version")
-                        .withClasses("text-red-500", "font-bold")),
-                iff(
-                    malformedQuestionDefinition,
-                    p("Edit the program and try republishing").withClass("text-red-500")),
-                div()
-                    .with(
-                        TextFormatter.formatTextForAdmins(
-                            questionDefinition.getQuestionText().getDefault())),
-                div()
-                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
-                    .withClasses("mt-1", "text-sm"),
-                p(String.format("Admin ID: %s", questionDefinition.getName()))
-                    .withClasses("mt-1", "text-sm"));
-
-    Optional<FormTag> maybeOptionalToggle =
-        renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
-
+    ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
             request,
@@ -759,13 +706,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition,
             questionDefinition,
             addressCorrectionEnabled);
-
-    row.with(icon, content);
+    Optional<FormTag> maybeOptionalToggle =
+        renderOptionalToggle(
+            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
-      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> row.with(toggle));
-      maybeOptionalToggle.ifPresent(row::with);
-      row.with(
+      if (maybeAddressCorrectionEnabledToggle.isPresent()) {
+        rowContent.add(maybeAddressCorrectionEnabledToggle.get());
+      }
+      if (maybeOptionalToggle.isPresent()) {
+        rowContent.add(maybeOptionalToggle.get());
+      }
+      rowContent.add(
           this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
@@ -773,7 +725,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionDefinition,
               questionIndex,
               questionsCount));
-      row.with(
+      rowContent.add(
           renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
@@ -787,14 +739,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        row.with(renderReadOnlyLabel(label));
+        rowContent.add(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        row.with(renderReadOnlyLabel(label));
+        rowContent.add(renderReadOnlyLabel(label));
       }
     }
-    return ret.with(row);
+    return AdminLayout.renderQuestionForProgramPage(
+        questionDefinition, malformedQuestionDefinition, rowContent.build());
   }
 
   /**
