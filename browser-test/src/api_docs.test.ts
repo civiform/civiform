@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page, seeding}) => {
@@ -151,7 +152,6 @@ test.describe('Viewing API docs', () => {
   }) => {
     await page.goto('/')
     await loginAsAdmin(page)
-
     await adminPrograms.publishAllDrafts()
 
     await page.getByRole('link', {name: 'API docs'}).click()
@@ -194,5 +194,28 @@ test.describe('Viewing API docs', () => {
       page.locator('.cf-accordion'),
       'api-docs-page-accordion-open',
     )
+  })
+
+  test('External programs are not shown in program options', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await adminPrograms.addExternalProgram(
+      'External Program Name',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+
+    await page.getByRole('link', {name: 'API docs'}).click()
+    await waitForPageJsLoad(page)
+
+    await expect(
+      page.getByRole('combobox', {name: 'Program'}),
+    ).not.toContainText('external-program-name')
   })
 })

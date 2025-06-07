@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
   const program1 = 'comprehensive-sample-program'
@@ -53,6 +54,22 @@ test.describe('Viewing API docs', () => {
         .selectOption('swagger-v2')
       await waitForPageJsLoad(page)
       await expect(page.getByRole('heading', {name: program2})).toBeAttached()
+    })
+
+    await test.step('Add external program does not show in program options', async () => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+      await adminPrograms.addExternalProgram(
+        'External Program Name',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+      await page.goto('/docs/api/schemas')
+      await waitForPageJsLoad(page)
+
+      await expect(
+        page.getByRole('combobox', {name: 'Program'}),
+      ).not.toContainText('external-program-name')
     })
   })
 })

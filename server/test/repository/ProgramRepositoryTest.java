@@ -353,6 +353,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getAllNonExternalProgramNames() {
+    resourceCreator.insertActiveExternalProgram("external program name");
+    resourceCreator.insertActiveProgram("default program name");
+
+    ImmutableSet<String> result = repo.getAllNonExternalProgramNames();
+
+    assertThat(result).isEqualTo(ImmutableSet.of("default program name"));
+  }
+
+  @Test
   public void getVersionsForProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 

@@ -26,6 +26,7 @@ import play.Mode;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
+import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
@@ -151,6 +152,10 @@ public class ResourceCreator {
 
   public ProgramModel insertActiveCommonIntakeForm(String name) {
     return ProgramBuilder.newActiveCommonIntakeForm(name).build();
+  }
+
+  public ProgramModel insertActiveExternalProgram(String name) {
+    return ProgramBuilder.newActiveProgram().withProgramType(ProgramType.EXTERNAL).build();
   }
 
   public ProgramModel insertDraftProgram(String name) {

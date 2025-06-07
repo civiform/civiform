@@ -139,7 +139,7 @@ public final class OpenApiSchemaController {
     }
 
     if (programSlug.isEmpty()) {
-      programSlug = programService.getAllProgramSlugs().stream().findFirst().orElse("");
+      programSlug = programService.getAllNonExternalProgramSlugs().stream().findFirst().orElse("");
     }
 
     // This will only happen if there are no programs at all in the system
@@ -157,7 +157,8 @@ public final class OpenApiSchemaController {
 
       SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
 
-      return ok(schemaView.render(request, form, url, programService.getAllProgramSlugs()));
+      return ok(
+          schemaView.render(request, form, url, programService.getAllNonExternalProgramSlugs()));
     } catch (RuntimeException ex) {
       return internalServerError();
     }

@@ -286,7 +286,7 @@ public final class ApiKeyService {
 
   private ApiKeyGrants resolveGrants(DynamicForm form) {
     ApiKeyGrants grants = new ApiKeyGrants();
-    ImmutableSet<String> programSlugs = programService.getAllProgramSlugs();
+    ImmutableSet<String> programSlugs = programService.getAllNonExternalProgramSlugs();
 
     for (String formDataKey : form.rawData().keySet()) {
       Matcher matcher = GRANT_PROGRAM_READ_PATTERN.matcher(formDataKey);
