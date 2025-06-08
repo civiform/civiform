@@ -13,6 +13,7 @@ import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import models.SettingsGroupModel;
@@ -46,12 +47,16 @@ public final class SettingsService {
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
+  private final SettingsCache settingsCache;
 
   @Inject
   public SettingsService(
-      SettingsGroupRepository settingsGroupRepository, SettingsManifest settingsManifest) {
+      SettingsGroupRepository settingsGroupRepository,
+      SettingsManifest settingsManifest,
+      SettingsCache settingsCache) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.settingsCache = checkNotNull(settingsCache);
   }
 
   /**
@@ -59,9 +64,8 @@ public final class SettingsService {
    * an empty map.
    */
   public CompletionStage<Optional<ImmutableMap<String, String>>> loadSettings() {
-    return settingsGroupRepository
-        .getCurrentSettings()
-        .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroupModel::getSettings));
+    return CompletableFuture.completedFuture(
+        settingsCache.get().map(SettingsGroupModel::getSettings));
   }
 
   /**
