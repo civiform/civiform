@@ -121,6 +121,7 @@ public final class AdminQuestionController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request, String type, String redirectUrl) {
     QuestionType questionType;
+
     try {
       questionType = QuestionType.of(type);
     } catch (InvalidQuestionTypeException e) {

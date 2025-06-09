@@ -511,6 +511,7 @@ public final class SampleQuestionDefinitions {
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
+      case YES_NO -> RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId(); // TODO: update this
       case NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }

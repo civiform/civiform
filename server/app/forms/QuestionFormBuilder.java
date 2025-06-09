@@ -45,6 +45,7 @@ public final class QuestionFormBuilder {
           formFactory.form(StaticContentQuestionForm.class).bindFromRequest(request).get();
       case TEXT -> formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       case PHONE -> formFactory.form(PhoneQuestionForm.class).bindFromRequest(request).get();
+      case YES_NO -> formFactory.form(YesNoQuestionForm.class).bindFromRequest(request).get();
       default -> throw new InvalidQuestionTypeException(questionType.toString());
     };
   }
@@ -67,6 +68,7 @@ public final class QuestionFormBuilder {
       case STATIC -> new StaticContentQuestionForm();
       case TEXT -> new TextQuestionForm();
       case PHONE -> new PhoneQuestionForm();
+      case YES_NO -> new YesNoQuestionForm();
       default -> throw new UnsupportedQuestionTypeException(questionType);
     };
   }
