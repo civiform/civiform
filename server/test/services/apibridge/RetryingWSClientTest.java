@@ -4,10 +4,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -78,6 +81,34 @@ public class RetryingWSClientTest extends ResetPostgres {
 
     assertExpectedMethodsCalled(wsClient, 4, 3);
     assertThat(wsResponse.getStatus()).isEqualTo(expectedHttpResponseCode);
+  }
+
+  /**
+   * This test does not use the mock web services. It differs from the rest in order to check that
+   * it doesn't try to parse the `Retry-After` header if it isn't included with the http 429
+   * response.
+   *
+   * <p>This test is heavily mocked to check for this specific case and should not be used as a
+   * pattern for the other tests in this class.
+   */
+  @Test
+  public void http_429_response_without_retry_after_header_does_not_user_retry_after_interval() {
+    RetryingWSClient retryingWSClient =
+        spy(
+            new RetryingWSClient(
+                mock(WSClient.class),
+                retryAfterHeaderParser,
+                scheduler,
+                instanceOf(ApiBridgeExecutionContext.class),
+                1L));
+
+    WSResponse mockResponse = mock(WSResponse.class);
+    when(mockResponse.getStatus()).thenReturn(429);
+    when(mockResponse.getUri()).thenReturn(URI.create("http://localhost.localdomain"));
+
+    retryingWSClient.handleResponse(mockResponse, 1, () -> null);
+
+    assertExpectedMethodsCalled(retryingWSClient, 1, 0);
   }
 
   @Test
