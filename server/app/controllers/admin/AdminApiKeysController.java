@@ -17,6 +17,8 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
+import services.program.ActiveAndDraftPrograms;
+import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexView;
@@ -92,7 +94,12 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    ImmutableSet<String> programNames = programService.getActiveProgramNames();
+    ActiveAndDraftPrograms allPrograms = programService.getActiveAndDraftPrograms();
+
+    ImmutableSet<String> programNames = allPrograms.getActivePrograms().stream()
+        .filter(program -> program.externalLink() == null || program.externalLink().isBlank())
+        .map(ProgramDefinition::adminName)
+        .collect(ImmutableSet.toImmutableSet());
 
     if (programNames.isEmpty()) {
       return ok(newOneView.renderNoPrograms(request));
