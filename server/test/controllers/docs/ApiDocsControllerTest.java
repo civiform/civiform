@@ -1,6 +1,7 @@
 package controllers.docs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ResetPostgres;
+import services.program.ProgramType;
 import support.ProgramBuilder;
 
 public class ApiDocsControllerTest extends ResetPostgres {
@@ -35,6 +37,20 @@ public class ApiDocsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .isEqualTo(Optional.of("/docs/api/programs/test-program-1/active"));
+  }
+
+  @Test
+  public void index_externalProgramOnly_notFound() {
+    resetTables();
+    ProgramBuilder.newActiveProgram("Test External Program 1")
+        .withProgramType(ProgramType.EXTERNAL)
+        .buildDefinition();
+
+    Request request = fakeRequest();
+    Result result = instanceOf(ApiDocsController.class).index(request);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(contentAsString(result)).contains("No programs found");
   }
 
   @Test

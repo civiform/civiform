@@ -108,6 +108,7 @@ test.describe('program migration', () => {
     // TODO(#7582): Add a test to test that clicking the "Copy JSON" button works
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('import errors', async ({
     page,
     adminPrograms,
@@ -299,8 +300,242 @@ test.describe('program migration', () => {
     })
   })
 
-  // TODO: #9628 - add a test for import errors with duplicate-handling UI enabled, such as "Overwriting
-  // question definitions is only supported when there are no existing drafts"
+  test('duplicate-handling import errors', async ({
+    page,
+    adminPrograms,
+    adminProgramMigration,
+    adminTiGroups,
+    seeding,
+  }) => {
+    test.slow()
+
+    await test.step('load import page', async () => {
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'import_duplicate_handling_options_enabled')
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+    })
+
+    await test.step('malformed: missing "', async () => {
+      await adminProgramMigration.submitProgramJson(
+        '{"adminName: "mismatched-double-quote"}',
+      )
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
+      await validateScreenshot(
+        page.locator('main'),
+        'import-page-with-error-parse',
+      )
+    })
+
+    await test.step('malformed: not matching {}', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      await adminProgramMigration.submitProgramJson(
+        '{"adminName": "mismatched-brackets"',
+      )
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('malformed: missing ,', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      await adminProgramMigration.submitProgramJson(
+        '{"adminName": "missing-comma" "adminDescription": "missing-comma-description"}',
+      )
+      await adminProgramMigration.expectAlert('Error processing JSON')
+    })
+
+    await test.step('malformed: missing program field', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      // The JSON itself is correctly formatted but it should have a top-level "program" field
+      await adminProgramMigration.submitProgramJson(
+        '{"adminName": "missing-program-field", "adminDescription": "missing-field-description"}',
+      )
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('malformed: missing required program info', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      // The JSON itself is correctly formatted but it doesn't have all the fields
+      // that we need to build a ProgramDefinition
+      await adminProgramMigration.submitProgramJson(
+        '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
+      )
+      await adminProgramMigration.expectAlert(
+        'Error processing JSON',
+        ALERT_ERROR,
+      )
+      await validateScreenshot(
+        page,
+        'import-page-with-error-missing-program-fields',
+      )
+    })
+
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+    await adminPrograms.goToExportProgramPage(
+      'Comprehensive Sample Program',
+      ProgramLifecycle.DRAFT,
+    )
+    const downloadedComprehensiveProgram =
+      await adminProgramMigration.downloadJson()
+
+    await test.step('error: program already exists', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'This program already exists in our system.',
+        ALERT_ERROR,
+      )
+      await validateScreenshot(
+        page,
+        'import-page-with-error-program-already-exists',
+      )
+    })
+
+    await test.step('error: invalid program admin name', async () => {
+      // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
+      // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
+      await adminProgramMigration.clickButton('Try again')
+      // replace the program admin name with an invalid admin name to trigger an error
+      const comprehensiveProgramBadName =
+        downloadedComprehensiveProgram.replace(
+          'comprehensive-sample-program',
+          'comprehensive-sample-program ##4L!',
+        )
+      await adminProgramMigration.submitProgramJson(comprehensiveProgramBadName)
+      await adminProgramMigration.expectAlert(
+        'One or more program errors occured:',
+        ALERT_ERROR,
+      )
+      await adminProgramMigration.expectAlert(
+        'A program admin name may only contain lowercase letters, numbers, and dashes.',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('error: invalid question admin name', async () => {
+      // this tests that we will catch errors that bubble up from the questionDefinition.validate
+      // there are other errors that might bubble up (such as a blank question text) but we don't need to test them all
+      await adminProgramMigration.clickButton('Try again')
+      // set the program admin name back to a valid admin name
+      const comprehensiveProgramBadQuestionName = downloadedComprehensiveProgram
+        .replace(
+          'comprehensive-sample-program',
+          'comprehensive-sample-program-new',
+        )
+        // replace the question admin name with a blank string to trigger an error
+        .replace('Sample Address Question', '')
+        // replace one of the multi-option question admin names with an invalid admin name
+        // we should not be validating multi-option question admin names as a part of program migration
+        .replace('chocolate', 'Chocolate ice cream')
+
+      await adminProgramMigration.submitProgramJson(
+        comprehensiveProgramBadQuestionName,
+      )
+      const alert = await adminProgramMigration.expectAlert(
+        'One or more question errors occured:',
+        ALERT_ERROR,
+      )
+      await expect(alert).toContainText(
+        'Administrative identifier cannot be blank.',
+      )
+      await expect(alert).not.toContainText(
+        'Multi-option admin names can only contain lowercase letters, numbers, underscores, and dashes',
+      )
+    })
+
+    await test.step('error: SELECT_TI visibility not allowed', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
+      await adminTiGroups.editGroup('groupOne')
+      await adminTiGroups.addGroupMember('groupOne@bar.com')
+      await adminPrograms.addProgram(
+        'New Program',
+        'program description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.SELECT_TI,
+        'admin description',
+        ProgramType.DEFAULT,
+        'groupOne',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.goToExportProgramPage('New Program', 'DRAFT')
+      let downloadedProgram = await adminProgramMigration.downloadJson()
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      // replace admin name to avoid collision
+      downloadedProgram = downloadedProgram.replace(
+        'new-program',
+        'new-new-program',
+      )
+      await adminProgramMigration.submitProgramJson(downloadedProgram)
+      await adminProgramMigration.expectAlert(
+        "Display mode 'SELECT_TI' is not allowed.",
+      )
+    })
+
+    await test.step('error: question in program not defined in questions', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      // set the program admin name to a valid admin name
+      const comprehensiveProgramQuestionNotDefined =
+        downloadedComprehensiveProgram
+          .replace(
+            'comprehensive-sample-program',
+            'comprehensive-sample-program-new',
+          )
+          // replace the first occurrence of a question ID with a different one, so it doesn't match the question definition's ID
+          .replace(/"id" : [0-9]+,[\s]+"optional"/m, '"id" : 9999, "optional"')
+
+      await adminProgramMigration.submitProgramJson(
+        comprehensiveProgramQuestionNotDefined,
+      )
+
+      const alert = await adminProgramMigration.expectAlert(
+        'One or more question errors occured:',
+        ALERT_ERROR,
+      )
+      await expect(alert).toContainText('Question ID 9999 is not defined.')
+      await expect(alert).not.toContainText(
+        'Administrative identifier cannot be blank.',
+      )
+    })
+
+    await test.step('error: overwriting question with existing drafts', async () => {
+      await adminProgramMigration.clickButton('Try again')
+      // set the program admin name to a valid admin name
+      const comprehensiveProgramQuestionNotDefined =
+        downloadedComprehensiveProgram.replace(
+          'comprehensive-sample-program',
+          'comprehensive-sample-program-new',
+        )
+      await adminProgramMigration.submitProgramJson(
+        comprehensiveProgramQuestionNotDefined,
+      )
+      await adminProgramMigration.selectToplevelOverwriteExisting()
+
+      await adminProgramMigration.clickButtonWithSpinner('Save')
+
+      const alert = await adminProgramMigration.expectAlert(
+        'Error saving program',
+        ALERT_ERROR,
+      )
+      await expect(alert).toContainText(
+        'Overwriting question definitions is only supported when there are no existing drafts. Please publish all drafts and try again.',
+      )
+    })
+  })
 
   test('export then import', async ({
     page,
@@ -953,6 +1188,143 @@ test.describe('program migration', () => {
       await expect(
         page.getByTestId('question-admin-name-Sample Text Question'),
       ).not.toContainText('What is your LEAST favorite color?')
+    })
+  })
+
+  test('Importing with duplicate enumerators and repeated questions', async ({
+    page,
+    adminPrograms,
+    adminProgramMigration,
+    seeding,
+  }) => {
+    await test.step('seed programs', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'import_duplicate_handling_options_enabled')
+    })
+
+    let downloadedComprehensiveProgram: string
+    await test.step('export comprehensive program', async () => {
+      await adminPrograms.goToExportProgramPage(
+        'Comprehensive Sample Program',
+        ProgramLifecycle.DRAFT,
+      )
+      downloadedComprehensiveProgram =
+        await adminProgramMigration.downloadJson()
+      expect(downloadedComprehensiveProgram).toContain(
+        'comprehensive-sample-program',
+      )
+    })
+
+    await test.step('edit the comprehensive program JSON', () => {
+      // Replace the admin name so you don't get an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-new',
+      )
+      // Replace the program title so we can validate the new one shows up
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Comprehensive Sample Program',
+        'Comprehensive Sample Program New',
+      )
+    })
+
+    await test.step('import comprehensive program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+    })
+
+    await test.step('check imported comprehensive program', async () => {
+      // Assert the title and admin name are shown
+      await expect(
+        page.getByRole('heading', {
+          name: 'Comprehensive Sample Program New',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Admin name: comprehensive-sample-program-new',
+        }),
+      ).toBeVisible()
+
+      // Assert the warning about duplicate question names is shown
+      await adminProgramMigration.expectAlert(
+        'This program contains 17 duplicate questions that must be resolved.',
+        ALERT_WARNING,
+      )
+
+      const enumAlert = page.getByRole('alert').filter({
+        hasText:
+          "Duplicate repeated questions of this enumerator will also be set to 'Create a new duplicate question.'",
+      })
+      const repeatedAlert = page.getByRole('alert').filter({
+        hasText:
+          "Some options are disabled because the associated enumerator is set to 'Create a new duplicate question.'",
+      })
+      // When all questions are on the default "use existing" option, we can still select any option for repeated questions
+      await expect(enumAlert).toBeHidden()
+      await expect(repeatedAlert).toBeHidden()
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          // Just confirm that we are able to click this option
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+        ]),
+      )
+      // Set the enumerator to "Create a new duplicate" to see how it affects its repeated question(s)
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          [
+            'Sample Enumerator Question',
+            adminProgramMigration.CREATE_DUPLICATE,
+          ],
+        ]),
+      )
+      // Now we see some alerts and cannot adjust the repeated question handling
+      await expect(enumAlert).toBeVisible()
+      await expect(repeatedAlert).toBeVisible()
+      await adminProgramMigration.expectOptionSelected(
+        page.getByTestId('question-admin-name-Sample Enumerated Date Question'),
+        'Create a new duplicate question',
+      )
+      await adminProgramMigration.expectOptionsDisabledForQuestion(
+        new Map([
+          // We should no longer be able to select this
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.USE_EXISTING,
+          ],
+        ]),
+      )
+      // Validate the visual alerts and disabled options
+      await validateScreenshot(page, 'import-page-with-enumerator-duplicates')
+      // Set the enumerator to something else to "unlock" the repeated Qs
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          ['Sample Enumerator Question', adminProgramMigration.USE_EXISTING],
+        ]),
+      )
+      await expect(enumAlert).toBeHidden()
+      await expect(repeatedAlert).toBeHidden()
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          // Just confirm that we are able to click this option
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+        ]),
+      )
     })
   })
 })

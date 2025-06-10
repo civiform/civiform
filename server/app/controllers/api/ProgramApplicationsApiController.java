@@ -3,6 +3,7 @@ package controllers.api;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -90,6 +92,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                     .setUntilTime(
                         resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
                     .build())
+            .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
             .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 

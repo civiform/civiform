@@ -160,6 +160,12 @@ public final class VersionRepository {
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
+    // Note: When this is called inside a transaction it can cause potential
+    // issues for the caller, especially when in DRY_RUN. Due to the
+    // persistence cache this will change any objects the caller holds on the
+    // active and draft versions, and in DRY_RUN those changes wouldn't be
+    // reflective of the database state.
+    // TODO(#10703): Fix this.
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       VersionModel draft = getDraftVersionOrCreate();
