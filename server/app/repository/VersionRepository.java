@@ -68,6 +68,26 @@ public final class VersionRepository {
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
 
+  /**
+   * Container class to represent what would happen in previewPublishNewSynchronizedVersion() if it
+   * were not a preview.
+   *
+   * <p>Specifically this is the Draft version data after it is made the Active version.
+   *
+   * <p>This is necessary due to the Ebean persistence cache, so we can't return the DB backed
+   * VersionModel object that was updated to determine these values.
+   *
+   * <p>Note: Currently only questionToPrograms is used by production code, the rest is for tests.
+   */
+  public record DryRunPublishedVersion(
+      long id,
+      LifecycleStage lifecycleStage,
+      ImmutableList<Long> programIds,
+      ImmutableList<String> tombstonedProgramNames,
+      ImmutableList<Long> questionIds,
+      ImmutableList<String> tombstonedQuestionNames,
+      ImmutableMap<String, ImmutableSet<ProgramDefinition>> questionToPrograms) {}
+
   @Inject
   public VersionRepository(
       ProgramRepository programRepository,
@@ -99,8 +119,12 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return an updated Version
    * corresponding to what would be the new ACTIVE version.
    */
-  public VersionModel previewPublishNewSynchronizedVersion() {
-    return publishNewSynchronizedVersion(PublishMode.DRY_RUN);
+  public DryRunPublishedVersion previewPublishNewSynchronizedVersion() {
+    return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "publishNewSynchronizedVersion did not return a Dry Run version."));
   }
 
   private enum PublishMode {
@@ -108,16 +132,34 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private VersionModel publishNewSynchronizedVersion(PublishMode publishMode) {
+  private Optional<DryRunPublishedVersion> publishNewSynchronizedVersion(PublishMode publishMode) {
+    /*
+     A few transaction notes about this method:
+
+     Due to Ebean's persistence cache, data looked up from the database
+     multiple times in a transaction results in the same java object. This
+     means that the active and draft versions we are about to change, will
+     also change the same objects the caller may have already looked up and hold references to.
+
+     For PUBLISH_CHANGES, the caller does nothing else, so this is not a
+     concern currently.
+
+     For DRY_RUN, things are more complicated as the caller ActiveAndDraftQuestions does hold those
+     objects and this method makes temporary changes to those objects; which is
+     atypical. To support this we save the data that is actually needed in
+     the 'preview' process, then undo the changes, reset the version objects
+     and return the saved data.
+    */
+
+    if (publishMode.equals(PublishMode.DRY_RUN) && DB.currentTransaction() != null) {
+      // Savepoints are required to roll back the temporary changes if in a
+      // transaction already.
+      DB.currentTransaction().setNestedUseSavepoint();
+    }
+
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
-    // Note: When this is called inside a transaction it can cause potential
-    // issues for the caller, especially when in DRY_RUN. Due to the
-    // persistence cache this will change any objects the caller holds on the
-    // active and draft versions, and in DRY_RUN those changes wouldn't be
-    // reflective of the database state.
-    // TODO(#10703): Fix this.
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       VersionModel draft = getDraftVersionOrCreate();
@@ -201,15 +243,33 @@ public final class VersionRepository {
           draft.refresh();
           active.refresh();
           validateProgramQuestionState();
-          break;
+          transaction.commit();
+          return Optional.empty();
         case DRY_RUN:
-          break;
+          // Capture the dry run data to return, before resetting everything done above.
+          // The the comment at the top of the method.
+          var dryRunNewActive = buildDryRunPublishedVersion(draft);
+          transaction.rollback();
+          draft.refresh();
+          active.refresh();
+          return Optional.of(dryRunNewActive);
         default:
           throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
       }
-      transaction.commit();
-      return draft;
     }
+  }
+
+  private DryRunPublishedVersion buildDryRunPublishedVersion(VersionModel version) {
+    return new DryRunPublishedVersion(
+        /* id= */ version.id,
+        /* lifecycleStage= */ version.getLifecycleStage(),
+        /* programIds= */ version.getPrograms().stream().map(p -> p.id).collect(toImmutableList()),
+        /* tombstonedProgramNames= */ ImmutableList.copyOf(version.getTombstonedProgramNames()),
+        /* questionIds= */ version.getQuestions().stream()
+            .map(q -> q.id)
+            .collect(toImmutableList()),
+        /* tombstonedQuestionNames= */ ImmutableList.copyOf(version.getTombstonedQuestionNames()),
+        /* questionToPrograms= */ buildReferencingProgramsMap(version));
   }
 
   /**
