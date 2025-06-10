@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
+import repository.VersionRepository.PreviewPublishedVersion;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -104,7 +105,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     }
 
     // Publish and ensure that both the program and question aren't carried forward.
-    VersionRepository.DryRunPublishedVersion updated =
+    PreviewPublishedVersion updated =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(updated.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(updated.programIds()).isEmpty();
@@ -175,7 +176,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    VersionRepository.DryRunPublishedVersion toApplyNewActiveVersion =
+    PreviewPublishedVersion toApplyNewActiveVersion =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);

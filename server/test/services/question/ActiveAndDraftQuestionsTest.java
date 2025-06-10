@@ -13,6 +13,7 @@ import junitparams.Parameters;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,12 +57,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion("draft-only-question"))
         .save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getQuestionNames())
         .containsExactlyInAnyOrder(
@@ -100,12 +96,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(draftOnlyQuestion)
         .save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions questions = newActiveAndDraftQuestions();
     assertThat(
@@ -165,12 +156,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   @Parameters({"false", "true"})
   public void getDeletionStatus_notPartOfEitherVersion(Boolean useTransaction) {
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     resourceCreator.insertQuestion(TEST_QUESTION_NAME);
 
@@ -190,12 +176,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     QuestionModel draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
     versionRepository.getDraftVersionOrCreate().addQuestion(draftVersionQuestion).save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
@@ -208,12 +189,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   @Parameters({"false", "true"})
   public void getDeletionStatus_tombstoned(Boolean useTransaction) throws Exception {
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
@@ -237,12 +213,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
     addTombstoneToVersion(versionRepository.getDraftVersionOrCreate(), question);
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
@@ -261,12 +232,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
@@ -288,12 +254,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
@@ -316,12 +277,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
@@ -350,12 +306,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
@@ -371,12 +322,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -443,12 +389,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .build();
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -501,12 +442,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .withRequiredQuestion(draftQuestion)
             .build();
 
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -521,12 +457,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   @Parameters({"false", "true"})
   public void getReferencingPrograms_unrecognizedQuestion(Boolean useTransaction) {
-    Optional<Transaction> maybeTransaction = Optional.empty();
-    if (useTransaction) {
-      maybeTransaction =
-          Optional.of(
-              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
-    }
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms("random-question-name");
@@ -548,4 +479,13 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
   }
+
+  private static Optional<Transaction> maybeMakeTransaction(Boolean useTransaction) {
+    if (useTransaction) {
+      return Optional.of(
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+    }
+    return Optional.empty();
+  }
+
 }
