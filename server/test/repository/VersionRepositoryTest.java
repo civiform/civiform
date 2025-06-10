@@ -105,8 +105,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     }
 
     // Publish and ensure that both the program and question aren't carried forward.
-    PreviewPublishedVersion updated =
-        versionRepository.previewPublishNewSynchronizedVersion();
+    PreviewPublishedVersion updated = versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(updated.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(updated.programIds()).isEmpty();
     assertThat(updated.tombstonedProgramNames()).isEmpty();

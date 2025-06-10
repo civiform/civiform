@@ -13,7 +13,6 @@ import junitparams.Parameters;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -483,9 +482,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   private static Optional<Transaction> maybeMakeTransaction(Boolean useTransaction) {
     if (useTransaction) {
       return Optional.of(
-        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
     }
     return Optional.empty();
   }
-
 }

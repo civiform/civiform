@@ -75,8 +75,7 @@ public final class VersionRepository {
    * <p>Specifically this is the Draft version data after it is made the Active version.
    *
    * <p>This is necessary due to the Ebean persistence cache; we can't return the DB backed
-   * VersionModel object that was updated to determine these values as it
-   * must be reset.
+   * VersionModel object that was updated to determine these values as it must be reset.
    *
    * <p>Note: Currently only questionToPrograms is used by production code, the rest is for tests.
    */
@@ -117,9 +116,8 @@ public final class VersionRepository {
   /**
    * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
    * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
-   * next version. This method will not mutate the database and will return
-   * a copy of relevant data from the updated Version corresponding to what
-   * would be the new ACTIVE version.
+   * next version. This method will not mutate the database and will return a copy of relevant data
+   * from the updated Version corresponding to what would be the new ACTIVE version.
    */
   public PreviewPublishedVersion previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
