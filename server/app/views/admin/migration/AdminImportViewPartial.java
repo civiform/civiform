@@ -197,7 +197,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withId(PROGRAM_DATA_ID)
         .with(
             h3("Program preview"),
-            AlertComponent.renderSlimAlert(
+            AlertComponent.renderSlimInfoAlert(
                 /* text= */ "Please review the program name and details before saving.",
                 /* classes...= */ "mb-2"))
         .condWith(!questions.isEmpty(), questionAlert)
@@ -385,7 +385,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             withDuplicateHandlingOptions
                 ? renderQuestionCard(
                     Objects.requireNonNull(questionsById.get(question.id())),
-                    duplicateQuestionNames)
+                    duplicateQuestionNames,
+                    questionsById)
                 : renderQuestion(
                     Objects.requireNonNull(questionsById.get(question.id())),
                     newToOldQuestionNameMap,
@@ -450,10 +451,13 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * should be shown next to the question in the list of questions.
    */
   private DivTag renderQuestionCard(
-      QuestionDefinition questionDefinition, ImmutableList<String> duplicateQuestionNames) {
+      QuestionDefinition questionDefinition,
+      ImmutableList<String> duplicateQuestionNames,
+      ImmutableMap<Long, QuestionDefinition> questionsById) {
     String adminName = questionDefinition.getName();
     boolean questionIsUniversal = questionDefinition.isUniversal();
     boolean questionIsDuplicate = duplicateQuestionNames.contains(adminName);
+    boolean questionIsRepeated = questionDefinition.getEnumeratorId().isPresent();
 
     // TODO: #9628 - The classes below are copied from the Question Card-rendering method in
     // ProgramBlockView. We should consider factoring out the card rendering logic to a common
@@ -465,6 +469,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             // question. In the event they choose to create a new duplicate, then the de-duped
             // suffixed name will be used by the backend to create a new question.
             .withData("testid", "question-admin-name-" + adminName)
+            .withCondData(
+                questionIsRepeated,
+                "enumerator",
+                // Ternary operator to short-circuit, since otherwise `withCondData` would evaluate
+                // a null expression
+                questionIsRepeated
+                    ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
+                    : "")
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
                 "my-2",
@@ -510,14 +522,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
                     : null);
 
-    // TODO: #9628 - If this is a repeated Q, and its parent is a duplicate for which the admin opts
-    // to create a new admin name, then we should dynamically add a badge here that indicates this
-    // Q's parent will *not* be the existing parent, but rather this new duplicated enumerator Q.
     DivTag row =
         div()
             .withClasses("flex", "gap-4", "items-center")
             .with(icon, content)
-            .condWith(questionIsDuplicate, renderDuplicateQuestionHandlingOptions(adminName));
+            .condWith(
+                questionIsDuplicate, renderDuplicateQuestionHandlingOptions(questionDefinition));
     return cardDiv.with(row);
   }
 
@@ -601,19 +611,34 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * Radio group for handling a duplicate question. Renders with USWDS style. We prefer this to
    * {@link RadioButtonQuestionRenderer} for higher information density.
    *
-   * @param adminName the admin name of the question, used for both the cross-link to the question
-   *     bank and the HTML form data specifying how to handle this duplicate question.
+   * @param question the question for which duplicate-handling options should be rendered
    * @return a radio group with options for how to handle the duplicate question.
    */
-  private static FieldsetTag renderDuplicateQuestionHandlingOptions(String adminName) {
+  private static FieldsetTag renderDuplicateQuestionHandlingOptions(QuestionDefinition question) {
+    String adminName = question.getName();
     return fieldset()
         .withName(AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX)
         .withClasses("usa-fieldset", "shrink-0", "mb-4")
         .with(
             legend("How do you want to handle this duplicate question?")
-                .withClasses("usa-legend", "font-semibold", "text-base"),
-            // TODO: #9628 - Add dynamic disabling for the "use existing" options if this question
-            // has a parent enumerator question that is being duplicated with a new admin name
+                .withClasses("usa-legend", "font-semibold", "text-base"))
+        .condWith(
+            question.isEnumerator(),
+            AlertComponent.renderSlimInfoAlert(
+                "Duplicate repeated questions of this enumerator will also be set to 'Create a new"
+                    + " duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .condWith(
+            question.isRepeated(),
+            AlertComponent.renderSlimInfoAlert(
+                "Some options are disabled because the associated enumerator is set to 'Create a"
+                    + " new duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .with(
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "USE_EXISTING",
