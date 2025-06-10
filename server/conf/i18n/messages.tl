@@ -1040,3 +1040,6 @@ session.extended.success=Na-extend na ang session
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Hindi na-extend ang session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.
