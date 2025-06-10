@@ -166,10 +166,6 @@ public class ResourceCreator {
     return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
-    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
-  }
-
   public ApplicationModel insertApplication(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     return ApplicationModel.create(applicant, program, lifecycleStage);
