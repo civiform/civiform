@@ -17,6 +17,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
@@ -415,6 +416,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -442,6 +445,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("One"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -458,6 +463,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("Last"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -474,6 +481,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(emailTwo))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -490,6 +499,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("1234"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -506,6 +517,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("(1.23)- 456"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -627,6 +640,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of(""))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(
             ImmutableSet.of(
@@ -643,6 +658,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of(SECOND_STATUS.statusText()))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of(secondStatusApplication.id));
 
@@ -654,6 +671,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     .setApplicationStatus(
                         Optional.of(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of(noStatusApplication.id, backToNoStatusApplication.id));
 
@@ -664,8 +683,60 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of("some-random-status"))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of());
+  }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_filterByLifecycleStage() {
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("applicant@example.com"));
+    ApplicationModel obsoleteApplication =
+        resourceCreator.insertApplication(applicant, program, LifecycleStage.OBSOLETE);
+    ApplicationModel activeApplication =
+        resourceCreator.insertActiveApplication(applicant, program);
+
+    // Test filtering for a specific stage. Should return only the active application
+    PaginationResult<ApplicationModel> result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE))
+                .build());
+    assertThat(
+            result.getPageContents().stream().map(a -> a.id).collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(activeApplication.id);
+
+    // Test filtering for multiple stages. Should return the active and obsolete applications
+    result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+                .build());
+
+    assertThat(
+            result.getPageContents().stream().map(a -> a.id).collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(activeApplication.id, obsoleteApplication.id);
+
+    // Test filtering for a specific stage with no matches. Should return no results
+    result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(ImmutableList.of(LifecycleStage.DRAFT))
+                .build());
+    assertThat(result.getPageContents()).isEmpty();
   }
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
@@ -751,6 +822,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
