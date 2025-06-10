@@ -81,7 +81,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A primary color is the color displayed most prominently across your website. Enter the hex code
-   * for this color. Not ready for production use.
+   * for this color.
    */
   public Optional<String> getThemeColorPrimary(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY", request);
@@ -89,7 +89,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A darker version of your primary color can be applied to your website for some purposes. Enter
-   * the hex code for this color. Not ready for production use.
+   * the hex code for this color.
    */
   public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY_DARK", request);
@@ -721,7 +721,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
-  /** This email address receives error notifications from CiviForm when things break. */
+  /**
+   * This email address receives error notifications from CiviForm when there is an internal server
+   * error or a durable job fails.
+   */
   public Optional<String> getItEmailAddress(RequestHeader request) {
     return getString("IT_EMAIL_ADDRESS", request);
   }
@@ -1149,8 +1152,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY",
                           "A primary color is the color displayed most prominently across your"
-                              + " website. Enter the hex code for this color. Not ready for"
-                              + " production use.",
+                              + " website. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1158,8 +1160,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
                           "A darker version of your primary color can be applied to your website"
-                              + " for some purposes. Enter the hex code for this color. Not ready"
-                              + " for production use.",
+                              + " for some purposes. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1984,8 +1985,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "IT_EMAIL_ADDRESS",
-                          "This email address receives error notifications from CiviForm when"
-                              + " things break.",
+                          "This email address receives error notifications from CiviForm when there"
+                              + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
