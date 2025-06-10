@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 
 import java.util.Optional;
@@ -14,9 +15,13 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import services.openapi.OpenApiVersion;
+import services.program.ProgramType;
 import support.ProgramBuilder;
 
 public class OpenApiSchemaControllerTest extends ResetPostgres {
+
+  private static final String SCHEMA_UI_NO_PROGRAM_FOUND_ERROR = "Please add a program";
+
   @Before
   public void setUp() {
     resetTables();
@@ -98,16 +103,37 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void getSchemaUI_cannotFindProgram() {
+  public void getSchemaUI_noProgram_loadsFirstActive() {
     Request request = fakeRequest();
     Result result =
         instanceOf(OpenApiSchemaController.class)
-            .getSchemaByProgramSlug(
+            .getSchemaUI(
                 request,
                 "test-program-2",
                 Optional.of(LifecycleStage.ACTIVE.getValue()),
                 Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
 
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain(SCHEMA_UI_NO_PROGRAM_FOUND_ERROR);
+  }
+
+  @Test
+  public void getSchemaUI_externalProgramsOnly_noProgramFound() {
+    resetTables();
+    ProgramBuilder.newActiveProgram("Test External Program 1")
+        .withProgramType(ProgramType.EXTERNAL)
+        .buildDefinition();
+
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaUI(
+                request,
+                "",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains(SCHEMA_UI_NO_PROGRAM_FOUND_ERROR);
   }
 }
