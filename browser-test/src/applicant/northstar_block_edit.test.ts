@@ -3,6 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -109,6 +110,25 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
       page,
       'block-edit-page-theme',
       /* fullPage= */ true,
+    )
+  })
+
+  test('renders right to left on block edit page', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await selectApplicantLanguageNorthstar(page, 'ar')
+
+    await page.getByRole('link', {name: 'بدء الطلب'}).first().click()
+    // Dismiss toast saying the program's not fully translated.
+    await page.locator('#toast-container').getByText('x').click()
+
+    await validateScreenshot(
+      page,
+      'block-edit-page-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
     )
   })
 })

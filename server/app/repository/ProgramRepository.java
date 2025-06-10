@@ -58,6 +58,7 @@ public final class ProgramRepository {
   private final SyncCacheApi programCache;
   private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ProgramRepository(
@@ -74,6 +75,7 @@ public final class ProgramRepository {
     this.programCache = checkNotNull(programCache);
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
+    this.transactionManager = new TransactionManager();
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
@@ -130,6 +132,20 @@ public final class ProgramRepository {
   public ImmutableSet<String> getAllProgramNames() {
     ImmutableSet.Builder<String> names = ImmutableSet.builder();
     List<SqlRow> rows = database.sqlQuery("SELECT DISTINCT name FROM programs").findList();
+
+    for (SqlRow row : rows) {
+      names.add(row.getString("name"));
+    }
+
+    return names.build();
+  }
+
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
+    List<SqlRow> rows =
+        database
+            .sqlQuery("SELECT DISTINCT name FROM programs WHERE program_type <> 'external'")
+            .findList();
 
     for (SqlRow row : rows) {
       names.add(row.getString("name"));
@@ -348,6 +364,35 @@ public final class ProgramRepository {
         .orElseThrow(() -> new ProgramDraftNotFoundException(slug));
   }
 
+  /** Get the current active or draft program with the provided slug. */
+  public CompletableFuture<ProgramModel> getDraftOrActiveProgramFromSlug(String slug) {
+    return supplyAsync(
+        () ->
+            transactionManager.execute(
+                () -> {
+                  ImmutableList<ProgramModel> activePrograms =
+                      versionRepository
+                          .get()
+                          .getProgramsForVersion(versionRepository.get().getActiveVersion());
+                  ImmutableList<ProgramModel> draftPrograms =
+                      versionRepository
+                          .get()
+                          .getProgramsForVersion(versionRepository.get().getDraftVersion());
+                  Optional<ProgramModel> foundDraftProgram =
+                      draftPrograms.stream()
+                          .filter(draftProgram -> draftProgram.getSlug().equals(slug))
+                          .findFirst();
+
+                  return foundDraftProgram.orElseGet(
+                      () ->
+                          activePrograms.stream()
+                              .filter(activeProgram -> activeProgram.getSlug().equals(slug))
+                              .findFirst()
+                              .orElseThrow(
+                                  () -> new RuntimeException(new ProgramNotFoundException(slug))));
+                }));
+  }
+
   public ImmutableList<AccountModel> getProgramAdministrators(String programName) {
     return ImmutableList.copyOf(
         database
@@ -401,8 +446,8 @@ public final class ProgramRepository {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the application matches the specified filters. Does not include drafts or deleted
-   * applications. Results returned in reverse order that the applications were created.
+   * it where the application matches the specified filters. Results returned in reverse order that
+   * the applications were created.
    *
    * <p>Pagination is supported via the passed {@link BasePaginationSpec} object.
    */
@@ -418,9 +463,7 @@ public final class ProgramRepository {
             .fetch("applicant.account.managedByGroup")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
-            .in(
-                "lifecycle_stage",
-                ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
+            .in("lifecycle_stage", filters.lifecycleStages());
 
     if (filters.submitTimeFilter().fromTime().isPresent()) {
       query = query.where().ge("submit_time", filters.submitTimeFilter().fromTime().get());

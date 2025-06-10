@@ -155,15 +155,58 @@ public final class QuestionRepository {
   /**
    * Create multiple questions at once. Used in program migration to import all the questions in a
    * program.
+   *
+   * <p>Note: calls to this method *must* be inside a {@link Transaction}.
+   *
+   * @param questionDefinitions the questions to create
+   * @return a map of question admin ID to the question definition
    */
-  public ImmutableList<QuestionModel> bulkCreateQuestions(
+  public ImmutableMap<String, QuestionDefinition> bulkCreateQuestions(
       ImmutableList<QuestionDefinition> questionDefinitions) {
-
+    if (database.currentTransaction() == null) {
+      throw new IllegalStateException(
+          "bulkCreateQuestions must be called from within a transaction");
+    }
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
 
+    ImmutableMap<String, QuestionDefinition> updatedQuestions =
+        questionDefinitions.stream()
+            .map(
+                questionDefinition -> {
+                  try {
+                    QuestionModel newDraftQuestion =
+                        new QuestionModel(
+                            new QuestionDefinitionBuilder(questionDefinition)
+                                .setId(null)
+                                // Clear PAI tags off question before saving
+                                .setPrimaryApplicantInfoTags(ImmutableSet.of())
+                                .build());
+                    newDraftQuestion.addVersion(draftVersion);
+                    newDraftQuestion.save();
+                    newDraftQuestion.refresh();
+                    return newDraftQuestion;
+                  } catch (UnsupportedQuestionTypeException error) {
+                    throw new RuntimeException(error);
+                  }
+                })
+            .map(QuestionModel::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    return updatedQuestions;
+  }
+
+  /**
+   * Create multiple questions at once. Used in legacy program migration to import all the questions
+   * in a program within a transaction.
+   *
+   * <p>TODO: #9628 - Remove this method during cleanup
+   */
+  public ImmutableMap<String, QuestionDefinition> bulkCreateQuestionsInTransaction(
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
-      ImmutableList<QuestionModel> updatedQuestions =
+      ImmutableMap<String, QuestionDefinition> updatedQuestions =
           questionDefinitions.stream()
               .map(
                   questionDefinition -> {
@@ -177,14 +220,16 @@ public final class QuestionRepository {
                                   .build());
                       newDraftQuestion.addVersion(draftVersion);
                       newDraftQuestion.save();
+                      newDraftQuestion.refresh();
                       return newDraftQuestion;
                     } catch (UnsupportedQuestionTypeException error) {
                       throw new RuntimeException(error);
                     }
                   })
-              .collect(ImmutableList.toImmutableList());
-      transaction.commit();
+              .map(QuestionModel::getQuestionDefinition)
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
+      transaction.commit();
       return updatedQuestions;
     }
   }

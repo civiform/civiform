@@ -38,7 +38,7 @@
       },
       "THEME_COLOR_PRIMARY": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "A primary color is the color displayed most prominently across your website. Enter the hex code for this color. Not ready for production use.",
+        "description": "A primary color is the color displayed most prominently across your website. Enter the hex code for this color.",
         "type": "string",
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
@@ -50,7 +50,7 @@
       },
       "THEME_COLOR_PRIMARY_DARK": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "A darker version of your primary color can be applied to your website for some purposes. Enter the hex code for this color. Not ready for production use.",
+        "description": "A darker version of your primary color can be applied to your website for some purposes. Enter the hex code for this color.",
         "type": "string",
         "required": false,
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
@@ -634,7 +634,7 @@
       },
       "IT_EMAIL_ADDRESS": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "This email address receives error notifications from CiviForm when things break.",
+        "description": "This email address receives error notifications from CiviForm when there is an internal server error or a durable job fails.",
         "type": "string"
       },
       "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
@@ -899,6 +899,22 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
+      },
+      "NORTH_STAR_APPLICANT_UI": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "type": "bool"
+      },
+      "PROGRAM_FILTERING_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables filtering programs by category on the homepage",
+        "type": "bool"
+      },
+      "CUSTOM_THEME_COLORS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable using custom theme colors on North Star applicant UI.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -908,11 +924,6 @@
       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs between deployed environments. Note: this should only be used on new environments, since existing programs will be modified if a program with the same question gets imported.",
-        "type": "bool"
-      },
-      "PROGRAM_FILTERING_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage",
         "type": "bool"
       },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
@@ -925,20 +936,9 @@
         "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
         "type": "bool"
       },
-      "NORTH_STAR_APPLICANT_UI": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
-        "type": "bool"
-      },
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
-      },
-      "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI.",
         "type": "bool",
         "required": false
       },

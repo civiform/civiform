@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -26,21 +25,17 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void preview_redirectsToProgramReviewPage() {
+    ProgramModel program = resourceCreator().insertActiveProgram("test-slug");
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    long programId = 0;
-    Result result = controller.preview(fakeRequest(), programId);
+
+    String programSlug = "test-slug";
+    Result result = controller.preview(fakeRequest(), programSlug).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
             controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0), programId)
+                    adminAccount.ownedApplicantIds().get(0), program.id)
                 .url());
-  }
-
-  @Test
-  public void preview_noProfile_throwsException() {
-    assertThatThrownBy(() -> controller.preview(fakeRequest(), /*p rogramId =*/ 0))
-        .isInstanceOf(RuntimeException.class);
   }
 
   @Test

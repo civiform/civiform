@@ -64,6 +64,7 @@
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />
   <logger name="controllers" level="INFO" />
+  <logger name="repository" level="INFO" />
   <logger name="services" level="INFO" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
@@ -84,9 +85,11 @@
 
       io.ebean.SQL -> for SQL and bind values
       io.ebean.TXN -> for Transaction commit and rollback events
+      io.ebean.SUM -> for lazy loading queries and how they relate back to origin queries
   -->
   <logger name="io.ebean.SQL" level="OFF" />
   <logger name="io.ebean.TXN" level="OFF" />
+  <logger name="io.ebean.SUM" level="OFF" />
 
   <!--
     If the environment variable LOGBACK_CONSOLE_APPENDER is set, then it will used as the

@@ -27,11 +27,17 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: bin/build-dev-oidc
+
+      - name: Build mock-web-services
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/build-mock-web-services
+
       - name: Run tests
         run: bin/run-test-ci
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -217,4 +223,3 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
-

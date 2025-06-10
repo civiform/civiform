@@ -142,7 +142,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     DivTag formButtons =
         div()
             .with(
-                submitButton("Save").withClasses("usa-button", "mr-2"),
+                submitButton("Save").withClasses("usa-button", "mr-2").withId("hx-submit-button"),
                 asRedirectElement(
                         button("Delete and start over"), routes.AdminImportController.index().url())
                     .withClasses("usa-button", "usa-button--outline"))
@@ -156,6 +156,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
             .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
             .attr("hx-swap", "outerHTML")
+            .attr("hx-indicator", "#hx-submit-button")
+            .attr("hx-disabled-elt", "#hx-submit-button")
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
@@ -164,8 +166,9 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .getTextareaTag()
                     .withClass("hidden"))
             .condWith(!duplicateHandlingOptionsEnabled, formButtons)
-            // TODO: #9628 - Add styling to signal that the program is saving, as it can take a few
-            // seconds
+            .condWith(
+                duplicateHandlingOptionsEnabled && duplicateQuestionNames.size() > 1,
+                renderToplevelDuplicateQuestionHandlingOptions())
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
     for (BlockDefinition block : program.blockDefinitions()) {
@@ -194,7 +197,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withId(PROGRAM_DATA_ID)
         .with(
             h3("Program preview"),
-            AlertComponent.renderSlimAlert(
+            AlertComponent.renderSlimInfoAlert(
                 /* text= */ "Please review the program name and details before saving.",
                 /* classes...= */ "mb-2"))
         .condWith(!questions.isEmpty(), questionAlert)
@@ -282,6 +285,28 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     AlertType alertType = AlertType.INFO;
     String alertMessage = "";
 
+    if (withDuplicateHandlingOptions) {
+      alertMessage += "This program ";
+      if (numNewQuestions > 0) {
+        alertMessage +=
+            String.format(
+                "will add %d new question%s to the question bank",
+                numNewQuestions, numNewQuestions > 1 ? "s" : "");
+        if (numDuplicateQuestions > 0) {
+          alertMessage += " and ";
+        }
+      }
+      if (numDuplicateQuestions > 0) {
+        alertType = AlertType.WARNING;
+        alertMessage +=
+            String.format(
+                "contains %d duplicate question%s that must be resolved",
+                numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
+      }
+      alertMessage += ".";
+      return AlertComponent.renderSlimAlert(
+          alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
+    }
     if (withDuplicates || numNewQuestions > 0) {
       alertMessage += "Importing this program will add ";
     }
@@ -290,7 +315,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       alertMessage += buildAlertWithNewQuestions(numNewQuestions);
 
       if (numDuplicateQuestions > 0) {
-        alertType = AlertType.WARNING;
         alertMessage += withDuplicates ? " and " : " to the question bank. ";
       } else if (withDuplicates || numDuplicateQuestions == 0) {
         alertMessage += " to the question bank.";
@@ -304,10 +328,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
       }
     }
-    if (withDuplicateHandlingOptions) {
-      return AlertComponent.renderSlimAlert(
-          alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
-    }
+
     return AlertComponent.renderFullAlert(
         alertType,
         alertMessage,
@@ -364,7 +385,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             withDuplicateHandlingOptions
                 ? renderQuestionCard(
                     Objects.requireNonNull(questionsById.get(question.id())),
-                    duplicateQuestionNames)
+                    duplicateQuestionNames,
+                    questionsById)
                 : renderQuestion(
                     Objects.requireNonNull(questionsById.get(question.id())),
                     newToOldQuestionNameMap,
@@ -429,10 +451,13 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * should be shown next to the question in the list of questions.
    */
   private DivTag renderQuestionCard(
-      QuestionDefinition questionDefinition, ImmutableList<String> duplicateQuestionNames) {
+      QuestionDefinition questionDefinition,
+      ImmutableList<String> duplicateQuestionNames,
+      ImmutableMap<Long, QuestionDefinition> questionsById) {
     String adminName = questionDefinition.getName();
     boolean questionIsUniversal = questionDefinition.isUniversal();
     boolean questionIsDuplicate = duplicateQuestionNames.contains(adminName);
+    boolean questionIsRepeated = questionDefinition.getEnumeratorId().isPresent();
 
     // TODO: #9628 - The classes below are copied from the Question Card-rendering method in
     // ProgramBlockView. We should consider factoring out the card rendering logic to a common
@@ -444,6 +469,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             // question. In the event they choose to create a new duplicate, then the de-duped
             // suffixed name will be used by the backend to create a new question.
             .withData("testid", "question-admin-name-" + adminName)
+            .withCondData(
+                questionIsRepeated,
+                "enumerator",
+                // Ternary operator to short-circuit, since otherwise `withCondData` would evaluate
+                // a null expression
+                questionIsRepeated
+                    ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
+                    : "")
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
                 "my-2",
@@ -489,14 +522,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
                     : null);
 
-    // TODO: #9628 - If this is a repeated Q, and its parent is a duplicate for which the admin opts
-    // to create a new admin name, then we should dynamically add a badge here that indicates this
-    // Q's parent will *not* be the existing parent, but rather this new duplicated enumerator Q.
     DivTag row =
         div()
             .withClasses("flex", "gap-4", "items-center")
             .with(icon, content)
-            .condWith(questionIsDuplicate, renderDuplicateQuestionHandlingOptions(adminName));
+            .condWith(
+                questionIsDuplicate, renderDuplicateQuestionHandlingOptions(questionDefinition));
     return cardDiv.with(row);
   }
 
@@ -541,21 +572,73 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   /**
-   * Renders a radio group with USWDS style. We prefer this to {@link RadioButtonQuestionRenderer}
-   * for higher information density.
+   * Radio group for handling all duplicate questions. Renders with USWDS style. We prefer this to
+   * {@link RadioButtonQuestionRenderer} for higher information density.
+   */
+  private static FieldsetTag renderToplevelDuplicateQuestionHandlingOptions() {
+    return fieldset()
+        .withName(AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD)
+        .withClasses("usa-fieldset", "my-4")
+        .withData("testid", "toplevel-duplicate-handling")
+        .with(
+            legend("How do you want to handle all duplicate questions?")
+                .withClasses("usa-legend", "font-semibold", "text-base"),
+            div("Selecting an option for any individual question will override this selection")
+                .withClasses("text-gray-500"),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "DECIDE_FOR_EACH",
+                "Decide for each duplicate question individually",
+                true),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "USE_EXISTING",
+                "Use the existing questions",
+                false),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "CREATE_DUPLICATE",
+                "Create new duplicate questions",
+                false),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "OVERWRITE_EXISTING",
+                "Overwrite all instances of the existing questions",
+                false));
+  }
+
+  /**
+   * Radio group for handling a duplicate question. Renders with USWDS style. We prefer this to
+   * {@link RadioButtonQuestionRenderer} for higher information density.
    *
-   * @param adminName the admin name of the question, used for both the cross-link to the question
-   *     bank and the HTML form data specifying how to handle this duplicate question.
+   * @param question the question for which duplicate-handling options should be rendered
    * @return a radio group with options for how to handle the duplicate question.
    */
-  private static FieldsetTag renderDuplicateQuestionHandlingOptions(String adminName) {
+  private static FieldsetTag renderDuplicateQuestionHandlingOptions(QuestionDefinition question) {
+    String adminName = question.getName();
     return fieldset()
+        .withName(AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX)
         .withClasses("usa-fieldset", "shrink-0", "mb-4")
         .with(
             legend("How do you want to handle this duplicate question?")
-                .withClasses("usa-legend", "font-semibold", "text-base"),
-            // TODO: #9628 - Add dynamic disabling for the "use existing" options if this question
-            // has a parent enumerator question that is being duplicated with a new admin name
+                .withClasses("usa-legend", "font-semibold", "text-base"))
+        .condWith(
+            question.isEnumerator(),
+            AlertComponent.renderSlimInfoAlert(
+                "Duplicate repeated questions of this enumerator will also be set to 'Create a new"
+                    + " duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .condWith(
+            question.isRepeated(),
+            AlertComponent.renderSlimInfoAlert(
+                "Some options are disabled because the associated enumerator is set to 'Create a"
+                    + " new duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .with(
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "USE_EXISTING",
@@ -569,7 +652,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "OVERWRITE_EXISTING",
-                span("Overwrite all instances of ").with(renderExistingQuestionLink(adminName)),
+                span("Overwrite all instances of the ").with(renderExistingQuestionLink(adminName)),
                 false));
   }
 

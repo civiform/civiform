@@ -178,7 +178,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
                 .withClasses(HEADER_BUTTON_STYLES),
-            routes.AdminProgramPreviewController.preview(programDefinition.id()).url());
+            routes.AdminProgramPreviewController.preview(programDefinition.slug()).url());
       case DOWNLOAD_PDF_PREVIEW:
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)

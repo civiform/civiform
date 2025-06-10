@@ -96,64 +96,40 @@ public class EsriTestHelper {
   private final EsriClient client;
 
   public EsriTestHelper(TestType testType) {
-    ServerSettings serverSettings;
-
-    switch (testType) {
-      case STANDARD:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidates.json");
-        break;
-      case STANDARD_WITH_LINE_2:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesWithLine2.json");
-        break;
-      case NO_CANDIDATES:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesNoCandidates.json");
-        break;
-      case EMPTY_RESPONSE:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesEmptyResponse.json");
-      case ESRI_ERROR_RESPONSE:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/esriErrorResponse.json");
-        break;
-      case ERROR:
-        serverSettings = createServerSettingsThatReturnError("/findAddressCandidates");
-        break;
-      case SERVICE_AREA_VALIDATION:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeatures.json");
-        break;
-      case SERVICE_AREA_VALIDATION_NOT_INCLUDED:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNotInArea.json");
-        break;
-      case SERVICE_AREA_VALIDATION_NO_FEATURES:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNoFeatures.json");
-        break;
-      case SERVICE_AREA_VALIDATION_ERROR:
-        serverSettings = createServerSettingsThatReturnError("/query");
-        break;
-      case LEGACY_SINGLE_URL_CONFIG_SETTING:
-        serverSettings = createServerSettingsUsingOldConfigValueThatReturnOk();
-        break;
-      case MULTIPLE_ENDPOINTS:
-        serverSettings = createServerSettingsThatReturnMultiEndpoints();
-        break;
-      case FAKE:
-        serverSettings = createServerSettingsThatReturnFakeClient();
-        break;
-      default:
-        throw new NotImplementedException(
-            String.format("Could not create EsriTestHelper for TestType: %s", testType));
-    }
+    ServerSettings serverSettings =
+        switch (testType) {
+          case STANDARD ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidates.json");
+          case STANDARD_WITH_LINE_2 ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesWithLine2.json");
+          case NO_CANDIDATES ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesNoCandidates.json");
+          case EMPTY_RESPONSE ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesEmptyResponse.json");
+          case ESRI_ERROR_RESPONSE ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/esriErrorResponse.json");
+          case ERROR -> createServerSettingsThatReturnError("/findAddressCandidates");
+          case SERVICE_AREA_VALIDATION ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeatures.json");
+          case SERVICE_AREA_VALIDATION_NOT_INCLUDED ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNotInArea.json");
+          case SERVICE_AREA_VALIDATION_NO_FEATURES ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNoFeatures.json");
+          case SERVICE_AREA_VALIDATION_ERROR -> createServerSettingsThatReturnError("/query");
+          case LEGACY_SINGLE_URL_CONFIG_SETTING ->
+              createServerSettingsUsingOldConfigValueThatReturnOk();
+          case MULTIPLE_ENDPOINTS -> createServerSettingsThatReturnMultiEndpoints();
+          case FAKE -> createServerSettingsThatReturnFakeClient();
+          default -> {
+            throw new NotImplementedException(
+                String.format("Could not create EsriTestHelper for TestType: %s", testType));
+          }
+        };
 
     server = serverSettings.getServer();
     ws = serverSettings.getWsClient();

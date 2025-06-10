@@ -10,18 +10,13 @@ import {
   logout,
   normalizeElements,
   selectApplicantLanguageNorthstar,
-  setDirRtl,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {
-  ProgramCategories,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -333,8 +328,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test.describe('program filtering', () => {
+    const externalProgramName = 'External Program'
+
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
 
       await test.step('seed categories', async () => {
         await seeding.seedProgramsAndCategories()
@@ -354,6 +352,20 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           /* isActive= */ true,
         )
       })
+
+      await test.step('add external program with categories', async () => {
+        await adminPrograms.addExternalProgram(
+          externalProgramName,
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+        )
+        await adminPrograms.selectProgramCategories(
+          externalProgramName,
+          [ProgramCategories.GENERAL],
+          /* isActive= */ false,
+        )
+      })
     })
 
     test('Displays category tags on program cards', async ({
@@ -363,16 +375,23 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await test.step('publish programs with categories', async () => {
         await adminPrograms.publishAllDrafts()
       })
-
       await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
         await logout(page)
         await loginAsTestUser(page)
+
         const primaryProgramCard = page.locator('.cf-application-card', {
           has: page.getByText(primaryProgramName),
         })
         await expect(primaryProgramCard.getByText('Education')).toBeVisible()
         await expect(primaryProgramCard.getByText('Healthcare')).toBeVisible()
         await expect(primaryProgramCard.getByText('General')).toBeHidden()
+
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(externalProgramCard.getByText('Education')).toBeHidden()
+        await expect(externalProgramCard.getByText('Healthcare')).toBeHidden()
+        await expect(externalProgramCard.getByText('General')).toBeVisible()
       })
     })
 
@@ -437,8 +456,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await logout(page)
       })
 
-      await test.step('change html to right to left', async () => {
-        await setDirRtl(page)
+      await test.step('change language to Arabic', async () => {
+        await selectApplicantLanguageNorthstar(page, 'ar')
       })
 
       await test.step('validate screenshot desktop', async () => {
@@ -474,6 +493,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -487,7 +507,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.locator(
             '#unfiltered-programs .usa-card-group .cf-application-card',
           ),
-        ).toHaveCount(4)
+        ).toHaveCount(5)
       })
 
       await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
@@ -502,6 +522,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -528,6 +549,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -551,7 +573,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
-            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInRecommendedSection: [
+              otherProgramName,
+              externalProgramName,
+            ],
             expectedProgramsInOtherProgramsSection: [
               'Minimal Sample Program',
               'Comprehensive Sample Program',
@@ -564,7 +589,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         // Check the program count in the section headings
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeVisible()
         await expect(
@@ -586,6 +611,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -616,7 +642,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         // Check the program count in the section headings
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeVisible()
         await expect(
@@ -641,11 +667,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.locator(
             '#not-started-programs .usa-card-group .cf-application-card',
           ),
-        ).toHaveCount(4)
+        ).toHaveCount(5)
 
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeHidden()
         await expect(
@@ -668,14 +694,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminPrograms.addProgram(
+      await adminPrograms.addPreScreenerNS(
         preScreenerFormProgramName,
-        'program description',
         'short program description',
-        'https://usa.gov',
         ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.PRE_SCREENER,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
@@ -901,8 +923,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   test('formats index page correctly for right to left languages', async ({
     page,
   }) => {
-    await test.step('change html to right to left', async () => {
-      await setDirRtl(page)
+    await test.step('change language to Arabic', async () => {
+      await selectApplicantLanguageNorthstar(page, 'ar')
     })
 
     await test.step('validate screenshot desktop', async () => {
@@ -1119,14 +1141,10 @@ test.describe(
       await test.step('create program with image as admin', async () => {
         await loginAsAdmin(page)
         const preScreenerFormProgramName = 'Benefits finder'
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerFormProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)
@@ -1278,14 +1296,11 @@ test.describe(
 
         // Feature flag must be enabled to be able to add an external program
         await enableFeatureFlag(page, 'external_program_cards_enabled')
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           /* externalLink= */ 'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
         await adminPrograms.publishProgram(externalProgramName)
         await logout(page)
@@ -1323,23 +1338,17 @@ test.describe(
         await enableFeatureFlag(page, 'external_program_cards_enabled')
 
         await loginAsAdmin(page)
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramAName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           externalProgramALink,
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramBName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           externalProgramBLink,
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
         await adminPrograms.publishAllDrafts()
         await logout(page)
@@ -1365,13 +1374,15 @@ test.describe(
           has: page.getByText(externalProgramAName),
         })
         await expect(
-          externalProgramCard.getByRole('button', {name: 'View in new window'}),
+          externalProgramCard.getByRole('button', {
+            name: 'View External Program A in new tab',
+          }),
         ).toBeVisible()
 
         await validateAccessibility(page)
       })
 
-      await test.step("card for external program A opens a modal which redirects to the extenal program A's site", async () => {
+      await test.step('card for external program A opens a modal', async () => {
         await applicantQuestions.clickApplyProgramButton(externalProgramAName)
 
         // Verify external program modal is visible
@@ -1386,31 +1397,171 @@ test.describe(
             "To go to the program's website where you can get more details and apply, click Continue",
           ),
         ).toBeVisible()
-        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
         await expect(continueButton).toBeVisible()
         await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+      })
 
-        // Clicking continue should redirect to the external program A's site
+      await test.step("accepting external program A modal redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
         await continueButton.click()
-        await expect(page).toHaveURL(externalProgramALink)
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramALink)
+
+        await newPage.close()
       })
 
       await test.step('go back to the applicant home page', async () => {
         await page.goto(BASE_URL)
       })
 
-      await test.step("card for external program B opens a modal which redirects to the external program B's site", async () => {
+      await test.step('card for external program B opens a modal', async () => {
         await applicantQuestions.clickApplyProgramButton(externalProgramBName)
 
-        // Verify external program modal is visible. We don't need to check
-        // every element since last step verified it
+        // We don't need to check each modal element's visibility since
+        // previous step verified them
         const modal = page.getByRole('dialog', {state: 'visible'})
-        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
         await expect(continueButton).toBeVisible()
+      })
 
-        // Clicking continue should redirect to the external program B's site
+      await test.step("accepting external program B modal redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
         await continueButton.click()
-        await expect(page).toHaveURL(externalProgramBLink)
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramBLink)
+
+        await newPage.close()
+      })
+    })
+
+    test('External program cards are included in program filters', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      seeding,
+    }) => {
+      const externalProgramName = 'External Program'
+      const externalProgramLink = 'https://civiform.us'
+
+      await test.step('enable required features', async () => {
+        await enableFeatureFlag(page, 'program_filtering_enabled')
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+      })
+
+      await test.step('seed categories', async () => {
+        // The program filtering feature requires seeding the categories. This
+        // will add two programs: "Comprehensive Sample Program" and "Minimal
+        // Sample Program".
+        await seeding.seedProgramsAndCategories()
+        await page.goto('/')
+      })
+
+      await test.step("add an external program with 'Education' category", async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addExternalProgram(
+          externalProgramName,
+          /* shortDescription= */ 'description',
+          externalProgramLink,
+          ProgramVisibility.PUBLIC,
+        )
+        await adminPrograms.selectProgramCategories(
+          externalProgramName,
+          [ProgramCategories.EDUCATION],
+          /* isActive= */ false,
+        )
+
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step("filter programs by 'Education' category", async () => {
+        await loginAsTestUser(page)
+        await applicantQuestions.filterProgramsByCategory('Education')
+      })
+
+      await test.step("external program card appeasrs in the 'Recommended' section", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [externalProgramName],
+            expectedProgramsInOtherProgramsSection: [
+              'Comprehensive Sample Program',
+              'Minimal Sample Program',
+            ],
+          },
+          /* filtersOn= */ true,
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await test.step('clicking on external program card opens a modal', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step("selecting 'go back' closes the modal", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const goBackButton = modal.getByRole('button', {name: 'Go back'})
+        await expect(goBackButton).toBeVisible()
+        await goBackButton.click()
+        await expect(modal).toBeHidden()
+      })
+
+      await test.step('trigger the external program modal again', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step('clicking outside the modal closes the modal', async () => {
+        const modalWrapper = page
+          .locator('.usa-modal-wrapper')
+          .filter({hasText: 'This will open a different website'})
+        const wrapperBox = await modalWrapper.boundingBox()
+        // Click in the wrapper top left corner, which should  be outside the
+        // actual amodal
+        if (wrapperBox) {
+          await page.mouse.click(wrapperBox.x, wrapperBox.y)
+        }
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await expect(modal).toBeHidden()
+      })
+
+      await test.step('trigger the external program modal again', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step("selecting 'continue' redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
+        await continueButton.click()
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramLink)
+
+        await newPage.close()
       })
     })
 

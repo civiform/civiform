@@ -11,6 +11,7 @@ import {
   validateScreenshot,
   enableFeatureFlag,
 } from '../support'
+import {ProgramExtraAction, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe(
   'Program admin review of submitted applications',
@@ -365,19 +366,10 @@ test.describe(
       })
 
       await test.step('Go to applications list page', async () => {
-        await page.click(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Active',
-            '.cf-with-dropdown',
-          ),
-        )
-        await page.click(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'ACTIVE',
-            'button :text("Applications")',
-          ),
+        await adminPrograms.selectProgramExtraAction(
+          programName,
+          ProgramLifecycle.ACTIVE,
+          ProgramExtraAction.VIEW_APPLICATIONS,
         )
         await waitForPageJsLoad(page)
         await validateScreenshot(page, 'cf-admin-applications-page')
