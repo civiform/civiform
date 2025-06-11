@@ -1040,3 +1040,9 @@ session.extended.error=Oturum uzatılamadı
 
 # Untranslated string for translation infrastructure testing.
 translation.untranslated=Bu dize çeviri altyapısı deneyleri için çevrilmeden bırakılmıştır.
+
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Devlet programlarına çevrimiçi başvur
+
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Uygun olabileceğiniz hizmetleri keşfedin. CiviForm, bilgilerinizi yeniden kullanarak daha hızlı almanıza yardımcı olur.
