@@ -163,78 +163,78 @@ public final class VersionRepository {
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
     try (Transaction transaction =
-           database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
-          VersionModel draft = getDraftVersionOrCreate();
-          VersionModel active = getActiveVersion();
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      VersionModel draft = getDraftVersionOrCreate();
+      VersionModel active = getActiveVersion();
 
-          ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
-          ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
+      ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
+      ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
-          // Is a program being deleted in the draft version?
-          Predicate<ProgramModel> programIsDeletedInDraft =
-              program ->
-                  draft.programIsTombstoned(
-                      programRepository.getShallowProgramDefinition(program).adminName());
-          // Is a question being deleted in the draft version?
-          Predicate<QuestionModel> questionIsDeletedInDraft =
-              question ->
-                  draft.questionIsTombstoned(
-                      questionRepository.getQuestionDefinition(question).getName());
+      // Is a program being deleted in the draft version?
+      Predicate<ProgramModel> programIsDeletedInDraft =
+          program ->
+              draft.programIsTombstoned(
+                  programRepository.getShallowProgramDefinition(program).adminName());
+      // Is a question being deleted in the draft version?
+      Predicate<QuestionModel> questionIsDeletedInDraft =
+          question ->
+              draft.questionIsTombstoned(
+                  questionRepository.getQuestionDefinition(question).getName());
 
-          // Associate any active programs that aren't present in the draft with the draft.
-          getProgramsForVersionWithoutCache(active).stream()
-              // Exclude programs deleted in the draft.
-              .filter(not(programIsDeletedInDraft))
-              // Exclude programs that are in the draft already.
-              .filter(
-                  activeProgram ->
-                      !draftProgramsNames.contains(
-                          programRepository.getShallowProgramDefinition(activeProgram).adminName()))
-              // For each active program not associated with the draft, associate it with the draft.
-              // The relationship between Programs and Versions is many-to-may. When updating the
-              // relationship, one of the EBean models needs to be saved. We update the Version
-              // side of the relationship rather than the Program side in order to prevent the
-              // save causing the "updated" timestamp to be changed for a Program. We intend for
-              // that timestamp only to be updated for actual changes to the program.
-              .forEach(draft::addProgram);
+      // Associate any active programs that aren't present in the draft with the draft.
+      getProgramsForVersionWithoutCache(active).stream()
+          // Exclude programs deleted in the draft.
+          .filter(not(programIsDeletedInDraft))
+          // Exclude programs that are in the draft already.
+          .filter(
+              activeProgram ->
+                  !draftProgramsNames.contains(
+                      programRepository.getShallowProgramDefinition(activeProgram).adminName()))
+          // For each active program not associated with the draft, associate it with the draft.
+          // The relationship between Programs and Versions is many-to-may. When updating the
+          // relationship, one of the EBean models needs to be saved. We update the Version
+          // side of the relationship rather than the Program side in order to prevent the
+          // save causing the "updated" timestamp to be changed for a Program. We intend for
+          // that timestamp only to be updated for actual changes to the program.
+          .forEach(draft::addProgram);
 
-          // Associate any active questions that aren't present in the draft with the draft.
-          getQuestionsForVersionWithoutCache(active).stream()
-              // Exclude questions deleted in the draft.
-              .filter(not(questionIsDeletedInDraft))
-              // Exclude questions that are in the draft already.
-              .filter(
-                  activeQuestion ->
-                      !draftQuestionNames.contains(
-                          questionRepository.getQuestionDefinition(activeQuestion).getName()))
-              // For each active question not associated with the draft, associate it with the
-              // draft.
-              // The relationship between Questions and Versions is many-to-may. When updating the
-              // relationship, one of the EBean models needs to be saved. We update the Version
-              // side of the relationship rather than the Question side in order to prevent the
-              // save causing the "updated" timestamp to be changed for a Question. We intend for
-              // that timestamp only to be updated for actual changes to the question.
-              .forEach(draft::addQuestion);
+      // Associate any active questions that aren't present in the draft with the draft.
+      getQuestionsForVersionWithoutCache(active).stream()
+          // Exclude questions deleted in the draft.
+          .filter(not(questionIsDeletedInDraft))
+          // Exclude questions that are in the draft already.
+          .filter(
+              activeQuestion ->
+                  !draftQuestionNames.contains(
+                      questionRepository.getQuestionDefinition(activeQuestion).getName()))
+          // For each active question not associated with the draft, associate it with the
+          // draft.
+          // The relationship between Questions and Versions is many-to-may. When updating the
+          // relationship, one of the EBean models needs to be saved. We update the Version
+          // side of the relationship rather than the Question side in order to prevent the
+          // save causing the "updated" timestamp to be changed for a Question. We intend for
+          // that timestamp only to be updated for actual changes to the question.
+          .forEach(draft::addQuestion);
 
-          // Remove any questions / programs both added and archived in the current version.
-          getQuestionsForVersion(draft).stream()
-              .filter(questionIsDeletedInDraft)
-              .forEach(
-                  questionToDelete -> {
-                    draft.removeTombstoneForQuestion(questionToDelete);
-                    draft.removeQuestion(questionToDelete);
-                  });
-          getProgramsForVersion(draft).stream()
-              .filter(programIsDeletedInDraft)
-              .forEach(
-                  programToDelete -> {
-                    draft.removeTombstoneForProgram(programToDelete);
-                    draft.removeProgram(programToDelete);
-                  });
+      // Remove any questions / programs both added and archived in the current version.
+      getQuestionsForVersion(draft).stream()
+          .filter(questionIsDeletedInDraft)
+          .forEach(
+              questionToDelete -> {
+                draft.removeTombstoneForQuestion(questionToDelete);
+                draft.removeQuestion(questionToDelete);
+              });
+      getProgramsForVersion(draft).stream()
+          .filter(programIsDeletedInDraft)
+          .forEach(
+              programToDelete -> {
+                draft.removeTombstoneForProgram(programToDelete);
+                draft.removeProgram(programToDelete);
+              });
 
-          // Move forward the ACTIVE version.
-          active.setLifecycleStage(LifecycleStage.OBSOLETE);
-          draft.setLifecycleStage(LifecycleStage.ACTIVE);
+      // Move forward the ACTIVE version.
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
       return switch (publishMode) {
         case PUBLISH_CHANGES -> {
