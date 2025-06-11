@@ -1,3 +1,32 @@
+/**
+ * Toggles the visibility of the modal
+ * @param {Element} modalWrapper The wrapper holding the modal
+ * @param {boolean} showModal Whether the modal should be visible
+ **/
+function toggleModalVisibility(modalWrapper: Element, showModal: boolean) {
+  modalWrapper.classList.toggle('is-visible', showModal)
+  modalWrapper.classList.toggle('is-hidden', !showModal)
+}
+
+/**
+ * Shows the modal
+ * @param {Element} modalWrapper The wrapper holding the modal
+ **/
+function showModal(modalWrapper: Element) {
+  toggleModalVisibility(modalWrapper, true)
+}
+
+/**
+ * Hides the modal
+ * @param {Element} modalWrapper The wrapper holding the modal
+ * @param {HTMLElement} modalTrigger The button that triggered the modal
+ **/
+function hideModal(modalWrapper: Element, triggerButton: HTMLElement) {
+  toggleModalVisibility(modalWrapper, false)
+  // Return focus to the button that opened the modal
+  triggerButton.focus()
+}
+
 export class NorthStarModalController {
   /**
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
@@ -55,6 +84,84 @@ export class NorthStarModalController {
     })
   }
 
+  /**
+   * Attaches an event listener to a button element rendered by HTMX after
+   * initialization that triggers a USWDS modal dialog
+   *
+   * This method configures the button to show the modal when clicked, and to
+   * hide the modal when a close action is triggered.
+   *
+   * @param {HTMLElement} triggerButton  The button element that will trigger
+   *                                     the modal. Must have an 'aria-controls'
+   *                                     attribute containing the ID of the
+   *                                     target modal.
+   */
+  static attachHTMXModalListener(triggerButton: HTMLElement) {
+    triggerButton.addEventListener('click', (e) => {
+      // Default anchor navigation would focus on the href target. However, the
+      // modal we want to display is a wrapper element added by USWDS and not
+      // the one directly referenced by the href. Therefore, we need to remove
+      // the default behavior and manually focus on the modal element (in a
+      // later step).
+      e.preventDefault()
+
+      // Get the target modal ID
+      const modalId = triggerButton.getAttribute('aria-controls')
+      if (!modalId) {
+        return
+      }
+
+      // Find the modal wrapper added to the DOM by the USWDS package
+      const modalWrapper = document.querySelector(
+        `.usa-modal-wrapper#${modalId}`,
+      )
+      if (!modalWrapper) {
+        return
+      }
+
+      showModal(modalWrapper)
+
+      // Focus on an element in the modal wrapper when it opens
+      const openFocusEl: HTMLElement | null = modalWrapper.querySelector(
+        `usa-modal *[data-focus]`,
+      )
+        ? modalWrapper.querySelector(`.usa-modal *[data-focus]`)
+        : modalWrapper.querySelector(`.usa-modal`)
+      if (openFocusEl) {
+        openFocusEl.focus()
+      }
+
+      // Add listener to hide modal when a close attribute is clicked
+      const closeButtons = modalWrapper.querySelectorAll('[data-close-modal]')
+      closeButtons.forEach((closeButton) => {
+        closeButton.addEventListener('click', () => {
+          hideModal(modalWrapper, triggerButton)
+        })
+      })
+
+      // Add listener to hide modal when the escape key is pressed
+      const escapeKeyHandler = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          hideModal(modalWrapper, triggerButton)
+          // Remove listener after being triggered
+          document.removeEventListener('keydown', escapeKeyHandler)
+        }
+      }
+      document.addEventListener('keydown', escapeKeyHandler)
+
+      // Add listener to hide modal when clicking outside the modal
+      modalWrapper.addEventListener('click', (event) => {
+        // Find the actual modal dialog within the wrapper
+        const modalDialog = modalWrapper.querySelector('.usa-modal')
+
+        // Hide modal if the click was outside the modal dialog
+        if (modalDialog && !modalDialog.contains(event.target as Node)) {
+          hideModal(modalWrapper, triggerButton)
+        }
+      })
+    })
+  }
+
   constructor() {
     const modals = document.querySelectorAll('.cf-ns-modal')
 
@@ -71,6 +178,26 @@ export class NorthStarModalController {
         )
         modalButton?.click()
       }
+    })
+
+    // USWDS modal trigger buttons added dynamically by HTMX after initial page
+    // load don't automatically receive the event listeners that USWDS normally
+    // attaches during its initialization. This is because USWDS only processes
+    // elements that exist when it initializes.
+    //
+    // This event listener detects when HTMX adds new content to the page and
+    // finds any external program modal triggers that were added. We then
+    // manually attach our custom modal event listeners to these buttons to
+    // ensure they can properly open their target modals.
+    document.body.addEventListener('htmx:afterSwap', () => {
+      const modalTrigger = document.querySelectorAll(
+        'a[data-open-modal][href*="external-program-modal"]',
+      )
+
+      modalTrigger.forEach((trigger) => {
+        const triggerElement = trigger as HTMLElement
+        NorthStarModalController.attachHTMXModalListener(triggerElement)
+      })
     })
 
     // Advertise (e.g., for browser tests) that modal.ts initialization is done

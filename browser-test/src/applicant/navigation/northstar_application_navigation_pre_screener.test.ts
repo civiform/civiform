@@ -7,12 +7,12 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
-import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
+import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
@@ -37,14 +37,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.editProgramBlock(
@@ -204,7 +200,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await setDirRtl(page)
+      await selectApplicantLanguageNorthstar(page, 'ar')
       await validateAccessibility(page)
 
       await validateScreenshot(

@@ -17,6 +17,8 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -32,7 +34,6 @@ import services.migration.ProgramMigrationService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
@@ -51,6 +52,7 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
+  private final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
@@ -247,21 +249,11 @@ public class AdminImportController extends CiviFormController {
       if (duplicateHandlingOptionsEnabled) {
         programMigrationService.validateQuestionKeyUniqueness(questions);
       }
+      ImmutableList<String> existingAdminNames =
+          programMigrationService.getExistingAdminNames(questions);
       ImmutableSet<CiviFormError> questionErrors =
-          questions.stream()
-              .map(
-                  question -> {
-                    if (question.getQuestionType().isMultiOptionType()) {
-                      MultiOptionQuestionDefinition multiOptionQuestion =
-                          (MultiOptionQuestionDefinition) question;
-                      return multiOptionQuestion
-                          .setValidateQuestionOptionAdminNames(false)
-                          .validate();
-                    }
-                    return question.validate();
-                  })
-              .flatMap(errors -> errors.stream())
-              .collect(ImmutableSet.toImmutableSet());
+          programMigrationService.validateQuestions(
+              program, questions, existingAdminNames, duplicateHandlingOptionsEnabled);
       if (!questionErrors.isEmpty()) {
         return ok(
             adminImportViewPartial
@@ -281,7 +273,7 @@ public class AdminImportController extends CiviFormController {
                   request,
                   program,
                   questions,
-                  programMigrationService.getExistingAdminNames(questions),
+                  existingAdminNames,
                   updatedQuestionsMap,
                   serializeResult.getResult(),
                   withDuplicates)
@@ -349,6 +341,7 @@ public class AdminImportController extends CiviFormController {
                   request, savedProgramDefinition.adminName(), savedProgramDefinition.id())
               .render());
     } catch (RuntimeException error) {
+      logger.error("Error saving program", error);
       return ok(
           adminImportViewPartial
               .renderError(

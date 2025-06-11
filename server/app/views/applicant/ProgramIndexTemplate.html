@@ -71,6 +71,11 @@
         <div
           th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
         ></div>
+        <div th:if="${categoryOptions != null and !categoryOptions.isEmpty()}">
+          <div
+            th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+          ></div>
+        </div>
         <div id="not-started-programs">
           <th:block th:if="${unfilteredSection.isPresent()}">
             <div

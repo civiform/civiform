@@ -26,7 +26,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import controllers.docs.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.AsideTag;
 import j2html.tags.specialized.CodeTag;
@@ -94,9 +93,17 @@ public class ApiDocsView extends BaseHtmlView {
       String selectedProgramSlug,
       Optional<ProgramDefinition> programDefinition,
       ImmutableSet<String> allProgramSlugs) {
+    BaseHtmlLayout layout;
 
-    BaseHtmlLayout layout =
-        isAuthenticatedAdmin(request) ? authenticatedlayout : unauthenticatedlayout;
+    Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
+    if (currentUserProfile.isPresent()
+        && (currentUserProfile.get().isCiviFormAdmin()
+            || currentUserProfile.get().isProgramAdmin())) {
+      layout = authenticatedlayout.setAdminType(currentUserProfile.get());
+    } else {
+      // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
+      layout = unauthenticatedlayout;
+    }
 
     HtmlBundle bundle =
         layout
@@ -195,11 +202,12 @@ public class ApiDocsView extends BaseHtmlView {
 
   private DivTag buildTabs() {
     return div(ul(
-                li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
+                li(a("API documentation")
+                        .withHref(controllers.docs.routes.ApiDocsController.index().url()))
                     .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
                 li(a("API Schema Viewer")
                         .withHref(
-                            routes.OpenApiSchemaController.getSchemaUI(
+                            controllers.docs.routes.OpenApiSchemaController.getSchemaUI(
                                     /* programSlug= */ "",
                                     /* stage= */ Optional.empty(),
                                     /* openApiVersion= */ Optional.empty())
@@ -325,14 +333,6 @@ public class ApiDocsView extends BaseHtmlView {
 
   private static CodeTag codeWithStyles(String text) {
     return code(text).withClass(CODE_STYLES);
-  }
-
-  private boolean isAuthenticatedAdmin(Http.Request request) {
-    // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
-    Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
-    return currentUserProfile.isPresent()
-        && (currentUserProfile.get().isCiviFormAdmin()
-            || currentUserProfile.get().isProgramAdmin());
   }
 
   private DivTag getNotes(Http.Request request) {

@@ -1,12 +1,12 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  validateScreenshot,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
-  enableFeatureFlag,
-  setDirRtl,
+  validateScreenshot,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
@@ -61,9 +61,9 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     const usaBannerContentLocator = usaBannerLocator.locator(
       '.usa-banner__content',
     )
-    const usaBannerButtonLocator = usaBannerLocator.getByRole('button', {
-      name: "Here's how you know",
-    })
+    const usaBannerButtonLocator = usaBannerLocator.locator(
+      '.usa-banner__button-text',
+    )
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
       await expect(usaBannerLocator).toContainText(
@@ -83,7 +83,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Renders correctly in right to left mode', async () => {
-      await setDirRtl(page)
+      await selectApplicantLanguageNorthstar(page, 'ar')
       await usaBannerButtonLocator.click()
       await validateScreenshot(
         page.getByRole('complementary'),

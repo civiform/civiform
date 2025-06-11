@@ -62,6 +62,8 @@ public final class DatabaseSeedTask {
                   ImmutableMap.of(
                       Lang.forCode("am").toLocale(),
                       "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                      Lang.forCode("ar").toLocale(),
+                      "الرجاء إدخال اسمك الأول والأخير",
                       Lang.forCode("ko").toLocale(),
                       "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
                       Lang.forCode("so").toLocale(),
@@ -86,8 +88,11 @@ public final class DatabaseSeedTask {
           .setDescription("Applicant's date of birth")
           .setQuestionText(
               LocalizedStrings.of(
-                  Lang.forCode("en-US").toLocale(),
-                  "Please enter your date of birth in the format mm/dd/yyyy"))
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Please enter your date of birth in the format mm/dd/yyyy",
+                      Lang.forCode("ar").toLocale(),
+                      "الرجاء إدخال تاريخ ميلادك بالتنسيق mm/dd/yyyy")))
           .unsafeBuild();
 
   private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =

@@ -240,7 +240,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.preScreenerForm().isPresent()) {
       content.with(
           findServicesSection(
               request,
@@ -496,7 +496,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       DivTag content,
       String cardContainerStyles) {
     // Intake form
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.preScreenerForm().isPresent()) {
       content.with(
           findServicesSection(
               request,
@@ -541,7 +541,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       HtmlBundle bundle,
       Optional<CiviFormProfile> profile) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
-        relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
+        relevantPrograms.preScreenerForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
     MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_PRE_SCREENER_SR;
     if (commonIntakeFormApplicationStatus.isPresent()) {
@@ -576,7 +576,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
-                ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+                ImmutableList.of(relevantPrograms.preScreenerForm().get()),
                 buttonText,
                 buttonScreenReaderText,
                 bundle,

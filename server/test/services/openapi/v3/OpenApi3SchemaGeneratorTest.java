@@ -98,16 +98,18 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted before the provided date, in the CiviForm instance's\\
-          \\ local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
       - name: pageSize
@@ -288,16 +290,18 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted before the provided date, in the CiviForm instance's\\
-          \\ local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
       - name: pageSize
@@ -831,16 +835,18 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted before the provided date, in the CiviForm instance's\\
-          \\ local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
       - name: pageSize

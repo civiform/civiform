@@ -515,15 +515,6 @@ export const expectDisabled = async (page: Page, locator: string) => {
   expect(await page.getAttribute(locator, 'disabled')).not.toBeNull()
 }
 
-export const setDirRtl = async (page: Page) => {
-  await page.evaluate(() => {
-    const html = document.querySelector('html')
-    if (html != null) {
-      html.setAttribute('dir', 'rtl')
-    }
-  })
-}
-
 /**
  * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
  * committed into the codebase as a permanent fix to anything.

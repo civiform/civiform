@@ -16,7 +16,7 @@ test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
     adminQuestions,
-    applicantQuestions,
+    applicantProgramOverview,
   }) => {
     const programName = 'test program'
     await test.step('create test program', async () => {
@@ -35,13 +35,15 @@ test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page,
-        'northstar-admin-program-preview-application-review-page',
+        'northstar-admin-program-preview-application-overview-page',
       )
       await page.isVisible('a:has-text("Back to admin view")')
     })
 
     await test.step('navigate in applicant preview', async () => {
-      await applicantQuestions.clickContinue()
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
 
       await page.isVisible('a:has-text("Back to admin view")')
 

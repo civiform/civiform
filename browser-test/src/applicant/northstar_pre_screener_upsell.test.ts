@@ -10,7 +10,7 @@ import {
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'North Star Pre-Screener Upsell Tests',
@@ -23,14 +23,10 @@ test.describe(
       await loginAsAdmin(page)
 
       await test.step('Setup: Publish pre-screener program', async () => {
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           programName,
-          'Display description',
           'Short description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
         await adminPrograms.publishProgram(programName)
         await adminPrograms.expectActiveProgram(programName)

@@ -203,6 +203,8 @@
       class="usa-button usa-button--outline cf-apply-button"
       th:href="${'#external-program-modal-' + card.programId()}"
       th:aria-controls="${'external-program-modal-' + card.programId()}"
+      th:aria-label="#{button.viewInNewTabSr(${card.title()})}"
+      role="button"
       data-open-modal
     >
       <svg

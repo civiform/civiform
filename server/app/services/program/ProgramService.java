@@ -120,14 +120,19 @@ public final class ProgramService {
     return programRepository.getAllProgramNames();
   }
 
+  /** Get the names for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    return programRepository.getAllNonExternalProgramNames();
+  }
+
   /** Get the slug of {@code} programId. */
   public String getSlug(long programId) throws ProgramNotFoundException {
     return programRepository.getSlug(programId);
   }
 
-  /** Get the slugs for all programs. */
-  public ImmutableSet<String> getAllProgramSlugs() {
-    return getAllProgramNames().stream()
+  /** Get the slugs for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramSlugs() {
+    return getAllNonExternalProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
         .sorted()
         .collect(ImmutableSet.toImmutableSet());
@@ -276,6 +281,21 @@ public final class ProgramService {
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
+  }
+
+  /**
+   * Get the definition of a given program. Gets the active or draft version for the slug (looks for
+   * draft first; gets active if draft doesn't exist).
+   *
+   * @param programSlug the slug of the program to retrieve
+   * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
+   *     ProgramDraftNotFoundException} is thrown if a draft is not available.
+   */
+  public CompletionStage<ProgramDefinition> getActiveOrDraftFullProgramDefinitionAsync(
+      String programSlug) {
+    return programRepository
+        .getDraftOrActiveProgramFromSlug(programSlug)
+        .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
   }
 
   /**

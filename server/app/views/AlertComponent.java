@@ -136,10 +136,22 @@ public final class AlertComponent {
    * Makes a slim version of a USWDS Info Alert component with the given text.
    *
    * @param text The text to include in the alert.
+   * @param hidden Whether or not to set the hidden property on the component.
    * @param classes One or more additional classes to apply to the USWDS Alert component.
    * @return DivTag containing the alert.
    */
-  public static DivTag renderSlimAlert(String text, String... classes) {
+  public static DivTag renderSlimInfoAlert(String text, boolean hidden, String... classes) {
+    return renderSlimAlert(AlertType.INFO, text, hidden, classes);
+  }
+
+  /**
+   * Makes a slim version of a USWDS Info Alert component with the given text.
+   *
+   * @param text The text to include in the alert.
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag renderSlimInfoAlert(String text, String... classes) {
     return renderSlimAlert(AlertType.INFO, text, false, classes);
   }
 }
