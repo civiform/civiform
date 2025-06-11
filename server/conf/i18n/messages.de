@@ -1043,3 +1043,9 @@ session.extended.error=Failed to extend session
 
 # Untranslated string for translation infrastructure testing.
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Regierungsprogramme online beantragen
+
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Entdecken Sie Dienstleistungen, für die Sie sich möglicherweise qualifizieren. CiviForm verwendet Ihre Informationen wieder, damit Sie diese schneller erhalten.
