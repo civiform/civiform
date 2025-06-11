@@ -1189,6 +1189,26 @@ test.describe('program migration', () => {
         page.getByTestId('question-admin-name-Sample Text Question'),
       ).not.toContainText('What is your LEAST favorite color?')
     })
+
+    await test.step('publish all programs', async () => {
+      // Check that other program is in DRAFT
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.expectDraftProgram('Comprehensive Sample Program')
+
+      // Confirm that we are able to publish all drafts
+      await adminPrograms.publishAllDrafts()
+      await adminPrograms.expectAdminProgramsPage()
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program',
+      )
+      await adminPrograms.expectActiveProgram('Comprehensive Sample Program')
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program New',
+      )
+      await adminPrograms.expectActiveProgram(
+        'Comprehensive Sample Program New',
+      )
+    })
   })
 
   test('Importing with duplicate enumerators and repeated questions', async ({
