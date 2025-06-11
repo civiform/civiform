@@ -57,11 +57,16 @@ public final class ApiDocsController {
       return notFound("API Docs are not enabled.");
     }
 
-    ImmutableSet<String> allProgramSlugs = programService.getAllNonExternalProgramSlugs();
+    ImmutableSet<String> allNonExternalProgramSlugs =
+        programService.getAllNonExternalProgramSlugs();
     Optional<ProgramDefinition> programDefinition =
-        getProgramDefinition(selectedProgramSlug, useActiveVersion);
+        allNonExternalProgramSlugs.contains(selectedProgramSlug)
+            ? getProgramDefinition(selectedProgramSlug, useActiveVersion)
+            : Optional.empty();
 
-    return ok(docsView.render(request, selectedProgramSlug, programDefinition, allProgramSlugs));
+    return ok(
+        docsView.render(
+            request, selectedProgramSlug, programDefinition, allNonExternalProgramSlugs));
   }
 
   private Optional<ProgramDefinition> getProgramDefinition(

@@ -28,6 +28,10 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
 
     // Create one program in the system
     ProgramBuilder.newActiveProgram("Test Program 1").buildDefinition();
+    // Create one external program in the system
+    ProgramBuilder.newActiveProgram("Test External Program")
+        .withProgramType(ProgramType.EXTERNAL)
+        .buildDefinition();
   }
 
   @Test
@@ -89,6 +93,20 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void getSchemaByProgramSlug_externalProgram_cannotFindProgram() {
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaByProgramSlug(
+                request,
+                "test-external-program",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void getSchemaUI_loadsActiveProgram() {
     Request request = fakeRequest();
     Result result =
@@ -103,7 +121,7 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void getSchemaUI_noProgram_loadsFirstActive() {
+  public void getSchemaUI_noProgram_loadsArbitraryActive() {
     Request request = fakeRequest();
     Result result =
         instanceOf(OpenApiSchemaController.class)
@@ -118,9 +136,25 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void getSchemaUI_externalProgram_loadsArbitraryActive() {
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaUI(
+                request,
+                "test-external-program",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain(SCHEMA_UI_NO_PROGRAM_FOUND_ERROR);
+    assertThat(contentAsString(result)).doesNotContain("test-external-program");
+  }
+
+  @Test
   public void getSchemaUI_externalProgramsOnly_noProgramFound() {
     resetTables();
-    ProgramBuilder.newActiveProgram("Test External Program 1")
+    ProgramBuilder.newActiveProgram("Test External Program")
         .withProgramType(ProgramType.EXTERNAL)
         .buildDefinition();
 
