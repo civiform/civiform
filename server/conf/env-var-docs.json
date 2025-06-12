@@ -954,6 +954,12 @@
         "type": "bool",
         "required": false
       },
+      "PROGRAM_SLUG_URLS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
+        "type": "bool",
+        "required": false
+      },
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",

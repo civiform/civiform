@@ -1097,6 +1097,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
+  public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
+    return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled(RequestHeader request) {
     return getBool("YES_NO_QUESTION_ENABLED", request);
@@ -2333,13 +2338,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
                               + " when importing/migrating programs: create a duplicate, use the"
                               + " existing question, or overwrite the existing question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
-                              + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

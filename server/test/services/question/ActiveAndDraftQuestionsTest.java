@@ -3,12 +3,19 @@ package services.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import io.ebean.DB;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.DeletionStatus;
@@ -16,6 +23,7 @@ import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
+@RunWith(JUnitParamsRunner.class)
 public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   private static final String TEST_QUESTION_NAME = "test-question";
@@ -28,7 +36,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
-  public void getQuestionNames() throws Exception {
+  @Parameters({"false", "true"})
+  public void getQuestionNames(Boolean useTransaction) throws Exception {
     QuestionModel tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
 
@@ -47,16 +56,21 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion("draft-only-question"))
         .save();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getQuestionNames())
         .containsExactlyInAnyOrder(
             "active-and-draft-question",
             "active-only-question",
             "draft-only-question",
             "tombstoned-question");
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getActiveOrDraftQuestionDefinition() throws Exception {
+  @Parameters({"false", "true"})
+  public void getActiveOrDraftQuestionDefinition(Boolean useTransaction) throws Exception {
     QuestionModel tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
     QuestionModel activeAndDraftQuestion =
@@ -80,6 +94,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(activeAndDraftQuestionUpdated)
         .addQuestion(draftOnlyQuestion)
         .save();
+
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions questions = newActiveAndDraftQuestions();
     assertThat(
@@ -132,32 +148,48 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .getDraftQuestionDefinition("non-existent-question")
                 .map(QuestionDefinition::getId))
         .isEqualTo(Optional.empty());
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_notPartOfEitherVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_notPartOfEitherVersion(Boolean useTransaction) {
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     resourceCreator.insertQuestion(TEST_QUESTION_NAME);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_ACTIVE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_notReferencedByProgramButStillReferencedByVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_notReferencedByProgramButStillReferencedByVersion(
+      Boolean useTransaction) {
     QuestionModel activeVersionQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(activeVersionQuestion).save();
 
     QuestionModel draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
     versionRepository.getDraftVersionOrCreate().addQuestion(draftVersionQuestion).save();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
     assertThat(newActiveAndDraftQuestions().getDeletionStatus("draft-version-question"))
         .isEqualTo(DeletionStatus.DELETABLE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_tombstoned() throws Exception {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_tombstoned(Boolean useTransaction) throws Exception {
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
     versionRepository
@@ -168,20 +200,29 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_createdAndTombstonedInDraftVersion() throws Exception {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_createdAndTombstonedInDraftVersion(Boolean useTransaction)
+      throws Exception {
     QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
     addTombstoneToVersion(versionRepository.getDraftVersionOrCreate(), question);
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_stillReferencedInActiveVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_stillReferencedInActiveVersion(Boolean useTransaction) {
     QuestionModel questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newActiveProgram automatically adds the program to the active version.
@@ -190,12 +231,17 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_newReferenceInDraftVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_newReferenceInDraftVersion(Boolean useTransaction) {
     // Simulates the state where the question was created in the active version
     // and wasn't referenced. Then it was referenced by a program in the draft
     // version. In this case, the draft won't yet contain a reference to the question.
@@ -207,12 +253,17 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_noLongerReferencedInDraftVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_noLongerReferencedInDraftVersion(Boolean useTransaction) {
     // Simulate the only reference to the question having been removed in an edit of the program.
     QuestionModel questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
@@ -225,6 +276,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
 
@@ -234,10 +287,13 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getDeletionStatus_notReferencedByProgramInEitherVersion() {
+  @Parameters({"false", "true"})
+  public void getDeletionStatus_notReferencedByProgramInEitherVersion(Boolean useTransaction) {
     // Create an active and draft version of a question that isn't referenced
     // by any programs.
     versionRepository
@@ -249,16 +305,23 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getReferencingPrograms_unreferencedQuestion() {
+  @Parameters({"false", "true"})
+  public void getReferencingPrograms_unreferencedQuestion(Boolean useTransaction) {
     versionRepository
         .getActiveVersion()
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
+
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -281,10 +344,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .setActiveReferences(ImmutableSet.of())
                 .setDraftReferences(ImmutableSet.of())
                 .build());
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getReferencingPrograms_multipleProgramReferencesForSameQuestionVersion() {
+  @Parameters({"false", "true"})
+  public void getReferencingPrograms_multipleProgramReferencesForSameQuestionVersion(
+      Boolean useTransaction) {
     QuestionModel question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
 
     // Set up state where the question is referenced from:
@@ -321,16 +388,22 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .build();
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
     assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getReferencingPrograms_multipleProgramReferencesForDifferentQuestionVersions() {
+  @Parameters({"false", "true"})
+  public void getReferencingPrograms_multipleProgramReferencesForDifferentQuestionVersions(
+      Boolean useTransaction) {
     // Set up state where the question is referenced from:
     // ACTIVE version - first-program and second-program
     // DRAFT version - second-program and third-program
@@ -368,16 +441,23 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .withRequiredQuestion(draftQuestion)
             .build();
 
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
     assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void getReferencingPrograms_unrecognizedQuestion() {
+  @Parameters({"false", "true"})
+  public void getReferencingPrograms_unrecognizedQuestion(Boolean useTransaction) {
+    Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
+
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms("random-question-name");
     assertThat(result)
@@ -386,6 +466,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
                 .setActiveReferences(ImmutableSet.of())
                 .setDraftReferences(ImmutableSet.of())
                 .build());
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
@@ -396,5 +477,13 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
       throws Exception {
     assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
+  }
+
+  private static Optional<Transaction> maybeMakeTransaction(Boolean useTransaction) {
+    if (useTransaction) {
+      return Optional.of(
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+    }
+    return Optional.empty();
   }
 }

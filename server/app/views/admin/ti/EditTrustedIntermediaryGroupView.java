@@ -61,17 +61,18 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
                     .with(
                         layout.createGoBackButton(
                             routes.TrustedIntermediaryManagementController.index().url(),
-                            "Back to all intermediaries"))
-                    .with(renderAddNewButton(tiGroup, request)),
-                div(
-                    table()
-                        .withClasses("border", "border-gray-300", "shadow-md", "w-full")
-                        .with(renderGroupTableHeader())
-                        .with(
-                            tbody(
-                                each(
-                                    tiGroup.getTrustedIntermediaries(),
-                                    account -> renderTIRow(tiGroup, account, request))))));
+                            "Back to all intermediaries")),
+                renderHeader(tiGroup.getName()),
+                renderSubHeader(tiGroup.getDescription()),
+                div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
+                table()
+                    .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+                    .with(renderGroupTableHeader())
+                    .with(
+                        tbody(
+                            each(
+                                tiGroup.getTrustedIntermediaries(),
+                                account -> renderTIRow(tiGroup, account, request)))));
     addToastMessagesOnError(
         htmlBundle, request.flash(), this.getClass(), "warning-message-ti-form-fill");
 
