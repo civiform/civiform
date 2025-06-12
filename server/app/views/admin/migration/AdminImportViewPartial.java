@@ -40,15 +40,12 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
-import views.ViewUtils;
+import views.admin.QuestionCard;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.components.SvgTag;
 import views.components.TextFormatter;
 import views.questiontypes.RadioButtonQuestionRenderer;
-import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
@@ -454,89 +451,27 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       QuestionDefinition questionDefinition,
       ImmutableList<String> duplicateQuestionNames,
       ImmutableMap<Long, QuestionDefinition> questionsById) {
-    String adminName = questionDefinition.getName();
-    boolean questionIsUniversal = questionDefinition.isUniversal();
-    boolean questionIsDuplicate = duplicateQuestionNames.contains(adminName);
+    // We use the old admin name (the one inputted by the admin) rather than the de-duped suffixed
+    // name, since the admin has not yet decided how to handle this duplicate question. In the event
+    // they choose to create a new duplicate, then the de-duped suffixed name will be used by the
+    // backend to create a new question.
+    boolean questionIsDuplicate = duplicateQuestionNames.contains(questionDefinition.getName());
     boolean questionIsRepeated = questionDefinition.getEnumeratorId().isPresent();
 
-    // TODO: #9628 - The classes below are copied from the Question Card-rendering method in
-    // ProgramBlockView. We should consider factoring out the card rendering logic to a common
-    // helper method to limit the potential for diverging styles.
-    DivTag cardDiv =
-        div()
-            // We use the old admin name (the one inputted by the admin) rather than the de-duped
-            // suffixed name, since the admin has not yet decided how to handle this duplicate
-            // question. In the event they choose to create a new duplicate, then the de-duped
-            // suffixed name will be used by the backend to create a new question.
-            .withData("testid", "question-admin-name-" + adminName)
-            .withCondData(
-                questionIsRepeated,
-                "enumerator",
-                // Ternary operator to short-circuit, since otherwise `withCondData` would evaluate
-                // a null expression
-                questionIsRepeated
-                    ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
-                    : "")
-            .withClasses(
-                ReferenceClasses.PROGRAM_QUESTION,
-                "my-2",
-                "px-4",
-                "py-2",
-                "items-center",
-                "rounded-md",
-                "border",
-                StyleUtils.hover("text-gray-800", "bg-gray-100"))
-            .with(
-                div()
-                    .condWith(
-                        questionIsUniversal,
-                        ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
-                    .with(
-                        questionIsDuplicate ? makeDuplicateQuestionBadge() : makeNewQuestionBadge())
-                    .withClasses("flex", "mt-2", "mb-4"));
-
-    SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType())
-            .withClasses("shrink-0", "h-12", "w-6");
-    String questionHelpText =
-        questionDefinition.getQuestionHelpText().isEmpty()
-            ? ""
-            : questionDefinition.getQuestionHelpText().getDefault();
-
-    DivTag content =
-        div()
-            .withClass("flex-grow")
-            .with(
-                div()
-                    .with(
-                        TextFormatter.formatTextForAdmins(
-                            questionDefinition.getQuestionText().getDefault()))
-                    .withData("testid", "question-div"),
-                div()
-                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
-                    .withClasses("mt-1", "text-sm"),
-                p(String.format("Admin ID: %s", adminName)).withClasses("mt-1", "text-sm"))
-            .condWith(
-                questionDefinition.getQuestionType().isMultiOptionType(),
-                questionDefinition.getQuestionType().isMultiOptionType()
-                    ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
-                    : null);
-
-    DivTag row =
-        div()
-            .withClasses("flex", "gap-4", "items-center")
-            .with(icon, content)
-            .condWith(
-                questionIsDuplicate, renderDuplicateQuestionHandlingOptions(questionDefinition));
-    return cardDiv.with(row);
-  }
-
-  private static UlTag getOptions(MultiOptionQuestionDefinition question) {
-    UlTag options = ul().withClasses("list-disc", "mx-4", "mt-2");
-    for (QuestionOption option : question.getOptions()) {
-      options.with(li(option.optionText().getDefault()));
-    }
-    return options;
+    return QuestionCard.renderForImport(
+            questionDefinition,
+            questionIsDuplicate ? makeDuplicateQuestionBadge() : makeNewQuestionBadge(),
+            questionIsDuplicate
+                ? Optional.of(renderDuplicateQuestionHandlingOptions(questionDefinition))
+                : Optional.empty())
+        .withCondData(
+            questionIsRepeated,
+            "enumerator",
+            // Ternary operator to short-circuit, since otherwise `withCondData` would evaluate
+            // a null expression
+            questionIsRepeated
+                ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
+                : "");
   }
 
   private static DivTag makeDuplicateQuestionBadge(String... classes) {
