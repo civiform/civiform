@@ -2340,6 +2340,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " existing question, or overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "PROGRAM_SLUG_URLS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
+                              + " URLs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
+                              + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
