@@ -511,7 +511,9 @@ public final class SampleQuestionDefinitions {
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
-      case NULL_QUESTION -> new NullQuestionDefinition(1);
+        // Fall through to Null Question for now since Yes/No is not fully implemented.
+        // TODO: Create a Yes/No question instead.
+      case YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }
 }
