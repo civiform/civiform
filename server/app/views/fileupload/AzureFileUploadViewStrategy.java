@@ -1,6 +1,5 @@
 package views.fileupload;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
@@ -8,19 +7,11 @@ import com.google.common.collect.ImmutableMap;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
-import javax.inject.Inject;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
-import views.ViewUtils;
 
 public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
-  private final ViewUtils viewUtils;
-
-  @Inject
-  AzureFileUploadViewStrategy(ViewUtils viewUtils) {
-    this.viewUtils = checkNotNull(viewUtils);
-  }
 
   @Override
   public ImmutableList<InputTag> additionalFileUploadFormInputs(
@@ -69,7 +60,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ImmutableList<ScriptTag> extraScriptTags() {
-    return ImmutableList.of(viewUtils.makeAzureBlobStoreScriptTag());
+    return ImmutableList.of();
   }
 
   @Override

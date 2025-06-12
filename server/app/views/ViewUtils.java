@@ -61,19 +61,6 @@ public final class ViewUtils {
   }
 
   /**
-   * Generates an HTML script tag for loading the Azure Blob Storage client library from the
-   * jsdelivr.net CDN. TODO(#2349): Stop using this.
-   */
-  public ScriptTag makeAzureBlobStoreScriptTag() {
-    return script()
-        .withSrc("https://cdn.jsdelivr.net/npm/@azure/storage-blob@12.27.0")
-        .withType("text/javascript")
-        .attr("crossorigin", "anonymous")
-        .attr(
-            "integrity", "sha384-TkJsbCl2rhWOKSz3w/NOsVPK9tGEpWWWA1vj5wLNQuC7gHGxoPdhN4aVdW2cYJW1");
-  }
-
-  /**
    * Generates an HTML script tag for loading the javascript file found at public/main/[path].js.
    */
   public ScriptTag makeLocalJsTag(String path) {

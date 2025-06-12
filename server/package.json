@@ -38,6 +38,7 @@
     "webpack-cli": "6.0.1"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.27.0",
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
     "dompurify": "3.2.6",
