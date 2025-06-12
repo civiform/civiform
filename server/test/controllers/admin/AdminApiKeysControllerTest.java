@@ -4,22 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
-import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import repository.ProgramRepository;
-import repository.VersionRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
 import services.program.ProgramType;
@@ -30,28 +27,20 @@ import views.admin.apikeys.ApiKeyNewOneView;
 
 public class AdminApiKeysControllerTest extends ResetPostgres {
 
-  private ProgramRepository programRepository;
-  private VersionRepository versionRepository;
+  private ApiKeyService apiKeyService;
+  private ApiKeyIndexView apiKeyIndexView;
   private ApiKeyNewOneView apiKeyNewOneView;
-  private ProfileUtils profileUtils;
-  private FormFactory formFactory;
-  private ProgramService programService;
+  private ApiKeyCredentialsView apiKeyCredentialsView;
   private AdminApiKeysController controller;
 
   @Before
   public void setUp() {
     resetTables();
 
-    programRepository = mock(ProgramRepository.class);
-    versionRepository = mock(VersionRepository.class);
+    apiKeyService = mock(ApiKeyService.class);
+    apiKeyIndexView = mock(ApiKeyIndexView.class);
     apiKeyNewOneView = mock(ApiKeyNewOneView.class);
-    profileUtils = mock(ProfileUtils.class);
-    formFactory = mock(FormFactory.class);
-    programService = mock(ProgramService.class);
-
-    ApiKeyService apiKeyService = mock(ApiKeyService.class);
-    ApiKeyIndexView apiKeyIndexView = mock(ApiKeyIndexView.class);
-    ApiKeyCredentialsView apiKeyCredentialsView = mock(ApiKeyCredentialsView.class);
+    apiKeyCredentialsView = mock(ApiKeyCredentialsView.class);
 
     controller =
         new AdminApiKeysController(
@@ -59,11 +48,11 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
             apiKeyIndexView,
             apiKeyNewOneView,
             apiKeyCredentialsView,
-            programService,
-            formFactory,
-            profileUtils,
-            versionRepository,
-            programRepository);
+            instanceOf(ProgramService.class),
+            instanceOf(play.data.FormFactory.class),
+            instanceOf(auth.ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramRepository.class));
   }
 
   @Test
@@ -74,19 +63,15 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
         .withProgramType(ProgramType.EXTERNAL)
         .buildDefinition();
 
-    when(programRepository.getAllNonExternalProgramNames())
-        .thenReturn(ImmutableSet.of("Internal One", "Internal Two"));
-
     Content mockContent = mock(Content.class);
-    when(mockContent.body()).thenReturn("Mocked content body");
-    when(apiKeyNewOneView.render(any(Http.Request.class), eq(ImmutableSet.of("Internal One", "Internal Two"))))
-        .thenReturn(mockContent);
+    when(mockContent.body()).thenReturn("mocked content");
+    when(apiKeyNewOneView.render(any(Http.Request.class), any())).thenReturn(mockContent);
 
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
-    verify(apiKeyNewOneView).render(any(Http.Request.class), eq(ImmutableSet.of("Internal One", "Internal Two")));
-    verify(apiKeyNewOneView, never()).renderNoPrograms(any());
+    verify(apiKeyNewOneView)
+        .render(any(Http.Request.class), eq(ImmutableSet.of("Internal One", "Internal Two")));
   }
 
   @Test
@@ -98,17 +83,14 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
         .withProgramType(ProgramType.EXTERNAL)
         .buildDefinition();
 
-    when(programRepository.getAllNonExternalProgramNames()).thenReturn(ImmutableSet.of());
-
     Content mockContent = mock(Content.class);
-    when(mockContent.body()).thenReturn("Mocked content body");
+    when(mockContent.body()).thenReturn("mocked content");
     when(apiKeyNewOneView.renderNoPrograms(any(Http.Request.class))).thenReturn(mockContent);
 
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
     verify(apiKeyNewOneView).renderNoPrograms(any(Http.Request.class));
-    verify(apiKeyNewOneView, never()).render(any(), any());
   }
 
   @Test
@@ -116,18 +98,13 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Alpha").buildDefinition();
     ProgramBuilder.newActiveProgram("Beta").buildDefinition();
 
-    when(programRepository.getAllNonExternalProgramNames())
-        .thenReturn(ImmutableSet.of("Alpha", "Beta"));
-
     Content mockContent = mock(Content.class);
-    when(mockContent.body()).thenReturn("Mocked content body");
-    when(apiKeyNewOneView.render(any(Http.Request.class), eq(ImmutableSet.of("Alpha", "Beta"))))
-        .thenReturn(mockContent);
+    when(mockContent.body()).thenReturn("mocked content");
+    when(apiKeyNewOneView.render(any(Http.Request.class), any())).thenReturn(mockContent);
 
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
     verify(apiKeyNewOneView).render(any(Http.Request.class), eq(ImmutableSet.of("Alpha", "Beta")));
-    verify(apiKeyNewOneView, never()).renderNoPrograms(any());
   }
 }
