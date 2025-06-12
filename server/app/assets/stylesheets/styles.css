@@ -215,6 +215,10 @@
     line-height: 1.5rem;
   }
 
+  .repeated-disabled-warning {
+    max-width: 365px;
+  }
+
   .row-element {
     display: flex;
     flex-direction: row;
