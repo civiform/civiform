@@ -279,7 +279,7 @@ public final class QuestionDefinitionBuilder {
       case YES_NO:
         return new MultiOptionQuestionDefinition(
             builder.build(), questionOptions, MultiOptionQuestionType.YES_NO);
-
+            
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }
