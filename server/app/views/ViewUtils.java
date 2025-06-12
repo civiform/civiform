@@ -69,7 +69,8 @@ public final class ViewUtils {
         .withSrc("https://cdn.jsdelivr.net/npm/@azure/storage-blob@12.27.0")
         .withType("text/javascript")
         .attr("crossorigin", "anonymous")
-        .attr("integrity", "sha384-TkJsbCl2rhWOKSz3w/NOsVPK9tGEpWWWA1vj5wLNQuC7gHGxoPdhN4aVdW2cYJW1");
+        .attr(
+            "integrity", "sha384-TkJsbCl2rhWOKSz3w/NOsVPK9tGEpWWWA1vj5wLNQuC7gHGxoPdhN4aVdW2cYJW1");
   }
 
   /**
