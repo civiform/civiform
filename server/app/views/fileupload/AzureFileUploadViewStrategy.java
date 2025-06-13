@@ -12,7 +12,6 @@ import services.cloud.azure.BlobStorageUploadRequest;
 
 public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
-
   @Override
   public ImmutableList<InputTag> additionalFileUploadFormInputs(
       Optional<StorageUploadRequest> request) {

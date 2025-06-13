@@ -1,5 +1,5 @@
 /**
- * Toggles the visibility of the modal test
+ * Toggles the visibility of the modal
  * @param {Element} modalWrapper The wrapper holding the modal
  * @param {boolean} showModal Whether the modal should be visible
  **/
