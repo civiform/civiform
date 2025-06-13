@@ -10,10 +10,12 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import models.ApplicationModel;
 import models.LifecycleStage;
@@ -25,6 +27,7 @@ import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
 import services.export.JsonExporterService;
+import services.export.enums.RevisionState;
 import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
@@ -36,6 +39,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   public static final String PROGRAM_SLUG_PARAM_NAME = "programSlug";
   public static final String FROM_DATE_PARAM_NAME = "fromDate";
   public static final String UNTIL_DATE_PARAM_NAME = "toDate";
+  public static final String REVISION_STATE_PARAM_NAME = "revisionState";
   private final DateConverter dateConverter;
   private final ProgramService programService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
@@ -61,18 +65,30 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
   }
 
+  /**
+   * Lists submitted applications for a given program with pagination and filtering support.
+   *
+   * @param request - HTTP request
+   * @param programSlug - unique identifier for the program
+   * @param fromDateParam - optional inclusive start date filter for application submissions
+   * @param toDateParam - optional exclusive end date filter for application submissions
+   * @param revisionStateParam - optional revision state filter
+   * @param serializedNextPageToken - optional pagination token for retrieving next page
+   * @param pageSizeParam - optional number of applications to return per page
+   * @return CompletionStage containing the JSON response with applications and pagination info
+   */
   public CompletionStage<Result> list(
       Http.Request request,
       String programSlug,
       Optional<String> fromDateParam,
       Optional<String> toDateParam,
+      Optional<String> revisionStateParam,
       Optional<String> serializedNextPageToken,
       Optional<Integer> pageSizeParam) {
     assertHasProgramReadPermission(request, programSlug);
 
     Optional<ApiPaginationTokenPayload> paginationToken =
         serializedNextPageToken.map(apiPaginationTokenSerializer::deserialize);
-
     paginationToken.ifPresent(
         (token) -> {
           if (!token
@@ -84,22 +100,11 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
         });
 
     SubmittedApplicationFilter filters =
-        SubmittedApplicationFilter.builder()
-            .setSubmitTimeFilter(
-                TimeFilter.builder()
-                    .setFromTime(
-                        resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam))
-                    .setUntilTime(
-                        resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
-                    .build())
-            .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
-            .build();
-    int pageSize = resolvePageSize(paginationToken, pageSizeParam);
+        buildListFilters(paginationToken, fromDateParam, toDateParam, revisionStateParam);
 
+    int pageSize = resolvePageSize(paginationToken, pageSizeParam);
     RowIdSequentialAccessPaginationSpec paginationSpec =
-        paginationToken
-            .map(this::createPaginationSpec)
-            .orElse(new RowIdSequentialAccessPaginationSpec(pageSize, Long.MAX_VALUE));
+        buildPaginationSpec(paginationToken, pageSize);
 
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
@@ -116,7 +121,11 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                   apiPayloadWrapper.wrapPayload(
                       applicationsJson,
                       getNextPageToken(
-                          paginationResult, programSlug, pageSize, filters.submitTimeFilter()));
+                          paginationResult,
+                          programSlug,
+                          pageSize,
+                          filters.submitTimeFilter(),
+                          filters.lifecycleStages()));
 
               return ok(responseJson).as("application/json");
             },
@@ -134,11 +143,49 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             });
   }
 
+  /** Builds filter criteria for submitted applications based on request parameters. */
+  private SubmittedApplicationFilter buildListFilters(
+      Optional<ApiPaginationTokenPayload> paginationToken,
+      Optional<String> fromDateParam,
+      Optional<String> toDateParam,
+      Optional<String> revisionStateParam) {
+    TimeFilter timeFilter =
+        TimeFilter.builder()
+            .setFromTime(resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam))
+            .setUntilTime(resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
+            .build();
+    ImmutableList<LifecycleStage> lifecycleStage =
+        resolveRevisionStateParam(paginationToken, revisionStateParam);
+
+    return SubmittedApplicationFilter.builder()
+        .setSubmitTimeFilter(timeFilter)
+        .setLifecycleStages(lifecycleStage)
+        .build();
+  }
+
+  /** Creates pagination specification for database queries. */
+  private RowIdSequentialAccessPaginationSpec buildPaginationSpec(
+      Optional<ApiPaginationTokenPayload> paginationToken, Integer pageSize) {
+    return paginationToken
+        .map(
+            token ->
+                new RowIdSequentialAccessPaginationSpec(
+                    token.getPageSpec().getPageSize(),
+                    Long.valueOf(token.getPageSpec().getOffsetIdentifier())))
+        .orElse(new RowIdSequentialAccessPaginationSpec(pageSize, Long.MAX_VALUE));
+  }
+
+  /**
+   * Generates a pagination token for retrieving the next page of results. The token encapsulates
+   * both pagination state and filter parameters to ensure consistent filtering across paginated
+   * requests.
+   */
   private Optional<ApiPaginationTokenPayload> getNextPageToken(
       PaginationResult<ApplicationModel> paginationResult,
       String programSlug,
       int pageSize,
-      TimeFilter timeFilter) {
+      TimeFilter timeFilter,
+      ImmutableList<LifecycleStage> lifecycleStages) {
     if (!paginationResult.hasMorePages()) {
       return Optional.empty();
     }
@@ -161,6 +208,14 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             (untilInstant) ->
                 requestSpec.put(
                     UNTIL_DATE_PARAM_NAME, dateConverter.formatIso8601Date(untilInstant)));
+    String revisionStates =
+        lifecycleStages.stream()
+            .map(
+                (LifecycleStage stage) ->
+                    stage == LifecycleStage.ACTIVE ? RevisionState.CURRENT : RevisionState.OBSOLETE)
+            .map((RevisionState state) -> state.name())
+            .collect(Collectors.joining(","));
+    requestSpec.put(REVISION_STATE_PARAM_NAME, revisionStates);
 
     return Optional.of(new ApiPaginationTokenPayload(pageSpec, requestSpec.build()));
   }
@@ -229,10 +284,62 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     }
   }
 
-  private RowIdSequentialAccessPaginationSpec createPaginationSpec(
+  /**
+   * Resolves the lifecycle stage from either the revision state parameter or pagination token.
+   * Ensures consistency between pagination token and query parameter when both are present.
+   */
+  private ImmutableList<LifecycleStage> resolveRevisionStateParam(
+      Optional<ApiPaginationTokenPayload> apiPaginationTokenPayload,
+      Optional<String> revisionStateParam) {
+    // Defaults to all submitted applications if no revision state is provided
+    ImmutableList<LifecycleStage> queryLifecycleStages =
+        revisionStateParam.isEmpty()
+            ? ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE)
+            : ImmutableList.of(getLifecycleStage(revisionStateParam.get()));
+    ImmutableList<LifecycleStage> tokenLifecycleStages =
+        apiPaginationTokenPayload
+            .map((token) -> extractLifecycleStagesFromPaginationToken(token))
+            .orElse(ImmutableList.of());
+
+    if (tokenLifecycleStages.equals(queryLifecycleStages)) {
+      return tokenLifecycleStages;
+    }
+
+    if (!tokenLifecycleStages.isEmpty() && !queryLifecycleStages.isEmpty()) {
+      throw new BadApiRequestException(
+          "Request parameters must match pagination token: " + revisionStateParam);
+    }
+
+    return !tokenLifecycleStages.isEmpty() ? tokenLifecycleStages : queryLifecycleStages;
+  }
+
+  /**
+   * Extracts the lifecycle stage from a pagination token's request specification.
+   *
+   * @param apiPaginationTokenPayload The pagination token containing previous request context
+   * @return Optional LifecycleStage if found in token, empty otherwise
+   */
+  private ImmutableList<LifecycleStage> extractLifecycleStagesFromPaginationToken(
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
-    return new RowIdSequentialAccessPaginationSpec(
-        apiPaginationTokenPayload.getPageSpec().getPageSize(),
-        Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier()));
+    Map<String, String> requestSpec = apiPaginationTokenPayload.getRequestSpec();
+
+    if (!requestSpec.containsKey(REVISION_STATE_PARAM_NAME)) {
+      return ImmutableList.of();
+    }
+
+    return Arrays.stream(requestSpec.get(REVISION_STATE_PARAM_NAME).split(","))
+        .map(String::trim)
+        .map(this::getLifecycleStage)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Converts a revision state parameter string to the corresponding LifecycleStage enum */
+  private LifecycleStage getLifecycleStage(String revisionStateParam) {
+    try {
+      RevisionState state = RevisionState.valueOf(revisionStateParam);
+      return state == RevisionState.CURRENT ? LifecycleStage.ACTIVE : LifecycleStage.OBSOLETE;
+    } catch (IllegalArgumentException e) {
+      throw new BadApiRequestException("Invalid revision state parameter: " + revisionStateParam);
+    }
   }
 }
