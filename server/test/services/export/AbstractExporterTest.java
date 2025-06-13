@@ -157,6 +157,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case PHONE:
         QuestionAnswerer.answerPhoneQuestion(applicantDataOne, answerPath, "US", "(615) 757-1010");
         break;
+      case YES_NO:
+        // Do nothing for now. TODO(#10800): handle once yes/no question is implemented.
       case STATIC:
         // Do nothing.
         break;

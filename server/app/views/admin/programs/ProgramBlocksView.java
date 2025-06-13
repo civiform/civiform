@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -220,7 +221,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request)))
+                  ProgramQuestionBank.shouldShowQuestionBank(request),
+                  request))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -1035,7 +1037,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility) {
+      ProgramQuestionBank.Visibility questionBankVisibility,
+      Http.Request request) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1056,8 +1059,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
-            programBlockValidationFactory);
-    return qb.getContainer(questionBankVisibility);
+            programBlockValidationFactory,
+            settingsManifest);
+    return qb.getContainer(questionBankVisibility, request);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

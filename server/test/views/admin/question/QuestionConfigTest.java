@@ -97,6 +97,10 @@ public class QuestionConfigTest {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
         break;
+      case YES_NO:
+        assertThat(maybeConfig).isPresent();
+        assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
+        break;
       default:
         fail(
             "Unhandled question type: %s. Please add a configuration in"

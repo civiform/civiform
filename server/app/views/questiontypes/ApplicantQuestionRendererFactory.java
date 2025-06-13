@@ -55,6 +55,8 @@ public final class ApplicantQuestionRendererFactory {
       case STATIC -> new StaticContentQuestionRenderer(question, maybeMessages);
       case TEXT -> new TextQuestionRenderer(question);
       case PHONE -> new PhoneQuestionRenderer(question);
+        // TODO(#10799): Update to use YesNoQuestionRenderer once implemented.
+      case YES_NO -> new RadioButtonQuestionRenderer(question);
       case NULL_QUESTION ->
           throw new IllegalStateException(
               String.format(

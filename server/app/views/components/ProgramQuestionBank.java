@@ -33,6 +33,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ViewUtils;
 import views.style.AdminStyles;
@@ -50,6 +51,7 @@ public final class ProgramQuestionBank {
 
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final SettingsManifest settingsManifest;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -63,12 +65,14 @@ public final class ProgramQuestionBank {
 
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
-      ProgramBlockValidationFactory programBlockValidationFactory) {
+      ProgramBlockValidationFactory programBlockValidationFactory,
+      SettingsManifest settingsManifest) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public DivTag getContainer(Visibility questionBankVisibility) {
+  public DivTag getContainer(Visibility questionBankVisibility, Http.Request request) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
@@ -92,10 +96,10 @@ public final class ProgramQuestionBank {
                     "transition-opacity",
                     ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
                     ReferenceClasses.QUESTION_BANK_GLASSPANE))
-        .with(questionBankPanel());
+        .with(questionBankPanel(request));
   }
 
-  private FormTag questionBankPanel() {
+  private FormTag questionBankPanel(Http.Request request) {
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
@@ -148,7 +152,9 @@ public final class ProgramQuestionBank {
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false)))));
+                                    /* isPrimaryButton= */ false,
+                                    settingsManifest,
+                                    request)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =

@@ -91,6 +91,7 @@ public class ApplicantQuestionRendererFactoryTest {
       case ENUMERATOR:
       case NAME:
       case RADIO_BUTTON:
+      case YES_NO:
         assertThat(renderedContent).contains("fieldset");
         break;
       case CURRENCY:
