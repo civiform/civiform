@@ -106,7 +106,7 @@ public class ApplicantQuestionRendererFactoryTest {
         assertThat(renderedContent).doesNotContain("fieldset");
         break;
         // This is here because errorprone doesn't like that it was missing
-      case NULL_QUESTION:
+      case NULL_QUESTION, YES_NO:
         break;
     }
   }
