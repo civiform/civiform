@@ -164,6 +164,14 @@ public class ApplicantQuestionTest {
             new ApplicantData(),
             Optional.empty());
     assertThat(phoneQuestion.createPhoneQuestion()).isInstanceOf(PhoneQuestion.class);
+
+    ApplicantQuestion yesNoQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.doesApplicantHaveDogYesNo().getQuestionDefinition(),
+            new ApplicantModel(),
+            new ApplicantData(),
+            Optional.empty());
+    assertThat(yesNoQuestion.createSingleSelectQuestion()).isInstanceOf(SingleSelectQuestion.class);
   }
 
   @Test

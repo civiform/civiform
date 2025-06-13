@@ -91,6 +91,7 @@ public class ApplicantQuestionRendererFactoryTest {
       case ENUMERATOR:
       case NAME:
       case RADIO_BUTTON:
+      case YES_NO:
         assertThat(renderedContent).contains("fieldset");
         break;
       case CURRENCY:
@@ -106,7 +107,7 @@ public class ApplicantQuestionRendererFactoryTest {
         assertThat(renderedContent).doesNotContain("fieldset");
         break;
         // This is here because errorprone doesn't like that it was missing
-      case NULL_QUESTION, YES_NO:
+      case NULL_QUESTION:
         break;
     }
   }

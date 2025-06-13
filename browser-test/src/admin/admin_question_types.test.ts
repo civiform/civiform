@@ -130,6 +130,7 @@ test.describe('Admin question list on programs page', () => {
     page,
     adminPrograms,
   }) => {
+    await enableFeatureFlag(page, 'yes_no_question_enabled')
     await loginAsAdmin(page)
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
