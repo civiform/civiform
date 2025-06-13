@@ -8,7 +8,7 @@ import {
   waitForPageJsLoad,
 } from '../../support'
 
-test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
+test.describe('file upload applicant flow', {tag: ['@northstar', '@skip-on-azure']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'program_filtering_enabled')
