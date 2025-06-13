@@ -10,7 +10,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {assertNotNull} from './util'
-import { BlockBlobClient } from '@azure/storage-blob'
+import {BlockBlobClient} from '@azure/storage-blob'
 
 class AzureUploadController {
   private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
@@ -64,9 +64,9 @@ class AzureUploadController {
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
-    const fullBlobUrlWithSas = `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`;
+    const fullBlobUrlWithSas = `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`
 
-    const blockBlobClient = new BlockBlobClient(fullBlobUrlWithSas);
+    const blockBlobClient = new BlockBlobClient(fullBlobUrlWithSas)
 
     const options = {
       blobHTTPHeaders: {
@@ -76,22 +76,19 @@ class AzureUploadController {
     }
 
     blockBlobClient
-            .uploadData(
-                azureUploadProps.file,
-                options,
-            )
-            .then((resp: any) => {
-              this.setFileUploadMetadata(
-                redirectUrl,
-                azureUploadProps,
-                resp,
-                blockBlobClient.url,
-              )
-              window.location.replace(redirectUrl.toString())
-            })
-            .catch((err: any) => {
-              throw err;
-            });
+      .uploadData(azureUploadProps.file, options)
+      .then((resp: any) => {
+        this.setFileUploadMetadata(
+          redirectUrl,
+          azureUploadProps,
+          resp,
+          blockBlobClient.url,
+        )
+        window.location.replace(redirectUrl.toString())
+      })
+      .catch((err: any) => {
+        throw err
+      })
   }
 
   private getAzureUploadProps(uploadContainer: HTMLElement) {
