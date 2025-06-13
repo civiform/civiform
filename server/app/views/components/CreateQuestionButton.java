@@ -9,7 +9,9 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
+import play.mvc.Http;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /**
@@ -19,7 +21,10 @@ public final class CreateQuestionButton {
 
   /** Renders the "Create new question" button with a dropdown for each question type. */
   public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl, boolean isPrimaryButton) {
+      String questionCreateRedirectUrl,
+      boolean isPrimaryButton,
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -49,6 +54,9 @@ public final class CreateQuestionButton {
     for (QuestionType type : QuestionType.values()) {
       // Do not attempt to render a null question
       if (type == QuestionType.NULL_QUESTION) {
+        continue;
+      }
+      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled(request)) {
         continue;
       }
 
