@@ -342,10 +342,11 @@ public class FieldWithLabelTest {
 
   @Test
   public void renderFieldWithGenericLabel_usesInputLabelClass() {
-    FieldWithLabel fieldWithLabel = FieldWithLabel.input()
-        .setId("test-id")
-        .setFieldName("test-field")
-        .setLabelText("Test Label");
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label");
 
     String rendered = fieldWithLabel.getInputTag().render();
 
@@ -357,12 +358,13 @@ public class FieldWithLabelTest {
 
   @Test
   public void renderFieldWithLabelWithTooltip_usesTooltipLabelClass() {
-    FieldWithLabel fieldWithLabel = FieldWithLabel.input()
-        .setId("test-id")
-        .setFieldName("test-field")
-        .setLabelText("Test Label")
-        .setToolTipText("Tooltip info")
-        .setToolTipIcon(Icons.INFO);
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label")
+            .setToolTipText("Tooltip info")
+            .setToolTipIcon(Icons.INFO);
 
     String rendered = fieldWithLabel.getInputTag().render();
 
@@ -371,10 +373,10 @@ public class FieldWithLabelTest {
     assertThat(rendered).contains("text-base");
     assertThat(rendered).contains("px-1");
     assertThat(rendered).contains("py-2");
-    
+
     // Should NOT contain pointer-events-none which would block the tooltip hover
     assertThat(rendered).doesNotContain("pointer-events-none");
-    
+
     // Should contain tooltip content
     assertThat(rendered).contains("Tooltip info");
     assertThat(rendered).contains(Icons.INFO.path);
