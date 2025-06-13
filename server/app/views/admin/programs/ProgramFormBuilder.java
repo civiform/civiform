@@ -13,6 +13,10 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.details;
+import static j2html.TagCreator.summary;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -34,6 +38,7 @@ import models.ProgramNotificationPreference;
 import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
 import play.mvc.Http.Request;
+import play.i18n.MessagesApi;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.Path;
@@ -49,6 +54,7 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
+import javax.inject.Inject;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -68,6 +74,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final String baseUrl;
   private final AccountRepository accountRepository;
   private final CategoryRepository categoryRepository;
+  @Inject private MessagesApi messagesApi;
 
   ProgramFormBuilder(
       Config configuration,
@@ -170,6 +177,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
+    // getting the default confirmation message from the messages file, substituting with preview values for admin UI.
+    String defaultConfirmationMsg =
+        messagesApi
+            .preferred(request)
+            .at("content.confirmed", "<Program Name>", "<Unique ID>");
 
     formTag.with(
         requiredFieldsExplanationContent(),
@@ -344,12 +356,21 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
                 buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
+        // Use a details tag to show the default confirmation message. This lets the admin know what will be sent by default.
+        details()
+            .withClasses("mb-4")
+            .with(
+                summary("Show default message")
+                .withClasses("font-semibold", "usa-link"),
+                div(defaultConfirmationMsg)  // Default confirmation message
+                .withClasses("p-3", "bg-base-lighter", "border", "usa-prose")
+            ),
         // Confirmation message
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
             .setFieldName("localizedConfirmationMessage")
             .setLabelText(
-                "A custom message that will be shown on the confirmation page after an application"
+                "Add a custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"
                     + " application process and/or highlight other programs to apply for.")
             .setMarkdownSupported(true)
