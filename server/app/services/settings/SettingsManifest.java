@@ -1102,6 +1102,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled(RequestHeader request) {
+    return getBool("YES_NO_QUESTION_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2340,6 +2345,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
                               + " URLs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
+                              + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
