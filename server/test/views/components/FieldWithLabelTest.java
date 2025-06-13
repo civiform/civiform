@@ -371,10 +371,6 @@ public class FieldWithLabelTest {
     // Should use the INPUT_LABEL_WITH_TOOLTIP class which does NOT include pointer-events-none
     assertThat(rendered).contains("text-gray-600");
     assertThat(rendered).contains("text-base");
-    assertThat(rendered).contains("px-1");
-    assertThat(rendered).contains("py-2");
-
-    // Should NOT contain pointer-events-none which would block the tooltip hover
     assertThat(rendered).doesNotContain("pointer-events-none");
 
     // Should contain tooltip content

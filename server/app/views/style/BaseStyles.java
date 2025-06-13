@@ -68,13 +68,15 @@ public final class BaseStyles {
           FORM_FIELD_ERROR_BORDER_COLOR);
 
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
+  public static final String BASE_INPUT_LABEL_STYLES =
+      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base", "px-1", "py-2");
+
+  /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =
-      StyleUtils.joinStyles(
-          "pointer-events-none", BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base", "px-1", "py-2");
+      StyleUtils.joinStyles("pointer-events-none", BASE_INPUT_LABEL_STYLES);
 
   /** For use on `label` elements that need to have interactive tooltip elements inside them. */
-  public static final String INPUT_LABEL_WITH_TOOLTIP =
-      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base", "px-1", "py-2");
+  public static final String INPUT_LABEL_WITH_TOOLTIP = BASE_INPUT_LABEL_STYLES;
 
   /**
    * For use on a `label` that labels a checkbox. The label element should contain the checkbox

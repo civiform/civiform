@@ -596,7 +596,8 @@ public class FieldWithLabel {
             ? screenReaderText
             : toolTipText.isPresent() ? labelText + " " : labelText;
 
-    // Use the special tooltip-friendly label class when a tooltip is present
+    // Use the special tooltip-friendly label class when a tooltip is present and we're not using
+    // USWDS
     String labelClass =
         labelText.isEmpty()
             ? "sr-only"
