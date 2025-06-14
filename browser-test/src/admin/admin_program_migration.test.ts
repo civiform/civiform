@@ -1,5 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 import {
   ProgramLifecycle,
   ProgramType,
@@ -120,6 +125,11 @@ test.describe('program migration', () => {
 
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
     })
 
@@ -537,6 +547,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import', async ({
     page,
     adminPrograms,
@@ -547,6 +558,10 @@ test.describe('program migration', () => {
       await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
     })
 
     let downloadedComprehensiveProgram: string
@@ -719,6 +734,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import with no duplicate questions enabled', async ({
     page,
     adminPrograms,
@@ -732,6 +748,10 @@ test.describe('program migration', () => {
       await enableFeatureFlag(
         page,
         'no_duplicate_questions_for_migration_enabled',
+      )
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
       )
     })
 

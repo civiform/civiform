@@ -381,6 +381,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     // save the program
     controller.hxSaveProgram(
         fakeRequestBuilder()
+            .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
             .method("POST")
             .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
             .build());
@@ -394,6 +395,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
+                .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());
@@ -417,6 +419,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     // save the program
     controller.hxSaveProgram(
         fakeRequestBuilder()
+            .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
             .method("POST")
             .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
             .build());
@@ -433,6 +436,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
+                .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());
@@ -1910,7 +1914,8 @@ public class AdminImportControllerTest extends ResetPostgres {
             "primaryApplicantInfoTags" : [ ]
           }
         } ]
-      }""";
+      }\
+      """;
 
   public static final String PROGRAM_JSON_WITH_PAI_TAGS =
       """
