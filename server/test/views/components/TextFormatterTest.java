@@ -265,7 +265,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             """
-            <h2>Hello!</h2>
+            <p>Hello!</p>
             <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
              <code>inline code</code></p>
             """);
@@ -280,26 +280,28 @@ public class TextFormatterTest extends ResetPostgres {
   }
 
   @Test
-  public void replacesH1Tags() {
-    String stringWithH1Markdown =
+  public void replacesAllMarkdownHeadingsWithParagraphs() {
+    String markdown =
         """
-        # Header 1
-        should be changed to h2 but
-        ## Header 2
-        and
-        ### Header 3
-        should be allowed""";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatTextForAdmins(stringWithH1Markdown);
+        # Heading 1
+        ## Heading 2
+        ### Heading 3
+        #### Heading 4
+        ##### Heading 5
+        ###### Heading 6
+        """;
+
+    ImmutableList<DomContent> formattedText = TextFormatter.formatTextForAdmins(markdown);
+
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             """
-            <h2>Header 1</h2>
-            <p>should be changed to h2 but</p>
-            <h2>Header 2</h2>
-            <p>and</p>
-            <h3 class="text-lg">Header 3</h3>
-            <p>should be allowed</p>
+            <p>Heading 1</p>
+            <p>Heading 2</p>
+            <p>Heading 3</p>
+            <p>Heading 4</p>
+            <p>Heading 5</p>
+            <p>Heading 6</p>
             """);
   }
 
@@ -366,7 +368,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(formattedText)
         .isEqualTo(
             """
-            <h2>Hello!</h2>
+            <p>Hello!</p>
             <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
              <code>inline code</code></p>
             """);
