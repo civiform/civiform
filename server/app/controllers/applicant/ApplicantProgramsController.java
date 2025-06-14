@@ -275,7 +275,40 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> edit(Request request, long programId) {
+  public CompletionStage<Result> edit(
+      Request request, String programParam, Boolean isProgramParam) {
+    // Redirect home when the program slug URL feature is enabled and route receives a program id
+    // (numeric) instead of program slug.
+    // TODO(): consider making URL with program id invalid instead of redirecting. For this, we
+    // should add some metrics to track whether is safe to do it.
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isProgramParam && StringUtils.isNumeric(programParam)) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> applicantId = getApplicantId(request);
+    if (applicantId.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    long applicantIdValue = applicantId.get();
+    if (programSlugUrlEnabled && isProgramParam) {
+      return programSlugHandler
+          .getLatestProgramId(programParam, applicantIdValue)
+          .thenCompose(programId -> editWithApplicantId(request, applicantIdValue, programId));
+    }
+
+    try {
+      Long programId = Long.parseLong(programParam);
+      return editWithApplicantId(request, applicantIdValue, programId);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Could not parse value from '%s' to a numeric value'", programParam));
+    }
+  }
+
+  @Secure
+  public CompletionStage<Result> edit(Request request, Long programId) {
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
