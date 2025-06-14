@@ -11,6 +11,7 @@ public final class Models {
       ImmutableList.of(
           AccountModel.class,
           ApiKeyModel.class,
+          ApiBridgeConfigurationModel.class,
           ApplicantModel.class,
           ApplicationModel.class,
           ApplicationEventModel.class,
