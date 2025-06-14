@@ -36,6 +36,7 @@ public enum QuestionType {
   STATIC("Static Text", StaticContentQuestion.class),
   TEXT("Text", TextQuestion.class),
   PHONE("Phone Number", PhoneQuestion.class),
+  YES_NO("Yes/No", SingleSelectQuestion.class),
   NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;

@@ -335,7 +335,7 @@ public final class ApplicantQuestion {
       case ID -> createIdQuestion();
       case NAME -> createNameQuestion();
       case NUMBER -> createNumberQuestion(); // fallthrough to RADIO_BUTTON
-      case DROPDOWN, RADIO_BUTTON -> createSingleSelectQuestion();
+      case DROPDOWN, RADIO_BUTTON, YES_NO -> createSingleSelectQuestion();
       case ENUMERATOR -> createEnumeratorQuestion();
       case TEXT -> createTextQuestion();
       case STATIC -> createStaticContentQuestion();

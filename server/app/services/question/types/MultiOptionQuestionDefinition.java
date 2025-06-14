@@ -26,7 +26,8 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public enum MultiOptionQuestionType {
     CHECKBOX,
     DROPDOWN,
-    RADIO_BUTTON
+    RADIO_BUTTON,
+    YES_NO
   }
 
   private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
@@ -70,6 +71,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
       case CHECKBOX -> QuestionType.CHECKBOX;
       case DROPDOWN -> QuestionType.DROPDOWN;
       case RADIO_BUTTON -> QuestionType.RADIO_BUTTON;
+      case YES_NO -> QuestionType.YES_NO;
     };
   }
 
