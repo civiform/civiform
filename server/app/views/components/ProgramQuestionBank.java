@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
-import services.AlertType;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
@@ -173,11 +172,9 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd))));
     }
     contentDiv.with(

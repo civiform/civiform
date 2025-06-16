@@ -33,7 +33,8 @@ public final class ApiDocsController {
    * Like {@link #docsForSlug}, but defaults to an arbitrary program when one is not set in the URL.
    */
   public Result index(Http.Request request) {
-    Optional<String> firstProgramSlug = programService.getAllProgramSlugs().stream().findFirst();
+    Optional<String> firstProgramSlug =
+        programService.getAllNonExternalProgramSlugs().stream().findFirst();
     return firstProgramSlug
         .map(slug -> redirect(routes.ApiDocsController.activeDocsForSlug(slug)))
         .orElse(
@@ -56,11 +57,16 @@ public final class ApiDocsController {
       return notFound("API Docs are not enabled.");
     }
 
-    ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
+    ImmutableSet<String> allNonExternalProgramSlugs =
+        programService.getAllNonExternalProgramSlugs();
     Optional<ProgramDefinition> programDefinition =
-        getProgramDefinition(selectedProgramSlug, useActiveVersion);
+        allNonExternalProgramSlugs.contains(selectedProgramSlug)
+            ? getProgramDefinition(selectedProgramSlug, useActiveVersion)
+            : Optional.empty();
 
-    return ok(docsView.render(request, selectedProgramSlug, programDefinition, allProgramSlugs));
+    return ok(
+        docsView.render(
+            request, selectedProgramSlug, programDefinition, allNonExternalProgramSlugs));
   }
 
   private Optional<ProgramDefinition> getProgramDefinition(
