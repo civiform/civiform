@@ -50,7 +50,7 @@ fi
 if [[ "${repo_type}" == "not-worktree" ]]; then
   docker run --rm ${interactive_flag} \
     -v "$(pwd):/code" \
-    civiform/formatter \
+    civiform-formatter \
     "$@"
 
 # If repo_type is a file then the current folder was created with the command `git worktree add` which
@@ -68,7 +68,7 @@ elif [[ "${repo_type}" == "worktree" ]]; then
   docker run --rm ${interactive_flag} \
     -v "$(pwd):/code" \
     -v "${worktree_root}:${worktree_root}" \
-    civiform/formatter \
+    civiform-formatter \
     "$@"
 else
   echo "Could not find the git work tree for ${GIT_DIR}"
