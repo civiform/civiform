@@ -132,7 +132,7 @@ jobs:
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
 
       - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
-        #if: ${{ steps.check_build.outputs.build == 'build' }}
+        if: ${{ steps.check_build.outputs.build == 'build' }}
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
