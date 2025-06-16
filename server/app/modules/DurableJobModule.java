@@ -17,10 +17,7 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.CalculateEligibilityDeterminationJob;
-import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
-import durablejobs.jobs.CopyFileKeyForMultipleFileUpload;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -169,16 +166,6 @@ public final class DurableJobModule extends AbstractModule {
       CategoryRepository categoryRepository, Environment environment) {
     var durableJobRegistry = new DurableJobRegistry();
 
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
-
     // TODO(#8833): Remove job from registry once all category translations are in.
     durableJobRegistry.registerStartupJob(
         DurableJobName.ADD_CATEGORY_AND_TRANSLATION,
@@ -186,11 +173,6 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
                 categoryRepository, environment, persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new CopyFileKeyForMultipleFileUpload(persistedDurableJob));
 
     return durableJobRegistry;
   }
