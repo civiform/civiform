@@ -97,7 +97,7 @@ public final class QuestionFormBuilder {
       case TEXT -> new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       case PHONE -> new PhoneQuestionForm((PhoneQuestionDefinition) questionDefinition);
       case YES_NO ->
-          new RadioButtonQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
+          new YesNoQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
       default -> throw new InvalidQuestionTypeException(questionType.toString());
     };
   }
