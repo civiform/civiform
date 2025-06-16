@@ -74,8 +74,12 @@ public final class QuestionConfig {
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case PHONE:
         return Optional.of(config.addPhoneConfig().getContainer());
+      case YES_NO:
+        return Optional.of(
+            config
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
-      case YES_NO: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
             config
@@ -354,6 +358,108 @@ public final class QuestionConfig {
                 .getNumberTag()
                 .withClasses("hidden"));
     return this;
+  }
+
+  private QuestionConfig addDefaultYesNoQuestionFields(
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option indexes need to be the same size.");
+    ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
+    optionsBuilder.add(
+        yesNoOptionQuestionField(
+            Optional.of(
+                LocalizedQuestionOption.create(
+                    -1, 0, "yes", "Yes", LocalizedStrings.DEFAULT_LOCALE)),
+            messages,
+            /* isForNewOption= */ false));
+    optionsBuilder.add(
+        yesNoOptionQuestionField(
+            Optional.of(
+                LocalizedQuestionOption.create(-1, 1, "no", "No", LocalizedStrings.DEFAULT_LOCALE)),
+            messages,
+            /* isForNewOption= */ false));
+    content.with(optionsBuilder.build());
+    return this;
+  }
+
+  private static DivTag yesNoOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
+    DivTag optionAdminName =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
+            .setLabelText("Admin ID")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
+            .showFieldErrors(false)
+            .setReadOnly(true)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-1",
+                "row-span-2");
+    DivTag optionIndexInput =
+        isForNewOption
+            ? div()
+            : FieldWithLabel.input()
+                .setFieldName("optionIds[]")
+                .setValue(String.valueOf(existingOption.get().id()))
+                .setScreenReaderText("option ids")
+                .getInputTag()
+                .withClasses("hidden");
+    DivTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Some markdown is supported, ")
+            .setMarkdownLinkText("see how it works")
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .setReadOnly(!isForNewOption)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
+    return div()
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
+            "grid",
+            "grid-cols-8",
+            "grid-rows-4",
+            "items-center",
+            "mb-4")
+        .with(
+            optionIndexInput,
+            optionAdminName,
+            optionInput,
+            FieldWithLabel.checkbox()
+                .setFieldName("include")
+                .setLabelText("include")
+                .setValue("true")
+                .setChecked(!isForNewOption)
+                .getCheckboxTag());
   }
 
   /**

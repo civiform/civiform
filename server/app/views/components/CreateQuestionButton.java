@@ -51,10 +51,6 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      if (type == QuestionType.YES_NO) {
-        // Do not attempt to render a YES_NO question unless the experiment is enabled.
-        continue;
-      }
 
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
