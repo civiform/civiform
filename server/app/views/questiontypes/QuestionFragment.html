@@ -75,7 +75,7 @@
         th:replace="~{questiontypes/TextQuestionFragment :: text(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
-     <th:block th:case="'Yes No'">
+    <th:block th:case="'Yes/No'">
       <div
         th:replace="~{questiontypes/YesNoQuestionFragment :: yes_no(${question}, ${questionRendererParams})}"
       ></div>
