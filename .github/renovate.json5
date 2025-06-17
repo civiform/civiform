@@ -92,7 +92,7 @@
       description: "Ensures GitHub Actions use commit hashes for security and include a version comment.",
     },
     {
-      // Using groupName null prevents all the GitHub Actions updates being done in a single commit
+      // Using groupName null prevents all the Docker updates being done in a single commit
       groupName: null,
       matchManagers: ["docker-compose", "dockerfile"],
       pinDigests: true,
