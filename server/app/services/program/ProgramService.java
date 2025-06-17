@@ -1977,6 +1977,7 @@ public final class ProgramService {
     if (!program.hasValidPredicateOrdering()) {
       throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
     }
+
     return syncProgramDefinitionQuestions(
             programRepository.getShallowProgramDefinition(
                 programRepository.updateProgramSync(program.toProgram())))
