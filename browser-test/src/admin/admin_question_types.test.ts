@@ -51,7 +51,7 @@ test.describe('Admin question list on questions page', () => {
     // Expect Yes/No question to not be visible.
     await expect(
       dropdownLocator.getByText('Yes/No', {exact: true}),
-    ).toHaveCount(0)
+    ).toBeHidden()
   })
 
   test('displays yes/no question when feature flag is enabled', async ({
@@ -123,7 +123,7 @@ test.describe('Admin question list on programs page', () => {
     // Expect Yes/No question to not be visible.
     await expect(
       dropdownLocator.getByText('Yes/No', {exact: true}),
-    ).toHaveCount(0)
+    ).toBeHidden()
   })
 
   test('displays yes/no question when feature flag is enabled', async ({
