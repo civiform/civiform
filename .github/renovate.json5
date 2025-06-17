@@ -1,7 +1,16 @@
 {
   extends: ["config:recommended"],
+  // Default timezone is UTC. Not running during the "work day" will free up github
+  // actions to run and lessen calls to docker hub.
+  //
+  // This will allow the schedule to run within this time range:
+  //   PST/PDT -> 9pm - 3am
+  //   EST/EDT -> Midnight - 6am 
   schedule: ["after 4am", "before 10am"],
+  // Github label(s) applied to the generated pull request, unless overridden below
   labels: ["dependencies"],
+  // These files deviate from standard compose naming convention. 
+  // This makes sure renovate finds them.
   "docker-compose": {
     managerFilePatterns: [
       "/browser-test/browser-test-compose.yml/",
@@ -27,6 +36,12 @@
     },
     {
       groupName: "jdk and jre",
+      // Allow for version 17.*
+      // 
+      // Examples of what this should match are:
+      //   17.0.12_7-jdk-alpine
+      //   17.0.12_7-jre-alpine
+      //   17.0.12-10
       allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
       matchPackageNames: [
         "bellsoft/liberica-openjdk-alpine{/,}**",
@@ -68,6 +83,7 @@
       allowedVersions: "<4.0.0",
     },
     {
+      // Using groupName null prevents all the GitHub Actions updates being done in a single commit
       groupName: null,
       matchManagers: ["github-actions"],
       pinDigests: true,
@@ -76,6 +92,7 @@
       description: "Ensures GitHub Actions use commit hashes for security and include a version comment.",
     },
     {
+      // Using groupName null prevents all the GitHub Actions updates being done in a single commit
       groupName: null,
       matchManagers: ["docker-compose", "dockerfile"],
       pinDigests: true,
