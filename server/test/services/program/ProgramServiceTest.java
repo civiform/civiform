@@ -2495,24 +2495,24 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
 
-    System.out.println("HI FROM TEST block name " + addedBlock.name() + " and block id " + addedBlock.id());
-
-    assertThat(addedBlock.localizedEligibilityMessage()).isPresent();
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(eligibilityMsg);
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage()).isPresent();
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(eligibilityMsg);
   }
 
   @Test
   public void setBlockEligibilityMessage_updatesExistingEligibilityMessage() throws Exception {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
-    // See commented out tests below
     Optional<LocalizedStrings> secondEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
 
@@ -2520,14 +2520,23 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    BlockDefinition blockWithSetEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+
+    assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(firstEligibilityMsg);
+
+    ProgramDefinition programAfterEligibilityMessageUpdate =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageUpdate.getBlockDefinition(addedBlock.id());
     // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(firstEligibilityMsg);
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(secondEligibilityMsg);
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(secondEligibilityMsg);
   }
 
   @Test
