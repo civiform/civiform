@@ -80,6 +80,7 @@ public final class QuestionConfig {
                 .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
                 .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
+      case YES_NO: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
             config

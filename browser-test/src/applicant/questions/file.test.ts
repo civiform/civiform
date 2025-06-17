@@ -7,7 +7,7 @@ import {
   enableFeatureFlag,
 } from '../../support'
 
-test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
+test.describe('file upload applicant flow', () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
   })

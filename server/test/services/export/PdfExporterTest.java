@@ -654,6 +654,9 @@ public class PdfExporterTest extends AbstractExporterTest {
       applicant file
       -- my-file-key UPLOADED (click to download) --
       Answered on : 1969-12-31
+      applicant has a dog
+      Yes
+      Answered on : 1969-12-31
       applicant household members
       item1
       item2

@@ -49,7 +49,10 @@ public final class ActiveAndDraftQuestions {
     // TODO(#10703): Fix this.
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
-    VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();
+    this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsByName =
+        repository.previewPublishNewSynchronizedVersion().questionToPrograms();
+
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionDefinitionsForVersion(active).stream()
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
@@ -72,8 +75,6 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName = repository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(

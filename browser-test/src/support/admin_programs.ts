@@ -1856,7 +1856,7 @@ export class AdminPrograms {
   getProgramCard(programName: string, lifecycle: string): Locator {
     return this.page
       .locator('div.cf-admin-program-card')
-      .filter({has: this.page.getByText(programName)})
+      .filter({has: this.page.getByText(programName, {exact: true})})
       .filter({has: this.page.getByText(lifecycle)})
   }
 

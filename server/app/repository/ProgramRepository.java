@@ -140,6 +140,20 @@ public final class ProgramRepository {
     return names.build();
   }
 
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
+    List<SqlRow> rows =
+        database
+            .sqlQuery("SELECT DISTINCT name FROM programs WHERE program_type <> 'external'")
+            .findList();
+
+    for (SqlRow row : rows) {
+      names.add(row.getString("name"));
+    }
+
+    return names.build();
+  }
+
   /**
    * Retrieves the program definition for the given program.
    *
@@ -432,8 +446,8 @@ public final class ProgramRepository {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the application matches the specified filters. Does not include drafts or deleted
-   * applications. Results returned in reverse order that the applications were created.
+   * it where the application matches the specified filters. Results returned in reverse order that
+   * the applications were created.
    *
    * <p>Pagination is supported via the passed {@link BasePaginationSpec} object.
    */
@@ -449,9 +463,7 @@ public final class ProgramRepository {
             .fetch("applicant.account.managedByGroup")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
-            .in(
-                "lifecycle_stage",
-                ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
+            .in("lifecycle_stage", filters.lifecycleStages());
 
     if (filters.submitTimeFilter().fromTime().isPresent()) {
       query = query.where().ge("submit_time", filters.submitTimeFilter().fromTime().get());
