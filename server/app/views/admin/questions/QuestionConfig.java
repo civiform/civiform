@@ -205,28 +205,33 @@ public final class QuestionConfig {
       Optional<LocalizedQuestionOption> existingOption,
       Messages messages,
       boolean isForNewOption,
-      boolean readOnly) {
-    return FieldWithLabel.input()
-        .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
-        .setLabelText("Admin ID")
-        .setRequired(true)
-        .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
-        .setValue(existingOption.map(LocalizedQuestionOption::adminName))
-        .setFieldErrors(
-            messages,
-            ImmutableSet.of(
-                ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
-        .showFieldErrors(false)
-        .setReadOnly(readOnly || !isForNewOption)
-        .getInputTag()
-        .withClasses(
-            ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
-            "col-start-1",
-            "col-span-5",
-            "mb-2",
-            "ml-2",
-            "row-start-1",
-            "row-span-2");
+      boolean hidden) {
+    DivTag input =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
+            .setLabelText("Admin ID")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
+            .showFieldErrors(false)
+            .setReadOnly(!isForNewOption)
+            .getInputTag();
+
+    if (hidden) {
+      return input.withClasses("display-none");
+    }
+    return input.withClasses(
+        ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
+        "col-start-1",
+        "col-span-5",
+        "mb-2",
+        "ml-2",
+        "row-start-1",
+        "row-span-2");
   }
 
   private static DivTag multiOptionQuestionFieldOptionInput(
@@ -274,7 +279,7 @@ public final class QuestionConfig {
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
     DivTag optionAdminName =
         multiOptionQuestionFieldAdminName(
-            existingOption, messages, isForNewOption, /* readOnly= */ false);
+            existingOption, messages, isForNewOption, /* hidden= */ false);
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -418,7 +423,7 @@ public final class QuestionConfig {
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
     DivTag optionAdminName =
         multiOptionQuestionFieldAdminName(
-            existingOption, messages, isForNewOption, /* readOnly= */ true);
+            existingOption, messages, isForNewOption, /* hidden= */ true);
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -427,7 +432,7 @@ public final class QuestionConfig {
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
                 .getInputTag()
-                .withClasses("hidden");
+                .withClasses("display-none");
     DivTag optionInput =
         multiOptionQuestionFieldOptionInput(
             existingOption,
@@ -437,13 +442,7 @@ public final class QuestionConfig {
             /* markdownSupported= */ false);
     // TODO(#10778): Add checkbox allowing admins to control which options to display.
     return div()
-        .withClasses(
-            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-            "grid",
-            "grid-cols-8",
-            "grid-rows-4",
-            "items-center",
-            "mb-4")
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
         .with(optionIndexInput, optionAdminName, optionInput);
   }
 

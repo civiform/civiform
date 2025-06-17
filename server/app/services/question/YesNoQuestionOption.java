@@ -1,0 +1,39 @@
+package services.question;
+
+import com.google.auto.value.AutoValue;
+import java.util.Locale;
+import views.components.TextFormatter;
+
+/**
+ * Represents a single option in a {@link services.question.types.MultiOptionQuestionDefinition},
+ * localized to a specific locale.
+ */
+@AutoValue
+public abstract class YesNoQuestionOption {
+
+  /** Create a YesNoQuestionOption. */
+  public static YesNoQuestionOption create(
+      long id, long order, String adminName, String optionText, Locale locale) {
+    return new AutoValue_YesNoQuestionOption(id, order, adminName, optionText, locale);
+  }
+
+  /** The id for this option. */
+  public abstract long id();
+
+  /** The order of the option. */
+  public abstract long order();
+
+  /** The immutable identifier for this option, used to reference it in the API and predicates. */
+  public abstract String adminName();
+
+  /** The text strings to display to the user. */
+  public abstract String optionText();
+
+  /** Sanitized HTML for the option that processes Markdown. */
+  public String formattedOptionText(String ariaLabelForNewTabs) {
+    return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false, ariaLabelForNewTabs);
+  }
+
+  /** The locale this option is localized to. */
+  public abstract Locale locale();
+}
