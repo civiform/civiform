@@ -1978,6 +1978,12 @@ public final class ProgramService {
       throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
     }
 
+    for (int i = 0; i < blocks.size(); i++) {
+      System.out.println("block name " + blocks.get(i).name());
+      System.out.println("block id " + blocks.get(i).id());
+      System.out.println("block localizedEligibilityMessage " + blocks.get(i).localizedEligibilityMessage());
+      System.out.println("");
+    }
     return syncProgramDefinitionQuestions(
             programRepository.getShallowProgramDefinition(
                 programRepository.updateProgramSync(program.toProgram())))

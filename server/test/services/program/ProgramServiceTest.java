@@ -2496,20 +2496,23 @@ public class ProgramServiceTest extends ResetPostgres {
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+
+    System.out.println("HI FROM TEST block name " + addedBlock.name() + " and block id " + addedBlock.id());
+
+    assertThat(addedBlock.localizedEligibilityMessage()).isPresent();
     // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (eligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(eligibilityMsg);
   }
 
   @Test
   public void setBlockEligibilityMessage_updatesExistingEligibilityMessage() throws Exception {
     ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+        ProgramBuilder.newDraftProgram().buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     // See commented out tests below
-    @SuppressWarnings("unused")
     Optional<LocalizedStrings> secondEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
 
@@ -2520,11 +2523,11 @@ public class ProgramServiceTest extends ResetPostgres {
     ps.setBlockEligibilityMessage(
         updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
     // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (firstEligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(firstEligibilityMsg);
     ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+        updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
     // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (secondEligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(secondEligibilityMsg);
   }
 
   @Test
