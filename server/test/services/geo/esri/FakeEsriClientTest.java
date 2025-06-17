@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
@@ -11,15 +12,16 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 import play.libs.Json;
+import repository.ResetPostgres;
 import services.geo.AddressLocation;
 import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.FindAddressCandidatesResponse;
 
-public class FakeEsriClientTest {
+public class FakeEsriClientTest extends ResetPostgres {
   private final EsriTestHelper helper;
 
   public FakeEsriClientTest() throws Exception {
-    helper = new EsriTestHelper(TestType.FAKE);
+    helper = new EsriTestHelper(TestType.FAKE, instanceOf(ObjectMapper.class));
   }
 
   @Test

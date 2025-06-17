@@ -100,7 +100,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void serialize_mapperThrowsException_returnsError() throws JsonProcessingException {
-    ObjectMapper badObjectMapper = spy(new ObjectMapper());
+    ObjectMapper badObjectMapper = spy(instanceOf(ObjectMapper.class));
     ObjectWriter badObjectWriter = spy(badObjectMapper.writerWithDefaultPrettyPrinter());
     when(badObjectMapper.writerWithDefaultPrettyPrinter()).thenReturn(badObjectWriter);
     when(badObjectWriter.writeValueAsString(any()))

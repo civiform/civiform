@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -38,14 +36,13 @@ import services.geo.AddressSuggestion;
  * the provided token matches the freshly computed signature of the provided payload.
  */
 public final class AddressSuggestionJsonSerializer {
-  private static final ObjectMapper mapper =
-      new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-
+  private final ObjectMapper mapper;
   private final String signingSecret;
 
   @Inject
-  public AddressSuggestionJsonSerializer(Config appConfig) {
+  public AddressSuggestionJsonSerializer(Config appConfig, ObjectMapper mapper) {
     this.signingSecret = checkNotNull(appConfig).getString("play.http.secret.key");
+    this.mapper = checkNotNull(mapper);
   }
 
   /**

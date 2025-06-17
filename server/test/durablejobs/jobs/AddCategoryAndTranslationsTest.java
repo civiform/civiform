@@ -2,6 +2,7 @@ package durablejobs.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -90,7 +91,8 @@ public class AddCategoryAndTranslationsTest extends ResetPostgres {
         new AddCategoryAndTranslationsJob(
             instanceOf(CategoryRepository.class),
             environment,
-            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()));
+            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()),
+            instanceOf(ObjectMapper.class));
 
     job.run();
   }

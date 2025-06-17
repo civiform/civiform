@@ -9,6 +9,7 @@ import static services.apibridge.ApiBridgeServiceDto.IProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ValidationProblemDetail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,8 @@ public class ApiBridgeServiceTest extends ResetPostgres {
       wsClient.setHeaders(Map.of("Emulate-Response-Code", List.of(emulatedResponseCode)));
     }
 
-    return new ApiBridgeService(wsClient, instanceOf(ApiBridgeExecutionContext.class));
+    return new ApiBridgeService(
+        wsClient, instanceOf(ApiBridgeExecutionContext.class), instanceOf(ObjectMapper.class));
   }
 
   /*

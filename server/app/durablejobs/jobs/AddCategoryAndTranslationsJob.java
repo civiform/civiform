@@ -23,20 +23,22 @@ import services.LocalizedStrings;
 /* Iterates through all categories and ensures translations aren't missing. */
 public final class AddCategoryAndTranslationsJob extends DurableJob {
   private static final Logger logger = LoggerFactory.getLogger(AddCategoryAndTranslationsJob.class);
-  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   private final CategoryRepository categoryRepository;
   private final Environment environment;
   private final PersistedDurableJobModel persistedDurableJobModel;
+  private final ObjectMapper mapper;
   private final Database database;
 
   public AddCategoryAndTranslationsJob(
       CategoryRepository categoryRepository,
       Environment environment,
-      PersistedDurableJobModel persistedDurableJobModel) {
+      PersistedDurableJobModel persistedDurableJobModel,
+      ObjectMapper mapper) {
     this.categoryRepository = checkNotNull(categoryRepository);
     this.environment = checkNotNull(environment);
     this.persistedDurableJobModel = persistedDurableJobModel;
+    this.mapper = checkNotNull(mapper);
     this.database = DB.getDefault();
   }
 
@@ -70,7 +72,7 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
             logger.info("Translations mismatch for category ID: {}", dbCategory.id);
             try (Transaction stepTransaction = database.beginTransaction(TxScope.mandatory())) {
               JsonNode localizedNameToSet =
-                  objectMapper.readTree(objectMapper.writeValueAsString(fileTranslations));
+                  mapper.readTree(mapper.writeValueAsString(fileTranslations));
               categoryRepository.updateCategoryLocalizedName(
                   dbCategory.id, localizedNameToSet.toString());
 
