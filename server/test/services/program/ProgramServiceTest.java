@@ -2498,15 +2498,13 @@ public class ProgramServiceTest extends ResetPostgres {
             updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
     BlockDefinition blockWithUpdatedEligibilityMessage =
         programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
-
-    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage()).isPresent();
     assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
         .isEqualTo(eligibilityMsg);
   }
 
   @Test
   public void setBlockEligibilityMessage_updatesExistingEligibilityMessage() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
@@ -2523,16 +2521,14 @@ public class ProgramServiceTest extends ResetPostgres {
             updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
     BlockDefinition blockWithSetEligibilityMessage =
         programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
-
     assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
-        .isEqualTo(firstEligibilityMsg);
+        .isEqualTo(firstEligibilityMsg); 
 
     ProgramDefinition programAfterEligibilityMessageUpdate =
         ps.setBlockEligibilityMessage(
             updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
     BlockDefinition blockWithUpdatedEligibilityMessage =
         programAfterEligibilityMessageUpdate.getBlockDefinition(addedBlock.id());
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
     assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
         .isEqualTo(secondEligibilityMsg);
   }
