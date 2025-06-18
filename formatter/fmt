@@ -153,6 +153,7 @@ else
   eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
+  echo "Run eslint on /server"
   cd server
   npm install --silent
 
@@ -161,6 +162,7 @@ else
   # quoted it gets treated as a single path.
   npx eslint --fix ${eslint_app_file_list[@]}
 
+  echo "Run eslint on /browser-test"
   cd ../browser-test
   npm install --silent
 
