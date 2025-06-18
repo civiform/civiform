@@ -1571,6 +1571,40 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
         })
       })
+
+      test('when editing a default program, "Manage questions" link is visible', async ({
+        page,
+        adminPrograms,
+      }) => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram('Default Program')
+        await adminPrograms.goToProgramDescriptionPage('Default Program')
+
+        await expect(
+          page.getByRole('link', {name: 'Manage questions →'}),
+        ).toBeVisible()
+      })
+
+      test('when editing an external program, "Manage questions" link is hidden', async ({
+        page,
+        adminPrograms,
+      }) => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+        await loginAsAdmin(page)
+
+        await adminPrograms.addExternalProgram(
+          'External Program',
+          'short description',
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+        )
+        await adminPrograms.goToProgramDescriptionPage('External Program')
+
+        await expect(
+          page.getByRole('link', {name: 'Manage questions →'}),
+        ).toBeHidden()
+      })
     },
   )
 })
