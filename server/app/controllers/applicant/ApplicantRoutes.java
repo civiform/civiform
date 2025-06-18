@@ -94,7 +94,7 @@ public final class ApplicantRoutes {
 
   public Call edit(long programId) {
     return routes.ApplicantProgramsController.edit(
-        Long.toString(programId), /* maybeProgramSlug= */ false);
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**

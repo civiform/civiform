@@ -4477,7 +4477,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getLatestDraftApplication() {
+  public void getLatestApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -4487,21 +4487,55 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
+
+    // Latest application is on draft stage
     ApplicationModel draftApplication =
         applicationRepository
             .createOrUpdateDraft(applicant.id, activeProgram.id)
             .toCompletableFuture()
             .join()
             .get();
-
     Optional<ApplicationModel> result =
         subject
-            .getLatestDraftApplication(activeProgram.getSlug(), applicant.id)
+            .getLatestApplication(activeProgram.getSlug(), applicant.id)
             .toCompletableFuture()
             .join();
-
     assertThat(result).isPresent();
     assertThat(result.get().id).isEqualTo(draftApplication.id);
+    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
+    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+
+    // Latest application is on active stage
+    ApplicationModel activeApplication =
+        applicationRepository
+            .submitApplication(
+                applicant, activeProgram, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
+    result =
+        subject
+            .getLatestApplication(activeProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(activeApplication.id);
+    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
+    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+
+    // Latest application is on draft stage when there is an existent active application
+    ApplicationModel newDraftApplication =
+        applicationRepository
+            .createOrUpdateDraft(applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join()
+            .get();
+    result =
+        subject
+            .getLatestApplication(activeProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(newDraftApplication.id);
     assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
     assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
   }
@@ -4539,7 +4573,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Get the latest draft application for "program a"
     Optional<ApplicationModel> result =
         subject
-            .getLatestDraftApplication(originalProgram.getSlug(), applicant.id)
+            .getLatestApplication(originalProgram.getSlug(), applicant.id)
             .toCompletableFuture()
             .join();
 
@@ -4551,7 +4585,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getLatestDraftApplication_whenNoDraftApplication() {
+  public void getLatestDraftApplication_whenNoApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -4563,10 +4597,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     Optional<ApplicationModel> result =
-        subject
-            .getLatestDraftApplication(program.getSlug(), applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.getLatestApplication(program.getSlug(), applicant.id).toCompletableFuture().join();
 
     assertThat(result).isEmpty();
   }

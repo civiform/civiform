@@ -342,6 +342,34 @@ public final class ApplicationRepository {
   }
 
   /**
+   * Get all applications with the specified {@link LifecycleStage}s for an applicant by most recent
+   * creation order (as signaled by the application ID).
+   *
+   * <p>The {@link ProgramModel} associated with the application is eagerly loaded.
+   */
+  public CompletionStage<ImmutableList<ApplicationModel>> getOrderedApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () ->
+            database
+                .find(ApplicationModel.class)
+                .orderBy("id desc")
+                .where()
+                .eq("applicant.id", applicantId)
+                .isIn("lifecycle_stage", stages)
+                .query()
+                .fetch("program")
+                .fetch("applicationEvents")
+                .setLabel("ApplicationModel.findSet")
+                .setProfileLocation(
+                    queryProfileLocationBuilder.create("getApplicationsForApplicant"))
+                .findList()
+                .stream()
+                .collect(ImmutableList.toImmutableList()),
+        dbExecutionContext.current());
+  }
+
+  /**
    * Updates a draft application, if one exists, to point to a new program
    *
    * @param applicantId the applicant ID

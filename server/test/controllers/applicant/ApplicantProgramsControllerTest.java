@@ -86,16 +86,16 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
    * Calls the controller's edit method with configurable settings.
    *
    * @param isProgramSlugEnabled whether the program slug URLs feature should be enabled
-   * @param maybeProgramSlug whether the programParam could be a program slug
+   * @param isFromUrlCall whether the call was made directly from the URL route
    * @param programParam the program parameter (either a program ID or program slug depending on
    *     context)
    * @return the Result from the controller's edit method
    */
-  Result callEdit(Boolean isProgramSlugEnabled, Boolean maybeProgramSlug, String programParam) {
+  Result callEdit(Boolean isProgramSlugEnabled, Boolean isFromUrlCall, String programParam) {
     Request request = fakeRequestBuilder().build();
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
 
-    return controller.edit(request, programParam, maybeProgramSlug).toCompletableFuture().join();
+    return controller.edit(request, programParam, isFromUrlCall).toCompletableFuture().join();
   }
 
   @Test
@@ -383,7 +383,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeaturedDisabledAndMaybeProgramSlugIsProgramSlug_error() {
+  public void edit_whenFeaturedDisabledAndIsProgramSlugFromUrl_error() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programSlug = program.getSlug();
 
@@ -392,7 +392,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             () ->
                 callEdit(
                     /* isProgramSlugEnabled= */ false,
-                    /* maybeProgramSlug= */ true,
+                    /* isFromUrlCall= */ true,
                     /* programParam= */ programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage(
@@ -400,14 +400,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeaturedDisabledAndMaybeProgramSlugIsProgramId_success() {
+  public void edit_whenFeaturedDisabledAndIsProgramIdFromUrl_success() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
     Result result =
         callEdit(
             /* isProgramSlugEnabled= */ false,
-            /* maybeProgramSlug= */ true,
+            /* isFromUrlCall= */ true,
             /* programParam= */ programId);
 
     // Successfully redirects to another route
@@ -415,7 +415,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeaturedDisabledAndNotMaybeProgramSlugIsProgramSlug_error() {
+  public void edit_whenFeaturedDisabledAndIsProgramSlugNotFromUrl_error() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programSlug = program.getSlug();
 
@@ -424,7 +424,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             () ->
                 callEdit(
                     /* isProgramSlugEnabled= */ false,
-                    /* maybeProgramSlug= */ false,
+                    /* isFromUrlCall= */ false,
                     /* programParam= */ programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage(
@@ -432,14 +432,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeaturedDisabledAndNotMaybeProgramSlugIsProgramId_success() {
+  public void edit_whenFeaturedDisabledAndIsProgramIdNotFromUrl_success() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
     Result result =
         callEdit(
             /* isProgramSlugEnabled= */ false,
-            /* maybeProgramSlug= */ false,
+            /* isFromUrlCall= */ false,
             /* programParam= */ programId);
 
     // Successfully redirects to another route
@@ -447,14 +447,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeatureEnabledAndMaybeProgramSlugIsProgramSlug_success() {
+  public void edit_whenFeatureEnabledAndProgramSlugFromUrl_success() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programSlug = program.getSlug();
 
     Result result =
         callEdit(
             /* isProgramSlugEnabled= */ true,
-            /* maybeProgramSlug= */ true,
+            /* isFromUrlCall= */ true,
             /* programParam= */ programSlug);
 
     // Successfully redirects to another route
@@ -462,14 +462,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeatureEnabledAndMaybeProgramSlugIsProgramId_redirectsToHome() {
+  public void edit_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
     Result result =
         callEdit(
             /* isProgramSlugEnabled= */ true,
-            /* maybeProgramSlug= */ true,
+            /* isFromUrlCall= */ true,
             /* programParam= */ programId);
 
     // Redirects to home since program IDs are not supported when feature is enabled and program
@@ -479,7 +479,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeatureEnabledAndNotMaybeProgramSlugIsProgramSlug_error() {
+  public void edit_whenFeatureEnabledAndIsProgramSlugNotFromUrl_error() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programSlug = program.getSlug();
 
@@ -489,7 +489,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             () ->
                 callEdit(
                     /* isProgramSlugEnabled= */ true,
-                    /* maybeProgramSlug= */ false,
+                    /* isFromUrlCall= */ false,
                     /* programParam= */ programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage(
@@ -497,14 +497,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_whenFeatureEnabledAndNotMaybeProgramSlugIsProgramId_success() {
+  public void edit_whenFeatureEnabledAndIsProgramIdNotFromUrl_success() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
     Result result =
         callEdit(
             /* isProgramSlugEnabled= */ true,
-            /* maybeProgramSlug= */ false,
+            /* isFromUrlCall= */ false,
             /* programParam= */ programId);
 
     // Successfully redirects to another route

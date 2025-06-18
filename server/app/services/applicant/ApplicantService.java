@@ -1163,13 +1163,14 @@ public final class ApplicantService {
   }
 
   /**
-   * Returns the latest draft application of an applicant for a program if it exists, or empty
-   * otherwise.
+   * Returns the latest active or draft application of an applicant for a program if it exists, or
+   * empty otherwise.
    */
-  public CompletionStage<Optional<ApplicationModel>> getLatestDraftApplication(
+  public CompletionStage<Optional<ApplicationModel>> getLatestApplication(
       String programSlug, long applicantId) {
     return applicationRepository
-        .getApplicationsForApplicant(applicantId, ImmutableSet.of(LifecycleStage.DRAFT))
+        .getOrderedApplicationsForApplicant(
+            applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
         .thenApply(
             applications ->
                 applications.stream()

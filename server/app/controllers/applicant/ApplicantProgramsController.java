@@ -275,14 +275,13 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> edit(
-      Request request, String programParam, Boolean maybeProgramSlug) {
+  public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
     // TODO(#10763): Add metrics to track how often this happens to decide whether we should make
     // this case invalid or not
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && maybeProgramSlug && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
@@ -294,7 +293,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
 
     Long applicantIdValue = applicantId.get();
-    if (programSlugUrlEnabled && maybeProgramSlug) {
+    if (programSlugUrlEnabled && isFromUrlCall) {
       return programSlugHandler
           .getLatestProgramId(programParam, applicantIdValue)
           .thenCompose(programId -> editWithApplicantId(request, applicantIdValue, programId));

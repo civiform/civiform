@@ -172,13 +172,17 @@ public final class ProgramSlugHandler {
             classLoaderExecutionContext.current());
   }
 
+  /**
+   * Returns the program ID from the applicant's latest application if one exists, otherwise returns
+   * the currently active program version ID.
+   */
   public CompletionStage<Long> getLatestProgramId(String programSlug, long applicantId) {
     return applicantService
-        .getLatestDraftApplication(programSlug, applicantId)
+        .getLatestApplication(programSlug, applicantId)
         .thenCompose(
-            draftApplication -> {
-              return draftApplication.isPresent()
-                  ? CompletableFuture.completedFuture(draftApplication.get().getProgram().id)
+            application -> {
+              return application.isPresent()
+                  ? CompletableFuture.completedFuture(application.get().getProgram().id)
                   : programService.getActiveProgramId(programSlug);
             });
   }
