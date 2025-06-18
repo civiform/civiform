@@ -2504,7 +2504,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void setBlockEligibilityMessage_updatesExistingEligibilityMessage() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
@@ -2522,7 +2523,7 @@ public class ProgramServiceTest extends ResetPostgres {
     BlockDefinition blockWithSetEligibilityMessage =
         programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
     assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
-        .isEqualTo(firstEligibilityMsg); 
+        .isEqualTo(firstEligibilityMsg);
 
     ProgramDefinition programAfterEligibilityMessageUpdate =
         ps.setBlockEligibilityMessage(
