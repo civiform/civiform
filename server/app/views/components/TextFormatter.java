@@ -71,7 +71,6 @@ public final class TextFormatter {
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText, ariaLabelForNewTabs);
-    markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
     }
@@ -102,10 +101,6 @@ public final class TextFormatter {
             .attr("role", "img")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
-  }
-
-  private static String addTextSize(String markdownText) {
-    return markdownText;
   }
 
   private static String addRequiredIndicator(String markdownText) {
@@ -167,6 +162,8 @@ public final class TextFormatter {
                 "p", "div", "a", "ul", "ol", "li", "hr", "span", "svg", "br", "em", "strong",
                 "code", "path", "pre")
             .allowElements(
+                // Convert all heading tags (h1-h6) to paragraph tags to prevent multiple h1s
+                // on a page, which violates accessibility best practices
                 (String elementName, List<String> attrs) -> "p", "h1", "h2", "h3", "h4", "h5", "h6")
             .allowWithoutAttributes()
             .allowAttributes(
