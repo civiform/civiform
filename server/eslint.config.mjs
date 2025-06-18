@@ -61,4 +61,11 @@ export default defineConfig([{
             },
         }],
     },
+
+    ignores: [
+        "target/**",
+        "dist/**",
+        "build/**",
+        "node_modules/**"
+    ]
 }]);
