@@ -47,6 +47,7 @@ export default defineConfig([{
         // default JS no-unused-vars causes false-positives on TS code. For example, enums.
         "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/no-require-imports": "off",
         "@typescript-eslint/unbound-method": ["error", {
             ignoreStatic: true,
         }],
@@ -63,9 +64,16 @@ export default defineConfig([{
     },
 
     ignores: [
+        "app/assets/javascripts/**/*.js",
         "target/**",
         "dist/**",
         "build/**",
-        "node_modules/**"
+        "public/**",
+        "node_modules/**",
+        "eslint.config.mjs",
+        "jest.config.js",
+        "postcss.config.js",
+        "tailwind.config.js",
+        "webpack.config.js"
     ]
 }]);

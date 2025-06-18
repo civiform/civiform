@@ -41,6 +41,7 @@ export default defineConfig([{
     },
 
     rules: {
+        ...playwright.configs['flat/recommended'].rules,
         "require-jsdoc": "off",
         "valid-jsdoc": "off",
         "no-unused-vars": "off",
@@ -64,6 +65,11 @@ export default defineConfig([{
         // easier to read.
         "playwright/no-nested-step": "off",
         "playwright/no-skipped-test": "off",
-        "playwright/no-wait-for-selector": "off",
-    },    
+        "playwright/no-wait-for-selector": "off"
+    },
+
+    ignores: [
+        "tmp/**",
+        "eslint.config.mjs"
+    ]   
  }]);
