@@ -1254,7 +1254,7 @@ export class AdminPrograms {
       .locator(
         `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
       )
-      .dispatchEvent('click')
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
