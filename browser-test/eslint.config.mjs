@@ -22,7 +22,6 @@ export default defineConfig([{
         "typescriptEslint/recommended-type-checked",
         google,
         prettier,
-        "playwright/recommended",
         "noUnsanitized/recommended",
     ],
 
