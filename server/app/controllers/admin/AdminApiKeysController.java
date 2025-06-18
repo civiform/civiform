@@ -124,6 +124,8 @@ public class AdminApiKeysController extends CiviFormController {
 
     return badRequest(
         newOneView.render(
-            request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
+            request,
+            programService.getAllNonExternalProgramNames(),
+            Optional.of(result.getForm())));
   }
 }
