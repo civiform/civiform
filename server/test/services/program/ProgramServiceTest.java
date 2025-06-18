@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -3198,8 +3196,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(programId)))
                     .build())
             .build();
-    ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+    ObjectMapper mapper = instanceOf(ObjectMapper.class);
 
     // Directly update the table with DB.sqlUpdate and execute. We can't save it through
     // the ebean model because the preupdate method will correct block ordering, and we
