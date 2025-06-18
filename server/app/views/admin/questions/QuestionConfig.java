@@ -358,6 +358,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
+                      Optional.of(false),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -373,6 +374,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
+                      Optional.of(false),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
@@ -402,19 +404,37 @@ public final class QuestionConfig {
             == multiOptionQuestionForm.getOptions().size(),
         "Options and Option indexes need to be the same size.");
     ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
-    optionsBuilder.add(
-        yesNoOptionQuestionField(
-            Optional.of(
-                LocalizedQuestionOption.create(
-                    -1, 0, "yes", "Yes", LocalizedStrings.DEFAULT_LOCALE)),
-            messages,
-            /* isForNewOption= */ false));
-    optionsBuilder.add(
-        yesNoOptionQuestionField(
-            Optional.of(
-                LocalizedQuestionOption.create(-1, 1, "no", "No", LocalizedStrings.DEFAULT_LOCALE)),
-            messages,
-            /* isForNewOption= */ false));
+    if (multiOptionQuestionForm.getOptions().size() == 0) {
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      -1, 0, "yes", "Yes", Optional.of(false), LocalizedStrings.DEFAULT_LOCALE)),
+              messages,
+              /* isForNewOption= */ true));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      -1, 1, "no", "No", Optional.of(false), LocalizedStrings.DEFAULT_LOCALE)),
+              messages,
+              /* isForNewOption= */ true));
+    } else {
+      for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+        optionsBuilder.add(
+            yesNoOptionQuestionField(
+                Optional.of(
+                    LocalizedQuestionOption.create(
+                        multiOptionQuestionForm.getOptionIds().get(i),
+                        i,
+                        multiOptionQuestionForm.getOptionAdminNames().get(i),
+                        multiOptionQuestionForm.getOptions().get(i),
+                        Optional.of(multiOptionQuestionForm.getDisplayInAnswerOptions().get(i)),
+                        LocalizedStrings.DEFAULT_LOCALE)),
+                messages,
+                /* isForNewOption= */ false));
+      }
+    }
     content.with(optionsBuilder.build());
     return this;
   }
@@ -440,10 +460,26 @@ public final class QuestionConfig {
             isForNewOption,
             /* readOnly= */ true,
             /* markdownSupported= */ false);
-    // TODO(#10778): Add checkbox allowing admins to control which options to display.
+    boolean isChecked =
+        existingOption.get().displayInAnswerOptions().isPresent()
+            && existingOption.get().displayInAnswerOptions().get();
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(optionIndexInput, optionAdminName, optionInput);
+        .with(
+            optionIndexInput,
+            optionAdminName,
+            optionInput,
+            FieldWithLabel.checkbox()
+                .setFieldName("displayInAnswerOptions[]")
+                .setLabelText("include")
+                .setValue("true")
+                .setChecked(isChecked)
+                .getCheckboxTag(),
+            FieldWithLabel.hidden()
+                .setFieldName("displayInAnswerOptions[]")
+                .setValue("false")
+                .getInputTag()
+                .withClasses("display-none"));
   }
 
   /**
