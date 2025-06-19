@@ -27,6 +27,10 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
+      matchPackageNames: ["github/codeql-action"],
+      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
+    },
+    {
       groupName: "guava",
       matchPackageNames: ["com.google.guava{/,}**"],
     },
@@ -63,6 +67,14 @@
         "@playwright/test{/,}**",
         "mcr.microsoft.com/playwright{/,}**",
       ],
+    },
+    {
+      matchPackageNames: ["docker/setup-buildx-action"],
+      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
     },
     {
       matchFileNames: [
