@@ -8,10 +8,10 @@ test.describe('Managing API keys', () => {
     adminApiKeys,
     adminPrograms,
   }) => {
-    const INTERNAL_PROGRAM_NAME = 'Api using program'
-    const INTERNAL_PROGRAM_DESCRIPTION = 'This program uses the API.'
-    const EXTERNAL_PROGRAM_NAME = 'External Program'
-    const EXTERNAL_PROGRAM_DESCRIPTION =
+    const internalProgramName = 'Api using program'
+    const internalProgramDescription = 'This program uses the API.'
+    const externalProgramName = 'External Program'
+    const externalProgramDescription =
       'This is an external program that should not appear in API key creation.'
 
     await loginAsAdmin(page)
@@ -24,8 +24,8 @@ test.describe('Managing API keys', () => {
     await test.step('Add external program only', async () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')
       await adminPrograms.addExternalProgram(
-        EXTERNAL_PROGRAM_NAME,
-        EXTERNAL_PROGRAM_DESCRIPTION,
+        externalProgramName,
+        externalProgramDescription,
         'https://external.gov',
         ProgramVisibility.PUBLIC,
       )
@@ -33,7 +33,7 @@ test.describe('Managing API keys', () => {
 
     await test.step('Validate new api key page still shows no programs', async () => {
       await adminApiKeys.gotoNewApiKeyPage()
-      await expect(page.getByText(EXTERNAL_PROGRAM_NAME)).toBeHidden()
+      await expect(page.getByText(externalProgramName)).toBeHidden()
       await expect(
         page.getByText(
           'You must create and publish a program before creating an API Key',
@@ -43,8 +43,8 @@ test.describe('Managing API keys', () => {
 
     await test.step('Add and publish default program', async () => {
       await adminPrograms.addProgram(
-        INTERNAL_PROGRAM_NAME,
-        INTERNAL_PROGRAM_DESCRIPTION,
+        internalProgramName,
+        internalProgramDescription,
         'https://usa.gov',
       )
       await adminPrograms.publishAllDrafts()
@@ -54,7 +54,7 @@ test.describe('Managing API keys', () => {
       await adminApiKeys.gotoNewApiKeyPage()
 
       await expect(page.getByText('api-using-program')).toBeVisible()
-      await expect(page.getByText(EXTERNAL_PROGRAM_NAME)).toBeHidden()
+      await expect(page.getByText(externalProgramName)).toBeHidden()
       await validateScreenshot(page, 'new-api-key-page-with-programs')
     })
 
