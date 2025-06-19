@@ -1250,9 +1250,11 @@ export class AdminPrograms {
 
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
+    await this.page
+      .locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
