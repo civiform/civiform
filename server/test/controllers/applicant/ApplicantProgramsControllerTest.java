@@ -2,6 +2,9 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -12,6 +15,7 @@ import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
@@ -28,15 +32,23 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.ApplicantDisabledProgramView;
+import views.applicant.NorthStarFilteredProgramsViewPartial;
+import views.applicant.NorthStarProgramIndexView;
+import views.applicant.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
@@ -44,13 +56,46 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setUp() {
     resetDatabase();
-    controller = instanceOf(ApplicantProgramsController.class);
+
     currentApplicant = createApplicantWithMockedProfile();
     applicantWithoutProfile = createApplicant();
+
+    settingsManifest = mock(SettingsManifest.class);
+    controller =
+        new ApplicantProgramsController(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ProgramIndexView.class),
+            instanceOf(ApplicantDisabledProgramView.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramSlugHandler.class),
+            instanceOf(ApplicantRoutes.class),
+            settingsManifest,
+            instanceOf(NorthStarProgramIndexView.class),
+            instanceOf(NorthStarFilteredProgramsViewPartial.class));
+  }
+
+  /**
+   * Calls the controller's edit method with configurable settings.
+   *
+   * @param isProgramSlugEnabled whether the program slug URLs feature should be enabled
+   * @param isFromUrlCall whether the call was made directly from the URL route
+   * @param programParam the program parameter (either a program ID or program slug depending on
+   *     context)
+   * @return the Result from the controller's edit method
+   */
+  Result callEdit(Boolean isProgramSlugEnabled, Boolean isFromUrlCall, String programParam) {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
+
+    return controller.edit(request, programParam, isFromUrlCall).toCompletableFuture().join();
   }
 
   @Test
@@ -335,6 +380,135 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Result result =
         controller.showInfoDisabledProgram(request, "disabledProgram").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void edit_whenFeaturedDisabledAndIsProgramSlugFromUrl_error() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programSlug = program.getSlug();
+
+    // Throws an error because program slug is not supported when feature is disabled
+    assertThatThrownBy(
+            () ->
+                callEdit(
+                    /* isProgramSlugEnabled= */ false,
+                    /* isFromUrlCall= */ true,
+                    /* programParam= */ programSlug))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(
+            String.format("Could not parse value from '%s' to a numeric value'", programSlug));
+  }
+
+  @Test
+  public void edit_whenFeaturedDisabledAndIsProgramIdFromUrl_success() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Result result =
+        callEdit(
+            /* isProgramSlugEnabled= */ false,
+            /* isFromUrlCall= */ true,
+            /* programParam= */ programId);
+
+    // Successfully redirects to another route
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
+  public void edit_whenFeaturedDisabledAndIsProgramSlugNotFromUrl_error() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programSlug = program.getSlug();
+
+    // Throws an error because program slug is not supported when feature is disabled
+    assertThatThrownBy(
+            () ->
+                callEdit(
+                    /* isProgramSlugEnabled= */ false,
+                    /* isFromUrlCall= */ false,
+                    /* programParam= */ programSlug))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(
+            String.format("Could not parse value from '%s' to a numeric value'", programSlug));
+  }
+
+  @Test
+  public void edit_whenFeaturedDisabledAndIsProgramIdNotFromUrl_success() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Result result =
+        callEdit(
+            /* isProgramSlugEnabled= */ false,
+            /* isFromUrlCall= */ false,
+            /* programParam= */ programId);
+
+    // Successfully redirects to another route
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
+  public void edit_whenFeatureEnabledAndProgramSlugFromUrl_success() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programSlug = program.getSlug();
+
+    Result result =
+        callEdit(
+            /* isProgramSlugEnabled= */ true,
+            /* isFromUrlCall= */ true,
+            /* programParam= */ programSlug);
+
+    // Successfully redirects to another route
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
+  public void edit_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Result result =
+        callEdit(
+            /* isProgramSlugEnabled= */ true,
+            /* isFromUrlCall= */ true,
+            /* programParam= */ programId);
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_whenFeatureEnabledAndIsProgramSlugNotFromUrl_error() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programSlug = program.getSlug();
+
+    // Throws an error because even thought the feature is enabled, it is not expecting a program
+    // slug thus the program param must be the program id.
+    assertThatThrownBy(
+            () ->
+                callEdit(
+                    /* isProgramSlugEnabled= */ true,
+                    /* isFromUrlCall= */ false,
+                    /* programParam= */ programSlug))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(
+            String.format("Could not parse value from '%s' to a numeric value'", programSlug));
+  }
+
+  @Test
+  public void edit_whenFeatureEnabledAndIsProgramIdNotFromUrl_success() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Result result =
+        callEdit(
+            /* isProgramSlugEnabled= */ true,
+            /* isFromUrlCall= */ false,
+            /* programParam= */ programId);
+
+    // Successfully redirects to another route
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test

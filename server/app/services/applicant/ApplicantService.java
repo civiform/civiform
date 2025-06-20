@@ -1162,6 +1162,15 @@ public final class ApplicantService {
         : Optional.empty();
   }
 
+  /**
+   * Returns the program ID from the applicant's latest active or draft application for the
+   * specified program slug if one exists, or empty otherwise.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(String programSlug, long applicantId) {
+    return applicationRepository.getLatestProgramId(
+        applicantId, programSlug, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
+  }
+
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
