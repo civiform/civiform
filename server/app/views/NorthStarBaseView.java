@@ -18,6 +18,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import play.routing.Router;
 import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
@@ -238,9 +239,13 @@ public abstract class NorthStarBaseView {
    */
   private String getUpdateLanguageRedirectUri(
       Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
+    // Default to the current request if it is not a POST or a redirect can't be constructed.
+    if (!request.method().equals("POST")
+        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      return request.uri();
+    }
     RouteExtractor routeExtractor = new RouteExtractor(request);
-    // Use the current request if it is not a POST.
-    if (!request.method().equals("POST") || !routeExtractor.containsKey("programId")) {
+    if (!routeExtractor.containsKey("programId")) {
       return request.uri();
     }
 
