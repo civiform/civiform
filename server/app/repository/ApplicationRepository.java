@@ -342,13 +342,11 @@ public final class ApplicationRepository {
   }
 
   /**
-   * Get all applications with the specified {@link LifecycleStage}s for an applicant by most recent
-   * creation order (as signaled by the application ID).
-   *
-   * <p>The {@link ProgramModel} associated with the application is eagerly loaded.
+   * Get the program ID for the most recent application matching the specified applicant, program
+   * slug, and lifecycle stages.
    */
-  public CompletionStage<ImmutableList<ApplicationModel>> getOrderedApplicationsForApplicant(
-      long applicantId, ImmutableSet<LifecycleStage> stages) {
+  public CompletionStage<Optional<Long>> getLatestProgramId(
+      long applicantId, String programSlug, ImmutableSet<LifecycleStage> stages) {
     return supplyAsync(
         () ->
             database
@@ -357,15 +355,16 @@ public final class ApplicationRepository {
                 .where()
                 .eq("applicant.id", applicantId)
                 .isIn("lifecycle_stage", stages)
+                .eq("program.slug", programSlug)
                 .query()
                 .fetch("program")
-                .fetch("applicationEvents")
-                .setLabel("ApplicationModel.findSet")
+                .setLabel("ApplicationModel.findProgramId")
                 .setProfileLocation(
-                    queryProfileLocationBuilder.create("getApplicationsForApplicant"))
+                    queryProfileLocationBuilder.create("getProgramIdsForApplications"))
                 .findList()
                 .stream()
-                .collect(ImmutableList.toImmutableList()),
+                .map(application -> application.getProgram().id)
+                .findFirst(),
         dbExecutionContext.current());
   }
 

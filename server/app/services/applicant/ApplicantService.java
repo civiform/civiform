@@ -1163,19 +1163,12 @@ public final class ApplicantService {
   }
 
   /**
-   * Returns the latest active or draft application of an applicant for a program if it exists, or
-   * empty otherwise.
+   * Returns the program ID from the applicant's latest active or draft application for the
+   * specified program slug if one exists, or empty otherwise.
    */
-  public CompletionStage<Optional<ApplicationModel>> getLatestApplication(
-      String programSlug, long applicantId) {
-    return applicationRepository
-        .getOrderedApplicationsForApplicant(
-            applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
-        .thenApply(
-            applications ->
-                applications.stream()
-                    .filter(application -> application.getProgram().getSlug().equals(programSlug))
-                    .findFirst());
+  public CompletionStage<Optional<Long>> getLatestProgramId(String programSlug, long applicantId) {
+    return applicationRepository.getLatestProgramId(
+        applicantId, programSlug, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
   }
 
   private ApplicationPrograms relevantProgramsForApplicantInternal(

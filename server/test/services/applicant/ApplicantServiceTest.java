@@ -4477,7 +4477,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getLatestApplication() {
+  public void getLatestProgramId() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -4488,104 +4488,69 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
 
-    // Latest application is on draft stage
-    ApplicationModel draftApplication =
-        applicationRepository
-            .createOrUpdateDraft(applicant.id, activeProgram.id)
-            .toCompletableFuture()
-            .join()
-            .get();
-    Optional<ApplicationModel> result =
+    // Start a draft application for the program
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, activeProgram.id)
+        .toCompletableFuture()
+        .join();
+    Optional<Long> result =
         subject
-            .getLatestApplication(activeProgram.getSlug(), applicant.id)
+            .getLatestProgramId(activeProgram.getSlug(), applicant.id)
             .toCompletableFuture()
             .join();
     assertThat(result).isPresent();
-    assertThat(result.get().id).isEqualTo(draftApplication.id);
-    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
-    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(result.get()).isEqualTo(activeProgram.id);
 
-    // Latest application is on active stage
-    ApplicationModel activeApplication =
-        applicationRepository
-            .submitApplication(
-                applicant, activeProgram, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
-            .toCompletableFuture()
-            .join();
+    // Submit the application for the program
+    applicationRepository
+        .submitApplication(
+            applicant, activeProgram, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
     result =
         subject
-            .getLatestApplication(activeProgram.getSlug(), applicant.id)
+            .getLatestProgramId(activeProgram.getSlug(), applicant.id)
             .toCompletableFuture()
             .join();
     assertThat(result).isPresent();
-    assertThat(result.get().id).isEqualTo(activeApplication.id);
-    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
-    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-
-    // Latest application is on draft stage when there is an existent active application
-    ApplicationModel newDraftApplication =
-        applicationRepository
-            .createOrUpdateDraft(applicant.id, activeProgram.id)
-            .toCompletableFuture()
-            .join()
-            .get();
-    result =
-        subject
-            .getLatestApplication(activeProgram.getSlug(), applicant.id)
-            .toCompletableFuture()
-            .join();
-    assertThat(result).isPresent();
-    assertThat(result.get().id).isEqualTo(newDraftApplication.id);
-    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
-    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(result.get()).isEqualTo(activeProgram.id);
   }
 
   @Test
-  public void getLatestDraftApplication_whenProgramVersionChanges() {
+  public void getLatestProgramId_whenProgramVersionChanges() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
     // Create initial active program version
-    ProgramModel originalProgram =
-        ProgramBuilder.newActiveProgram("program a", "desc")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.nameApplicantName())
-            .build();
+    ProgramModel originalProgram = ProgramBuilder.newActiveProgram("program a", "desc").build();
 
     // Start a draft application for the original program
-    ApplicationModel originalDraftApplication =
-        applicationRepository
-            .createOrUpdateDraft(applicant.id, originalProgram.id)
-            .toCompletableFuture()
-            .join()
-            .get();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgram.id)
+        .toCompletableFuture()
+        .join();
 
     // Create a new draft version of the program
-    ProgramBuilder.newDraftProgram("program a", "desc")
-        .withBlock()
-        .withRequiredQuestion(testQuestionBank.nameApplicantName())
-        .build();
+    ProgramBuilder.newDraftProgram("program a", "desc").build();
 
     // Publish the new version, making it active
     versionRepository.publishNewSynchronizedVersion();
 
     // Get the latest draft application for "program a"
-    Optional<ApplicationModel> result =
+    Optional<Long> result =
         subject
-            .getLatestApplication(originalProgram.getSlug(), applicant.id)
+            .getLatestProgramId(originalProgram.getSlug(), applicant.id)
             .toCompletableFuture()
             .join();
 
     // Verify the draft application is still associated with the original program version
     assertThat(result).isPresent();
-    assertThat(result.get().id).isEqualTo(originalDraftApplication.id);
-    assertThat(result.get().getProgram().id).isEqualTo(originalProgram.id);
-    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(result.get()).isEqualTo(originalProgram.id);
   }
 
   @Test
-  public void getLatestDraftApplication_whenNoApplication() {
+  public void getLatestProgramId_whenNoApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -4596,8 +4561,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
 
-    Optional<ApplicationModel> result =
-        subject.getLatestApplication(program.getSlug(), applicant.id).toCompletableFuture().join();
+    Optional<Long> result =
+        subject.getLatestProgramId(program.getSlug(), applicant.id).toCompletableFuture().join();
 
     assertThat(result).isEmpty();
   }

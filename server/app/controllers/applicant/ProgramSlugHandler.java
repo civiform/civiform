@@ -178,11 +178,11 @@ public final class ProgramSlugHandler {
    */
   public CompletionStage<Long> getLatestProgramId(String programSlug, long applicantId) {
     return applicantService
-        .getLatestApplication(programSlug, applicantId)
+        .getLatestProgramId(programSlug, applicantId)
         .thenCompose(
-            application -> {
-              return application.isPresent()
-                  ? CompletableFuture.completedFuture(application.get().getProgram().id)
+            programId -> {
+              return programId.isPresent()
+                  ? CompletableFuture.completedFuture(programId.get())
                   : programService.getActiveProgramId(programSlug);
             });
   }
