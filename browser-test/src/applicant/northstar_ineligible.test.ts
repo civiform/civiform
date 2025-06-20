@@ -300,7 +300,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
-    await test.step('Setup: set language to Chinese', async () => {
+    await test.step('Setup: set language to French', async () => {
       await selectApplicantLanguageNorthstar(page, 'fr')
     })
 

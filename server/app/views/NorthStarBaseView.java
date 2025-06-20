@@ -260,13 +260,16 @@ public abstract class NorthStarBaseView {
     }
     // If the language was changed during a block update, redirect to /block/edit or /block/review
     if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
+      boolean inReview =
+          routeExtractor.containsKey("inReview")
+              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
       return applicantRoutes
           .blockEditOrBlockReview(
               profile.get(),
               applicantId.get(),
               programId,
-              String.valueOf(routeExtractor.getParamLongValue("blockId")),
-              routeExtractor.containsKey("inReview"))
+              routeExtractor.getParamStringValue("blockId"),
+              inReview)
           .url();
     }
     return request.uri();
