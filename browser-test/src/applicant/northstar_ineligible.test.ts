@@ -277,4 +277,35 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await validateAccessibility(page)
   })
+
+  test('Changing language on ineligible page redirects to review', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page part 1', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to Chinese', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect review page', async () => {
+      await applicantQuestions.validateQuestionIsOnPage(questionText)
+    })
+  })
 })
