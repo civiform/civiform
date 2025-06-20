@@ -10,6 +10,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +58,8 @@ public class ApplicantLayoutTest extends ResetPostgres {
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicantRoutes.class));
   }
 
   @Test

@@ -3,6 +3,7 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.FakeAdminClient;
 import com.google.common.collect.ImmutableList;
@@ -17,6 +18,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import play.routing.Router;
 import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
@@ -97,7 +99,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("shouldDisplayRtl", LanguageUtils.shouldDisplayRtl(preferredLanguage));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
-    context.setVariable("requestUri", request.uri());
+    context.setVariable("redirectUri", getUpdateLanguageRedirectUri(request, profile, applicantId));
 
     // Add auth parameters.
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
@@ -229,6 +231,48 @@ public abstract class NorthStarBaseView {
         : controllers.applicant.routes.ApplicantInformationController
             .setLangFromSwitcherWithoutApplicant()
             .url();
+  }
+
+  /**
+   * Calculate the redirect location after the language is changed. If the current request is a
+   * POST, the redirect is be mapped to the associated GET uri.
+   */
+  private String getUpdateLanguageRedirectUri(
+      Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
+    // Default to the current request if it is not a POST or a redirect can't be constructed.
+    if (!request.method().equals("POST")
+        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      return request.uri();
+    }
+    RouteExtractor routeExtractor = new RouteExtractor(request);
+    if (!routeExtractor.containsKey("programId")) {
+      return request.uri();
+    }
+
+    long programId = routeExtractor.getParamLongValue("programId");
+    // If the language was changed during /submit, redirect to /review
+    if (request.path().contains("submit")) {
+      String submitRedirectUri =
+          applicantId.isPresent() && profile.isPresent()
+              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.review(programId).url();
+      return submitRedirectUri;
+    }
+    // If the language was changed during a block update, redirect to /block/edit or /block/review
+    if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
+      boolean inReview =
+          routeExtractor.containsKey("inReview")
+              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              profile.get(),
+              applicantId.get(),
+              programId,
+              routeExtractor.getParamStringValue("blockId"),
+              inReview)
+          .url();
+    }
+    return request.uri();
   }
 
   private void maybeSetUpNotProductionBanner(
