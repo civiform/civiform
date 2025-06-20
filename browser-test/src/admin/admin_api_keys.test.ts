@@ -53,15 +53,21 @@ test.describe('Managing API keys', () => {
     await test.step('Validate external programs do not appear in API key form', async () => {
       await adminApiKeys.gotoNewApiKeyPage()
 
-      await expect(page.getByText('api-using-program')).toBeVisible()
-      await expect(page.getByText(externalProgramName)).toBeHidden()
+      await expect(
+        page.getByRole('checkbox', {name: 'api-using-program'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('checkbox', {name: 'external-program'}),
+      ).toBeHidden()
       await validateScreenshot(page, 'new-api-key-page-with-programs')
     })
 
     await test.step('Submit key creation request with invalid fields', async () => {
       await adminApiKeys.submitInvalidApiKeyRequest()
 
-      await expect(page.getByText('external-program')).toBeHidden()
+      await expect(
+        page.getByRole('checkbox', {name: 'external-program'}),
+      ).toBeHidden()
       await validateScreenshot(page, 'api-key-index-page-invalid')
     })
 
