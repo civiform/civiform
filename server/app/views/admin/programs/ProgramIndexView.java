@@ -531,7 +531,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       maybeRenderShareLink(activeProgram.get()).ifPresent(activeRowActions::add);
-
+      maybeRenderManageTranslationsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       maybeRenderViewApplicationsLink(activeProgram.get(), profile, request)
           .ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
