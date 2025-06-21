@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
@@ -27,6 +28,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<Long> optionIds;
   private List<String> optionAdminNames;
   private List<String> newOptionAdminNames;
+
+  private List<Boolean> displayInAnswerOptions;
+
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
   // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
@@ -40,6 +44,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.displayInAnswerOptions = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
     this.nextAvailableId = OptionalLong.of(0);
@@ -60,6 +65,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.displayInAnswerOptions = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -72,6 +78,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                   options.add(option.optionText());
                   optionIds.add(option.id());
                   optionAdminNames.add(option.adminName());
+                  displayInAnswerOptions.add(
+                      option.displayInAnswerOptions().isPresent()
+                          ? option.displayInAnswerOptions().get()
+                          : false);
                 });
         this.nextAvailableId =
             OptionalLong.of(
@@ -124,6 +134,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public void setNewOptionAdminNames(List<String> newOptionAdminNames) {
     this.newOptionAdminNames = newOptionAdminNames;
+  }
+
+  public List<Boolean> getDisplayInAnswerOptions() {
+    return this.displayInAnswerOptions;
+  }
+
+  public void setDisplayInAnswerOptions(List<Boolean> displayInAnswerOptions) {
+    this.displayInAnswerOptions = displayInAnswerOptions;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -202,7 +220,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               optionIds.get(i),
               i,
               optionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(options.get(i))));
+              LocalizedStrings.withDefaultValue(options.get(i)),
+              Optional.of(displayInAnswerOptions.get(i))));
     }
 
     // Get the next available ID, from either the max of the option IDs in the response or the
@@ -216,7 +235,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               nextAvailableId.getAsLong() + i,
               options.size() + i,
               newOptionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(newOptions.get(i))));
+              LocalizedStrings.withDefaultValue(newOptions.get(i)),
+              Optional.of(displayInAnswerOptions.get(i))));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 
