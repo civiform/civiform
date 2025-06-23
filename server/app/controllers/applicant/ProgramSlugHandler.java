@@ -132,27 +132,25 @@ public final class ProgramSlugHandler {
       Long applicantId,
       CiviFormProfile profile) {
     return applicantService
-        .relevantProgramsForApplicant(applicantId, profile, request)
+        .getLatestProgramId(programSlug, applicantId)
         .thenComposeAsync(
-            (ApplicationPrograms relevantPrograms) -> {
+            (Optional<Long> latestApplicantProgramId) -> {
               // Check to see if the applicant already has an application
               // for this program, redirect to program version associated
               // with that application if so.
-              Optional<ProgramDefinition> programForExistingApplication =
-                  relevantPrograms.inProgress().stream()
-                      .map(ApplicantProgramData::program)
-                      .filter(program -> program.slug().equals(programSlug))
-                      .findFirst();
 
-              CompletionStage<ProgramDefinition> programDefinitionStage;
+            // TODO: fix this being a future
+            Long latestProgramId = latestApplicantProgramId.orElse(programService.getActiveProgramId(programSlug));
+            if (latestApplicantProgramId.isEmpty()) {
+                // application not started, so get applicant program data
+                // If the program doesn't have any applications yet, find the program data
+                // for the program that we're trying to show so that we can check isProgramMaybeEligible.
+                // TODO: figure out how to fetch applican program data
+            }
 
-              if (programForExistingApplication.isPresent()) {
-                long programId = programForExistingApplication.get().id();
-                programDefinitionStage = programService.getFullProgramDefinitionAsync(programId);
-              } else {
-                programDefinitionStage =
-                    programService.getActiveFullProgramDefinitionAsync(programSlug);
-              }
+              CompletionStage<ProgramDefinition> programDefinitionStage = programService.getFullProgramDefinitionAsync(latestProgramId);
+              Optional<ApplicantProgramData> optionalApplicantProgramData = Optional.empty();
+
               return programDefinitionStage
                   .thenApply(
                       activeProgramDefinition ->
@@ -163,7 +161,7 @@ public final class ProgramSlugHandler {
                               profile,
                               applicantId,
                               activeProgramDefinition,
-                              relevantPrograms))
+                              optionalApplicantProgramData))
                   .exceptionally(
                       ex ->
                           controller
@@ -225,7 +223,7 @@ public final class ProgramSlugHandler {
       CiviFormProfile profile,
       long applicantId,
       ProgramDefinition activeProgramDefinition,
-      ApplicationPrograms relevantPrograms) {
+      Optional<ApplicantProgramData> optionalApplicantProgramData) {
     // External programs don't have an overview or review page
     if (activeProgramDefinition.programType().equals(ProgramType.EXTERNAL)) {
       return Results.badRequest(new ProgramNotFoundException(programSlug).getMessage());
@@ -244,18 +242,18 @@ public final class ProgramSlugHandler {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
-    Optional<ApplicantProgramData> optionalProgramData = Optional.empty();
+    // Optional<ApplicantProgramData> optionalProgramData = Optional.empty();
 
-    if (relevantPrograms != null) {
-      // If the program doesn't have any applications yet, find the program data
-      // for the program that we're trying to show so that we can check isProgramMaybeEligible.
-      optionalProgramData =
-          relevantPrograms.unapplied().stream()
-              .filter(
-                  (ApplicantProgramData applicantProgramData) ->
-                      applicantProgramData.programId() == activeProgramDefinition.id())
-              .findFirst();
-    }
+    // if (relevantPrograms != null) {
+    //   // If the program doesn't have any applications yet, find the program data
+    //   // for the program that we're trying to show so that we can check isProgramMaybeEligible.
+    //   optionalProgramData =
+    //       relevantPrograms.unapplied().stream()
+    //           .filter(
+    //               (ApplicantProgramData applicantProgramData) ->
+    //                   applicantProgramData.programId() == activeProgramDefinition.id())
+    //           .findFirst();
+    // }
 
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
@@ -269,7 +267,7 @@ public final class ProgramSlugHandler {
                     applicantPersonalInfo.join(),
                     profile,
                     activeProgramDefinition,
-                    optionalProgramData))
+                    optionalApplicantProgramData))
             .as("text/html")
             .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
         : redirectToReviewPage(
