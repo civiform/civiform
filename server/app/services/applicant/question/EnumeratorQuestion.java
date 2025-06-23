@@ -63,7 +63,10 @@ public final class EnumeratorQuestion extends AbstractQuestion {
             && entityNames.size() > EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED)) {
       errorsBuilder.add(
           ValidationErrorMessage.create(
-              MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, getMaxEntities().getAsInt()));
+              MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES,
+              getMaxEntities().isPresent()
+                  ? getMinEntities().getAsInt()
+                  : EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED));
     }
 
     return errorsBuilder.build();
