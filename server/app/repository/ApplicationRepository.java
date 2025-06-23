@@ -349,22 +349,19 @@ public final class ApplicationRepository {
       long applicantId, String programSlug, ImmutableSet<LifecycleStage> stages) {
     return supplyAsync(
         () ->
-            database
-                .find(ApplicationModel.class)
-                .orderBy("id desc")
-                .where()
-                .eq("applicant.id", applicantId)
-                .isIn("lifecycle_stage", stages)
-                .eq("program.slug", programSlug)
-                .query()
-                .fetch("program")
-                .setLabel("ApplicationModel.findProgramId")
-                .setProfileLocation(
-                    queryProfileLocationBuilder.create("getProgramIdsForApplications"))
-                .findList()
-                .stream()
-                .map(application -> application.getProgram().id)
-                .findFirst(),
+            Optional.ofNullable(
+                database
+                    .find(ApplicationModel.class)
+                    .select("program.id")
+                    .where()
+                    .eq("applicant.id", applicantId)
+                    .isIn("lifecycle_stage", stages)
+                    .eq("program.slug", programSlug)
+                    .orderBy("id desc")
+                    .setMaxRows(1)
+                    .setLabel("ApplicationModel.findLatestProgramId")
+                    .setProfileLocation(queryProfileLocationBuilder.create("getLatestProgramId"))
+                    .findSingleAttribute()),
         dbExecutionContext.current());
   }
 
