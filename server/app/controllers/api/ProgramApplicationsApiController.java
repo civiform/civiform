@@ -32,6 +32,7 @@ import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 
 /** API controller for admin access to a specific program's applications. */
 public final class ProgramApplicationsApiController extends CiviFormApiController {
@@ -110,6 +111,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
         .getActiveFullProgramDefinitionAsync(programSlug)
         .thenApplyAsync(
             programDefinition -> {
+              if (programDefinition.programType().equals(ProgramType.EXTERNAL)) {
+                return badRequest(new ProgramNotFoundException(programSlug).toString());
+              }
               PaginationResult<ApplicationModel> paginationResult =
                   programService.getSubmittedProgramApplicationsAllVersions(
                       programDefinition.id(), paginationSpec, filters);

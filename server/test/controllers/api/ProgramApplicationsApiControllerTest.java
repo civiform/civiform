@@ -3,6 +3,7 @@ package controllers.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.Helpers.testServerPort;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -27,6 +28,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.JsonPathProvider;
 import services.export.AbstractExporterTest;
+import services.program.ProgramType;
 import support.ProgramBuilder;
 
 public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
@@ -38,6 +40,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
       Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
   private ApiKeyModel apiKey;
   private ProgramModel program;
+  private ProgramModel externalProgram;
   private ApplicationModel januaryApplication;
   private ApplicationModel februaryApplication;
   private ApplicationModel marchApplication;
@@ -68,6 +71,11 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   @Before
   public void setUp() {
     program = ProgramBuilder.newActiveProgram().withName("Fake Program").build();
+    externalProgram =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake External Program")
+            .withProgramType(ProgramType.EXTERNAL)
+            .build();
 
     ApplicantModel applicantOne = resourceCreator.insertApplicantWithAccount();
     ApplicantModel applicantTwo = resourceCreator.insertApplicantWithAccount();
@@ -98,6 +106,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
     apiKey = resourceCreator.createActiveApiKey("test-key", keyId, keySecret);
     apiKey.getGrants().grantProgramPermission(program.getSlug(), ApiKeyGrants.Permission.READ);
+    apiKey
+        .getGrants()
+        .grantProgramPermission(externalProgram.getSlug(), ApiKeyGrants.Permission.READ);
     apiKey.save();
   }
 
@@ -539,5 +550,21 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThatThrownBy(() -> doRequest(secondRequestUrl))
         .isInstanceOf(BadApiRequestException.class)
         .hasMessage("Request parameters must match pagination token: pageSize");
+  }
+
+  @Test
+  public void list_externalProgram_returnsBadRequest() {
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                externalProgram.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    Result result = doRequest(requestUrl);
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 }
