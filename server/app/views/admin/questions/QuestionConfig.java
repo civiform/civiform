@@ -409,14 +409,14 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, 0, "yes", "Yes", Optional.of(false), LocalizedStrings.DEFAULT_LOCALE)),
+                      -1, 0, "yes", "Yes", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, 1, "no", "No", Optional.of(false), LocalizedStrings.DEFAULT_LOCALE)),
+                      -1, 1, "no", "No", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
     } else {
@@ -429,7 +429,10 @@ public final class QuestionConfig {
                         i,
                         multiOptionQuestionForm.getOptionAdminNames().get(i),
                         multiOptionQuestionForm.getOptions().get(i),
-                        Optional.of(multiOptionQuestionForm.getDisplayInAnswerOptions().get(i)),
+                        Optional.of(
+                            multiOptionQuestionForm
+                                .getDisplayInAnswerOptionsTrue()
+                                .contains(multiOptionQuestionForm.getOptionIds().get(i))),
                         LocalizedStrings.DEFAULT_LOCALE)),
                 messages,
                 /* isForNewOption= */ false));
@@ -470,16 +473,11 @@ public final class QuestionConfig {
             optionAdminName,
             optionInput,
             FieldWithLabel.checkbox()
-                .setFieldName("displayInAnswerOptions[]")
+                .setFieldName("displayInAnswerOptionsTrue[]")
                 .setLabelText("include")
-                .setValue("true")
+                .setValue(Long.toString(existingOption.get().id()))
                 .setChecked(isChecked)
-                .getCheckboxTag(),
-            FieldWithLabel.hidden()
-                .setFieldName("displayInAnswerOptions[]")
-                .setValue("false")
-                .getInputTag()
-                .withClasses("display-none"));
+                .getCheckboxTag());
   }
 
   /**

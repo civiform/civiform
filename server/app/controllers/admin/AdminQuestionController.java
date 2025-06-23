@@ -442,6 +442,7 @@ public final class AdminQuestionController extends CiviFormController {
         newOptionsListBuilder.add(
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else if (maybeExistingOptionWithSameId.isPresent()) {
         // If there's an existing option with the same ID but different text, then use it
@@ -451,6 +452,7 @@ public final class AdminQuestionController extends CiviFormController {
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
                 .setOptionText(updatedQuestionOptionText)
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else {
         // If there wasn't an option with the same ID, treat it as a new
