@@ -132,8 +132,8 @@ public class MultiOptionQuestionDefinitionTest {
 
     assertThat(multiOption.getOptionsForLocale(Locale.US))
         .containsExactly(
-            LocalizedQuestionOption.create(1L, 1L, "ay", "one", Locale.US),
-            LocalizedQuestionOption.create(2L, 2L, "bee", "two", Locale.US));
+            LocalizedQuestionOption.create(1L, 1L, "ay", "one", Optional.empty(), Locale.US),
+            LocalizedQuestionOption.create(2L, 2L, "bee", "two", Optional.empty(), Locale.US));
   }
 
   @Test
@@ -159,9 +159,9 @@ public class MultiOptionQuestionDefinitionTest {
 
     assertThat(multiOption.getOptionsForLocaleOrDefault(Locale.GERMAN))
         .containsExactly(
-            LocalizedQuestionOption.create(1L, 1L, "ay", "eins", Locale.GERMAN),
-            LocalizedQuestionOption.create(2L, 2L, "bee", "zwei", Locale.GERMAN),
-            LocalizedQuestionOption.create(3L, 3L, "see", "three", Locale.US));
+            LocalizedQuestionOption.create(1L, 1L, "ay", "eins", Optional.empty(), Locale.GERMAN),
+            LocalizedQuestionOption.create(2L, 2L, "bee", "zwei", Optional.empty(), Locale.GERMAN),
+            LocalizedQuestionOption.create(3L, 3L, "see", "three", Optional.empty(), Locale.US));
   }
 
   @Test

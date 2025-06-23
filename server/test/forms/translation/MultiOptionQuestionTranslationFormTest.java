@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.LocalizedQuestionOption;
@@ -37,7 +38,8 @@ public class MultiOptionQuestionTranslationFormTest {
         (MultiOptionQuestionDefinition) form.builderWithUpdates(question, Locale.CHINA).build();
 
     assertThat(updated.getOptionsForLocale(Locale.CHINA))
-        .containsExactly(LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Locale.CHINA));
+        .containsExactly(
+            LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Optional.empty(), Locale.CHINA));
   }
 
   @Test
@@ -62,6 +64,7 @@ public class MultiOptionQuestionTranslationFormTest {
         (MultiOptionQuestionDefinition) form.builderWithUpdates(question, Locale.FRANCE).build();
 
     assertThat(updated.getOptionsForLocale(Locale.FRANCE))
-        .containsExactly(LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Locale.FRANCE));
+        .containsExactly(
+            LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Optional.empty(), Locale.FRANCE));
   }
 }
