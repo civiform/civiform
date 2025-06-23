@@ -1462,6 +1462,7 @@ test.describe('program creation', () => {
 
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_EXTERNAL_LINK,
+            ProgramType.EXTERNAL,
           )
 
           // Changing the program type is allowed during program creation.
@@ -1525,6 +1526,7 @@ test.describe('program creation', () => {
 
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_EXTERNAL_LINK,
+            ProgramType.EXTERNAL,
           )
 
           // Changing the program type of an external program is disallowed
