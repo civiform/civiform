@@ -164,6 +164,78 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withTooManyEntitiesAboveMaxAllowed_hasValidationError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of(
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "eleven",
+            "twelve",
+            "thirteen",
+            "fourteen",
+            "fifteen",
+            "sixteen",
+            "seventeen",
+            "eighteen",
+            "nineteen",
+            "twenty",
+            "twenty-one",
+            "twenty-two",
+            "twenty-three",
+            "twenty-four",
+            "twenty-five",
+            "twenty-six",
+            "twenty-seven",
+            "twenty-eight",
+            "twenty-nine",
+            "thirty",
+            "thirty-one",
+            "thirty-two",
+            "thirty-three",
+            "thirty-four",
+            "thirty-five",
+            "thirty-six",
+            "thirty-seven",
+            "thirty-eight",
+            "thirty-nine",
+            "forty",
+            "forty-one",
+            "forty-two",
+            "forty-three",
+            "forty-four",
+            "forty-five",
+            "forty-six",
+            "forty-seven",
+            "forty-eight",
+            "forty-nine",
+            "fifty"));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, 50))));
+  }
+
+  @Test
   public void withTooFewEntities_hasValidationError() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
