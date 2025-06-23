@@ -11,7 +11,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
   private String entityType;
   private OptionalInt minEntities;
   private OptionalInt maxEntities;
-  private static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
+  public static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
 
   public EnumeratorQuestionForm() {
     super();

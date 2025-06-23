@@ -221,7 +221,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
             "forty-seven",
             "forty-eight",
             "forty-nine",
-            "fifty"));
+            "fifty",
+            "fifty-one"));
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
