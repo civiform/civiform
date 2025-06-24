@@ -29,6 +29,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<String> optionAdminNames;
   private List<String> newOptionAdminNames;
 
+  // The IDs of option types which have been selected by the admin to be included in the question's
+  // answer options.
+  // Use a list of IDs instead of a boolean list because the form binding does not recognize falsy
+  // values for checkboxes on submit.
+  // This list is currently only applicable to YES_NO questions, which contain optional question
+  // options.
   private List<Long> displayInAnswerOptionsTrue;
 
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
@@ -206,6 +212,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
 
     ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
+
+    System.out.println("optionIds size: " + Integer.toString(this.optionIds.size()));
+    System.out.println("options size: " + Integer.toString(this.options.size()));
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");

@@ -201,12 +201,13 @@ public final class QuestionConfig {
     return multiOptionQuestionField(Optional.empty(), messages, /* isForNewOption= */ true);
   }
 
-  private static DivTag multiOptionQuestionFieldAdminName(
-      Optional<LocalizedQuestionOption> existingOption,
-      Messages messages,
-      boolean isForNewOption,
-      boolean hidden) {
-    DivTag input =
+  /**
+   * Creates an individual text field where an admin can enter a single multi-option question
+   * answer, along with a button to remove the option.
+   */
+  private static DivTag multiOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
+    DivTag optionAdminName =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
             .setLabelText("Admin ID")
@@ -219,67 +220,15 @@ public final class QuestionConfig {
                     ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
             .showFieldErrors(false)
             .setReadOnly(!isForNewOption)
-            .getInputTag();
-
-    if (hidden) {
-      return input.withClasses("display-none");
-    }
-    return input.withClasses(
-        ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
-        "col-start-1",
-        "col-span-5",
-        "mb-2",
-        "ml-2",
-        "row-start-1",
-        "row-span-2");
-  }
-
-  private static DivTag multiOptionQuestionFieldOptionInput(
-      Optional<LocalizedQuestionOption> existingOption,
-      Messages messages,
-      boolean isForNewOption,
-      boolean readOnly,
-      boolean markdownSupported) {
-    FieldWithLabel fieldOptionInput =
-        FieldWithLabel.input()
-            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Option Text")
-            .setRequired(true)
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .setReadOnly(readOnly)
-            .setFieldErrors(
-                messages,
-                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
-            .showFieldErrors(false);
-    if (markdownSupported) {
-      fieldOptionInput =
-          fieldOptionInput
-              .setMarkdownSupported(true)
-              .setMarkdownText("Some markdown is supported, ")
-              .setMarkdownLinkText("see how it works");
-    }
-    return fieldOptionInput
-        .getInputTag()
-        .withClasses(
-            ReferenceClasses.MULTI_OPTION_INPUT,
-            "col-start-1",
-            "col-span-5",
-            "mb-2",
-            "ml-2",
-            "row-start-3",
-            "row-span-2");
-  }
-
-  /**
-   * Creates an individual text field where an admin can enter a single multi-option question
-   * answer, along with a button to remove the option.
-   */
-  private static DivTag multiOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
-    DivTag optionAdminName =
-        multiOptionQuestionFieldAdminName(
-            existingOption, messages, isForNewOption, /* hidden= */ false);
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_ADMIN_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-1",
+                "row-span-2");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -308,12 +257,28 @@ public final class QuestionConfig {
                 "row-start-2")
             .attr("aria-label", "move down");
     DivTag optionInput =
-        multiOptionQuestionFieldOptionInput(
-            existingOption,
-            messages,
-            isForNewOption,
-            /* readOnly= */ false,
-            /* markdownSupported= */ true);
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setMarkdownSupported(true)
+            .setMarkdownText("Some markdown is supported, ")
+            .setMarkdownLinkText("see how it works")
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
     ButtonTag removeOptionButton =
         button()
             .with(Icons.svg(Icons.DELETE).withClasses("w-6", "h-6"))
@@ -409,16 +374,14 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, 0, "yes", "Yes", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
-              messages,
-              /* isForNewOption= */ true));
+                      0, 0, "yes", "Yes", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, 1, "no", "No", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
-              messages,
-              /* isForNewOption= */ true));
+                      1, 1, "no", "No", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -434,8 +397,7 @@ public final class QuestionConfig {
                                 .getDisplayInAnswerOptionsTrue()
                                 .contains(multiOptionQuestionForm.getOptionIds().get(i))),
                         LocalizedStrings.DEFAULT_LOCALE)),
-                messages,
-                /* isForNewOption= */ false));
+                messages));
       }
     }
     content.with(optionsBuilder.build());
@@ -443,26 +405,49 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
+      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
     DivTag optionAdminName =
-        multiOptionQuestionFieldAdminName(
-            existingOption, messages, isForNewOption, /* hidden= */ true);
+        FieldWithLabel.input()
+            .setFieldName("optionAdminNames[]")
+            .setLabelText("Admin ID")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
+            .showFieldErrors(false)
+            .setReadOnly(true)
+            .getInputTag();
     DivTag optionIndexInput =
-        isForNewOption
-            ? div()
-            : FieldWithLabel.input()
-                .setFieldName("optionIds[]")
-                .setValue(String.valueOf(existingOption.get().id()))
-                .setScreenReaderText("option ids")
-                .getInputTag()
-                .withClasses("display-none");
+        FieldWithLabel.input()
+            .setFieldName("optionIds[]")
+            .setValue(String.valueOf(existingOption.get().id()))
+            .setScreenReaderText("option ids")
+            .getInputTag()
+            .withClasses("display-none");
     DivTag optionInput =
-        multiOptionQuestionFieldOptionInput(
-            existingOption,
-            messages,
-            isForNewOption,
-            /* readOnly= */ true,
-            /* markdownSupported= */ false);
+        FieldWithLabel.input()
+            .setFieldName("options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setReadOnly(true)
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
             && existingOption.get().displayInAnswerOptions().get();
@@ -472,6 +457,9 @@ public final class QuestionConfig {
             optionIndexInput,
             optionAdminName,
             optionInput,
+            // Checkbox for selecting whether to display the option to the applicant.
+            // Value is set to the ID because falsy checkbox values get discarded on form
+            // submission.
             FieldWithLabel.checkbox()
                 .setFieldName("displayInAnswerOptionsTrue[]")
                 .setLabelText("include")
