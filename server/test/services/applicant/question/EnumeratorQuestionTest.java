@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import forms.EnumeratorQuestionForm;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -171,7 +172,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
         new ApplicantQuestion(
             enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
     List<String> testList = new ArrayList<>();
-    for (int i = 0; i < 50; i++) {
+    for (int i = 1; i <= EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED + 1; i++) {
       testList.add(String.format("item - %d", i));
     }
     QuestionAnswerer.answerEnumeratorQuestion(
