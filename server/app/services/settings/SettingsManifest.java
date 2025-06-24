@@ -1057,6 +1057,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enable options for handling duplicate questions when importing/migrating programs: create a
+   * duplicate, use the existing question, or overwrite the existing question.
+   */
+  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
+    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
+  }
+
+  /**
    * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
    * between deployed environments. Note: this should only be used on new environments, since
    * existing programs will be modified if a program with the same question gets imported.
@@ -1086,15 +1094,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
   public boolean getExternalProgramCardsEnabled(RequestHeader request) {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when
-   * importing/migrating programs: create a duplicate, use the existing question, or overwrite the
-   * existing question.
-   */
-  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -2286,6 +2285,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable using custom theme colors on North Star applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
+                          "Enable options for handling duplicate questions when importing/migrating"
+                              + " programs: create a duplicate, use the existing question, or"
+                              + " overwrite the existing question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2330,14 +2337,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
                               + " Star applicant UI.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
-                              + " when importing/migrating programs: create a duplicate, use the"
-                              + " existing question, or overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
