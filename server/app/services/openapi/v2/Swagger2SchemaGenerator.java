@@ -22,10 +22,12 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.models.properties.UntypedProperty;
 import io.swagger.util.Yaml;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.export.enums.RevisionState;
 import services.openapi.AbstractOpenApiSchemaGenerator;
 import services.openapi.DefinitionType;
 import services.openapi.Format;
@@ -118,6 +120,18 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                               + " Uses the CiviForm instance's local timezone when"
                                               + " no timezone is provided, and the beginning of the"
                                               + " day when no time is provided."))
+                              .parameter(
+                                  new QueryParameter()
+                                      .name("revisionState")
+                                      .type(DefinitionType.STRING.toString())
+                                      .description(
+                                          "The revision state of applications to include in"
+                                              + " results. When omitted, applications of"
+                                              + " all revision states are returned.")
+                                      ._enum(
+                                          Arrays.asList(
+                                              RevisionState.CURRENT.name(),
+                                              RevisionState.OBSOLETE.name())))
                               .parameter(
                                   new QueryParameter()
                                       .name("pageSize")

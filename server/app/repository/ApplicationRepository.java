@@ -342,6 +342,30 @@ public final class ApplicationRepository {
   }
 
   /**
+   * Get the program ID for the most recent application matching the specified applicant, program
+   * slug, and lifecycle stages.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(
+      long applicantId, String programSlug, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () ->
+            Optional.ofNullable(
+                database
+                    .find(ApplicationModel.class)
+                    .select("program.id")
+                    .where()
+                    .eq("applicant.id", applicantId)
+                    .isIn("lifecycle_stage", stages)
+                    .eq("program.slug", programSlug)
+                    .orderBy("id desc")
+                    .setMaxRows(1)
+                    .setLabel("ApplicationModel.findLatestProgramId")
+                    .setProfileLocation(queryProfileLocationBuilder.create("getLatestProgramId"))
+                    .findSingleAttribute()),
+        dbExecutionContext.current());
+  }
+
+  /**
    * Updates a draft application, if one exists, to point to a new program
    *
    * @param applicantId the applicant ID

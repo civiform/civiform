@@ -13,7 +13,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 public final class Credentials {
 
   private static final DefaultCredentialsProvider credentialsProvider =
-      DefaultCredentialsProvider.create();
+      DefaultCredentialsProvider.builder().build();
 
   public AwsCredentials getCredentials() {
     return credentialsProvider.resolveCredentials();

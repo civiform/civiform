@@ -3,6 +3,7 @@ package modules;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -163,7 +164,9 @@ public final class DurableJobModule extends AbstractModule {
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository, Environment environment) {
+      CategoryRepository categoryRepository,
+      Environment environment,
+      Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
 
     // TODO(#8833): Remove job from registry once all category translations are in.
@@ -172,7 +175,7 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ON_EACH_STARTUP,
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
-                categoryRepository, environment, persistedDurableJob));
+                categoryRepository, environment, persistedDurableJob, mapperProvider.get()));
 
     return durableJobRegistry;
   }

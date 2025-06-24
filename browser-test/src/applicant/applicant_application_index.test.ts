@@ -393,7 +393,9 @@ test.describe('applicant program index page', () => {
 
       await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
         await filterChips.getByText('Education').check()
+        await waitForPageJsLoad(page)
         await filterChips.getByText('General').check()
+        await waitForPageJsLoad(page)
         expect(await page.textContent('html')).not.toContain('End session')
         expect(await page.textContent('html')).not.toContain(
           "You're a guest user",
@@ -491,6 +493,7 @@ test.describe('applicant program index page', () => {
 
       await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
         await page.locator('#category-filter-form').getByText('General').check()
+        await waitForPageJsLoad(page)
         await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],

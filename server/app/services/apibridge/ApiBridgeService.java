@@ -11,7 +11,6 @@ import static services.apibridge.ApiBridgeServiceDto.ValidationProblemDetail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import java.util.concurrent.CompletableFuture;
@@ -25,17 +24,20 @@ import services.ErrorAnd;
 
 /** Handles the direct http communication with a bridge service. */
 public class ApiBridgeService implements WSBodyReadables {
-  private static final ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
   private static final Logger logger = LoggerFactory.getLogger(ApiBridgeService.class);
   private final WSClient wsClient;
   private final ApiBridgeExecutionContext executionContext;
+  private final ObjectMapper mapper;
+
   private static final String HEALTHCHECK_PATH = "/health-check";
   private static final String DISCOVERY_PATH = "/discovery";
 
   @Inject
-  public ApiBridgeService(WSClient wsClient, ApiBridgeExecutionContext executionContext) {
+  public ApiBridgeService(
+      WSClient wsClient, ApiBridgeExecutionContext executionContext, ObjectMapper mapper) {
     this.wsClient = checkNotNull(wsClient);
     this.executionContext = checkNotNull(executionContext);
+    this.mapper = checkNotNull(mapper);
   }
 
   /**
