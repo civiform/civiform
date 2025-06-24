@@ -31,6 +31,7 @@ public enum QuestionType {
   FILEUPLOAD("File Upload", FileUploadQuestion.class),
   ID("ID", IdQuestion.class),
   NAME("Name", NameQuestion.class),
+  MAP("Map", MultiSelectQuestion.class),
   NUMBER("Number", NumberQuestion.class),
   PHONE("Phone Number", PhoneQuestion.class),
   RADIO_BUTTON("Radio Button", SingleSelectQuestion.class),

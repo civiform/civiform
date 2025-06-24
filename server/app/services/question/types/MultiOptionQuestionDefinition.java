@@ -26,6 +26,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public enum MultiOptionQuestionType {
     CHECKBOX,
     DROPDOWN,
+    MAP,
     RADIO_BUTTON,
     YES_NO
   }
@@ -70,6 +71,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     return switch (multiOptionQuestionType) {
       case CHECKBOX -> QuestionType.CHECKBOX;
       case DROPDOWN -> QuestionType.DROPDOWN;
+      case MAP -> QuestionType.MAP;
       case RADIO_BUTTON -> QuestionType.RADIO_BUTTON;
       case YES_NO -> QuestionType.YES_NO;
     };
