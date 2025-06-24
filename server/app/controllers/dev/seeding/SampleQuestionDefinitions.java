@@ -106,10 +106,10 @@ public final class SampleQuestionDefinitions {
 
   @VisibleForTesting
   public static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
-      new MultiOptionQuestionDefinition(
-          CHECKBOX_QUESTION_DEFINITION_CONFIG,
-          CHECKBOX_QUESTION_OPTIONS,
-          MultiOptionQuestionType.CHECKBOX);
+    new MultiOptionQuestionDefinition(
+      CHECKBOX_QUESTION_DEFINITION_CONFIG,
+      CHECKBOX_QUESTION_OPTIONS,
+      MultiOptionQuestionType.CHECKBOX);
 
   @VisibleForTesting
   public static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
@@ -511,9 +511,10 @@ public final class SampleQuestionDefinitions {
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
-        // Fall through to Null Question for now since Yes/No is not fully implemented.
-        // TODO(#10800): Create a Yes/No question instead.
-      case YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
+      // Fall through to Null Question for now since Yes/No and Map is not fully implemented.
+      // TODO(#10800): Create a Yes/No question instead.
+      // TODO(#): Create a Map question instead.
+      case MAP, YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }
 }

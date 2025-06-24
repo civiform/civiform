@@ -327,7 +327,7 @@ public final class ApplicantQuestion {
   public AbstractQuestion getQuestion() {
     return switch (getType()) {
       case ADDRESS -> createAddressQuestion();
-      case CHECKBOX -> createMultiSelectQuestion();
+      case CHECKBOX, MAP -> createMultiSelectQuestion();
       case CURRENCY -> createCurrencyQuestion();
       case DATE -> createDateQuestion();
       case EMAIL -> createEmailQuestion();
