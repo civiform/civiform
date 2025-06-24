@@ -2,6 +2,8 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -74,8 +76,12 @@ public final class QuestionConfig {
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case PHONE:
         return Optional.of(config.addPhoneConfig().getContainer());
+      case YES_NO:
+        return Optional.of(
+            config
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm)
+                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
-      case YES_NO: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
             config
@@ -354,6 +360,95 @@ public final class QuestionConfig {
                 .getNumberTag()
                 .withClasses("hidden"));
     return this;
+  }
+
+  private QuestionConfig addDefaultYesNoQuestionFields(
+      MultiOptionQuestionForm multiOptionQuestionForm) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option indexes need to be the same size.");
+    ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
+    if (multiOptionQuestionForm.getOptions().size() == 0) {
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      0, 0, "yes", "Yes", LocalizedStrings.DEFAULT_LOCALE))));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      1, 1, "no", "No", LocalizedStrings.DEFAULT_LOCALE))));
+    } else {
+      for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+        optionsBuilder.add(
+            yesNoOptionQuestionField(
+                Optional.of(
+                    LocalizedQuestionOption.create(
+                        multiOptionQuestionForm.getOptionIds().get(i),
+                        i,
+                        multiOptionQuestionForm.getOptionAdminNames().get(i),
+                        multiOptionQuestionForm.getOptions().get(i),
+                        LocalizedStrings.DEFAULT_LOCALE))));
+      }
+    }
+    content.with(optionsBuilder.build());
+    return this;
+  }
+
+  private static DivTag yesNoOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption) {
+    DivTag optionAdminNameHidden =
+        FieldWithLabel.input()
+            .setFieldName("optionAdminNames[]")
+            .setLabelText("Admin ID")
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .getInputTag()
+            .withClasses("display-none");
+    DivTag optionIndexInputHidden =
+        FieldWithLabel.input()
+            .setFieldName("optionIds[]")
+            .setValue(String.valueOf(existingOption.get().id()))
+            .setScreenReaderText("option ids")
+            .getInputTag()
+            .withClasses("display-none");
+    DivTag optionInputHidden =
+        FieldWithLabel.input()
+            .setFieldName("options[]")
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .getInputTag()
+            .withClasses("display-none");
+
+    DivTag adminNameLabel =
+         div(
+            strong(
+                "Admin ID: "), text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+    DivTag optionTextLabel =
+         div(
+            strong(
+                "Option text: "), text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+
+    DivTag labels = div().with(adminNameLabel, optionTextLabel).withClasses("grid-col");
+        DivTag wholeOption = div().with(
+            // Checkbox for selecting whether to display the option to the applicant.
+             FieldWithLabel.checkbox()
+                .setValue("true")
+                .setChecked(true)
+                .getCheckboxTag()
+                .withClasses("usa-checkbox, bg-gray-100"),
+                labels).withClasses("grid-row", "flex-align-center")
+                .withClasses("border", "grid-row", "items-center");
+
+    return div()
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION)
+        .with(
+            optionIndexInputHidden,
+            optionAdminNameHidden,
+            optionInputHidden,
+            wholeOption);
   }
 
   /**
