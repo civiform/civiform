@@ -971,6 +971,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
+      },
+      "MAP_QUESTION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their programs.",
+        "type": "bool",
+        "required": false
       }
     }
   }

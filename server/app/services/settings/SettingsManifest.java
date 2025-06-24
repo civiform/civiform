@@ -1111,6 +1111,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("YES_NO_QUESTION_ENABLED");
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
+   * programs.
+   */
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2348,6 +2356,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
                               + " URLs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
+                              + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
