@@ -323,7 +323,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
-                      Optional.of(false),
+                      Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -339,7 +339,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
-                      Optional.of(false),
+                      Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));

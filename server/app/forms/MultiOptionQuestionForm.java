@@ -13,7 +13,9 @@ import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 /** Superclass for all forms for updating a multi-option question. */
 public abstract class MultiOptionQuestionForm extends QuestionForm {
@@ -84,8 +86,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                   options.add(option.optionText());
                   optionIds.add(option.id());
                   optionAdminNames.add(option.adminName());
-                  if (option.displayInAnswerOptions().isPresent()
-                      && option.displayInAnswerOptions().get()) {
+                  if (getQuestionType() == QuestionType.YES_NO) {
+                    if (option.displayInAnswerOptions().isPresent()
+                        && option.displayInAnswerOptions().get()) {
+                      displayInAnswerOptionsTrue.add(option.id());
+                    }
+                  } else {
                     displayInAnswerOptionsTrue.add(option.id());
                   }
                 });
@@ -213,8 +219,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
 
-    System.out.println("optionIds size: " + Integer.toString(this.optionIds.size()));
-    System.out.println("options size: " + Integer.toString(this.options.size()));
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
@@ -224,13 +228,19 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
+      // Yes/No questions have optional question options; all other question types should write
+      // "true" for displayInAnswerOptions.
+      boolean displayInAnswerOptions =
+          getQuestionType() == QuestionType.YES_NO
+              ? displayInAnswerOptionsTrue.contains(optionIds.get(i))
+              : true;
       questionOptionsBuilder.add(
           QuestionOption.create(
               optionIds.get(i),
               i,
               optionAdminNames.get(i),
               LocalizedStrings.withDefaultValue(options.get(i)),
-              Optional.of(displayInAnswerOptionsTrue.contains(optionIds.get(i)))));
+              Optional.of(displayInAnswerOptions)));
     }
 
     // Get the next available ID, from either the max of the option IDs in the response or the
@@ -245,7 +255,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               options.size() + i,
               newOptionAdminNames.get(i),
               LocalizedStrings.withDefaultValue(newOptions.get(i)),
-              Optional.empty()));
+              Optional.of(true)));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 
