@@ -278,7 +278,81 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await validateAccessibility(page)
   })
 
-  test('Changing language on ineligible page redirects to review', async ({
+  test('Changing language on ineligible page after block edit redirects to block edit', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: start application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to French', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect first block edit', async () => {
+      await applicantQuestions.validateQuestionIsOnPage(questionText)
+      expect(page.url().split('/').pop()).toEqual('edit')
+    })
+  })
+
+  test('Changing language on ineligible page after block review redirects to block review', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: start application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Go back to the review page and re-submit first block', async () => {
+      await applicantQuestions.clickEditMyResponses()
+      // Review and submit first question
+      await applicantQuestions.clickEdit()
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page again', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to French', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect block review page', async () => {
+      await applicantQuestions.validateQuestionIsOnPage(questionText)
+      expect(page.url().split('/').pop()).toEqual('review')
+    })
+  })
+
+  test('Changing language on ineligible page after application submit redirects to review', async ({
     page,
     applicantQuestions,
   }) => {
@@ -290,12 +364,21 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
         programName,
         /* northStarEnabled=*/ true,
       )
-
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
 
-    await test.step('Expect ineligible page part 1', async () => {
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Go back to the review page and submit', async () => {
+      await applicantQuestions.clickEditMyResponses()
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await test.step('Expect ineligible page again', async () => {
       await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
       await expect(page.getByText(questionText)).toBeVisible()
     })
@@ -305,7 +388,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Expect review page', async () => {
-      await applicantQuestions.validateQuestionIsOnPage(questionText)
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
   })
 })
