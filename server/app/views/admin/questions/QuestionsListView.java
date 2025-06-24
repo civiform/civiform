@@ -32,12 +32,12 @@ import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -65,15 +65,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -107,7 +110,9 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index(Optional.empty())
                                 .url(),
-                            /* isPrimaryButton= */ true)),
+                            /* isPrimaryButton= */ true,
+                            settingsManifest,
+                            request)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
@@ -210,11 +215,9 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using Universal questions in your program for all personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(universalQuestionContent));
     }
     questionContent.with(

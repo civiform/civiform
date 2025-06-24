@@ -38,7 +38,7 @@
       },
       "THEME_COLOR_PRIMARY": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "A primary color is the color displayed most prominently across your website. Enter the hex code for this color. Not ready for production use.",
+        "description": "A primary color is the color displayed most prominently across your website. Enter the hex code for this color.",
         "type": "string",
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
@@ -50,7 +50,7 @@
       },
       "THEME_COLOR_PRIMARY_DARK": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "A darker version of your primary color can be applied to your website for some purposes. Enter the hex code for this color. Not ready for production use.",
+        "description": "A darker version of your primary color can be applied to your website for some purposes. Enter the hex code for this color.",
         "type": "string",
         "required": false,
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
@@ -634,7 +634,7 @@
       },
       "IT_EMAIL_ADDRESS": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "This email address receives error notifications from CiviForm when things break.",
+        "description": "This email address receives error notifications from CiviForm when there is an internal server error or a durable job fails.",
         "type": "string"
       },
       "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
@@ -951,6 +951,18 @@
       "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when importing/migrating programs: create a duplicate, use the existing question, or overwrite the existing question.",
+        "type": "bool",
+        "required": false
+      },
+      "PROGRAM_SLUG_URLS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
+        "type": "bool",
+        "required": false
+      },
+      "YES_NO_QUESTION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
       }

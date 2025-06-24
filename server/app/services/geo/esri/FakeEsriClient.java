@@ -31,12 +31,13 @@ public final class FakeEsriClient extends EsriClient {
   private JsonNode serviceAreaNoFeatures;
   private JsonNode serviceAreaNotInArea;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   public FakeEsriClient(
-      Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
-    super(clock, esriServiceAreaValidationConfig);
+      Clock clock,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      ObjectMapper mapper) {
+    super(clock, esriServiceAreaValidationConfig, mapper);
   }
 
   /**

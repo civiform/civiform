@@ -7,7 +7,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iff;
-import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
@@ -29,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -50,13 +50,12 @@ import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.admin.QuestionCard;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.ProgramQuestionBank;
-import views.components.SvgTag;
-import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
@@ -222,7 +221,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request)))
+                  ProgramQuestionBank.shouldShowQuestionBank(request),
+                  request))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -700,57 +700,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionsCount,
       boolean malformedQuestionDefinition,
       Request request) {
-    DivTag ret =
-        div()
-            .withData("testid", "question-admin-name-" + questionDefinition.getName())
-            .withClasses(
-                ReferenceClasses.PROGRAM_QUESTION,
-                "my-2",
-                iffElse(malformedQuestionDefinition, "border-2", "border"),
-                iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
-                "px-4",
-                "py-2",
-                "items-center",
-                "rounded-md",
-                StyleUtils.hover("text-gray-800", "bg-gray-100"));
-    ret.condWith(
-        !malformedQuestionDefinition && questionDefinition.isUniversal(),
-        ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
-
-    DivTag row = div().withClasses("flex", "gap-4", "items-center");
-    SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType())
-            .withClasses("shrink-0", "h-12", "w-6");
-    String questionHelpText =
-        questionDefinition.getQuestionHelpText().isEmpty()
-            ? ""
-            : questionDefinition.getQuestionHelpText().getDefault();
-
-    DivTag content =
-        div()
-            .withClass("flex-grow")
-            .with(
-                iff(
-                    malformedQuestionDefinition,
-                    p("This is not pointing at the latest version")
-                        .withClasses("text-red-500", "font-bold")),
-                iff(
-                    malformedQuestionDefinition,
-                    p("Edit the program and try republishing").withClass("text-red-500")),
-                div()
-                    .with(
-                        TextFormatter.formatTextForAdmins(
-                            questionDefinition.getQuestionText().getDefault())),
-                div()
-                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
-                    .withClasses("mt-1", "text-sm"),
-                p(String.format("Admin ID: %s", questionDefinition.getName()))
-                    .withClasses("mt-1", "text-sm"));
-
-    Optional<FormTag> maybeOptionalToggle =
-        renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
-
+    ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
             request,
@@ -759,13 +709,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition,
             questionDefinition,
             addressCorrectionEnabled);
-
-    row.with(icon, content);
+    Optional<FormTag> maybeOptionalToggle =
+        renderOptionalToggle(
+            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
-      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> row.with(toggle));
-      maybeOptionalToggle.ifPresent(row::with);
-      row.with(
+      if (maybeAddressCorrectionEnabledToggle.isPresent()) {
+        rowContent.add(maybeAddressCorrectionEnabledToggle.get());
+      }
+      if (maybeOptionalToggle.isPresent()) {
+        rowContent.add(maybeOptionalToggle.get());
+      }
+      rowContent.add(
           this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
@@ -773,7 +728,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionDefinition,
               questionIndex,
               questionsCount));
-      row.with(
+      rowContent.add(
           renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
@@ -787,14 +742,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        row.with(renderReadOnlyLabel(label));
+        rowContent.add(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        row.with(renderReadOnlyLabel(label));
+        rowContent.add(renderReadOnlyLabel(label));
       }
     }
-    return ret.with(row);
+    return QuestionCard.renderForProgramPage(
+        questionDefinition, malformedQuestionDefinition, rowContent.build());
   }
 
   /**
@@ -1081,7 +1037,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility) {
+      ProgramQuestionBank.Visibility questionBankVisibility,
+      Http.Request request) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1102,8 +1059,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
-            programBlockValidationFactory);
-    return qb.getContainer(questionBankVisibility);
+            programBlockValidationFactory,
+            settingsManifest);
+    return qb.getContainer(questionBankVisibility, request);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

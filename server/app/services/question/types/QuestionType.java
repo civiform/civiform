@@ -32,10 +32,11 @@ public enum QuestionType {
   ID("ID", IdQuestion.class),
   NAME("Name", NameQuestion.class),
   NUMBER("Number", NumberQuestion.class),
+  PHONE("Phone Number", PhoneQuestion.class),
   RADIO_BUTTON("Radio Button", SingleSelectQuestion.class),
   STATIC("Static Text", StaticContentQuestion.class),
   TEXT("Text", TextQuestion.class),
-  PHONE("Phone Number", PhoneQuestion.class),
+  YES_NO("Yes/No", SingleSelectQuestion.class),
   NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;

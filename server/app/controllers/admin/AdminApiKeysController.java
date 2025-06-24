@@ -14,6 +14,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
@@ -31,6 +32,7 @@ public class AdminApiKeysController extends CiviFormController {
   private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ProgramService programService;
   private final FormFactory formFactory;
+  private final ProgramRepository programRepository;
 
   @Inject
   public AdminApiKeysController(
@@ -41,7 +43,8 @@ public class AdminApiKeysController extends CiviFormController {
       ProgramService programService,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ProgramRepository programRepository) {
     super(profileUtils, versionRepository);
     this.apiKeyService = checkNotNull(apiKeyService);
     this.indexView = checkNotNull(indexView);
@@ -49,6 +52,7 @@ public class AdminApiKeysController extends CiviFormController {
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -92,7 +96,7 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    ImmutableSet<String> programNames = programService.getActiveProgramNames();
+    ImmutableSet<String> programNames = programRepository.getAllNonExternalProgramNames();
 
     if (programNames.isEmpty()) {
       return ok(newOneView.renderNoPrograms(request));
@@ -120,6 +124,8 @@ public class AdminApiKeysController extends CiviFormController {
 
     return badRequest(
         newOneView.render(
-            request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
+            request,
+            programService.getAllNonExternalProgramNames(),
+            Optional.of(result.getForm())));
   }
 }

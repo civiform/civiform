@@ -1040,3 +1040,6 @@ session.extended.success=Сеанс продлен.
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

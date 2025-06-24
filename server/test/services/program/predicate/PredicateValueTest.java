@@ -3,25 +3,25 @@ package services.program.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.test.WithApplication;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
-public class PredicateValueTest {
+public class PredicateValueTest extends WithApplication {
 
   private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
   public void oldValue_withoutTypeField_parsesCorrectly() throws Exception {
     String valueWithoutType = "{\"value\":\"\\\"hello\\\"\"}";
-    ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
+    ObjectMapper mapper = instanceOf(ObjectMapper.class);
 
     assertThat(mapper.readValue(valueWithoutType, PredicateValue.class))
         .isEqualTo(PredicateValue.of("hello"));

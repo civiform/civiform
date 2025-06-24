@@ -91,6 +91,7 @@ public class TestQuestionBank {
         .put(QuestionType.RADIO_BUTTON, radioApplicantFavoriteSeason())
         .put(QuestionType.STATIC, staticContent())
         .put(QuestionType.TEXT, textApplicantFavoriteColor())
+        .put(QuestionType.YES_NO, doesApplicantHaveDogYesNo())
         .build();
   }
 
@@ -294,6 +295,10 @@ public class TestQuestionBank {
   public QuestionModel radioApplicantFavoriteSeason() {
     return questionCache.computeIfAbsent(
         QuestionEnum.RADIO_APPLICANT_FAVORITE_SEASON, this::radioApplicantFavoriteSeason);
+  }
+
+  public QuestionModel doesApplicantHaveDogYesNo() {
+    return questionCache.computeIfAbsent(QuestionEnum.YES_NO, this::doesApplicantHaveDogYesNo);
   }
 
   /**
@@ -844,6 +849,24 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Yes/No question
+  private QuestionModel doesApplicantHaveDogYesNo(QuestionEnum ignore) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant has a dog")
+            .setDescription("Applicant's dog status")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Do you have a dog?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "yes", LocalizedStrings.of(Locale.US, "Yes")),
+            QuestionOption.create(2L, 2L, "no", LocalizedStrings.of(Locale.US, "No")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(config, questionOptions, MultiOptionQuestionType.YES_NO);
+    return maybeSave(definition);
+  }
+
   private QuestionModel maybeSave(QuestionDefinition questionDefinition) {
     return maybeSave(questionDefinition, LifecycleStage.ACTIVE);
   }
@@ -916,6 +939,7 @@ public class TestQuestionBank {
     RADIO_REPEATED_HOUSEHOLD_MEMBER_FAVORITE_PRECIPITATION,
     STATIC_CONTENT,
     TEXT_APPLICANT_FAVORITE_COLOR,
-    TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE
+    TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
+    YES_NO
   }
 }

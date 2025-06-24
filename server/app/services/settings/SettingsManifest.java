@@ -81,7 +81,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A primary color is the color displayed most prominently across your website. Enter the hex code
-   * for this color. Not ready for production use.
+   * for this color.
    */
   public Optional<String> getThemeColorPrimary(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY", request);
@@ -89,7 +89,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A darker version of your primary color can be applied to your website for some purposes. Enter
-   * the hex code for this color. Not ready for production use.
+   * the hex code for this color.
    */
   public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY_DARK", request);
@@ -721,7 +721,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
-  /** This email address receives error notifications from CiviForm when things break. */
+  /**
+   * This email address receives error notifications from CiviForm when there is an internal server
+   * error or a durable job fails.
+   */
   public Optional<String> getItEmailAddress(RequestHeader request) {
     return getString("IT_EMAIL_ADDRESS", request);
   }
@@ -1094,6 +1097,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
+  public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
+    return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled(RequestHeader request) {
+    return getBool("YES_NO_QUESTION_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -1149,8 +1162,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY",
                           "A primary color is the color displayed most prominently across your"
-                              + " website. Enter the hex code for this color. Not ready for"
-                              + " production use.",
+                              + " website. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1158,8 +1170,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
                           "A darker version of your primary color can be applied to your website"
-                              + " for some purposes. Enter the hex code for this color. Not ready"
-                              + " for production use.",
+                              + " for some purposes. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1984,8 +1995,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "IT_EMAIL_ADDRESS",
-                          "This email address receives error notifications from CiviForm when"
-                              + " things break.",
+                          "This email address receives error notifications from CiviForm when there"
+                              + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2327,6 +2338,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
                               + " when importing/migrating programs: create a duplicate, use the"
                               + " existing question, or overwrite the existing question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "PROGRAM_SLUG_URLS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
+                              + " URLs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
+                              + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

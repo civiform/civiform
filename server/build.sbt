@@ -43,18 +43,18 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.54",
-      "software.amazon.awssdk" % "ses" % "2.31.54",
+      "software.amazon.awssdk" % "s3" % "2.31.66",
+      "software.amazon.awssdk" % "ses" % "2.31.66",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.39.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.40.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.6",
+      "org.postgresql" % "postgresql" % "42.7.7",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.25.1",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.6",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.7",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -129,7 +129,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.32",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.33",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.29",
 
       // Logstash to write JSON formatted log lines with logback

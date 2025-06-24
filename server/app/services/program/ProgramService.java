@@ -120,14 +120,19 @@ public final class ProgramService {
     return programRepository.getAllProgramNames();
   }
 
+  /** Get the names for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    return programRepository.getAllNonExternalProgramNames();
+  }
+
   /** Get the slug of {@code} programId. */
   public String getSlug(long programId) throws ProgramNotFoundException {
     return programRepository.getSlug(programId);
   }
 
-  /** Get the slugs for all programs. */
-  public ImmutableSet<String> getAllProgramSlugs() {
-    return getAllProgramNames().stream()
+  /** Get the slugs for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramSlugs() {
+    return getAllNonExternalProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
         .sorted()
         .collect(ImmutableSet.toImmutableSet());
@@ -136,6 +141,11 @@ public final class ProgramService {
   /** Get the names for active programs. */
   public ImmutableSet<String> getActiveProgramNames() {
     return versionRepository.getProgramNamesForVersion(versionRepository.getActiveVersion());
+  }
+
+  /** Get the ID of the active program corresponding to the program slug */
+  public CompletionStage<Long> getActiveProgramId(String programSlug) {
+    return programRepository.getActiveProgramFromSlug(programSlug).thenApply(program -> program.id);
   }
 
   /** Get the data object about the programs that are in the active or draft version. */

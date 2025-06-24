@@ -59,7 +59,6 @@ export enum QuestionType {
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
-/* eslint-enable */
 
 export class AdminQuestions {
   public page!: Page
