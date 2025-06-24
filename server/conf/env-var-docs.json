@@ -906,7 +906,7 @@
         "type": "bool"
       },
       "PROGRAM_FILTERING_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables filtering programs by category on the homepage",
         "type": "bool"
       },

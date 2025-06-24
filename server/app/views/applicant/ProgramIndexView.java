@@ -93,7 +93,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     // TODO(#7610): When the program filtering flag is removed, we can remove this conditional
     // statement.
-    if (settingsManifest.getProgramFilteringEnabled(request)) {
+    if (settingsManifest.getProgramFilteringEnabled()) {
       bundle.addMainContent(
           topContent(request, messages, personalInfo),
           mainContentWithProgramFiltersEnabled(
@@ -396,7 +396,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     // The category buttons
-    if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
+    if (settingsManifest.getProgramFilteringEnabled() && !relevantCategories.isEmpty()) {
       content.with(
           renderCategoryFilterChips(
               profile, applicantId, relevantCategories, selectedCategoriesFromParams, messages));
@@ -560,7 +560,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     String titleMessage =
-        settingsManifest.getProgramFilteringEnabled(request)
+        settingsManifest.getProgramFilteringEnabled()
             ? messages.at(MessageKey.TITLE_BENEFITS_FINDER_SECTION_V2.getKeyName())
             : messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName());
 

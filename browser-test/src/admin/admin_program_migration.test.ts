@@ -18,10 +18,6 @@ test.describe('program migration', () => {
   const ALERT_INFO = 'usa-alert--info'
   const ALERT_SUCCESS = 'usa-alert--success'
 
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
-
   test('export a program', async ({
     page,
     adminPrograms,

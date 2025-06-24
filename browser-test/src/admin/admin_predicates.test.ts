@@ -13,9 +13,6 @@ import {
 } from '../support'
 
 test.describe('create and edit predicates', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   test('add a hide predicate', async ({
     page,
     adminQuestions,

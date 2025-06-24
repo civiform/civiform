@@ -396,26 +396,20 @@ export class ApplicantQuestions {
     wantNotStartedPrograms: string[]
     wantInProgressOrSubmittedPrograms: string[]
   }) {
-    const gotNotStartedProgramNames =
-      await this.northStarProgramNamesForSection(
-        CardSectionName.ProgramsAndServices,
-      )
-    const gotInProgressOrSubmittedProgramNames =
-      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
-
-    // Sort results before comparing since we don't care about order.
-    gotNotStartedProgramNames.sort()
-    wantNotStartedPrograms.sort()
-    gotInProgressOrSubmittedProgramNames.sort()
-    wantInProgressOrSubmittedPrograms.sort()
-
-    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
-    expect(gotInProgressOrSubmittedProgramNames).toEqual(
-      wantInProgressOrSubmittedPrograms,
+    await this.expectProgramsinCorrectSections(
+      {
+        expectedProgramsInMyApplicationsSection:
+          wantInProgressOrSubmittedPrograms,
+        expectedProgramsInProgramsAndServicesSection: wantNotStartedPrograms,
+        expectedProgramsInRecommendedSection: [],
+        expectedProgramsInOtherProgramsSection: [],
+      },
+      /* filtersOn= */ false,
+      /* northStarEnabled= */ true,
     )
   }
 
-  async filterProgramsAndExpectWithFilteringEnabled(
+  async filterProgramsAndExpectInCorrectSections(
     {
       filterCategory,
       expectedProgramsInMyApplicationsSection,

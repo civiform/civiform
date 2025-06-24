@@ -50,7 +50,7 @@ test.describe(
       })
     })
 
-    test('with program filters enabled, categorizes programs correctly for Trusted Intermediaries', async ({
+    test('categorizes programs correctly for Trusted Intermediaries', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -97,7 +97,6 @@ test.describe(
         await adminPrograms.publishAllDrafts()
         await logout(page)
       })
-      await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
         await seeding.seedProgramsAndCategories()
@@ -162,7 +161,7 @@ test.describe(
       })
 
       await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with in-progress application', async () => {
-        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
+        await applicantQuestions.filterProgramsAndExpectInCorrectSections(
           {
             filterCategory: 'General',
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
@@ -206,7 +205,7 @@ test.describe(
         )
       })
       await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
-        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
+        await applicantQuestions.filterProgramsAndExpectInCorrectSections(
           {
             filterCategory: 'General',
             expectedProgramsInMyApplicationsSection: [primaryProgramName],

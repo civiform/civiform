@@ -44,7 +44,7 @@ public final class ProgramCardFactory {
 
   public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
-    boolean showCategories = settingsManifest.getProgramFilteringEnabled(request);
+    boolean showCategories = settingsManifest.getProgramFilteringEnabled();
     boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
     String programTitleText = displayProgram.localizedName().getDefault();
