@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.*;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ApplicantModel;
@@ -168,61 +166,12 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    List<String> testList = new ArrayList<>();
+    for (int i = 0; i < 50; i++) {
+      testList.add(String.format("item - %d", i));
+    }
     QuestionAnswerer.answerEnumeratorQuestion(
-        applicantData,
-        applicantQuestion.getContextualizedPath(),
-        ImmutableList.of(
-            "one",
-            "two",
-            "three",
-            "four",
-            "five",
-            "six",
-            "seven",
-            "eight",
-            "nine",
-            "ten",
-            "eleven",
-            "twelve",
-            "thirteen",
-            "fourteen",
-            "fifteen",
-            "sixteen",
-            "seventeen",
-            "eighteen",
-            "nineteen",
-            "twenty",
-            "twenty-one",
-            "twenty-two",
-            "twenty-three",
-            "twenty-four",
-            "twenty-five",
-            "twenty-six",
-            "twenty-seven",
-            "twenty-eight",
-            "twenty-nine",
-            "thirty",
-            "thirty-one",
-            "thirty-two",
-            "thirty-three",
-            "thirty-four",
-            "thirty-five",
-            "thirty-six",
-            "thirty-seven",
-            "thirty-eight",
-            "thirty-nine",
-            "forty",
-            "forty-one",
-            "forty-two",
-            "forty-three",
-            "forty-four",
-            "forty-five",
-            "forty-six",
-            "forty-seven",
-            "forty-eight",
-            "forty-nine",
-            "fifty",
-            "fifty-one"));
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.copyOf(testList));
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
