@@ -397,8 +397,7 @@ public final class QuestionConfig {
     return this;
   }
 
-  private static DivTag yesNoOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption) {
+  private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
     DivTag optionAdminNameHidden =
         FieldWithLabel.input()
             .setFieldName("optionAdminNames[]")
@@ -423,32 +422,39 @@ public final class QuestionConfig {
             .withClasses("display-none");
 
     DivTag adminNameLabel =
-         div(
-            strong(
-                "Admin ID: "), text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+        div(
+            strong("Admin ID: "),
+            text(existingOption.map(LocalizedQuestionOption::adminName).get()));
     DivTag optionTextLabel =
-         div(
-            strong(
-                "Option text: "), text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+        div(
+            strong("Option text: "),
+            text(existingOption.map(LocalizedQuestionOption::optionText).get()));
 
     DivTag labels = div().with(adminNameLabel, optionTextLabel).withClasses("grid-col");
-        DivTag wholeOption = div().with(
-            // Checkbox for selecting whether to display the option to the applicant.
-             FieldWithLabel.checkbox()
-                .setValue("true")
-                .setChecked(true)
-                .getCheckboxTag()
-                .withClasses("usa-checkbox, bg-gray-100"),
-                labels).withClasses("grid-row", "flex-align-center")
-                .withClasses("border", "grid-row", "items-center");
+    DivTag wholeOption =
+        div()
+            .with(
+                // Checkbox for selecting whether to display the option to the applicant.
+                FieldWithLabel.checkbox()
+                    .setValue("true")
+                    .setChecked(true)
+                    .getCheckboxTag()
+                    .withClasses("usa-checkbox, bg-gray-100"),
+                labels)
+            .withClasses(
+                "grid-row",
+                "flex-align-center",
+                "border-width-1px",
+                "border-base",
+                "radius-md",
+                "grid-row",
+                "items-center",
+                "padding-1",
+                "margin-1");
 
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION)
-        .with(
-            optionIndexInputHidden,
-            optionAdminNameHidden,
-            optionInputHidden,
-            wholeOption);
+        .with(optionIndexInputHidden, optionAdminNameHidden, optionInputHidden, wholeOption);
   }
 
   /**
