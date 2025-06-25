@@ -44,6 +44,7 @@ import services.question.QuestionOption;
   @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
   @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
   @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+  @JsonSubTypes.Type(value = MapQuestionDefinition.class, name = "map"),
   @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
   @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
   @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),

@@ -66,6 +66,10 @@ public final class QuestionConfig {
       case ID:
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
+      case MAP:
+        return Optional.of(
+          config
+            .getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());

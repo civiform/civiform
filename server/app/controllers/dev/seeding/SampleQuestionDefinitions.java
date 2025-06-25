@@ -15,6 +15,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -369,6 +370,35 @@ public final class SampleQuestionDefinitions {
               .build());
 
   @VisibleForTesting
+  public static final MapQuestionDefinition MAP_QUESTION_DEFINITION =
+    new MapQuestionDefinition(
+      QuestionDefinitionConfig.builder()
+        .setName("Sample Map Question")
+        .setDescription("description")
+        .setQuestionText(
+          LocalizedStrings.of(
+            ImmutableMap.of(
+              Lang.forCode("en-US").toLocale(),
+              """
+              Hi I'm a block of static text.
+               * Welcome to this __test program__.
+               * It contains one of every question type.
+
+              ## What are the eligibility requirements?
+              Please go [here](https://www.example.com) for more information""",
+              Lang.forCode("ar").toLocale(),
+              """
+               مرحبًا، أنا كتلة من النص الثابت.
+                * مرحبا بكم في هذا برنامج الاختبار
+                * يحتوي على سؤال واحد من كل نوع.
+
+              ## ما هي متطلبات الأهلية؟
+              يرجى الذهاب إلى [نا](https://www.example.com) لمزيد من المعلومات
+              """)))
+        .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
+        .build());
+
+  @VisibleForTesting
   public static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
@@ -505,16 +535,16 @@ public final class SampleQuestionDefinitions {
       case ENUMERATOR -> ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId();
       case FILEUPLOAD -> FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId();
       case ID -> ID_QUESTION_DEFINITION.withPopulatedTestId();
+      case MAP -> MAP_QUESTION_DEFINITION.withPopulatedTestId();
       case NAME -> NAME_QUESTION_DEFINITION.withPopulatedTestId();
       case NUMBER -> NUMBER_QUESTION_DEFINITION.withPopulatedTestId();
       case RADIO_BUTTON -> RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId();
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
-      // Fall through to Null Question for now since Yes/No and Map is not fully implemented.
-      // TODO(#10800): Create a Yes/No question instead.
-      // TODO(#): Create a Map question instead.
-      case MAP, YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
+        // Fall through to Null Question for now since Yes/No and Map is not fully implemented.
+        // TODO(#10800): Create a Yes/No question instead.
+      case YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }
 }

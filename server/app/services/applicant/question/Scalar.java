@@ -135,6 +135,7 @@ public enum Scalar {
       case TEXT:
         return ImmutableSet.of(TEXT);
       case CHECKBOX: // QuestionTypes with multi-selection
+      case MAP:
         return ImmutableSet.of(SELECTIONS);
       case DROPDOWN: // QuestionTypes with single-selection
       case RADIO_BUTTON:

@@ -48,6 +48,7 @@ public final class ApplicantQuestionRendererFactory {
       case EMAIL -> new EmailQuestionRenderer(question);
       case FILEUPLOAD -> new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
       case ID -> new IdQuestionRenderer(question);
+      case MAP -> new MapQuestionRenderer(question);
       case NAME -> new NameQuestionRenderer(question);
       case NUMBER -> new NumberQuestionRenderer(question);
       case RADIO_BUTTON -> new RadioButtonQuestionRenderer(question);

@@ -277,6 +277,12 @@ public enum Icons {
       "M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0"
           + " 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15"
           + " 19v9h22v-9c0-6.075-4.925-11-11-11z"),
+  // USWDS icon
+  MAP(
+      24,
+      "m20.5 3-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9"
+          + " 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6"
+          + " 2.11V19z"),
   MORE_VERT(
       20,
       "M10.021 16.667Q9.354 16.667 8.875 16.188Q8.396 15.708 8.396 15.042Q8.396 14.375 8.875"
@@ -536,6 +542,7 @@ public enum Icons {
       case EMAIL -> Icons.EMAIL;
       case FILEUPLOAD -> Icons.FILEUPLOAD;
       case ID -> Icons.ID;
+      case MAP -> Icons.MAP;
       case NAME -> Icons.NAME;
       case NUMBER -> Icons.NUMBER;
       case RADIO_BUTTON -> Icons.RADIO_BUTTON;

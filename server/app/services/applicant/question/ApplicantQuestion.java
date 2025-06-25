@@ -292,6 +292,10 @@ public final class ApplicantQuestion {
     return new IdQuestion(this);
   }
 
+  public MapQuestion createMapQuestion() {
+    return new MapQuestion(this);
+  }
+
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
   }
