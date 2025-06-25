@@ -420,20 +420,28 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
+                0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2L,
+                1,
                 "strawberry_admin",
-                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 3L,
+                2,
                 "vanilla_admin",
-                LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 4L,
+                3,
                 "coffee_admin",
-                LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
+                LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"),
+                Optional.of(true)));
 
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -485,17 +493,20 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* id= */ 4,
                 /* displayOrder= */ 0,
                 "coffee_admin",
-                LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
+                LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 3,
                 /* displayOrder= */ 1,
                 "vanilla_admin",
-                LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 5,
                 /* displayOrder= */ 2,
                 "lavender_admin",
-                LocalizedStrings.withDefaultValue("lavender")));
+                LocalizedStrings.withDefaultValue("lavender"),
+                Optional.of(true)));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
 
@@ -522,12 +533,16 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
+                0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2L,
+                1,
                 "strawberry_admin",
-                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise"),
+                Optional.of(true)));
 
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -565,12 +580,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* id= */ 1,
                 /* displayOrder= */ 0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
                 "strawberry_admin", // ignore changed admin name
-                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise"),
+                Optional.of(true)));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
   }
@@ -590,12 +607,16 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
+                0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2L,
+                1,
                 "strawberry_admin",
-                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise"),
+                Optional.of(true)));
 
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -633,12 +654,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* id= */ 1,
                 /* displayOrder= */ 0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
                 "strawberry_admin", // ignore changed admin name
-                LocalizedStrings.of(Locale.US, "new ice cream name"))); // clear other locales
+                LocalizedStrings.of(Locale.US, "new ice cream name"),
+                Optional.of(true))); // clear other locales
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
   }
@@ -658,12 +681,16 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
+                0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 2L,
+                1,
                 "strawberry_admin",
-                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise"),
+                Optional.of(true)));
 
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -702,12 +729,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* id= */ 1,
                 /* displayOrder= */ 0,
                 "chocolate_admin",
-                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat"),
+                Optional.of(true)),
             QuestionOption.create(
                 /* id= */ 3, // use nextAvailableId
                 /* displayOrder= */ 1,
                 "lavender_admin",
-                LocalizedStrings.of(Locale.US, "lavender")));
+                LocalizedStrings.of(Locale.US, "lavender"),
+                Optional.of(true)));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
   }
