@@ -824,7 +824,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1110,7 +1113,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1241,7 +1247,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1366,7 +1375,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // check that the address correction screen is skipped and the user is redirected to the review
     // screen
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -1414,7 +1426,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
@@ -1791,7 +1806,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
 
     applicant.refresh();
@@ -1834,7 +1852,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // The requested action is NEXT_BLOCK, but since file upload is the only question they should be
     // redirected to the review page.
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -3200,7 +3221,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Check that the user is redirected to the review page
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    String reviewRoute = routes.ApplicantProgramReviewController.review(program.id).url();
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(
+                Long.toString(program.id), /* isFromUrlCall= */ false)
+            .url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
 
     // Check that the selected suggested address is saved

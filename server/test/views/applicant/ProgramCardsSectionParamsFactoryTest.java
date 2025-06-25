@@ -112,7 +112,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                     .ACTIVE), // active lifecycle stage means they have submitted the application
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty());
-    assertThat(url).isEqualTo("/programs/1/review");
+    assertThat(url).isEqualTo("/programs/1/review?isFromUrlCall=false");
   }
 
   @Test
