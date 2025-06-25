@@ -330,7 +330,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+        .contains(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test
@@ -366,7 +369,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+        .contains(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test

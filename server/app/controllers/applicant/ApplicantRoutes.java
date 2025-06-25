@@ -126,7 +126,8 @@ public final class ApplicantRoutes {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramReviewController.reviewWithApplicantId(applicantId, programId);
     } else {
-      return routes.ApplicantProgramReviewController.review(programId);
+      return routes.ApplicantProgramReviewController.review(
+          Long.toString(programId), /* isFromUrlCall= */ false);
     }
   }
 
@@ -138,7 +139,8 @@ public final class ApplicantRoutes {
    * @return Route for the applicant review action
    */
   public Call review(long programId) {
-    return routes.ApplicantProgramReviewController.review(programId);
+    return routes.ApplicantProgramReviewController.review(
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**
