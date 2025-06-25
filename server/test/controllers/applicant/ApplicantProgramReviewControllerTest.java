@@ -1,6 +1,9 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -8,6 +11,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.FlashKey;
@@ -19,14 +23,25 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
 import repository.VersionRepository;
 import services.Path;
+import services.applicant.ApplicantService;
 import services.applicant.question.Scalar;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarApplicantIneligibleView;
+import views.applicant.NorthStarApplicantProgramSummaryView;
+import views.applicant.PreventDuplicateSubmissionView;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
@@ -34,12 +49,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramBlocksController blockController;
   private ProgramModel activeProgram;
   public ApplicantModel applicant;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setUpWithFreshApplicants() {
     resetDatabase();
 
-    subject = instanceOf(ApplicantProgramReviewController.class);
     blockController = instanceOf(ApplicantProgramBlocksController.class);
     activeProgram =
         ProgramBuilder.newActiveProgram()
@@ -47,6 +62,74 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
+
+    settingsManifest = mock(SettingsManifest.class);
+    subject =
+        new ApplicantProgramReviewController(
+            instanceOf(ApplicantService.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicantProgramSummaryView.class),
+            instanceOf(NorthStarApplicantProgramSummaryView.class),
+            instanceOf(NorthStarApplicantIneligibleView.class),
+            instanceOf(IneligibleBlockView.class),
+            instanceOf(PreventDuplicateSubmissionView.class),
+            instanceOf(ProfileUtils.class),
+            settingsManifest,
+            instanceOf(ProgramService.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramSlugHandler.class),
+            instanceOf(ApplicantRoutes.class),
+            instanceOf(EligibilityAlertSettingsCalculator.class),
+            instanceOf(MonitoringMetricCounters.class));
+  }
+
+  @Test
+  public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    String programId = String.valueOf(activeProgram.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject.review(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that review() returns OK when the feature is disabled and is from url call with a numeric
+   * program id. review() also returns OK for other combinations: when the feature is disabled OR
+   * when the call is not from a URL OR when the program param is a program slug (not numeric) AND
+   * the program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramIdFromUrl_isOk() {
+    String programId = String.valueOf(activeProgram.id);
+    Result result =
+        subject
+            .review(fakeRequest(), programId, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  /**
+   * Tests that review() throws an error when the program param is a program slug but it should be
+   * the program id since the program slug feature is disabled. review() also throws error for other
+   * combinations when the program param is not properly parsed. We don't test all combinations here
+   * because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    String programSlug = activeProgram.getSlug();
+    assertThatThrownBy(() -> subject.review(fakeRequest(), programSlug, /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from '' to a numeric value");
   }
 
   @Test
@@ -237,7 +320,10 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation().isPresent()).isTrue();
     assertThat(result.redirectLocation().get())
-        .isEqualTo(routes.ApplicantProgramReviewController.review(newProgramModel.id).url());
+        .isEqualTo(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+                .url());
 
     // An application was not submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
