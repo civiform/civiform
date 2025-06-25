@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -29,7 +28,6 @@ test.describe('applicant program index page', () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -543,10 +541,6 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
-
   test('shows program with wide image', async ({
     page,
     adminPrograms,

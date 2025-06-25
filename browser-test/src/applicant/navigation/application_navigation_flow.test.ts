@@ -22,7 +22,6 @@ test.describe('Applicant navigation flow', () => {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await enableFeatureFlag(
         page,
         'suggest_programs_on_application_confirmation_page',

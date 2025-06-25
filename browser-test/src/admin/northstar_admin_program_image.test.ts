@@ -76,9 +76,7 @@ test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
         )
       })
 
-      await test.step('Verify preview with program filtering', async () => {
-        await enableFeatureFlag(page, 'program_filtering_enabled')
-
+      await test.step('Verify preview with category tags', async () => {
         await seeding.seedProgramsAndCategories()
         await page.goto('/')
 
