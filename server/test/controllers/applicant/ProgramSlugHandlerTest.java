@@ -463,7 +463,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramsController.edit(
+                    String.valueOf(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -496,5 +497,44 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(play.mvc.Http.Status.BAD_REQUEST);
     assertThat(contentAsString(result))
         .contains(new ProgramNotFoundException(externalProgram.getSlug()).getMessage());
+  }
+
+  @Test
+  public void getLatestProgramId_withExistingApplication() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program").buildDefinition();
+
+    // Create an applicant and application for the program
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    long resultId =
+        instanceOf(ProgramSlugHandler.class)
+            .getLatestProgramId(programDefinition.slug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify it returns the program ID from the application
+    assertThat(resultId).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getLatestProgramId_withNoExistingApplication() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    // Create an applicant, but no application
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    long resultId =
+        instanceOf(ProgramSlugHandler.class)
+            .getLatestProgramId(programDefinition.slug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify it returns the active program ID
+    assertThat(resultId).isEqualTo(programDefinition.id());
   }
 }

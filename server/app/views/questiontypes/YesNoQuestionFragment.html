@@ -27,13 +27,8 @@
     <div
       class="usa-radio cf-multi-option-question-option"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}, translatedText=#{${option.getYesNoOptionMessageKey()}}"
     >
-     <!--/* TODO: get translated text based on admin ID */-->
-     <!-- <div 
-     th:switch="optionTranslatedText=(${option.adminName()})
-     "></div> -->
-
       <div
         th:replace="~{components/RadioButtonOptionFragment :: radioButtonOptionFragment(
             ${inputId},
@@ -42,9 +37,8 @@
             ${singleSelectQuestion.optionIsSelected(option)},
             ${!question.isOptional()},
             ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
-            ${option.formattedOptionText(ariaLabelForNewTabs)})}" 
+            ${translatedText})}"
       ></div>
-        </div>
     </div>
   </fieldset>
 </div>

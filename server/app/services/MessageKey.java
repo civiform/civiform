@@ -355,6 +355,8 @@ public enum MessageKey {
   OPTION_MEMORABLE_DATE_OCTOBER("option.memorableDate.October"),
   OPTION_MEMORABLE_DATE_NOVEMBER("option.memorableDate.November"),
   OPTION_MEMORABLE_DATE_DECEMBER("option.memorableDate.December"),
+  OPTION_YES("option.yes"),
+  OPTION_NO("option.no"),
   PHONE_NUMBER_LABEL("label.phoneNum"),
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
@@ -448,7 +450,10 @@ public enum MessageKey {
   SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
-  SESSION_EXTENDED_ERROR("session.extended.error");
+  SESSION_EXTENDED_ERROR("session.extended.error"),
+
+  // Untranslated string for translation infrastructure testing.
+  TRANSLATION_UNTRANSLATED("translation.untranslated");
 
   private final String keyName;
 

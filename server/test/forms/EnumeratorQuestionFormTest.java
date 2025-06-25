@@ -55,7 +55,8 @@ public class EnumeratorQuestionFormTest {
 
     assertThat(qd.getEntityType()).isEqualTo(LocalizedStrings.withDefaultValue(""));
     assertThat(qd.getMinEntities()).isEqualTo(OptionalInt.empty());
-    assertThat(qd.getMaxEntities()).isEqualTo(OptionalInt.empty());
+    assertThat(qd.getMaxEntities())
+        .isEqualTo(OptionalInt.of(EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED));
   }
 
   @Test

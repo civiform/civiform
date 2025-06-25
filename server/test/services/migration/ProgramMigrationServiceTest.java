@@ -67,6 +67,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final QuestionDefinition QUESTION_2 = createTextQuestion(QUESTION_2_NAME, 2L);
   private static final QuestionDefinition QUESTION_3 =
       createQuestion(QUESTION_3_NAME, 3L, QuestionType.ADDRESS);
+  private static final QuestionDefinition ENUMERATOR =
+      createQuestion("enumerator", 4L, QuestionType.ENUMERATOR);
+  private static final QuestionDefinition REPEATED =
+      createTextQuestionWithEnumerator("repeated", 5L, Optional.of(4L));
   private static final ImmutableList<QuestionDefinition> QUESTIONS_1_2 =
       ImmutableList.of(QUESTION_1, QUESTION_2);
   private static final String PROGRAM_NAME_1 = "Program 1";
@@ -96,7 +100,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void serialize_mapperThrowsException_returnsError() throws JsonProcessingException {
-    ObjectMapper badObjectMapper = spy(new ObjectMapper());
+    ObjectMapper badObjectMapper = spy(instanceOf(ObjectMapper.class));
     ObjectWriter badObjectWriter = spy(badObjectMapper.writerWithDefaultPrettyPrinter());
     when(badObjectMapper.writerWithDefaultPrettyPrinter()).thenReturn(badObjectWriter);
     when(badObjectWriter.writeValueAsString(any()))
@@ -751,7 +755,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             id -> {
               // Since we are reusing the child question, the enumerator ID should not be the newly
               // saved parent question's ID.
-              // TODO: #9628 - disallow reusing a child question when the parent is newly saved
+              // Note: this is disallowed further upstream, in the
+              // validateEnumeratorAndRepeatedQuestions method
               assertThat(id).isNotEqualTo(result.get(QUESTION_1_NAME).getId());
             });
   }
@@ -853,18 +858,45 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
                 + " different question key.");
   }
 
+  @Test
+  public void validateEnumeratorAndRepeatedQuestions_noConflicts_doesNotThrow() {
+    service.validateEnumeratorAndRepeatedQuestions(
+        ImmutableList.of(ENUMERATOR, REPEATED),
+        /* overwrittenQuestions= */ ImmutableList.of(),
+        /* duplicatedQuestions= */ ImmutableList.of(ENUMERATOR.getName(), REPEATED.getName()),
+        /* reusedQuestions= */ ImmutableList.of());
+  }
+
+  @Test
+  public void validateEnumeratorAndRepeatedQuestions_reuseRepeatedWithDuplicateEnumerator_throws() {
+    Exception e =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                service.validateEnumeratorAndRepeatedQuestions(
+                    ImmutableList.of(ENUMERATOR, REPEATED),
+                    /* overwrittenQuestions= */ ImmutableList.of(),
+                    /* duplicatedQuestions= */ ImmutableList.of(ENUMERATOR.getName()),
+                    /* reusedQuestions= */ ImmutableList.of(REPEATED.getName())));
+    assertThat(e)
+        .hasMessageContaining(
+            String.format(
+                "Cannot overwrite/reuse repeated question %s because enumerator %s is duplicated",
+                REPEATED.getName(), ENUMERATOR.getName()));
+  }
+
   // Helper methods to create test questions
   private static QuestionDefinition createTextQuestion(String name, Long id) {
-    try {
-      return createTextQuestionWithEnumerator(name, id, Optional.empty());
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
-    }
+    return createTextQuestionWithEnumerator(name, id, Optional.empty());
   }
 
   private static QuestionDefinition createTextQuestionWithEnumerator(
-      String name, Long id, Optional<Long> enumeratorId) throws UnsupportedQuestionTypeException {
-    return createQuestionWithEnumerator(name, id, enumeratorId, QuestionType.TEXT);
+      String name, Long id, Optional<Long> enumeratorId) {
+    try {
+      return createQuestionWithEnumerator(name, id, enumeratorId, QuestionType.TEXT);
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static QuestionDefinition createQuestion(String name, Long id, QuestionType type) {

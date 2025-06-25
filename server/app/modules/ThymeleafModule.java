@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import controllers.AssetsFinder;
 import java.util.Arrays;
@@ -45,12 +46,13 @@ public final class ThymeleafModule extends AbstractModule {
       FileTemplateResolver fileTemplateResolver,
       MessagesApi messagesApi,
       AssetsFinder assetsFinder,
-      Environment environment) {
+      Environment environment,
+      Provider<ObjectMapper> mapperProvider) {
     TemplateEngine templateEngine = new TemplateEngine();
 
     templateEngine.setTemplateResolver(fileTemplateResolver);
     templateEngine.setMessageResolver(new PlayMessageResolver(messagesApi));
-    templateEngine.addDialect(new HtmxDialect(new ObjectMapper()));
+    templateEngine.addDialect(new HtmxDialect(mapperProvider.get()));
     templateEngine.addDialect(new CiviFormProcessorDialect(assetsFinder, environment));
 
     return templateEngine;

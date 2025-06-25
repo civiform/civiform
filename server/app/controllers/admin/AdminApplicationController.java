@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -159,6 +160,7 @@ public final class AdminApplicationController extends CiviFormController {
                           parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                       .build())
               .setApplicationStatus(applicationStatus)
+              .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
               .build();
     }
 
@@ -200,6 +202,8 @@ public final class AdminApplicationController extends CiviFormController {
                             parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                         .build())
                 .setApplicationStatus(applicationStatus)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build();
       }
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
@@ -479,6 +483,7 @@ public final class AdminApplicationController extends CiviFormController {
                         parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                     .build())
             .setApplicationStatus(applicationStatus)
+            .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
             .build();
 
     final ProgramDefinition program;

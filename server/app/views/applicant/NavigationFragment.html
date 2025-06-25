@@ -270,7 +270,7 @@
 <div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
-    <input hidden th:value="${requestUri}" name="redirectLink" />
+    <input hidden th:value="${redirectUri}" name="redirectLink" />
 
     <ul class="usa-language__primary usa-accordion">
       <li class="usa-language__primary-item">
