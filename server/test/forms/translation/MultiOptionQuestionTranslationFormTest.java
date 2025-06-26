@@ -39,7 +39,13 @@ public class MultiOptionQuestionTranslationFormTest {
 
     assertThat(updated.getOptionsForLocale(Locale.CHINA))
         .containsExactly(
-            LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Optional.empty(), Locale.CHINA));
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "new",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.CHINA));
   }
 
   @Test
@@ -65,6 +71,12 @@ public class MultiOptionQuestionTranslationFormTest {
 
     assertThat(updated.getOptionsForLocale(Locale.FRANCE))
         .containsExactly(
-            LocalizedQuestionOption.create(1L, 1L, "opt1", "new", Optional.empty(), Locale.FRANCE));
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "new",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.FRANCE));
   }
 }

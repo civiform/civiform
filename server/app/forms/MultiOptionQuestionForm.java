@@ -232,11 +232,11 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               : true;
       questionOptionsBuilder.add(
           QuestionOption.create(
-              optionIds.get(i),
-              i,
-              optionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(options.get(i)),
-              Optional.of(displayInAnswerOptions)));
+              /* id= */ optionIds.get(i),
+              /* displayOrder= */ i,
+              /* adminName= */ optionAdminNames.get(i),
+              /* optionText= */ LocalizedStrings.withDefaultValue(options.get(i)),
+              /* displayInAnswerOptions= */ Optional.of(displayInAnswerOptions)));
     }
 
     // Get the next available ID, from either the max of the option IDs in the response or the
@@ -247,11 +247,11 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
-              nextAvailableId.getAsLong() + i,
-              options.size() + i,
-              newOptionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(newOptions.get(i)),
-              Optional.of(true)));
+              /* id= */ nextAvailableId.getAsLong() + i,
+              /* displayOrder= */ options.size() + i,
+              /* adminName= */ newOptionAdminNames.get(i),
+              /* optionText= */ LocalizedStrings.withDefaultValue(newOptions.get(i)),
+              /* displayInAnswerOptions= */ Optional.of(true)));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 

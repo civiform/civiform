@@ -31,7 +31,12 @@ public class QuestionOptionTest {
     assertThat(option.localizeOrDefault(Locale.CHINESE))
         .isEqualTo(
             LocalizedQuestionOption.create(
-                1L, 1L, "default admin", "default", Optional.empty(), Locale.US));
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "default admin",
+                /* optionText= */ "default",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US));
   }
 
   @Test
@@ -47,6 +52,11 @@ public class QuestionOptionTest {
     assertThat(option.localize(LocalizedStrings.DEFAULT_LOCALE))
         .isEqualTo(
             LocalizedQuestionOption.create(
-                123L, 1L, "test admin", "test", Optional.empty(), LocalizedStrings.DEFAULT_LOCALE));
+                /* id= */ 123L,
+                /* order= */ 1L,
+                /* adminName= */ "test admin",
+                /* optionText= */ "test",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ LocalizedStrings.DEFAULT_LOCALE));
   }
 }
