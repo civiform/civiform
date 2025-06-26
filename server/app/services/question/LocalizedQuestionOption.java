@@ -3,6 +3,7 @@ package services.question;
 import com.google.auto.value.AutoValue;
 import java.util.Locale;
 import services.MessageKey;
+import java.util.Optional;
 import views.components.TextFormatter;
 
 /**
@@ -14,8 +15,14 @@ public abstract class LocalizedQuestionOption {
 
   /** Create a LocalizedQuestionOption. */
   public static LocalizedQuestionOption create(
-      long id, long order, String adminName, String optionText, Locale locale) {
-    return new AutoValue_LocalizedQuestionOption(id, order, adminName, optionText, locale);
+      long id,
+      long order,
+      String adminName,
+      String optionText,
+      Optional<Boolean> displayInAnswerOptions,
+      Locale locale) {
+    return new AutoValue_LocalizedQuestionOption(
+        id, order, adminName, optionText, displayInAnswerOptions, locale);
   }
 
   /** The id for this option. */
@@ -29,6 +36,9 @@ public abstract class LocalizedQuestionOption {
 
   /** The text strings to display to the user. */
   public abstract String optionText();
+
+  /** Whether to hide the answer option from the user. */
+  public abstract Optional<Boolean> displayInAnswerOptions();
 
   /** Sanitized HTML for the option that processes Markdown. */
   public String formattedOptionText(String ariaLabelForNewTabs) {
