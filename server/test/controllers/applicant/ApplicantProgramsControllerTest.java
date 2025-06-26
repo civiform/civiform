@@ -41,6 +41,7 @@ import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
+import services.monitoring.MonitoringMetricCounters;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
@@ -79,7 +80,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantRoutes.class),
             settingsManifest,
             instanceOf(NorthStarProgramIndexView.class),
-            instanceOf(NorthStarFilteredProgramsViewPartial.class));
+            instanceOf(NorthStarFilteredProgramsViewPartial.class),
+            instanceOf(MonitoringMetricCounters.class));
   }
 
   /**
