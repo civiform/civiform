@@ -9,14 +9,10 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 import {ProgramExtraAction, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Program admin review of submitted applications', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   test('all major steps', async ({
     page,
     adminQuestions,

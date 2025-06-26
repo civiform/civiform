@@ -75,6 +75,7 @@ public final class QuestionConfig {
       case PHONE:
         return Optional.of(config.addPhoneConfig().getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
+      case YES_NO: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
             config

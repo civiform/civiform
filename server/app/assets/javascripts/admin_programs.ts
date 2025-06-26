@@ -109,6 +109,10 @@ class AdminPrograms {
       /* fieldElement= */ externalLink,
       /* shouldDisable= */ disableExternalLink,
     )
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="program-external-link-input"]',
+      /* shouldHide= */ programType !== ProgramType.EXTERNAL,
+    )
 
     // Notification preferences
     const disableNotificationPreferences = programType === ProgramType.EXTERNAL

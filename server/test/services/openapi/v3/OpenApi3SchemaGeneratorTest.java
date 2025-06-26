@@ -112,6 +112,15 @@ paths:
           \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
@@ -304,6 +313,15 @@ paths:
           \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
@@ -849,6 +867,15 @@ paths:
           \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
