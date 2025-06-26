@@ -42,11 +42,12 @@ import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.statuses.StatusDefinitions;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.admin.AdminLayout;
+import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -66,14 +67,16 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String CURRENT_STATUS = "currentStatus";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
-  private final BaseHtmlLayout layout;
+  private final AdminLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
-    this.layout = checkNotNull(layout);
+      AdminLayoutFactory layoutFactory,
+      @EnUsLang Messages enUsMessages,
+      DateConverter dateConverter) {
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
   }
@@ -89,7 +92,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
       Request request) {
-    String title = "Program application view";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
@@ -155,7 +157,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
-            .setTitle(title)
+            .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
@@ -165,7 +167,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
     addToastMessagesOnSuccess(htmlBundle, request.flash());
-    return layout.render(htmlBundle);
+    return layout.renderCentered(htmlBundle);
   }
 
   private ATag renderBackLink(Long programId) {
