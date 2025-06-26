@@ -590,11 +590,11 @@ public class FieldWithLabel {
     if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
       throw new RuntimeException("Tool tip text and icon must both be defined");
     }
-    // Add some space between text and icon when there is a tool tip
+    // Layout will append the required icon optionally then the tool tip optionally.
+    // If there is a tool tip but no required icon add some spacing between them.
+    var addToolTipSpacing = toolTipText.isPresent() && !required;
     String text =
-        labelText.isEmpty()
-            ? screenReaderText
-            : toolTipText.isPresent() ? labelText + " " : labelText;
+        labelText.isEmpty() ? screenReaderText : addToolTipSpacing ? labelText + " " : labelText;
 
     // Use the special tooltip-friendly label class when a tooltip is present and we're not using
     // USWDS
