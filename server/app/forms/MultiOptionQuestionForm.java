@@ -33,11 +33,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   // The IDs of option types which have been selected by the admin to be included in the question's
   // answer options.
-  // Use a list of IDs instead of a boolean list because the form binding does not recognize falsy
-  // values for checkboxes on submit.
   // This list is currently only applicable to YES_NO questions, which contain optional question
   // options.
-  private List<Long> displayInAnswerOptionsTrue;
+  private List<Long> displayedOptionIds;
 
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
   // optionIds list, we do not store options by order of their IDs.
@@ -52,7 +50,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
-    this.displayInAnswerOptionsTrue = new ArrayList<>();
+    this.displayedOptionIds = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
     this.nextAvailableId = OptionalLong.of(0);
@@ -73,7 +71,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
-    this.displayInAnswerOptionsTrue = new ArrayList<>();
+    this.displayedOptionIds = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -89,10 +87,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                   if (getQuestionType() == QuestionType.YES_NO) {
                     if (option.displayInAnswerOptions().isPresent()
                         && option.displayInAnswerOptions().get()) {
-                      displayInAnswerOptionsTrue.add(option.id());
+                      displayedOptionIds.add(option.id());
                     }
-                  } else {
-                    displayInAnswerOptionsTrue.add(option.id());
                   }
                 });
         this.nextAvailableId =
@@ -148,12 +144,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.newOptionAdminNames = newOptionAdminNames;
   }
 
-  public List<Long> getDisplayInAnswerOptionsTrue() {
-    return this.displayInAnswerOptionsTrue;
+  public List<Long> getDisplayedOptionIds() {
+    return this.displayedOptionIds;
   }
 
-  public void setDisplayInAnswerOptionsTrue(List<Long> displayInAnswerOptionsTrue) {
-    this.displayInAnswerOptionsTrue = displayInAnswerOptionsTrue;
+  public void setDisplayedOptionIds(List<Long> displayedOptionIds) {
+    this.displayedOptionIds = displayedOptionIds;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -232,7 +228,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       // "true" for displayInAnswerOptions.
       boolean displayInAnswerOptions =
           getQuestionType() == QuestionType.YES_NO
-              ? displayInAnswerOptionsTrue.contains(optionIds.get(i))
+              ? displayedOptionIds.contains(optionIds.get(i))
               : true;
       questionOptionsBuilder.add(
           QuestionOption.create(

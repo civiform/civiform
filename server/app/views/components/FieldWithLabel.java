@@ -43,7 +43,7 @@ import views.style.StyleUtils;
 public class FieldWithLabel {
 
   private static final ImmutableSet<String> STRING_TYPES =
-      ImmutableSet.of("text", "checkbox", "radio", "date", "email", "hidden");
+      ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
   private String fieldName = "";
   private String fieldType = "text";
@@ -145,10 +145,6 @@ public class FieldWithLabel {
 
   public static FieldWithLabel email() {
     return new FieldWithLabel().setTagTypeInput().setFieldType("email");
-  }
-
-  public static FieldWithLabel hidden() {
-    return new FieldWithLabel().setTagTypeInput().setFieldType("hidden");
   }
 
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */

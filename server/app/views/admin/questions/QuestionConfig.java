@@ -323,7 +323,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
-                      Optional.of(true),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -339,7 +339,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
-                      Optional.of(true),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
@@ -374,13 +374,23 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      0, 0, "yes", "Yes", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
+                      /* id= */ 0,
+                      /* order= */ 0,
+                      /* adminName= */ "yes",
+                      /* optionText= */ "Yes",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
               messages));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      1, 1, "no", "No", Optional.of(true), LocalizedStrings.DEFAULT_LOCALE)),
+                      /* id= */ 1,
+                      /* order= */ 1,
+                      /* adminName= */ "no",
+                      /* optionText= */ "No",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
               messages));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
@@ -392,9 +402,9 @@ public final class QuestionConfig {
                         i,
                         multiOptionQuestionForm.getOptionAdminNames().get(i),
                         multiOptionQuestionForm.getOptions().get(i),
-                        Optional.of(
+                        /* displayInAnswerOptions= */ Optional.of(
                             multiOptionQuestionForm
-                                .getDisplayInAnswerOptionsTrue()
+                                .getDisplayedOptionIds()
                                 .contains(multiOptionQuestionForm.getOptionIds().get(i))),
                         LocalizedStrings.DEFAULT_LOCALE)),
                 messages));
@@ -461,7 +471,7 @@ public final class QuestionConfig {
             // Value is set to the ID because falsy checkbox values get discarded on form
             // submission.
             FieldWithLabel.checkbox()
-                .setFieldName("displayInAnswerOptionsTrue[]")
+                .setFieldName("displayedOptionIds[]")
                 .setLabelText("include")
                 .setValue(Long.toString(existingOption.get().id()))
                 .setChecked(isChecked)
