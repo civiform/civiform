@@ -116,7 +116,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
             title,
             description,
             adminNote,
-            iff(settingsManifest.getProgramFilteringEnabled(request), categoriesDiv),
+            iff(settingsManifest.getProgramFilteringEnabled(), categoriesDiv),
             headerButtonsDiv)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }

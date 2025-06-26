@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, enableFeatureFlag} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -15,8 +15,6 @@ test.describe(
     const draftQuestionText = `${questionText} new version`
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
-
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
@@ -130,10 +128,6 @@ test.describe(
 )
 
 test.describe('publishing all programs with universal questions feature flag on', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
-
   test('shows a modal with information about universal questions', async ({
     page,
     adminPrograms,

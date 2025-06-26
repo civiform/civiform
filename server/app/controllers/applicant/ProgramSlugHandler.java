@@ -172,6 +172,21 @@ public final class ProgramSlugHandler {
             classLoaderExecutionContext.current());
   }
 
+  /**
+   * Returns the program ID from the applicant's latest application if one exists, otherwise returns
+   * the currently active program version ID.
+   */
+  public CompletionStage<Long> getLatestProgramId(String programSlug, long applicantId) {
+    return applicantService
+        .getLatestProgramId(programSlug, applicantId)
+        .thenCompose(
+            programId -> {
+              return programId.isPresent()
+                  ? CompletableFuture.completedFuture(programId.get())
+                  : programService.getActiveProgramId(programSlug);
+            });
+  }
+
   private Result redirectToOverviewOrReviewPage(
       CiviFormController controller,
       Http.Request request,

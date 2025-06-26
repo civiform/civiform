@@ -1,5 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 import {
   ProgramLifecycle,
   ProgramType,
@@ -12,10 +17,6 @@ test.describe('program migration', () => {
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_INFO = 'usa-alert--info'
   const ALERT_SUCCESS = 'usa-alert--success'
-
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
 
   test('export a program', async ({
     page,
@@ -120,6 +121,11 @@ test.describe('program migration', () => {
 
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
     })
 
@@ -537,6 +543,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import', async ({
     page,
     adminPrograms,
@@ -547,6 +554,10 @@ test.describe('program migration', () => {
       await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
     })
 
     let downloadedComprehensiveProgram: string
@@ -719,6 +730,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import with no duplicate questions enabled', async ({
     page,
     adminPrograms,
@@ -732,6 +744,10 @@ test.describe('program migration', () => {
       await enableFeatureFlag(
         page,
         'no_duplicate_questions_for_migration_enabled',
+      )
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
       )
     })
 
@@ -1188,6 +1204,163 @@ test.describe('program migration', () => {
       await expect(
         page.getByTestId('question-admin-name-Sample Text Question'),
       ).not.toContainText('What is your LEAST favorite color?')
+    })
+
+    await test.step('publish all programs', async () => {
+      // Check that other program is in DRAFT
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.expectDraftProgram('Comprehensive Sample Program')
+
+      // Confirm that we are able to publish all drafts
+      await adminPrograms.publishAllDrafts()
+      await adminPrograms.expectAdminProgramsPage()
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program',
+      )
+      await adminPrograms.expectActiveProgram('Comprehensive Sample Program')
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program New',
+      )
+      await adminPrograms.expectActiveProgram(
+        'Comprehensive Sample Program New',
+      )
+    })
+  })
+
+  test('Importing with duplicate enumerators and repeated questions', async ({
+    page,
+    adminPrograms,
+    adminProgramMigration,
+    seeding,
+  }) => {
+    await test.step('seed programs', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'import_duplicate_handling_options_enabled')
+    })
+
+    let downloadedComprehensiveProgram: string
+    await test.step('export comprehensive program', async () => {
+      await adminPrograms.goToExportProgramPage(
+        'Comprehensive Sample Program',
+        ProgramLifecycle.DRAFT,
+      )
+      downloadedComprehensiveProgram =
+        await adminProgramMigration.downloadJson()
+      expect(downloadedComprehensiveProgram).toContain(
+        'comprehensive-sample-program',
+      )
+    })
+
+    await test.step('edit the comprehensive program JSON', () => {
+      // Replace the admin name so you don't get an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-new',
+      )
+      // Replace the program title so we can validate the new one shows up
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Comprehensive Sample Program',
+        'Comprehensive Sample Program New',
+      )
+    })
+
+    await test.step('import comprehensive program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+    })
+
+    await test.step('check imported comprehensive program', async () => {
+      // Assert the title and admin name are shown
+      await expect(
+        page.getByRole('heading', {
+          name: 'Comprehensive Sample Program New',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Admin name: comprehensive-sample-program-new',
+        }),
+      ).toBeVisible()
+
+      // Assert the warning about duplicate question names is shown
+      await adminProgramMigration.expectAlert(
+        'This program contains 17 duplicate questions that must be resolved.',
+        ALERT_WARNING,
+      )
+
+      const enumAlert = page.getByRole('alert').filter({
+        hasText:
+          "Duplicate repeated questions of this enumerator will also be set to 'Create a new duplicate question.'",
+      })
+      const repeatedAlert = page.getByRole('alert').filter({
+        hasText:
+          "Some options are disabled because the associated enumerator is set to 'Create a new duplicate question.'",
+      })
+      // When all questions are on the default "use existing" option, we can still select any option for repeated questions
+      await expect(enumAlert).toBeHidden()
+      await expect(repeatedAlert).toBeHidden()
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          // Just confirm that we are able to click this option
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+        ]),
+      )
+      // Set the enumerator to "Create a new duplicate" to see how it affects its repeated question(s)
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          [
+            'Sample Enumerator Question',
+            adminProgramMigration.CREATE_DUPLICATE,
+          ],
+        ]),
+      )
+      // Now we see some alerts and cannot adjust the repeated question handling
+      await expect(enumAlert).toBeVisible()
+      await expect(repeatedAlert).toBeVisible()
+      await adminProgramMigration.expectOptionSelected(
+        page.getByTestId('question-admin-name-Sample Enumerated Date Question'),
+        'Create a new duplicate question',
+      )
+      await adminProgramMigration.expectOptionsDisabledForQuestion(
+        new Map([
+          // We should no longer be able to select this
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.USE_EXISTING,
+          ],
+        ]),
+      )
+      // Validate the visual alerts and disabled options
+      await validateScreenshot(page, 'import-page-with-enumerator-duplicates')
+      // Set the enumerator to something else to "unlock" the repeated Qs
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          ['Sample Enumerator Question', adminProgramMigration.USE_EXISTING],
+        ]),
+      )
+      await expect(enumAlert).toBeHidden()
+      await expect(repeatedAlert).toBeHidden()
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          // Just confirm that we are able to click this option
+          [
+            'Sample Enumerated Date Question',
+            adminProgramMigration.OVERWRITE_EXISTING,
+          ],
+        ]),
+      )
     })
   })
 })

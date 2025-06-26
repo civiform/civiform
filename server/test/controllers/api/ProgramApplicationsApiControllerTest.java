@@ -3,6 +3,7 @@ package controllers.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.Helpers.testServerPort;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -27,6 +28,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.JsonPathProvider;
 import services.export.AbstractExporterTest;
+import services.program.ProgramType;
 import support.ProgramBuilder;
 
 public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
@@ -38,6 +40,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
       Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
   private ApiKeyModel apiKey;
   private ProgramModel program;
+  private ProgramModel externalProgram;
   private ApplicationModel januaryApplication;
   private ApplicationModel februaryApplication;
   private ApplicationModel marchApplication;
@@ -68,6 +71,11 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   @Before
   public void setUp() {
     program = ProgramBuilder.newActiveProgram().withName("Fake Program").build();
+    externalProgram =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake External Program")
+            .withProgramType(ProgramType.EXTERNAL)
+            .build();
 
     ApplicantModel applicantOne = resourceCreator.insertApplicantWithAccount();
     ApplicantModel applicantTwo = resourceCreator.insertApplicantWithAccount();
@@ -98,6 +106,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
     apiKey = resourceCreator.createActiveApiKey("test-key", keyId, keySecret);
     apiKey.getGrants().grantProgramPermission(program.getSlug(), ApiKeyGrants.Permission.READ);
+    apiKey
+        .getGrants()
+        .grantProgramPermission(externalProgram.getSlug(), ApiKeyGrants.Permission.READ);
     apiKey.save();
   }
 
@@ -109,6 +120,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -134,6 +146,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-02-01"),
                 /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -156,6 +169,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.of("2022-02-01"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -177,6 +191,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-15"),
                 /* toDate= */ Optional.of("2022-02-15"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -221,6 +236,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2025-01-01"),
                 /* toDate= */ Optional.of("2025-01-02"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -244,6 +260,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2025-01-01T06:00:00.00Z"),
                 /* toDate= */ Optional.of("2025-01-01T10:00:00.00Z"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -257,6 +274,52 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(getApplicationIds(resultJson)).containsExactly(morningApplication.id.intValue());
   }
 
+  /** Test filtering by revision state "CURRENT" which maps to ACTIVE lifecycle stage. */
+  @Test
+  public void list_success_withRevisionStateCurrent() {
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                program.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.of("CURRENT"),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    Result result = doRequest(requestUrl);
+    assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
+    DocumentContext resultJson = parseResult(result);
+
+    assertThat(getPayloadLength(resultJson)).isEqualTo(2);
+    assertThat(getApplicationIds(resultJson))
+        .containsExactlyInAnyOrder(
+            januaryApplication.id.intValue(), marchApplication.id.intValue());
+  }
+
+  /** Test filtering by revision state "OBSOLETE" which maps to OBSOLETE lifecycle stage. */
+  @Test
+  public void list_success_withRevisionStateObsolete() {
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                program.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.of("OBSOLETE"),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    Result result = doRequest(requestUrl);
+    assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
+    DocumentContext resultJson = parseResult(result);
+
+    // Should return applications with OBSOLETE lifecycle stage (February only)
+    assertThat(getPayloadLength(resultJson)).isEqualTo(1);
+    assertThat(getApplicationIds(resultJson))
+        .containsExactlyInAnyOrder(februaryApplication.id.intValue());
+  }
+
   /** Test pagination with custom page size and verify next page token generation. */
   @Test
   public void list_success_pageSize() {
@@ -266,6 +329,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.of(2))
             .url();
@@ -292,7 +356,8 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
         controllers.api.routes.ProgramApplicationsApiController.list(
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
-                /* toDate= */ Optional.of("2022-02-15"),
+                /* toDate= */ Optional.of("2022-12-31"),
+                /* revisionState= */ Optional.of("CURRENT"),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.of(1))
             .url();
@@ -301,8 +366,8 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
     DocumentContext resultJson = parseResult(result);
 
-    // Verify first request has February application and a next page token
-    assertThat(getApplicationIds(resultJson)).containsExactly(februaryApplication.id.intValue());
+    // Verify first request has March application and a next page token
+    assertThat(getApplicationIds(resultJson)).containsExactly(marchApplication.id.intValue());
     String nextPageToken = resultJson.read("nextPageToken", String.class);
     assertThat(nextPageToken).isNotBlank();
 
@@ -311,7 +376,8 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
         controllers.api.routes.ProgramApplicationsApiController.list(
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
-                /* toDate= */ Optional.of("2022-02-15"),
+                /* toDate= */ Optional.of("2022-12-31"),
+                /* revisionState= */ Optional.of("CURRENT"),
                 /* nextPageToken= */ Optional.of(nextPageToken),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -333,6 +399,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("invalid-date"),
                 /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -350,6 +417,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.of("01-01-2022"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -357,6 +425,24 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThatThrownBy(() -> doRequest(requestUrl))
         .isInstanceOf(BadApiRequestException.class)
         .hasMessage("Malformed query param: toDate");
+  }
+
+  /** Test error handling for invalid revision state parameter. */
+  @Test
+  public void list_error_invalidRevisionState() {
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                program.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.of("INVALID_STATE"),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    assertThatThrownBy(() -> doRequest(requestUrl))
+        .isInstanceOf(BadApiRequestException.class)
+        .hasMessage("Invalid revision state parameter: INVALID_STATE");
   }
 
   /**
@@ -371,6 +457,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 newProgram.getSlug(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -391,6 +478,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
                 /* toDate= */ Optional.of("2022-02-15"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.of(1))
             .url();
@@ -410,6 +498,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
                 /* toDate= */ Optional.of("2022-04-30"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.of(nextPageToken),
                 /* pageSize= */ Optional.empty())
             .url();
@@ -432,6 +521,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
                 /* toDate= */ Optional.of("2022-02-15"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.empty(),
                 /* pageSize= */ Optional.of(1))
             .url();
@@ -451,6 +541,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
                 program.getSlug(),
                 /* fromDate= */ Optional.of("2022-01-01"),
                 /* toDate= */ Optional.of("2022-02-15"),
+                /* revisionState= */ Optional.empty(),
                 /* nextPageToken= */ Optional.of(nextPageToken),
                 /* pageSize= */ Optional.of(6))
             .url();
@@ -459,5 +550,21 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThatThrownBy(() -> doRequest(secondRequestUrl))
         .isInstanceOf(BadApiRequestException.class)
         .hasMessage("Request parameters must match pagination token: pageSize");
+  }
+
+  @Test
+  public void list_externalProgram_returnsBadRequest() {
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                externalProgram.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* revisionState= */ Optional.empty(),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    Result result = doRequest(requestUrl);
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 }

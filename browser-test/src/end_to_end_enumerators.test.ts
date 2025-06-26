@@ -7,14 +7,10 @@ import {
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
 test.describe('End to end enumerator test', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {

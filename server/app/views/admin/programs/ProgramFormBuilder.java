@@ -36,7 +36,6 @@ import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
-import services.AlertType;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -184,11 +183,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(displayName)
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        AlertComponent.renderSlimAlert(
-            AlertType.INFO,
-            "Short description will be visible to applicants at a future date.",
-            false,
-            "my-2"),
+        AlertComponent.renderSlimInfoAlert(
+            "Short description will be visible to applicants at a future date.", "my-2"),
         // Short description
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
@@ -243,7 +239,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
-            settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
+            settingsManifest.getProgramFilteringEnabled() && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
         // Program visibility
         fieldset(
@@ -337,11 +333,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        AlertComponent.renderSlimAlert(
-            AlertType.INFO,
-            "Application steps will be visible to applicants at a future date.",
-            false,
-            "my-2"),
+        AlertComponent.renderSlimInfoAlert(
+            "Application steps will be visible to applicants at a future date.", "my-2"),
         // Application steps
         div()
             .with(
