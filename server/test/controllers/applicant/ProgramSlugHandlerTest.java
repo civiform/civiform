@@ -2,6 +2,7 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.DisplayMode;
@@ -497,6 +499,138 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(play.mvc.Http.Status.BAD_REQUEST);
     assertThat(contentAsString(result))
         .contains(new ProgramNotFoundException(externalProgram.getSlug()).getMessage());
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndNotFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ false,
+                /* programSlugUrlEnabled= */ false);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndNotFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ false,
+                        /* programSlugUrlEnabled= */ false))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ true,
+                /* programSlugUrlEnabled= */ false);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ true,
+                        /* programSlugUrlEnabled= */ false))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ false,
+                /* programSlugUrlEnabled= */ true);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ false,
+                        /* programSlugUrlEnabled= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndFromUrl_withId_error() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        programId,
+                        applicant.id,
+                        /* isFromUrlCall= */ true,
+                        /* programSlugUrlEnabled= */ true))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Numeric program parameter should have been handled by the caller");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndFromUrl_withSlug_success() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                program.slug(),
+                applicant.id,
+                /* isFromUrlCall= */ true,
+                /* programSlugUrlEnabled= */ true);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(program.id());
   }
 
   @Test

@@ -46,7 +46,7 @@ public final class MonitoringMetricCounters {
         Counter.build()
             .name("url_with_program_id_call_total")
             .help("Count of calls to program-related URLs")
-            .labelNames("route")
+            .labelNames("route", "programId")
             .register();
   }
 
