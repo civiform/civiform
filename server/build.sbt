@@ -29,29 +29,29 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.19.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.19.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.0",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.19.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.19.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.19.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.19.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.24.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.24.0",
+      "org.commonmark" % "commonmark" % "0.25.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.25.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.66",
-      "software.amazon.awssdk" % "ses" % "2.31.66",
+      "software.amazon.awssdk" % "s3" % "2.31.72",
+      "software.amazon.awssdk" % "ses" % "2.31.72",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.15.4",
-      "com.azure" % "azure-storage-blob" % "12.30.0",
+      "com.azure" % "azure-identity" % "1.16.2",
+      "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.40.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.43.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.7",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.8",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -129,8 +129,8 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.33",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.29",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.34",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.30",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
@@ -302,9 +302,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.19.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.19.0",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.0"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.19.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.19.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.1"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

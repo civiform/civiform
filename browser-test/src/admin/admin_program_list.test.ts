@@ -18,9 +18,6 @@ import {
 } from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 

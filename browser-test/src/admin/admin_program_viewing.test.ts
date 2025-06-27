@@ -7,9 +7,6 @@ import {
 } from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   test('view active program shows read only view', async ({
     page,
     adminPrograms,

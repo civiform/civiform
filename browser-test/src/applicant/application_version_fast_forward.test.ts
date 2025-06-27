@@ -10,15 +10,13 @@ import {
   closeWarningMessage,
   AdminPredicates,
   testUserDisplayName,
-  enableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
-  test.beforeEach(async ({seeding, page}) => {
+  test.beforeEach(async ({seeding}) => {
     await seeding.clearDatabase()
-    await enableFeatureFlag(page, 'program_filtering_enabled')
   })
 
   test('all major steps', async ({browser}) => {

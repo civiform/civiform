@@ -1047,13 +1047,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables filtering programs by category on the homepage */
-  public boolean getProgramFilteringEnabled(RequestHeader request) {
-    return getBool("PROGRAM_FILTERING_ENABLED", request);
+  public boolean getProgramFilteringEnabled() {
+    return getBool("PROGRAM_FILTERING_ENABLED");
   }
 
   /** Enable using custom theme colors on North Star applicant UI. */
   public boolean getCustomThemeColorsEnabled(RequestHeader request) {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  }
+
+  /**
+   * Enable options for handling duplicate questions when importing/migrating programs: create a
+   * duplicate, use the existing question, or overwrite the existing question.
+   */
+  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
+    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
   /**
@@ -1086,15 +1094,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
   public boolean getExternalProgramCardsEnabled(RequestHeader request) {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when
-   * importing/migrating programs: create a duplicate, use the existing question, or overwrite the
-   * existing question.
-   */
-  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -2280,10 +2279,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables filtering programs by category on the homepage",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "Enable using custom theme colors on North Star applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
+                          "Enable options for handling duplicate questions when importing/migrating"
+                              + " programs: create a duplicate, use the existing question, or"
+                              + " overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2330,14 +2337,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
                               + " Star applicant UI.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
-                              + " when importing/migrating programs: create a duplicate, use the"
-                              + " existing question, or overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
