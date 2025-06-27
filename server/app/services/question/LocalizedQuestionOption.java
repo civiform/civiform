@@ -50,6 +50,8 @@ public abstract class LocalizedQuestionOption {
     return switch (adminName()) {
       case "yes" -> MessageKey.OPTION_YES.getKeyName();
       case "no" -> MessageKey.OPTION_NO.getKeyName();
+      case "not-sure" -> MessageKey.OPTION_NOT_SURE.getKeyName();
+      case "maybe" -> MessageKey.OPTION_MAYBE.getKeyName();
       default -> "";
     };
   }
