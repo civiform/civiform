@@ -8,7 +8,7 @@ sudo apt update
 sudo apt install -y tmux
 
 # Install requests
-sudo apt install python3-requests
+sudo apt install -y python3-requests
 
 # Install Graphite
 npm install -g @withgraphite/graphite-cli@stable
@@ -17,5 +17,6 @@ npm install -g @withgraphite/graphite-cli@stable
 npm install --no-save @playwright/test
 
 # Install pre-commit
-pip install pre-commit
+sudo apt install -y pipx
+pipx install pre-commit
 pre-commit install
