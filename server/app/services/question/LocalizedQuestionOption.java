@@ -2,8 +2,8 @@ package services.question;
 
 import com.google.auto.value.AutoValue;
 import java.util.Locale;
-import services.MessageKey;
 import java.util.Optional;
+import services.MessageKey;
 import views.components.TextFormatter;
 
 /**
