@@ -543,6 +543,7 @@ public enum Icons {
       case STATIC -> Icons.ANNOTATION;
       case TEXT -> Icons.TEXT;
       case PHONE -> Icons.PHONE;
+      case YES_NO -> Icons.RADIO_BUTTON;
       default -> Icons.UNKNOWN;
     };
   }
