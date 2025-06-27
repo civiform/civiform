@@ -1106,6 +1106,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("YES_NO_QUESTION_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables admin validation settings for date questions. */
+  public boolean getDateValidationEnabled() {
+    return getBool("DATE_VALIDATION_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2353,7 +2358,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATE_VALIDATION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
+                              + " questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
