@@ -81,11 +81,6 @@ public final class QuestionConfig {
             config
                 .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm)
                 .getContainer());
-      case YES_NO:
-        return Optional.of(
-            config
-                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
-                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -381,12 +376,22 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      0, 0, "yes", "Yes", LocalizedStrings.DEFAULT_LOCALE))));
+                      /* id= */ 0,
+                      /* order= */ 0,
+                      /* adminName= */ "yes",
+                      /* optionText= */ "Yes",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      1, 1, "no", "No", LocalizedStrings.DEFAULT_LOCALE))));
+                      /* id= */ 1,
+                      /* order= */ 1,
+                      /* adminName= */ "no",
+                      /* optionText= */ "No",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -397,6 +402,10 @@ public final class QuestionConfig {
                         i,
                         multiOptionQuestionForm.getOptionAdminNames().get(i),
                         multiOptionQuestionForm.getOptions().get(i),
+                        /* displayInAnswerOptions= */ Optional.of(
+                            multiOptionQuestionForm
+                                .getDisplayedOptionIds()
+                                .contains(multiOptionQuestionForm.getOptionIds().get(i))),
                         LocalizedStrings.DEFAULT_LOCALE))));
       }
     }
@@ -405,6 +414,8 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    // Hidden inputs allow Play's form binding to submit the input value, while we show static text
+    // to the admin.
     DivTag optionAdminNameHidden =
         FieldWithLabel.input()
             .setFieldName("optionAdminNames[]")
