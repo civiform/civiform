@@ -10,7 +10,6 @@ import forms.CheckboxQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
-import forms.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
