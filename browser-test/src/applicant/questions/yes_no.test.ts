@@ -162,7 +162,7 @@ test.describe(
       adminQuestions: AdminQuestions,
       adminPrograms: AdminPrograms,
     ) {
-      // As admin, create program with radio button question.
+      // As admin, create program with yes/no question.
       await loginAsAdmin(page)
 
       await adminQuestions.addYesNoQuestion({
