@@ -144,5 +144,7 @@ public class QuestionConfigTest {
 
     assertThat(result).contains("yes");
     assertThat(result).contains("no");
+    assertThat(result).contains("not-sure");
+    assertThat(result).contains("maybe");
   }
 }

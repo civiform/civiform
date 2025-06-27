@@ -392,6 +392,28 @@ public final class QuestionConfig {
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 2,
+                      /* order= */ 2,
+                      /* adminName= */ "not-sure",
+                      /* optionText= */ "Not sure",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 3,
+                      /* order= */ 3,
+                      /* adminName= */ "maybe",
+                      /* optionText= */ "Maybe",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -475,6 +497,9 @@ public final class QuestionConfig {
                 .setLabelText("include")
                 .setValue(Long.toString(existingOption.get().id()))
                 .setChecked(isChecked)
+                .setDisabled(
+                    existingOption.get().adminName().equals("yes")
+                        || existingOption.get().adminName().equals("no"))
                 .getCheckboxTag());
   }
 
