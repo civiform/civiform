@@ -14,5 +14,8 @@ npm install -g @withgraphite/graphite-cli@stable
 npm install --no-save @playwright/test
 
 # Install pre-commit
-pip install pre-commit
+# Use pipx for installing Python applications in isolated environments
+sudo apt install -y pipx
+pipx ensurepath
+pipx install pre-commit
 pre-commit install
