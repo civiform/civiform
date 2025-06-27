@@ -2,6 +2,8 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -77,7 +79,7 @@ public final class QuestionConfig {
       case YES_NO:
         return Optional.of(
             config
-                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm)
                 .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
@@ -363,7 +365,7 @@ public final class QuestionConfig {
   }
 
   private QuestionConfig addDefaultYesNoQuestionFields(
-      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
+      MultiOptionQuestionForm multiOptionQuestionForm) {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
@@ -379,8 +381,7 @@ public final class QuestionConfig {
                       /* adminName= */ "yes",
                       /* optionText= */ "Yes",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+                      LocalizedStrings.DEFAULT_LOCALE))));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
@@ -390,8 +391,7 @@ public final class QuestionConfig {
                       /* adminName= */ "no",
                       /* optionText= */ "No",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+                      LocalizedStrings.DEFAULT_LOCALE))));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -406,76 +406,73 @@ public final class QuestionConfig {
                             multiOptionQuestionForm
                                 .getDisplayedOptionIds()
                                 .contains(multiOptionQuestionForm.getOptionIds().get(i))),
-                        LocalizedStrings.DEFAULT_LOCALE)),
-                messages));
+                        LocalizedStrings.DEFAULT_LOCALE))));
       }
     }
     content.with(optionsBuilder.build());
     return this;
   }
 
-  private static DivTag yesNoOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
-    DivTag optionAdminName =
+  private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    // Hidden inputs allow Play's form binding to submit the input value, while we show static text
+    // to the admin.
+    DivTag optionAdminNameHidden =
         FieldWithLabel.input()
             .setFieldName("optionAdminNames[]")
             .setLabelText("Admin ID")
-            .setRequired(true)
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::adminName))
-            .setFieldErrors(
-                messages,
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
-            .showFieldErrors(false)
-            .setReadOnly(true)
-            .getInputTag();
-    DivTag optionIndexInput =
+            .getInputTag()
+            .withClasses("display-none");
+    DivTag optionIndexInputHidden =
         FieldWithLabel.input()
             .setFieldName("optionIds[]")
             .setValue(String.valueOf(existingOption.get().id()))
             .setScreenReaderText("option ids")
             .getInputTag()
             .withClasses("display-none");
-    DivTag optionInput =
+    DivTag optionInputHidden =
         FieldWithLabel.input()
             .setFieldName("options[]")
-            .setLabelText("Option Text")
-            .setRequired(true)
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .setReadOnly(true)
-            .setFieldErrors(
-                messages,
-                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
-            .showFieldErrors(false)
             .getInputTag()
+            .withClasses("display-none");
+
+    DivTag adminNameLabel =
+        div(
+            strong("Admin ID: "),
+            text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+    DivTag optionTextLabel =
+        div(
+            strong("Option text: "),
+            text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+
+    DivTag labels = div().with(adminNameLabel, optionTextLabel).withClasses("grid-col");
+    DivTag wholeOption =
+        div()
+            .with(
+                // Checkbox for selecting whether to display the option to the applicant.
+                FieldWithLabel.checkbox()
+                    .setValue("true")
+                    .setChecked(true)
+                    .getCheckboxTag()
+                    .withClasses("usa-checkbox, bg-gray-100"),
+                labels)
             .withClasses(
-                ReferenceClasses.MULTI_OPTION_INPUT,
-                "col-start-1",
-                "col-span-5",
-                "mb-2",
-                "ml-2",
-                "row-start-3",
-                "row-span-2");
-    boolean isChecked =
-        existingOption.get().displayInAnswerOptions().isPresent()
-            && existingOption.get().displayInAnswerOptions().get();
+                "grid-row",
+                "flex-align-center",
+                "border-width-1px",
+                "border-base",
+                "radius-md",
+                "grid-row",
+                "items-center",
+                "padding-1",
+                "margin-1");
+
     return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(
-            optionIndexInput,
-            optionAdminName,
-            optionInput,
-            // Checkbox for selecting whether to display the option to the applicant.
-            // Value is set to the ID because falsy checkbox values get discarded on form
-            // submission.
-            FieldWithLabel.checkbox()
-                .setFieldName("displayedOptionIds[]")
-                .setLabelText("include")
-                .setValue(Long.toString(existingOption.get().id()))
-                .setChecked(isChecked)
-                .getCheckboxTag());
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION)
+        .with(optionIndexInputHidden, optionAdminNameHidden, optionInputHidden, wholeOption);
   }
 
   /**
