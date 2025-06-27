@@ -543,7 +543,7 @@ test.describe('Program list page.', () => {
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await page.getByText('Import existing program').isVisible()
+    await expect(page.getByText('Import existing program')).toBeVisible()
   })
 
   test('external program card actions', async ({page, adminPrograms}) => {
