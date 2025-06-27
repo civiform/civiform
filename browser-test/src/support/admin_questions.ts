@@ -1205,6 +1205,62 @@ export class AdminQuestions {
     }
   }
 
+  async addYesNoQuestion({
+    questionName,
+    description = 'yes/no description',
+    questionText = 'yes/no question text',
+    helpText = 'yes/no question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
+  }: QuestionParams) {
+    await this.createYesNoQuestion({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
+  }
+
+  async createYesNoQuestion(
+    {
+      questionName,
+      description = 'yes/no description',
+      questionText = 'yes/no question text',
+      helpText = 'yes/no question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-yes_no-question')
+    await waitForPageJsLoad(this.page)
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
+  }
+
   async addTextQuestion({
     questionName,
     description = 'text description',

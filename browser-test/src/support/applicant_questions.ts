@@ -132,6 +132,10 @@ export class ApplicantQuestions {
     await this.page.check(`text=${checked}`)
   }
 
+  async answerYesNoQuestion(checked: string, order = 0) {
+    await this.page.getByText(checked, {exact: true}).nth(order).check()
+  }
+
   async answerDropdownQuestion(selected: string, index = 0) {
     await this.page.selectOption(
       `.cf-dropdown-question select >> nth=${index}`,

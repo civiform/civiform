@@ -3,6 +3,7 @@ package services.question;
 import com.google.auto.value.AutoValue;
 import java.util.Locale;
 import java.util.Optional;
+import services.MessageKey;
 import views.components.TextFormatter;
 
 /**
@@ -42,6 +43,17 @@ public abstract class LocalizedQuestionOption {
   /** Sanitized HTML for the option that processes Markdown. */
   public String formattedOptionText(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false, ariaLabelForNewTabs);
+  }
+
+  /** Returns the message key for yes/no question options. Only applicable to yes/no questions. */
+  public String getYesNoOptionMessageKey() {
+    return switch (adminName()) {
+      case "yes" -> MessageKey.OPTION_YES.getKeyName();
+      case "no" -> MessageKey.OPTION_NO.getKeyName();
+      case "not-sure" -> MessageKey.OPTION_NOT_SURE.getKeyName();
+      case "maybe" -> MessageKey.OPTION_MAYBE.getKeyName();
+      default -> "";
+    };
   }
 
   /** The locale this option is localized to. */
