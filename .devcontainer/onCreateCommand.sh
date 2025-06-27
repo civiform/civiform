@@ -7,6 +7,9 @@
 sudo apt update
 sudo apt install -y tmux
 
+# Install requests
+sudo apt install python3-requests
+
 # Install Graphite
 npm install -g @withgraphite/graphite-cli@stable
 
