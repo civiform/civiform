@@ -7,7 +7,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
