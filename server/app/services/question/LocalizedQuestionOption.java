@@ -36,7 +36,7 @@ public abstract class LocalizedQuestionOption {
   /** The text strings to display to the user. */
   public abstract String optionText();
 
-  /** Whether to hide the answer option from the user. */
+  /** Whether to display the answer option to the applicant. */
   public abstract Optional<Boolean> displayInAnswerOptions();
 
   /** Sanitized HTML for the option that processes Markdown. */

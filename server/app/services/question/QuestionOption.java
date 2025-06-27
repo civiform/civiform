@@ -105,7 +105,7 @@ public abstract class QuestionOption {
    * @param displayOrder the option display
    * @param adminName the option's immutable admin name, exposed via the API
    * @param optionText the option's user-facing text
-   * @param displayInAnswerOptions whether to show the option from the applicant
+   * @param displayInAnswerOptions whether to show the option to the applicant
    * @return the {@link QuestionOption}
    */
   public static QuestionOption create(
