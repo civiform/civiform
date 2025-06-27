@@ -60,8 +60,20 @@ public class SingleSelectQuestionTest extends ResetPostgres {
 
     assertThat(singleSelectQuestion.getOptions())
         .containsOnly(
-            LocalizedQuestionOption.create(1L, 1L, "opt1", "option 1", Locale.US),
-            LocalizedQuestionOption.create(2L, 2L, "opt2", "option 2", Locale.US));
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "option 1",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US),
+            LocalizedQuestionOption.create(
+                /* id= */ 2L,
+                /* order= */ 2L,
+                /* adminName= */ "opt2",
+                /* optionText= */ "option 2",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US));
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
@@ -77,7 +89,14 @@ public class SingleSelectQuestionTest extends ResetPostgres {
 
     assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
-        .hasValue(LocalizedQuestionOption.create(1L, 1L, "opt1", "option 1", Locale.US));
+        .hasValue(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "option 1",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US));
   }
 
   @Test

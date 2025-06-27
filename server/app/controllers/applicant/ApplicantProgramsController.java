@@ -30,6 +30,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
@@ -56,6 +57,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
   private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
+  private final MonitoringMetricCounters metricCounters;
 
   @Inject
   public ApplicantProgramsController(
@@ -70,7 +72,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       NorthStarProgramIndexView northStarProgramIndexView,
-      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial) {
+      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial,
+      MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -82,6 +85,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
     this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
+    this.metricCounters = checkNotNull(metricCounters);
   }
 
   @Secure
@@ -278,10 +282,9 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
-    // TODO(#10763): Add metrics to track how often this happens to decide whether we should make
-    // this case invalid or not
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters.getUrlWithProgramIdCall().labels("/edit").inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
 

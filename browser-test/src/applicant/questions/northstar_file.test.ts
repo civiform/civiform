@@ -11,7 +11,6 @@ import {
 test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await enableFeatureFlag(page, 'program_filtering_enabled')
   })
 
   test.describe('required file upload question', () => {

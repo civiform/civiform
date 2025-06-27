@@ -162,60 +162,21 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     }
   })
 
-  test('categorizes programs for draft and applied applications as guest user', async ({
+  test('Puts a submitted tag on program card when application submitted', async ({
     applicantQuestions,
     page,
   }) => {
     await loginAsTestUser(page)
 
-    await test.step('Programs start in Programs and Services section', async () => {
-      await applicantQuestions.expectProgramsinCorrectSections(
-        {
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-    })
-
-    await test.step('Fill out part of the primary program application', async () => {
+    await test.step('Apply to the primary program', async () => {
       await applicantQuestions.applyProgram(
         primaryProgramName,
         /* northStarEnabled= */ true,
       )
-
       // Screen 1 has no questions, so expect to navigate directly to screen 2
       await expect(page.getByText('Screen 2')).toBeVisible()
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.gotoApplicantHomePage()
-    })
-    await test.step('Expect primary program application is in "My applications" section', async () => {
-      await applicantQuestions.expectProgramsinCorrectSections(
-        {
-          expectedProgramsInMyApplicationsSection: [primaryProgramName],
-          expectedProgramsInProgramsAndServicesSection: [otherProgramName],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-      await expect(page.getByText('Not yet submitted')).toBeVisible()
-    })
-
-    await test.step('Finish the primary program application', async () => {
-      await applicantQuestions.applyProgram(
-        primaryProgramName,
-        /* northStarEnabled= */ true,
-        /* showProgramOverviewPage= */ false,
-      )
       // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
       await expect(page.getByText('Screen 3')).toBeVisible()
       await applicantQuestions.answerTextQuestion('second answer')
@@ -225,19 +186,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
     })
-    await test.step('Expect primary program application is still in "My applications" section', async () => {
-      await applicantQuestions.expectProgramsinCorrectSections(
-        {
-          expectedProgramsInMyApplicationsSection: [primaryProgramName],
-          expectedProgramsInProgramsAndServicesSection: [otherProgramName],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
 
-      await validateScreenshot(page, 'program-index-page-submitted-northstar')
+    await test.step('Expect submitted tag shows on program card', async () => {
       await normalizeElements(page)
       await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
     })
@@ -262,76 +212,12 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await normalizeElements(page)
       await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
     })
-
-    await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
-      await logout(page, false)
-
-      await applicantQuestions.expectProgramsinCorrectSections(
-        {
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-    })
-  })
-
-  test('categorizes programs for draft and applied applications', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await test.step("Navigate to the applicant's program index and validate that both programs appear in the Not started section.", async () => {
-      await loginAsTestUser(page)
-
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [primaryProgramName, otherProgramName],
-        wantInProgressOrSubmittedPrograms: [],
-      })
-    })
-
-    await test.step('Fill out first application block and confirm that the program appears in the In progress section.', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.answerTextQuestion('first answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressOrSubmittedPrograms: [primaryProgramName],
-      })
-    })
-
-    await test.step('Finish the application and confirm that the program appears in the Submitted section.', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true, false)
-      await applicantQuestions.answerTextQuestion('second answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressOrSubmittedPrograms: [primaryProgramName],
-      })
-    })
-
-    await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
-      await logout(page)
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName, primaryProgramName],
-        wantInProgressOrSubmittedPrograms: [],
-      })
-    })
   })
 
   test.describe('program filtering', () => {
     const externalProgramName = 'External Program'
 
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await enableFeatureFlag(page, 'external_program_cards_enabled')
 
       await test.step('seed categories', async () => {
@@ -474,7 +360,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
     })
 
-    test('with program filters enabled, categorizes programs correctly', async ({
+    test('with program filters selected, categorizes programs correctly', async ({
       page,
       adminPrograms,
       applicantQuestions,
@@ -1453,7 +1339,6 @@ test.describe(
       const externalProgramLink = 'https://civiform.us'
 
       await test.step('enable required features', async () => {
-        await enableFeatureFlag(page, 'program_filtering_enabled')
         await enableFeatureFlag(page, 'external_program_cards_enabled')
       })
 
