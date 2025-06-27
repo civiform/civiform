@@ -79,6 +79,11 @@ public final class QuestionConfig {
             config
                 .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
                 .getContainer());
+      case YES_NO:
+        return Optional.of(
+            config
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -324,6 +329,7 @@ public final class QuestionConfig {
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
                       /* displayInAnswerOptions= */ Optional.of(true),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -339,6 +345,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
