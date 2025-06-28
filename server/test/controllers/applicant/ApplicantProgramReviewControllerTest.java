@@ -237,7 +237,10 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation().isPresent()).isTrue();
     assertThat(result.redirectLocation().get())
-        .isEqualTo(routes.ApplicantProgramReviewController.review(newProgramModel.id).url());
+        .isEqualTo(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+                .url());
 
     // An application was not submitted
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);

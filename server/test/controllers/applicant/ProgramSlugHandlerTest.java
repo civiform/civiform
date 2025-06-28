@@ -75,7 +75,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(programModelV2.id)
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    Long.toString(programModelV2.id), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -182,7 +183,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
+                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -222,7 +223,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
+                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 

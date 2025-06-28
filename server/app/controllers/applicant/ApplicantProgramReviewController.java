@@ -17,6 +17,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -70,6 +71,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
+  private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
@@ -87,6 +89,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       SettingsManifest settingsManifest,
       ProgramService programService,
       VersionRepository versionRepository,
+      ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(profileUtils, versionRepository);
@@ -100,6 +103,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
+    this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
   }
@@ -237,17 +241,38 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> review(Request request, long programId) {
+  public CompletionStage<Result> review(
+      Request request, String programParam, Boolean isFromUrlCall) {
+    // Redirect home when the program slug URL feature is enabled and the program param could be
+    // a program slug but it is actually a program id (numeric).
+    // TODO(#10763): Add metrics to track how often this happens to decide whether we should make
+    // this case invalid or not
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return reviewWithApplicantId(
-        request,
-        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-        programId);
+
+    Long applicantIdValue = applicantId.get();
+    if (programSlugUrlEnabled && isFromUrlCall) {
+      return programSlugHandler
+          .getLatestProgramId(programParam, applicantId.get())
+          .thenCompose(programId -> reviewWithApplicantId(request, applicantIdValue, programId));
+    }
+
+    try {
+      Long programId = Long.parseLong(programParam);
+      return reviewWithApplicantId(request, applicantIdValue, programId);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Could not parse value from '%s' to a numeric value'", programParam));
+    }
   }
 
   /**

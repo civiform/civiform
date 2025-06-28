@@ -224,7 +224,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
 
@@ -274,7 +274,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testReviewRoute_withoutApplicant() {
     Counts before = getApplicantIdInProfileCounts();
 
-    String expectedShowUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedShowUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
 
     Counts after = getApplicantIdInProfileCounts();
@@ -786,7 +786,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()
@@ -808,7 +808,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()
