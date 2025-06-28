@@ -3,6 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
@@ -590,11 +591,7 @@ public class FieldWithLabel {
     if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
       throw new RuntimeException("Tool tip text and icon must both be defined");
     }
-    // Add some space between text and icon when there is a tool tip
-    String text =
-        labelText.isEmpty()
-            ? screenReaderText
-            : toolTipText.isPresent() ? labelText + " " : labelText;
+    String text = labelText.isEmpty() ? screenReaderText : labelText;
 
     // Use the special tooltip-friendly label class when a tooltip is present and we're not using
     // USWDS
@@ -618,7 +615,9 @@ public class FieldWithLabel {
         // some defaults we will never use.
         .condWith(
             toolTipText.isPresent(),
-            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
+            span(
+                rawHtml("&nbsp;"),
+                ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))));
   }
 
   private SpanTag buildMarkdownIndicator() {
