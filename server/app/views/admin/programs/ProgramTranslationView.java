@@ -24,6 +24,7 @@ import services.TranslationLocales;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
@@ -215,63 +216,67 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .asAnchorText()),
             newProgramFieldsBuilder.build()));
 
-    // Add fields for Screen names and descriptions
-    ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
-    for (int i = 0; i < screens.size(); i++) {
-      LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
-      BlockDefinition block =
-          blockDefinitions.stream()
-              .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
-              .findFirst()
-              .get();
-      ImmutableList.Builder<DomContent> fieldsBuilder =
-          ImmutableList.<DomContent>builder()
-              .add(
-                  fieldWithDefaultLocaleTextHint(
-                      FieldWithLabel.input()
-                          .setFieldName(ProgramTranslationForm.localizedScreenName(block.id()))
-                          .setLabelText("Screen name")
-                          .setScreenReaderText("Screen name")
-                          .setValue(screenUpdateData.localizedName())
-                          .setRequired(true)
-                          .getInputTag(),
-                      block.localizedName()))
-              .add(
-                  fieldWithDefaultLocaleTextHint(
-                      FieldWithLabel.input()
-                          .setFieldName(
-                              ProgramTranslationForm.localizedScreenDescription(block.id()))
-                          .setLabelText("Screen description")
-                          .setScreenReaderText("Screen description")
-                          .setValue(screenUpdateData.localizedDescription())
-                          .getInputTag(),
-                      block.localizedDescription()));
-      if (block.localizedEligibilityMessage().isPresent()) {
-        fieldsBuilder.add(
-            fieldWithDefaultLocaleTextHint(
-                FieldWithLabel.input()
-                    .setFieldName(ProgramTranslationForm.localizedEligibilityMessage(block.id()))
-                    .setLabelText("Screen eligibility message")
-                    .setScreenReaderText("Screen eligibility message")
-                    .setValue(screenUpdateData.localizedEligibilityMessage())
-                    .getInputTag(),
-                block.localizedEligibilityMessage().get()));
+    // Add fields for Screen names and descriptions. External programs don't have screens
+    if (!program.programType().equals(ProgramType.EXTERNAL)) {
+      ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
+      for (int i = 0; i < screens.size(); i++) {
+        LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
+        BlockDefinition block =
+            blockDefinitions.stream()
+                .filter(
+                    blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
+                .findFirst()
+                .get();
+        ImmutableList.Builder<DomContent> fieldsBuilder =
+            ImmutableList.<DomContent>builder()
+                .add(
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(ProgramTranslationForm.localizedScreenName(block.id()))
+                            .setLabelText("Screen name")
+                            .setScreenReaderText("Screen name")
+                            .setValue(screenUpdateData.localizedName())
+                            .setRequired(true)
+                            .getInputTag(),
+                        block.localizedName()))
+                .add(
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(
+                                ProgramTranslationForm.localizedScreenDescription(block.id()))
+                            .setLabelText("Screen description")
+                            .setScreenReaderText("Screen description")
+                            .setValue(screenUpdateData.localizedDescription())
+                            .getInputTag(),
+                        block.localizedDescription()));
+        if (block.localizedEligibilityMessage().isPresent()) {
+          fieldsBuilder.add(
+              fieldWithDefaultLocaleTextHint(
+                  FieldWithLabel.input()
+                      .setFieldName(ProgramTranslationForm.localizedEligibilityMessage(block.id()))
+                      .setLabelText("Screen eligibility message")
+                      .setScreenReaderText("Screen eligibility message")
+                      .setValue(screenUpdateData.localizedEligibilityMessage())
+                      .getInputTag(),
+                  block.localizedEligibilityMessage().get()));
+        }
+        String blockDetailsLink =
+            controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
+                .url();
+        result.add(
+            fieldSetForFields(
+                legend()
+                    .with(
+                        span(String.format("Screen %d", i + 1)),
+                        new LinkElement()
+                            .setText("(edit default)")
+                            .setHref(blockDetailsLink)
+                            .setStyles("ml-2")
+                            .asAnchorText()),
+                fieldsBuilder.build()));
       }
-      String blockDetailsLink =
-          controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
-              .url();
-      result.add(
-          fieldSetForFields(
-              legend()
-                  .with(
-                      span(String.format("Screen %d", i + 1)),
-                      new LinkElement()
-                          .setText("(edit default)")
-                          .setHref(blockDetailsLink)
-                          .setStyles("ml-2")
-                          .asAnchorText()),
-              fieldsBuilder.build()));
     }
+
     return result.build();
   }
 
@@ -289,12 +294,14 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .getInputTag(),
                     program.localizedName()));
 
-    // Always show the long description field if north star is off
-    // If north star is enabled, only show the long description field if the program is not a common
-    // intake program
-    boolean northStarIsOff = !settingsManifest.getNorthStarApplicantUi(request);
-    boolean isNotCommonIntake = !program.isCommonIntakeForm();
-    if (northStarIsOff || isNotCommonIntake) {
+    // On north star, only default programs have a long description. Whereas when north star is off,
+    // both default programs and common intake forms have long description.
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
+    ProgramType programType = program.programType();
+    if ((northStarEnabled && programType.equals(ProgramType.DEFAULT))
+        || (!northStarEnabled
+            && (programType.equals(ProgramType.DEFAULT)
+                || programType.equals(ProgramType.COMMON_INTAKE_FORM)))) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(
               FieldWithLabel.input()
@@ -305,14 +312,17 @@ public final class ProgramTranslationView extends TranslationFormView {
               program.localizedDescription()));
     }
 
-    applicantVisibleDetails.add(
-        fieldWithDefaultLocaleTextHint(
-            FieldWithLabel.input()
-                .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                .setLabelText("Custom confirmation screen message")
-                .setValue(updateData.localizedConfirmationMessage())
-                .getInputTag(),
-            program.localizedConfirmationMessage()));
+    // External programs don't have a confirmation message
+    if (!programType.equals(ProgramType.EXTERNAL)) {
+      applicantVisibleDetails.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
+                  .setLabelText("Custom confirmation screen message")
+                  .setValue(updateData.localizedConfirmationMessage())
+                  .getInputTag(),
+              program.localizedConfirmationMessage()));
+    }
 
     // Only add the summary image description input to the page if a summary image description is
     // actually set.
