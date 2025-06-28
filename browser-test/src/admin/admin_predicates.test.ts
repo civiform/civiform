@@ -387,10 +387,10 @@ test.describe('create and edit predicates', () => {
     await test.step('name suffix is not visible to be selected as a value', async () => {
       await page.click(`.cf-scalar-select`)
 
-      await page.getByText('first name').isVisible()
-      await page.getByText('middle name').isVisible()
-      await page.getByText('last name').isVisible()
-      await page.getByText('name suffix').isHidden()
+      await expect(page.getByText('first name')).toBeVisible()
+      await expect(page.getByText('middle name')).toBeVisible()
+      await expect(page.getByText('last name')).toBeVisible()
+      await expect(page.getByText('name suffix')).toBeHidden()
     })
   })
 
@@ -435,8 +435,8 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await page.getByLabel('Eligibility message').isVisible()
-      await page.getByText('Markdown is supported').isVisible()
+      await expect(page.getByLabel('Eligibility message')).toBeVisible()
+      await expect(page.getByText('Markdown is supported')).toBeVisible()
     })
 
     await test.step('Eligibility message field gets updated', async () => {

@@ -23,7 +23,9 @@ test.describe('Address checker', () => {
         await page.click('#debug-content-modal-button')
         await page.click('#additional-tools')
         await waitForPageJsLoad(page)
-        await page.getByRole('heading', {name: 'Address Checker'}).isVisible()
+        await expect(
+          page.getByRole('heading', {name: 'Address Checker'}),
+        ).toBeVisible()
         await page.getByRole('link', {name: 'Go to address tools'}).click()
         await waitForPageJsLoad(page)
       })
@@ -88,7 +90,9 @@ test.describe('Address checker', () => {
       await page.click('#debug-content-modal-button')
       await page.click('#additional-tools')
       await waitForPageJsLoad(page)
-      await page.getByRole('heading', {name: 'Address Checker'}).isVisible()
+      await expect(
+        page.getByRole('heading', {name: 'Address Checker'}),
+      ).toBeVisible()
       await page.getByRole('link', {name: 'Go to address tools'}).click()
       await waitForPageJsLoad(page)
     })
