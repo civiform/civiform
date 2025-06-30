@@ -1,5 +1,5 @@
 import {Page} from '@playwright/test'
-import {test} from '../../support/civiform_fixtures'
+import {expect, test} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
@@ -89,28 +89,31 @@ test.describe(
     })
 
     test.describe('yes/no question with options not displayed to applicant', () => {
+      const programName =
+        'Test program for single yes/no question with some options hidden'
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await enableFeatureFlag(page, 'yes_no_question_enabled')
         await loginAsAdmin(page)
 
         await adminQuestions.addYesNoQuestion({
           questionName: 'yes-no-question-one',
-          // TODO(dwaterman): configure options here
+          optionIndicesToExclude: [2],
         })
 
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.editProgramBlockWithOptional(
-          programName,
-          'Question block',
+        await adminPrograms.addAndPublishProgramWithQuestions(
           ['yes-no-question-one'],
+          programName,
         )
-        await adminPrograms.publishAllDrafts()
-
         await logout(page)
       })
 
-      // TODO(dwaterman): test assertions here
-
+      test('validate option hidden', async ({page, applicantQuestions}) => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await expect(page.getByText('Not sure')).toBeHidden()
+      })
     })
 
     test.describe('multiple yes/no questions', () => {
