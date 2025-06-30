@@ -468,14 +468,20 @@ public final class QuestionConfig {
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
 
+    boolean isChecked =
+        existingOption.get().displayInAnswerOptions().isPresent()
+            && existingOption.get().displayInAnswerOptions().get();
     DivTag labels = div().with(adminNameLabel, optionTextLabel).withClasses("grid-col");
-    DivTag wholeOption =
+    DivTag checkboxWithLabels =
         div()
             .with(
                 // Checkbox for selecting whether to display the option to the applicant.
+                // Value is set to the ID because falsy checkbox values get discarded on form
+                // submission.
                 FieldWithLabel.checkbox()
-                    .setValue("true")
-                    .setChecked(true)
+                    .setFieldName("displayedOptionIds[]")
+                    .setValue(Long.toString(existingOption.get().id()))
+                    .setChecked(isChecked)
                     .getCheckboxTag()
                     .withClasses("usa-checkbox, bg-gray-100"),
                 labels)
@@ -489,27 +495,9 @@ public final class QuestionConfig {
                 "items-center",
                 "padding-1",
                 "margin-1");
-    boolean isChecked =
-        existingOption.get().displayInAnswerOptions().isPresent()
-            && existingOption.get().displayInAnswerOptions().get();
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(
-            optionIndexInputHidden,
-            optionAdminNameHidden,
-            optionInputHidden,
-            // Checkbox for selecting whether to display the option to the applicant.
-            // Value is set to the ID because falsy checkbox values get discarded on form
-            // submission.
-            FieldWithLabel.checkbox()
-                .setFieldName("displayedOptionIds[]")
-                .setLabelText("include")
-                .setValue(Long.toString(existingOption.get().id()))
-                .setChecked(isChecked)
-                .setDisabled(
-                    existingOption.get().adminName().equals("yes")
-                        || existingOption.get().adminName().equals("no"))
-                .getCheckboxTag());
+        .with(optionIndexInputHidden, optionAdminNameHidden, optionInputHidden, checkboxWithLabels);
   }
 
   /**
