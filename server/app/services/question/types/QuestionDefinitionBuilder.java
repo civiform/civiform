@@ -12,6 +12,7 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.DateQuestionDefinition.DateValidationPredicates;
 import services.question.types.EnumeratorQuestionDefinition.EnumeratorValidationPredicates;
 import services.question.types.FileUploadQuestionDefinition.FileUploadValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
@@ -206,6 +207,10 @@ public final class QuestionDefinitionBuilder {
         return new CurrencyQuestionDefinition(builder.build());
 
       case DATE:
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              DateValidationPredicates.parse(validationPredicatesString));
+        }
         return new DateQuestionDefinition(builder.build());
 
       case DROPDOWN:
