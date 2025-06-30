@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.37.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.49.4",
+      "org.checkerframework" % "dataflow-errorprone" % "3.49.5",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.0",
