@@ -391,7 +391,30 @@ public final class QuestionConfig {
                       /* adminName= */ "no",
                       /* optionText= */ "No",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE))));
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 2,
+                      /* order= */ 2,
+                      /* adminName= */ "not-sure",
+                      /* optionText= */ "Not sure",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 3,
+                      /* order= */ 3,
+                      /* adminName= */ "maybe",
+                      /* optionText= */ "Maybe",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -471,8 +494,23 @@ public final class QuestionConfig {
                 "margin-1");
 
     return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION)
-        .with(optionIndexInputHidden, optionAdminNameHidden, optionInputHidden, wholeOption);
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+        .with(
+            optionIndexInputHidden,
+            optionAdminNameHidden,
+            optionInputHidden,
+            // Checkbox for selecting whether to display the option to the applicant.
+            // Value is set to the ID because falsy checkbox values get discarded on form
+            // submission.
+            FieldWithLabel.checkbox()
+                .setFieldName("displayedOptionIds[]")
+                .setLabelText("include")
+                .setValue(Long.toString(existingOption.get().id()))
+                .setChecked(isChecked)
+                .setDisabled(
+                    existingOption.get().adminName().equals("yes")
+                        || existingOption.get().adminName().equals("no"))
+                .getCheckboxTag());
   }
 
   /**

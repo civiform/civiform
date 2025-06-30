@@ -415,7 +415,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeDisabled()
           expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isHidden()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeHidden()
+            await expect(descriptionRequiredIndicator).toBeHidden()
           }
         }
         break
@@ -471,7 +477,9 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeDisabled()
         expect(await externalLink.getAttribute('readonly')).not.toBeNull()
-        const requiredIndicator = this.getExternalLinkFieldRequiredIndicator()
+        const requiredIndicator = this.getRequiredIndicatorFor(
+          'program-external-link-input',
+        )
         await expect(requiredIndicator).toBeHidden()
         break
       }
@@ -512,7 +520,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeEnabled()
           expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isVisible()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeVisible()
+            await expect(descriptionRequiredIndicator).toBeVisible()
           }
         }
         break
@@ -571,7 +585,9 @@ export class AdminPrograms {
         // launched, since the required indicator will always be present if the
         // field is enabled.
         if (programType && programType === ProgramType.EXTERNAL) {
-          const requiredIndicator = this.getExternalLinkFieldRequiredIndicator()
+          const requiredIndicator = this.getRequiredIndicatorFor(
+            'program-external-link-input',
+          )
           await expect(requiredIndicator).toBeVisible()
         }
         break
@@ -1849,10 +1865,8 @@ export class AdminPrograms {
     })
   }
 
-  getExternalLinkFieldRequiredIndicator(): Locator {
-    return this.page.locator(
-      'label[for="program-external-link-input"] span.required-indicator',
-    )
+  getRequiredIndicatorFor(labelId: string): Locator {
+    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
   }
 
   getLongDescriptionField(): Locator {
