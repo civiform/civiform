@@ -900,7 +900,7 @@ validation.textTooShort=Must contain at least {0} characters.
 option.yes=Yes
 option.no=No
 option.notSure=Not sure
-option.maybe-Maybe
+option.maybe=Maybe
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

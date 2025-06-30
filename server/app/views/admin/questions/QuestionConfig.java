@@ -497,9 +497,6 @@ public final class QuestionConfig {
                 .setLabelText("include")
                 .setValue(Long.toString(existingOption.get().id()))
                 .setChecked(isChecked)
-                .setDisabled(
-                    existingOption.get().adminName().equals("yes")
-                        || existingOption.get().adminName().equals("no"))
                 .getCheckboxTag());
   }
 
