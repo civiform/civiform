@@ -94,7 +94,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile));
-    assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
+    assertThat(url).isEqualTo("/applicants/1/programs/1/edit?isFromUrlCall=false");
   }
 
   @Test
@@ -164,7 +164,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile));
-    assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
+    assertThat(url).isEqualTo("/applicants/1/programs/1/edit?isFromUrlCall=false");
   }
 
   @Test
