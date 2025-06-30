@@ -543,4 +543,51 @@ test.describe('normal question lifecycle', () => {
     )
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
+
+  test('enumerator dropdown shows correction options', async ({
+    page,
+    adminQuestions,
+  }) => {
+    const enumeratorOne = 'enumerator-q-one'
+    const enumeratorTwo = 'enumerator-q-two'
+    const textQuestion = 'text-q'
+
+    await test.step('create enumerator parent questions', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorOne})
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorTwo})
+    })
+
+    await test.step('confirm enumerator options show up', async () => {
+      await page.click('#create-question-button')
+      await page.click('#create-text-question')
+      await waitForPageJsLoad(page)
+      await page.getByLabel('Question enumerator').selectOption(enumeratorOne)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await page.getByLabel('Question enumerator').selectOption(enumeratorTwo)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+    })
+
+    await test.step('add text question with parent enumerator selected', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestion,
+        questionText: '$this',
+        enumeratorName: enumeratorOne,
+      })
+    })
+
+    await test.step('edit text question and confirm correct enumerator option is selected and readonly', async () => {
+      await adminQuestions.gotoQuestionEditPage(textQuestion)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+        'readonly',
+      )
+    })
+  })
 })
