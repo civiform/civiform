@@ -38,7 +38,7 @@
             ${singleSelectQuestion.optionIsSelected(option)},
             ${!question.isOptional()},
             ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
-            ${translatedText})}"
+            ${option.formattedOptionText(translatedText)})}"
       ></div>
     </div>
   </fieldset>
