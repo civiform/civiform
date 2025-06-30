@@ -391,8 +391,7 @@ public final class QuestionConfig {
                       /* adminName= */ "no",
                       /* optionText= */ "No",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+                      LocalizedStrings.DEFAULT_LOCALE))));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
@@ -402,8 +401,7 @@ public final class QuestionConfig {
                       /* adminName= */ "not-sure",
                       /* optionText= */ "Not sure",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+                      LocalizedStrings.DEFAULT_LOCALE))));
       optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
@@ -413,8 +411,7 @@ public final class QuestionConfig {
                       /* adminName= */ "maybe",
                       /* optionText= */ "Maybe",
                       /* displayInAnswerOptions= */ Optional.of(true),
-                      LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+                      LocalizedStrings.DEFAULT_LOCALE))));
     } else {
       for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
         optionsBuilder.add(
@@ -492,7 +489,9 @@ public final class QuestionConfig {
                 "items-center",
                 "padding-1",
                 "margin-1");
-
+    boolean isChecked =
+        existingOption.get().displayInAnswerOptions().isPresent()
+            && existingOption.get().displayInAnswerOptions().get();
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
         .with(
