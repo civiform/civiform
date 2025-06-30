@@ -88,6 +88,31 @@ test.describe(
       })
     })
 
+    test.describe('yes/no question with options not displayed to applicant', () => {
+      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await enableFeatureFlag(page, 'yes_no_question_enabled')
+        await loginAsAdmin(page)
+
+        await adminQuestions.addYesNoQuestion({
+          questionName: 'yes-no-question-one',
+          // TODO(dwaterman): configure options here
+        })
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockWithOptional(
+          programName,
+          'Question block',
+          ['yes-no-question-one'],
+        )
+        await adminPrograms.publishAllDrafts()
+
+        await logout(page)
+      })
+
+      // TODO(dwaterman): test assertions here
+
+    })
+
     test.describe('multiple yes/no questions', () => {
       const programName = 'Test program for multiple yes/no questions'
 
