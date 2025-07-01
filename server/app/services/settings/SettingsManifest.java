@@ -1103,8 +1103,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled(RequestHeader request) {
-    return getBool("YES_NO_QUESTION_ENABLED", request);
+  public boolean getYesNoQuestionEnabled() {
+    return getBool("YES_NO_QUESTION_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2354,7 +2354,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.HIDDEN))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

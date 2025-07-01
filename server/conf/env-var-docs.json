@@ -961,7 +961,7 @@
         "required": false
       },
       "YES_NO_QUESTION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "HIDDEN",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
