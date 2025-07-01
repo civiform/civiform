@@ -8,10 +8,15 @@ import {
   selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateToastMessage,
+  disableFeatureFlag,
 } from '../support'
 import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program translations', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('page layout screenshot', async ({
     page,
     adminPrograms,

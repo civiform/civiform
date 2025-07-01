@@ -16,6 +16,10 @@ import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('create program page', async ({
     page,
     adminPrograms,
@@ -1278,332 +1282,304 @@ test.describe('program creation', () => {
       await expect(page.getByText('Internet')).toBeChecked()
     })
   })
-
-  test.describe(
-    'program creation with northstar UI enabled',
-    {tag: ['@northstar']},
-    () => {
-      test.beforeEach(async ({page}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('create pre-screener form with with northstar UI enabled', async ({
-        page,
-        adminPrograms,
-        seeding,
-      }) => {
-        await test.step('seed categories', async () => {
-          await seeding.seedProgramsAndCategories()
-          await page.goto('/')
-        })
-
-        await loginAsAdmin(page)
-        const programName = 'Apc program'
-
-        await test.step('create new program that is not an pre-screener form', async () => {
-          await adminPrograms.addProgram(programName)
-          await adminPrograms.goToProgramDescriptionPage(programName)
-        })
-
-        const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
-
-        await test.step('expect pre-screener toggle not to be checked', async () => {
-          await expect(preScreenerFormInput).not.toBeChecked()
-        })
-
-        await test.step('expect non-applicable fields for default programs to have disabled state', async () => {
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-        })
-
-        await test.step('add category to default program', async () => {
-          await page.getByText('Education').check()
-        })
-
-        await test.step('toggle on pre-screener form', async () => {
-          await adminPrograms.clickPreScreenerFormToggle()
-          await expect(preScreenerFormInput).toBeChecked()
-        })
-
-        await test.step('expect fields for pre-screeners to have the correct disabled state', async () => {
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_CATEGORIES,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-        })
-
-        await test.step('toggle off pre-screener form', async () => {
-          await adminPrograms.clickPreScreenerFormToggle()
-          await expect(preScreenerFormInput).not.toBeChecked()
-        })
-
-        await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_CATEGORIES,
-          )
-          await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.APPLICATION_STEPS,
-          )
-          // External link remains disabled for default programs
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-        })
-
-        await test.step('toggle on pre-screener form again and save program', async () => {
-          await adminPrograms.clickPreScreenerFormToggle()
-          await adminPrograms.submitProgramDetailsEdits()
-          await adminPrograms.expectProgramBlockEditPage(programName)
-        })
-
-        await test.step('edit program and confirm fields are still disabled', async () => {
-          await adminPrograms.goToProgramDescriptionPage(programName)
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_CATEGORIES,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-        })
-      })
-
-      test('create external program', async ({page, adminPrograms}) => {
-        await enableFeatureFlag(page, 'external_program_cards_enabled')
-
-        await loginAsAdmin(page)
-        const programName = 'Program'
-
-        await test.step("start the creation of a 'default' program", async () => {
-          // Start creation of a program, without submission.
-          await adminPrograms.addProgram(
-            programName,
-            /* description= */ '',
-            /* shortDescription= */ 'program short description',
-            /* externalLink= */ '',
-            /* visibility= */ undefined,
-            /* adminDescription= */ undefined,
-            /* programType= */ ProgramType.DEFAULT,
-            /* selectedTI= */ undefined,
-            /* confirmationMessage= */ '',
-            /* eligibility= */ undefined,
-            /* submitNewProgram= */ false,
-          )
-          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
-        })
-
-        await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
-          // We only verify the fields that are affected by program type. Tests
-          // for default programs have more exhaustive coverage.
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.NOTIFICATION_PREFERENCES,
-          )
-          await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.APPLICATION_STEPS,
-          )
-
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-        })
-
-        await test.step("select 'external' program type", async () => {
-          await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
-        })
-
-        await test.step('expect fields for external programs to have the correct enabled/disabled state', async () => {
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.NOTIFICATION_PREFERENCES,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.CONFIRMATION_MESSAGE,
-          )
-
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-            ProgramType.EXTERNAL,
-          )
-
-          // Changing the program type is allowed during program creation.
-          // Therefore, all the program type options should be enabled.
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
-        })
-
-        await test.step("change program type back to 'default'", async () => {
-          await adminPrograms.selectProgramType(ProgramType.DEFAULT)
-          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
-        })
-
-        await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.NOTIFICATION_PREFERENCES,
-          )
-          await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.APPLICATION_STEPS,
-          )
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.CONFIRMATION_MESSAGE,
-          )
-
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-          )
-        })
-
-        await test.step('save external program', async () => {
-          await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
-          await adminPrograms.submitProgramDetailsEdits()
-        })
-
-        await test.step('edit external program', async () => {
-          await adminPrograms.goToProgramDescriptionPage(programName)
-        })
-
-        await test.step('confirm fields for default programs to have the correct enabled/disabled state', async () => {
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.NOTIFICATION_PREFERENCES,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.CONFIRMATION_MESSAGE,
-          )
-
-          await adminPrograms.expectFormFieldEnabled(
-            FormField.PROGRAM_EXTERNAL_LINK,
-            ProgramType.EXTERNAL,
-          )
-
-          // Changing the program type of an external program is disallowed
-          // after program creation. Therefore, only external program option
-          // should be enabled.
-          await adminPrograms.expectProgramTypeDisabled(ProgramType.DEFAULT)
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeDisabled(
-            ProgramType.PRE_SCREENER,
-          )
-        })
-      })
-
-      test('default or pre-screener program cannot be changed to be an external program after creation', async ({
-        page,
-        adminPrograms,
-      }) => {
-        await enableFeatureFlag(page, 'external_program_cards_enabled')
-
-        await loginAsAdmin(page)
-        const programName = 'External Program'
-
-        await test.step("add a 'default' program", async () => {
-          await adminPrograms.addProgram(programName)
-        })
-
-        await test.step("'default' program cannot be changed to be an 'external' program", async () => {
-          await adminPrograms.goToProgramDescriptionPage(programName)
-          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
-
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
-          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
-        })
-
-        await test.step("'pre-screener' program cannot be changed to be an 'external' program", async () => {
-          await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
-          await adminPrograms.expectProgramTypeSelected(
-            ProgramType.PRE_SCREENER,
-          )
-
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
-          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
-        })
-      })
-
-      test('when editing a default program, "Manage questions" link is visible', async ({
-        page,
-        adminPrograms,
-      }) => {
-        await loginAsAdmin(page)
-
-        await adminPrograms.addProgram('Default Program')
-        await adminPrograms.goToProgramDescriptionPage('Default Program')
-
-        await expect(
-          page.getByRole('link', {name: 'Manage questions →'}),
-        ).toBeVisible()
-      })
-
-      test('when editing an external program, "Manage questions" link is hidden', async ({
-        page,
-        adminPrograms,
-      }) => {
-        await enableFeatureFlag(page, 'external_program_cards_enabled')
-        await loginAsAdmin(page)
-
-        await adminPrograms.addExternalProgram(
-          'External Program',
-          'short description',
-          'https://usa.gov',
-          ProgramVisibility.PUBLIC,
-        )
-        await adminPrograms.goToProgramDescriptionPage('External Program')
-
-        await expect(
-          page.getByRole('link', {name: 'Manage questions →'}),
-        ).toBeHidden()
-      })
-    },
-  )
 })
+
+test.describe(
+  'program creation with northstar UI enabled',
+  {tag: ['@northstar']},
+  () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('create pre-screener form with with northstar UI enabled', async ({
+      page,
+      adminPrograms,
+      seeding,
+    }) => {
+      await test.step('seed categories', async () => {
+        await seeding.seedProgramsAndCategories()
+        await page.goto('/')
+      })
+
+      await loginAsAdmin(page)
+      const programName = 'Apc program'
+
+      await test.step('create new program that is not an pre-screener form', async () => {
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
+      })
+
+      const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
+
+      await test.step('expect pre-screener toggle not to be checked', async () => {
+        await expect(preScreenerFormInput).not.toBeChecked()
+      })
+
+      await test.step('expect non-applicable fields for default programs to have disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step('add category to default program', async () => {
+        await page.getByText('Education').check()
+      })
+
+      await test.step('toggle on pre-screener form', async () => {
+        await adminPrograms.clickPreScreenerFormToggle()
+        await expect(preScreenerFormInput).toBeChecked()
+      })
+
+      await test.step('expect fields for pre-screeners to have the correct disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+      })
+
+      await test.step('toggle off pre-screener form', async () => {
+        await adminPrograms.clickPreScreenerFormToggle()
+        await expect(preScreenerFormInput).not.toBeChecked()
+      })
+
+      await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_CATEGORIES)
+        await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+        // External link remains disabled for default programs
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step('toggle on pre-screener form again and save program', async () => {
+        await adminPrograms.clickPreScreenerFormToggle()
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.expectProgramBlockEditPage(programName)
+      })
+
+      await test.step('edit program and confirm fields are still disabled', async () => {
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+      })
+    })
+
+    test('create external program', async ({page, adminPrograms}) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+      await loginAsAdmin(page)
+      const programName = 'Program'
+
+      await test.step("start the creation of a 'default' program", async () => {
+        // Start creation of a program, without submission.
+        await adminPrograms.addProgram(
+          programName,
+          /* description= */ '',
+          /* shortDescription= */ 'program short description',
+          /* externalLink= */ '',
+          /* visibility= */ undefined,
+          /* adminDescription= */ undefined,
+          /* programType= */ ProgramType.DEFAULT,
+          /* selectedTI= */ undefined,
+          /* confirmationMessage= */ '',
+          /* eligibility= */ undefined,
+          /* submitNewProgram= */ false,
+        )
+        await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+      })
+
+      await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
+        // We only verify the fields that are affected by program type. Tests
+        // for default programs have more exhaustive coverage.
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.NOTIFICATION_PREFERENCES,
+        )
+        await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step("select 'external' program type", async () => {
+        await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
+      })
+
+      await test.step('expect fields for external programs to have the correct enabled/disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.NOTIFICATION_PREFERENCES,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+          ProgramType.EXTERNAL,
+        )
+
+        // Changing the program type is allowed during program creation.
+        // Therefore, all the program type options should be enabled.
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
+      })
+
+      await test.step("change program type back to 'default'", async () => {
+        await adminPrograms.selectProgramType(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+      })
+
+      await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.NOTIFICATION_PREFERENCES,
+        )
+        await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step('save external program', async () => {
+        await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
+        await adminPrograms.submitProgramDetailsEdits()
+      })
+
+      await test.step('edit external program', async () => {
+        await adminPrograms.goToProgramDescriptionPage(programName)
+      })
+
+      await test.step('confirm fields for default programs to have the correct enabled/disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.NOTIFICATION_PREFERENCES,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+          ProgramType.EXTERNAL,
+        )
+
+        // Changing the program type of an external program is disallowed
+        // after program creation. Therefore, only external program option
+        // should be enabled.
+        await adminPrograms.expectProgramTypeDisabled(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeDisabled(ProgramType.PRE_SCREENER)
+      })
+    })
+
+    test('default or pre-screener program cannot be changed to be an external program after creation', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+      await loginAsAdmin(page)
+      const programName = 'External Program'
+
+      await test.step("add a 'default' program", async () => {
+        await adminPrograms.addProgram(programName)
+      })
+
+      await test.step("'default' program cannot be changed to be an 'external' program", async () => {
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
+      })
+
+      await test.step("'pre-screener' program cannot be changed to be an 'external' program", async () => {
+        await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.PRE_SCREENER)
+
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+        await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
+      })
+    })
+
+    test('when editing a default program, "Manage questions" link is visible', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await loginAsAdmin(page)
+
+      await adminPrograms.addProgram('Default Program')
+      await adminPrograms.goToProgramDescriptionPage('Default Program')
+
+      await expect(
+        page.getByRole('link', {name: 'Manage questions →'}),
+      ).toBeVisible()
+    })
+
+    test('when editing an external program, "Manage questions" link is hidden', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+      await loginAsAdmin(page)
+
+      await adminPrograms.addExternalProgram(
+        'External Program',
+        'short description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+      await adminPrograms.goToProgramDescriptionPage('External Program')
+
+      await expect(
+        page.getByRole('link', {name: 'Manage questions →'}),
+      ).toBeHidden()
+    })
+  },
+)

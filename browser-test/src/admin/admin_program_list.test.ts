@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -18,6 +19,10 @@ import {
 } from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 

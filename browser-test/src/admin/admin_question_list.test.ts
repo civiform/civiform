@@ -2,11 +2,16 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 test.describe('Admin question list', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,

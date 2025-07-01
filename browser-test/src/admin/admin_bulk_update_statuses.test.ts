@@ -12,6 +12,7 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   AdminProgramStatuses,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -22,6 +23,7 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -114,6 +116,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
   const noEmailStatusName = 'No email status'
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await setupProgramsWithStatuses(
         page,
         adminPrograms,

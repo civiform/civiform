@@ -5,9 +5,14 @@ import {
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('Admin can manage program image', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('views a program without an image', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 

@@ -1,7 +1,16 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import {
+  disableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from '../support'
 
 test.describe('admin program preview', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('preview draft program and submit', async ({
     page,
     adminPrograms,
