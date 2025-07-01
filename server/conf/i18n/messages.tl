@@ -894,6 +894,15 @@ validation.textTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga charac
 validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
