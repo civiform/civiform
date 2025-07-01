@@ -967,7 +967,7 @@
         "required": false
       },
       "DATE_VALIDATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables admin validation settings for date questions.",
         "type": "bool",
         "required": false
