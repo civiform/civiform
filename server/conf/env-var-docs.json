@@ -965,6 +965,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
+      },
+      "DATE_VALIDATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables admin validation settings for date questions.",
+        "type": "bool",
+        "required": false
       }
     }
   }
