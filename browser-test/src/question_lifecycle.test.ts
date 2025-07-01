@@ -544,7 +544,7 @@ test.describe('normal question lifecycle', () => {
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
 
-  test('enumerator dropdown shows correction options', async ({
+  test('enumerator dropdown shows correct options', async ({
     page,
     adminQuestions,
   }) => {
