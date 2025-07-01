@@ -42,6 +42,7 @@ Resources:
   - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
   - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 1 day, fix it and merge it.
   - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Nick so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
+  - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
   - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)
