@@ -563,7 +563,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "1", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -599,7 +602,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "2", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "2",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
   }
 

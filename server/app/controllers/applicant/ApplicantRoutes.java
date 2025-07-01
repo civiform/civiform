@@ -178,7 +178,8 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
           applicantId, programId, blockId, questionName);
     } else {
-      return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
+      return routes.ApplicantProgramBlocksController.edit(
+          Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
     }
   }
 
@@ -190,7 +191,10 @@ public final class ApplicantRoutes {
    */
   public Call blockEdit(long programId) {
     return routes.ApplicantProgramBlocksController.edit(
-        programId, /* blockId= */ "1", /* questionName= */ Optional.empty());
+        Long.toString(programId),
+        /* blockId= */ "1",
+        /* questionName= */ Optional.empty(),
+        /* isFromUrlCall= */ false);
   }
 
   /**
