@@ -468,10 +468,18 @@ public final class QuestionConfig {
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
             && existingOption.get().displayInAnswerOptions().get();
+
+    String ariaLabel =
+        String.format(
+            "Checkbox input for displaying option to the applicant. The admin ID of this option is"
+                + " %s. The text displayed to the applicant for this option is %s",
+            existingOption.map(LocalizedQuestionOption::adminName).get(),
+            existingOption.map(LocalizedQuestionOption::optionText).get());
     LabelTag labels =
         label()
             .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
             .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .attr("aria-label", ariaLabel)
             .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
     DivTag checkboxWithLabels =
         div()
