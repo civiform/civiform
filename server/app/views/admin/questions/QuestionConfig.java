@@ -2,6 +2,8 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
 
@@ -18,6 +20,8 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
@@ -436,34 +440,27 @@ public final class QuestionConfig {
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
     // Hidden inputs allow Play's form binding to submit the input value, while we show static text
     // to the admin.
-    DivTag optionAdminNameHidden =
-        FieldWithLabel.input()
-            .setFieldName("optionAdminNames[]")
-            .setLabelText("Admin ID")
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
-            .getInputTag()
+    InputTag optionAdminNameHidden =
+        input()
+            .withName("optionAdminNames[]")
+            .withValue(existingOption.map(LocalizedQuestionOption::adminName).get())
             .withClasses("display-none");
-    DivTag optionIndexInputHidden =
-        FieldWithLabel.input()
-            .setFieldName("optionIds[]")
-            .setValue(String.valueOf(existingOption.get().id()))
-            .setScreenReaderText("option ids")
-            .getInputTag()
+    InputTag optionIdsHiddenInput =
+        input()
+            .withName("optionIds[]")
+            .withValue(String.valueOf(existingOption.get().id()))
             .withClasses("display-none");
-    DivTag optionInputHidden =
-        FieldWithLabel.input()
-            .setFieldName("options[]")
-            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
-            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .getInputTag()
+    InputTag optionTextHiddenInput =
+        input()
+            .withName("options[]")
+            .withValue(existingOption.map(LocalizedQuestionOption::optionText).get())
             .withClasses("display-none");
 
-    DivTag adminNameLabel =
+    DivTag adminNameDiv =
         div(
             strong("Admin ID: "),
             text(existingOption.map(LocalizedQuestionOption::adminName).get()));
-    DivTag optionTextLabel =
+    DivTag optionTextDiv =
         div(
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
@@ -471,22 +468,27 @@ public final class QuestionConfig {
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
             && existingOption.get().displayInAnswerOptions().get();
-    DivTag labels = div().with(adminNameLabel, optionTextLabel).withClasses("grid-col");
+    LabelTag labels =
+        label()
+            .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
+            .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
     DivTag checkboxWithLabels =
         div()
             .with(
                 // Checkbox for selecting whether to display the option to the applicant.
                 // Value is set to the ID because falsy checkbox values get discarded on form
                 // submission.
-                FieldWithLabel.checkbox()
-                    .setFieldName("displayedOptionIds[]")
-                    .setValue(Long.toString(existingOption.get().id()))
-                    .setChecked(isChecked)
-                    .getCheckboxTag()
-                    .withClasses("usa-checkbox, bg-gray-100"),
+                input()
+                    .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
+                    .withType("checkbox")
+                    .withName("displayedOptionIds[]")
+                    .withValue(Long.toString(existingOption.get().id()))
+                    .withCondChecked(isChecked)
+                    .withClasses("usa-checkbox__input"),
                 labels)
             .withClasses(
-                "grid-row",
+                "usa-checkbox",
                 "flex-align-center",
                 "border-width-1px",
                 "border-base",
@@ -497,7 +499,8 @@ public final class QuestionConfig {
                 "margin-1");
     return div()
         .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(optionIndexInputHidden, optionAdminNameHidden, optionInputHidden, checkboxWithLabels);
+        .with(
+            optionIdsHiddenInput, optionAdminNameHidden, optionTextHiddenInput, checkboxWithLabels);
   }
 
   /**
