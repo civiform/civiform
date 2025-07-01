@@ -151,6 +151,56 @@ public class ProgramDisabledActionTest extends ResetPostgres {
   }
 
   @Test
+  public void testDisabledProgramFromUriPathProgramParamWithProgramId() {
+    ProgramModel program = createProgram(DisplayMode.DISABLED, LifecycleStage.ACTIVE);
+
+    var routePattern = "/programs/$programParam<[^/]+>/edit";
+    var path = String.format("/programs/%d/edit", program.id);
+
+    Request request =
+        fakeRequestBuilder()
+            .location("GET", path)
+            .build()
+            .addAttr(
+                Router.Attrs.HANDLER_DEF,
+                createHandlerDef(getClass().getClassLoader(), routePattern));
+
+    ProgramDisabledAction action = instanceOf(ProgramDisabledAction.class);
+
+    Result result = action.call(request).toCompletableFuture().join();
+    assertEquals(
+        result.redirectLocation().get(),
+        controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram(
+                program.getSlug())
+            .url());
+  }
+
+  @Test
+  public void testDisabledProgramFromUriPathProgramParamWithProgramSlug() {
+    ProgramModel program = createProgram(DisplayMode.DISABLED, LifecycleStage.ACTIVE);
+
+    var routePattern = "/programs/$programParam<[^/]+>/edit";
+    var path = String.format("/programs/%s/edit", program.getSlug());
+
+    Request request =
+        fakeRequestBuilder()
+            .location("GET", path)
+            .build()
+            .addAttr(
+                Router.Attrs.HANDLER_DEF,
+                createHandlerDef(getClass().getClassLoader(), routePattern));
+
+    ProgramDisabledAction action = instanceOf(ProgramDisabledAction.class);
+
+    Result result = action.call(request).toCompletableFuture().join();
+    assertEquals(
+        result.redirectLocation().get(),
+        controllers.applicant.routes.ApplicantProgramsController.showInfoDisabledProgram(
+                program.getSlug())
+            .url());
+  }
+
+  @Test
   public void testNonDisabledProgramFromFlashKey() {
     ProgramModel program = createProgram(DisplayMode.PUBLIC, LifecycleStage.ACTIVE);
 

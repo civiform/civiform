@@ -851,7 +851,7 @@ test.describe(
             ])
           })
 
-          return await test.step('add questions to program and republish program', async () => {
+          await test.step('add questions to program', async () => {
             await civiformAdminActor.addQuestionsToExistingBlocks([
               {
                 block: Block.Fourth,
@@ -859,7 +859,9 @@ test.describe(
                 eligibilityValue: `${Question.H}-text-answer`,
               },
             ])
+          })
 
+          return await test.step('disable and republish program', async () => {
             const programIdV3 =
               civiformAdminActor.getProgramIdFromEditProgramUrl()
 
@@ -879,7 +881,8 @@ test.describe(
         'Verify Program v2 ID is less than Program v3 ID.',
       ).toBeLessThan(programIdV3)
 
-      // Applicant submits application for program v1; it does not change to program v3
+      // Applicant submits application for program v1; it does not change to
+      // program v3 because program is disabled
       await test.step('As applicant - active program v3', async () => {
         await applicantActor.getPage().reload()
         await applicantActor.waitForDisabledPage()
