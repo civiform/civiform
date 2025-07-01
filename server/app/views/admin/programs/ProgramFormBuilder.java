@@ -40,7 +40,6 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
-import views.AlertComponent;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
