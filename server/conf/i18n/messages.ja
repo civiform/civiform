@@ -894,6 +894,15 @@ validation.textTooLong={0} 文字以内にしてください。
 validation.textTooShort={0} 文字以上にしてください。
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
