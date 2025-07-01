@@ -20,11 +20,11 @@ test.describe(
       await enableFeatureFlag(page, 'yes_no_question_enabled')
     })
 
-    test.describe('single yes/no question', {tag: ['@northstar']}, () => {
+    test.describe('single yes/no question', () => {
       const programName = 'Test program for single yes/no question'
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setUpForSingleQuestion(
+        await createYesNoQuestionAndAddToProgram(
           programName,
           page,
           adminQuestions,
@@ -83,7 +83,7 @@ test.describe(
           page.getByTestId('questionRoot'),
           'yes-no-right-to-left',
           /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
     })
@@ -112,7 +112,12 @@ test.describe(
           programName,
           /* northStarEnabled= */ true,
         )
-        await expect(page.getByText('Not sure')).toBeHidden()
+
+        await expect(page.getByText('Yes', {exact: true})).toBeVisible()
+        await expect(page.getByText('No', {exact: true})).toBeVisible()
+        await expect(page.getByText('Maybe', {exact: true})).toBeVisible()
+
+        await expect(page.getByText('Not sure', {exact: true})).toBeHidden()
       })
     })
 
@@ -184,7 +189,7 @@ test.describe(
       })
     })
 
-    async function setUpForSingleQuestion(
+    async function createYesNoQuestionAndAddToProgram(
       programName: string,
       page: Page,
       adminQuestions: AdminQuestions,
