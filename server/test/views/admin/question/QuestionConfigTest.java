@@ -2,6 +2,9 @@ package views.admin.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
@@ -14,11 +17,14 @@ import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -26,6 +32,15 @@ public class QuestionConfigTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
+  private SettingsManifest settingsManifest;
+  private Request request;
+
+  @Before
+  public void setUp() {
+    settingsManifest = mock(SettingsManifest.class);
+    request = fakeRequest().build();
+    when(settingsManifest.getDateValidationEnabled(request)).thenReturn(true);
+  }
 
   @Test
   @Parameters(source = QuestionType.class)
@@ -36,7 +51,8 @@ public class QuestionConfigTest {
     }
 
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
-    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
     switch (questionType) {
       case ADDRESS:
         assertThat(maybeConfig).isPresent();
@@ -52,7 +68,8 @@ public class QuestionConfigTest {
         assertThat(maybeConfig).isEmpty();
         break;
       case DATE:
-        assertThat(maybeConfig).isEmpty();
+        assertThat(maybeConfig).isPresent();
+        assertThat(maybeConfig.get().renderFormatted()).contains("Validation parameters");
         break;
       case DROPDOWN:
         assertThat(maybeConfig).isPresent();
@@ -121,7 +138,8 @@ public class QuestionConfigTest {
     form.setNewOptions(ImmutableList.of("new-option-c", "new-option-d"));
     form.setNewOptionAdminNames(ImmutableList.of("new-option-admin-c", "new-option-admin-d"));
 
-    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages);
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
@@ -138,7 +156,8 @@ public class QuestionConfigTest {
   @Test
   public void yesNoForm_prepopulatesOptions() {
     YesNoQuestionForm form = new YesNoQuestionForm();
-    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages);
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
@@ -146,5 +165,15 @@ public class QuestionConfigTest {
     assertThat(result).contains("no");
     assertThat(result).contains("not-sure");
     assertThat(result).contains("maybe");
+  }
+
+  @Test
+  public void buildDateConfig_dateValidationDisabled_isEmpty() throws Exception {
+    when(settingsManifest.getDateValidationEnabled(request)).thenReturn(false);
+    QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+    assertThat(maybeConfig).isEmpty();
   }
 }
