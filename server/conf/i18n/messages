@@ -894,6 +894,15 @@ validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 

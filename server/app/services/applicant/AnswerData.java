@@ -172,6 +172,7 @@ public abstract class AnswerData {
       case ADDRESS:
         return applicantQuestion().createAddressQuestion();
       case DROPDOWN:
+      case YES_NO:
       case RADIO_BUTTON:
         return applicantQuestion().createSingleSelectQuestion();
       case FILEUPLOAD:
