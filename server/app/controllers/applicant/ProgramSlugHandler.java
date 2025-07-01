@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicantModel;
 import models.DisplayMode;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -170,6 +171,36 @@ public final class ProgramSlugHandler {
                               .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
             },
             classLoaderExecutionContext.current());
+  }
+
+  /**
+   * Resolves a program parameter to a program ID, handling both program slugs and numeric IDs.
+   *
+   * @param programParam The program parameter (either slug or numeric ID)
+   * @param applicantId The applicant ID for slug resolution
+   * @param isFromUrlCall Whether this call originated from a URL
+   * @param programSlugUrlEnabled Whether program slug URLs feature is enabled
+   * @return CompletionStage containing the resolved program ID
+   */
+  public CompletionStage<Long> resolveProgramParam(
+      String programParam, Long applicantId, Boolean isFromUrlCall, Boolean programSlugUrlEnabled) {
+    if (programSlugUrlEnabled && isFromUrlCall) {
+      if (StringUtils.isNumeric(programParam)) {
+        // This should have been previously handled by the caller, since we don't support program
+        // ids (numeric) when feature is enabled and call comes directly from the URL
+        throw new IllegalStateException(
+            "Numeric program parameter should have been handled by the caller");
+      }
+      return getLatestProgramId(programParam, applicantId);
+    }
+
+    try {
+      Long programId = Long.parseLong(programParam);
+      return CompletableFuture.completedFuture(programId);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Could not parse value from '%s' to a numeric value", programParam));
+    }
   }
 
   /**
