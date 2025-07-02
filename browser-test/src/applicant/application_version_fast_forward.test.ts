@@ -10,13 +10,15 @@ import {
   closeWarningMessage,
   AdminPredicates,
   testUserDisplayName,
+  disableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
-  test.beforeEach(async ({seeding}) => {
+  test.beforeEach(async ({page, seeding}) => {
     await seeding.clearDatabase()
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('all major steps', async ({browser}) => {

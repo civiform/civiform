@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -14,6 +15,8 @@ test.describe('Prevent Duplicate Submission', () => {
   const questionId = 'test-q'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+    
     await test.step('Create program', async () => {
       await loginAsAdmin(page)
 

@@ -11,6 +11,7 @@ import {
   validateScreenshot,
   selectApplicantLanguage,
   waitForPageJsLoad,
+  disableFeatureFlag,
 } from '../support'
 import {Page} from 'playwright'
 import {
@@ -28,6 +29,8 @@ test.describe('applicant program index page', () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -541,6 +544,10 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
+  test.beforeEach(async ({page}) => {
+    disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('shows program with wide image', async ({
     page,
     adminPrograms,
