@@ -177,10 +177,9 @@ public final class ApplicantRoutes {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
           applicantId, programId, blockId, questionName);
-    } else {
-      return routes.ApplicantProgramBlocksController.edit(
-          Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.edit(
+        Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
   }
 
   /**

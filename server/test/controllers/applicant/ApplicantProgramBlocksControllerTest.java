@@ -6,6 +6,7 @@ import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -130,7 +131,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
     Result result =
         subject
@@ -149,17 +150,46 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation()).hasValue("/");
   }
 
+  /**
+   * Tests that edit() throws an error when the program param is a program slug but it should be the
+   * program id since the program slug feature is disabled. edit() also throws error for other
+   * combinations when the program param is not properly parsed. We don't test all combinations here
+   * because ProgramSlugHandler has comprehensive tests coverage for them.
+   */
   @Test
-  public void edit_isOk() {
-    ProgramModel program = ProgramBuilder.newActiveProgram().build();
-    String programId = String.valueOf(program.id);
+  public void edit_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.edit(
+                    fakeRequest(),
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from '' to a numeric value");
+  }
+
+  /**
+   * Tests that edit() returns OK when the feature is enabled and is from url call with a program
+   * slug. edit() also returns OK for other combinations: when the feature is disabled OR when the
+   * call is not from a URL OR when the program param is a program slug (not numeric), AND the
+   * program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler has comprehensive tests coverage for them.
+   */
+  @Test
+  public void edit_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
     Result result =
         subject
             .edit(
-                fakeRequest(),
-                programId,
-                "1",
+                request,
+                programSlug,
+                /* blockId= */ "1",
                 /* questionName= */ Optional.empty(),
                 /* isFromUrlCall= */ true)
             .toCompletableFuture()
@@ -1444,7 +1474,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id, program.id, "1", false, new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -1458,6 +1487,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "92373"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -3128,7 +3158,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     /* blockId= */ "1",
                     /* inReview= */ false,
                     new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3142,6 +3171,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -3415,7 +3445,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     /* blockId= */ "1",
                     /* inReview= */ false,
                     new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3429,6 +3458,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     subject
         .updateWithApplicantId(
             answerAddressQuestionRequest,
