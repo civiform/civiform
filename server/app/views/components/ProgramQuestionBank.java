@@ -72,7 +72,7 @@ public final class ProgramQuestionBank {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public DivTag getContainer(Visibility questionBankVisibility, Http.Request request) {
+  public DivTag getContainer(Visibility questionBankVisibility) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
@@ -96,10 +96,10 @@ public final class ProgramQuestionBank {
                     "transition-opacity",
                     ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
                     ReferenceClasses.QUESTION_BANK_GLASSPANE))
-        .with(questionBankPanel(request));
+        .with(questionBankPanel());
   }
 
-  private FormTag questionBankPanel(Http.Request request) {
+  private FormTag questionBankPanel() {
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
@@ -153,8 +153,7 @@ public final class ProgramQuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
-                                    settingsManifest,
-                                    request)))));
+                                    settingsManifest)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
