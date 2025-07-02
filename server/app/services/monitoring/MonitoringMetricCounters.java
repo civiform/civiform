@@ -10,6 +10,7 @@ public final class MonitoringMetricCounters {
   private final Counter queryMetricMeanLatency;
   private final Counter queryMetricMaxLatency;
   private final Counter queryMetricTotalLatency;
+  private final Counter urlWithProgramIdCall;
 
   @Inject
   public MonitoringMetricCounters() {
@@ -40,6 +41,13 @@ public final class MonitoringMetricCounters {
             .help("Total latency of database queries in micros")
             .labelNames("name", "location", "className")
             .register();
+
+    urlWithProgramIdCall =
+        Counter.build()
+            .name("url_with_program_id_call_total")
+            .help("Count of calls to program-related URLs")
+            .labelNames("route", "programId")
+            .register();
   }
 
   public Counter getQueryMetricCount() {
@@ -56,5 +64,9 @@ public final class MonitoringMetricCounters {
 
   public Counter getQueryMetricTotalLatency() {
     return queryMetricTotalLatency;
+  }
+
+  public Counter getUrlWithProgramIdCall() {
+    return urlWithProgramIdCall;
   }
 }

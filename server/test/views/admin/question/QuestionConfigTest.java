@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import forms.CheckboxQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
+import forms.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -97,6 +98,10 @@ public class QuestionConfigTest {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
         break;
+      case YES_NO:
+        assertThat(maybeConfig).isPresent();
+        assertThat(maybeConfig.get().renderFormatted()).contains("Yes");
+        break;
       default:
         fail(
             "Unhandled question type: %s. Please add a configuration in"
@@ -128,5 +133,18 @@ public class QuestionConfigTest {
     assertThat(result).contains("existing-option-admin-b");
     assertThat(result).contains("new-option-admin-c");
     assertThat(result).contains("new-option-admin-d");
+  }
+
+  @Test
+  public void yesNoForm_prepopulatesOptions() {
+    YesNoQuestionForm form = new YesNoQuestionForm();
+    Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).contains("yes");
+    assertThat(result).contains("no");
+    assertThat(result).contains("not-sure");
+    assertThat(result).contains("maybe");
   }
 }

@@ -39,8 +39,11 @@ Resources:
 - [ ] Check #eng-ci Slack channel daily to monitor failed pushes and e2e test runs
 - [ ] Check [needs triage bugs](https://github.com/civiform/civiform/issues?q=is%3Aopen+is%3Aissue+label%3Aneeds-triage) daily to ensure there aren't any P0s
 - [ ] Check for dependency updates
-  - Do your best to resolve any problematic dependency updates that break tests during your shift. If you start work on a dependency but are unable to fully resolve it during your oncall shift, hand it off to the next person.
-  - For any broken updates that require very, very large changes, please create a new GitHub issue and add the "needs-triage" label so that Exygy can prioritize fixing these issues. Also, mark the Renovate PR as "draft" and add a comment on the PR with the link to the new issue.
+  - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
+  - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 1 day, fix it and merge it.
+  - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Nick so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
+  - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
+  - Review our [oncall docs](https://docs.civiform.us/governance-and-management/project-management/on-call-guide#dependency-updates) for more guidance and best practices for merging dependency updates.
   - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)

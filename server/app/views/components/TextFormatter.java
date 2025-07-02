@@ -71,7 +71,6 @@ public final class TextFormatter {
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText, ariaLabelForNewTabs);
-    markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
     }
@@ -102,12 +101,6 @@ public final class TextFormatter {
             .attr("role", "img")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
-  }
-
-  private static String addTextSize(String markdownText) {
-    // h1 and h2 tags are set to "text-2xl" and "text-xl" respectively in styles.css
-    String replacedH3Tags = markdownText.replaceAll("<h3>", "<h3 class=\"text-lg\">");
-    return replacedH3Tags.replaceAll("<h4>", "<h4 class=\"text-base\">");
   }
 
   private static String addRequiredIndicator(String markdownText) {
@@ -166,18 +159,12 @@ public final class TextFormatter {
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder()
             .allowElements(
-                "p", "div", "h2", "h3", "h4", "h5", "h6", "a", "ul", "ol", "li", "hr", "span",
-                "svg", "br", "em", "strong", "code", "path", "pre")
-            // Per accessibility best practices, we want to disallow adding h1 headers to
-            // ensure the page does not have more than one h1 header
-            // https://www.a11yproject.com/posts/how-to-accessible-heading-structure/
-            // This logic changes h1 headers to h2 headers which are still larger than the
-            // default text
+                "p", "div", "a", "ul", "ol", "li", "hr", "span", "svg", "br", "em", "strong",
+                "code", "path", "pre")
             .allowElements(
-                (String elementName, List<String> attrs) -> {
-                  return "h2";
-                },
-                "h1")
+                // Convert all heading tags (h1-h6) to paragraph tags to prevent multiple h1s
+                // on a page, which violates accessibility best practices
+                (String elementName, List<String> attrs) -> "p", "h1", "h2", "h3", "h4", "h5", "h6")
             .allowWithoutAttributes()
             .allowAttributes(
                 "class",

@@ -19,7 +19,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await enableFeatureFlag(page, 'program_filtering_enabled')
         await loginAsAdmin(page)
 
         await adminQuestions.addNumberQuestion({

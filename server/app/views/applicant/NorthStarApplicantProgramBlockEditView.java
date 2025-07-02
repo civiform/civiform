@@ -138,6 +138,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       context.setVariable("nameSuffixOptions", Suffix.values());
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+      context.setVariable(
+          "isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled(request));
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
   }

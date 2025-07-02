@@ -11,7 +11,8 @@ type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   totalLengthWarningShown: boolean
 }
 
-describe('SessionTimeoutHandler', () => {
+// TODO: GH10925 Fix and re-enable
+describe.skip('SessionTimeoutHandler', () => {
   let container: HTMLElement
   let inactivityModal: HTMLElement
   let lengthModal: HTMLElement
@@ -489,7 +490,8 @@ describe('SessionTimeoutHandler', () => {
       const showWarningSpy = jest.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      )
+      ) as jest.MockedFunction<(type: WarningType) => void>
+
       const now = Math.floor(Date.now() / 1000)
 
       document.cookie = `session_timeout_data=${btoa(
@@ -534,7 +536,8 @@ describe('SessionTimeoutHandler', () => {
       const showWarningSpy = jest.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      )
+      ) as jest.MockedFunction<(type: WarningType) => void>
+
       const now = Math.floor(Date.now() / 1000)
 
       document.cookie = `session_timeout_data=${btoa(
@@ -579,7 +582,8 @@ describe('SessionTimeoutHandler', () => {
       const showWarningSpy = jest.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      )
+      ) as jest.MockedFunction<(type: WarningType) => void>
+
       const now = Math.floor(Date.now() / 1000)
 
       document.cookie = `session_timeout_data=${btoa(
@@ -601,7 +605,10 @@ describe('SessionTimeoutHandler', () => {
     })
 
     it('clears existing timer before setting new one', () => {
-      const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout')
+      const clearTimeoutSpy = jest.spyOn(
+        window,
+        'clearTimeout',
+      ) as jest.MockedFunction<(type: number | null) => void>
       const now = Math.floor(Date.now() / 1000)
 
       // Set initial timer

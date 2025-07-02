@@ -74,6 +74,11 @@ public final class QuestionConfig {
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case PHONE:
         return Optional.of(config.addPhoneConfig().getContainer());
+      case YES_NO:
+        return Optional.of(
+            config
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -318,6 +323,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -333,6 +339,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
@@ -353,6 +360,144 @@ public final class QuestionConfig {
                 .getNumberTag()
                 .withClasses("hidden"));
     return this;
+  }
+
+  private QuestionConfig addDefaultYesNoQuestionFields(
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option indexes need to be the same size.");
+    ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
+    if (multiOptionQuestionForm.getOptions().size() == 0) {
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 0,
+                      /* order= */ 0,
+                      /* adminName= */ "yes",
+                      /* optionText= */ "Yes",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 1,
+                      /* order= */ 1,
+                      /* adminName= */ "no",
+                      /* optionText= */ "No",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 2,
+                      /* order= */ 2,
+                      /* adminName= */ "not-sure",
+                      /* optionText= */ "Not sure",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ 3,
+                      /* order= */ 3,
+                      /* adminName= */ "maybe",
+                      /* optionText= */ "Maybe",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+    } else {
+      for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+        optionsBuilder.add(
+            yesNoOptionQuestionField(
+                Optional.of(
+                    LocalizedQuestionOption.create(
+                        multiOptionQuestionForm.getOptionIds().get(i),
+                        i,
+                        multiOptionQuestionForm.getOptionAdminNames().get(i),
+                        multiOptionQuestionForm.getOptions().get(i),
+                        /* displayInAnswerOptions= */ Optional.of(
+                            multiOptionQuestionForm
+                                .getDisplayedOptionIds()
+                                .contains(multiOptionQuestionForm.getOptionIds().get(i))),
+                        LocalizedStrings.DEFAULT_LOCALE)),
+                messages));
+      }
+    }
+    content.with(optionsBuilder.build());
+    return this;
+  }
+
+  private static DivTag yesNoOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
+    DivTag optionAdminName =
+        FieldWithLabel.input()
+            .setFieldName("optionAdminNames[]")
+            .setLabelText("Admin ID")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_ADMIN_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.MULTI_OPTION_ADMIN_VALIDATION)))
+            .showFieldErrors(false)
+            .setReadOnly(true)
+            .getInputTag();
+    DivTag optionIndexInput =
+        FieldWithLabel.input()
+            .setFieldName("optionIds[]")
+            .setValue(String.valueOf(existingOption.get().id()))
+            .setScreenReaderText("option ids")
+            .getInputTag()
+            .withClasses("display-none");
+    DivTag optionInput =
+        FieldWithLabel.input()
+            .setFieldName("options[]")
+            .setLabelText("Option Text")
+            .setRequired(true)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setReadOnly(true)
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
+            .getInputTag()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_INPUT,
+                "col-start-1",
+                "col-span-5",
+                "mb-2",
+                "ml-2",
+                "row-start-3",
+                "row-span-2");
+    boolean isChecked =
+        existingOption.get().displayInAnswerOptions().isPresent()
+            && existingOption.get().displayInAnswerOptions().get();
+    return div()
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+        .with(
+            optionIndexInput,
+            optionAdminName,
+            optionInput,
+            // Checkbox for selecting whether to display the option to the applicant.
+            // Value is set to the ID because falsy checkbox values get discarded on form
+            // submission.
+            FieldWithLabel.checkbox()
+                .setFieldName("displayedOptionIds[]")
+                .setLabelText("include")
+                .setValue(Long.toString(existingOption.get().id()))
+                .setChecked(isChecked)
+                .getCheckboxTag());
   }
 
   /**

@@ -7,7 +7,6 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -16,7 +15,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

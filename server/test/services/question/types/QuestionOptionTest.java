@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -28,7 +29,14 @@ public class QuestionOptionTest {
         QuestionOption.create(1L, "default admin", LocalizedStrings.of(Locale.US, "default"));
 
     assertThat(option.localizeOrDefault(Locale.CHINESE))
-        .isEqualTo(LocalizedQuestionOption.create(1L, 1L, "default admin", "default", Locale.US));
+        .isEqualTo(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "default admin",
+                /* optionText= */ "default",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US));
   }
 
   @Test
@@ -44,6 +52,11 @@ public class QuestionOptionTest {
     assertThat(option.localize(LocalizedStrings.DEFAULT_LOCALE))
         .isEqualTo(
             LocalizedQuestionOption.create(
-                123L, 1L, "test admin", "test", LocalizedStrings.DEFAULT_LOCALE));
+                /* id= */ 123L,
+                /* order= */ 1L,
+                /* adminName= */ "test admin",
+                /* optionText= */ "test",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ LocalizedStrings.DEFAULT_LOCALE));
   }
 }

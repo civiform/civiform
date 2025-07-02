@@ -132,6 +132,10 @@ export class ApplicantQuestions {
     await this.page.check(`text=${checked}`)
   }
 
+  async answerYesNoQuestion(checked: string, order = 0) {
+    await this.page.getByText(checked, {exact: true}).nth(order).check()
+  }
+
   async answerDropdownQuestion(selected: string, index = 0) {
     await this.page.selectOption(
       `.cf-dropdown-question select >> nth=${index}`,
@@ -396,26 +400,20 @@ export class ApplicantQuestions {
     wantNotStartedPrograms: string[]
     wantInProgressOrSubmittedPrograms: string[]
   }) {
-    const gotNotStartedProgramNames =
-      await this.northStarProgramNamesForSection(
-        CardSectionName.ProgramsAndServices,
-      )
-    const gotInProgressOrSubmittedProgramNames =
-      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
-
-    // Sort results before comparing since we don't care about order.
-    gotNotStartedProgramNames.sort()
-    wantNotStartedPrograms.sort()
-    gotInProgressOrSubmittedProgramNames.sort()
-    wantInProgressOrSubmittedPrograms.sort()
-
-    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
-    expect(gotInProgressOrSubmittedProgramNames).toEqual(
-      wantInProgressOrSubmittedPrograms,
+    await this.expectProgramsinCorrectSections(
+      {
+        expectedProgramsInMyApplicationsSection:
+          wantInProgressOrSubmittedPrograms,
+        expectedProgramsInProgramsAndServicesSection: wantNotStartedPrograms,
+        expectedProgramsInRecommendedSection: [],
+        expectedProgramsInOtherProgramsSection: [],
+      },
+      /* filtersOn= */ false,
+      /* northStarEnabled= */ true,
     )
   }
 
-  async filterProgramsAndExpectWithFilteringEnabled(
+  async filterProgramsAndExpectInCorrectSections(
     {
       filterCategory,
       expectedProgramsInMyApplicationsSection,

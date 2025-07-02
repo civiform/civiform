@@ -40,7 +40,6 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
-import views.AlertComponent;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -183,8 +182,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(displayName)
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        AlertComponent.renderSlimInfoAlert(
-            "Short description will be visible to applicants at a future date.", "my-2"),
         // Short description
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
@@ -239,7 +236,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
-            settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
+            settingsManifest.getProgramFilteringEnabled() && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
         // Program visibility
         fieldset(
@@ -333,8 +330,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        AlertComponent.renderSlimInfoAlert(
-            "Application steps will be visible to applicants at a future date.", "my-2"),
         // Application steps
         div()
             .with(

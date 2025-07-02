@@ -14,6 +14,7 @@ type QuestionOption = {
 
 type QuestionParams = {
   questionName: string
+  optionIndicesToExclude?: number[]
   minNum?: number | null
   maxNum?: number | null
   maxFiles?: number | null
@@ -59,7 +60,6 @@ export enum QuestionType {
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
-/* eslint-enable */
 
 export class AdminQuestions {
   public page!: Page
@@ -1200,6 +1200,72 @@ export class AdminQuestions {
       await this.page.click('#add-new-option')
       await this.fillMultiOptionAnswer(index, options![index])
     }
+
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
+  }
+
+  async addYesNoQuestion({
+    questionName,
+    optionIndicesToExclude = [],
+    description = 'yes/no description',
+    questionText = 'yes/no question text',
+    helpText = 'yes/no question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
+  }: QuestionParams) {
+    await this.createYesNoQuestion({
+      questionName,
+      optionIndicesToExclude,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
+  }
+
+  async createYesNoQuestion(
+    {
+      questionName,
+      optionIndicesToExclude = [],
+      description = 'yes/no description',
+      questionText = 'yes/no question text',
+      helpText = 'yes/no question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-yes_no-question')
+    await waitForPageJsLoad(this.page)
+
+    for (let i = 0; i < optionIndicesToExclude.length; i++) {
+      await this.page
+        .getByRole('checkbox')
+        .nth(optionIndicesToExclude[i])
+        .click()
+    }
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
 
     if (clickSubmit) {
       await this.clickSubmitButtonAndNavigate('Create')

@@ -93,7 +93,8 @@ public final class ApplicantRoutes {
   }
 
   public Call edit(long programId) {
-    return routes.ApplicantProgramsController.edit(programId);
+    return routes.ApplicantProgramsController.edit(
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**
@@ -107,9 +108,9 @@ public final class ApplicantRoutes {
   public Call edit(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
-          applicantId, programId);
+          applicantId, Long.toString(programId), /* isFromUrlCall= */ false);
     } else {
-      return routes.ApplicantProgramsController.edit(programId);
+      return edit(programId);
     }
   }
 

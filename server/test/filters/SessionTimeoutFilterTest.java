@@ -142,6 +142,6 @@ public class SessionTimeoutFilterTest extends WithApplication {
   private JsonNode decodeTimeoutCookie(Http.Cookie cookie) throws Exception {
     String decodedValue =
         new String(Base64.getDecoder().decode(cookie.value()), StandardCharsets.UTF_8);
-    return new ObjectMapper().readTree(decodedValue);
+    return instanceOf(ObjectMapper.class).readTree(decodedValue);
   }
 }

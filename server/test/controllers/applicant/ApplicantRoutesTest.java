@@ -20,7 +20,6 @@ import repository.ResetPostgres;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantRoutesTest extends ResetPostgres {
-
   private ProfileFactory profileFactory;
   private static long APPLICANT_ID = 123L;
   private static long APPLICANT_ACCOUNT_ID = 456L;
@@ -169,7 +168,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedEditUrl = String.format("/programs/%d/edit", PROGRAM_ID);
+    String expectedEditUrl = String.format("/programs/%d/edit?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
 
@@ -188,7 +187,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
-        String.format("/applicants/%d/programs/%d/edit", APPLICANT_ID, PROGRAM_ID);
+        String.format(
+            "/applicants/%d/programs/%d/edit?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
 
@@ -206,7 +206,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
-        String.format("/applicants/%d/programs/%d/edit", APPLICANT_ID, PROGRAM_ID);
+        String.format(
+            "/applicants/%d/programs/%d/edit?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
 
