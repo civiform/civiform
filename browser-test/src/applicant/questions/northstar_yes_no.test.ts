@@ -95,7 +95,7 @@ test.describe(
 
         await adminQuestions.addYesNoQuestion({
           questionName: 'yes-no-question-one',
-          optionIndicesToExclude: [2],
+          optionTextToExclude: ['Not sure'],
         })
 
         await adminPrograms.addAndPublishProgramWithQuestions(

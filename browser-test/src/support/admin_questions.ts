@@ -14,7 +14,7 @@ type QuestionOption = {
 
 type QuestionParams = {
   questionName: string
-  optionIndicesToExclude?: number[]
+  optionTextToExclude?: string[]
   minNum?: number | null
   maxNum?: number | null
   maxFiles?: number | null
@@ -1208,7 +1208,7 @@ export class AdminQuestions {
 
   async addYesNoQuestion({
     questionName,
-    optionIndicesToExclude = [],
+    optionTextToExclude = [],
     description = 'yes/no description',
     questionText = 'yes/no question text',
     helpText = 'yes/no question help text',
@@ -1218,7 +1218,7 @@ export class AdminQuestions {
   }: QuestionParams) {
     await this.createYesNoQuestion({
       questionName,
-      optionIndicesToExclude,
+      optionTextToExclude,
       description,
       questionText,
       helpText,
@@ -1234,7 +1234,7 @@ export class AdminQuestions {
   async createYesNoQuestion(
     {
       questionName,
-      optionIndicesToExclude = [],
+      optionTextToExclude = [],
       description = 'yes/no description',
       questionText = 'yes/no question text',
       helpText = 'yes/no question help text',
@@ -1250,11 +1250,8 @@ export class AdminQuestions {
     await this.page.click('#create-yes_no-question')
     await waitForPageJsLoad(this.page)
 
-    for (let i = 0; i < optionIndicesToExclude.length; i++) {
-      await this.page
-        .getByRole('checkbox')
-        .nth(optionIndicesToExclude[i])
-        .click()
+    for (let i = 0; i < optionTextToExclude.length; i++) {
+      await this.page.getByText(optionTextToExclude[i]).click()
     }
 
     await this.fillInQuestionBasics({
