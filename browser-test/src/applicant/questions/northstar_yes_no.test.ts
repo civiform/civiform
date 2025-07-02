@@ -17,7 +17,6 @@ test.describe(
   () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await enableFeatureFlag(page, 'yes_no_question_enabled')
     })
 
     test.describe('single yes/no question', () => {
@@ -92,7 +91,6 @@ test.describe(
       const programName =
         'Test program for single yes/no question with some options hidden'
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'yes_no_question_enabled')
         await loginAsAdmin(page)
 
         await adminQuestions.addYesNoQuestion({
@@ -125,7 +123,6 @@ test.describe(
       const programName = 'Test program for multiple yes/no questions'
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'yes_no_question_enabled')
         await loginAsAdmin(page)
 
         await adminQuestions.addYesNoQuestion({
