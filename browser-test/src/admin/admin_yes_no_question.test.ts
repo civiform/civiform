@@ -21,7 +21,11 @@ test.describe('Yes/no options', () => {
     })
 
     await test.step('Expect renders properly', async () => {
-      await validateScreenshot(page, 'yes-no-question-admin-options')
+      const questionSettings = page.getByTestId('question-settings')
+      await validateScreenshot(
+        questionSettings,
+        'yes-no-question-admin-options',
+      )
     })
   })
 })

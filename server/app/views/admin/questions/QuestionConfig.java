@@ -471,8 +471,7 @@ public final class QuestionConfig {
 
     String ariaLabel =
         String.format(
-            "Checkbox input for displaying option to the applicant. The admin ID of this option is"
-                + " %s. The text displayed to the applicant for this option is %s",
+            "Admin ID: %s. Option text: %s.",
             existingOption.map(LocalizedQuestionOption::adminName).get(),
             existingOption.map(LocalizedQuestionOption::optionText).get());
     LabelTag labels =
@@ -555,6 +554,10 @@ public final class QuestionConfig {
         .with(
             div()
                 .withClasses(OUTER_DIV_CLASSES)
-                .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
+                .with(
+                    content
+                        .withId("question-settings")
+                        .attr("data-testid", "question-settings")
+                        .withClasses(INNER_DIV_CLASSES)));
   }
 }
