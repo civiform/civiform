@@ -13,6 +13,7 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -20,6 +21,10 @@ test.describe('view program statuses', () => {
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'

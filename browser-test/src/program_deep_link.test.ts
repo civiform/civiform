@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -8,6 +9,10 @@ import {
 } from './support'
 
 test.describe('navigating to a deep link', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {

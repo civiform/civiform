@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -9,6 +10,10 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('sample question seeding works', async ({
     page,
     adminQuestions,

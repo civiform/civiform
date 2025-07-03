@@ -209,7 +209,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
-    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
+            .addCSRFToken()
+            .build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
@@ -220,7 +224,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
-    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
+            .addCSRFToken()
+            .build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
@@ -288,7 +296,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsExpectedForm() {
-    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
+            .addCSRFToken()
+            .build();
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);

@@ -340,6 +340,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result submit(long applicantId, long programId) {
     Request request =
         fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
             .call(
                 routes.ApplicantProgramReviewController.submitWithApplicantId(
                     applicantId, programId))

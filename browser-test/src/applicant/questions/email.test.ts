@@ -7,9 +7,14 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Email question for applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single email question', () => {
     const programName = 'Test program for single email'
 

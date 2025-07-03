@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -128,6 +128,10 @@ test.describe(
 )
 
 test.describe('publishing all programs with universal questions feature flag on', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('shows a modal with information about universal questions', async ({
     page,
     adminPrograms,

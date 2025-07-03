@@ -30,6 +30,7 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.VersionRepository;
@@ -69,9 +70,11 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CiviFormController controller = instanceOf(CiviFormController.class);
 
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .showProgram(controller, request, programDefinition.slug())
             .toCompletableFuture()
             .join();
 
