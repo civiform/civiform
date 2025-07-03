@@ -1,5 +1,6 @@
 import {expect, test} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -10,6 +11,10 @@ import {
 } from '../../support'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'

@@ -545,7 +545,7 @@ test.describe('applicant program index page', () => {
 
 test.describe('applicant program index page with images', () => {
   test.beforeEach(async ({page}) => {
-    disableFeatureFlag(page, 'north_star_applicant_ui')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('shows program with wide image', async ({

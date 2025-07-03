@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   selectApplicantLanguage,
   validateAccessibility,
@@ -8,6 +9,10 @@ import {
 } from './support'
 
 test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+  
   test('404 page', async ({page}) => {
     await test.step('Has heading in English', async () => {
       await page.goto('/bad/path/ezbezzdebashiboozook')

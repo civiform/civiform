@@ -13,7 +13,7 @@ test.describe('view an application in an older version', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({
     page,
     adminQuestions,

@@ -11,7 +11,7 @@ test.describe('Admin can manage translations', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('Expect single-answer question is translated for applicant', async ({
     page,
     adminPrograms,

@@ -17,7 +17,7 @@ test.describe('with program statuses', () => {
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
       await disableFeatureFlag(page, 'north_star_applicant_ui')
-      
+
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

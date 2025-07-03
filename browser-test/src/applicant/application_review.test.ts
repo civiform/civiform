@@ -17,7 +17,7 @@ test.describe('Program admin review of submitted applications', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('all major steps', async ({
     page,
     adminQuestions,
