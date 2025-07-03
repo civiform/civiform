@@ -52,7 +52,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
@@ -110,7 +111,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
@@ -170,7 +172,8 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(

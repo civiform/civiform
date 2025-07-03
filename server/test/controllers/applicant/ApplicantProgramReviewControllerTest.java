@@ -1,8 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -21,7 +19,6 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ApplicationRepository;
@@ -29,7 +26,6 @@ import repository.VersionRepository;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {

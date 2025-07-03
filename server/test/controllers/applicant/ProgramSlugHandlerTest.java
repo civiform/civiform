@@ -70,7 +70,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CiviFormController controller = instanceOf(CiviFormController.class);
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(ProgramSlugHandler.class)
             .showProgram(controller, request, programDefinition.slug())

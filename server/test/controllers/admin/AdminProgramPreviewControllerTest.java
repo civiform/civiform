@@ -31,7 +31,8 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
 
     String programSlug = "test-slug";
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result = controller.preview(request, programSlug).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())

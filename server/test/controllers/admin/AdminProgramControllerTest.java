@@ -136,7 +136,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller.create(requestBuilder.build());
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result programDashboardResult = controller.index(request);
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
     assertThat(contentAsString(programDashboardResult)).contains("External program description");
@@ -256,7 +257,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
@@ -387,7 +389,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .url());
 
     Request request =
-      fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
@@ -434,7 +436,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
-          .bodyForm(
+            .bodyForm(
                 ImmutableMap.of(
                     "adminName",
                     "internal-program-name",
@@ -506,7 +508,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .url());
 
     Request request =
-      fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
@@ -705,7 +707,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "step one description"));
     controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
@@ -996,7 +999,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result redirectResult = controller.index(request);
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
