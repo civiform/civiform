@@ -9,7 +9,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
-import play.mvc.Http;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.style.StyleUtils;
@@ -23,8 +22,7 @@ public final class CreateQuestionButton {
   public static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
-      SettingsManifest settingsManifest,
-      Http.Request request) {
+      SettingsManifest settingsManifest) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -57,7 +55,7 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled(request)) {
+      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
 

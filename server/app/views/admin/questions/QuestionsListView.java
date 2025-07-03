@@ -111,8 +111,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             controllers.admin.routes.AdminQuestionController.index(Optional.empty())
                                 .url(),
                             /* isPrimaryButton= */ true,
-                            settingsManifest,
-                            request)),
+                            settingsManifest)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
