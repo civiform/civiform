@@ -107,10 +107,10 @@ public final class SampleQuestionDefinitions {
 
   @VisibleForTesting
   public static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
-    new MultiOptionQuestionDefinition(
-      CHECKBOX_QUESTION_DEFINITION_CONFIG,
-      CHECKBOX_QUESTION_OPTIONS,
-      MultiOptionQuestionType.CHECKBOX);
+      new MultiOptionQuestionDefinition(
+          CHECKBOX_QUESTION_DEFINITION_CONFIG,
+          CHECKBOX_QUESTION_OPTIONS,
+          MultiOptionQuestionType.CHECKBOX);
 
   @VisibleForTesting
   public static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
@@ -371,32 +371,32 @@ public final class SampleQuestionDefinitions {
 
   @VisibleForTesting
   public static final MapQuestionDefinition MAP_QUESTION_DEFINITION =
-    new MapQuestionDefinition(
-      QuestionDefinitionConfig.builder()
-        .setName("Sample Map Question")
-        .setDescription("description")
-        .setQuestionText(
-          LocalizedStrings.of(
-            ImmutableMap.of(
-              Lang.forCode("en-US").toLocale(),
-              """
-              Hi I'm a block of static text.
-               * Welcome to this __test program__.
-               * It contains one of every question type.
+      new MapQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Map Question")
+              .setDescription("description")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          """
+                          Hi I'm a block of static text.
+                           * Welcome to this __test program__.
+                           * It contains one of every question type.
 
-              ## What are the eligibility requirements?
-              Please go [here](https://www.example.com) for more information""",
-              Lang.forCode("ar").toLocale(),
-              """
-               مرحبًا، أنا كتلة من النص الثابت.
-                * مرحبا بكم في هذا برنامج الاختبار
-                * يحتوي على سؤال واحد من كل نوع.
+                          ## What are the eligibility requirements?
+                          Please go [here](https://www.example.com) for more information""",
+                          Lang.forCode("ar").toLocale(),
+                          """
+                           مرحبًا، أنا كتلة من النص الثابت.
+                            * مرحبا بكم في هذا برنامج الاختبار
+                            * يحتوي على سؤال واحد من كل نوع.
 
-              ## ما هي متطلبات الأهلية؟
-              يرجى الذهاب إلى [نا](https://www.example.com) لمزيد من المعلومات
-              """)))
-        .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
-        .build());
+                          ## ما هي متطلبات الأهلية؟
+                          يرجى الذهاب إلى [نا](https://www.example.com) لمزيد من المعلومات
+                          """)))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
+              .build());
 
   @VisibleForTesting
   public static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =

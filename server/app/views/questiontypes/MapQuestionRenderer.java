@@ -14,8 +14,7 @@ import views.style.ReferenceClasses;
 public class MapQuestionRenderer implements ApplicantQuestionRenderer {
   private final ApplicantQuestion question;
 
-  public MapQuestionRenderer(
-    ApplicantQuestion question) {
+  public MapQuestionRenderer(ApplicantQuestion question) {
     this.question = checkNotNull(question);
   }
 
@@ -31,19 +30,19 @@ public class MapQuestionRenderer implements ApplicantQuestionRenderer {
     // Static questions that are shown to the applicant will have the messages object passed in
     // Previews of map questions that are shown to admin will not
     formattedText =
-      TextFormatter.formatText(
-        question.getQuestionText(),
-        /* preserveEmptyLines= */ true,
-        /* addRequiredIndicator= */ false,
-        /* ariaLabelForNewTabs= */ "opens in a new tab");
+        TextFormatter.formatText(
+            question.getQuestionText(),
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ false,
+            /* ariaLabelForNewTabs= */ "opens in a new tab");
 
     DivTag questionTextDiv =
-      div()
-        .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-bold", "text-xl")
-        .with(formattedText);
+        div()
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-bold", "text-xl")
+            .with(formattedText);
     return div()
-      .withId(question.getContextualizedPath().toString())
-      .withClasses("mx-auto", "mb-8", this.getReferenceClass())
-      .with(questionTextDiv);
+        .withId(question.getContextualizedPath().toString())
+        .withClasses("mx-auto", "mb-8", this.getReferenceClass())
+        .with(questionTextDiv);
   }
 }

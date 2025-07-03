@@ -331,12 +331,13 @@ public final class ApplicantQuestion {
   public AbstractQuestion getQuestion() {
     return switch (getType()) {
       case ADDRESS -> createAddressQuestion();
-      case CHECKBOX, MAP -> createMultiSelectQuestion();
+      case CHECKBOX -> createMultiSelectQuestion();
       case CURRENCY -> createCurrencyQuestion();
       case DATE -> createDateQuestion();
       case EMAIL -> createEmailQuestion();
       case FILEUPLOAD -> createFileUploadQuestion();
       case ID -> createIdQuestion();
+      case MAP -> createMapQuestion();
       case NAME -> createNameQuestion();
       case NUMBER -> createNumberQuestion(); // fallthrough to RADIO_BUTTON
       case DROPDOWN, RADIO_BUTTON, YES_NO -> createSingleSelectQuestion();

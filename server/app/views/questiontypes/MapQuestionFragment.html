@@ -19,7 +19,7 @@
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${mapQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
-
-    This is a map question
+    <!-- Map that will get populated by typescript in `maps.ts` -->
+    <div id="map" class="square-mobile"></div>
   </fieldset>
 </div>

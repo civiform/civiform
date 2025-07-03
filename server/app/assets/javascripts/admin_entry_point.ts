@@ -23,6 +23,7 @@ import * as questionBank from './questionBank'
 import PreviewController, * as preview from './preview'
 import {SessionTimeoutHandler} from './session'
 import * as enumerator from './enumerator'
+import * as map from './map'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
@@ -60,6 +61,7 @@ function initializeEverything(): void {
   modal.init()
   questionBank.init()
   preview.init()
+  map.init()
   enumerator.init()
   phoneNumber.init()
   adminQuestionEdit.init()
@@ -74,4 +76,5 @@ function initializeEverything(): void {
 function afterSettle(): void {
   PreviewController.updateListeners()
   enumerator.updateListeners()
+  map.populateMap()
 }

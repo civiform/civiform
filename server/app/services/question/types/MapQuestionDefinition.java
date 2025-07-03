@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
 
-/**
- * Defines a map question.
- */
+/** Defines a map question. */
 public final class MapQuestionDefinition extends QuestionDefinition {
 
   public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
@@ -19,8 +17,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     public static MapValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-          jsonString,
-          AutoValue_MapQuestionDefinition_MapValidationPredicates.class);
+            jsonString, AutoValue_MapQuestionDefinition_MapValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }

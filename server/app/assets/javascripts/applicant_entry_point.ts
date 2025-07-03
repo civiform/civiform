@@ -17,6 +17,7 @@ import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
 import * as htmx from './htmx'
+import * as map from './map'
 import {SessionTimeoutHandler} from './session'
 
 declare global {
@@ -33,6 +34,7 @@ window.addEventListener('load', () => {
   main.init()
   languageSelector.init()
   enumerator.init()
+  map.init()
   radio.init()
   toast.init()
   modal.init()

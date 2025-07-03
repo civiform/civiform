@@ -13,6 +13,13 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+        ],
+      },
+      {
         test: /\.scss$/,
         /* The Sass compilation is only for USWDS currently.  Loaders run from
         the bottom up. All of these loaders are 3rd-party packages which don't
@@ -57,6 +64,9 @@ module.exports = {
       './node_modules/@uswds/uswds/dist/js/uswds.min.js',
       './app/assets/stylesheets/northstar/styles.scss'
     ],
+    maplibregl: [
+      './node_modules/maplibre-gl/dist/maplibre-gl.css',
+    ]
   },
   output: {
     filename: `[name].bundle.js`,
