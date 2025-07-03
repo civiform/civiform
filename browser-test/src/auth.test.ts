@@ -16,7 +16,7 @@ test.describe('Applicant auth', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')

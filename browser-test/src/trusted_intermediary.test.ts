@@ -10,9 +10,14 @@ import {
   logout,
   AdminQuestions,
   selectApplicantLanguage,
+  disableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,

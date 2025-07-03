@@ -10,7 +10,7 @@ test.describe('developer tools', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test.afterEach(async ({page}) => {
     // Ensure the 'staging_disable_demo_mode_logins' flag is DISABLED for each test
     // unless a specific test intends to enable it.

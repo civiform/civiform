@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -7,6 +8,10 @@ import {
 } from '../../support'
 
 test.describe('file upload applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('test multiple file upload with max files', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'

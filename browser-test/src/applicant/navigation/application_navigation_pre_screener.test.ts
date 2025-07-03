@@ -15,8 +15,8 @@ import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
 test.describe('Applicant navigation flow', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
-  }) 
-  
+  })
+
   test.describe('navigation with pre-screener', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'

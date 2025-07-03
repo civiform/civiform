@@ -10,7 +10,7 @@ test.describe('Pagination', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('shows 1 page and no previous or next buttons when there are 10 clients', async ({
     page,
     tiDashboard,

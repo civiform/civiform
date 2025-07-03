@@ -13,7 +13,7 @@ import {Page} from 'playwright'
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
-    
+
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })

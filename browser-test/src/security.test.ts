@@ -5,7 +5,7 @@ test.describe('applicant security', {tag: ['@parallel-candidate']}, () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
-  
+
   test('applicant cannot access admin pages', async ({request}) => {
     const response = await request.get('/admin/programs')
     await expect(response).toBeOK()
