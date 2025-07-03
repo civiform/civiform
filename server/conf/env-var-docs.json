@@ -921,6 +921,11 @@
         "description": "Enable options for handling duplicate questions when importing/migrating programs: create a duplicate, use the existing question, or overwrite the existing question.",
         "type": "bool",
         "required": false
+      },
+      "NAME_SUFFIX_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables suffix dropdown field in name question.",
+        "type": "bool"
       }
     }
   },
@@ -930,11 +935,6 @@
       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs between deployed environments. Note: this should only be used on new environments, since existing programs will be modified if a program with the same question gets imported.",
-        "type": "bool"
-      },
-      "NAME_SUFFIX_DROPDOWN_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
         "type": "bool"
       },
       "SESSION_REPLAY_PROTECTION_ENABLED": {

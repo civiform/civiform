@@ -1064,6 +1064,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
+  /** Enables suffix dropdown field in name question. */
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
    * between deployed environments. Note: this should only be used on new environments, since
@@ -1071,11 +1076,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNoDuplicateQuestionsForMigrationEnabled(RequestHeader request) {
     return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question. */
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
   /**
@@ -2298,6 +2298,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NAME_SUFFIX_DROPDOWN_ENABLED",
+                          "Enables suffix dropdown field in name question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2314,13 +2320,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " should only be used on new environments, since existing programs"
                               + " will be modified if a program with the same question gets"
                               + " imported.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "NAME_SUFFIX_DROPDOWN_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name"
-                              + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
