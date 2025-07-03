@@ -232,7 +232,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void edit_withMessages_returnsCorrectButtonText() {
     Request request =
         fakeRequestBuilder()
-            .call(
+          .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").call(
                 routes.ApplicantProgramBlocksController.editWithApplicantId(
                     applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
@@ -701,7 +701,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
+          .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     program.id,
@@ -888,7 +888,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request requestWithAnswer =
         fakeRequestBuilder()
-            .call(
+          .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     program.id,
@@ -916,7 +916,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, try to delete the answer
     Request requestWithoutAnswer =
         fakeRequestBuilder()
-            .call(
+          .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id,
                     program.id,

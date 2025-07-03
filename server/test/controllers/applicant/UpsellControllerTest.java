@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
@@ -15,6 +16,7 @@ import models.ApplicationModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -50,10 +52,11 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
+    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequest(),
+                request,
                 applicant.id,
                 programDefinition.id(),
                 application.id,
@@ -107,10 +110,11 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
+    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequest(),
+                request,
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -166,10 +170,11 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
+    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         instanceOf(UpsellController.class)
             .considerRegister(
-                fakeRequest(),
+                request,
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,

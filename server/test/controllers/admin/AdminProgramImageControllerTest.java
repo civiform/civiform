@@ -61,7 +61,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Result result =
         controller.index(
-            fakeRequestBuilder().method("GET").build(),
+            fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").method("GET").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 
@@ -103,7 +103,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Result result =
         controller.index(
-            fakeRequestBuilder().method("GET").build(),
+            fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").method("GET").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 

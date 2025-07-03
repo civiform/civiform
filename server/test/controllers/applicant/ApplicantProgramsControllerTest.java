@@ -28,6 +28,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
+import org.bouncycastle.cert.ocsp.Req;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -326,8 +327,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
+    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
-        controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
+        controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -359,9 +361,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
+    Request request = fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .showWithApplicantId(request, currentApplicant.id, alphaNumProgramParam)
             .toCompletableFuture()
             .join();
 
