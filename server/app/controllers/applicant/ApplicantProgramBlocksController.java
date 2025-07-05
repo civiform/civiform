@@ -28,6 +28,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -98,8 +100,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
+  private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
+  private final MonitoringMetricCounters metricCounters;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -124,8 +128,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
+      ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
-      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator,
+      MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -147,6 +153,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         checkNotNull(northStarApplicantProgramBlockEditView);
     this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
     this.programService = checkNotNull(programService);
+    this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.metricCounters = checkNotNull(metricCounters);
   }
 
   /**
@@ -185,15 +193,35 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> edit(
-      Request request, long programId, String blockId, Optional<String> questionName) {
+      Request request,
+      String programParam,
+      String blockId,
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program slug URL feature is enabled and the program param could be
+    // a program slug but it is actually a program id (numeric).
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/blocks/:blockId/edit", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, questionName);
+
+    Long applicantIdValue = applicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                editWithApplicantId(request, applicantIdValue, programId, blockId, questionName));
   }
 
   /**
