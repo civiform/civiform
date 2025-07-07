@@ -4,11 +4,11 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.strong;
-import static j2html.TagCreator.text;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -221,7 +221,7 @@ public final class QuestionConfig {
         new SelectWithLabel()
             .setFieldName("minDateType")
             .setLabelText("Start date")
-            .setOptions(dateValidationOptions("Any past date"))
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any past date"))
             .setValue(
                 dateQuestionForm
                     .getMinDateType()
@@ -233,7 +233,7 @@ public final class QuestionConfig {
         new SelectWithLabel()
             .setFieldName("maxDateType")
             .setLabelText("End date")
-            .setOptions(dateValidationOptions("Any future date"))
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any future date"))
             .setValue(
                 dateQuestionForm
                     .getMaxDateType()
