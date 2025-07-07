@@ -89,8 +89,8 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       await applicantQuestions.addEnumeratorAnswer('Bugs')
-
-      await page.locator('.cf-question-header').getByText('Bugs').isVisible()
+      const enumInput = page.getByRole('textbox', {name: 'Entity name #1'})
+      await expect(enumInput).toHaveValue('Bugs')
     })
 
     test('has no accessibility violations', async ({
