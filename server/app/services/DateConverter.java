@@ -72,6 +72,7 @@ public final class DateConverter {
    */
   public LocalDate parseDayMonthYearToLocalDate(String day, String month, String year) {
     day = day.length() == 1 ? "0" + day : day; // The day needs to be 2 digits
+    month = month.length() == 1 ? "0" + month : month; // The month needs to be 2 digits
     return parseIso8601DateToLocalDate(year + "-" + month + "-" + day);
   }
 
