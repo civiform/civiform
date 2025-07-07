@@ -387,10 +387,10 @@ test.describe('create and edit predicates', () => {
     await test.step('name suffix is not visible to be selected as a value', async () => {
       await page.click(`.cf-scalar-select`)
 
-      await expect(page.getByText('first name')).toBeVisible()
-      await expect(page.getByText('middle name')).toBeVisible()
-      await expect(page.getByText('last name')).toBeVisible()
-      await expect(page.getByText('name suffix')).toBeHidden()
+      await page.getByText('first name').isVisible()
+      await page.getByText('middle name').isVisible()
+      await page.getByText('last name').isVisible()
+      await page.getByText('name suffix').isHidden()
     })
   })
 

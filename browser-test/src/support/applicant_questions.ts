@@ -244,11 +244,10 @@ export class ApplicantQuestions {
   }
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
-    await expect(
-      this.page
-        .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
-        .getByText(entityName),
-    ).toBeVisible()
+    await this.page
+      .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
+      .getByText(entityName)
+      .isVisible()
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */

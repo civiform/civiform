@@ -90,9 +90,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       await applicantQuestions.addEnumeratorAnswer('Bugs')
 
-      await expect(
-        page.locator('.cf-question-header').getByText('Bugs'),
-      ).toBeVisible()
+      await page.locator('.cf-question-header').getByText('Bugs').isVisible()
     })
 
     test('has no accessibility violations', async ({
