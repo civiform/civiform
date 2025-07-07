@@ -258,15 +258,36 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> review(
-      Request request, long programId, String blockId, Optional<String> questionName) {
+      Request request,
+      String programParam,
+      String blockId,
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program slug URL feature is enabled and the program param could be
+    // a program slug but it is actually a program id (numeric).
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/blocks/:blockId/review", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return reviewWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, questionName);
+
+    Long applicantIdValue = applicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                reviewWithApplicantId(
+                    request, applicantId.orElseThrow(), programId, blockId, questionName));
   }
 
   /** Handles the applicant's selection from the address correction options. */
