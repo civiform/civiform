@@ -245,7 +245,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
-        String.format("/applicants/%d/programs/%d/review", APPLICANT_ID, PROGRAM_ID);
+        String.format(
+            "/applicants/%d/programs/%d/review?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
 
@@ -263,7 +264,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
-        String.format("/applicants/%d/programs/%d/review", APPLICANT_ID, PROGRAM_ID);
+        String.format(
+            "/applicants/%d/programs/%d/review?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
 

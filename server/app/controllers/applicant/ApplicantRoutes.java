@@ -123,11 +123,12 @@ public final class ApplicantRoutes {
    * @return Route for the applicant review action
    */
   public Call review(CiviFormProfile profile, long applicantId, long programId) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramReviewController.reviewWithApplicantId(applicantId, programId);
+      return routes.ApplicantProgramReviewController.reviewWithApplicantId(
+          applicantId, programIdStr, /* isFromUrlCall= */ false);
     }
-    return routes.ApplicantProgramReviewController.review(
-        Long.toString(programId), /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramReviewController.review(programIdStr, /* isFromUrlCall= */ false);
   }
 
   /**

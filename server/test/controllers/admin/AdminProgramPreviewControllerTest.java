@@ -38,7 +38,9 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0), program.id)
+                    adminAccount.ownedApplicantIds().get(0),
+                    Long.toString(program.id),
+                    /* isFromUrlCall= */ false)
                 .url());
   }
 
