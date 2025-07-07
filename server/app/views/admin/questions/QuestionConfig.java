@@ -4,6 +4,9 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
 
@@ -11,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
+import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
@@ -25,15 +29,20 @@ import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.types.DateQuestionDefinition.DateValidationOption;
+import services.settings.SettingsManifest;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.SelectWithLabel;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -51,7 +60,11 @@ public final class QuestionConfig {
 
   private QuestionConfig() {}
 
-  public static Optional<DivTag> buildQuestionConfig(QuestionForm questionForm, Messages messages) {
+  public static Optional<DivTag> buildQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -96,9 +109,13 @@ public final class QuestionConfig {
             config
                 .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
                 .getContainer());
+      case DATE:
+        return settingsManifest.getDateValidationEnabled(request)
+            ? Optional.of(
+                config.addDateQuestionConfig((DateQuestionForm) questionForm).getContainer())
+            : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
-      case DATE: // fallthrough intended
       case EMAIL: // fallthrough intended
       case STATIC:
       default:
@@ -197,6 +214,63 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
+  }
+
+  private QuestionConfig addDateQuestionConfig(DateQuestionForm dateQuestionForm) {
+    DivTag minDateSelectInput =
+        new SelectWithLabel()
+            .setFieldName("minDateType")
+            .setLabelText("Start date")
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any past date"))
+            .setValue(
+                dateQuestionForm
+                    .getMinDateType()
+                    .orElse(DateValidationOption.DateType.ANY)
+                    .toString())
+            .setRequired(true)
+            .getSelectTag();
+    DivTag maxDateSelectInput =
+        new SelectWithLabel()
+            .setFieldName("maxDateType")
+            .setLabelText("End date")
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any future date"))
+            .setValue(
+                dateQuestionForm
+                    .getMaxDateType()
+                    .orElse(DateValidationOption.DateType.ANY)
+                    .toString())
+            .setRequired(true)
+            .getSelectTag();
+
+    content
+        .with(
+            legend("Validation parameters").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span("Set the parameters for allowable values for this date question below.")))
+        .with(minDateSelectInput, maxDateSelectInput);
+    return this;
+  }
+
+  private ImmutableList<SelectWithLabel.OptionValue> dateValidationOptions(
+      String anyDateOptionLabel) {
+    return ImmutableList.<SelectWithLabel.OptionValue>builder()
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel(anyDateOptionLabel)
+                .setValue(DateValidationOption.DateType.ANY.toString())
+                .build())
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel("Current date of application")
+                .setValue(DateValidationOption.DateType.APPLICATION_DATE.toString())
+                .build())
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel("Custom date")
+                .setValue(DateValidationOption.DateType.CUSTOM.toString())
+                .build())
+        .build();
   }
 
   /**
