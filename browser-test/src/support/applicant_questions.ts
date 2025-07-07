@@ -262,8 +262,8 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async northstarAnswerQuestionOnReviewPage(questionText: string) {
-    await this.page.getByText(questionText).isVisible()
+  async expectAnswerQuestionOnReviewPageNorthstar(questionText: string) {
+    await expect(this.page.getByText(questionText)).toBeVisible()
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */

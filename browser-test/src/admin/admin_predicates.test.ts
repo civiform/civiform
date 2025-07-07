@@ -440,8 +440,8 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await page.getByLabel('Eligibility message').isVisible()
-      await page.getByText('Markdown is supported').isVisible()
+      await expect(page.getByLabel('Eligibility message')).toBeVisible()
+      await expect(page.getByText('Markdown is supported')).toBeVisible()
     })
 
     await test.step('Eligibility message field gets updated', async () => {
