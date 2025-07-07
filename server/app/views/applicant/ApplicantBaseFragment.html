@@ -14,7 +14,8 @@
   <title th:text="${pageTitle}"></title>
   <!-- Eventually want this to be bundled with webpack -->
   <link
-    href="https://unpkg.com/maplibre-gl@^5.6.1/dist/maplibre-gl.css"
+    th:href="${mapLibreGLStylesheet}"
+    type="text/css"
     rel="stylesheet"
     th:nonce="${cspNonce}"
   />

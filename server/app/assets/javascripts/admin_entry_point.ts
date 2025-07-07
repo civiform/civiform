@@ -61,7 +61,6 @@ function initializeEverything(): void {
   modal.init()
   questionBank.init()
   preview.init()
-  map.init()
   enumerator.init()
   phoneNumber.init()
   adminQuestionEdit.init()
@@ -76,5 +75,5 @@ function initializeEverything(): void {
 function afterSettle(): void {
   PreviewController.updateListeners()
   enumerator.updateListeners()
-  map.populateMap()
+  map.init()
 }

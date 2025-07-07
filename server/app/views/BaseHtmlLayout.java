@@ -51,7 +51,7 @@ public class BaseHtmlLayout {
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
   private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
-  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibre-gl.css";
+  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
@@ -135,6 +135,8 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+    System.out.println(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
+    System.out.println(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
 
     // Add Google analytics scripts.
     measurementId
