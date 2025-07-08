@@ -305,7 +305,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Expect first block edit', async () => {
       await applicantQuestions.validateQuestionIsOnPage(questionText)
-      expect(page.url().split('/').pop()).toEqual('edit')
+      expect(page.url().split('/').pop()).toEqual('edit?isFromUrlCall=false')
     })
   })
 

@@ -353,7 +353,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
-        String.format("/programs/%d/blocks/%s/edit", PROGRAM_ID, BLOCK_ID);
+        String.format("/programs/%d/blocks/%s/edit?isFromUrlCall=false", PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -493,7 +493,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedUrl =
         String.format(
-            "/programs/%d/blocks/%s/%s", PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+            "/programs/%d/blocks/%s/%s",
+            PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit?isFromUrlCall=false");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(

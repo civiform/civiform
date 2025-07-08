@@ -6,6 +6,9 @@ import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -13,10 +16,13 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
 import controllers.WithMockedProfiles;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.Locale;
@@ -34,22 +40,37 @@ import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.data.FormFactory;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import repository.VersionRepository;
 import services.Address;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
 import services.applicant.question.Scalar;
+import services.cloud.ApplicantStorageClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
+import services.monitoring.MonitoringMetricCounters;
+import services.program.ProgramService;
 import services.question.QuestionAnswerer;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
+import views.applicant.ApplicantFileUploadRenderer;
+import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.applicant.IneligibleBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
+import views.applicant.NorthStarApplicantIneligibleView;
+import views.applicant.NorthStarApplicantProgramBlockEditView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -60,13 +81,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private ProgramModel program;
   private ApplicantModel applicant;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setUpWithFreshApplicant() {
     resetDatabase();
 
-    subject = instanceOf(ApplicantProgramBlocksController.class);
-    addressSuggestionJsonSerializer = instanceOf(AddressSuggestionJsonSerializer.class);
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
@@ -75,6 +95,106 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
     applicant = createApplicantWithMockedProfile();
+
+    settingsManifest = mock(SettingsManifest.class);
+    addressSuggestionJsonSerializer = instanceOf(AddressSuggestionJsonSerializer.class);
+    subject =
+        new ApplicantProgramBlocksController(
+            instanceOf(ApplicantService.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantProgramBlockEditViewFactory.class),
+            instanceOf(NorthStarApplicantProgramBlockEditView.class),
+            instanceOf(FormFactory.class),
+            instanceOf(ApplicantStorageClient.class),
+            instanceOf(StoredFileRepository.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(Config.class),
+            settingsManifest,
+            instanceOf(ApplicantFileUploadRenderer.class),
+            instanceOf(IneligibleBlockView.class),
+            instanceOf(NorthStarApplicantIneligibleView.class),
+            instanceOf(AddressCorrectionBlockView.class),
+            instanceOf(NorthStarAddressCorrectionBlockView.class),
+            addressSuggestionJsonSerializer,
+            instanceOf(ProgramService.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramSlugHandler.class),
+            instanceOf(ApplicantRoutes.class),
+            instanceOf(EligibilityAlertSettingsCalculator.class),
+            instanceOf(MonitoringMetricCounters.class));
+  }
+
+  @Test
+  public void edit_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .edit(
+                request,
+                programId,
+                "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that edit() throws an error when the program param is a program slug but it should be the
+   * program id since the program slug feature is disabled. edit() also throws error for other
+   * combinations when the program param is not properly parsed. We don't test all combinations here
+   * because ProgramSlugHandler has comprehensive tests coverage for them.
+   */
+  @Test
+  public void edit_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.edit(
+                    fakeRequest(),
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from '' to a numeric value");
+  }
+
+  /**
+   * Tests that edit() returns OK when the feature is enabled and is from url call with a program
+   * slug. edit() also returns OK for other combinations: when the feature is disabled OR when the
+   * call is not from a URL OR when the program param is a program slug (not numeric), AND the
+   * program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler has comprehensive tests coverage for them.
+   */
+  @Test
+  public void edit_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .edit(
+                request,
+                programSlug,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
@@ -1073,7 +1193,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+                Long.toString(program.id),
+                /* blockId= */ "2",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -1351,7 +1474,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.updateWithApplicantId(
                     applicant.id, program.id, "1", false, new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -1365,6 +1487,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "92373"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -1722,7 +1845,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+                Long.toString(program.id),
+                /* blockId= */ "2",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
 
@@ -2139,7 +2265,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(String.format("/programs/%s/blocks/1/edit", program.id));
+        .contains(String.format("/programs/%s/blocks/1/edit?isFromUrlCall=false", program.id));
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
@@ -3032,7 +3158,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     /* blockId= */ "1",
                     /* inReview= */ false,
                     new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3046,6 +3171,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -3090,7 +3216,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+                Long.toString(program.id),
+                /* blockId= */ "2",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
 
@@ -3171,7 +3300,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+                Long.toString(program.id),
+                /* blockId= */ "2",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
 
@@ -3313,7 +3445,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     /* blockId= */ "1",
                     /* inReview= */ false,
                     new ApplicantRequestedActionWrapper()))
-            .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3327,6 +3458,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
+    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
     subject
         .updateWithApplicantId(
             answerAddressQuestionRequest,
@@ -3371,7 +3503,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                program.id, /* blockId= */ "2", /* questionName= */ Optional.empty())
+                Long.toString(program.id),
+                /* blockId= */ "2",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
 
