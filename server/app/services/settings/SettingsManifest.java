@@ -2379,7 +2379,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.HIDDEN))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
