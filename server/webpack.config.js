@@ -1,5 +1,5 @@
-const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const {ProvidePlugin} = require('webpack')
 
@@ -8,10 +8,14 @@ module.exports = {
   devtool: 'source-map',
   stats: 'errors-only',
   cache: {
-    type: 'filesystem'
+    type: 'filesystem',
   },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
       {
         test: /\.scss$/,
         /* The Sass compilation is only for USWDS currently.  Loaders run from
@@ -29,7 +33,7 @@ module.exports = {
               sassOptions: {
                 loadPaths: [
                   './app/assets/stylesheets/northstar',
-                  './node_modules/@uswds/uswds/packages'
+                  './node_modules/@uswds/uswds/packages',
                 ],
               },
             },
@@ -55,8 +59,11 @@ module.exports = {
     ],
     uswds_northstar: [
       './node_modules/@uswds/uswds/dist/js/uswds.min.js',
-      './app/assets/stylesheets/northstar/styles.scss'
+      './app/assets/stylesheets/northstar/styles.scss',
     ],
+    maplibregl: [
+      './node_modules/maplibre-gl/dist/maplibre-gl.css',
+    ]
   },
   output: {
     filename: `[name].bundle.js`,
@@ -65,10 +72,11 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].min.css' /* The name for the compiled output CSS file */,
+      filename:
+        '[name].min.css' /* The name for the compiled output CSS file */,
     }),
     new ProvidePlugin({
-      htmx: 'htmx.org'
+      htmx: 'htmx.org',
     }),
     new CopyWebpackPlugin({
       patterns: [
