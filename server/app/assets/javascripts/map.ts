@@ -1,8 +1,8 @@
 import {Map} from 'maplibre-gl'
 
 export const init = () => {
-    // base map for testing
-    new Map({
+  // base map for testing
+  new Map({
     container: 'map', // container id
     style: {
       version: 8,
