@@ -1115,8 +1115,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
    * programs.
    */
-  public boolean getMapQuestionEnabled(RequestHeader request) {
-    return getBool("MAP_QUESTION_ENABLED", request);
+  public boolean getMapQuestionEnabled() {
+    return getBool("MAP_QUESTION_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2365,7 +2365,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "DATE_VALIDATION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
