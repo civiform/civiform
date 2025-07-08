@@ -1111,6 +1111,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("YES_NO_QUESTION_ENABLED");
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
+   * programs.
+   */
+  public boolean getMapQuestionEnabled() {
+    return getBool("MAP_QUESTION_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2364,7 +2372,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
+                              + " question to their programs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.HIDDEN))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
