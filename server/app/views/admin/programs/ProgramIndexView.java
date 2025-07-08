@@ -512,7 +512,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       maybeRenderManageProgramAdminsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageTranslationsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageApplications(draftProgram.get()).ifPresent(draftRowExtraActions::add);
-      draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
+      maybeRenderExportProgramLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
 
       draftRow =
           Optional.of(
@@ -539,7 +539,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
-      activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
+      maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
 
       activeRow =
           Optional.of(
@@ -701,11 +701,17 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(asRedirectElement(button, adminLink));
   }
 
-  private ButtonTag renderExportProgramLink(ProgramDefinition program) {
+  private Optional<ButtonTag> maybeRenderExportProgramLink(ProgramDefinition program) {
+    // External programs cannot be exported/imported
+    ProgramType programType = program.programType();
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     String adminLink = routes.AdminExportController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Export program", Icons.DOWNLOAD)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return asRedirectElement(button, adminLink);
+    return Optional.of(asRedirectElement(button, adminLink));
   }
 }
