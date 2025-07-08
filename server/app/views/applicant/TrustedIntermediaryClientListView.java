@@ -9,6 +9,7 @@ import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -154,13 +155,26 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                                 .withName("nameQuery")
                                 .withValue(searchParameters.nameQuery().orElse("")))
                         .withClasses("flex", "flex-col", "justify-between"),
-                    ViewUtils.makeMemorableDate(
-                            searchParameters.dayQuery().orElse(""),
-                            searchParameters.monthQuery().orElse(""),
-                            searchParameters.yearQuery().orElse(""),
-                            messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()),
-                            !isValidSearch,
-                            Optional.of(messages))
+                    div()
+                        .with(
+                            div(
+                                legend(messages.at(MessageKey.SEARCH_BY_DOB.getKeyName()))
+                                    .withClass("usa-legend"),
+                                span(messages.at(MessageKey.DOB_EXAMPLE.getKeyName()))
+                                    .withClass("usa-hint")
+                                    .withId("mdHint")),
+                            ViewUtils.makeMemorableDate(
+                                /* hideDateComponent= */ false,
+                                searchParameters.dayQuery().orElse(""),
+                                searchParameters.monthQuery().orElse(""),
+                                searchParameters.yearQuery().orElse(""),
+                                "date-of-birth",
+                                "dayQuery",
+                                "monthQuery",
+                                "yearQuery",
+                                !isValidSearch,
+                                /* showRequired= */ false,
+                                Optional.of(messages)))
                         .withClass("ml-6"),
                     makeCsrfTokenInputTag(request),
                     div(submitButton(messages.at(MessageKey.BUTTON_SEARCH.getKeyName()))
