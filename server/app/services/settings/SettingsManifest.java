@@ -2360,13 +2360,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
-                              + " question to their programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "DATE_VALIDATION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
                               + " questions.",
@@ -2377,6 +2370,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
+                              + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))
