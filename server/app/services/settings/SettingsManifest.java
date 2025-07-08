@@ -1101,14 +1101,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled(RequestHeader request) {
+    return getBool("YES_NO_QUESTION_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enables admin validation settings for date questions. */
   public boolean getDateValidationEnabled(RequestHeader request) {
     return getBool("DATE_VALIDATION_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2352,19 +2352,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
-                              + " questions.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATE_VALIDATION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
+                              + " questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

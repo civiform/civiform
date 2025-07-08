@@ -10,6 +10,7 @@ test.describe('Yes/no options', () => {
   test('Renders options correctly', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'yes_no_question_enabled')
 
     await test.step('Go to edit page for yes/no question', async () => {
       await adminQuestions.gotoAdminQuestionsPage()
