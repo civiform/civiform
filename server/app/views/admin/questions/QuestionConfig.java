@@ -10,6 +10,7 @@ import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
+import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -67,7 +68,8 @@ public final class QuestionConfig {
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
       case MAP:
-        return Optional.of(config.getContainer());
+        return Optional.of(
+            config.addMapQuestionFields((MapQuestionForm) questionForm).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -355,6 +357,16 @@ public final class QuestionConfig {
                 .setValue(multiOptionQuestionForm.getNextAvailableId())
                 .getNumberTag()
                 .withClasses("hidden"));
+    return this;
+  }
+
+  private QuestionConfig addMapQuestionFields(MapQuestionForm mapQuestionForm) {
+    content.with(
+        FieldWithLabel.input()
+            .setFieldName("geoJSONEndpoint")
+            .setLabelText("GeoJSON Endpoint")
+            .setValue(mapQuestionForm.getGeoJSONEndpoint())
+            .getInputTag());
     return this;
   }
 
