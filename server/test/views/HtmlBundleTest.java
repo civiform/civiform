@@ -32,7 +32,7 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testFavicon() {
+  public void testFaviconIsSet() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
     bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
 
@@ -41,12 +41,12 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testNoFavicon() {
+  public void testNoFaviconIsNotSet() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle.setJsBundle(JsBundle.ADMIN);
     Content content = bundle.render();
-    assertThat(content.body()).doesNotContain("<link rel=\"icon\"");
+    assertThat(content.body()).contains("<link rel=\"icon\" href=\"data:image");
   }
 
   @Test

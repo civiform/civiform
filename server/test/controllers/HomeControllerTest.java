@@ -8,7 +8,9 @@ import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import controllers.applicant.ApplicantRoutes;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -40,16 +42,39 @@ public class HomeControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void testFavicon() {
-    Http.RequestBuilder request =
-        fakeRequestBuilder()
-            .call(routes.HomeController.favicon())
-            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
-    ResultWithFinalRequestUri resultWithFinalRequestUri =
-        CfTestHelpers.doRequestWithInternalRedirects(app, request);
-    Result result = resultWithFinalRequestUri.getResult();
+  public void testFaviconWhenSet() {
+    Config config =
+        ConfigFactory.parseMap(ImmutableMap.of("favicon_url", "https://civiform.us/favicon.png"));
+
+    HomeController controller =
+        new HomeController(
+            config,
+            instanceOf(ProfileUtils.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(LanguageUtils.class),
+            new ApplicantRoutes(),
+            instanceOf(HealthCheckRepository.class));
+    Result result = controller.favicon();
     assertThat(result.redirectLocation()).isNotEmpty();
     assertThat(result.redirectLocation().get()).contains("civiform.us/favicon");
+  }
+
+  @Test
+  public void testFaviconWhenNotSet() {
+    Config config = ConfigFactory.parseMap(ImmutableMap.of("favicon_url", ""));
+
+    HomeController controller =
+        new HomeController(
+            config,
+            instanceOf(ProfileUtils.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(LanguageUtils.class),
+            new ApplicantRoutes(),
+            instanceOf(HealthCheckRepository.class));
+    Result result = controller.favicon();
+    assertThat(result.status()).isEqualTo(404);
   }
 
   @Test
