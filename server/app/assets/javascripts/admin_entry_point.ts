@@ -30,7 +30,6 @@ import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
 import * as fileUpload from './file_upload'
 import * as azureUpload from './azure_upload'
-import * as map from './map'
 import htmx from './htmx'
 
 window.addEventListener('load', () => {
@@ -75,5 +74,4 @@ function initializeEverything(): void {
 function afterSettle(): void {
   PreviewController.updateListeners()
   enumerator.updateListeners()
-  map.init()
 }

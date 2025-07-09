@@ -14,12 +14,6 @@
   <title th:text="${pageTitle}"></title>
 
   <link
-    th:href="${mapLibreGLStylesheet}"
-    type="text/css"
-    rel="stylesheet"
-    th:nonce="${cspNonce}"
-  />
-  <link
     th:href="${tailwindStylesheet}"
     type="text/css"
     rel="stylesheet"
@@ -56,6 +50,13 @@
     th:src="${uswdsJsBundle}"
     type="text/javascript"
   ></script>
+  <link
+    th:if="${mapQuestionEnabled}"
+    th:href="${mapLibreGLStylesheet}"
+    type="text/css"
+    rel="stylesheet"
+    th:nonce="${cspNonce}"
+  />
 </th:block>
 
 <div th:fragment="requiredFieldsExplanation">

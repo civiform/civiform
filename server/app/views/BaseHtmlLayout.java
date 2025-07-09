@@ -134,7 +134,9 @@ public class BaseHtmlLayout {
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+    if (settingsManifest.getMapQuestionEnabled()) {
+      bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+    }
 
     // Add Google analytics scripts.
     measurementId
