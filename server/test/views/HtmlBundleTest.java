@@ -41,7 +41,7 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testNoFaviconIsNotSet() {
+  public void testFaviconIsNotSet() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
     bundle.setJsBundle(JsBundle.ADMIN);
