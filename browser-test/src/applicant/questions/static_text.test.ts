@@ -7,6 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 const staticText = 'Hello, I am some static text!'
@@ -25,6 +26,7 @@ const programName = 'Test program for static text'
 
 test.describe('Static text question for applicant flow', () => {
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
     await setUpForSingleQuestion(
       programName,
       page,

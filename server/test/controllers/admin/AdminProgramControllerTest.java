@@ -136,7 +136,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller.create(requestBuilder.build());
 
-    Result programDashboardResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboardResult = controller.index(request);
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
     assertThat(contentAsString(programDashboardResult)).contains("External program description");
   }
@@ -255,7 +257,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
         .contains("External program description with acls");
@@ -384,7 +388,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
@@ -501,7 +507,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External program description");
   }
@@ -699,7 +707,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "step one description"));
     controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Result indexResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
             "Create new program", "New external program name", "New external program description");
@@ -989,7 +999,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result redirectResult = controller.index(request);
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }

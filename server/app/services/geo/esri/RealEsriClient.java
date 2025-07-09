@@ -42,7 +42,6 @@ import services.settings.SettingsManifest;
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
-  private final ObjectMapper mapper = new ObjectMapper();
 
   private static final Counter ESRI_REQUEST_C0UNT =
       Counter.build()
@@ -84,8 +83,9 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       SettingsManifest settingsManifest,
       Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      WSClient ws) {
-    super(clock, esriServiceAreaValidationConfig);
+      WSClient ws,
+      ObjectMapper mapper) {
+    super(clock, esriServiceAreaValidationConfig, mapper);
     checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
 

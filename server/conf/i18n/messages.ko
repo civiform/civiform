@@ -894,6 +894,15 @@ validation.textTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
 validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 

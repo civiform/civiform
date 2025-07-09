@@ -8,12 +8,17 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 const NAME_FIRST = '.cf-name-first'
 const NAME_LAST = '.cf-name-last'
 
 test.describe('name applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 

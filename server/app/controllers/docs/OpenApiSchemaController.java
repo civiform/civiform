@@ -6,6 +6,7 @@ import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -61,7 +62,9 @@ public final class OpenApiSchemaController {
             .orElse(LifecycleStage.ACTIVE);
 
     Optional<ProgramDefinition> optionalProgramDefinition =
-        getProgramDefinition(programSlug, lifecycleStage);
+        programService.getAllNonExternalProgramSlugs().contains(programSlug)
+            ? getProgramDefinition(programSlug, lifecycleStage)
+            : Optional.empty();
 
     if (optionalProgramDefinition.isEmpty()) {
       return notFound("No program found");
@@ -138,8 +141,11 @@ public final class OpenApiSchemaController {
       return notFound("API Docs are not enabled.");
     }
 
-    if (programSlug.isEmpty()) {
-      programSlug = programService.getAllNonExternalProgramSlugs().stream().findFirst().orElse("");
+    ImmutableSet<String> allNonExternalProgramSlugs =
+        programService.getAllNonExternalProgramSlugs();
+
+    if (programSlug.isEmpty() || !allNonExternalProgramSlugs.contains(programSlug)) {
+      programSlug = allNonExternalProgramSlugs.stream().findFirst().orElse("");
     }
 
     // This will only happen if there are no programs at all in the system
@@ -157,8 +163,7 @@ public final class OpenApiSchemaController {
 
       SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
 
-      return ok(
-          schemaView.render(request, form, url, programService.getAllNonExternalProgramSlugs()));
+      return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
     } catch (RuntimeException ex) {
       return internalServerError();
     }

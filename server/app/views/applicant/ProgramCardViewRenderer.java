@@ -120,7 +120,7 @@ public final class ProgramCardViewRenderer {
     if (sectionTitle.isPresent()) {
       div.with(
           iffElse(
-              settingsManifest.getProgramFilteringEnabled(request),
+              settingsManifest.getProgramFilteringEnabled(),
               h2().withId(sectionHeaderId)
                   .withText(messages.at(sectionTitle.get().getKeyName(), cards.size()))
                   .withClasses("mb-4", "px-4", "text-xl", "font-semibold"),
@@ -145,7 +145,7 @@ public final class ProgramCardViewRenderer {
                             buttonTitle,
                             buttonSrText,
                             sectionTitle.isPresent()
-                                && !settingsManifest.getProgramFilteringEnabled(request),
+                                && !settingsManifest.getProgramFilteringEnabled(),
                             bundle,
                             profile,
                             zoneId,
@@ -208,14 +208,13 @@ public final class ProgramCardViewRenderer {
             .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
 
     if (cardData.latestSubmittedApplicationStatus().isPresent()
-        && !settingsManifest.getProgramFilteringEnabled(request)) {
+        && !settingsManifest.getProgramFilteringEnabled()) {
       programData.with(
           programCardApplicationStatus(
               messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
 
-    if (shouldShowEligibilityTag(cardData)
-        && !settingsManifest.getProgramFilteringEnabled(request)) {
+    if (shouldShowEligibilityTag(cardData) && !settingsManifest.getProgramFilteringEnabled()) {
       programData.with(
           eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
     }
@@ -243,19 +242,18 @@ public final class ProgramCardViewRenderer {
     }
 
     if (cardData.latestSubmittedApplicationTime().isPresent()
-        && !settingsManifest.getProgramFilteringEnabled(request)) {
+        && !settingsManifest.getProgramFilteringEnabled()) {
       programData.with(
           programCardSubmittedDate(
               messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
     }
 
-    if (settingsManifest.getProgramFilteringEnabled(request) && isInMyApplicationsSection) {
+    if (settingsManifest.getProgramFilteringEnabled() && isInMyApplicationsSection) {
       programData.with(
           programCardApplicationStatusWithFilteringEnabled(messages, preferredLocale, cardData));
     }
 
-    if (shouldShowEligibilityTag(cardData)
-        && settingsManifest.getProgramFilteringEnabled(request)) {
+    if (shouldShowEligibilityTag(cardData) && settingsManifest.getProgramFilteringEnabled()) {
       programData.with(
           eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
     }
@@ -297,7 +295,7 @@ public final class ProgramCardViewRenderer {
         .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
 
     DivTag categoriesDiv =
-        settingsManifest.getProgramFilteringEnabled(request) && !isInMyApplicationsSection
+        settingsManifest.getProgramFilteringEnabled() && !isInMyApplicationsSection
             ? div()
                 .withClasses("flex", "flex-wrap", "gap-2", "mx-4", "mt-4")
                 .with(
@@ -311,14 +309,14 @@ public final class ProgramCardViewRenderer {
             : div();
 
     DivTag actionDiv =
-        settingsManifest.getProgramFilteringEnabled(request)
+        settingsManifest.getProgramFilteringEnabled()
             ? div(content).withClasses("mt-2", "mb-6", "mx-4", "flex")
             : div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
     LiTag cardListItem =
         li().withId(baseId)
             .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
             .condWith(
-                !settingsManifest.getProgramFilteringEnabled(request),
+                !settingsManifest.getProgramFilteringEnabled(),
                 // The visual bar at the top of each program card.
                 div()
                     .withClasses(
@@ -331,8 +329,7 @@ public final class ProgramCardViewRenderer {
                 program,
                 preferredLocale,
                 /* isWithinProgramCard= */ true,
-                /* isProgramFilteringEnabled= */ settingsManifest.getProgramFilteringEnabled(
-                    request));
+                /* isProgramFilteringEnabled= */ settingsManifest.getProgramFilteringEnabled());
 
     programImage.ifPresent(cardListItem::with);
 
@@ -432,7 +429,7 @@ public final class ProgramCardViewRenderer {
     String tagText =
         isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
 
-    return settingsManifest.getProgramFilteringEnabled(request)
+    return settingsManifest.getProgramFilteringEnabled()
         ? p().withClasses(
                 tagClass, "border", "px-1", "mt-2", "flex", "items-center", "w-fit", color)
             .with(

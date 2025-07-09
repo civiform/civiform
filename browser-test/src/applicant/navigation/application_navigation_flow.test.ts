@@ -1,5 +1,6 @@
 import {expect, test} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -10,6 +11,10 @@ import {
 } from '../../support'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
@@ -22,7 +27,6 @@ test.describe('Applicant navigation flow', () => {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await enableFeatureFlag(
         page,
         'suggest_programs_on_application_confirmation_page',
@@ -140,8 +144,7 @@ test.describe('Applicant navigation flow', () => {
       expect(cardHtml).toContain('https://external.com')
 
       // Verify markdown was parsed correctly
-      // h1 set in markdown should be changed to h2
-      expect(cardHtml).toContain('<h2>Program description</h2>')
+      expect(cardHtml).toContain('<p>Program description</p>')
       // lists are formatted correctly
       expect(cardHtml).toContain(
         '<ul class="list-disc mx-8"><li>Thing 1</li><li>Thing 2</li></ul>',

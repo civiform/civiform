@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -10,6 +11,10 @@ import {
 } from '../../support'
 
 test.describe('Dropdown question for applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 

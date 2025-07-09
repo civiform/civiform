@@ -18,7 +18,6 @@ test.describe(
   {tag: ['@northstar']},
   () => {
     test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
     test('all major steps', async ({

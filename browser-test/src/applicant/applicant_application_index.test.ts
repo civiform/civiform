@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -12,6 +11,7 @@ import {
   validateScreenshot,
   selectApplicantLanguage,
   waitForPageJsLoad,
+  disableFeatureFlag,
 } from '../support'
 import {Page} from 'playwright'
 import {
@@ -29,7 +29,8 @@ test.describe('applicant program index page', () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -393,7 +394,9 @@ test.describe('applicant program index page', () => {
 
       await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
         await filterChips.getByText('Education').check()
+        await waitForPageJsLoad(page)
         await filterChips.getByText('General').check()
+        await waitForPageJsLoad(page)
         expect(await page.textContent('html')).not.toContain('End session')
         expect(await page.textContent('html')).not.toContain(
           "You're a guest user",
@@ -491,6 +494,7 @@ test.describe('applicant program index page', () => {
 
       await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
         await page.locator('#category-filter-form').getByText('General').check()
+        await waitForPageJsLoad(page)
         await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
@@ -541,7 +545,7 @@ test.describe('applicant program index page', () => {
 
 test.describe('applicant program index page with images', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('shows program with wide image', async ({

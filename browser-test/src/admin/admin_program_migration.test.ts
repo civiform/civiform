@@ -1,5 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 import {
   ProgramLifecycle,
   ProgramType,
@@ -12,10 +17,6 @@ test.describe('program migration', () => {
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_INFO = 'usa-alert--info'
   const ALERT_SUCCESS = 'usa-alert--success'
-
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
 
   test('export a program', async ({
     page,
@@ -120,6 +121,11 @@ test.describe('program migration', () => {
 
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
     })
 
@@ -537,6 +543,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import', async ({
     page,
     adminPrograms,
@@ -547,6 +554,10 @@ test.describe('program migration', () => {
       await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
+      )
     })
 
     let downloadedComprehensiveProgram: string
@@ -719,6 +730,7 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - Remove this test once duplicate-handling is launched
   test('export then import with no duplicate questions enabled', async ({
     page,
     adminPrograms,
@@ -732,6 +744,10 @@ test.describe('program migration', () => {
       await enableFeatureFlag(
         page,
         'no_duplicate_questions_for_migration_enabled',
+      )
+      await disableFeatureFlag(
+        page,
+        'import_duplicate_handling_options_enabled',
       )
     })
 
@@ -1188,6 +1204,26 @@ test.describe('program migration', () => {
       await expect(
         page.getByTestId('question-admin-name-Sample Text Question'),
       ).not.toContainText('What is your LEAST favorite color?')
+    })
+
+    await test.step('publish all programs', async () => {
+      // Check that other program is in DRAFT
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.expectDraftProgram('Comprehensive Sample Program')
+
+      // Confirm that we are able to publish all drafts
+      await adminPrograms.publishAllDrafts()
+      await adminPrograms.expectAdminProgramsPage()
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program',
+      )
+      await adminPrograms.expectActiveProgram('Comprehensive Sample Program')
+      await adminPrograms.expectDoesNotHaveDraftProgram(
+        'Comprehensive Sample Program New',
+      )
+      await adminPrograms.expectActiveProgram(
+        'Comprehensive Sample Program New',
+      )
     })
   })
 

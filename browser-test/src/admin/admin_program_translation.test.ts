@@ -8,10 +8,16 @@ import {
   selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateToastMessage,
+  disableFeatureFlag,
 } from '../support'
 import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('page layout screenshot', async ({
     page,
     adminPrograms,
@@ -229,12 +235,34 @@ test.describe('Admin can manage program translations', () => {
       )
     })
 
-    await test.step('Update translations', async () => {
+    await test.step('Open translations page and verify fields', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
 
-      await adminTranslations.expectNoApplicationSteps()
+      await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+      await adminTranslations.expectFormFieldVisible(
+        FormField.PROGRAM_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldVisible(
+        FormField.CONFIRMATION_MESSAGE,
+      )
+      await adminTranslations.expectFormFieldVisible(
+        FormField.SHORT_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldVisible(FormField.SCREEN_NAME)
+      await adminTranslations.expectFormFieldVisible(
+        FormField.SCREEN_DESCRIPTION,
+      )
 
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_TITLE,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+      )
+    })
+
+    await test.step('Update translations', async () => {
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
         description: 'Spanish description',
@@ -482,6 +510,7 @@ test.describe('Admin can manage program translations', () => {
       )
     })
   })
+
   test.describe('North Star translations tests', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -562,13 +591,36 @@ test.describe('Admin can manage program translations', () => {
         )
       })
 
-      await test.step('Update translations', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await test.step('Open translations page and verify fields', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(
+          'Pre-screener program',
+        )
         await adminTranslations.selectLanguage('Spanish')
 
-        await adminTranslations.expectNoLongDescription()
-        await adminTranslations.expectNoApplicationSteps()
+        await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SHORT_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(FormField.SCREEN_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SCREEN_DESCRIPTION,
+        )
 
+        await adminTranslations.expectFormFieldHidden(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_TITLE,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+        )
+      })
+
+      await test.step('Update translations', async () => {
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
           shortDescription: 'Spanish description',
@@ -595,6 +647,60 @@ test.describe('Admin can manage program translations', () => {
           northStar: true,
         })
       })
+    })
+
+    test('External program translations - north star', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+      await test.step('Add an external program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addExternalProgram(
+          'External program',
+          'short description',
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+        )
+      })
+
+      await test.step('Open translations page and verify fields', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(
+          'External program',
+        )
+        await adminTranslations.selectLanguage('Spanish')
+
+        await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SHORT_DESCRIPTION,
+        )
+
+        await adminTranslations.expectFormFieldHidden(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_TITLE,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(FormField.SCREEN_NAME)
+        await adminTranslations.expectFormFieldHidden(
+          FormField.SCREEN_DESCRIPTION,
+        )
+
+        await validateScreenshot(
+          page.locator('#program-translation-form'),
+          'external-program-translation',
+        )
+      })
+
+      // Updating translation is extensively tested in previous tests
     })
   })
 })

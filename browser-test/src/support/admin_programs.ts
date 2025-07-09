@@ -415,7 +415,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeDisabled()
           expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isHidden()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeHidden()
+            await expect(descriptionRequiredIndicator).toBeHidden()
           }
         }
         break
@@ -471,6 +477,10 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeDisabled()
         expect(await externalLink.getAttribute('readonly')).not.toBeNull()
+        const requiredIndicator = this.getRequiredIndicatorFor(
+          'program-external-link-input',
+        )
+        await expect(requiredIndicator).toBeHidden()
         break
       }
 
@@ -482,14 +492,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether the given form field ais enabled.
+   * Verifies whether the given form field is enabled.
    *
    * @param formField - The specific form field type to verify (from FormField enum)
+   * @param programType - Optional program type to specify context (from ProgramType enum).
+   *                      Not all form fields require a program type for verification.
    *
    * @throws Will throw an error if the elements' states don't match the expected enabled state
    * @throws Will throw an error if an invalid or unsupported form field type is provided
    */
-  async expectFormFieldEnabled(formField: FormField) {
+  async expectFormFieldEnabled(
+    formField: FormField,
+    programType?: ProgramType,
+  ) {
     switch (formField) {
       case FormField.APPLICATION_STEPS: {
         for (let i = 0; i < 5; i++) {
@@ -505,7 +520,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeEnabled()
           expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isVisible()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeVisible()
+            await expect(descriptionRequiredIndicator).toBeVisible()
           }
         }
         break
@@ -556,6 +577,19 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeEnabled()
         expect(await externalLink.getAttribute('readonly')).toBeNull()
+        // In pre - North Star, the external link field is optional for
+        // 'default' and 'pre-screeners'. In North Star, the external link field
+        // is disabled for 'default' and 'pre-screeners' and required for
+        // 'external programs'. Therefore, required indicator is dependent on
+        // program type. This condition can be removed once North Star is fully
+        // launched, since the required indicator will always be present if the
+        // field is enabled.
+        if (programType && programType === ProgramType.EXTERNAL) {
+          const requiredIndicator = this.getRequiredIndicatorFor(
+            'program-external-link-input',
+          )
+          await expect(requiredIndicator).toBeVisible()
+        }
         break
       }
 
@@ -1250,9 +1284,11 @@ export class AdminPrograms {
 
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
+    await this.page
+      .locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
@@ -1829,6 +1865,10 @@ export class AdminPrograms {
     })
   }
 
+  getRequiredIndicatorFor(labelId: string): Locator {
+    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+  }
+
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
       name: 'Long program description',
@@ -1856,7 +1896,7 @@ export class AdminPrograms {
   getProgramCard(programName: string, lifecycle: string): Locator {
     return this.page
       .locator('div.cf-admin-program-card')
-      .filter({has: this.page.getByText(programName)})
+      .filter({has: this.page.getByText(programName, {exact: true})})
       .filter({has: this.page.getByText(lifecycle)})
   }
 

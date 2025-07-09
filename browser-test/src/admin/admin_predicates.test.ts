@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isHermeticTestEnvironment,
   loginAsAdmin,
@@ -14,8 +15,9 @@ import {
 
 test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
+
   test('add a hide predicate', async ({
     page,
     adminQuestions,
@@ -438,8 +440,8 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await page.getByLabel('Eligibility message').isVisible()
-      await page.getByText('Markdown is supported').isVisible()
+      await expect(page.getByLabel('Eligibility message')).toBeVisible()
+      await expect(page.getByText('Markdown is supported')).toBeVisible()
     })
 
     await test.step('Eligibility message field gets updated', async () => {

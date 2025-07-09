@@ -1,5 +1,5 @@
 // Play plugins
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.7")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.8")
 addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.3.0")
 
 // Dependency tree plugin. To use, open an sbt shell and run dependencyBrowseTree
@@ -16,4 +16,4 @@ addSbtPlugin("com.github.sbt" % "sbt-gzip" % "2.0.0")
 addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.5.0")
 
 // Formatting plugin
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.4")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.5")

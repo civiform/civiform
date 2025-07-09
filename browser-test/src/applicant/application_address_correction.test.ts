@@ -24,6 +24,7 @@ test.describe('address correction single-block, single-address program', () => {
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     await test.step('Create all questions', async () => {
@@ -410,6 +411,7 @@ if (isLocalDevEnvironment()) {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       await test.step('Create all questions', async () => {
@@ -484,6 +486,7 @@ if (isLocalDevEnvironment()) {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       await test.step('Create all questions', async () => {
@@ -587,6 +590,7 @@ if (isLocalDevEnvironment()) {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       await test.step('Create all questions', async () => {
@@ -682,6 +686,7 @@ if (isLocalDevEnvironment()) {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       // Create a program with 3 blocks:

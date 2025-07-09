@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -8,6 +9,9 @@ import {
 import {Eligibility} from '../../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
   if (isLocalDevEnvironment()) {
     test.describe('using address as visibility condition', () => {
       const programName = 'Test program for address as visibility condition'

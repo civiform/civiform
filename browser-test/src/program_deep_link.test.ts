@@ -1,19 +1,21 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
   validateScreenshot,
-  enableFeatureFlag,
 } from './support'
 
 test.describe('navigating to a deep link', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-
     // Arrange
     await loginAsAdmin(page)
 

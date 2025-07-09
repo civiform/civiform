@@ -9,7 +9,6 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.option;
@@ -58,18 +57,6 @@ public final class ViewUtils {
   ViewUtils(AssetsFinder assetsFinder, DateConverter dateConverter) {
     this.assetsFinder = checkNotNull(assetsFinder);
     this.dateConverter = checkNotNull(dateConverter);
-  }
-
-  /**
-   * Generates an HTML script tag for loading the Azure Blob Storage client library from the
-   * jsdelivr.net CDN. TODO(#2349): Stop using this.
-   */
-  public ScriptTag makeAzureBlobStoreScriptTag() {
-    return script()
-        .withSrc("https://cdn.jsdelivr.net/npm/@azure/storage-blob@10.5.0")
-        .withType("text/javascript")
-        .attr("crossorigin", "anonymous")
-        .attr("integrity", "sha256-VFdCcG0JBuOTN0p15rwVT5EIuL7bzWMYi4aD6KeDqus=");
   }
 
   /**
@@ -486,30 +473,36 @@ public final class ViewUtils {
    * that the date is well-defined, such as a date of birth.
    * https://designsystem.digital.gov/components/memorable-date/
    *
+   * @param hideDateComponent Whether the date picker should be hidden
    * @param dayValue The default value which should appear in the "Day" input field
    * @param monthValue The default option which should be selected in the "Month" dropdown
    * @param yearValue The default value which should appear in the "Year" input field
-   * @param legend The label string for the date fields
+   * @param idPrefix The prefix for the input field ids. Resulting ids will be in the format
+   *     <idPrefix>-day, <idPrefix>-month, <idPrefix>-year
+   * @param dayInputName The name attribute associated with the "Day" input field
+   * @param monthInputName The name attribute associated with the "Month" input field
+   * @param yearInputName The name attribute associated with the "Year" input field
    * @param showError Whether an error message should appear
+   * @param showRequired Whether required indicators should appear
    * @return ContainerTag
    */
   public static FieldsetTag makeMemorableDate(
+      boolean hideDateComponent,
       String dayValue,
       String monthValue,
       String yearValue,
-      String legend,
+      String idPrefix,
+      String dayInputName,
+      String monthInputName,
+      String yearInputName,
       boolean showError,
+      boolean showRequired,
       Optional<Messages> optionalMessages) {
     FieldsetTag dateFieldset =
         fieldset()
             .withClass("usa-fieldset")
+            .withCondHidden(hideDateComponent)
             .with(
-                legend(legend).withClass("usa-legend"),
-                span(optionalMessages.isPresent()
-                        ? optionalMessages.get().at(MessageKey.DOB_EXAMPLE.getKeyName())
-                        : "For example: January 28 1986")
-                    .withClass("usa-hint")
-                    .withId("mdHint"),
                 div()
                     .condWith(
                         showError,
@@ -524,19 +517,38 @@ public final class ViewUtils {
                 div()
                     .withClass("usa-memorable-date")
                     .with(
-                        getSelectFormGroup(
-                            monthValue, showError && monthValue.isEmpty(), optionalMessages),
+                        getMonthSelectFormGroup(
+                            monthValue,
+                            monthInputName,
+                            idPrefix,
+                            showError && monthValue.isEmpty(),
+                            showRequired,
+                            optionalMessages),
                         getDayFormGroup(
-                            dayValue, showError && dayValue.isEmpty(), optionalMessages),
+                            dayValue,
+                            dayInputName,
+                            idPrefix,
+                            showError && dayValue.isEmpty(),
+                            showRequired,
+                            optionalMessages),
                         getYearFormGroup(
-                            yearValue, showError && yearValue.isEmpty(), optionalMessages)));
-
+                            yearValue,
+                            yearInputName,
+                            idPrefix,
+                            showError && yearValue.isEmpty(),
+                            showRequired,
+                            optionalMessages)));
     return dateFieldset;
   }
 
   /* Helper function for the Memorable Date */
   private static DivTag getDayFormGroup(
-      String value, boolean hasError, Optional<Messages> optionalMessages) {
+      String dayValue,
+      String dayInputName,
+      String idPrefix,
+      boolean hasError,
+      boolean showRequired,
+      Optional<Messages> optionalMessages) {
     return div()
         .withClass("usa-form-group usa-form-group--day")
         .with(
@@ -545,22 +557,28 @@ public final class ViewUtils {
                         ? optionalMessages.get().at(MessageKey.DAY_LABEL.getKeyName())
                         : "Day")
                 .withClass("usa-label")
-                .withFor("date_of_birth_day"),
+                .withFor(idPrefix + "-day")
+                .with(requiredQuestionIndicator(showRequired)),
             input()
                 .withClass("usa-input")
                 .withCondClass(hasError, "usa-input--error mt-2.5")
-                .withId("date_of_birth_day")
-                .withName("dayQuery")
+                .withId(idPrefix + "-day")
+                .withName(dayInputName)
                 .attr("aria-describedby", "mdHint")
                 .attr("inputmode", "numeric")
                 .withMaxlength("2")
                 .withPattern("[0-9]*")
-                .withValue(value));
+                .withValue(dayValue));
   }
 
   /* Helper function for the Memorable Date */
   private static DivTag getYearFormGroup(
-      String value, boolean hasError, Optional<Messages> optionalMessages) {
+      String yearValue,
+      String yearInputName,
+      String idPrefix,
+      boolean hasError,
+      boolean showRequired,
+      Optional<Messages> optionalMessages) {
     return div()
         .withClass("usa-form-group usa-form-group--year")
         .with(
@@ -569,23 +587,29 @@ public final class ViewUtils {
                         ? optionalMessages.get().at(MessageKey.YEAR_LABEL.getKeyName())
                         : "Year")
                 .withClass("usa-label")
-                .withFor("date_of_birth_year"),
+                .withFor(idPrefix + "-year")
+                .with(requiredQuestionIndicator(showRequired)),
             input()
                 .withClass("usa-input")
                 .withCondClass(hasError, "usa-input--error mt-2.5")
-                .withId("date_of_birth_year")
-                .withName("yearQuery")
+                .withId(idPrefix + "-year")
+                .withName(yearInputName)
                 .attr("aria-describedby", "mdHint")
                 .attr("minlength", "4")
                 .attr("inputmode", "numeric")
                 .withMaxlength("4")
                 .withPattern("[0-9]*")
-                .withValue(value));
+                .withValue(yearValue));
   }
 
   /* Helper function for the Memorable Date */
-  private static DivTag getSelectFormGroup(
-      String monthValue, boolean hasError, Optional<Messages> optionalMessages) {
+  private static DivTag getMonthSelectFormGroup(
+      String monthValue,
+      String monthInputName,
+      String idPrefix,
+      boolean hasError,
+      boolean showRequired,
+      Optional<Messages> optionalMessages) {
     return div()
         .withClass("usa-form-group usa-form-group--month usa-form-group--select")
         .with(
@@ -594,12 +618,13 @@ public final class ViewUtils {
                         ? optionalMessages.get().at(MessageKey.MONTH_LABEL.getKeyName())
                         : "Month")
                 .withClass("usa-label")
-                .withFor("date_of_birth_month"),
+                .withFor(idPrefix + "-month")
+                .with(requiredQuestionIndicator(showRequired)),
             select()
                 .withClass("usa-select")
                 .withCondClass(hasError, "usa-input--error mt-2.5 py-1")
-                .withId("date_of_birth_month")
-                .withName("monthQuery")
+                .withId(idPrefix + "-month")
+                .withName(monthInputName)
                 .attr("aria-describedby", "mdHint")
                 .with(
                     option()
@@ -614,86 +639,86 @@ public final class ViewUtils {
                                 + " -")
                         .withCondSelected(monthValue.equals("")),
                     option()
-                        .withValue("01")
+                        .withValue("1")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_JANUARY.getKeyName())
                                 : "01 - January")
-                        .withCondSelected(monthValue.equals("01")),
+                        .withCondSelected(monthValue.equals("1")),
                     option()
-                        .withValue("02")
+                        .withValue("2")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_FEBRUARY.getKeyName())
                                 : "02 - February")
-                        .withCondSelected(monthValue.equals("02")),
+                        .withCondSelected(monthValue.equals("2")),
                     option()
-                        .withValue("03")
+                        .withValue("3")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_MARCH.getKeyName())
                                 : "03 - March")
-                        .withCondSelected(monthValue.equals("03")),
+                        .withCondSelected(monthValue.equals("3")),
                     option()
-                        .withValue("04")
+                        .withValue("4")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_APRIL.getKeyName())
                                 : "04 - April")
-                        .withCondSelected(monthValue.equals("04")),
+                        .withCondSelected(monthValue.equals("4")),
                     option()
-                        .withValue("05")
+                        .withValue("5")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_MAY.getKeyName())
                                 : "05 - May")
-                        .withCondSelected(monthValue.equals("05")),
+                        .withCondSelected(monthValue.equals("5")),
                     option()
-                        .withValue("06")
+                        .withValue("6")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_JUNE.getKeyName())
                                 : "06 - June")
-                        .withCondSelected(monthValue.equals("06")),
+                        .withCondSelected(monthValue.equals("6")),
                     option()
-                        .withValue("07")
+                        .withValue("7")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_JULY.getKeyName())
                                 : "07 - July")
-                        .withCondSelected(monthValue.equals("07")),
+                        .withCondSelected(monthValue.equals("7")),
                     option()
-                        .withValue("08")
+                        .withValue("8")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_AUGUST.getKeyName())
                                 : "08 - August")
-                        .withCondSelected(monthValue.equals("08")),
+                        .withCondSelected(monthValue.equals("8")),
                     option()
-                        .withValue("09")
+                        .withValue("9")
                         .withText(
                             optionalMessages.isPresent()
                                 ? optionalMessages
                                     .get()
                                     .at(MessageKey.OPTION_MEMORABLE_DATE_SEPTEMBER.getKeyName())
                                 : "09 - September")
-                        .withCondSelected(monthValue.equals("09")),
+                        .withCondSelected(monthValue.equals("9")),
                     option()
                         .withValue("10")
                         .withText(

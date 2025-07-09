@@ -2,6 +2,8 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -12,6 +14,7 @@ import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
@@ -28,15 +31,24 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
+import services.monitoring.MonitoringMetricCounters;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.ApplicantDisabledProgramView;
+import views.applicant.NorthStarFilteredProgramsViewPartial;
+import views.applicant.NorthStarProgramIndexView;
+import views.applicant.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
@@ -44,13 +56,47 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setUp() {
     resetDatabase();
-    controller = instanceOf(ApplicantProgramsController.class);
+
     currentApplicant = createApplicantWithMockedProfile();
     applicantWithoutProfile = createApplicant();
+
+    settingsManifest = mock(SettingsManifest.class);
+    controller =
+        new ApplicantProgramsController(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ProgramIndexView.class),
+            instanceOf(ApplicantDisabledProgramView.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramSlugHandler.class),
+            instanceOf(ApplicantRoutes.class),
+            settingsManifest,
+            instanceOf(NorthStarProgramIndexView.class),
+            instanceOf(NorthStarFilteredProgramsViewPartial.class),
+            instanceOf(MonitoringMetricCounters.class));
+  }
+
+  /**
+   * Calls the controller's edit method with configurable settings.
+   *
+   * @param isProgramSlugEnabled whether the program slug URLs feature should be enabled
+   * @param isFromUrlCall whether the call was made directly from the URL route
+   * @param programParam the program parameter (either a program ID or program slug depending on
+   *     context)
+   * @return the Result from the controller's edit method
+   */
+  Result callEdit(Boolean isProgramSlugEnabled, Boolean isFromUrlCall, String programParam) {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
+
+    return controller.edit(request, programParam, isFromUrlCall).toCompletableFuture().join();
   }
 
   @Test
@@ -280,12 +326,16 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
-    Result result =
-        controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+        .contains(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test
@@ -313,15 +363,20 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .showWithApplicantId(request, currentApplicant.id, alphaNumProgramParam)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+        .contains(
+            routes.ApplicantProgramReviewController.review(
+                    Long.toString(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test
@@ -338,10 +393,67 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_differentApplicant_redirectsToHome() {
+  public void edit_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller.edit(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_redirectToOtherUrl() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id + 1, 1L)
+            .edit(fakeRequest(), programId, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Successfully redirects to another route, which redirect to various routes. Thus, here we
+    // only check the redirect happens and we make the final route check in other tests.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
+  public void editWithApplicanId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, programId, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void editWithApplicantId_whenDifferentApplicant_redirectsToHome() {
+    Result result =
+        controller
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id + 1,
+                Long.toString(1L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -349,10 +461,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantWithoutProfile_redirectsToHome() {
+  public void editWithApplicantId_whenApplicantWithoutProfile_redirectsToHome() {
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), applicantWithoutProfile.id, 1L)
+            .editWithApplicantId(
+                fakeRequest(),
+                applicantWithoutProfile.id,
+                Long.toString(1L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -360,11 +476,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantAccessToDraftProgram_redirectsToHome() {
+  public void editWithApplicantId_whenApplicantAccessToDraftProgram_redirectsToHome() {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, draftProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(draftProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -373,13 +493,17 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+  public void editWithApplicantId_whenCiviformAdminAccessToDraftProgram_success() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), adminApplicantId, draftProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                adminApplicantId,
+                Long.toString(draftProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -387,10 +511,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidProgram_returnsBadRequest() {
+  public void editWithApplicantId_whenInvalidProgram_error() {
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, 9999L)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(9999L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -398,11 +526,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantAccessToObsoleteProgram_isOk() {
+  public void editWithApplicantId_whenApplicantAccessToObsoleteProgram_success() {
     ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, obsoleteProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(obsoleteProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -410,7 +542,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_withNewProgram_redirectsToFirstBlock() {
+  public void editWithApplicantId_whenNewProgram_redirectsToFirstBlock() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
@@ -419,7 +551,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -427,12 +563,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "1", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
   }
 
   @Test
-  public void edit_redirectsToFirstIncompleteBlock() {
+  public void editWithApplicantId_whenIncompleteBlocks_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
         testQuestionBank().textApplicantFavoriteColor().getQuestionDefinition();
     ProgramModel program =
@@ -451,7 +590,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -459,8 +602,32 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "2", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "2",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
+  }
+
+  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
+  //  end of program submission.
+  @Ignore
+  public void editWithApplicantId_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
+    ProgramModel program = resourceCreator().insertActiveProgram("My Program");
+
+    Result result =
+        controller
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.ApplicantProgramsController.index(ImmutableList.of()).url());
   }
 
   @Test
@@ -469,22 +636,5 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
         controller.hxFilter(fakeRequest(), ImmutableList.of(), "").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-  }
-
-  // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
-  //  end of program submission.
-  @Ignore
-  public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
-    ProgramModel program = resourceCreator().insertActiveProgram("My Program");
-
-    Result result =
-        controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(FOUND);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index(ImmutableList.of()).url());
   }
 }

@@ -2,21 +2,22 @@ import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   ClientInformation,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
 } from '../support'
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
 import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Validate program visibility is correct for applicants and TIs', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
+
   test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
     page,
     adminPrograms,
