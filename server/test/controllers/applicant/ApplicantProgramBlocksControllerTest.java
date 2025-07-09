@@ -198,19 +198,95 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidApplicant_returnsUnauthorized() {
-    long badApplicantId = applicant.id + 1000;
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    badApplicantId, program.id, "1", /* questionName= */ Optional.empty()))
-            .build();
+  public void
+      editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .editWithApplicantId(
-                request, badApplicantId, program.id, "1", /* questionName= */ Optional.empty())
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that editWithApplicantId() throws an error when the program param is a program slug but
+   * it should be the program id since the program slug feature is disabled. editWithApplicantId()
+   * also throws error for other combinations when the program param is not properly parsed. We
+   * don't test all combinations here because ProgramSlugHandler have a comprehensive test cover for
+   * them.
+   */
+  @Test
+  public void
+      editWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.editWithApplicantId(
+                    fakeRequest(),
+                    applicant.id,
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from '' to a numeric value");
+  }
+
+  /**
+   * Tests that editWithApplicantId() returns OK when the feature is enabled and is from url call
+   * with a program slug. editWithApplicantId() also returns OK for other combinations: when the
+   * feature is disabled OR when the call is not from a URL OR when the program param is a program
+   * slug (not numeric), AND the program ID was properly retrieved. We don't test all combinations
+   * here because the ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .editWithApplicantId(
+                request,
+                applicant.id,
+                programSlug,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void editWithApplicantId_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .editWithApplicantId(
+                fakeRequest(),
+                badApplicantId,
+                programId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -218,23 +294,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void editWithApplicantId_applicantAccessToDraftProgram_returnsUnauthorized() {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
-            .build();
     Result result =
         subject
             .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+                fakeRequest(),
+                applicant.id,
+                draftProgramId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -242,7 +318,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+  public void editWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -250,41 +326,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
-            .build();
     Result result =
         subject
             .editWithApplicantId(
-                request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-  }
-
-  @Test
-  public void edit_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
-
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
-            .build();
-    Result result =
-        subject
-            .editWithApplicantId(
-                request,
+                fakeRequest(),
                 applicant.id,
-                obsoleteProgram.id,
-                "1",
-                /* questionName= */ Optional.empty())
+                draftProgramId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -292,37 +344,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_toAProgramThatDoesNotExist_returns404() {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id + 1000, "1", /* questionName= */ Optional.empty()))
-            .build();
+  public void editWithApplicantId_obsoleteProgram_isOk() {
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
         subject
             .editWithApplicantId(
-                request, applicant.id, program.id + 1000, "1", /* questionName= */ Optional.empty())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void edit_toAnExistingBlock_rendersTheBlock() {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
-            .build();
-
-    Result result =
-        subject
-            .editWithApplicantId(
-                request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+                fakeRequest(),
+                applicant.id,
+                obsoleteProgramId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -330,18 +364,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_toABlockThatDoesNotExist_returns404() {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "9999", /* questionName= */ Optional.empty()))
-            .build();
+  public void editWithApplicantId_toAProgramThatDoesNotExist_returns404() {
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .editWithApplicantId(
-                request, applicant.id, program.id, "9999", /* questionName= */ Optional.empty())
+                fakeRequest(),
+                applicant.id,
+                programId + 1000,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -349,20 +383,68 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
+  public void editWithApplicantId_toAnExistingBlock_rendersTheBlock() {
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .editWithApplicantId(
+                fakeRequest(),
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void editWithApplicantId_toABlockThatDoesNotExist_returns404() {
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .editWithApplicantId(
+                fakeRequest(),
+                applicant.id,
+                programId,
+                /* blockId= */ "9999",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void editWithApplicantId_withMessages_returnsCorrectButtonText() {
+    String programId = Long.toString(program.id);
     Request request =
         fakeRequestBuilder()
             .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
             .call(
                 routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
+                    applicant.id,
+                    programId,
+                    /* blockId= */ "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
     Result result =
         subject
             .editWithApplicantId(
-                request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 

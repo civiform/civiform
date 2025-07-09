@@ -376,7 +376,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockEditUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/edit", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/edit?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -398,7 +399,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockEditUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/edit", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/edit?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -521,7 +523,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
     String expectedBlockReviewUrl =
         String.format(
             "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+            APPLICANT_ID,
+            PROGRAM_ID,
+            BLOCK_ID,
+            inReviewBoolean ? "review" : "edit?isFromUrlCall=false");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
@@ -547,7 +552,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
     String expectedBlockReviewUrl =
         String.format(
             "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+            APPLICANT_ID,
+            PROGRAM_ID,
+            BLOCK_ID,
+            inReviewBoolean ? "review" : "edit?isFromUrlCall=false");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(

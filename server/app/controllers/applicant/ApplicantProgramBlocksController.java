@@ -173,10 +173,27 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> editWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
-      Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, false, questionName);
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/blocks/:blockId/review", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              return editOrReview(request, applicantId, programId, blockId, false, questionName);
+            });
   }
 
   /**
@@ -221,7 +238,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
             programId ->
-                editWithApplicantId(request, applicantIdValue, programId, blockId, questionName));
+                editWithApplicantId(
+                    request,
+                    applicantIdValue,
+                    programId.toString(),
+                    blockId,
+                    questionName,
+                    /* isFromUrlCall= */ false));
   }
 
   /**
