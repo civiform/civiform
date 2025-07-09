@@ -371,6 +371,75 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .review(
+                request,
+                Long.toString(program.id),
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that review() throws an error when the program param is a program slug but it should be
+   * the program id since the program slug feature is disabled. review() also throws error for other
+   * combinations when the program param is not properly parsed. We don't test all combinations here
+   * because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.review(
+                    fakeRequest(),
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from '' to a numeric value");
+  }
+
+  /**
+   * Tests that review() returns OK when the feature is enabled and is from url call with a program
+   * slug. review() also returns OK for other combinations: when the feature is disabled OR when the
+   * call is not from a URL OR when the program param is a program slug (not numeric), AND the
+   * program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .review(
+                request,
+                programSlug,
+                /* blockId= */ "1",
+                /* questionName= */ Optional.empty(),
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void previous_toAnExistingBlock_rendersTheBlock() {
     Request request =
         fakeRequestBuilder()

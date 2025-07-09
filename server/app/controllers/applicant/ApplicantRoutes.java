@@ -217,7 +217,8 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
           applicantId, programId, blockId, questionName);
     } else {
-      return routes.ApplicantProgramBlocksController.review(programId, blockId, questionName);
+      return routes.ApplicantProgramBlocksController.review(
+          Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
     }
   }
 
