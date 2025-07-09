@@ -214,13 +214,13 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       Optional<String> questionName) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
-          applicantId, programId, blockId, questionName);
-    } else {
-      return routes.ApplicantProgramBlocksController.review(
-          Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.review(
+        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
   }
 
   /**

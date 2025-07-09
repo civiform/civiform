@@ -446,7 +446,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/review", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/review?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockReview(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -468,7 +469,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/review", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/review?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockReview(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -522,11 +524,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID,
-            PROGRAM_ID,
-            BLOCK_ID,
-            inReviewBoolean ? "review" : "edit?isFromUrlCall=false");
+            "/applicants/%d/programs/%d/blocks/%s/%s?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
@@ -551,11 +550,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID,
-            PROGRAM_ID,
-            BLOCK_ID,
-            inReviewBoolean ? "review" : "edit?isFromUrlCall=false");
+            "/applicants/%d/programs/%d/blocks/%s/%s?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
