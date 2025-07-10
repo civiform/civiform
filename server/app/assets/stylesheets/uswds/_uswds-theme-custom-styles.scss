@@ -220,3 +220,16 @@ button.usa-button.usa-button--unstyled.htmx-request {
     background-color: transparent;
   }
 }
+
+// Removing padding around the admin header nav items
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
+  padding: 0 1rem;
+}
+
+// Removing padding around the admin header nav items settings icon
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
+  padding: 0;
+}
