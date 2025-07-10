@@ -99,7 +99,9 @@ test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
         await adminPrograms.submitProgramDetailsEdits()
 
         await validateScreenshot(
-          page.getByRole('listitem'),
+          page
+            .getByRole('listitem')
+            .filter({hasText: 'Test program with tags'}),
           'admin-program-image-card-preview-with-tags',
         )
 

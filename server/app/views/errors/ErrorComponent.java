@@ -70,6 +70,6 @@ public final class ErrorComponent {
                                                             MessageKey.ERROR_STATUS_CODE
                                                                 .getKeyName(),
                                                             statusCode.orElse("")))
-                                                        .withClass("text-base")))))));
+                                                        .withClass("text-base-dark")))))));
   }
 }
