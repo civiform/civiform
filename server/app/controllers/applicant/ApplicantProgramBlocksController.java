@@ -1102,26 +1102,67 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * file key in the query string. We parse and store them in the database for record and redirect
    * users to the next block or review page.
    */
+
+  /**
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We parse and store them in the database for record and redirect
+   * users to the next block or review page.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param blockId the unique identifier of the specific block within the program containing the
+   *     file upload question
+   * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
+   *     (false), which affects navigation behavior after file processing
+   * @param applicantRequestedActionWrapper wrapper containing the applicant's requested action and
+   *     related context for processing the file upload
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result containing the next page (block or review)
+   *     or a redirect response to home if the session is invalid
+   */
   @Secure
   public CompletionStage<Result> updateFile(
       Request request,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
-      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return updateFileWithApplicantId(
-        request,
-        applicantId.orElseThrow(),
-        programId,
-        blockId,
-        inReview,
-        applicantRequestedActionWrapper);
+
+    Long applicantId = optionalApplicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                updateFileWithApplicantId(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    inReview,
+                    applicantRequestedActionWrapper));
   }
 
   /**

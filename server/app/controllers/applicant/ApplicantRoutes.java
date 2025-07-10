@@ -387,13 +387,13 @@ public final class ApplicantRoutes {
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
-    } else {
-      return routes.ApplicantProgramBlocksController.updateFile(
-          programId,
-          blockId,
-          inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
+    return routes.ApplicantProgramBlocksController.updateFile(
+        Long.toString(programId),
+        blockId,
+        inReview,
+        new ApplicantRequestedActionWrapper(applicantRequestedAction),
+        /* isFromUrlCall= */ false);
   }
 
   /**
