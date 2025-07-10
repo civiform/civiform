@@ -175,12 +175,13 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       Optional<String> questionName) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
-          applicantId, programId, blockId, questionName);
+          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
     return routes.ApplicantProgramBlocksController.edit(
-        Long.toString(programId), blockId, questionName, /* isFromUrlCall= */ false);
+        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
   }
 
   /**
