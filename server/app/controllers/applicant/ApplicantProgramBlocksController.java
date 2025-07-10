@@ -192,7 +192,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
-              return editOrReview(request, applicantId, programId, blockId, false, questionName);
+              return editOrReview(
+                  request, applicantId, programId, blockId, /* inReview= */ false, questionName);
             });
   }
 
@@ -248,7 +249,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Renders all questions in the block of the program and presents to the applicant.
+   * Renders all questions in the block of the program and presents to the applicant in review mode.
    *
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
@@ -256,16 +257,42 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
    * summary page is shown.
    *
-   * <p>`questionName` is present when answering a question or reviewing an answer.
+   * @param request the HTTP request containing context and session information
+   * @param applicantId the unique identifier of the applicant whose application is being reviewed
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param blockId the unique identifier of the specific block within the program to review
+   * @param questionName optional parameter present when answering a question or reviewing an answer
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result containing the rendered review page or a
+   *     redirect response
    */
   @Secure
   public CompletionStage<Result> reviewWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
-      Optional<String> questionName) {
-    return editOrReview(request, applicantId, programId, blockId, true, questionName);
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/blocks/:blockId/review", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              return editOrReview(request, applicantId, programId, blockId, true, questionName);
+            });
   }
 
   /**
@@ -309,7 +336,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
             programId ->
-                reviewWithApplicantId(request, applicantId, programId, blockId, questionName));
+                reviewWithApplicantId(
+                    request,
+                    applicantId,
+                    programId.toString(),
+                    blockId,
+                    questionName,
+                    /* isFromUrlCall= */ false));
   }
 
   /** Handles the applicant's selection from the address correction options. */
