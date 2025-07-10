@@ -288,6 +288,11 @@ public enum Icons {
           + " 8.396 4.958Q8.396 4.292 8.875 3.813Q9.354 3.333 10.021 3.333Q10.688 3.333 11.167"
           + " 3.813Q11.646 4.292 11.646 4.958Q11.646 5.625 11.167 6.104Q10.688 6.583 10.021"
           + " 6.583Z"),
+  MAP(
+    24,
+    "m20.5 3-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9"
+      + " 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6"
+      + " 2.11V19z"),
   // Person
   NAME(
       24,
@@ -536,6 +541,7 @@ public enum Icons {
       case EMAIL -> Icons.EMAIL;
       case FILEUPLOAD -> Icons.FILEUPLOAD;
       case ID -> Icons.ID;
+      case MAP -> Icons.MAP;
       case NAME -> Icons.NAME;
       case NUMBER -> Icons.NUMBER;
       case RADIO_BUTTON -> Icons.RADIO_BUTTON;

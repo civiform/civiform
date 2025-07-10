@@ -9,6 +9,7 @@ import services.applicant.question.EmailQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NullQuestion;
@@ -30,6 +31,7 @@ public enum QuestionType {
   ENUMERATOR("Enumerator", EnumeratorQuestion.class),
   FILEUPLOAD("File Upload", FileUploadQuestion.class),
   ID("ID", IdQuestion.class),
+  MAP("Map", MapQuestion.class),
   NAME("Name", NameQuestion.class),
   NUMBER("Number", NumberQuestion.class),
   PHONE("Phone Number", PhoneQuestion.class),

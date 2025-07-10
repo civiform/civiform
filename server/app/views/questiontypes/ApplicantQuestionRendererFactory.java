@@ -57,7 +57,7 @@ public final class ApplicantQuestionRendererFactory {
       case PHONE -> new PhoneQuestionRenderer(question);
         // TODO(#10799): Update to use YesNoQuestionRenderer once implemented.
       case YES_NO -> new RadioButtonQuestionRenderer(question);
-      case NULL_QUESTION ->
+      case NULL_QUESTION, MAP ->
           throw new IllegalStateException(
               String.format(
                   "Question type %s should not be rendered. Question ID: %s. Active program"

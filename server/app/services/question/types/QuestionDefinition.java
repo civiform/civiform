@@ -44,6 +44,7 @@ import services.question.QuestionOption;
   @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
   @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
   @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+  @JsonSubTypes.Type(value = MapQuestionDefinition.class, name = "map"),
   @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
   @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
   @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
@@ -97,6 +98,9 @@ public abstract class QuestionDefinition {
     @JsonSubTypes.Type(
         value = AutoValue_IdQuestionDefinition_IdValidationPredicates.class,
         name = "id"),
+    @JsonSubTypes.Type(
+        value = AutoValue_MapQuestionDefinition_MapValidationPredicates.class,
+        name = "map"),
     @JsonSubTypes.Type(
         value = AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class,
         name = "multioption"),

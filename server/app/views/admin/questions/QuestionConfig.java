@@ -115,6 +115,7 @@ public final class QuestionConfig {
                 config.addDateQuestionConfig((DateQuestionForm) questionForm).getContainer())
             : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
+      case MAP: // @todo: Add map question fields
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
       case STATIC:
