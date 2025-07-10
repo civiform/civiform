@@ -16,8 +16,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     public static MapValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-          jsonString,
-          AutoValue_MapQuestionDefinition_MapValidationPredicates.class);
+            jsonString, AutoValue_MapQuestionDefinition_MapValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
