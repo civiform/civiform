@@ -233,6 +233,9 @@ public final class QuestionDefinitionBuilder {
         }
         return new IdQuestionDefinition(builder.build());
 
+      case MAP:
+        return new MapQuestionDefinition(builder.build());
+
       case NAME:
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
