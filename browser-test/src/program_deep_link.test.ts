@@ -8,6 +8,8 @@ import {
   validateScreenshot,
 } from './support'
 
+// These tests were migrated to North Star as part of northstar_program_overview.test.ts.
+// In North Star, the deep link goes to the program overview page, without the create account modal.
 test.describe('navigating to a deep link', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
