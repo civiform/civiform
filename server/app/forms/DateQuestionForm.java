@@ -163,9 +163,10 @@ public class DateQuestionForm extends QuestionForm {
   }
 
   private Optional<LocalDate> getMinCustomDate() {
-    if (getMinCustomDay().isEmpty()
-        || getMinCustomMonth().isEmpty()
-        || getMinCustomYear().isEmpty()) {
+    // All date parts must be present and non-empty
+    if (!getMinCustomDay().filter(day -> !day.isEmpty()).isPresent()
+        || !getMinCustomMonth().filter(month -> !month.isEmpty()).isPresent()
+        || !getMinCustomYear().filter(year -> !year.isEmpty()).isPresent()) {
       return Optional.empty();
     }
     return Optional.of(
@@ -176,9 +177,10 @@ public class DateQuestionForm extends QuestionForm {
   }
 
   private Optional<LocalDate> getMaxCustomDate() {
-    if (getMaxCustomDay().isEmpty()
-        || getMaxCustomMonth().isEmpty()
-        || getMaxCustomYear().isEmpty()) {
+    // All date parts must be present and non-empty
+    if (!getMaxCustomDay().filter(day -> !day.isEmpty()).isPresent()
+        || !getMaxCustomMonth().filter(month -> !month.isEmpty()).isPresent()
+        || !getMaxCustomYear().filter(year -> !year.isEmpty()).isPresent()) {
       return Optional.empty();
     }
     return Optional.of(
