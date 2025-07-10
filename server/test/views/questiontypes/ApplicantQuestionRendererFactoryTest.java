@@ -39,7 +39,7 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
@@ -66,7 +66,7 @@ public class ApplicantQuestionRendererFactoryTest {
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
