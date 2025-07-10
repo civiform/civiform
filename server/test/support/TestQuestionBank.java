@@ -21,9 +21,9 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.MapQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
@@ -658,26 +658,26 @@ public class TestQuestionBank {
   // Name
   private QuestionModel mapQuestion(QuestionEnum ignore) {
     QuestionDefinition definition =
-      new MapQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-          .setName("map question")
-          .setDescription("select locations")
-          .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
-          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .build());
+        new MapQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("map question")
+                .setDescription("select locations")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
     return maybeSave(definition);
   }
 
   // Name
   private QuestionModel nameApplicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
-      new NameQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-          .setName("applicant name")
-          .setDescription("name of applicant")
-          .setQuestionText(LocalizedStrings.of(Locale.US, "what is your name?"))
-          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .build());
+        new NameQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setDescription("name of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "what is your name?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
     return maybeSave(definition);
   }
 
