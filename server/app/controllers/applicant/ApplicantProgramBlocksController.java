@@ -550,18 +550,54 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             });
   }
 
-  /** Navigates to the previous page of the application. */
+  /**
+   * Navigates to the previous page of the application.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param previousBlockIndex the index of the previous block to navigate to within the program's
+   *     block sequence
+   * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
+   *     (false), which affects navigation behavior
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result containing the rendered review page or a
+   *     redirect response
+   */
   @Secure
   public CompletionStage<Result> previous(
-      Request request, long programId, int previousBlockIndex, boolean inReview) {
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
+      Request request,
+      String programParam,
+      int previousBlockIndex,
+      boolean inReview,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/programs/:programParam/blocks/:previousBlockIndex/previous/:inReview", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return previousWithApplicantId(
-        request, applicantId.orElseThrow(), programId, previousBlockIndex, inReview);
+
+    Long applicantId = optionalApplicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                previousWithApplicantId(
+                    request, applicantId, programId, previousBlockIndex, inReview));
   }
 
   @Secure

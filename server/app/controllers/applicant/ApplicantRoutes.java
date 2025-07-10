@@ -310,10 +310,9 @@ public final class ApplicantRoutes {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
           applicantId, programId, previousBlockIndex, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.previous(
-          programId, previousBlockIndex, inReview);
     }
+    return routes.ApplicantProgramBlocksController.previous(
+        Long.toString(programId), previousBlockIndex, inReview, /* isFromUrlCall= */ false);
   }
 
   /**

@@ -689,7 +689,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
+            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
+            PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
@@ -774,7 +775,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
-        String.format("/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, 0, false);
+        String.format(
+            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false", PROGRAM_ID, 0, false);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(

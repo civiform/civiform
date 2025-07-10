@@ -600,6 +600,76 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .previous(
+                request,
+                Long.toString(program.id),
+                /* previousBlockIndex= */ 0,
+                /* inReview= */ true,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that previous() throws an error when the program param is a program slug but it should be
+   * the program id since the program slug feature is disabled. previous() also throws error for
+   * other combinations when the program param is not properly parsed. We don't test all
+   * combinations here because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void previous_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    ProgramModel activeProgram = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = activeProgram.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.previous(
+                    fakeRequest(),
+                    programSlug,
+                    /* previousBlockIndex= */ 0,
+                    /* inReview= */ true,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that previous() returns OK when the feature is enabled and is from url call with a
+   * program slug. previous() also returns OK for other combinations: when the feature is disabled
+   * OR when the call is not from a URL OR when the program param is a program slug (not numeric),
+   * AND the program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .previous(
+                request,
+                programSlug,
+                /* previousBlockIndex= */ 0,
+                /* inReview= */ true,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void previous_toAnExistingBlock_rendersTheBlock() {
     Request request =
         fakeRequestBuilder()
@@ -1129,7 +1199,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
+                Long.toString(program.id),
+                /* previousBlockIndex= */ 0,
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
@@ -1557,11 +1630,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // The 4th block was filled in, which is index 3. So, the previous block would be
+    // index 2.
+    Integer previousBlockIndex = 2;
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                // The 4th block was filled in, which is index 3. So, the previous block would be
-                // index 2.
-                program.id, /* previousBlockIndex= */ 2, /* inReview= */ false)
+                Long.toString(program.id),
+                previousBlockIndex,
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
@@ -2119,11 +2196,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // The 2nd block was filled in, which is index 1. So, the previous block would be
+    // index 0.
+    Integer previousBlockIndex = 0;
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                // The 2nd block was filled in, which is index 1. So, the previous block would be
-                // index 0.
-                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
+                Long.toString(program.id),
+                previousBlockIndex,
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
 
@@ -3639,11 +3720,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // The 2nd block was filled in, which is index 1. So, the previous block would be index 0.
+    Integer previousBlockIndex = 0;
     String previousBlockEditRoute =
         routes.ApplicantProgramBlocksController.previous(
-                // The 2nd block was filled in, which is index 1. So, the previous block would be
-                // index 0.
-                program.id, /* previousBlockIndex= */ 0, /* inReview= */ false)
+                Long.toString(program.id),
+                previousBlockIndex,
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
 
