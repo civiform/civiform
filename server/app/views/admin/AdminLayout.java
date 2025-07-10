@@ -273,6 +273,16 @@ public final class AdminLayout extends BaseHtmlLayout {
                         createDropdownSubItem(
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
 
+    LiTag programAdminApiNavItemDropdown =
+        createTopNavItemWithDropdown(
+                "API", apiNavItemDropdownId, NavPage.API_DOCS.equals(activeNavPage))
+            .with(
+                ul().withId(apiNavItemDropdownId)
+                    .withClasses("usa-nav__submenu")
+                    .with(
+                        createDropdownSubItem(
+                            "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
+
     switch (primaryAdminType) {
       case CIVIFORM_ADMIN:
         {
@@ -288,10 +298,12 @@ public final class AdminLayout extends BaseHtmlLayout {
         }
       case PROGRAM_ADMIN:
         {
-          adminHeaderUl.with(
-              programAdminProgramsHeaderLink,
-              reportingNavItem,
-              logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
+          adminHeaderUl
+              .with(programAdminProgramsHeaderLink, reportingNavItem)
+              .condWith(
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request),
+                  programAdminApiNavItemDropdown)
+              .with(logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
           break;
         }
     }
