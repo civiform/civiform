@@ -183,7 +183,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
-          .labels("/programs/:programParam/blocks/:blockId/review", programParam)
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/edit", programParam)
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
@@ -282,7 +283,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
-          .labels("/programs/:programParam/blocks/:blockId/review", programParam)
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/review",
+              programParam)
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
