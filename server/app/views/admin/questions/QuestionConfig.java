@@ -24,6 +24,7 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
+import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -112,7 +114,9 @@ public final class QuestionConfig {
       case DATE:
         return settingsManifest.getDateValidationEnabled(request)
             ? Optional.of(
-                config.addDateQuestionConfig((DateQuestionForm) questionForm).getContainer())
+                config
+                    .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
+                    .getContainer())
             : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
@@ -216,17 +220,16 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addDateQuestionConfig(DateQuestionForm dateQuestionForm) {
+  private QuestionConfig addDateQuestionConfig(
+      DateQuestionForm dateQuestionForm, Messages messages) {
+    DateType minDateType = dateQuestionForm.getMinDateType().orElse(DateType.ANY);
+    DateType maxDateType = dateQuestionForm.getMaxDateType().orElse(DateType.ANY);
     DivTag minDateSelectInput =
         new SelectWithLabel()
             .setFieldName("minDateType")
             .setLabelText("Start date")
             .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any past date"))
-            .setValue(
-                dateQuestionForm
-                    .getMinDateType()
-                    .orElse(DateValidationOption.DateType.ANY)
-                    .toString())
+            .setValue(minDateType.toString())
             .setRequired(true)
             .getSelectTag();
     DivTag maxDateSelectInput =
@@ -234,13 +237,38 @@ public final class QuestionConfig {
             .setFieldName("maxDateType")
             .setLabelText("End date")
             .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any future date"))
-            .setValue(
-                dateQuestionForm
-                    .getMaxDateType()
-                    .orElse(DateValidationOption.DateType.ANY)
-                    .toString())
+            .setValue(maxDateType.toString())
             .setRequired(true)
             .getSelectTag();
+
+    FieldsetTag minCustomDatePicker =
+        ViewUtils.makeMemorableDate(
+                /* hideDateComponent= */ !minDateType.equals(DateType.CUSTOM),
+                dateQuestionForm.getMinCustomDay().orElse(""),
+                dateQuestionForm.getMinCustomMonth().orElse(""),
+                dateQuestionForm.getMinCustomYear().orElse(""),
+                "min-date",
+                "minCustomDay",
+                "minCustomMonth",
+                "minCustomYear",
+                /* showError= */ false,
+                /* showRequired= */ true,
+                Optional.of(messages))
+            .withClass("pb-2");
+    FieldsetTag maxCustomDatePicker =
+        ViewUtils.makeMemorableDate(
+                /* hideDateComponent= */ !maxDateType.equals(DateType.CUSTOM),
+                dateQuestionForm.getMaxCustomDay().orElse(""),
+                dateQuestionForm.getMaxCustomMonth().orElse(""),
+                dateQuestionForm.getMaxCustomYear().orElse(""),
+                "max-date",
+                "maxCustomDay",
+                "maxCustomMonth",
+                "maxCustomYear",
+                /* showError= */ false,
+                /* showRequired= */ true,
+                Optional.of(messages))
+            .withClass("pb-2");
 
     content
         .with(
@@ -248,7 +276,7 @@ public final class QuestionConfig {
             p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                 .with(
                     span("Set the parameters for allowable values for this date question below.")))
-        .with(minDateSelectInput, maxDateSelectInput);
+        .with(minDateSelectInput, minCustomDatePicker, maxDateSelectInput, maxCustomDatePicker);
     return this;
   }
 
