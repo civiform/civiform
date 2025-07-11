@@ -240,7 +240,7 @@ public class AdminImportController extends CiviFormController {
           programMigrationService.maybeOverwriteQuestionName(questions);
 
       boolean duplicateHandlingOptionsEnabled =
-          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
       if (withDuplicates && !duplicateHandlingOptionsEnabled) {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
@@ -315,7 +315,7 @@ public class AdminImportController extends CiviFormController {
       boolean withDuplicates =
           !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
       boolean duplicateHandlingEnabled =
-          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
       ErrorAnd<ProgramModel, String> savedProgram =
           programMigrationService.saveImportedProgram(
@@ -354,7 +354,7 @@ public class AdminImportController extends CiviFormController {
   @VisibleForTesting
   ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
     boolean duplicateHandlingOptionsEnabled =
-        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+        settingsManifest.getImportDuplicateHandlingOptionsEnabled();
     DynamicForm form = formFactory.form().bindFromRequest(request);
 
     String programJsonString = form.get(AdminProgramImportForm.PROGRAM_JSON_FIELD);
