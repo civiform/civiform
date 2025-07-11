@@ -1,19 +1,26 @@
 package services.applicant.question;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.ANY;
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.APPLICATION_DATE;
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.CUSTOM;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
+import services.question.types.DateQuestionDefinition.DateValidationOption;
 
 /**
  * Represents a date question in the context of a specific applicant. TODO (#7266): After north star
@@ -56,9 +63,53 @@ public final class DateQuestion extends AbstractQuestion {
     if (this.getDateValue().isPresent()) {
 
       LocalDate enteredDate = dateValue.get();
-      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-      if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
+      DateQuestionDefinition definition = getQuestionDefinition();
+      if (definition.getMinDate().isPresent() && definition.getMaxDate().isPresent()) { 
+        return validateDate(definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
+      } else {
+        return defaultValidateDate(enteredDate);
+      }
+    }
+
+    return ImmutableSet.of();
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateDate(DateValidationOption minDate, DateValidationOption maxDate, LocalDate enteredDate) {
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    if (maxDate.dateType() == ANY && minDate.dateType() == APPLICATION_DATE
+        && enteredDate.isBefore(CURRENT_DATE)) {
+      // Please enter a date after today's date 
+    }
+    if (maxDate.dateType() == ANY && minDate.dateType() == CUSTOM
+        && minDate.customDate().isPresent()
+        && enteredDate.isBefore(minDate.customDate().get())) {
+      // Please enter a date after custom date
+    }
+    if (minDate.dateType() == ANY && maxDate.dateType() == APPLICATION_DATE
+      && enteredDate.isAfter(CURRENT_DATE)) {
+      // Please enter a date before today's date
+    }
+    if (minDate.dateType() == ANY && maxDate.dateType() == CUSTOM
+        && maxDate.customDate().isPresent()
+        && enteredDate.isAfter(maxDate.customDate().get())) {
+      // Please enter a date before custom date
+    }
+    if (minDate.dateType() == CUSTOM && maxDate.dateType() == CUSTOM
+        && minDate.customDate().isPresent() && maxDate.customDate().isPresent()
+        && (minDate.customDate().get().isBefore(CURRENT_DATE) || maxDate.customDate().get().isAfter(CURRENT_DATE))) {
+      // Please enter a date between {minDate} and {maxDate}
+    }
+    if (minDate.dateType() == APPLICATION_DATE && maxDate.dateType() == APPLICATION_DATE && !enteredDate.isEqual(CURRENT_DATE)) {
+      // Please enter today's date
+    }
+
+    return errors.build();
+  }
+
+  private ImmutableSet<ValidationErrorMessage> defaultValidateDate(LocalDate enteredDate) {
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
         errors.add(
             ValidationErrorMessage.create(
                 MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
@@ -71,10 +122,7 @@ public final class DateQuestion extends AbstractQuestion {
                 MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
                 ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
       }
-      return errors.build();
-    }
-
-    return ImmutableSet.of();
+    return errors.build();
   }
 
   @Override
