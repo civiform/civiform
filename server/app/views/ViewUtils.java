@@ -500,6 +500,7 @@ public final class ViewUtils {
       Optional<Messages> optionalMessages) {
     FieldsetTag dateFieldset =
         fieldset()
+            .withId(idPrefix + "-fieldset")
             .withClass("usa-fieldset")
             .withCondHidden(hideDateComponent)
             .with(

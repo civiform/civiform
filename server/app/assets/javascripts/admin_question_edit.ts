@@ -16,6 +16,8 @@ class AdminQuestionEdit {
       this.addUniversalToggleHandler(primaryApplicantInfoSection)
       this.addEnumeratorDropdownHandler(primaryApplicantInfoSection)
     }
+
+    this.addDateValidationHandlers()
   }
 
   addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
@@ -108,6 +110,62 @@ class AdminQuestionEdit {
           document.getElementById('accept-question-updates-button'),
         )
         submitButton.click()
+      }
+    })
+  }
+
+  addDateValidationHandlers() {
+    // Add min date handler if date validation settings are present
+    const minDateTypeDropdown = document.getElementById('min-date-type')
+    const minCustomDatePicker = document.getElementById(
+      'min-custom-date-fieldset',
+    )
+    if (minDateTypeDropdown !== null && minCustomDatePicker !== null) {
+      this.addDateTypeDropdownHandler(
+        minDateTypeDropdown,
+        minCustomDatePicker,
+        'min-custom-date',
+      )
+    }
+    // Add max date handler if date validation settings are present
+    const maxDateTypeDropdown = document.getElementById('max-date-type')
+    const maxCustomDatePicker = document.getElementById(
+      'max-custom-date-fieldset',
+    )
+    if (maxDateTypeDropdown !== null && maxCustomDatePicker !== null) {
+      this.addDateTypeDropdownHandler(
+        maxDateTypeDropdown,
+        maxCustomDatePicker,
+        'max-custom-date',
+      )
+    }
+  }
+
+  /**
+   * Handles showing the custom date picker if custom date type is selected. Hides the date picker and clears date picker values otherwise.
+   */
+  addDateTypeDropdownHandler(
+    dateTypeDropdown: HTMLElement,
+    datePicker: HTMLElement,
+    idPrefix: string,
+  ) {
+    dateTypeDropdown.addEventListener('change', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      const dateTypeValue: string = target.value
+      // Show date picker iff type is custom
+      datePicker.toggleAttribute('hidden', dateTypeValue !== 'CUSTOM')
+
+      // Clear date picker values if type is not custom
+      if (dateTypeValue !== 'CUSTOM') {
+        ;(
+          document.getElementById(idPrefix + '-day') as HTMLInputElement
+        ).value = ''
+        ;(
+          document.getElementById(idPrefix + '-month') as HTMLInputElement
+        ).value = ''
+        ;(
+          document.getElementById(idPrefix + '-year') as HTMLInputElement
+        ).value = ''
       }
     })
   }

@@ -226,6 +226,7 @@ public final class QuestionConfig {
     DateType maxDateType = dateQuestionForm.getMaxDateType().orElse(DateType.ANY);
     DivTag minDateSelectInput =
         new SelectWithLabel()
+            .setId("min-date-type")
             .setFieldName("minDateType")
             .setLabelText("Start date")
             .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any past date"))
@@ -234,6 +235,7 @@ public final class QuestionConfig {
             .getSelectTag();
     DivTag maxDateSelectInput =
         new SelectWithLabel()
+            .setId("max-date-type")
             .setFieldName("maxDateType")
             .setLabelText("End date")
             .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any future date"))
@@ -247,7 +249,7 @@ public final class QuestionConfig {
                 dateQuestionForm.getMinCustomDay().orElse(""),
                 dateQuestionForm.getMinCustomMonth().orElse(""),
                 dateQuestionForm.getMinCustomYear().orElse(""),
-                "min-date",
+                "min-custom-date",
                 "minCustomDay",
                 "minCustomMonth",
                 "minCustomYear",
@@ -261,7 +263,7 @@ public final class QuestionConfig {
                 dateQuestionForm.getMaxCustomDay().orElse(""),
                 dateQuestionForm.getMaxCustomMonth().orElse(""),
                 dateQuestionForm.getMaxCustomYear().orElse(""),
-                "max-date",
+                "max-custom-date",
                 "maxCustomDay",
                 "maxCustomMonth",
                 "maxCustomYear",

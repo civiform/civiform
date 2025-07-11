@@ -1,5 +1,6 @@
 package forms;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Optional;
 import services.question.types.DateQuestionDefinition;
@@ -168,11 +169,16 @@ public class DateQuestionForm extends QuestionForm {
         || getMinCustomYear().isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(
-        LocalDate.of(
-            Integer.valueOf(getMinCustomYear().get()),
-            Integer.valueOf(getMinCustomMonth().get()),
-            Integer.valueOf(getMinCustomDay().get())));
+
+    try {
+      return Optional.of(
+          LocalDate.of(
+              Integer.valueOf(getMinCustomYear().get()),
+              Integer.valueOf(getMinCustomMonth().get()),
+              Integer.valueOf(getMinCustomDay().get())));
+    } catch (NumberFormatException | DateTimeException e) {
+      return Optional.empty();
+    }
   }
 
   private Optional<LocalDate> getMaxCustomDate() {
@@ -181,10 +187,15 @@ public class DateQuestionForm extends QuestionForm {
         || getMaxCustomYear().isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(
-        LocalDate.of(
-            Integer.valueOf(getMaxCustomYear().get()),
-            Integer.valueOf(getMaxCustomMonth().get()),
-            Integer.valueOf(getMaxCustomDay().get())));
+
+    try {
+      return Optional.of(
+          LocalDate.of(
+              Integer.valueOf(getMaxCustomYear().get()),
+              Integer.valueOf(getMaxCustomMonth().get()),
+              Integer.valueOf(getMaxCustomDay().get())));
+    } catch (NumberFormatException | DateTimeException e) {
+      return Optional.empty();
+    }
   }
 }
