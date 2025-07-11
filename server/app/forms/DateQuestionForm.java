@@ -1,5 +1,6 @@
 package forms;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Optional;
 import services.question.types.DateQuestionDefinition;
@@ -163,30 +164,26 @@ public class DateQuestionForm extends QuestionForm {
   }
 
   private Optional<LocalDate> getMinCustomDate() {
-    // All date parts must be present and non-empty
-    if (!getMinCustomDay().filter(day -> !day.isEmpty()).isPresent()
-        || !getMinCustomMonth().filter(month -> !month.isEmpty()).isPresent()
-        || !getMinCustomYear().filter(year -> !year.isEmpty()).isPresent()) {
+    try {
+      return Optional.of(
+          LocalDate.of(
+              Integer.valueOf(getMinCustomYear().get()),
+              Integer.valueOf(getMinCustomMonth().get()),
+              Integer.valueOf(getMinCustomDay().get())));
+    } catch (NumberFormatException | DateTimeException e) {
       return Optional.empty();
     }
-    return Optional.of(
-        LocalDate.of(
-            Integer.valueOf(getMinCustomYear().get()),
-            Integer.valueOf(getMinCustomMonth().get()),
-            Integer.valueOf(getMinCustomDay().get())));
   }
 
   private Optional<LocalDate> getMaxCustomDate() {
-    // All date parts must be present and non-empty
-    if (!getMaxCustomDay().filter(day -> !day.isEmpty()).isPresent()
-        || !getMaxCustomMonth().filter(month -> !month.isEmpty()).isPresent()
-        || !getMaxCustomYear().filter(year -> !year.isEmpty()).isPresent()) {
+    try {
+      return Optional.of(
+          LocalDate.of(
+              Integer.valueOf(getMaxCustomYear().get()),
+              Integer.valueOf(getMaxCustomMonth().get()),
+              Integer.valueOf(getMaxCustomDay().get())));
+    } catch (NumberFormatException | DateTimeException e) {
       return Optional.empty();
     }
-    return Optional.of(
-        LocalDate.of(
-            Integer.valueOf(getMaxCustomYear().get()),
-            Integer.valueOf(getMaxCustomMonth().get()),
-            Integer.valueOf(getMaxCustomDay().get())));
   }
 }
