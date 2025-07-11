@@ -100,7 +100,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       boolean withDuplicates) {
 
     boolean duplicateHandlingOptionsEnabled =
-        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+        settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
     ImmutableMap<String, String> newToOldQuestionNameMap =
         getNewToOldQuestionAdminNameMap(updatedQuestionsMap);
