@@ -517,7 +517,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withData("testid", "toplevel-duplicate-handling")
         .with(
             legend("How do you want to handle all duplicate questions?")
-                .withClasses("usa-legend", "font-semibold", "text-base"),
+                .withClasses("usa-legend", "font-semibold", "font-sans-xs"),
             div("Selecting an option for any individual question will override this selection")
                 .withClasses("text-gray-500"),
             renderRadioOption(
@@ -556,7 +556,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withClasses("usa-fieldset", "shrink-0", "mb-4")
         .with(
             legend("How do you want to handle this duplicate question?")
-                .withClasses("usa-legend", "font-semibold", "text-base"))
+                .withClasses("usa-legend", "font-semibold", "font-sans-xs"))
         .condWith(
             question.isEnumerator(),
             AlertComponent.renderSlimInfoAlert(
@@ -620,7 +620,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     LabelTag labelTag =
         label()
             .withFor(id)
-            .withClasses("usa-radio__label", "inline-block", "w-full", "h-full", "text-base")
+            .withClasses("usa-radio__label", "inline-block", "w-full", "h-full", "font-sans-xs")
             .with(text);
 
     // A fully-styled USWDS radio would include the "usa-radio" class. However, we omit it to avoid
