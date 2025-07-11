@@ -1,5 +1,8 @@
 package services.applicant.question;
 
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.APPLICATION_DATE;
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.CUSTOM;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -14,6 +17,7 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.types.DateQuestionDefinition;
+import services.question.types.DateQuestionDefinition.DateValidationOption;
 
 /**
  * Represents a date question in the context of a specific applicant. TODO (#7266): After north star
@@ -54,27 +58,87 @@ public final class DateQuestion extends AbstractQuestion {
 
   private ImmutableSet<ValidationErrorMessage> validateDate() {
     if (this.getDateValue().isPresent()) {
-
       LocalDate enteredDate = dateValue.get();
-      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-      if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
-        errors.add(
-            ValidationErrorMessage.create(
-                MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
-                ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
+      DateQuestionDefinition definition = getQuestionDefinition();
+      if (definition.getMinDate().isPresent() && definition.getMaxDate().isPresent()) {
+        return validateDate(
+            definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
+      } else {
+        return defaultValidateDate(enteredDate);
       }
+    }
+    return ImmutableSet.of();
+  }
 
-      if (enteredDate.isAfter(CURRENT_DATE.plusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
-        errors.add(
-            ValidationErrorMessage.create(
-                MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
-                ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
-      }
+  private ImmutableSet<ValidationErrorMessage> validateDate(
+      DateValidationOption minDate, DateValidationOption maxDate, LocalDate enteredDate) {
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    if (minDate.dateType() == APPLICATION_DATE
+        && maxDate.dateType() == APPLICATION_DATE
+        && !enteredDate.isEqual(CURRENT_DATE)) {
+      errors.add(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_CURRENT_DATE_REQUIRED));
+      // Skip remaining checks if date is not exactly today's date
       return errors.build();
     }
+    if (minDate.dateType() == CUSTOM
+        && maxDate.dateType() == CUSTOM
+        && minDate.customDate().isPresent()
+        && maxDate.customDate().isPresent()
+        && (enteredDate.isBefore(minDate.customDate().get())
+            || enteredDate.isAfter(maxDate.customDate().get()))) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.DATE_VALIDATION_DATE_NOT_IN_RANGE,
+              minDate.customDate().get().toString(),
+              maxDate.customDate().get().toString()));
+      // Skip remaining checks if date is not within specific range
+      return errors.build();
+    }
+    // Date must be later than min
+    if (minDate.dateType() == APPLICATION_DATE && enteredDate.isBefore(CURRENT_DATE)) {
+      errors.add(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_FUTURE_DATE_REQUIRED));
+    }
+    if (minDate.dateType() == CUSTOM
+        && minDate.customDate().isPresent()
+        && enteredDate.isBefore(minDate.customDate().get())) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_PAST,
+              minDate.customDate().get().toString()));
+    }
+    // Date must be earlier than max
+    if (maxDate.dateType() == APPLICATION_DATE && enteredDate.isAfter(CURRENT_DATE)) {
+      errors.add(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_PAST_DATE_REQUIRED));
+    }
+    if (maxDate.dateType() == CUSTOM
+        && maxDate.customDate().isPresent()
+        && enteredDate.isAfter(maxDate.customDate().get())) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE,
+              maxDate.customDate().get().toString()));
+    }
 
-    return ImmutableSet.of();
+    return errors.build();
+  }
+
+  private ImmutableSet<ValidationErrorMessage> defaultValidateDate(LocalDate enteredDate) {
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
+              ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
+    }
+
+    if (enteredDate.isAfter(CURRENT_DATE.plusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
+              ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
+    }
+    return errors.build();
   }
 
   @Override
