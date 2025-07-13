@@ -19,11 +19,16 @@
     <div
       class="usa-card__footer cf-card-footer tablet:flex-align-self-center tablet:padding-y-0"
     >
-      <a
-        th:href="${card.actionUrl()}"
-        class="usa-button cf-apply-button"
-        th:text="${card.actionText()}"
-      ></a>
+      <a th:href="${card.actionUrl()}">
+          <button
+          id="select-language-menu"
+          type="button"
+          class="usa-button usa-button--big"
+          role="button"
+          th:text="${card.actionText()}"
+        >
+      </button>
+    </a>
     </div>
   </div>
 </div>
@@ -151,15 +156,15 @@
 
 <!-- Standard Card title -->
 <div th:fragment="cardTitle(card)" class="usa-card__header usa-prose">
-  <h3
+  <h2
     class="usa-card__heading cf-application-card-title cf-prose-h4"
     th:text="${card.title()}"
     th:data-program-id="${card.programId()}"
-  ></h3>
+  ></h2>
 </div>
 
 <!-- Standard Card Program description/-->
-<div th:fragment="cardProgramDescription(card)" class="usa-prose">
+<div th:fragment="cardProgramDescription(card)" class="usa-intro">
   <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
 </div>
 
