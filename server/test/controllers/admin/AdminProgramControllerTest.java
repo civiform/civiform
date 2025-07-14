@@ -109,6 +109,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void create_showsNewProgramInList() {
     RequestBuilder requestBuilder =
@@ -218,6 +221,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .url());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void create_returnsNewProgramWithAcls() {
     RequestBuilder requestBuilder =
@@ -391,6 +397,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
@@ -557,6 +566,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("confirm-common-intake-change");
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     RequestBuilder requestBuilder =
@@ -817,6 +829,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void update_overwritesExistingProgram() throws Exception {
     ProgramModel program =
@@ -826,11 +841,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "New external short program description",
                     "externalLink",
@@ -852,7 +867,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
-            "Create new program", "New external program name", "New external program description");
+            "Create new program", "New program name", "New program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
@@ -865,11 +880,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "New external short program description",
                     "externalLink",
@@ -891,7 +906,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(indexResult))
         .contains(
             "Create new program",
-            "New external program name",
+            "New program name",
             "New external short program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
@@ -1021,13 +1036,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
                     "",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
-                    "External short program description",
+                    "New short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
@@ -1060,13 +1075,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
-                    "External short program description",
+                    "Short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
@@ -1097,11 +1112,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "New short program description",
                     "externalLink",
@@ -1132,9 +1147,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
     Result redirectResult = controller.index(fakeRequest());
-    assertThat(contentAsString(redirectResult)).contains("New external program name");
+    assertThat(contentAsString(redirectResult)).contains("New program name");
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
   @Test
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
     ProgramModel program =
@@ -1142,17 +1160,17 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";
-    String newProgramDescription = "New external program description";
+    String newProgramDescription = "New program description";
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
                     newProgramName,
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "External program short description",
                     "externalLink",
@@ -1200,11 +1218,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
                     newProgramName,
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     newProgramShortDescription,
                     "externalLink",
