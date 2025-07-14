@@ -233,3 +233,13 @@ button.usa-button.usa-button--unstyled.htmx-request {
   > a.cf-admin-heading-nav-item-settings-icon {
   padding: 0;
 }
+
+// This keeps the main content visible at reasonable smaller widths so
+// that the admin header does not cover anything. The entire admin site
+// starts to fall apart under 800px. At extreme min widths overlapping
+// may still occur.
+@media (screen and max-width: 800px) {
+  .admin-responsive-main-padding {
+    @include u-padding-top(4);
+  }
+}
