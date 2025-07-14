@@ -1060,8 +1060,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enable options for handling duplicate questions when importing/migrating programs: create a
    * duplicate, use the existing question, or overwrite the existing question.
    */
-  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
+  public boolean getImportDuplicateHandlingOptionsEnabled() {
+    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED");
   }
 
   /** Enables suffix dropdown field in name question. */
@@ -2306,7 +2306,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",

@@ -377,82 +377,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_showsWarningAndOverwritesQuestionAdminNamesIfTheyAlreadyExist() {
-    // save the program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // update the program admin name so we don't receive an error
-    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
-        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
-            "minimal-sample-program", "minimal-sample-program-new");
-
-    // parse the program for import
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    // warning is shown
-    assertThat(contentAsString(result))
-        .contains("Importing this program will add 1 duplicate question to the question bank.");
-    // question has the new admin name
-    assertThat(contentAsString(result)).contains("Name -_- a");
-    // other information in the question is unchanged
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
-  public void
-      hxImportProgram_noDuplicatesEnabled_showsWarningAndDoesNotOverwriteQuestionAdminNamesIfTheyAlreadyExist() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // save the program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // publish the drafts
-    versionRepository.publishNewSynchronizedVersion();
-
-    // update the program admin name so we don't receive an error
-    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
-        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
-            "minimal-sample-program", "minimal-sample-program-new");
-
-    // parse the program for import
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", "false")
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    // warning is shown
-    assertThat(contentAsString(result))
-        .contains("There is 1 existing question that will appear as draft in the question bank.");
-    // question has the same admin name
-    assertThat(contentAsString(result)).contains("Name");
-    // other information in the question is unchanged
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     Result result =
         controller.hxSaveProgram(
@@ -956,8 +880,8 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deserializeDuplicateHandlingEnabled_malformedOption_returnsError() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled(any())).thenReturn(true);
+  public void deserialize_malformedOption_returnsError() {
+    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
@@ -980,8 +904,8 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deserializeDuplicateHandlingEnabled_multipleOptions_parsesCorrectly() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled(any())).thenReturn(true);
+  public void deserialize_multipleOptions_parsesCorrectly() {
+    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
 
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
