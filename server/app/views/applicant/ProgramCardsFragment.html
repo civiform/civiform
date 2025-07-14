@@ -7,8 +7,7 @@
       <!--*/Title */-->
       <div
         th:replace="~{applicant/ProgramCardsFragment :: preScreenCardTitle(${card})}"
-      >
-    </div>
+      ></div>
 
       <div class="usa-card__body">
         <div
@@ -163,12 +162,10 @@
   ></h2>
 </div>
 
-
 <!-- Pre-Screening Program description/-->
 <div th:fragment="preScreenCardProgramDescription(card)" class="usa-intro">
   <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
 </div>
-
 
 <!-- Standard Card title -->
 <div th:fragment="cardTitle(card)" class="usa-card__header usa-prose">
