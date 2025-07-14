@@ -5,6 +5,9 @@
 source bin/lib.sh
 docker::set_project_name_unit_tests
 
+# Check available disk space for docker.
+docker::check_disk_space
+
 bin/pull-image
 
 bin/sbt-test test
