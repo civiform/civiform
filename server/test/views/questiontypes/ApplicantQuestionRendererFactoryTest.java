@@ -66,6 +66,7 @@ public class ApplicantQuestionRendererFactoryTest {
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
+    // Map type questions are only compatible with North Star so won't get rendered for this test
     if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }

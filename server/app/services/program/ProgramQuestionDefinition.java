@@ -80,7 +80,7 @@ public abstract class ProgramQuestionDefinition {
   public static ProgramQuestionDefinition create(
       QuestionDefinition questionDefinition, Optional<Long> programDefinitionId) {
     return create(
-        questionDefinition,
+        questikonDefinition,
         programDefinitionId,
         /* optional= */ false,
         /* addressCorrectionEnabled= */ false);
