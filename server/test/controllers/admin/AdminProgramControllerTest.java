@@ -866,8 +866,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
         fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
-        .contains(
-            "Create new program", "New program name", "New program description");
+        .contains("Create new program", "New program name", "New program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
@@ -905,9 +904,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
-            "Create new program",
-            "New program name",
-            "New external short program description");
+            "Create new program", "New program name", "New external short program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
