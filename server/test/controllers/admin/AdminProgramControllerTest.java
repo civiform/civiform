@@ -890,7 +890,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
-            "Create new program", "New external program name", "New external short program description");
+            "Create new program",
+            "New external program name",
+            "New external short program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
@@ -1187,7 +1189,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_northStar_allowsChangingCommonIntakeAfterConfirming() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newDraftProgram("Existing One", "old description", "old short description").build();
+        ProgramBuilder.newDraftProgram("Existing One", "old description", "old short description")
+            .build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";
