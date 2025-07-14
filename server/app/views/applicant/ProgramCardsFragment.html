@@ -6,12 +6,13 @@
     <div>
       <!--*/Title */-->
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: cardTitle(${card})}"
-      ></div>
+        th:replace="~{applicant/ProgramCardsFragment :: preScreenCardTitle(${card})}"
+      >
+    </div>
 
       <div class="usa-card__body">
         <div
-          th:replace="~{applicant/ProgramCardsFragment :: cardProgramDescription(${card})}"
+          th:replace="~{applicant/ProgramCardsFragment :: preScreenCardProgramDescription(${card})}"
         ></div>
       </div>
     </div>
@@ -153,8 +154,8 @@
   </div>
 </li>
 
-<!-- Standard Card title -->
-<div th:fragment="cardTitle(card)" class="usa-card__header usa-prose">
+<!-- Pre-Screening Card title -->
+<div th:fragment="preScreenCardTitle(card)" class="usa-card__header usa-prose">
   <h2
     class="usa-card__heading cf-application-card-title cf-prose-h4"
     th:text="${card.title()}"
@@ -162,8 +163,24 @@
   ></h2>
 </div>
 
+
+<!-- Pre-Screening Program description/-->
+<div th:fragment="preScreenCardProgramDescription(card)" class="usa-intro">
+  <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
+</div>
+
+
+<!-- Standard Card title -->
+<div th:fragment="cardTitle(card)" class="usa-card__header usa-prose">
+  <h3
+    class="usa-card__heading cf-application-card-title cf-prose-h4"
+    th:text="${card.title()}"
+    th:data-program-id="${card.programId()}"
+  ></h3>
+</div>
+
 <!-- Standard Card Program description/-->
-<div th:fragment="cardProgramDescription(card)" class="usa-intro">
+<div th:fragment="cardProgramDescription(card)" class="usa-prose">
   <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
 </div>
 
