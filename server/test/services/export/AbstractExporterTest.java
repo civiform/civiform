@@ -163,7 +163,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC:
         // Do nothing.
         break;
-      // TODO(#11007): Allow export of Map question data.
+        // TODO(#11007): Allow export of Map question data.
       case MAP:
       case NULL_QUESTION:
         // Do nothing.

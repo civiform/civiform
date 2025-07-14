@@ -51,7 +51,8 @@ public final class ApplicantQuestionRendererFactory {
       case MAP ->
           throw new IllegalStateException(
               String.format(
-                  "Question type %s should not be rendered. This question type is only compatible with the North Star Applicant UI.",
+                  "Question type %s should not be rendered. This question type is only compatible"
+                      + " with the North Star Applicant UI.",
                   question.getType()));
       case NAME -> new NameQuestionRenderer(question);
       case NUMBER -> new NumberQuestionRenderer(question);
