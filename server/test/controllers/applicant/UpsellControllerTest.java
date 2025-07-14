@@ -71,6 +71,34 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void considerRegister_redirectsToUpsellViewForDefaultProgramType_northstar() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+    String redirectLocation = "someUrl";
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+    Result result =
+        instanceOf(UpsellController.class)
+            .considerRegister(
+                request,
+                applicant.id,
+                programDefinition.id(),
+                application.id,
+                redirectLocation,
+                application.getSubmitTime().toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Application confirmation");
+    assertThat(contentAsString(result)).contains("Create an account");
+  }
+
+  @Test
   public void
       considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
     QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
