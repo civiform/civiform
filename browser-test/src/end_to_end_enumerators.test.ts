@@ -164,7 +164,7 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
       await applicantQuestions.clickNext()
 
-      for (let i = 0; i < 50; i++) {
+      for (let i = 1; i <= 50; i++) {
         await applicantQuestions.addEnumeratorAnswer(`Bugs (${i})`)
       }
 
