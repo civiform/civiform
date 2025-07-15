@@ -74,6 +74,13 @@ test.describe('normal question lifecycle', () => {
           page,
           `${type}-edit-page-with-date-validation-enabled`,
         )
+
+        await page.selectOption('#min-date-type', {value: 'CUSTOM'})
+        await page.selectOption('#max-date-type', {value: 'CUSTOM'})
+        await validateScreenshot(
+          page.locator('#question-settings'),
+          `${type}-edit-page-with-custom-date-pickers`,
+        )
       }
       await adminQuestions.updateQuestion(questionName)
 
