@@ -6,6 +6,7 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import forms.EnumeratorQuestionForm;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -136,6 +137,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
+      context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
