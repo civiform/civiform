@@ -8,12 +8,9 @@
       <div
         th:replace="~{applicant/ProgramCardsFragment :: preScreeningBannerTitle(${card})}"
       ></div>
-
-      <div class="usa-card__body">
-        <div
-          th:replace="~{applicant/ProgramCardsFragment :: preScreeningBannerDescription(${card})}"
-        ></div>
-      </div>
+      <div
+        th:replace="~{applicant/ProgramCardsFragment :: preScreeningBannerDescription(${card})}"
+      ></div>
     </div>
 
     <div
@@ -155,14 +152,17 @@
   class="usa-card__header usa-prose"
 >
   <h2
-    class="usa-card__heading cf-application-card-title cf-prose-h4"
+    class="usa-card__heading cf-application-card-title"
     th:text="${card.title()}"
     th:data-program-id="${card.programId()}"
   ></h2>
 </div>
 
 <!-- Pre-Screening Program description/-->
-<div th:fragment="preScreeningBannerDescription(card)" class="usa-intro">
+<div
+  th:fragment="preScreeningBannerDescription(card)"
+  class="usa-card__body usa-intro"
+>
   <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
 </div>
 
