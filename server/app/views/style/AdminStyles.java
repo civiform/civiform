@@ -47,7 +47,13 @@ public final class AdminStyles {
 
   public static final String MAIN =
       StyleUtils.joinStyles(
-          "bg-white", "border", "border-gray-200", "mt-12", "shadow-lg", "w-screen");
+          "bg-white",
+          "border",
+          "border-gray-200",
+          "mt-12",
+          "shadow-lg",
+          "w-screen",
+          "admin-responsive-main-padding");
 
   public static final String HEADER_BUTTON_STYLES =
       StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mr-2");

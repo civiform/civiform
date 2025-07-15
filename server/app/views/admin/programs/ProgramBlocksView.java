@@ -1092,9 +1092,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       deleteBlockForm
           .withId("block-delete-form")
           .with(
-              div(
-                  h1("Are you sure you want to delete this screen?")
-                      .withClasses("text-base", "mb-4")),
+              div(div("Are you sure you want to delete this screen?").withClasses("mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
                   .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
@@ -1116,10 +1114,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                  h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
-                      .withClasses("text-base", "mb-2"),
-                  h1("Are you sure you want to delete this screen?")
-                      .withClasses("text-base", "mb-4")),
+                  div(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                      .withClasses("mb-2"),
+                  div("Are you sure you want to delete this screen?").withClasses("mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
                   .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
