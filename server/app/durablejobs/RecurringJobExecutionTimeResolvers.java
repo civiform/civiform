@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Optional;
 
 /**
  * Holds implementations of {@link JobExecutionTimeResolver}. A {@link DurableJob} is a recurring
@@ -69,6 +70,21 @@ public final class RecurringJobExecutionTimeResolvers {
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
+    }
+  }
+
+  /** Admin configured interval for durable jobs. Used for REFRESH_MAP_DATA */
+  public static final class AdminConfiguredResolver implements JobExecutionTimeResolver {
+    private final Integer refreshInterval;
+
+    public AdminConfiguredResolver(Optional<Integer> refreshInterval) {
+      this.refreshInterval = refreshInterval.orElse(20);
+    }
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      Instant now = clock.instant();
+      return now.plusSeconds(refreshInterval * 60);
     }
   }
 }
