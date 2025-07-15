@@ -1,12 +1,18 @@
 package services.question.types;
 
+import static services.question.types.DateQuestionDefinition.DateValidationOption.DateType.CUSTOM;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Optional;
+import services.CiviFormError;
+import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 
 /** Defines a date question. */
 public final class DateQuestionDefinition extends QuestionDefinition {
@@ -105,6 +111,60 @@ public final class DateQuestionDefinition extends QuestionDefinition {
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return DateValidationPredicates.create();
+  }
+
+  @Override
+  ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
+    ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
+    Optional<DateValidationOption> min = getMinDate();
+    Optional<DateValidationOption> max = getMaxDate();
+    // Skip checks if no settings are present
+    if (min.isEmpty() && max.isEmpty()) {
+      return errors.build();
+    }
+
+    if (min.isEmpty() || max.isEmpty()) {
+      errors.add(CiviFormError.of("Both start and end date are required"));
+      return errors.build();
+    }
+    DateValidationOption minDateOption = min.get();
+    DateValidationOption maxDateOption = max.get();
+    // Since we cannot inject Config class here to check the zone, we take the systemDefaultZone as
+    // the Zone which internally uses GMT and add a buffer of +/- 1 day.
+    // Errorprone throws error on using system related timezones, hence we suppress the warning.
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
+    LocalDate currentDate = LocalDate.now(Clock.systemDefaultZone());
+
+    if ((minDateOption.dateType() != CUSTOM && minDateOption.customDate().isPresent())
+        || (maxDateOption.dateType() != CUSTOM && maxDateOption.customDate().isPresent())) {
+      errors.add(
+          CiviFormError.of(
+              "Specific date must be empty if start and end date are not \"Custom date\""));
+    }
+    // Custom date may be empty if any of the date parts were missing, or if they did not represent
+    // a valid LocalDate
+    if ((minDateOption.dateType() == CUSTOM && minDateOption.customDate().isEmpty())
+        || (maxDateOption.dateType() == CUSTOM && maxDateOption.customDate().isEmpty())) {
+      errors.add(CiviFormError.of("A valid date is required for custom start and end dates"));
+    } else {
+      // At least one custom date is present. Check that custom dates represent valid date ranges.
+      if (minDateOption.dateType() == DateType.CUSTOM
+          && maxDateOption.dateType() == DateType.CUSTOM
+          && minDateOption.customDate().get().isAfter(maxDateOption.customDate().get())) {
+        errors.add(CiviFormError.of("Start date cannot be after end date"));
+      }
+      if (minDateOption.dateType() == DateType.CUSTOM
+          && maxDateOption.dateType() == DateType.APPLICATION_DATE
+          && minDateOption.customDate().get().isAfter(currentDate.plusDays(1))) {
+        errors.add(CiviFormError.of("Start date cannot be after today's date"));
+      }
+      if (minDateOption.dateType() == DateType.APPLICATION_DATE
+          && maxDateOption.dateType() == DateType.CUSTOM
+          && maxDateOption.customDate().get().isBefore(currentDate.minusDays(1))) {
+        errors.add(CiviFormError.of("End date cannot be before today's date"));
+      }
+    }
+    return errors.build();
   }
 
   @JsonIgnore
