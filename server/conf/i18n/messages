@@ -756,11 +756,11 @@ validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
-validation.futureDateRequired=Date must be after today
+validation.futureDateRequired=Date must be after today''s date
 # Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
 validation.dateTooFarInPast=Date must be after {0}
 # Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
-validation.pastDateRequired=Date must be before today
+validation.pastDateRequired=Date must be before today''s date
 # Validation error shown when the user enters a date that is later than the maximum allowed date.
 validation.dateTooFarInFuture=Date must be before {0}
 # Validation error shown when the user enters a date that is before or after the allowed date range.
