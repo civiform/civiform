@@ -933,6 +933,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * An integer specifying the refresh interval in minutes for map data used in CiviForm. If this
+   * value is not set, map data will not refresh.
+   */
+  public Optional<Integer> getDurableJobsMapRefreshIntervalMinutes() {
+    return getInt("DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES");
+  }
+
+  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -2141,6 +2149,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "The number of server threads available for the durable job runner. More"
                               + " than a single thread will the server execute multiple jobs in"
                               + " parallel. Default value is 1.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES",
+                          "An integer specifying the refresh interval in minutes for map data used"
+                              + " in CiviForm. If this value is not set, map data will not"
+                              + " refresh.",
                           /* isRequired= */ false,
                           SettingType.INT,
                           SettingMode.HIDDEN))))

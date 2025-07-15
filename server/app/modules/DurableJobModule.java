@@ -20,12 +20,14 @@ import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.CalculateEligibilityDeterminationJob;
+import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 import models.JobType;
 import org.apache.pekko.actor.ActorSystem;
@@ -121,7 +123,8 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      Config config) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -161,6 +164,13 @@ public final class DurableJobModule extends AbstractModule {
                 applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
+    Optional<Integer> refreshInterval =
+        Optional.of(config.getInt("durable_jobs.map_refresh_interval"));
+    durableJobRegistry.register(
+        DurableJobName.REFRESH_MAP_DATA,
+        JobType.RECURRING,
+        MapRefreshJob::new,
+        new RecurringJobExecutionTimeResolvers.AdminConfiguredResolver(refreshInterval));
     return durableJobRegistry;
   }
 
