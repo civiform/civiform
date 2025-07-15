@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
@@ -78,13 +79,22 @@ public final class RecurringJobExecutionTimeResolvers {
     private final Integer refreshInterval;
 
     public AdminConfiguredResolver(Optional<Integer> refreshInterval) {
-      this.refreshInterval = refreshInterval.orElse(20);
+      this.refreshInterval = refreshInterval.orElse(30);
     }
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
-      Instant now = clock.instant();
-      return now.plusSeconds(refreshInterval * 60);
+      LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), clock.getZone());
+      return now
+          .plusMinutes(minutesUntilNextInterval(now))
+          .withSecond(0)
+          .withNano(0)
+          .atZone(clock.getZone())
+          .toInstant();
+    }
+
+    private int minutesUntilNextInterval(LocalDateTime now) {
+      return this.refreshInterval - (now.getMinute() % this.refreshInterval);
     }
   }
 }
