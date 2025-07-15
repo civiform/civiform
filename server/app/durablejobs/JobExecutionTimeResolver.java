@@ -2,6 +2,7 @@ package durablejobs;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 /** Determines when a recurring {@link DurableJob} should next run. */
 @FunctionalInterface
@@ -12,4 +13,8 @@ public interface JobExecutionTimeResolver {
    * represented by {@code clock}.
    */
   Instant resolveExecutionTime(Clock clock);
+
+  default Instant resolveExecutionTime(Optional<String> refreshInterval) {
+    return Instant.now();
+  }
 }
