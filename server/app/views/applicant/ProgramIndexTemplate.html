@@ -93,5 +93,8 @@
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

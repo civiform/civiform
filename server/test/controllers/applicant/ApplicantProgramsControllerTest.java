@@ -3,7 +3,9 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -278,6 +280,54 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("A different language!");
     assertThat(contentAsString(result)).contains("English program");
+  }
+
+  @Test
+  public void indexWithApplicantId_withMeasurementId_includesGoogleTagManager() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getMeasurementId()).thenReturn(Optional.of("abcdef"));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("https://www.googletagmanager.com/gtag/js?id=abcdef");
+  }
+
+  @Test
+  public void indexWithApplicantId_withoutMeasurementId_includesGoogleTagManager() {
+
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getMeasurementId()).thenReturn(Optional.empty());
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("https://www.googletagmanager.com/gtag/js");
   }
 
   @Test
