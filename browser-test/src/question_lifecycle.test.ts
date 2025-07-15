@@ -2,6 +2,7 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
   disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -12,6 +13,7 @@ import {BASE_URL} from './support/config'
 test.describe('normal question lifecycle', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
+    await disableFeatureFlag(page, 'date_validation_enabled')
   })
 
   test('sample question seeding works', async ({
@@ -65,6 +67,21 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await validateScreenshot(page, `${type}-edit-page`)
+      if (type === QuestionType.DATE) {
+        await enableFeatureFlag(page, 'date_validation_enabled')
+        await adminQuestions.gotoQuestionEditPage(questionName)
+        await validateScreenshot(
+          page,
+          `${type}-edit-page-with-date-validation-enabled`,
+        )
+
+        await page.selectOption('#min-date-type', {value: 'CUSTOM'})
+        await page.selectOption('#max-date-type', {value: 'CUSTOM'})
+        await validateScreenshot(
+          page.locator('#question-settings'),
+          `${type}-edit-page-with-custom-date-pickers`,
+        )
+      }
       await adminQuestions.updateQuestion(questionName)
 
       const programName = `program-for-${type}-question-lifecycle`

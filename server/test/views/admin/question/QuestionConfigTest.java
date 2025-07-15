@@ -202,8 +202,8 @@ public class QuestionConfigTest {
     Matcher matcher = dateTypeAnySelectedPattern.matcher(result);
     assertThat(matcher.results().count()).isEqualTo(2);
     // Verify custom date pickers are present
-    assertThat(result).contains("min-date-month");
-    assertThat(result).contains("max-date-month");
+    assertThat(result).contains("min-custom-date-month");
+    assertThat(result).contains("max-custom-date-month");
   }
 
   @Test
@@ -222,8 +222,8 @@ public class QuestionConfigTest {
 
     assertThat(result).containsPattern("<option[^>]*value=\"APPLICATION_DATE\" selected>");
     assertThat(result).containsPattern("<option[^>]*value=\"CUSTOM\" selected>");
-    assertThat(result).containsPattern("input[^>]*id=\"max-date-day\"[^>]*value=\"1\"");
+    assertThat(result).containsPattern("input[^>]*id=\"max-custom-date-day\"[^>]*value=\"1\"");
     assertThat(result).containsPattern("<option value=\"2\" selected>");
-    assertThat(result).containsPattern("input[^>]*id=\"max-date-year\"[^>]*value=\"2025\"");
+    assertThat(result).containsPattern("input[^>]*id=\"max-custom-date-year\"[^>]*value=\"2025\"");
   }
 }
