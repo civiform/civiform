@@ -27,7 +27,6 @@ import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 import models.JobType;
 import org.apache.pekko.actor.ActorSystem;
@@ -164,13 +163,16 @@ public final class DurableJobModule extends AbstractModule {
                 applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
-    Optional<Integer> refreshInterval = config.hasPath("durable_jobs.map_refresh_interval") ? Optional.of(config.getInt("durable_jobs.map_refresh_interval")) : Optional.empty();
-    if (refreshInterval.isPresent()) {
+    if (config.hasPath("durable_jobs.map_refresh_interval")) {
+      int refreshInterval = config.getInt("durable_jobs.map_refresh_interval");
+      if (refreshInterval < 30) {
+        throw new IllegalArgumentException("Refresh interval must be >= 30 minutes.");
+      }
       durableJobRegistry.register(
-        DurableJobName.REFRESH_MAP_DATA,
-        JobType.RECURRING,
-        MapRefreshJob::new,
-        new RecurringJobExecutionTimeResolvers.AdminConfiguredResolver(refreshInterval));
+          DurableJobName.REFRESH_MAP_DATA,
+          JobType.RECURRING,
+          MapRefreshJob::new,
+          new RecurringJobExecutionTimeResolvers.AdminConfiguredIntervalResolver(refreshInterval));
     }
 
     return durableJobRegistry;
