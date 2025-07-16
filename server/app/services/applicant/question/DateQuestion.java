@@ -66,7 +66,7 @@ public final class DateQuestion extends AbstractQuestion {
       return validateDate(
           definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
     }
-    return defaultValidateDate(enteredDate);
+    return legacyValidateDate(enteredDate);
   }
 
   private ImmutableSet<ValidationErrorMessage> validateDate(
@@ -121,7 +121,14 @@ public final class DateQuestion extends AbstractQuestion {
     return errors.build();
   }
 
-  private ImmutableSet<ValidationErrorMessage> defaultValidateDate(LocalDate enteredDate) {
+  /**
+   * Legacy date validation that checks the date is within +/- 150 years. This should only used for
+   * date questions created before custom date validation is available, new questions should use
+   * {@link #validateDate()} with specific min/max parameters instead.
+   *
+   * @deprecated
+   */
+  private ImmutableSet<ValidationErrorMessage> legacyValidateDate(LocalDate enteredDate) {
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
     if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
       errors.add(
