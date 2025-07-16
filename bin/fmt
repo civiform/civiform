@@ -16,7 +16,6 @@
 #
 #   * Diff against the previous commit:
 #     bin/fmt -d HEAD^
-
 source bin/lib.sh
 docker::set_project_name_dev
 
