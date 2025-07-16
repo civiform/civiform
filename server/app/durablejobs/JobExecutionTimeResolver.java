@@ -13,8 +13,4 @@ public interface JobExecutionTimeResolver {
    * represented by {@code clock}.
    */
   Instant resolveExecutionTime(Clock clock);
-
-  default Instant resolveExecutionTime(Optional<String> refreshInterval) {
-    return Instant.now();
-  }
 }

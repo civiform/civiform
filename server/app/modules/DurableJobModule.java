@@ -164,13 +164,15 @@ public final class DurableJobModule extends AbstractModule {
                 applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
-    Optional<Integer> refreshInterval =
-        Optional.of(config.getInt("durable_jobs.map_refresh_interval"));
-    durableJobRegistry.register(
+    Optional<Integer> refreshInterval = config.hasPath("durable_jobs.map_refresh_interval") ? Optional.of(config.getInt("durable_jobs.map_refresh_interval")) : Optional.empty();
+    if (refreshInterval.isPresent()) {
+      durableJobRegistry.register(
         DurableJobName.REFRESH_MAP_DATA,
         JobType.RECURRING,
         MapRefreshJob::new,
         new RecurringJobExecutionTimeResolvers.AdminConfiguredResolver(refreshInterval));
+    }
+
     return durableJobRegistry;
   }
 
