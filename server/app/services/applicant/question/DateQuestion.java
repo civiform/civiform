@@ -64,9 +64,8 @@ public final class DateQuestion extends AbstractQuestion {
       if (definition.getMinDate().isPresent() && definition.getMaxDate().isPresent()) {
         return validateDate(
             definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
-      } else {
-        return defaultValidateDate(enteredDate);
       }
+      return defaultValidateDate(enteredDate);
     }
     return ImmutableSet.of();
   }
