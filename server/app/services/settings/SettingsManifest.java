@@ -934,7 +934,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * An integer specifying the refresh interval in minutes for map data used in CiviForm. If this
-   * value is not set, map data will not refresh.
+   * value is not set, map data will not refresh. The minimum is 30.
    */
   public Optional<Integer> getDurableJobsMapRefreshIntervalMinutes() {
     return getInt("DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES");
@@ -2155,8 +2155,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES",
                           "An integer specifying the refresh interval in minutes for map data used"
-                              + " in CiviForm. If this value is not set, map data will not"
-                              + " refresh.",
+                              + " in CiviForm. If this value is not set, map data will not refresh."
+                              + " The minimum is 30.",
                           /* isRequired= */ false,
                           SettingType.INT,
                           SettingMode.HIDDEN))))
