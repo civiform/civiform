@@ -125,9 +125,8 @@ public final class DateQuestion extends AbstractQuestion {
    * Legacy date validation that checks the date is within +/- 150 years. This should only used for
    * date questions created before custom date validation is available, new questions should use
    * {@link #validateDate()} with specific min/max parameters instead.
-   *
-   * @deprecated
    */
+  @Deprecated
   private ImmutableSet<ValidationErrorMessage> legacyValidateDate(LocalDate enteredDate) {
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
     if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
