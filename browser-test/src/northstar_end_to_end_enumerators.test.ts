@@ -424,18 +424,15 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       // Put 50 things in the nested enumerator for enum one
-     for (let i = 1; i <= 50; i++) {
+      for (let i = 1; i <= 50; i++) {
         await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
       }
-      
-      await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).toBeDisabled()
-     
+
+      await expect(page.locator('#enumerator-field-add-button')).toBeDisabled()
+
       await logout(page)
-      
     })
-    
+
     test('Applicant can navigate to previous blocks', async ({
       page,
       applicantQuestions,
