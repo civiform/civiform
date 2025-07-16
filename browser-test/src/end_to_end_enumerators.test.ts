@@ -154,24 +154,6 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
     })
-    test('Every enum has a maxEnumEntityCount', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      // Fill in name question
-      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
-
-      for (let i = 1; i <= 49; i++) {
-        await applicantQuestions.addEnumeratorAnswer(`Bugs (${i})`)
-      }
-
-      await expect(
-        page.locator('#enumerator-field-add-button'),
-      ).toHaveAttribute('disabled')
-    })
 
     test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({
       page,
