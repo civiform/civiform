@@ -140,6 +140,7 @@ public enum Scalar {
       case YES_NO:
       case RADIO_BUTTON:
         return ImmutableSet.of(SELECTION);
+      case MAP: // @TODO(#11003): Add a return for the map question
       case STATIC:
         return ImmutableSet.of();
       case PHONE:

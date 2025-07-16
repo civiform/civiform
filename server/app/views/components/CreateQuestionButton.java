@@ -58,6 +58,10 @@ public final class CreateQuestionButton {
       if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
+      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled()) {
+        // TODO(#11001): Render map question
+        continue;
+      }
 
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =

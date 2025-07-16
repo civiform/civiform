@@ -15,6 +15,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -248,6 +249,28 @@ public final class SampleQuestionDefinitions {
                           "What is your driver's license ID?",
                           Lang.forCode("ar").toLocale(),
                           "ما هو رقم رخصة القيادة الخاصة بك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
+              .build());
+
+  @VisibleForTesting
+  public static final MapQuestionDefinition MAP_QUESTION_DEFINITION =
+      new MapQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Map Question")
+              .setDescription("description")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "Select locations",
+                          Lang.forCode("ar").toLocale(),
+                          "حدد المواقع")))
               .setQuestionHelpText(
                   LocalizedStrings.of(
                       ImmutableMap.of(
@@ -505,6 +528,7 @@ public final class SampleQuestionDefinitions {
       case ENUMERATOR -> ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId();
       case FILEUPLOAD -> FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId();
       case ID -> ID_QUESTION_DEFINITION.withPopulatedTestId();
+      case MAP -> MAP_QUESTION_DEFINITION.withPopulatedTestId();
       case NAME -> NAME_QUESTION_DEFINITION.withPopulatedTestId();
       case NUMBER -> NUMBER_QUESTION_DEFINITION.withPopulatedTestId();
       case RADIO_BUTTON -> RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId();

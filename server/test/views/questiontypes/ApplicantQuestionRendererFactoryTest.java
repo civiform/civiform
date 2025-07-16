@@ -39,7 +39,7 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
@@ -66,7 +66,8 @@ public class ApplicantQuestionRendererFactoryTest {
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    // Map type questions are only compatible with North Star so won't get rendered for this test
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
@@ -107,6 +108,7 @@ public class ApplicantQuestionRendererFactoryTest {
         assertThat(renderedContent).doesNotContain("fieldset");
         break;
         // This is here because errorprone doesn't like that it was missing
+      case MAP:
       case NULL_QUESTION:
         break;
     }

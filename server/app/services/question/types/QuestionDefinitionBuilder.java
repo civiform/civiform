@@ -233,6 +233,10 @@ public final class QuestionDefinitionBuilder {
         }
         return new IdQuestionDefinition(builder.build());
 
+      case MAP:
+        // TODO(#11002) Set validation predicates
+        return new MapQuestionDefinition(builder.build());
+
       case NAME:
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(

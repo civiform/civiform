@@ -104,6 +104,9 @@ public class QuestionConfigTest {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
         break;
+      case MAP:
+        assertThat(maybeConfig).isEmpty();
+        break;
       case NAME:
         assertThat(maybeConfig).isEmpty();
         break;

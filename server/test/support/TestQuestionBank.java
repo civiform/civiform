@@ -21,6 +21,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -85,6 +86,7 @@ public class TestQuestionBank {
         .put(QuestionType.ENUMERATOR, enumeratorApplicantHouseholdMembers())
         .put(QuestionType.FILEUPLOAD, fileUploadApplicantFile())
         .put(QuestionType.ID, idApplicantId())
+        .put(QuestionType.MAP, mapQuestion())
         .put(QuestionType.NAME, nameApplicantName())
         .put(QuestionType.NUMBER, numberApplicantJugglingNumber())
         .put(QuestionType.PHONE, phoneApplicantPhone())
@@ -233,6 +235,11 @@ public class TestQuestionBank {
     enumeratorApplicantHouseholdMembers();
     return questionCache.computeIfAbsent(
         QuestionEnum.ID_REPEATED_HOUSEHOLD_MEMBER_ID, this::idRepeatedHouseholdMemberId);
+  }
+
+  /** Returns a sample MAP question. */
+  public QuestionModel mapQuestion() {
+    return questionCache.computeIfAbsent(QuestionEnum.MAP, this::mapQuestion);
   }
 
   /** Returns a sample NAME question. */
@@ -649,6 +656,19 @@ public class TestQuestionBank {
   }
 
   // Name
+  private QuestionModel mapQuestion(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new MapQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("map question")
+                .setDescription("select locations")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
+    return maybeSave(definition);
+  }
+
+  // Name
   private QuestionModel nameApplicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -927,6 +947,7 @@ public class TestQuestionBank {
     FILE_UPLOAD_REPEATED_HOUSEHOLD_MEMBER_FILE,
     ID_APPLICANT_ID,
     ID_REPEATED_HOUSEHOLD_MEMBER_ID,
+    MAP,
     NAME_APPLICANT_NAME,
     NAME_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_NAME,
     NULL_QUESTION,

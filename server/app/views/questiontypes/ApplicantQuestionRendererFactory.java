@@ -48,6 +48,12 @@ public final class ApplicantQuestionRendererFactory {
       case EMAIL -> new EmailQuestionRenderer(question);
       case FILEUPLOAD -> new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
       case ID -> new IdQuestionRenderer(question);
+      case MAP ->
+          throw new IllegalStateException(
+              String.format(
+                  "Question type %s should not be rendered. This question type is only compatible"
+                      + " with the North Star Applicant UI.",
+                  question.getType()));
       case NAME -> new NameQuestionRenderer(question);
       case NUMBER -> new NumberQuestionRenderer(question);
       case RADIO_BUTTON -> new RadioButtonQuestionRenderer(question);
