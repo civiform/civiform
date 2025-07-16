@@ -8,13 +8,12 @@ DEADLINE=$(($START_TIME + 500))
 # Allow callers to override BASE_URL if they want (e.g. for run-browser-tests-local).
 # Defaults civiform:9000 when running from within docker.
 export BASE_URL="${BASE_URL:-http://civiform:9000}"
-
-export TEST_USER_AUTH_STRATEGY="${TEST_USER_AUTH_STRATEGY:-fake-oidc}"
-export TEST_USER_LOGIN="${TEST_USER_LOGIN:-testuser}"
-export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-anotsecretpassword}"
+BASE_URL=http://localhost:9000
+export TEST_USER_AUTH_STRATEGY=keycloak
+export TEST_USER_LOGIN=testuser
+export TEST_USER_PASSWORD=anotsecretpassword
 # The display name returned by test_oidc_provider.js is <username>@example.com.
-export TEST_USER_DISPLAY_NAME="${TEST_USER_DISPLAY_NAME:-testuser@example.com}"
-
+export TEST_USER_DISPLAY_NAME=applicant1Ln, applicant1Fn
 if ! output="$(node -v)"; then
   echo output
   echo "You must have node installed locally to run this command. Go to https://nodejs.org/en/download/package-manager/ for installation instructions."

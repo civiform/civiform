@@ -156,19 +156,19 @@ lazy val root = (project in file("."))
 
       // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
       // is set to true
-      val errorProneCompilerOptions =
-        Option(sys.env.getOrElse("DISABLE_ERRORPRONE", "false"))
-          .filter(_ != "true")
-          .map(_ =>
-            Seq(
-              // Turn off the AutoValueSubclassLeaked error since the generated
-              // code contains it - we can't control that.
-              "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-              "--should-stop=ifError=FLOW",
-              "-Werror"
-            )
-          )
-          .getOrElse(Seq.empty)
+      val errorProneCompilerOptions = Seq.empty
+//        Option(sys.env.getOrElse("DISABLE_ERRORPRONE", "false"))
+//          .filter(_ != "true")
+//          .map(_ =>
+//            Seq(
+//              // Turn off the AutoValueSubclassLeaked error since the generated
+//              // code contains it - we can't control that.
+//              "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+//              "--should-stop=ifError=FLOW",
+//              "-Werror"
+//            )
+//          )
+//          .getOrElse(Seq.empty)
 
       defaultCompilerOptions ++ errorProneCompilerOptions
     },

@@ -44,13 +44,14 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
-    if (environment.isDev()) {
-      client = new AbstractS3ApplicantStorage.LocalStackClient(config, s3StorageUtils);
-    } else if (environment.isTest()) {
-      client = new AbstractS3ApplicantStorage.NullClient();
-    } else {
-      client = new S3Client(s3StorageUtils);
-    }
+//    if (environment.isDev()) {
+//      client = new AbstractS3ApplicantStorage.LocalStackClient(config, s3StorageUtils);
+//    } else if (environment.isTest()) {
+//      client = new AbstractS3ApplicantStorage.NullClient();
+//    } else {
+//      client = new S3Client(s3StorageUtils);
+//    }
+    client = new AbstractS3ApplicantStorage.LocalStackClient(config, s3StorageUtils);
 
     appLifecycle.addStopHook(
         () -> {

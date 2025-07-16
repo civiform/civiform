@@ -47,13 +47,14 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
-    if (environment.isDev()) {
-      client = new LocalStackClient(config, s3StorageUtils);
-    } else if (environment.isProd()) {
-      client = new AwsClient();
-    } else {
-      client = new NullClient();
-    }
+//    if (environment.isDev()) {
+//      client = new LocalStackClient(config, s3StorageUtils);
+//    } else if (environment.isProd()) {
+//      client = new AwsClient();
+//    } else {
+//      client = new NullClient();
+//    }
+    client = new LocalStackClient(config, s3StorageUtils);
   }
 
   /** The bucket path defined in the conf file */
