@@ -382,16 +382,18 @@ public final class ApplicantRoutes {
       String blockId,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
           applicantId,
-          programId,
+          programIdStr,
           blockId,
           inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+          new ApplicantRequestedActionWrapper(applicantRequestedAction),
+          /* isFromUrlCall= */ false);
     }
     return routes.ApplicantProgramBlocksController.updateFile(
-        Long.toString(programId),
+        programIdStr,
         blockId,
         inReview,
         new ApplicantRequestedActionWrapper(applicantRequestedAction),
