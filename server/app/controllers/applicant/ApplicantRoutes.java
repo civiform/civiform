@@ -307,12 +307,13 @@ public final class ApplicantRoutes {
       long programId,
       int previousBlockIndex,
       boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
-          applicantId, programId, previousBlockIndex, inReview);
+          applicantId, programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
     }
     return routes.ApplicantProgramBlocksController.previous(
-        Long.toString(programId), previousBlockIndex, inReview, /* isFromUrlCall= */ false);
+        programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
