@@ -6,4 +6,4 @@ create table if not exists map_data (
 );
 
 # --- !Downs
-drop table if exists exists map_data;
+drop table if exists map_data;
