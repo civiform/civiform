@@ -74,6 +74,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
+    context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());
     context.setVariable(
         "smallLogoUrl",
         settingsManifest
