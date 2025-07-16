@@ -126,7 +126,7 @@ object WebAssetsBundler extends AutoPlugin {
 
   def runWebpack(targetDir: File, log: ManagedLogger) = {
     val compilationCommand =
-      "npx webpack --config webpack.config.js --output-path " + targetDir
+      "npx webpack --stats verbose --config webpack.config.js --output-path " + targetDir
     val res = Process(compilationCommand) ! ProcessLogger(
       stdout => log.info(stdout),
       stderr => log.error(stderr)

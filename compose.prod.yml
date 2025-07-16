@@ -1,0 +1,188 @@
+# x-sbt-volumes:
+#   volumes: &sbt-volumes
+#     - ./server:/usr/src/server
+
+services:
+  db:
+    image: postgres:16.8
+    container_name: db
+    restart: unless-stopped
+    volumes:
+      - vol-db-data:/var/lib/postgresql/data
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
+    networks:
+      - net-civiform
+    expose:
+      - 5432
+    environment:
+      POSTGRES_PASSWORD: example
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: 1G
+
+  dev-oidc:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: dev-oidc
+    networks:
+      - net-civiform
+    ports:
+      - 3390:3390
+    environment:
+      KC_HOSTNAME: dev-oidc
+      KC_HOSTNAME_PORT: 3390
+      KC_HTTP_PORT: 3390
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_DB: postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: example
+      KC_DB_SCHEMA: public
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_URL_DATABASE: keycloak
+    depends_on:
+      db:
+        condition: service_healthy
+    command: start --import-realm
+    volumes:
+      - ./test-support/keycloak/auth/import:/opt/keycloak/data/import
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "exec 3<>/dev/tcp/localhost/3390 && echo -e 'GET /realms/master HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 20
+
+  localstack:
+    image: localstack/localstack:4.1.1
+    container_name: localstack
+    expose:
+      - '4566'
+    ports:
+      - 4566:4566
+    environment:
+      - SERVICES=s3,ses
+      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_SESSION_TOKEN=test
+    networks:
+      net-civiform:
+        aliases:
+          # We use hosted-style for s3 bucket urls. Which matches production.
+          # https://docs.localstack.cloud/user-guide/aws/s3/
+          # So we need to add host mapping for test bucket civiform-local-s3
+          # and civiform-local-s3-public
+          - civiform-local-s3.s3.localhost.localstack.cloud
+          - civiform-local-s3-public.s3.localhost.localstack.cloud
+          - localhost.localstack.cloud
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  localstack-bucket-creator:
+    image: amazon/aws-cli:latest
+    container_name: localstack-bucket-creator
+    environment:
+      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_SESSION_TOKEN=test
+    entrypoint: /bin/sh
+    command: >
+      -c '
+      aws --endpoint-url=http://localhost.localstack.cloud:4566 s3api create-bucket --bucket civiform-local-s3 --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2 &&
+      aws --endpoint-url=http://localhost.localstack.cloud:4566 s3api create-bucket --bucket civiform-local-s3-public --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2 &&
+      aws --endpoint-url=http://localhost.localstack.cloud:4566 s3api put-public-access-block --bucket civiform-local-s3-public --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+      '
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - net-civiform
+
+  web1:
+    image: civiform:latest
+    container_name: web1
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      dev-oidc:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - net-civiform
+    expose:
+      - 9000
+    env_file:
+      - prod.env
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: 2
+    #       memory: 1G
+
+  web2:
+    image: civiform:latest
+    container_name: web2
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      dev-oidc:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - net-civiform
+    expose:
+      - 9000
+    env_file:
+      - prod.env
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '9000:80'
+    networks:
+      - net-civiform
+    depends_on:
+      - web1
+      - web2
+
+volumes:
+  vol-db-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/tmp/civiform-prod/db'
+
+networks:
+  net-civiform:
+    driver: bridge

@@ -40,6 +40,7 @@ export enum AuthStrategy {
   FAKE_OIDC = 'fake-oidc',
   AWS_STAGING = 'aws-staging',
   SEATTLE_STAGING = 'seattle-staging',
+  KEYCLOAK = 'keycloak'
 }
 
 /** True when the test environment is hermetic i.e. not a durable staging deployment. */
@@ -57,11 +58,11 @@ export const logout = async (page: Page, closeToast = true) => {
     // If the user logged in through OIDC previously - during logout they are
     // redirected to dev-oidc:PORT/session/end page. There they need to confirm
     // logout.
-    if (page.url().match('dev-oidc.*/session/end')) {
+    if (page.url().match('dev-oidc.*logout')) {
       const pageContent = await page.textContent('html')
-      if (pageContent!.includes('Do you want to sign-out from')) {
+      if (pageContent!.includes('Do you want to log out?')) {
         // OIDC central provider confirmation page
-        await page.click('button:has-text("Yes")')
+        await page.getByRole('button', { name: 'Logout' }).click()
       }
     }
 
@@ -77,17 +78,31 @@ export const logout = async (page: Page, closeToast = true) => {
 
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#admin')
-    await waitForPageJsLoad(page)
+    switch (TEST_USER_AUTH_STRATEGY) {
+      case AuthStrategy.KEYCLOAK:
+        await loginAsTestUserKeyCloak(page, 'civiformadmin1', 'password', 'a:has-text("Admin login")')
+        break;
+
+      default:
+        await page.click('#debug-content-modal-button')
+        await page.click('#admin')
+        await waitForPageJsLoad(page)
+    }
   })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#program-admin')
-    await waitForPageJsLoad(page)
+    switch (TEST_USER_AUTH_STRATEGY) {
+      case AuthStrategy.KEYCLOAK:
+        await loginAsTestUserKeyCloak(page, 'programadmin1', 'password', 'a:has-text("Admin login")')
+        break;
+
+      default:
+        await page.click('#debug-content-modal-button')
+        await page.click('#program-admin')
+        await waitForPageJsLoad(page)
+    }    
   })
 }
 
@@ -130,6 +145,9 @@ export const loginAsTestUser = async (
         break
       case AuthStrategy.SEATTLE_STAGING:
         await loginAsTestUserSeattleStaging(page, loginButton)
+        break
+      case AuthStrategy.KEYCLOAK:
+        await loginAsTestUserKeyCloak(page, 'applicant1', 'password', loginButton)
         break
       default:
         throw new Error(
@@ -180,6 +198,25 @@ async function loginAsTestUserAwsStaging(
     // getByRole selects items by their accessible name, so it only selects the visible button
     page.getByRole('button', {name: 'Continue', exact: true}).click(),
   ])
+}
+
+async function loginAsTestUserKeyCloak(
+  page: Page,
+  username: string,
+  password: string,
+  loginButton: string
+) {
+  await page.click(loginButton)
+  // Wait for the IDCS login page to make sure we've followed all redirects.
+  // If running this against a site with a real IDCS (i.e. staging) and this
+  // test fails with a timeout try re-running the tests. Sometimes there are
+  // just transient network hiccups that will pass on a second run.
+  // In short: If using a real IDCS retry test if this has a timeout failure.
+  await page.waitForURL('**/auth*')
+  await page.fill('input[name=username]', username)
+  await page.fill('input[name=password]', password)
+  await page.click('button:has-text("Sign In"):not([disabled])')
+  // await page.waitForNavigation({ waitUntil: 'networkidle' })
 }
 
 async function loginAsTestUserFakeOidc(

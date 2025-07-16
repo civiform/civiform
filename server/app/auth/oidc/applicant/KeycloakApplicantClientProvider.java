@@ -30,11 +30,11 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
   public KeycloakApplicantClientProvider(OidcClientProviderParams params, Environment env) {
     super(params);
 
-    if (env.isProd()) {
-      throw new UnsupportedOperationException(
-          "Keycloak use is experimental and cannot be used in production environments at this"
-              + " time.");
-    }
+//    if (env.isProd()) {
+//      throw new UnsupportedOperationException(
+//          "Keycloak use is experimental and cannot be used in production environments at this"
+//              + " time.");
+//    }
   }
 
   @Override
