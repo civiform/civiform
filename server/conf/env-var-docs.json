@@ -809,7 +809,7 @@
       },
       "DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES": {
         "mode": "HIDDEN",
-        "description": "An integer specifying the refresh interval in minutes for map data used in CiviForm. If this value is not set, map data will not refresh.",
+        "description": "An integer specifying the refresh interval in minutes for map data used in CiviForm. If this value is not set, map data will not refresh. The minimum is 30.",
         "type": "int"
       }
     }
