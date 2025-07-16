@@ -160,7 +160,7 @@ public final class DurableJobModule extends AbstractModule {
             new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
-    if (config.hasPath("durable_jobs.map_refresh_interval")) {
+    if (config.getBoolean("map_question_enabled") && config.hasPath("durable_jobs.map_refresh_interval")) {
       int refreshInterval = config.getInt("durable_jobs.map_refresh_interval");
       if (refreshInterval < 30) {
         throw new IllegalArgumentException("Refresh interval must be >= 30 minutes.");
