@@ -57,17 +57,16 @@ public final class DateQuestion extends AbstractQuestion {
   }
 
   private ImmutableSet<ValidationErrorMessage> validateDate() {
-    if (this.getDateValue().isPresent()) {
-      LocalDate enteredDate = dateValue.get();
-
-      DateQuestionDefinition definition = getQuestionDefinition();
-      if (definition.getMinDate().isPresent() && definition.getMaxDate().isPresent()) {
-        return validateDate(
-            definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
-      }
-      return defaultValidateDate(enteredDate);
+    if (this.getDateValue().isEmpty()) {
+      return ImmutableSet.of();
     }
-    return ImmutableSet.of();
+    LocalDate enteredDate = dateValue.get();
+    DateQuestionDefinition definition = getQuestionDefinition();
+    if (definition.getMinDate().isPresent() && definition.getMaxDate().isPresent()) {
+      return validateDate(
+          definition.getMinDate().get(), definition.getMaxDate().get(), enteredDate);
+    }
+    return defaultValidateDate(enteredDate);
   }
 
   private ImmutableSet<ValidationErrorMessage> validateDate(
