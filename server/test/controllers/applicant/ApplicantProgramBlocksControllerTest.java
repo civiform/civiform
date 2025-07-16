@@ -2024,28 +2024,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_invalidApplicant_returnsUnauthorized() {
+  public void updateFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    badApplicantId,
-                    program.id,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 badApplicantId,
-                program.id,
+                programId,
                 /* blockId= */ "2",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2053,33 +2045,24 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void updateFileWithApplicantId_applicantAccessToDraftProgram_returnsUnauthorized() {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    draftProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)))
-            .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request,
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                draftProgram.id,
+                draftProgramId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2087,7 +2070,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_civiformAdminAccessToDraftProgram_works() {
+  public void updateFileWithApplicantId_civiformAdminAccessToDraftProgram_works() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -2095,28 +2078,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    draftProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                draftProgram.id,
+                draftProgramId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2124,34 +2097,24 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_obsoleteProgram_works() {
+  public void updateFileWithApplicantId_obsoleteProgram_works() {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    obsoleteProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                obsoleteProgram.id,
+                obsoleteProgramId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2159,28 +2122,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_invalidProgram_returnsBadRequest() {
-    long badProgramId = program.id + 1000;
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    badProgramId,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+  public void updateFileWithApplicantId_invalidProgram_returnsBadRequest() {
+    String badProgramId = Long.toString(program.id + 1000);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
                 badProgramId,
                 /* blockId= */ "2",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2188,28 +2142,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_invalidBlock_returnsBadRequest() {
+  public void updateFileWithApplicantId_invalidBlock_returnsBadRequest() {
     String badBlockId = "1000";
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    badBlockId,
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 badBlockId,
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2217,28 +2163,20 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_notFileUploadBlock_returnsBadRequest() {
+  public void updateFileWithApplicantId_notFileUploadBlock_returnsBadRequest() {
     String badBlockId = "1";
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    badBlockId,
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 badBlockId,
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2246,26 +2184,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_missingFileKeyAndBucket_returnsBadRequest() {
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
+  public void updateFileWithApplicantId_missingFileKeyAndBucket_returnsBadRequest() {
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequest(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "2",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2273,7 +2204,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_requestedActionNext_redirectsToNextAndStoresFileKey() {
+  public void updateFileWithApplicantId_requestedActionNext_redirectsToNextAndStoresFileKey() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -2281,33 +2212,25 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                Long.toString(program.id),
+                programId,
                 /* blockId= */ "2",
                 /* questionName= */ Optional.empty(),
                 /* isFromUrlCall= */ false)
@@ -2320,7 +2243,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_requestedActionPrevious_redirectsToPreviousAndStoresFileKey() {
+  public void
+      updateFileWithApplicantId_requestedActionPrevious_redirectsToPreviousAndStoresFileKey() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -2328,26 +2252,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(PREVIOUS_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "2",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(PREVIOUS_BLOCK))
+                new ApplicantRequestedActionWrapper(PREVIOUS_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2357,10 +2273,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Integer previousBlockIndex = 0;
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                Long.toString(program.id),
-                previousBlockIndex,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                programId, previousBlockIndex, /* inReview= */ false, /* isFromUrlCall= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
 
@@ -2370,7 +2283,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_requestedActionReview_redirectsToReviewAndStoresFileKey() {
+  public void updateFileWithApplicantId_requestedActionReview_redirectsToReviewAndStoresFileKey() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -2378,34 +2291,24 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(REVIEW_PAGE)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(REVIEW_PAGE))
+                new ApplicantRequestedActionWrapper(REVIEW_PAGE),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(programId, /* isFromUrlCall= */ false).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
 
     applicant.refresh();
@@ -2414,33 +2317,24 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_completedProgram_redirectsToReviewPage() {
+  public void updateFileWithApplicantId_completedProgram_redirectsToReviewPage() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)));
-    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .updateFileWithApplicantId(
-                request.build(),
+                fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -2449,9 +2343,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // The requested action is NEXT_BLOCK, but since file upload is the only question they should be
     // redirected to the review page.
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(programId, /* isFromUrlCall= */ false).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -2460,7 +2352,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
    * https://github.com/seattle-uat/civiform/issues/2818
    */
   @Test
-  public void updateFile_storedFileAlreadyExists_doesNotCreateDuplicateStoredFile() {
+  public void updateFileWithApplicantId_storedFileAlreadyExists_doesNotCreateDuplicateStoredFile() {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
 
     program =
@@ -2468,6 +2360,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
     var fileKey = "fake-key";
     var storedFile = new StoredFileModel();
@@ -2479,10 +2372,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
                     applicant.id,
-                    program.id,
+                    programId,
                     /* blockId= */ "1",
                     /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(REVIEW_PAGE)));
+                    new ApplicantRequestedActionWrapper(REVIEW_PAGE),
+                    /* isFromUrlCall= */ true));
     addQueryString(request, ImmutableMap.of("key", fileKey, "bucket", "fake-bucket"));
 
     Result result =
@@ -2490,10 +2384,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateFileWithApplicantId(
                 request.build(),
                 applicant.id,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
-                new ApplicantRequestedActionWrapper(REVIEW_PAGE))
+                new ApplicantRequestedActionWrapper(REVIEW_PAGE),
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 

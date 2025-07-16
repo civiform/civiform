@@ -1093,89 +1093,117 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> updateFileWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
-      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper,
+      boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
-    return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              CompletionStage<ApplicantPersonalInfo> applicantStage =
+                  this.applicantService.getPersonalInfo(applicantId);
 
-              if (block.isEmpty() || !block.get().isFileUpload()) {
-                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
-              }
-
-              Optional<String> bucket = request.queryString("bucket");
-              Optional<String> key = request.queryString("key");
-
-              // Original file name is only set for Azure, where we have to generate a UUID when
-              // uploading a file to Azure Blob storage because we cannot upload a file without a
-              // name. For AWS, the file key and original file name are the same. For the future,
-              // GCS supports POST uploads so this field won't be needed either:
-              // <link> https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
-              // This is only really needed for Azure blob storage.
-              Optional<String> originalFileName = request.queryString("originalFileName");
-
-              if (bucket.isEmpty() || key.isEmpty()) {
-                return failedFuture(
-                    new IllegalArgumentException("missing file key and bucket names"));
-              }
-
-              FileUploadQuestion fileUploadQuestion =
-                  block.get().getQuestions().stream()
-                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                      .findAny()
-                      .get()
-                      .createFileUploadQuestion();
-
-              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                  new ImmutableMap.Builder<>();
-              fileUploadQuestionFormData.put(
-                  fileUploadQuestion.getFileKeyPath().toString(), key.get());
-              originalFileName.ifPresent(
-                  s ->
-                      fileUploadQuestionFormData.put(
-                          fileUploadQuestion.getOriginalFileNamePath().toString(), s));
-
-              return ensureFileRecord(key.get(), originalFileName)
+              return applicantStage
                   .thenComposeAsync(
-                      (StoredFileModel unused) ->
-                          applicantService.stageAndUpdateIfValid(
-                              applicantId,
-                              programId,
-                              blockId,
-                              fileUploadQuestionFormData.build(),
-                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                              false));
-            },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              CiviFormProfile profile = profileUtils.currentUserProfile(request);
-              return renderErrorOrRedirectToRequestedPage(
-                  request,
-                  profile,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  applicantRequestedActionWrapper.getAction(),
-                  roApplicantProgramService);
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(this::handleUpdateExceptions);
+                      v -> checkApplicantAuthorization(request, applicantId),
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+                  .thenComposeAsync(
+                      v ->
+                          applicantService.getReadOnlyApplicantProgramService(
+                              applicantId, programId),
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      (roApplicantProgramService) -> {
+                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+                        if (block.isEmpty() || !block.get().isFileUpload()) {
+                          return failedFuture(
+                              new ProgramBlockNotFoundException(programId, blockId));
+                        }
+
+                        Optional<String> bucket = request.queryString("bucket");
+                        Optional<String> key = request.queryString("key");
+
+                        // Original file name is only set for Azure, where we have to generate a
+                        // UUID when
+                        // uploading a file to Azure Blob storage because we cannot upload a file
+                        // without a
+                        // name. For AWS, the file key and original file name are the same. For the
+                        // future,
+                        // GCS supports POST uploads so this field won't be needed either:
+                        // <link> https://cloud.google.com/storage/docs/xml-api/post-object-forms
+                        // </link>
+                        // This is only really needed for Azure blob storage.
+                        Optional<String> originalFileName = request.queryString("originalFileName");
+
+                        if (bucket.isEmpty() || key.isEmpty()) {
+                          return failedFuture(
+                              new IllegalArgumentException("missing file key and bucket names"));
+                        }
+
+                        FileUploadQuestion fileUploadQuestion =
+                            block.get().getQuestions().stream()
+                                .filter(
+                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                                .findAny()
+                                .get()
+                                .createFileUploadQuestion();
+
+                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                            new ImmutableMap.Builder<>();
+                        fileUploadQuestionFormData.put(
+                            fileUploadQuestion.getFileKeyPath().toString(), key.get());
+                        originalFileName.ifPresent(
+                            s ->
+                                fileUploadQuestionFormData.put(
+                                    fileUploadQuestion.getOriginalFileNamePath().toString(), s));
+
+                        return ensureFileRecord(key.get(), originalFileName)
+                            .thenComposeAsync(
+                                (StoredFileModel unused) ->
+                                    applicantService.stageAndUpdateIfValid(
+                                        applicantId,
+                                        programId,
+                                        blockId,
+                                        fileUploadQuestionFormData.build(),
+                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
+                                            request),
+                                        false));
+                      },
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      (roApplicantProgramService) -> {
+                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                        return renderErrorOrRedirectToRequestedPage(
+                            request,
+                            profile,
+                            applicantId,
+                            programId,
+                            blockId,
+                            applicantStage.toCompletableFuture().join(),
+                            inReview,
+                            applicantRequestedActionWrapper.getAction(),
+                            roApplicantProgramService);
+                      },
+                      classLoaderExecutionContext.current())
+                  .exceptionally(this::handleUpdateExceptions);
+            });
   }
 
   /**
@@ -1241,10 +1269,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 updateFileWithApplicantId(
                     request,
                     applicantId,
-                    programId,
+                    Long.toString(programId),
                     blockId,
                     inReview,
-                    applicantRequestedActionWrapper));
+                    applicantRequestedActionWrapper,
+                    /* isFromUrlCall= */ false));
   }
 
   /**
