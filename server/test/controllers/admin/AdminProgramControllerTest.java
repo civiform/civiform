@@ -112,6 +112,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void create_showsNewProgramInList() {
     RequestBuilder requestBuilder =
@@ -224,6 +225,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void create_returnsNewProgramWithAcls() {
     RequestBuilder requestBuilder =
@@ -400,6 +402,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
@@ -569,6 +572,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     RequestBuilder requestBuilder =
@@ -832,6 +836,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void update_overwritesExistingProgram() throws Exception {
     ProgramModel program =
@@ -1150,6 +1155,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   /**
    * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
    */
+  @Deprecated
   @Test
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
     ProgramModel program =
