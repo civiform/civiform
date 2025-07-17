@@ -197,8 +197,7 @@ public class AdminImportController extends CiviFormController {
                 .render());
       }
 
-      boolean withDuplicates =
-          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled();
 
       // When we are importing without duplicate questions, we expect all drafts to be published
       // before the import process begins.
@@ -312,8 +311,7 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
           duplicateHandlingOptions = programMigrationWrapper.getDuplicateQuestionHandlingOptions();
 
-      boolean withDuplicates =
-          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled();
       boolean duplicateHandlingEnabled =
           settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
@@ -337,8 +335,7 @@ public class AdminImportController extends CiviFormController {
 
       return ok(
           adminImportViewPartial
-              .renderProgramSaved(
-                  request, savedProgramDefinition.adminName(), savedProgramDefinition.id())
+              .renderProgramSaved(savedProgramDefinition.adminName(), savedProgramDefinition.id())
               .render());
     } catch (RuntimeException error) {
       logger.error("Error saving program", error);
