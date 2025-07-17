@@ -65,7 +65,7 @@
                   th:replace="~{questiontypes/QuestionFragment :: applicant-question(
                     ${question},
                     ${questionRendererParams.get(question.getQuestionDefinition().getId())},
-                    ${stateAbbreviations})}"
+                    ${stateAbbreviations},${enumMaxEntityCount})}"
                 ></div>
               </div>
 
