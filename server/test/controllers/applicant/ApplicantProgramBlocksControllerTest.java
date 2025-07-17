@@ -2444,6 +2444,89 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .addFile(
+                request,
+                programId,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that addFile() throws an error when the program param is a program slug but it should be
+   * the program id since the program slug feature is disabled. addFile() also throws error for
+   * other combinations when the program param is not properly parsed. We don't test all
+   * combinations here because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void addFile_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.addFile(
+                    fakeRequest(),
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* inReview= */ false,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that addFile() redirects to another page when the feature is enabled and is from url call
+   * with a program slug. addFile() also redirects for other combinations: when the feature is
+   * disabled OR when the call is not from a URL OR when the program param is a program slug (not
+   * numeric), AND the program ID was properly retrieved. We don't test all combinations here
+   * because the ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("Program with file upload")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .build();
+    String programSlug = activeProgram.getSlug();
+
+    Request request = fakeRequestWithKeyAndBucket();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .addFile(
+                request,
+                programSlug,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // When addFile() is successful, it calls addFileWithApplicantId() which redirects to a
+    // different route. We don't test which specific route here since that is covered on the
+    // updateFileWithApplicantId() unit tests. Instead, we can just verify the redirect route is
+    // for the same program.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+  }
+
+  @Test
   public void addFile_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     RequestBuilder request =
@@ -3962,5 +4045,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .setSingleLineAddress("456 Suggested Ave, Seattle, Washington, 99999")
             .build();
     return addressSuggestionJsonSerializer.serialize(ImmutableList.of(address));
+  }
+
+  private Request fakeRequestWithKeyAndBucket() {
+    RequestBuilder requestBuilder = fakeRequestBuilder();
+    addQueryString(requestBuilder, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    return requestBuilder.build();
   }
 }
