@@ -289,7 +289,7 @@ test.describe('Program list page.', () => {
     await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
-  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
+  test('shows information about universal questions when at least one universal question is set', async ({
     page,
     adminPrograms,
     adminQuestions,
@@ -322,6 +322,32 @@ test.describe('Program list page.', () => {
     expect(await page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
     )
+  })
+
+  test('external program does not show information about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    await adminPrograms.addExternalProgram(
+      'External program',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    await adminPrograms.gotoAdminProgramsPage()
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard).not.toContainText('universal questions')
   })
 
   async function expectProgramListElements(
@@ -430,6 +456,47 @@ test.describe('Program list page.', () => {
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
     await adminPrograms.expectActiveProgram(programOne)
+  })
+
+  test('publishing an external program shows a modal without conditional warning about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    const externalProgramName = 'External Program'
+    await adminPrograms.addExternalProgram(
+      externalProgramName,
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    // Trigger the publish modal for the external program
+    await adminPrograms.gotoAdminProgramsPage()
+    const publishButton = adminPrograms.getProgramAction(
+      externalProgramName,
+      ProgramLifecycle.DRAFT,
+      ProgramAction.PUBLISH,
+    )
+    await publishButton.click()
+
+    // Verify modal does not show universal question warning, since they are not
+    //  applicable to external programs
+    const publishExternalProgramModal = '#publish-modal-external-program'
+    expect(await page.innerText(publishExternalProgramModal)).toContain(
+      'Are you sure you want to publish External Program?',
+    )
+    expect(await page.innerText(publishExternalProgramModal)).not.toContain(
+      'Warning: This program does not use all recommended universal questions.',
+    )
   })
 
   test('program list has current image', async ({
