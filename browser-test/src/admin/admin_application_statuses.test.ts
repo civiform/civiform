@@ -1015,5 +1015,17 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
+
+    await test.step('submit an application as a TI and verify Submitted by column is present', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+
+      const row = await page.$('table tbody tr:last-child')
+      const submittedByElement = await row.$('td:nth-child(5)')
+      await expect(submittedByElement).toHaveText('Test User Name')
+
+      await logout(page)
+    })
   }
 })
