@@ -2894,10 +2894,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     subject
         .removeFile(
             requestThree.build(),
-            program.id,
+            programId,
             /* blockId= */ "1",
             /* fileKeyToRemove= */ "keyTwo",
-            /* inReview= */ false)
+            /* inReview= */ false,
+            /* isFromUrlCall= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3027,24 +3028,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    draftProgram.id,
-                    /* blockId= */ "2",
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false))
-            .build();
     Result result =
         subject
             .removeFile(
-                request,
-                draftProgram.id,
+                fakeRequest(),
+                draftProgramId,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3087,30 +3081,108 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .removeFile(
+                request,
+                programId,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that removeFile() throws an error when the program param is a program slug but it should
+   * be the program id since the program slug feature is disabled. removeFile() also throws error
+   * for other combinations when the program param is not properly parsed. We don't test all
+   * combinations here because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void removeFile_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.removeFile(
+                    fakeRequest(),
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* fileKeyToRemove= */ "fake-key",
+                    /* inReview= */ false,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that removeFile() redirects to another page when the feature is enabled and is from url
+   * call with a program slug. removeFile() also redirects for other combinations: when the feature
+   * is disabled OR when the call is not from a URL OR when the program param is a program slug (not
+   * numeric), AND the program ID was properly retrieved. We don't test all combinations here
+   * because the ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("Program with file upload")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .build();
+    String programSlug = activeProgram.getSlug();
+
+    Request request = fakeRequestWithKeyAndBucket();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .removeFile(
+                request,
+                programSlug,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // When removeFile() is successful, it calls removeFileWithApplicantId() which redirects to a
+    // different route. We don't test which specific route here since that is covered on the
+    // next unit tests in detail.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+  }
+
+  @Test
   public void removeFile_obsoleteProgram_redirects() {
     ProgramModel obsoleteProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    obsoleteProgram.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false))
-            .build();
     Result result =
         subject
             .removeFile(
-                request,
-                obsoleteProgram.id,
+                fakeRequest(),
+                obsoleteProgramId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3119,24 +3191,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void removeFile_invalidProgram_returnsBadRequest() {
-    long badProgramId = program.id + 1000;
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    badProgramId,
-                    /* blockId= */ "2",
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false));
+    String badProgramId = Long.toString(program.id + 1000);
 
     Result result =
         subject
             .removeFile(
-                request.build(),
+                fakeRequest(),
                 badProgramId,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3150,22 +3215,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
+    String programId = Long.toString(program.id);
     String badBlockId = "1000";
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id, badBlockId, /* fileKey= */ "fake-key", /* inReview= */ false));
 
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 badBlockId,
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3179,26 +3240,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().dateApplicantBirthdate())
             .build();
-
+    String programId = Long.toString(program.id);
     String dateQuestionBlockId = "1";
-
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    dateQuestionBlockId,
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false));
 
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 dateQuestionBlockId,
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3212,25 +3265,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "key-to-remove",
-                    /* inReview= */ false))
-            .header(skipUserProfile, "true");
+    Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
 
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                request,
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3245,6 +3292,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -3257,23 +3305,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     applicant.save();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "key-to-remove",
-                    /* inReview= */ false));
-
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3292,6 +3332,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -3313,23 +3354,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     applicant.save();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "key-to-remove",
-                    /* inReview= */ false));
-
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3349,6 +3382,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -3360,23 +3394,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         ImmutableList.of("key-to-remove"));
     applicant.save();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "key-to-remove",
-                    /* inReview= */ false));
-
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3393,6 +3419,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -3405,23 +3432,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     applicant.save();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "does-not-exist",
-                    /* inReview= */ false));
-
     Result result =
         subject
             .removeFile(
-                request.build(),
-                program.id,
+                fakeRequest(),
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "does-not-exist",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
