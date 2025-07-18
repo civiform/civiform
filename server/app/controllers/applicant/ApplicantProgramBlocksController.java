@@ -376,27 +376,62 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedActionWrapper.getAction());
   }
 
-  /** Handles the applicant's selection from the address correction options. */
+  /**
+   * Handles the applicant's selection from the address correction options.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param blockId the unique identifier of the specific block within the program containing the
+   *     address question
+   * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
+   *     (false), which affects navigation behavior after address confirmation
+   * @param applicantRequestedActionWrapper wrapper containing the applicant's address selection
+   *     choice and related context for processing the address confirmation
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result handled by confirmAddressWithApplicantId()
+   */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
-      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper,
+      Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/programs/:programParam/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return confirmAddressWithApplicantId(
-        request,
-        applicantId.orElseThrow(),
-        programId,
-        blockId,
-        inReview,
-        applicantRequestedActionWrapper);
+
+    Long applicantId = optionalApplicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                confirmAddressWithApplicantId(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    inReview,
+                    applicantRequestedActionWrapper));
   }
 
   /** Saves the selected corrected address to the db and redirects the user to the next screen */

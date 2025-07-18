@@ -267,13 +267,13 @@ public final class ApplicantRoutes {
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
-    } else {
-      return routes.ApplicantProgramBlocksController.confirmAddress(
-          programId,
-          blockId,
-          inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
+    return routes.ApplicantProgramBlocksController.confirmAddress(
+        Long.toString(programId),
+        blockId,
+        inReview,
+        new ApplicantRequestedActionWrapper(applicantRequestedAction),
+        /* isFromUrlCall= */ false);
   }
 
   /**
