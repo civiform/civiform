@@ -583,7 +583,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedConfirmAddressUrl =
         String.format(
-            "/programs/%d/blocks/%s/confirmAddress/%s/%s",
+            "/programs/%d/blocks/%s/confirmAddress/%s/%s?isFromUrlCall=false",
             PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
