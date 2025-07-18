@@ -328,13 +328,13 @@ public final class ApplicantRoutes {
    */
   public Call addFile(
       CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.addFile(
-          Long.toString(programId), blockId, inReview, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.addFile(
+        programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
