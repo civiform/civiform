@@ -670,48 +670,116 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void previous_toAnExistingBlock_rendersTheBlock() {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                    applicant.id, program.id, 0, true))
-            .build();
+  public void
+      previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
     Result result =
         subject
-            .previousWithApplicantId(request, applicant.id, program.id, 0, true)
+            .previousWithApplicantId(
+                request,
+                applicant.id,
+                Long.toString(program.id),
+                /* previousBlockIndex= */ 0,
+                /* inReview= */ true,
+                /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that previousWithApplicantId() throws an error when the program param is a program slug
+   * but it should be the program id since the program slug feature is disabled.
+   * previousWithApplicantId() also throws error for other combinations when the program param is
+   * not properly parsed. We don't test all combinations here because ProgramSlugHandler have a
+   * comprehensive test cover for them.
+   */
+  @Test
+  public void
+      previousWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    ProgramModel activeProgram = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = activeProgram.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.previousWithApplicantId(
+                    fakeRequest(),
+                    applicant.id,
+                    programSlug,
+                    /* previousBlockIndex= */ 0,
+                    /* inReview= */ true,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that previousWithApplicantId() returns OK when the feature is enabled and is from url
+   * call with a program slug. previousWithApplicantId() also returns OK for other combinations:
+   * when the feature is disabled OR when the call is not from a URL OR when the program param is a
+   * program slug (not numeric), AND the program ID was properly retrieved. We don't test all
+   * combinations here because the ProgramSlugHandler tests have a comprehensive test cover for
+   * them.
+   */
+  @Test
+  public void
+      previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
+    String programSlug = program.getSlug();
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .previousWithApplicantId(
+                request,
+                applicant.id,
+                programSlug,
+                /* previousBlockIndex= */ 0,
+                /* inReview= */ true,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
-  public void previous_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void previousWithApplicantId_toAnExistingBlock_rendersTheBlock() {
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .previousWithApplicantId(
+                fakeRequest(), applicant.id, programId, 0, true, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void previousWithApplicantId_applicantAccessToDraftProgram_returnsUnauthorized() {
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                    applicant.id, draftProgram.id, 0, true))
-            .build();
     Result result =
         subject
-            .previousWithApplicantId(request, applicant.id, draftProgram.id, 0, true)
+            .previousWithApplicantId(
+                fakeRequest(), applicant.id, draftProgramId, 0, true, /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
-
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
-  public void previous_civiformAdminAccessToDraftProgram_isOk() {
+  public void previousWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -719,16 +787,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                    applicant.id, draftProgram.id, 0, true))
-            .build();
     Result result =
         subject
-            .previousWithApplicantId(request, applicant.id, draftProgram.id, 0, true)
+            .previousWithApplicantId(
+                fakeRequest(), applicant.id, draftProgramId, 0, true, /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 
@@ -736,18 +800,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void previous_obsoleteProgram_isOk() {
+  public void previousWithApplicantId_obsoleteProgram_isOk() {
     ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.previousWithApplicantId(
-                    applicant.id, obsoleteProgram.id, 0, true))
-            .build();
     Result result =
         subject
-            .previousWithApplicantId(request, applicant.id, obsoleteProgram.id, 0, true)
+            .previousWithApplicantId(
+                fakeRequest(), applicant.id, obsoleteProgramId, 0, true, /* isFromUrlCall= */ true)
             .toCompletableFuture()
             .join();
 

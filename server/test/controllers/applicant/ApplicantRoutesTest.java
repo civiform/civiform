@@ -719,7 +719,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
@@ -748,7 +748,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()

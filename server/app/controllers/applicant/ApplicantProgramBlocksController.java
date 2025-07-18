@@ -461,92 +461,137 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     request.session().removing(ADDRESS_JSON_SESSION_KEY);
   }
 
-  /** Navigates to the previous page of the application. */
+  /**
+   * Navigates to the previous page of the application for a specific applicant.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param applicantId the unique identifier of the applicant whose application is being navigated
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param previousBlockIndex the index of the previous block to navigate to within the program's
+   *     block sequence
+   * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
+   *     (false), which affects navigation behavior and view rendering
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result containing the rendered previous block
+   *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
+   *     resources are not found
+   */
   @Secure
   public CompletionStage<Result> previousWithApplicantId(
-      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+      Request request,
+      long applicantId,
+      String programParam,
+      int previousBlockIndex,
+      boolean inReview,
+      boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:previousBlockIndex/previous/:inReview",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
-    CompletableFuture<Void> applicantAuthCompletableFuture =
-        applicantStage
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              CompletionStage<ApplicantPersonalInfo> applicantStage =
+                  this.applicantService.getPersonalInfo(applicantId);
 
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+              CompletableFuture<Void> applicantAuthCompletableFuture =
+                  applicantStage
+                      .thenComposeAsync(
+                          v -> checkApplicantAuthorization(request, applicantId),
+                          classLoaderExecutionContext.current())
+                      .toCompletableFuture();
 
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    return CompletableFuture.allOf(
-            applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
-        .thenApplyAsync(
-            (v) -> {
-              Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
-              if (applicationUpdatedOptional.isPresent()) {
-                return applicationUpdatedOptional.get();
-              }
+              CompletableFuture<ReadOnlyApplicantProgramService>
+                  applicantProgramServiceCompletableFuture =
+                      applicantStage
+                          .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+                          .thenComposeAsync(
+                              v ->
+                                  applicantService.getReadOnlyApplicantProgramService(
+                                      applicantId, programId),
+                              classLoaderExecutionContext.current())
+                          .toCompletableFuture();
 
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
-              ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
-              String blockId = blocks.get(previousBlockIndex).getId();
-              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+              return CompletableFuture.allOf(
+                      applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
+                  .thenApplyAsync(
+                      (v) -> {
+                        Optional<Result> applicationUpdatedOptional =
+                            updateApplicationToLatestProgramVersionIfNeeded(
+                                applicantId, programId, profile);
+                        if (applicationUpdatedOptional.isPresent()) {
+                          return applicationUpdatedOptional.get();
+                        }
 
-              if (block.isPresent()) {
-                ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                ApplicationBaseViewParams applicationParams =
-                    buildApplicationBaseViewParams(
-                        request,
-                        applicantId,
-                        programId,
-                        blockId,
-                        inReview,
-                        roApplicantProgramService,
-                        block.get(),
-                        personalInfo,
-                        ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                        applicantRoutes,
-                        profile);
-                if (settingsManifest.getNorthStarApplicantUi(request)) {
-                  final String programSlug;
-                  try {
-                    programSlug = programService.getSlug(programId);
-                  } catch (ProgramNotFoundException e) {
-                    return notFound(e.toString());
-                  }
-                  return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams, programSlug))
-                      .as(Http.MimeTypes.HTML);
-                } else {
-                  return ok(editView.render(applicationParams));
-                }
-              } else {
-                return notFound();
-              }
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
+                        ReadOnlyApplicantProgramService roApplicantProgramService =
+                            applicantProgramServiceCompletableFuture.join();
+                        ImmutableList<Block> blocks =
+                            roApplicantProgramService.getAllActiveBlocks();
+                        String blockId = blocks.get(previousBlockIndex).getId();
+                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+                        if (!block.isPresent()) {
+                          return notFound();
+                        }
+
+                        ApplicantPersonalInfo personalInfo =
+                            applicantStage.toCompletableFuture().join();
+                        ApplicationBaseViewParams applicationParams =
+                            buildApplicationBaseViewParams(
+                                request,
+                                applicantId,
+                                programId,
+                                blockId,
+                                inReview,
+                                roApplicantProgramService,
+                                block.get(),
+                                personalInfo,
+                                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                                applicantRoutes,
+                                profile);
+
+                        if (settingsManifest.getNorthStarApplicantUi(request)) {
+                          final String programSlug;
+                          try {
+                            programSlug = programService.getSlug(programId);
+                          } catch (ProgramNotFoundException e) {
+                            return notFound(e.toString());
+                          }
+                          return ok(northStarApplicantProgramBlockEditView.render(
+                                  request, applicationParams, programSlug))
+                              .as(Http.MimeTypes.HTML);
+                        }
+                        return ok(editView.render(applicationParams));
+                      },
+                      classLoaderExecutionContext.current())
+                  .exceptionally(
+                      ex -> {
+                        if (ex instanceof CompletionException) {
+                          Throwable cause = ex.getCause();
+                          if (cause instanceof SecurityException) {
+                            return unauthorized();
+                          }
+                          if (cause instanceof ProgramNotFoundException) {
+                            return notFound(cause.toString());
+                          }
+                          throw new RuntimeException(cause);
+                        }
+                        throw new RuntimeException(ex);
+                      });
             });
   }
 
@@ -597,7 +642,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenCompose(
             programId ->
                 previousWithApplicantId(
-                    request, applicantId, programId, previousBlockIndex, inReview));
+                    request,
+                    applicantId,
+                    Long.toString(programId),
+                    previousBlockIndex,
+                    inReview, /* isFromUrlCall */
+                    false));
   }
 
   @Secure
