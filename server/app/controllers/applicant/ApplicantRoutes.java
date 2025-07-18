@@ -359,7 +359,7 @@ public final class ApplicantRoutes {
           applicantId, programId, blockId, fileKey, inReview);
     } else {
       return routes.ApplicantProgramBlocksController.removeFile(
-          programId, blockId, fileKey, inReview);
+          Long.toString(programId), blockId, fileKey, inReview, /* isFromUrlCall= */ false);
     }
   }
 
