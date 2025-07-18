@@ -20,6 +20,10 @@ class AdminImportView {
   duplicateQuestionHandlingPrefix = 'duplicateQuestionHandling-'
 
   constructor() {
+    // If we aren't on the import page, do nothing
+    if (window.location.href.indexOf('admin/import') < 0) {
+      return
+    }
     this.addRedirectListeners()
     this.addStringifyJsonListener()
   }
