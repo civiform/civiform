@@ -331,7 +331,8 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
           applicantId, programId, blockId, inReview);
     } else {
-      return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
+      return routes.ApplicantProgramBlocksController.addFile(
+          Long.toString(programId), blockId, inReview, /* isFromUrlCall= */ false);
     }
   }
 
