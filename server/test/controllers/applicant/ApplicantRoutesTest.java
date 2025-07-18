@@ -296,7 +296,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedSubmitUrl = String.format("/programs/%d/submit", PROGRAM_ID);
+    String expectedSubmitUrl = String.format("/programs/%d/submit?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().submit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedSubmitUrl);
 

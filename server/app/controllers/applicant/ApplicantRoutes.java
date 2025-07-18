@@ -154,9 +154,9 @@ public final class ApplicantRoutes {
   public Call submit(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId, programId);
-    } else {
-      return routes.ApplicantProgramReviewController.submit(programId);
     }
+    return routes.ApplicantProgramReviewController.submit(
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**

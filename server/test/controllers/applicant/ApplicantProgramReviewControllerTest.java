@@ -246,6 +246,60 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void submit_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(activeProgram.id);
+
+    Result result =
+        subject.submit(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that submit() throws an error when the program param is a program slug but it should be
+   * the program id since the program slug feature is disabled. submit() also throws error for other
+   * combinations when the program param is not properly parsed. We don't test all combinations here
+   * because ProgramSlugHandler have a comprehensive test cover for them.
+   */
+  @Test
+  public void submit_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+    assertThatThrownBy(() -> subject.submit(fakeRequest(), programSlug, /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that submit() is successful when the feature is enabled and is from url call with a
+   * program slug. submit() is also successful for other combinations: when the feature is disabled
+   * OR when the call is not from a URL OR when the program param is a program slug (not numeric),
+   * AND the program ID was properly retrieved. We don't test all combinations here because the
+   * ProgramSlugHandler tests have a comprehensive test cover for them.
+   */
+  @Test
+  public void submit_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isSuccessful() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .submit(request, programSlug, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+  }
+
+  @Test
   public void submit_invalid_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.submit(badApplicantId, activeProgram.id);
