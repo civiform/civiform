@@ -7,7 +7,6 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN
 import actions.ProgramDisabledAction;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -345,19 +344,40 @@ public class ApplicantProgramReviewController extends CiviFormController {
   /**
    * Handles application submission. For applicants, submits the application. For admins previewing
    * the program, does not submit the application and simply redirects to the program page.
+   *
+   * @param request the HTTP request containing context and session information, including user role
+   *     and authentication details
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result handled by submitWithApplicantId()
    */
   @Secure
-  public CompletionStage<Result> submit(Request request, long programId) {
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
+  public CompletionStage<Result> submit(
+      Request request, String programParam, Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/submit", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return submitWithApplicantId(
-        request,
-        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-        programId);
+
+    Long applicantId = optionalApplicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(programId -> submitWithApplicantId(request, applicantId, programId));
   }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
