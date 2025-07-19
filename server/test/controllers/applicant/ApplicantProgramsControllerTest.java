@@ -68,6 +68,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     applicantWithoutProfile = createApplicant();
 
     settingsManifest = mock(SettingsManifest.class);
+    versionRepository = mock(VersionRepository.class);
     controller =
         new ApplicantProgramsController(
             instanceOf(ClassLoaderExecutionContext.class),
@@ -76,7 +77,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             instanceOf(ProgramIndexView.class),
             instanceOf(ApplicantDisabledProgramView.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(VersionRepository.class),
+            versionRepository,
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             settingsManifest,
@@ -182,7 +183,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void test_deduplicate_inProgressProgram() {
-    versionRepository = instanceOf(VersionRepository.class);
     String programName = "In Progress Program";
     ProgramModel program = resourceCreator().insertActiveProgram(programName);
 
