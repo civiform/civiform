@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
@@ -99,7 +98,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_malformattedJson_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -134,7 +133,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_noTopLevelProgramFieldInJson_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -173,7 +172,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_notEnoughInfoToCreateProgramDef_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -216,7 +215,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_programAlreadyExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     // save a program
     controller.hxSaveProgram(
@@ -296,7 +295,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_draftProgramExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     // Create a draft program, so that there are unpublished programs
     ProgramBuilder.newDraftProgram("draft-program").build();
@@ -318,7 +317,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noDuplicatesEnabled_draftQuestionExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     // Create a draft question, so there is an unpublished question
     versionRepository
@@ -360,7 +359,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   @Test
   public void
       hxImportProgram_noDuplicatesEnabled_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxImportProgram(
@@ -400,7 +399,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithoutQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -456,7 +455,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -531,7 +530,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_handlesNestEnumeratorQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -670,7 +669,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_savesUpdatedQuestionIdsOnPredicates()
       throws ProgramBlockDefinitionNotFoundException {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -788,7 +787,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_discardsPaiTagsOnImportedQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -836,7 +835,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_preservesUniversalSettingOnImportedQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     Result result =
         controller.hxSaveProgram(
@@ -961,7 +960,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_noDuplicatesEnabled_addsAnEmptyStatus() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled()).thenReturn(true);
 
     controller.hxSaveProgram(
         fakeRequestBuilder()
