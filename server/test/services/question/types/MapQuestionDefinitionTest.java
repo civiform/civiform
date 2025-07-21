@@ -1,7 +1,12 @@
 package services.question.types;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.OptionalInt;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -10,12 +15,6 @@ import services.CiviFormError;
 import services.LocalizedStrings;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
-
-import java.util.Locale;
-import java.util.Optional;
-import java.util.OptionalInt;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(JUnitParamsRunner.class)
 public class MapQuestionDefinitionTest {
@@ -31,9 +30,7 @@ public class MapQuestionDefinitionTest {
             .setDescription(description)
             .setQuestionText(LocalizedStrings.of())
             .setValidationPredicates(
-              MapValidationPredicates.builder()
-                .setGeoJsonEndpoint("test endpoint")
-                .build())
+                MapValidationPredicates.builder().setGeoJsonEndpoint("test endpoint").build())
             .setQuestionHelpText(LocalizedStrings.empty())
             .build();
 
@@ -52,8 +49,7 @@ public class MapQuestionDefinitionTest {
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
             .build();
-    QuestionDefinition question =
-        new MapQuestionDefinition(config);
+    QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Map question must have a GeoJSON endpoint"));
   }
@@ -79,12 +75,12 @@ public class MapQuestionDefinitionTest {
           OptionalInt.of(0),
           Optional.of("Maximum number of choices allowed cannot be less than 1")
         },
-        new Object[]{
+        new Object[] {
           OptionalInt.of(2),
           OptionalInt.of(1),
           Optional.of(
-            "Minimum number of choices required must be less than or equal to the maximum"
-              + " choices allowed")
+              "Minimum number of choices required must be less than or equal to the maximum"
+                  + " choices allowed")
         });
   }
 

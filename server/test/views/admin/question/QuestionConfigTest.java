@@ -191,7 +191,8 @@ public class QuestionConfigTest {
   public void buildDateConfig_rendersDefaultMinMaxDateOptions() throws Exception {
     QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request, false);
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
