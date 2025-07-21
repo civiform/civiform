@@ -315,28 +315,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
-
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
       // indentation value for enums and repeaters
-      int listIndentationFactor =
-          BASE_INDENTATION_SIZE + (level * INDENTATION_FACTOR_INCREASE_ON_LEVEL);
-      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-info-light" : "";
-      DivTag blockTag =
+      int listIndentationFactor = level * INDENTATION_FACTOR_INCREASE_ON_LEVEL;
+      DivTag blockContent =
           div()
               .withClasses(
                   "flex",
                   "flex-row",
                   "gap-2",
                   "py-2",
-                  "px-" + listIndentationFactor,
-                  "border",
-                  "border-white",
-                  "max-w-md",
-                  StyleUtils.hover("border-gray-300"),
-                  selectedClasses);
+                  "mr-0", // style for tablet and mobile
+                  "lg:mr-4", // style for desktop
+                  "ml-" + listIndentationFactor, // style for tablet and mobile
+                  "lg:ml-" + (BASE_INDENTATION_SIZE + listIndentationFactor), // style for desktop
+                  "max-w-md");
       String switchBlockLink;
       if (viewAllowsEditingProgram()) {
         switchBlockLink =
@@ -349,8 +345,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     programDefinition.id(), blockDefinition.id())
                 .url();
       }
-      blockTag
+      // Show icon with blocks that have visibility conditions.
+      String visibilityPredicateInvisible =
+          blockDefinition.visibilityPredicate().isEmpty() ? "invisible" : "";
+      blockContent
           .withId(genericBlockDivId + blockDefinition.id())
+          .with(
+              a().withClasses(
+                      "w-5",
+                      "h-5",
+                      "mr-0", // style for tablet and mobile
+                      "lg:mr-2", // style for desktop
+                      "self-center",
+                      "flex-shrink-0",
+                      visibilityPredicateInvisible)
+                  .withHref(switchBlockLink)
+                  .with(Icons.svg(Icons.VISIBILITY_OFF)))
           .with(
               a().withClasses("flex-grow", "overflow-hidden")
                   .withHref(switchBlockLink)
@@ -362,9 +372,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
         DivTag moveButtons =
             renderBlockMoveButtons(
                 request, programDefinition.id(), blockDefinitions, blockDefinition);
-        blockTag.with(moveButtons);
+        blockContent.with(moveButtons);
       }
-      container.with(blockTag);
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-info-light" : "";
+      DivTag blockContainer =
+          div()
+              .withClasses(
+                  "border",
+                  "border-white",
+                  "max-w-md",
+                  StyleUtils.hover("border-gray-300"),
+                  selectedClasses);
+      container.with(blockContainer.with(blockContent));
 
       // Recursively add repeated blocks indented under their enumerator block
       if (blockDefinition.isEnumerator()) {
