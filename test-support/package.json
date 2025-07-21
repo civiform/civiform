@@ -4,7 +4,7 @@
     "oidc-provider": "9.2.0"
   },
   "devDependencies": {
-    "eslint-config-prettier": "10.1.5",
+    "eslint-config-prettier": "10.1.8",
     "globals": "^16.2.0"
   }
 }
