@@ -11,8 +11,7 @@ import java.util.OptionalInt;
 import services.CiviFormError;
 
 public final class MapQuestionDefinition extends QuestionDefinition {
-  public MapQuestionDefinition(
-      @JsonProperty("config") QuestionDefinitionConfig config) {
+  public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
 
@@ -69,11 +68,11 @@ public final class MapQuestionDefinition extends QuestionDefinition {
   @AutoValue
   public abstract static class MapValidationPredicates extends ValidationPredicates {
 
-    public static MapQuestionDefinition.MapValidationPredicates create() {
+    public static MapValidationPredicates create() {
       return builder().build();
     }
 
-    public static MapQuestionDefinition.MapValidationPredicates create(
+    public static MapValidationPredicates create(
         int minChoicesRequired, int maxChoicesAllowed, String geoJsonEndpoint) {
       return builder()
           .setMinChoicesRequired(minChoicesRequired)
@@ -82,7 +81,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
           .build();
     }
 
-    public static MapQuestionDefinition.MapValidationPredicates parse(String jsonString) {
+    public static MapValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
             jsonString, AutoValue_MapQuestionDefinition_MapValidationPredicates.class);
@@ -91,7 +90,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       }
     }
 
-    public static MapQuestionDefinition.MapValidationPredicates.Builder builder() {
+    public static MapValidationPredicates.Builder builder() {
       return new AutoValue_MapQuestionDefinition_MapValidationPredicates.Builder();
     }
 
@@ -108,24 +107,21 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     public abstract static class Builder {
 
       @JsonProperty("minChoicesRequired")
-      public abstract MapQuestionDefinition.MapValidationPredicates.Builder setMinChoicesRequired(
+      public abstract MapValidationPredicates.Builder setMinChoicesRequired(
           OptionalInt minChoicesRequired);
 
-      public abstract MapQuestionDefinition.MapValidationPredicates.Builder setMinChoicesRequired(
-          int minChoicesRequired);
+      public abstract MapValidationPredicates.Builder setMinChoicesRequired(int minChoicesRequired);
 
       @JsonProperty("maxChoicesAllowed")
-      public abstract MapQuestionDefinition.MapValidationPredicates.Builder setMaxChoicesAllowed(
-        OptionalInt maxChoicesAllowed);
+      public abstract MapValidationPredicates.Builder setMaxChoicesAllowed(
+          OptionalInt maxChoicesAllowed);
 
-      public abstract MapQuestionDefinition.MapValidationPredicates.Builder setMaxChoicesAllowed(
-          int maxChoicesAllowed);
+      public abstract MapValidationPredicates.Builder setMaxChoicesAllowed(int maxChoicesAllowed);
 
       @JsonProperty("geoJsonEndpoint")
-      public abstract MapQuestionDefinition.MapValidationPredicates.Builder setGeoJsonEndpoint(
-        String geoJsonEndpoint);
+      public abstract MapValidationPredicates.Builder setGeoJsonEndpoint(String geoJsonEndpoint);
 
-      public abstract MapQuestionDefinition.MapValidationPredicates build();
+      public abstract MapValidationPredicates build();
     }
   }
 }
