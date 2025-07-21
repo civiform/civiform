@@ -46,6 +46,8 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   public enum NavPage {
+    /** Used when no page is set */
+    NULL_PAGE,
     PROGRAMS,
     QUESTIONS,
     INTERMEDIARIES,
