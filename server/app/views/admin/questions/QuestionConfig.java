@@ -18,6 +18,7 @@ import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
+import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -87,6 +88,9 @@ public final class QuestionConfig {
       case ID:
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
+      case MAP:
+        return Optional.of(
+            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -119,7 +123,6 @@ public final class QuestionConfig {
                     .getContainer())
             : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
-      case MAP: // @TODO(#11001): Add map question config
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
       case STATIC:
@@ -632,6 +635,28 @@ public final class QuestionConfig {
             .setLabelText("Maximum number of choices allowed")
             .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
+            .getNumberTag());
+    return this;
+  }
+
+  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
+    content.with(
+        //        FieldWithLabel.input()
+        //            .setFieldName("geoJsonEndpoint")
+        //            .setLabelText("GeoJSON Endpoint")
+        //            .setValue(mapQuestionForm.getGeoJsonEndpoint())
+        //            .getInputTag(),
+        FieldWithLabel.number()
+            .setFieldName("minChoicesRequired")
+            .setLabelText("Minimum number of choices required")
+            .setMin(OptionalLong.of(0L))
+            .setValue(mapQuestionForm.getMinChoicesRequired())
+            .getNumberTag(),
+        FieldWithLabel.number()
+            .setFieldName("maxChoicesAllowed")
+            .setLabelText("Maximum number of choices allowed")
+            .setMin(OptionalLong.of(1L))
+            .setValue(mapQuestionForm.getMaxChoicesAllowed())
             .getNumberTag());
     return this;
   }
