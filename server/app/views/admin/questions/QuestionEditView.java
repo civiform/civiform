@@ -470,7 +470,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request, forCreate);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }

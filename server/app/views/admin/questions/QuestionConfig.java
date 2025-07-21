@@ -67,7 +67,8 @@ public final class QuestionConfig {
       QuestionForm questionForm,
       Messages messages,
       SettingsManifest settingsManifest,
-      Request request) {
+      Request request,
+      boolean forCreate) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -90,7 +91,7 @@ public final class QuestionConfig {
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
       case MAP:
         return Optional.of(
-            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
+            config.addMapQuestionConfig((MapQuestionForm) questionForm, forCreate).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -639,13 +640,17 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
+  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm, boolean forCreate) {
     content.with(
-        //        FieldWithLabel.input()
-        //            .setFieldName("geoJsonEndpoint")
-        //            .setLabelText("GeoJSON Endpoint")
-        //            .setValue(mapQuestionForm.getGeoJsonEndpoint())
-        //            .getInputTag(),
+        FieldWithLabel.input()
+            .setFieldName("geoJsonEndpoint")
+            .setLabelText("GeoJSON Endpoint")
+            .setValue(mapQuestionForm.getGeoJsonEndpoint())
+            .setRequired(true)
+            // GeoJSON endpoint can only be added upon question creation
+            .setReadOnly(!forCreate)
+            .setDisabled(!forCreate)
+            .getInputTag(),
         FieldWithLabel.number()
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")

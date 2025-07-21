@@ -2,19 +2,27 @@ package forms;
 
 import java.util.OptionalInt;
 import services.question.types.MapQuestionDefinition;
-import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 public class MapQuestionForm extends QuestionForm {
 
+  private String geoJsonEndpoint;
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
 
   public MapQuestionForm() {
     super();
+    this.geoJsonEndpoint = "";
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
+  }
+
+  public MapQuestionForm(MapQuestionDefinition qd) {
+    super(qd);
+    this.geoJsonEndpoint = qd.getMapValidationPredicates().geoJsonEndpoint();
+    this.minChoicesRequired = qd.getMapValidationPredicates().minChoicesRequired();
+    this.maxChoicesAllowed = qd.getMapValidationPredicates().maxChoicesAllowed();
   }
 
   @Override
@@ -22,15 +30,12 @@ public class MapQuestionForm extends QuestionForm {
     return QuestionType.MAP;
   }
 
-  /**
-   * Build a QuestionForm from a {@link QuestionDefinition}, to build the QuestionEditView.
-   *
-   * @param qd the {@link QuestionDefinition} from which to build a QuestionForm
-   */
-  public MapQuestionForm(MapQuestionDefinition qd) {
-    super(qd);
-    this.minChoicesRequired = qd.getMapValidationPredicates().minChoicesRequired();
-    this.maxChoicesAllowed = qd.getMapValidationPredicates().maxChoicesAllowed();
+  public String getGeoJsonEndpoint() {
+    return geoJsonEndpoint;
+  }
+
+  public void setGeoJsonEndpoint(String geoJsonEndpoint) {
+    this.geoJsonEndpoint = geoJsonEndpoint;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -67,16 +72,12 @@ public class MapQuestionForm extends QuestionForm {
             : OptionalInt.of(Integer.parseInt(maxChoicesAllowedAsString));
   }
 
-  /**
-   * Build a {@link QuestionDefinitionBuilder} from this QuestionForm, for handling the form
-   * response.
-   *
-   * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
-   */
   @Override
   public QuestionDefinitionBuilder getBuilder() {
     MapQuestionDefinition.MapValidationPredicates.Builder predicateBuilder =
         MapQuestionDefinition.MapValidationPredicates.builder();
+
+    predicateBuilder.setGeoJsonEndpoint(getGeoJsonEndpoint());
 
     if (getMinChoicesRequired().isPresent()) {
       predicateBuilder.setMinChoicesRequired(getMinChoicesRequired());
