@@ -889,7 +889,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedUpdateFileUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s",
+            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
@@ -925,7 +925,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedUpdateFileUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s",
+            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
     assertThat(
             new ApplicantRoutes()
