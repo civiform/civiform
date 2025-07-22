@@ -10,8 +10,5 @@
   data-testid="questionRoot"
 >
   This is a map question!
-  <div
-    th:hidden
-    th:text="${questionRendererParams.geoJson().get()}"
-  ></div>
+  <div th:hidden th:text="${questionRendererParams.geoJson().get()}"></div>
 </div>
