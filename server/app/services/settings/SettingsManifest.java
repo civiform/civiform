@@ -1074,8 +1074,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * between deployed environments. Note: this should only be used on new environments, since
    * existing programs will be modified if a program with the same question gets imported.
    */
-  public boolean getNoDuplicateQuestionsForMigrationEnabled(RequestHeader request) {
-    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED", request);
+  public boolean getNoDuplicateQuestionsForMigrationEnabled() {
+    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED");
   }
 
   /**
@@ -2330,7 +2330,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " imported.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "SESSION_REPLAY_PROTECTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
