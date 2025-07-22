@@ -2,7 +2,6 @@
   th:fragment="map(question, questionRendererParams)"
   th:with="mapQuestion=${question.createMapQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
-             maxInputLength=10000,
              firstPathWithError=${mapQuestion.getFirstPathWithError()},
              hasGroupErrors=${mapQuestion.getValidationErrors().get(question.getContextualizedPath())},"
   th:id="${questionId}"
@@ -13,7 +12,6 @@
   This is a map question!
   <div
     th:hidden
-    id="map-geojson-data"
     th:text="${questionRendererParams.geoJson().get()}"
   ></div>
 </div>
