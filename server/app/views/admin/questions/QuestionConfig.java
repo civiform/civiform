@@ -640,6 +640,7 @@ public final class QuestionConfig {
   }
 
   private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
+    // TODO(#11001): Add settings for filters
     content.with(
         FieldWithLabel.number()
             .setFieldName("maxLocationSelections")

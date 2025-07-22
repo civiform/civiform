@@ -6,6 +6,7 @@ import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+// TODO(#11001): Add settings for filters
 public class MapQuestionForm extends QuestionForm {
 
   private String geoJsonEndpoint;

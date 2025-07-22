@@ -34,6 +34,8 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       errors.add(CiviFormError.of("Map question must have a GeoJSON endpoint"));
     }
 
+    // TODO(#11002): Add validation that the GeoJSON endpoint is valid.
+
     if (maxLocationSelections.isPresent()) {
       if (maxLocationSelections.getAsInt() < 1) {
         errors.add(CiviFormError.of("Max location selections cannot be less than 1"));
