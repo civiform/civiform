@@ -47,6 +47,7 @@ public final class SettingsCache {
     this.repo = repo;
     this.dbExecutionContext = dbExecutionContext;
     this.database = database;
+    logger.warn("INITIALIZING THE CACHE");
 
     // Load initial settings into cache
     reloadFromDb();
@@ -66,11 +67,13 @@ public final class SettingsCache {
 
   /** Returns the current cached settings (may be empty if none yet). */
   public Optional<SettingsGroupModel> get() {
+    logger.warn("RETURNING CACHE TO CALLER");
     return cache;
   }
 
   /** Reloads from the database into the cache asynchronously. */
   private void reloadFromDb() {
+    logger.warn("RELOADING FROM DB");
     repo.getCurrentSettings()
         .whenCompleteAsync(
             (freshOpt, ex) -> {
@@ -79,6 +82,7 @@ public final class SettingsCache {
               } else if (freshOpt.isPresent()) {
                 cache = freshOpt;
                 logger.debug("SettingsCache reloaded from DB");
+                logger.warn("New cache: {}", cache.get());
               }
             },
             dbExecutionContext);
@@ -86,6 +90,7 @@ public final class SettingsCache {
 
   /** Spins up a dedicated thread that listens for Postgres notifications. */
   private void startNotifyListener() {
+    logger.warn("STARTING THE NOTIFY LISTENER");
     listenerThread =
         new Thread(
             () -> {
