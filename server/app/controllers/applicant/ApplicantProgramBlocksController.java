@@ -740,18 +740,54 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /**
    * Used by the file upload question. Removes the specified file and re-renders the question block.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param blockId the unique identifier of the specific block within the program containing the
+   *     file upload question
+   * @param fileKeyToRemove the file key of the specific file to be removed from the applicant's
+   *     uploaded files list
+   * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
+   *     (false), which affects navigation behavior after file removal
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
   @Secure
   public CompletionStage<Result> removeFile(
-      Request request, long programId, String blockId, String fileKeyToRemove, boolean inReview) {
-    Optional<Long> applicantId = getApplicantId(request);
-    if (applicantId.isEmpty()) {
+      Request request,
+      String programParam,
+      String blockId,
+      String fileKeyToRemove,
+      boolean inReview,
+      boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return removeFileWithApplicantId(
-        request, applicantId.orElseThrow(), programId, blockId, fileKeyToRemove, inReview);
+
+    Long applicantId = optionalApplicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                removeFileWithApplicantId(
+                    request, applicantId, programId, blockId, fileKeyToRemove, inReview));
   }
 
   @Secure
