@@ -320,7 +320,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(numberPath.toString(), "4")
-                    // Radio values are their id's not their visible text.
+            // Radio values are their id's not their visible text.
             .put(dropdownPath.toString(), "1")
             .build();
 
