@@ -11,7 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
@@ -109,7 +111,13 @@ public class SingleSelectQuestionTest extends ResetPostgres {
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
-    assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
+    assertThat(singleSelectQuestion.getValidationErrors()).hasSize(1);
+    var errors =
+        singleSelectQuestion
+            .getValidationErrors()
+            .get(singleSelectQuestion.getContextualizedPath());
+    assertThat(errors).containsOnly(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 
