@@ -1041,7 +1041,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   // The question has 4 options 1-4, Options are 1 based so 0 is not valid.
   @Test
-  @Parameters({"0", "5", "-1", "11111", "Not a Number", "&nbsp;"})
+  @Parameters({"0", "5", "-1", "1.1", "11111", "Not a Number", "&nbsp;"})
   public void update_radio_withValidationErrors_showsError(String errorValue) {
     Request request =
         fakeRequestBuilder()
