@@ -45,6 +45,11 @@
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
+    <th:block th:case="'Map'">
+      <div
+        th:replace="~{questiontypes/MapQuestionFragment :: map(${question}, ${questionRendererParams})}"
+      ></div>
+    </th:block>
     <th:block th:case="'Name'">
       <div
         th:replace="~{questiontypes/NameQuestionFragment :: name(${question}, ${questionRendererParams})}"
