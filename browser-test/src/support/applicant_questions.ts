@@ -359,6 +359,9 @@ export class ApplicantQuestions {
     await this.page.click('text="Back to homepage"')
   }
 
+  /**
+   * @deprecated
+   */
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
