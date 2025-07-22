@@ -6,9 +6,12 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -21,6 +24,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinitionConfig;
 
+@RunWith(JUnitParamsRunner.class)
 public class SingleSelectQuestionTest extends ResetPostgres {
 
   private static final QuestionDefinitionConfig CONFIG =
@@ -101,13 +105,17 @@ public class SingleSelectQuestionTest extends ResetPostgres {
                 /* locale= */ Locale.US));
   }
 
+  // The question has 2 options 1-2, Options are 1 based so 0 is not valid.
   @Test
-  public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
+  @Parameters({"0", "3", "-1", "1.1", "11111", "Not a Number", "&nbsp;"})
+  public void withPresentApplicantData_selectedInvalidOption_hasErrors(String inputValue) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 9L);
+    applicantData.putString(
+        applicantQuestion.getContextualizedPath().join(Scalar.SELECTION), inputValue);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
