@@ -31,19 +31,19 @@ public class MapRefreshJob extends DurableJob {
     int errorCount = 0;
     try (Transaction jobTransaction = database.beginTransaction()) {
       try {
-//        database
-//            .sqlQuery(
-//                "select distinct on (endpoint) endpoint, geojson "
-//                    + "from map_data "
-//                    + "order by endpoint, last_updated DESC;")
-//            .findEachRow(
-//                (resultSet, rowNum) -> {
-//                  String endpoint = resultSet.getString("endpoint");
-//                  // hit map api
-//                  // compare new geojson to old
-//                  String old_geojson = resultSet.getString("geojson");
-//                  // if different, insert a new row
-//                });
+        //        database
+        //            .sqlQuery(
+        //                "select distinct on (endpoint) endpoint, geojson "
+        //                    + "from map_data "
+        //                    + "order by endpoint, last_updated DESC;")
+        //            .findEachRow(
+        //                (resultSet, rowNum) -> {
+        //                  String endpoint = resultSet.getString("endpoint");
+        //                  // hit map api
+        //                  // compare new geojson to old
+        //                  String old_geojson = resultSet.getString("geojson");
+        //                  // if different, insert a new row
+        //                });
         logger.info("Try block for refreshing map data.");
       } catch (RuntimeException e) {
         errorCount++;
