@@ -87,16 +87,14 @@ public class MapQuestionDefinitionTest {
   @Test
   @Parameters(method = "getValidationTestData")
   public void validate_settingConstraints(
-      OptionalInt minChoicesRequired,
-      OptionalInt maxChoicesAllowed,
+      OptionalInt maxLocationSelections,
       Optional<String> expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()
             .setValidationPredicates(
                 MapValidationPredicates.builder()
                     .setGeoJsonEndpoint("test endpoint")
-                    .setMinChoicesRequired(minChoicesRequired)
-                    .setMaxChoicesAllowed(maxChoicesAllowed)
+                    .setMaxLocationSelections(maxLocationSelections)
                     .build())
             .build();
 

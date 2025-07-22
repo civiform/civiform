@@ -67,8 +67,7 @@ public final class QuestionConfig {
       QuestionForm questionForm,
       Messages messages,
       SettingsManifest settingsManifest,
-      Request request,
-      boolean forCreate) {
+      Request request) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -91,7 +90,7 @@ public final class QuestionConfig {
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
       case MAP:
         return Optional.of(
-            config.addMapQuestionConfig((MapQuestionForm) questionForm, forCreate).getContainer());
+            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -640,28 +639,14 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm, boolean forCreate) {
+  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
     content.with(
-        FieldWithLabel.input()
-            .setFieldName("geoJsonEndpoint")
-            .setLabelText("GeoJSON Endpoint")
-            .setValue(mapQuestionForm.getGeoJsonEndpoint())
+        FieldWithLabel.number()
+            .setFieldName("maxLocationSelections")
+            .setLabelText("Maximum location selections")
             .setRequired(true)
-            // GeoJSON endpoint can only be added upon question creation
-            .setReadOnly(!forCreate)
-            .setDisabled(!forCreate)
-            .getInputTag(),
-        FieldWithLabel.number()
-            .setFieldName("minChoicesRequired")
-            .setLabelText("Minimum number of choices required")
-            .setMin(OptionalLong.of(0L))
-            .setValue(mapQuestionForm.getMinChoicesRequired())
-            .getNumberTag(),
-        FieldWithLabel.number()
-            .setFieldName("maxChoicesAllowed")
-            .setLabelText("Maximum number of choices allowed")
             .setMin(OptionalLong.of(1L))
-            .setValue(mapQuestionForm.getMaxChoicesAllowed())
+            .setValue(mapQuestionForm.getMaxLocationSelections())
             .getNumberTag());
     return this;
   }

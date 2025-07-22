@@ -292,7 +292,9 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
+      QuestionDefinitionBuilder builder = getBuilder(maybeExisting, questionForm).setId(id);
+      maybeExisting.ifPresent(definition -> builder.setValidationPredicates(definition.getValidationPredicates()));
+      questionDefinition = builder.build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
