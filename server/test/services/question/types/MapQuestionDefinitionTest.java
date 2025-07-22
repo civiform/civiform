@@ -58,29 +58,14 @@ public class MapQuestionDefinitionTest {
   private static ImmutableList<Object[]> getValidationTestData() {
     return ImmutableList.of(
         // Valid cases.
-        new Object[] {OptionalInt.empty(), OptionalInt.empty(), Optional.<String>empty()},
-        new Object[] {OptionalInt.of(1), OptionalInt.empty(), Optional.<String>empty()},
-        new Object[] {OptionalInt.empty(), OptionalInt.of(1), Optional.<String>empty()},
-        new Object[] {OptionalInt.of(1), OptionalInt.of(2), Optional.<String>empty()},
-        new Object[] {OptionalInt.of(1), OptionalInt.of(1), Optional.<String>empty()},
+        new Object[] {OptionalInt.empty(), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(2), Optional.<String>empty()},
 
         // Edge cases.
         new Object[] {
-          OptionalInt.of(-1),
-          OptionalInt.empty(),
-          Optional.of("Minimum number of choices required cannot be negative")
-        },
-        new Object[] {
-          OptionalInt.empty(),
           OptionalInt.of(0),
-          Optional.of("Maximum number of choices allowed cannot be less than 1")
-        },
-        new Object[] {
-          OptionalInt.of(2),
-          OptionalInt.of(1),
-          Optional.of(
-              "Minimum number of choices required must be less than or equal to the maximum"
-                  + " choices allowed")
+          Optional.of("Max location selections cannot be less than 1")
         });
   }
 
