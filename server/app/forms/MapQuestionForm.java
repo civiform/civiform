@@ -55,8 +55,7 @@ public class MapQuestionForm extends QuestionForm {
 
   @Override
   public QuestionDefinitionBuilder getBuilder() {
-    MapValidationPredicates.Builder predicateBuilder =
-        MapValidationPredicates.builder();
+    MapValidationPredicates.Builder predicateBuilder = MapValidationPredicates.builder();
 
     predicateBuilder.setGeoJsonEndpoint(getGeoJsonEndpoint());
 

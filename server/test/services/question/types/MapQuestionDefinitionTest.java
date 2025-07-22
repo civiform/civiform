@@ -64,16 +64,14 @@ public class MapQuestionDefinitionTest {
 
         // Edge cases.
         new Object[] {
-          OptionalInt.of(0),
-          Optional.of("Max location selections cannot be less than 1")
+          OptionalInt.of(0), Optional.of("Max location selections cannot be less than 1")
         });
   }
 
   @Test
   @Parameters(method = "getValidationTestData")
   public void validate_settingConstraints(
-      OptionalInt maxLocationSelections,
-      Optional<String> expectedErrorMessage) {
+      OptionalInt maxLocationSelections, Optional<String> expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()
             .setValidationPredicates(

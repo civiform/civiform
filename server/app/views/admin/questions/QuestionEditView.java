@@ -16,7 +16,6 @@ import static j2html.TagCreator.strong;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
@@ -469,21 +468,10 @@ public final class QuestionEditView extends BaseHtmlView {
             .getTextareaTag(),
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
-    if (settingsManifest.getMapQuestionEnabled() && questionType.equals(QuestionType.MAP)) {
-      formTag.with(FieldWithLabel.input()
-        .setFieldName("geoJsonEndpoint")
-        .setLabelText("GeoJSON Endpoint")
-        .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-        .setRequired(true)
-        // GeoJSON endpoint can only be added upon question creation
-        .setReadOnly(!forCreate)
-        .setDisabled(!forCreate)
-        .getInputTag());
-    }
-
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest, request, forCreate);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }

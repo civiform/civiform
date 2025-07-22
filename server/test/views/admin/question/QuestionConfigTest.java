@@ -56,7 +56,8 @@ public class QuestionConfigTest {
 
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest, request, false);
     switch (questionType) {
       case ADDRESS:
         assertThat(maybeConfig).isPresent();
@@ -150,7 +151,7 @@ public class QuestionConfigTest {
     form.setNewOptionAdminNames(ImmutableList.of("new-option-admin-c", "new-option-admin-d"));
 
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
@@ -168,7 +169,7 @@ public class QuestionConfigTest {
   public void yesNoForm_prepopulatesOptions() {
     YesNoQuestionForm form = new YesNoQuestionForm();
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
@@ -184,7 +185,8 @@ public class QuestionConfigTest {
     QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
 
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isEmpty();
   }
 
@@ -192,7 +194,8 @@ public class QuestionConfigTest {
   public void buildDateConfig_rendersDefaultMinMaxDateOptions() throws Exception {
     QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(
+            questionForm, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
@@ -220,7 +223,7 @@ public class QuestionConfigTest {
     form.setMaxCustomYear("2025");
 
     Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request, false);
     assertThat(maybeConfig).isPresent();
     String result = maybeConfig.get().renderFormatted();
 
