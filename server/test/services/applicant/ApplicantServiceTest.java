@@ -320,7 +320,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(numberPath.toString(), "4")
-            .put(dropdownPath.toString(), "chocolate")
+                    // Radio values are their id's not their visible text.
+            .put(dropdownPath.toString(), "1")
             .build();
 
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
@@ -334,7 +335,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder()
             .put(numberPath.toString(), "")
-            .put(dropdownPath.toString(), "strawberry")
+            .put(dropdownPath.toString(), "2")
             .build();
 
     // Then, try to remove the answer to one question, and change the value of another. Neither
@@ -348,7 +349,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantData.readLong(numberPath)).contains(4l);
-    assertThat(applicantData.readString(dropdownPath)).contains("chocolate");
+    assertThat(applicantData.readString(dropdownPath)).contains("1");
   }
 
   @Test
