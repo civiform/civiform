@@ -153,25 +153,36 @@ else
   eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
-  echo "Run eslint on /server"
-  cd server
-  npm install --silent
+  if [[ -z "${eslint_app_file_list}" ]]; then
+    echo "No modified files for /server. Skipping eslint."
+  else
+    echo "Run eslint on /server"
+    cd server
+    npm install --silent
 
-  # The eslint_app_file_list array should not be surrounded by quotes, in this case
-  # we want word splitting to occur so eslint will operate in each file. If
-  # quoted it gets treated as a single path.
-  npx eslint --fix ${eslint_app_file_list[@]}
+    # The eslint_app_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx eslint --fix ${eslint_app_file_list[@]}
 
-  echo "Run eslint on /browser-test"
-  cd ../browser-test
-  npm install --silent
+    cd ..
+  fi
 
-  # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
-  # we want word splitting to occur so eslint will operate in each file. If
-  # quoted it gets treated as a single path.
-  npx eslint --fix ${eslint_browsertest_file_list[@]}
+  if [[ -z "${eslint_browsertest_file_list}" ]]; then
+    echo "No modified files for /browser-test. Skipping eslint."
+  else
+    echo "Run eslint on /browser-test"
+    cd browser-test
+    npm install --silent
 
-  cd ..
+    # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx eslint --fix ${eslint_browsertest_file_list[@]}
+
+    cd ..
+  fi
+
   echo 'Done formatting with eslint'
 fi
 
