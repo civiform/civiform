@@ -20,11 +20,13 @@ test.describe('program creation', () => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
+  // TODO(#10363): Remove test once external program cards feature is rolled out
   test('create program page', async ({
     page,
     adminPrograms,
     adminProgramImage,
   }) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -50,11 +52,80 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
-  test('create program with disabled visibility condition feature enabled', async ({
+  test('create program page with external program cards feature', async ({
     page,
     adminPrograms,
     adminProgramImage,
   }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(
+      programName,
+      'description',
+      'short program description',
+      '',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.DEFAULT,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    await validateScreenshot(
+      page,
+      'program-creation-page-with-external-programs-feature',
+    )
+
+    // When the program submission goes through, verify we're redirected to the
+    // program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  // TODO(#10363): Remove test once external program cards feature is rolled out
+  test('create program with disabled visibility', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'program name',
+      'description',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+      'admin description',
+      ProgramType.DEFAULT,
+      'selectedTI',
+      'confirmationMessage',
+      Eligibility.IS_GATING,
+      /* submitNewProgram= */ false,
+    )
+    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
+    expect(await page.innerText('id=program-details-form')).toContain(
+      'Disabled',
+    )
+    await validateScreenshot(page, 'program-creation-page-disabled-visibility')
+
+    // When the program submission goes through,
+    // verify we're redirected to the program image upload page.
+    await adminPrograms.submitProgramDetailsEdits()
+    await adminProgramImage.expectProgramImagePage()
+  })
+
+  test('create program with disabled visibility and external programs feature enabled', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -76,7 +147,7 @@ test.describe('program creation', () => {
     )
     await validateScreenshot(
       page,
-      'program-creation-page-disabled-visibility-enabled',
+      'program-creation-page-disabled-visibility-with-external-programs-feature',
     )
 
     // When the program submission goes through,
@@ -264,12 +335,31 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
+  // TODO(#10363): Remove test once external program cards feature is rolled out
   test('program details page screenshot', async ({page, adminPrograms}) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
+
     await loginAsAdmin(page)
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await validateScreenshot(page, 'program-description-page')
+  })
+
+  test('program details page screenshot with external programs feature enabled', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await validateScreenshot(
+      page,
+      'program-description-page-with-external-programs-feature',
+    )
   })
 
   test('program details page redirects to block page', async ({
@@ -1020,7 +1110,10 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
+  // TODO(#10363): Remove test once external program cards feature is rolled out
   test('create pre-screener form', async ({page, adminPrograms, seeding}) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
+
     await test.step('seed categories', async () => {
       await seeding.seedProgramsAndCategories()
       await page.goto('/')
@@ -1075,10 +1168,71 @@ test.describe('program creation', () => {
     })
   })
 
+  test('create pre-screener form with external programs feature enabled', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await test.step('seed categories', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+    })
+
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+
+    await test.step('create new program that is not an pre-screener form', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramDescriptionPage(programName)
+    })
+
+    await test.step('add category to program', async () => {
+      await page.getByText('Education').check()
+    })
+
+    await test.step("expect program type field to be 'default'", async () => {
+      await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+    })
+
+    await test.step("select 'pre-screener' program type", async () => {
+      await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
+      await adminPrograms.expectProgramTypeSelected(ProgramType.PRE_SCREENER)
+    })
+
+    await test.step('expect non-applicable fields to be unchecked and disabled', async () => {
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_CATEGORIES)
+      await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+    })
+
+    await test.step('save program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.expectProgramBlockEditPage(programName)
+    })
+
+    await test.step('edit program and confirm fields are still disabled', async () => {
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_CATEGORIES)
+      await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+    })
+
+    await test.step("select 'default' program type and confirm fields are re-enabled", async () => {
+      await adminPrograms.selectProgramType(ProgramType.DEFAULT)
+      await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_CATEGORIES)
+      await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+    })
+  })
+
+  // TODO(#10363): Remove test once external program cards feature is rolled out
   test('correctly renders pre-screener form change confirmation modal', async ({
     page,
     adminPrograms,
   }) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
     const preScreenerFormProgramName = 'Benefits finder'
@@ -1113,6 +1267,60 @@ test.describe('program creation', () => {
     await validateScreenshot(
       page,
       'confirm-pre-screener-change-modal',
+      /* fullPage= */ false,
+    )
+
+    // Modal gets re-rendered if needed.
+    await dismissModal(page)
+    await page.click('#program-update-button')
+    modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
+
+    await page.click('#confirm-common-intake-change-button')
+    await waitForPageJsLoad(page)
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  test('correctly renders pre-screener form change confirmation modal with external programs feature enabled', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await loginAsAdmin(page)
+
+    const preScreenerFormProgramName = 'Benefits finder'
+    await adminPrograms.addProgram(
+      preScreenerFormProgramName,
+      'program description',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.PRE_SCREENER,
+    )
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
+    await page.fill('#program-external-link-input', 'badlink')
+    await page.click('#program-update-button')
+
+    // Error messages get displayed before the confirmation modal.
+    const toastMessages = await page.innerText('#toast-container')
+    expect(toastMessages).toContain('program link')
+
+    await page.fill('#program-external-link-input', 'https://example.com')
+    await page.click('#program-update-button')
+
+    let modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
+
+    await validateScreenshot(
+      page,
+      'confirm-pre-screener-change-modal-with-external-programs-feature',
       /* fullPage= */ false,
     )
 
@@ -1215,11 +1423,14 @@ test.describe('program creation', () => {
     )
   })
 
+  // TODO(#10363): Remove test once external program cards feature is rolled out
   test('create and update program with categories', async ({
     page,
     adminPrograms,
     seeding,
   }) => {
+    await disableFeatureFlag(page, 'external_program_cards_enabled')
+
     await seeding.seedProgramsAndCategories()
     await page.goto('/')
 
@@ -1282,8 +1493,79 @@ test.describe('program creation', () => {
       await expect(page.getByText('Internet')).toBeChecked()
     })
   })
+
+  test('create and update program with categories and external programs feature enabled', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+
+    const programName = 'program with categories'
+
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        ProgramType.DEFAULT,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ false,
+      )
+    })
+
+    await test.step('add categories to program', async () => {
+      await page.getByText('Education').check()
+      await page.getByText('Healthcare').check()
+    })
+
+    await test.step('validate screenshot', async () => {
+      await validateScreenshot(
+        page.locator('#program-details-form'),
+        'program-creation-with-categories-and-external-programs-feature',
+      )
+    })
+
+    await expect(page.getByText('Education')).toBeChecked()
+    await expect(page.getByText('Healthcare')).toBeChecked()
+
+    await test.step('submit and publish program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishProgram(programName)
+    })
+
+    await test.step('go to program edit form and check that categories are still pre-selected', async () => {
+      await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+      await waitForPageJsLoad(page)
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+    })
+
+    await test.step('add another category', async () => {
+      await page.getByText('Internet').check()
+    })
+
+    await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+      await expect(page.getByText('Internet')).toBeChecked()
+    })
+  })
 })
 
+// TODO(#10363): Remove test once external program cards feature is rolled out
 test.describe(
   'program creation with northstar UI enabled',
   {tag: ['@northstar']},
@@ -1292,11 +1574,9 @@ test.describe(
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('create pre-screener form with with northstar UI enabled', async ({
-      page,
-      adminPrograms,
-      seeding,
-    }) => {
+    test('create pre-screener form', async ({page, adminPrograms, seeding}) => {
+      await disableFeatureFlag(page, 'external_program_cards_enabled')
+
       await test.step('seed categories', async () => {
         await seeding.seedProgramsAndCategories()
         await page.goto('/')
@@ -1365,6 +1645,99 @@ test.describe(
 
       await test.step('toggle on pre-screener form again and save program', async () => {
         await adminPrograms.clickPreScreenerFormToggle()
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.expectProgramBlockEditPage(programName)
+      })
+
+      await test.step('edit program and confirm fields are still disabled', async () => {
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+      })
+    })
+
+    test('create pre-screener form with external programs enabled', async ({
+      page,
+      adminPrograms,
+      seeding,
+    }) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+      await test.step('seed categories', async () => {
+        await seeding.seedProgramsAndCategories()
+        await page.goto('/')
+      })
+
+      await loginAsAdmin(page)
+      const programName = 'Apc program'
+
+      await test.step('create new program that is not an pre-screener form', async () => {
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
+      })
+
+      await test.step("expect program type field to be 'default'", async () => {
+        await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+      })
+
+      await test.step('expect non-applicable fields for default programs to have disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step('add category to default program', async () => {
+        await page.getByText('Education').check()
+      })
+
+      await test.step("select 'pre-screener' program type", async () => {
+        await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.PRE_SCREENER)
+      })
+
+      await test.step('expect fields for pre-screeners to have the correct disabled state', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+        await adminPrograms.expectFormFieldDisabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
+      })
+
+      await test.step("select 'default' program type", async () => {
+        await adminPrograms.selectProgramType(ProgramType.DEFAULT)
+        await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+      })
+
+      await test.step('expect fields for default programs to have the correct enabled/disabled state', async () => {
+        await adminPrograms.expectFormFieldEnabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
+        await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_CATEGORIES)
+        await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+        await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+        // External link remains disabled for default programs
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_EXTERNAL_LINK,
+        )
+      })
+
+      await test.step("select 'pre-screener' program type and save program", async () => {
+        await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
         await adminPrograms.submitProgramDetailsEdits()
         await adminPrograms.expectProgramBlockEditPage(programName)
       })
