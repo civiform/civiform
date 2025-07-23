@@ -18,6 +18,7 @@ import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
+import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -87,6 +88,9 @@ public final class QuestionConfig {
       case ID:
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
+      case MAP:
+        return Optional.of(
+            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -119,7 +123,6 @@ public final class QuestionConfig {
                     .getContainer())
             : Optional.empty();
       case CURRENCY: // fallthrough intended - no options
-      case MAP: // @TODO(#11001): Add map question config
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
       case STATIC:
@@ -632,6 +635,19 @@ public final class QuestionConfig {
             .setLabelText("Maximum number of choices allowed")
             .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
+            .getNumberTag());
+    return this;
+  }
+
+  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
+    // TODO(#11001): Add settings for filters
+    content.with(
+        FieldWithLabel.number()
+            .setFieldName("maxLocationSelections")
+            .setLabelText("Maximum location selections")
+            .setRequired(true)
+            .setMin(OptionalLong.of(1L))
+            .setValue(mapQuestionForm.getMaxLocationSelections())
             .getNumberTag());
     return this;
   }
