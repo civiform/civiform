@@ -9,7 +9,7 @@ public final class MapDataRepository {
     return DB.find(MapDataModel.class)
         .where()
         .eq("endpoint", endpoint)
-        .orderBy("lastUpdated DESC")
+        .orderBy("updateTime desc")
         .setMaxRows(1)
         .findOneOrEmpty()
         .map(MapDataModel::getGeojson);

@@ -1,9 +1,9 @@
 # --- !Ups
-create table if not exists map_data (
-  endpoint TEXT NOT NULL,
-  geojson JSONB NOT NULL,
-  last_updated TIMESTAMP NOT NULL
-);
+create table if not exists geojson_map_data (
+  endpoint varchar not null,
+  geojson jsonb not null,
+  create_time timestamp not null,
+  update_time timestamp not null);
 
 # --- !Downs
-drop table if exists map_data;
+drop table if exists geojson_map_data;
