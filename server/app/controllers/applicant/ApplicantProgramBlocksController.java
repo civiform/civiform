@@ -787,116 +787,148 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenCompose(
             programId ->
                 removeFileWithApplicantId(
-                    request, applicantId, programId, blockId, fileKeyToRemove, inReview));
+                    request,
+                    applicantId,
+                    Long.toString(programId),
+                    blockId,
+                    fileKeyToRemove,
+                    inReview,
+                    /* isFromUrlCall= */ false));
   }
 
   @Secure
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
       String fileKeyToRemove,
-      boolean inReview) {
+      boolean inReview,
+      boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview"
+                  + " ",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              CompletionStage<ApplicantPersonalInfo> applicantStage =
+                  this.applicantService.getPersonalInfo(applicantId);
 
-    return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(request, applicantId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            v -> checkProgramAuthorization(request, programId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+              return applicantStage
+                  .thenComposeAsync(
+                      v -> checkApplicantAuthorization(request, applicantId),
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      v -> checkProgramAuthorization(request, programId),
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      v ->
+                          applicantService.getReadOnlyApplicantProgramService(
+                              applicantId, programId),
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      (roApplicantProgramService) -> {
+                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-              if (block.isEmpty() || !block.get().isFileUpload()) {
-                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
-              }
+                        if (block.isEmpty() || !block.get().isFileUpload()) {
+                          return failedFuture(
+                              new ProgramBlockNotFoundException(programId, blockId));
+                        }
 
-              FileUploadQuestion fileUploadQuestion =
-                  block.get().getQuestions().stream()
-                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                      .findAny()
-                      .get()
-                      .createFileUploadQuestion();
+                        FileUploadQuestion fileUploadQuestion =
+                            block.get().getQuestions().stream()
+                                .filter(
+                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                                .findAny()
+                                .get()
+                                .createFileUploadQuestion();
 
-              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                  new ImmutableMap.Builder<>();
-              Optional<ImmutableList<String>> keysOptional =
-                  fileUploadQuestion.getFileKeyListValue();
-              Optional<ImmutableList<String>> originalFileNamesOptional =
-                  fileUploadQuestion.getOriginalFileNameListValue();
+                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                            new ImmutableMap.Builder<>();
+                        Optional<ImmutableList<String>> keysOptional =
+                            fileUploadQuestion.getFileKeyListValue();
+                        Optional<ImmutableList<String>> originalFileNamesOptional =
+                            fileUploadQuestion.getOriginalFileNameListValue();
 
-              int fileKeyIndexRemoved = -1;
+                        int fileKeyIndexRemoved = -1;
 
-              if (keysOptional.isPresent()) {
-                ImmutableList<String> keys = keysOptional.get();
-                // Write all existing keys back to the form data, except the one we want to delete.
-                for (int i = 0; i < keys.size(); i++) {
-                  String keyValue = keys.get(i);
-                  boolean removeKey = false;
-                  if (keyValue.equals(fileKeyToRemove)) {
-                    removeKey = true;
-                    fileKeyIndexRemoved = i;
-                  }
-                  fileUploadQuestionFormData.put(
-                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                      removeKey ? "" : keyValue);
-                }
-              }
+                        if (keysOptional.isPresent()) {
+                          ImmutableList<String> keys = keysOptional.get();
+                          // Write all existing keys back to the form data, except the one we want
+                          // to delete.
+                          for (int i = 0; i < keys.size(); i++) {
+                            String keyValue = keys.get(i);
+                            boolean removeKey = false;
+                            if (keyValue.equals(fileKeyToRemove)) {
+                              removeKey = true;
+                              fileKeyIndexRemoved = i;
+                            }
+                            fileUploadQuestionFormData.put(
+                                fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                                removeKey ? "" : keyValue);
+                          }
+                        }
 
-              if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
-                // Write all existing original file names back to the form data, except the one
-                // that was removed from the file keys list.
-                ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
-                for (int i = 0; i < originalFileNames.size(); i++) {
-                  String originalFileNameValue = originalFileNames.get(i);
-                  fileUploadQuestionFormData.put(
-                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
-                      i == fileKeyIndexRemoved ? "" : originalFileNameValue);
-                }
-              }
+                        if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
+                          // Write all existing original file names back to the form data, except
+                          // the one that was removed from the file keys list.
+                          ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+                          for (int i = 0; i < originalFileNames.size(); i++) {
+                            String originalFileNameValue = originalFileNames.get(i);
+                            fileUploadQuestionFormData.put(
+                                fileUploadQuestion
+                                    .getOriginalFileNameListPathForIndex(i)
+                                    .toString(),
+                                i == fileKeyIndexRemoved ? "" : originalFileNameValue);
+                          }
+                        }
 
-              // Always force an update so that we save the change even if removing the last file
-              // from a
-              // required question.
-              return applicantService.stageAndUpdateIfValid(
-                  applicantId,
-                  programId,
-                  blockId,
-                  fileUploadQuestionFormData.build(),
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                  /* forceUpdate= */ true);
-            },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+                        // Always force an update so that we save the change even if removing the
+                        // last file from a required question.
+                        return applicantService.stageAndUpdateIfValid(
+                            applicantId,
+                            programId,
+                            blockId,
+                            fileUploadQuestionFormData.build(),
+                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                            /* forceUpdate= */ true);
+                      },
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      roApplicantProgramService -> {
+                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-              if (block.isEmpty() || !block.get().isFileUpload()) {
-                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
-              }
+                        if (block.isEmpty() || !block.get().isFileUpload()) {
+                          return failedFuture(
+                              new ProgramBlockNotFoundException(programId, blockId));
+                        }
 
-              // Re-direct back to the current page.
-              return supplyAsync(
-                  () -> {
-                    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                    return redirect(
-                        applicantRoutes
-                            .blockEditOrBlockReview(
-                                profile, applicantId, programId, blockId, inReview)
-                            .url());
-                  });
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(this::handleUpdateExceptions);
+                        // Re-direct back to the current page.
+                        return supplyAsync(
+                            () -> {
+                              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                              return redirect(
+                                  applicantRoutes
+                                      .blockEditOrBlockReview(
+                                          profile, applicantId, programId, blockId, inReview)
+                                      .url());
+                            });
+                      },
+                      classLoaderExecutionContext.current())
+                  .exceptionally(this::handleUpdateExceptions);
+            });
   }
 
   /**
