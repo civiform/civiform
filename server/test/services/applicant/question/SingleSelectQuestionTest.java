@@ -112,8 +112,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
-    applicantData.putString(
-        applicantQuestion.getContextualizedPath().join(Scalar.SELECTION), inputValue);
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), inputValue);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 

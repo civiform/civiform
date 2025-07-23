@@ -141,8 +141,13 @@ public final class QuestionAnswerer {
   }
 
   public static void answerSingleSelectQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalar.SELECTION), value);
+  }
+
+  public static void answerSingleSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, long value) {
-    applicantData.putLong(contextualizedPath.join(Scalar.SELECTION), value);
+    applicantData.putString(contextualizedPath.join(Scalar.SELECTION), String.valueOf(value));
   }
 
   public static void answerIdQuestion(
