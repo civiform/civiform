@@ -9,6 +9,7 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
+  <!-- TODO(#11003): Build out applicant view of map question -->
   This is a map question!
   <div th:hidden th:text="${questionRendererParams.geoJson().get()}"></div>
 </div>

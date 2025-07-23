@@ -297,6 +297,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     String geoJsonData =
         mapDataRepository.getMostRecentGeoJsonForEndpoint(geoJsonEndpoint).orElse("");
     if (geoJsonData.isEmpty()) {
+      // TODO(#11078): Failure state for missing GeoJSON data
       throw new IllegalStateException(
           String.format(
               "No GeoJSON data found for %s question.",
