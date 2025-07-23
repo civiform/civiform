@@ -16,6 +16,7 @@ import services.question.types.DateQuestionDefinition.DateValidationPredicates;
 import services.question.types.EnumeratorQuestionDefinition.EnumeratorValidationPredicates;
 import services.question.types.FileUploadQuestionDefinition.FileUploadValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
@@ -234,7 +235,10 @@ public final class QuestionDefinitionBuilder {
         return new IdQuestionDefinition(builder.build());
 
       case MAP:
-        // TODO(#11002) Set validation predicates
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              MapValidationPredicates.parse(validationPredicatesString));
+        }
         return new MapQuestionDefinition(builder.build());
 
       case NAME:
