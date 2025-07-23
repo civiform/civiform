@@ -93,6 +93,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().radioApplicantFavoriteSeason())
             .build();
     applicant = createApplicantWithMockedProfile();
 
@@ -1062,16 +1064,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_withValidationErrors_isOK() {
+  public void update_name_withValidationErrors_showsError() {
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1095,6 +1090,35 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
     assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  // The question has 4 options 1-4, Options are 1 based so 0 is not valid.
+  @Test
+  @Parameters({"0", "5", "-1", "1.1", "11111", "Not a Number", "&nbsp;"})
+  public void update_radio_withValidationErrors_showsError(String errorValue) {
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_favorite_season")
+                        .join(Scalar.SELECTION)
+                        .toString(),
+                    errorValue))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "3",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(contentAsString(result)).contains("Please enter valid input");
   }
 
   @Test
