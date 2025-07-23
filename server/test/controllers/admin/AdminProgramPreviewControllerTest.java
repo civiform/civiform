@@ -3,6 +3,7 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -42,6 +43,17 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
                     Long.toString(program.id),
                     /* isFromUrlCall= */ false)
                 .url());
+  }
+
+  @Test
+  public void northStar_preview_displaysProgramOverviewPage() {
+    String programSlug = "test-slug";
+    resourceCreator().insertActiveProgram(programSlug);
+    createGlobalAdminWithMockedProfile();
+    Request request = fakeRequestBuilder().build();
+    Result result = controller.preview(request, programSlug).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("<title>test-slug - Program Overview</title>");
   }
 
   @Test
