@@ -141,10 +141,8 @@ public final class DateQuestionDefinition extends QuestionDefinition {
           CiviFormError.of(
               "Specific date must be empty if start and end date are not \"Custom date\""));
     }
-    // Custom date may be empty if any of the date parts were missing, or if they did not represent
-    // a valid LocalDate
-    if ((minDateOption.dateType() == CUSTOM && !hasValidCustomDate(minDateOption))
-        || (maxDateOption.dateType() == CUSTOM && !hasValidCustomDate(maxDateOption))) {
+    if ((minDateOption.dateType() == CUSTOM && !hasValidDate(minDateOption))
+        || (maxDateOption.dateType() == CUSTOM && !hasValidDate(maxDateOption))) {
       errors.add(CiviFormError.of("A valid date is required for custom start and end dates"));
     } else {
       // At least one custom date is present. Check that custom dates represent valid date ranges.
@@ -167,10 +165,11 @@ public final class DateQuestionDefinition extends QuestionDefinition {
     return errors.build();
   }
 
-  private boolean hasValidCustomDate(DateValidationOption option) {
-    // Year must be a positive 4-digit number
+  private boolean hasValidDate(DateValidationOption option) {
+    // Date may be empty if any of the date parts were missing, or if they did not represent a valid
+    // LocalDate
     return option.customDate().isPresent()
-        && option.customDate().get().getYear() > 999
+        && option.customDate().get().getYear() > 999 // Year must be a positive 4-digit number
         && option.customDate().get().getYear() < 10000;
   }
 
