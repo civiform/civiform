@@ -224,12 +224,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   /** Renders a message saying the program was successfully saved. */
-  public DomContent renderProgramSaved(Http.Request request, String programName, Long programId) {
+  public DomContent renderProgramSaved(String programName, Long programId) {
     String successText =
         programName
             + " and its questions have been imported to your program dashboard. To view it,  visit"
             + " the program dashboard.";
-    if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
+    if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled()) {
       successText += " Before you import another program, you will need to publish all drafts.";
     }
     return div()
@@ -247,7 +247,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                             routes.AdminProgramBlocksController.index(programId).url())
                         .withClasses("usa-button", "mr-2"))
                 .condWith(
-                    !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request),
+                    !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(),
                     asRedirectElement(
                             button("Import another program"),
                             routes.AdminImportController.index().url())

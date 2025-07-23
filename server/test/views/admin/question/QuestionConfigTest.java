@@ -105,7 +105,8 @@ public class QuestionConfigTest {
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
         break;
       case MAP:
-        assertThat(maybeConfig).isEmpty();
+        assertThat(maybeConfig).isPresent();
+        assertThat(maybeConfig.get().renderFormatted()).contains("Maximum location selections");
         break;
       case NAME:
         assertThat(maybeConfig).isEmpty();

@@ -29,10 +29,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.19.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.19.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.1",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.19.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.19.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.19.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.19.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.44.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.46.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
@@ -130,7 +130,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.34",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.30",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.31",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "1.5.8",
@@ -305,9 +305,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.19.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.19.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.19.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.19.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.2"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

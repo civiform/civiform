@@ -307,12 +307,13 @@ public final class ApplicantRoutes {
       long programId,
       int previousBlockIndex,
       boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
-          applicantId, programId, previousBlockIndex, inReview);
+          applicantId, programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
     }
     return routes.ApplicantProgramBlocksController.previous(
-        Long.toString(programId), previousBlockIndex, inReview, /* isFromUrlCall= */ false);
+        programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -327,12 +328,13 @@ public final class ApplicantRoutes {
    */
   public Call addFile(
       CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
+          applicantId, programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.addFile(
+        programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -357,7 +359,7 @@ public final class ApplicantRoutes {
           applicantId, programId, blockId, fileKey, inReview);
     } else {
       return routes.ApplicantProgramBlocksController.removeFile(
-          programId, blockId, fileKey, inReview);
+          Long.toString(programId), blockId, fileKey, inReview, /* isFromUrlCall= */ false);
     }
   }
 
@@ -380,16 +382,18 @@ public final class ApplicantRoutes {
       String blockId,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
           applicantId,
-          programId,
+          programIdStr,
           blockId,
           inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+          new ApplicantRequestedActionWrapper(applicantRequestedAction),
+          /* isFromUrlCall= */ false);
     }
     return routes.ApplicantProgramBlocksController.updateFile(
-        Long.toString(programId),
+        programIdStr,
         blockId,
         inReview,
         new ApplicantRequestedActionWrapper(applicantRequestedAction),

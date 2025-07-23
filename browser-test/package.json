@@ -9,7 +9,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.53.2",
-    "@types/node": "22.16.0",
+    "@types/node": "22.16.5",
     "@typescript-eslint/eslint-plugin": "8.36.0",
     "@typescript-eslint/parser": "8.36.0",
     "axe-core": "4.10.3",
@@ -19,7 +19,7 @@
     "eslint-plugin-no-unsanitized": "^4.0.2",
     "eslint-plugin-playwright": "2.2.0",
     "playwright": "1.53.2",
-    "sharp": "0.34.2",
+    "sharp": "0.34.3",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
     "typescript": "5.8.3"

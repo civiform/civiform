@@ -243,3 +243,21 @@ button.usa-button.usa-button--unstyled.htmx-request {
     @include u-padding-top(4);
   }
 }
+
+// Set the background color to match tailwind bg-gray-900
+// for non-tailwind pages
+.usa-banner.cf-admin-heading-background-color {
+  background-color: rgb(17 24 39);
+}
+
+// Having to override this way due to specificity issues
+.usa-banner__inner.margin-left-0 {
+  margin-left: 0;
+}
+
+// Gradient used in the admin background. USWDS does not have
+// built in gradient utility classes like Tailwind does.
+.body-background-gradient {
+  /* gray-100 -> white -> gray-100 */
+  background-image: linear-gradient(to right, #f3f4f6, #ffffff, #f3f4f6);
+}

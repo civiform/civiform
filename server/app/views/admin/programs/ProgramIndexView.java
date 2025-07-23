@@ -307,10 +307,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                               getCountMissingUniversalQuestions(program, universalQuestionIds) > 0,
                               missingUniversalQuestionsWarning)
                           .with(buttons))
-                  .setModalTitle(
-                      "Are you sure you want to publish "
-                          + program.localizedName().getDefault()
-                          + " and all of its draft questions?")
+                  .setModalTitle(getPublishModalTitle(program))
                   .setTriggerButtonContent(
                       makeSvgTextButton("Publish", Icons.PUBLISH)
                           .withClasses(ButtonStyles.CLEAR_WITH_ICON))
@@ -324,8 +321,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     return "publish-modal-" + programSlug;
   }
 
+  private String getPublishModalTitle(ProgramDefinition program) {
+    String programName = program.localizedName().getDefault();
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      return "Are you sure you want to publish " + programName + "?";
+    }
+    return "Are you sure you want to publish " + programName + " and all of its draft questions?";
+  }
+
   private int getCountMissingUniversalQuestions(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      // External programs don't have questions, thus universal question are not applied to them
+      return 0;
+    }
+
     return universalQuestionIds.stream()
         .filter(id -> !program.getQuestionIdsInProgram().contains(id))
         .collect(ImmutableList.toImmutableList())
@@ -561,12 +571,18 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   Optional<String> generateUniversalQuestionText(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
-    int countMissingUniversalQuestionIds =
-        getCountMissingUniversalQuestions(program, universalQuestionIds);
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      // External programs don't have questions, thus universal question are not applied to them
+      return Optional.empty();
+    }
+
     int countAllUniversalQuestions = universalQuestionIds.size();
     if (countAllUniversalQuestions == 0) {
       return Optional.empty();
     }
+
+    int countMissingUniversalQuestionIds =
+        getCountMissingUniversalQuestions(program, universalQuestionIds);
     String text =
         countMissingUniversalQuestionIds == 0
             ? "all"
