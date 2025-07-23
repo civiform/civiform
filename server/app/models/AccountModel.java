@@ -7,7 +7,7 @@ import autovalue.shaded.com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
-import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -65,14 +65,10 @@ public class AccountModel extends BaseModel {
   @DbJsonB(name = "active_sessions")
   private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
-  @WhenCreated private Instant lastActivityTime;
+  @WhenModified private Instant lastActivityTime;
 
   public Instant getLastActivityTime() {
     return lastActivityTime;
-  }
-
-  public void updateLastActivityTime(Instant lastActivityTime) {
-    this.lastActivityTime = lastActivityTime;
   }
 
   private String tiNote;
