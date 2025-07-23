@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.oidc.IdTokens;
 import com.google.common.collect.ImmutableMap;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
@@ -181,5 +179,17 @@ public class AccountModelTest extends ResetPostgres {
     Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
 
     assertThat(activeSessions).isEmpty();
+  }
+
+  @Test
+  public void lastActivityTimeCanBeUpdated() {
+    AccountModel userAccount = new AccountModel();
+    Instant currentActivityTime = userAccount.getLastActivityTime();
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
+    userAccount.updateLastActivityTime(timeInPast);
+    userAccount.save();
+    assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+    assertThat(userAccount.getLastActivityTime()).isEqualTo(timeInPast);
   }
 }
