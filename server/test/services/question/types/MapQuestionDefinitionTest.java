@@ -55,7 +55,7 @@ public class MapQuestionDefinitionTest {
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
-  private static ImmutableList<Object[]> getValidationTestData() {
+  private static ImmutableList<Object[]> getMaxLocationsTestData() {
     return ImmutableList.of(
         // Valid cases.
         new Object[] {OptionalInt.empty(), Optional.<String>empty()},
@@ -69,8 +69,8 @@ public class MapQuestionDefinitionTest {
   }
 
   @Test
-  @Parameters(method = "getValidationTestData")
-  public void validate_settingConstraints(
+  @Parameters(method = "getMaxLocationsTestData")
+  public void validate_settingMaxLocationsConstraint(
       OptionalInt maxLocationSelections, Optional<String> expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()

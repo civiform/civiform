@@ -42,10 +42,12 @@ public class MapQuestionForm extends QuestionForm {
   }
 
   /**
-   * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
-   * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
-   * in fact an integer when we parse it. If we instead used an int here, we see an "Invalid value"
-   * error when binding the empty value in the form.
+   * Sets the maximum number of locations an applicant can select.
+   *
+   * <p>We use a string parameter here so that if the field is empty (i.e., unset), we can correctly
+   * set it to an empty {@code OptionalInt}.
+   *
+   * @param maxLocationSelectionsAsString the max number of locations an applicant can select
    */
   public void setMaxLocationSelections(String maxLocationSelectionsAsString) {
     this.maxLocationSelections =
