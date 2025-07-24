@@ -15,11 +15,11 @@ export const init = () => {
 
 const renderMap = (mapId: string, geoJsonData?: GeoJSON.FeatureCollection) => {
   console.log(`Rendering map with ID: ${mapId}`)
-  
+
   if (geoJsonData) {
     console.log(`GeoJSON Data for ${mapId}:`, geoJsonData)
   }
-  
+
   new Map({
     container: mapId,
     style: {
