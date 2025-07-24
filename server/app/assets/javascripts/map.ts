@@ -1,28 +1,25 @@
 import {Map} from 'maplibre-gl'
 
 export const init = () => {
-  const mapElement = document.querySelector('[id$="-map"]')
+  const mapElements = document.querySelectorAll('[id^="cf-map-"]')
 
-  if (mapElement?.id) {
-    console.log(`map.ts is initializing for map with id: ${mapElement.id}`)
-    renderMap(mapElement.id)
-  } else {
-    console.warn('No map element found.')
-  }
+  if (mapElements.length === 0) return
 
-  const geoJsonDataElement = document.querySelector('[id$="-data"]')
-  if (geoJsonDataElement) {
-    const geoJsonDataElementValue: string | null =
-      geoJsonDataElement.getAttribute('value')
-    const geoJsonData: JSON = geoJsonDataElementValue
-      ? (JSON.parse(geoJsonDataElementValue) as JSON)
-      : ({} as JSON)
-    console.log('GeoJSON Data:', geoJsonData)
-  }
+  mapElements.forEach((mapElement) => {
+    const mapId: string = mapElement.id
+    const geoJsonData = getGeoJsonData(mapId)
+
+    renderMap(mapId, geoJsonData)
+  })
 }
 
-const renderMap = (mapId: string) => {
+const renderMap = (mapId: string, geoJsonData?: GeoJSON.FeatureCollection) => {
   console.log(`Rendering map with ID: ${mapId}`)
+  
+  if (geoJsonData) {
+    console.log(`GeoJSON Data for ${mapId}:`, geoJsonData)
+  }
+  
   new Map({
     container: mapId,
     style: {
@@ -37,8 +34,27 @@ const renderMap = (mapId: string) => {
       },
       layers: [{id: 'osm', type: 'raster', source: 'osm'}],
     },
-    // TODO(#): Allow configurable center point
+    // TODO(#11095): Allow configurable center point
     center: [-122.3321, 47.6062],
     zoom: 8,
   })
+}
+
+const getGeoJsonData = (
+  mapId: string,
+): GeoJSON.FeatureCollection | undefined => {
+  const rawData = document
+    .querySelector(`[data-mapid="${mapId}"]`)
+    ?.getAttribute('value')
+
+  if (!rawData) {
+    return
+  }
+
+  try {
+    return JSON.parse(rawData) as GeoJSON.FeatureCollection
+  } catch (e) {
+    console.error(`Failed to parse GeoJSON for ${mapId}`, e)
+    return
+  }
 }
