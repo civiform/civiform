@@ -1,5 +1,7 @@
 package views.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -11,20 +13,29 @@ import services.settings.SettingsManifest;
 import views.admin.shared.AdminCommonHeader;
 
 /**
- * Admin base view class used to render the supplied Thymeleaf page template. This view is tied to
- * layout template file {@code AdminLayout.html}.
+ * {@link AdminLayoutBaseView} is used to render the supplied Thymeleaf page template. This view is
+ * tied to layout template {@link LayoutTemplate#ADMIN_LAYOUT}.
  *
  * @param <TModel> A class or record that implements {@link BaseViewModel}
  */
-public abstract class AdminBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
-  public AdminBaseView(
+public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
+  protected final ProfileUtils profileUtils;
+  protected final AssetsFinder assetsFinder;
+
+  public AdminLayoutBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
       AssetsFinder assetsFinder,
       ProfileUtils profileUtils) {
-    super(
-        templateEngine, playThymeleafContextFactory, settingsManifest, assetsFinder, profileUtils);
+    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+    this.profileUtils = checkNotNull(profileUtils);
+    this.assetsFinder = checkNotNull(assetsFinder);
+  }
+
+  /** Override to set the active page for top header navigation. */
+  protected AdminLayout.NavPage activeNavigationPage() {
+    return AdminLayout.NavPage.NULL_PAGE;
   }
 
   @Override
@@ -38,7 +49,7 @@ public abstract class AdminBaseView<TModel extends BaseViewModel> extends BaseVi
   }
 
   @Override
-  protected String layoutTemplate() {
+  protected final String layoutTemplate() {
     return LayoutTemplate.ADMIN_LAYOUT;
   }
 

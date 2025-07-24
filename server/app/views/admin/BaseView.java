@@ -1,10 +1,8 @@
 package views.admin;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
@@ -15,8 +13,8 @@ import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
 
 /**
- * Base view class containing the structure and bare essentials to render the supplied Thymeleaf
- * template.
+ * {@link BaseView} class contains the structure and bare essentials to render the supplied
+ * Thymeleaf template.
  *
  * @param <TModel> A class or record that implements {@link BaseViewModel}
  */
@@ -26,30 +24,19 @@ public abstract class BaseView<TModel extends BaseViewModel> {
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final SettingsManifest settingsManifest;
-  protected final AssetsFinder assetsFinder;
-  protected final ProfileUtils profileUtils;
 
   public BaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest,
-      AssetsFinder assetsFinder,
-      ProfileUtils profileUtils) {
+      SettingsManifest settingsManifest) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.assetsFinder = checkNotNull(assetsFinder);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /** Page title text */
   protected String pageTitle() {
     return "";
-  }
-
-  /** Override to set the active page for top header navigation. */
-  protected AdminLayout.NavPage activeNavigationPage() {
-    return AdminLayout.NavPage.NULL_PAGE;
   }
 
   /**
@@ -164,7 +151,6 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    * <p>Override to add page specific stylesheet files. Use <b>sparringly</b>.
    */
   protected ImmutableList<String> getPageStylesheets() {
-    // no-op
     return ImmutableList.of();
   }
 
