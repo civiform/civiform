@@ -148,7 +148,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific stylesheet files. Use <b>sparringly</b>.
+   * <p>Override to add page specific stylesheet files. Use <b>sparingly</b>.
    */
   protected ImmutableList<String> getPageStylesheets() {
     return ImmutableList.of();
@@ -184,7 +184,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific javascript files. Use <b>sparringly</b>. Most page specific
+   * <p>Override to add page specific javascript files. Use <b>sparingly</b>. Most page specific
    * files should be added with {@link #getPageBodyScripts()}.
    */
   protected ImmutableList<String> getPageHeadScripts() {
@@ -219,7 +219,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific javascript files. Use <b>sparringly</b>.
+   * <p>Override to add page specific javascript files. Use <b>sparingly</b>.
    */
   protected ImmutableList<String> getPageBodyScripts() {
     return ImmutableList.of();
