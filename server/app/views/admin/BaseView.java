@@ -1,10 +1,8 @@
 package views.admin;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
@@ -15,8 +13,8 @@ import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
 
 /**
- * Base view class containing the structure and bare essentials to render the supplied Thymeleaf
- * template.
+ * {@link BaseView} class contains the structure and bare essentials to render the supplied
+ * Thymeleaf template.
  *
  * @param <TModel> A class or record that implements {@link BaseViewModel}
  */
@@ -25,31 +23,20 @@ public abstract class BaseView<TModel extends BaseViewModel> {
       "data:image/x-icon;base64,AAABAAEAEBAAAAEAIACcAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAWNJREFUOE9j/A8EDBQAxsFjwKuPPxgK5h1n2HnhCdhDDtqSDJNSrBikhbgYDIrWMVx78gHFo7vrPRnsgWrgXvBp28lw5s4bhuZIYwY+LjaGltXnGXg4WRmOt/uBDZAT5WEo9tOFG6KvIMwgwM0GMeDui88MmnmrGWZn2TLEO6iCFd169pHh/P23DCGWigzGJesZzNXEGGZm2GAEN9gAkLN923YxXOoPZtCQ5sdQBHKBiYoowxSgl2CAnZWZgZGRAeKC3RefMni37mS40BfEoCUjgNUA9DC4NSWMQUGMB2LAozdfGVSyVjJMT7dmSHZWBxtw+dF7hjXH7jGUB+ozWFVuYlCS4GMoD9CDG26gKMwAdgUsHUT07WPYf+UZQ1OECYMQDztD06pzDGwsTAynuwIYjAiFAcjYD19/MRTNP8Gw+cwjhj///oGjcTLQzzLC3OBYwBuIFKRkhBfINWQQ5QVyvQAAuEmo0TDmRP4AAAAASUVORK5CYII=";
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
-  private final SettingsManifest settingsManifest;
-  protected final AssetsFinder assetsFinder;
-  protected final ProfileUtils profileUtils;
+  protected final SettingsManifest settingsManifest;
 
   public BaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest,
-      AssetsFinder assetsFinder,
-      ProfileUtils profileUtils) {
+      SettingsManifest settingsManifest) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.assetsFinder = checkNotNull(assetsFinder);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /** Page title text */
   protected String pageTitle() {
     return "";
-  }
-
-  /** Override to set the active page for top header navigation. */
-  protected AdminLayout.NavPage activeNavigationPage() {
-    return AdminLayout.NavPage.NULL_PAGE;
   }
 
   /**
@@ -161,10 +148,9 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific stylesheet files. Use <b>sparringly</b>.
+   * <p>Override to add page specific stylesheet files. Use <b>sparingly</b>.
    */
   protected ImmutableList<String> getPageStylesheets() {
-    // no-op
     return ImmutableList.of();
   }
 
@@ -198,7 +184,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific javascript files. Use <b>sparringly</b>. Most page specific
+   * <p>Override to add page specific javascript files. Use <b>sparingly</b>. Most page specific
    * files should be added with {@link #getPageBodyScripts()}.
    */
   protected ImmutableList<String> getPageHeadScripts() {
@@ -233,7 +219,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    *
-   * <p>Override to add page specific javascript files. Use <b>sparringly</b>.
+   * <p>Override to add page specific javascript files. Use <b>sparingly</b>.
    */
   protected ImmutableList<String> getPageBodyScripts() {
     return ImmutableList.of();
