@@ -13,9 +13,11 @@
   data-testid="questionRoot"
 >
   <!-- TODO(#11003): Build out applicant view of map question -->
-  This is a map question!
+  <div class="square-mobile" th:id="|${questionId}-map|"></div>
   <div
+    class="hidden"
+    th:id="|${questionId}-data|"
     th:if="${questionRendererParams.geoJson().isPresent()}"
-    th:text="${questionRendererParams.geoJson().get()}"
+    th:value="${questionRendererParams.geoJson().get()}"
   ></div>
 </div>
