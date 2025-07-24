@@ -15,7 +15,7 @@ import models.ApplicantModel.Suffix;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
-import repository.GeoJsonMapDataRepository;
+import repository.GeoJsonDataRepository;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
@@ -42,7 +42,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
-  private final GeoJsonMapDataRepository mapDataRepository;
+  private final GeoJsonDataRepository mapDataRepository;
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
@@ -54,7 +54,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
-      GeoJsonMapDataRepository mapDataRepository) {
+      GeoJsonDataRepository mapDataRepository) {
     super(
         templateEngine,
         playThymeleafContextFactory,

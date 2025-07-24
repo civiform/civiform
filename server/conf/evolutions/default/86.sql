@@ -1,7 +1,7 @@
 # --- !Ups
-create table if not exists geojson_map_data (
+create table if not exists geo_json_data (
   endpoint varchar not null,
-  geojson jsonb not null,
+  geo_json jsonb not null,
   create_time timestamp not null,
   update_time timestamp not null);
 
