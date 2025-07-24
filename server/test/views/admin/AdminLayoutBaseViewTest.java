@@ -12,10 +12,10 @@ import org.junit.Test;
 import org.thymeleaf.TemplateEngine;
 import services.settings.SettingsManifest;
 
-public class AdminBaseViewTest extends WithMockedProfiles {
+public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   private record CustomViewModel() implements BaseViewModel {}
 
-  public static class CustomView extends AdminBaseView<CustomViewModel> {
+  public static class CustomView extends AdminLayoutBaseView<CustomViewModel> {
     private final String pageTemplate;
 
     public CustomView(

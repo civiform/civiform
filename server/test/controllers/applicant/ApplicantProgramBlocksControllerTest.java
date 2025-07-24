@@ -2785,25 +2785,115 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void removeFile_invalidApplicant_returnsUnauthorized() {
+  public void
+      removeFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that removeFileWithApplicantId() throws an error when the program param is a program slug
+   * but it should be the program id since the program slug feature is disabled.
+   * removeFileWithApplicantId() also throws error for other combinations when the program param is
+   * not properly parsed. We don't test all combinations here because ProgramSlugHandler have a
+   * comprehensive test cover for them.
+   */
+  @Test
+  public void
+      removeFileWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.removeFileWithApplicantId(
+                    fakeRequest(),
+                    applicant.id,
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* fileKeyToRemove= */ "fake-key",
+                    /* inReview= */ false,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that removeFile() redirects to another page when the feature is enabled and is from url
+   * call with a program slug. removeFileWithApplicantId() also redirects for other combinations:
+   * when the feature is disabled OR when the call is not from a URL OR when the program param is a
+   * program slug (not numeric), AND the program ID was properly retrieved. We don't test all
+   * combinations here because the ProgramSlugHandler tests have a comprehensive test cover for
+   * them.
+   */
+  @Test
+  public void
+      removeFileWithApplicantid_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("Program with file upload")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .build();
+    String programSlug = activeProgram.getSlug();
+
+    Request request = fakeRequestWithKeyAndBucket();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request,
+                applicant.id,
+                programSlug,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+  }
+
+  @Test
+  public void removeFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
+    String programId = Long.toString(program.id);
     long badApplicantId = applicant.id + 1000;
-    RequestBuilder request = fakeRequestBuilder();
 
     Result result =
         subject
             .removeFileWithApplicantId(
-                request.build(),
+                fakeRequest(),
                 badApplicantId,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2835,7 +2925,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void removeFile_civiformAdminAccessToDraftProgram_redirects() {
+  public void removeFileWithApplicantId_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -2843,17 +2933,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request = fakeRequestBuilder().build();
     Result result =
         subject
             .removeFileWithApplicantId(
-                request,
+                fakeRequest(),
                 applicant.id,
-                draftProgram.id,
+                draftProgramId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
