@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -188,6 +189,15 @@ public class AccountModelTest extends ResetPostgres {
     AccountModel userAccount = new AccountModel();
     Instant currentActivityTime = userAccount.getLastActivityTime();
     userAccount.setTiNote("Interested in Childcare");
+    userAccount.save();
+    assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+  }
+
+  @Test
+  public void lastActivityTimeGetsUpdatedOnAccountSave() throws InterruptedException {
+    AccountModel userAccount = new AccountModel();
+    Instant currentActivityTime = userAccount.getLastActivityTime();
+    TimeUnit.MILLISECONDS.sleep(5);
     userAccount.save();
     assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
   }
