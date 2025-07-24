@@ -71,10 +71,6 @@ public class AccountModel extends BaseModel {
     return lastActivityTime;
   }
 
-  public void updateLastActivityTime(Instant lastActivityTime) {
-    this.lastActivityTime = lastActivityTime;
-  }
-
   private String tiNote;
 
   public AccountModel setTiNote(String tiNote) {
