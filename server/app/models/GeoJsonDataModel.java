@@ -9,15 +9,16 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import play.data.validation.Constraints;
 
 @Entity
-@Table(name = "geojson_map_data")
+@Table(name = "geo_json_data")
 @Getter
-public class GeoJsonMapDataModel extends Model {
+public class GeoJsonDataModel extends Model {
 
-  @Setter @DbJsonB private String geojson;
+  @Constraints.Required @Setter @DbJsonB private String geoJson;
 
-  @Setter private String endpoint;
+  @Constraints.Required @Setter private String endpoint;
 
   @WhenModified private Instant updateTime;
 
