@@ -8,16 +8,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "geojson_map_data")
+@Getter
 public class MapDataModel extends Model {
 
-  @Getter @DbJsonB public String geojson;
+  @Setter @DbJsonB private String geojson;
 
-  public String endpoint;
+  @Setter private String endpoint;
 
-  @WhenModified public Instant updateTime;
+  @WhenModified private Instant updateTime;
 
-  @WhenCreated public Instant createTime;
+  @WhenCreated private Instant createTime;
 }
