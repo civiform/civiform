@@ -13,7 +13,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "geojson_map_data")
 @Getter
-public class MapDataModel extends Model {
+public class GeoJsonMapDataModel extends Model {
 
   @Setter @DbJsonB private String geojson;
 
