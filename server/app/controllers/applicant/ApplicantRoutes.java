@@ -354,13 +354,13 @@ public final class ApplicantRoutes {
       String blockId,
       String fileKey,
       boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-          applicantId, programId, blockId, fileKey, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.removeFile(
-          Long.toString(programId), blockId, fileKey, inReview, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.removeFile(
+        programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
