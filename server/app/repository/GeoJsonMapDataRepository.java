@@ -4,7 +4,7 @@ import io.ebean.DB;
 import java.util.Optional;
 import models.GeoJsonMapDataModel;
 
-public final class MapDataRepository {
+public final class GeoJsonMapDataRepository {
   public Optional<String> getMostRecentGeoJsonForEndpoint(String endpoint) {
     return DB.find(GeoJsonMapDataModel.class)
         .where()
