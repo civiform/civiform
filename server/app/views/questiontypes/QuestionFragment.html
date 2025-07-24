@@ -76,8 +76,6 @@
       ></div>
     </th:block>
     <th:block th:case="'Text'">
-      <div th:text="${question}"></div>
-      <div th:text="${questionRendererParams}"></div>
       <div
         th:replace="~{questiontypes/TextQuestionFragment :: text(${question}, ${questionRendererParams})}"
       ></div>
