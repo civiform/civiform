@@ -390,12 +390,13 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('name suffix is not visible to be selected as a value', async () => {
-      await page.click(`.cf-scalar-select`)
-
-      await page.getByText('first name').isVisible()
-      await page.getByText('middle name').isVisible()
-      await page.getByText('last name').isVisible()
-      await page.getByText('name suffix').isHidden()
+      const dropdown = page.locator('.cf-scalar-select').getByRole('combobox')
+      await expect(dropdown.locator('option')).toHaveText([
+        '', // This accounts for the hidden, empty placeholder option
+        'first name',
+        'middle name',
+        'last name',
+      ])
     })
   })
 
