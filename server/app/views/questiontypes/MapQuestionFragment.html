@@ -1,3 +1,6 @@
+<!--/*@thymesVar id="question" type="services.applicant.question.ApplicantQuestion"*/-->
+<!--/*@thymesVar id="questionRendererParams" type="views.questiontypes.ApplicantQuestionRendererParams"*/-->
+
 <div
   th:fragment="map(question, questionRendererParams)"
   th:with="mapQuestion=${question.createMapQuestion()},
