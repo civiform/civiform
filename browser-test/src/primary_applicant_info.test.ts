@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -16,6 +17,7 @@ import {
 test.describe('primary applicant info questions', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'date_validation_enabled')
   })
 
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
@@ -142,6 +144,14 @@ test.describe('primary applicant info questions', () => {
     await adminQuestions.gotoQuestionEditPage(dateQuestion)
     await adminQuestions.expectPrimaryApplicantInfoToggleValue(dateField, true)
     await validateScreenshot(page, 'primary-applicant-info-dob')
+
+    await disableFeatureFlag(page, 'date_validation_enabled')
+    await adminQuestions.gotoQuestionEditPage(dateQuestion)
+    await adminQuestions.expectPrimaryApplicantInfoToggleValue(dateField, true)
+    await validateScreenshot(
+      page,
+      'primary-applicant-info-dob-date-validation-disabled',
+    )
 
     await adminQuestions.gotoQuestionEditPage(emailQuestion)
     await adminQuestions.clickUniversalToggle()
