@@ -26,6 +26,7 @@ public class ObjectMapperProvider implements Provider<ObjectMapper> {
             .registerModule(new Jdk8Module())
             // This adds support for ImmutableList, ImmutableSet, etc.
             .registerModule(new GuavaModule())
+            // This adds support for Instant, LocalDateTime, java.time classes, etc.
             .registerModule(new JavaTimeModule());
 
     // Needs to set to Json helper
