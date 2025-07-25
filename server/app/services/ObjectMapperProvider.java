@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Provider;
 import play.libs.Json;
 
@@ -24,7 +25,9 @@ public class ObjectMapperProvider implements Provider<ObjectMapper> {
             // This adds support for Optional
             .registerModule(new Jdk8Module())
             // This adds support for ImmutableList, ImmutableSet, etc.
-            .registerModule(new GuavaModule());
+            .registerModule(new GuavaModule())
+            // This adds support for Instant, LocalDateTime, java.time classes, etc.
+            .registerModule(new JavaTimeModule());
 
     // Needs to set to Json helper
     Json.setObjectMapper(mapper);
