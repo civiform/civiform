@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.0",
-      "commons-validator" % "commons-validator" % "1.9.0",
+      "commons-validator" % "commons-validator" % "1.10.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
