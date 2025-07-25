@@ -44,7 +44,8 @@ public final class QuestionCard {
         /* malformedQuestionDefinition= */ false,
         /* editButtonsForProgramPage= */ ImmutableList.of(),
         Optional.of(badgeForImport),
-        maybeDuplicateHandlingForImport);
+        maybeDuplicateHandlingForImport,
+        /* visibilityConditionEditLinks= */ Optional.empty());
   }
 
   /**
@@ -55,18 +56,22 @@ public final class QuestionCard {
    * @param malformedQuestionDefinition whether there is an issue with the definition
    * @param editButtonsForProgramPage the div tags containing buttons/icons showing the options to
    *     edit the question
+   * @param visibilityConditionEditLinks the optional div tag containing edit links if this question
+   *     is used in visibility conditions.
    * @return a div tag containing the rendered question
    */
   public static DivTag renderForProgramPage(
       QuestionDefinition questionDefinition,
       boolean malformedQuestionDefinition,
-      ImmutableList<DomContent> editButtonsForProgramPage) {
+      ImmutableList<DomContent> editButtonsForProgramPage,
+      Optional<DivTag> visibilityConditionEditLinks) {
     return render(
         questionDefinition,
         malformedQuestionDefinition,
         editButtonsForProgramPage,
         /* maybeBadgeForImport= */ Optional.empty(),
-        /* maybeDuplicateHandlingForImport= */ Optional.empty());
+        /* maybeDuplicateHandlingForImport= */ Optional.empty(),
+        visibilityConditionEditLinks);
   }
 
   /**
@@ -78,7 +83,8 @@ public final class QuestionCard {
       boolean malformedQuestionDefinition,
       ImmutableList<DomContent> editButtonsForProgramPage,
       Optional<DivTag> maybeBadgeForImport,
-      Optional<FieldsetTag> maybeDuplicateHandlingForImport) {
+      Optional<FieldsetTag> maybeDuplicateHandlingForImport,
+      Optional<DivTag> visibilityConditionEditLinks) {
     boolean showOneOrMoreBadges =
         (!malformedQuestionDefinition && questionDefinition.isUniversal())
             || maybeBadgeForImport.isPresent();
@@ -90,15 +96,13 @@ public final class QuestionCard {
                 "my-2",
                 iffElse(malformedQuestionDefinition, "border-2", "border"),
                 iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
-                "px-4",
-                "py-2",
                 "items-center",
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"))
             .condWith(
                 showOneOrMoreBadges,
                 div()
-                    .withClasses("flex", "mt-2", "mb-4")
+                    .withClasses("flex", "mx-4", "mt-4", "mb-2")
                     .condWith(
                         !malformedQuestionDefinition && questionDefinition.isUniversal(),
                         ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
@@ -142,7 +146,7 @@ public final class QuestionCard {
 
     DivTag row =
         div()
-            .withClasses("flex", "gap-4", "items-center")
+            .withClasses("flex", "gap-4", "items-center", "px-4", "py-2")
             .with(icon, content)
             .condWith(
                 maybeDuplicateHandlingForImport.isPresent(),
@@ -150,7 +154,10 @@ public final class QuestionCard {
                 maybeDuplicateHandlingForImport.orElse(null))
             .with(editButtonsForProgramPage);
 
-    return cardDiv.with(row);
+    return cardDiv
+        .with(row)
+        .condWith(
+            visibilityConditionEditLinks.isPresent(), visibilityConditionEditLinks.orElse(null));
   }
 
   private static UlTag getOptions(MultiOptionQuestionDefinition question) {
