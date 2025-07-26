@@ -161,6 +161,8 @@ public abstract class AnswerData {
         return applicantQuestion().createDateQuestion();
       case PHONE:
         return applicantQuestion().createPhoneQuestion();
+      case MAP:
+        return applicantQuestion().createMapQuestion();
       case NAME:
         return applicantQuestion().createNameQuestion();
       case ID:
