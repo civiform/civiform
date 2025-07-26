@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
@@ -69,6 +70,29 @@ public final class RecurringJobExecutionTimeResolvers {
           .atStartOfDay(clock.getZone())
           .plus(2, ChronoUnit.HOURS)
           .toInstant();
+    }
+  }
+
+  /** Admin configured interval for durable jobs. Used for REFRESH_MAP_DATA */
+  public static final class AdminConfiguredIntervalResolver implements JobExecutionTimeResolver {
+    private final int refreshInterval;
+
+    public AdminConfiguredIntervalResolver(int refreshInterval) {
+      this.refreshInterval = refreshInterval;
+    }
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), clock.getZone());
+      return now.plusMinutes(minutesUntilNextInterval(now))
+          .withSecond(0)
+          .withNano(0)
+          .atZone(clock.getZone())
+          .toInstant();
+    }
+
+    private int minutesUntilNextInterval(LocalDateTime now) {
+      return this.refreshInterval - (now.getMinute() % this.refreshInterval);
     }
   }
 }

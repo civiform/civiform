@@ -19,6 +19,7 @@ import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.CalculateEligibilityDeterminationJob;
+import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -119,7 +120,8 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      Config config) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -157,6 +159,19 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
+    if (config.getBoolean("map_question_enabled")
+        && config.hasPath("durable_jobs.map_refresh_interval")) {
+      int refreshInterval = config.getInt("durable_jobs.map_refresh_interval");
+      if (refreshInterval < 30) {
+        throw new IllegalArgumentException("Refresh interval must be >= 30 minutes.");
+      }
+      durableJobRegistry.register(
+          DurableJobName.REFRESH_MAP_DATA,
+          JobType.RECURRING,
+          MapRefreshJob::new,
+          new RecurringJobExecutionTimeResolvers.AdminConfiguredIntervalResolver(refreshInterval));
+    }
 
     return durableJobRegistry;
   }

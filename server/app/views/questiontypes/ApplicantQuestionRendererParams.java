@@ -66,6 +66,8 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Messages messages();
 
+  public abstract Optional<String> geoJson();
+
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
   public abstract Optional<Boolean> isNameSuffixEnabled();
@@ -120,6 +122,8 @@ public abstract class ApplicantQuestionRendererParams {
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
     public abstract Builder setAutofocus(AutoFocusTarget autofocus);
+
+    public abstract Builder setGeoJson(String geoJson);
 
     public abstract ApplicantQuestionRendererParams build();
   }

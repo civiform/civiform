@@ -59,7 +59,6 @@ public final class CreateQuestionButton {
         continue;
       }
       if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled()) {
-        // TODO(#11001): Render map question
         continue;
       }
 
