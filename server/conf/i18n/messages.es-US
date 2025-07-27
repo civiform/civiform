@@ -908,10 +908,10 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
+option.yes=Sí
 option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.notSure=No lo sé
+option.maybe=Tal vez
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
