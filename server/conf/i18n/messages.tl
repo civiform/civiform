@@ -908,10 +908,10 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=Oo
+option.no=Hindi
+option.notSure=Hindi sigurado
+option.maybe=Siguro
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
