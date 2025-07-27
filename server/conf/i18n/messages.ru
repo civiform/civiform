@@ -908,10 +908,10 @@ validation.textTooShort=Минимально допустимое число с�
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=Да
+option.no=Нет
+option.notSure=Затрудняюсь ответить
+option.maybe=Возможно
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
