@@ -908,10 +908,10 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=አዎ
+option.no=አይ
+option.notSure=እርግጠኛ አይደለሁም
+option.maybe=ምናልባት
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
