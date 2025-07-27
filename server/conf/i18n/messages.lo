@@ -908,10 +908,10 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=ແມ່ນ
+option.no=ບໍ່
+option.notSure=ບໍ່ແນ່ໃຈ
+option.maybe=ອາດຈະ
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
