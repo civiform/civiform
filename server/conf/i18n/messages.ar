@@ -908,10 +908,10 @@ validation.textTooShort=يجب أن تتضمن الإجابة {0} حرف كحد 
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=نعم
+option.no=لا
+option.notSure=لا أعلم
+option.maybe=ربما
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
