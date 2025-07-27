@@ -908,10 +908,10 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=是
+option.no=否
+option.notSure=不確定
+option.maybe=或許
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
