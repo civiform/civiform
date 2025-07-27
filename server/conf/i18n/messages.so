@@ -908,10 +908,10 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=Haa
+option.no=Maya
+option.notSure=Ma hubi
+option.maybe=Laga yaabaa
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
