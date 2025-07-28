@@ -346,7 +346,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .url();
       }
       // Show icon with blocks that have visibility conditions.
-      String visibilityPredicateInvisible =
+      // Icon is always added for spacing, but is only visible for blocks that have visibility
+      // conditions.
+      String showOrHideVisibilityIcon =
           blockDefinition.visibilityPredicate().isEmpty() ? "invisible" : "";
       blockContent
           .withId(genericBlockDivId + blockDefinition.id())
@@ -358,7 +360,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       "lg:mr-2", // style for desktop
                       "self-center",
                       "flex-shrink-0",
-                      visibilityPredicateInvisible)
+                      showOrHideVisibilityIcon)
                   .withHref(switchBlockLink)
                   .with(Icons.svg(Icons.VISIBILITY_OFF)))
           .with(
