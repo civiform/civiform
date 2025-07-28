@@ -1,5 +1,6 @@
 # --- !Ups
-alter table accounts add last_activity_time timestamp;
+
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_activity_time timestamp;
 
 # --- !Downs
-alter table accounts drop column last_activity_time;
+ALTER TABLE accounts DROP COLUMN IF EXISTS last_activity_time;
