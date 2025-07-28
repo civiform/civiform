@@ -9,7 +9,7 @@ public final class GeoJsonDataRepository {
     return DB.find(GeoJsonDataModel.class)
         .where()
         .eq("endpoint", endpoint)
-        .orderBy("updateTime desc")
+        .orderBy("confirmTime desc")
         .setMaxRows(1)
         .findOneOrEmpty()
         .map(GeoJsonDataModel::getGeoJson);

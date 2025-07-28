@@ -14,5 +14,5 @@
 >
   <!-- TODO(#11003): Build out applicant view of map question -->
   This is a map question!
-  <div th:hidden th:text="${questionRendererParams.geoJson().get()}"></div>
+  <div th:if="${questionRendererParams.geoJson().isPresent()}" th:text="${questionRendererParams.geoJson().get()}"></div>
 </div>
