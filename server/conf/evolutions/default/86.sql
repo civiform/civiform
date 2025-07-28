@@ -1,9 +1,6 @@
 # --- !Ups
-create table if not exists geo_json_data (
-  endpoint varchar not null,
-  geo_json jsonb not null,
-  create_time timestamp not null,
-  confirm_time timestamp not null);
+
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_activity_time timestamp;
 
 # --- !Downs
-drop table if exists geo_json_data;
+ALTER TABLE accounts DROP COLUMN IF EXISTS last_activity_time;
