@@ -69,6 +69,9 @@ test.describe('create and edit predicates', () => {
     )
     await validateScreenshot(page, 'hide-predicate')
 
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(page, 'edit-block-with-hide-predicate')
+
     // Publish the program
     await adminPrograms.publishProgram(programName)
 
@@ -166,6 +169,9 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
+
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(page, 'edit-block-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
