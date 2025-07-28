@@ -13,7 +13,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.geojson.GeoJsonClient;
-import services.geojson.GeoJsonFeatureCollection;
 
 public class GeoJsonApiController {
   private final FormFactory formFactory;
@@ -34,12 +33,12 @@ public class GeoJsonApiController {
     }
 
     CompletionStage<Optional<String>> geoJsonResponseStage =
-      geoJsonClient.fetchGeoJsonData(geoJsonEndpoint);
+        geoJsonClient.fetchGeoJsonData(geoJsonEndpoint);
 
-
-    return geoJsonResponseStage.thenApply(optionalGeoJsonResponse -> {
-      String geoJsonString = optionalGeoJsonResponse.orElse("");
-      return ok(div(geoJsonString).toString());
-    });
+    return geoJsonResponseStage.thenApply(
+        optionalGeoJsonResponse -> {
+          String geoJsonString = optionalGeoJsonResponse.orElse("");
+          return ok(div(geoJsonString).toString());
+        });
   }
 }
