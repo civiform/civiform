@@ -21,4 +21,14 @@
     th:if="${questionRendererParams.geoJson().isPresent()}"
     th:value="${questionRendererParams.geoJson().get()}"
   ></div>
+  <script th:inline="javascript" th:nonce="${cspNonce}">
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.maps = window.app.data.maps || {}
+
+    id = /*[[${mapId}]]*/ 'id'
+    if (/*[[${questionRendererParams.geoJson().isPresent()}]]*/ mapDataIsPresent) {
+      window.app.data.maps[id] = /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    }
+  </script>
 </div>
