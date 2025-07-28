@@ -1,26 +1,14 @@
 import {Map} from 'maplibre-gl'
 
 export const init = () => {
-  const geoJsonDataObject = window.app.data.maps || {}
-  const mapElements = document.querySelectorAll('[id^="cf-map-"]')
+  const geoJsonDataObject = window.app?.data?.maps || {}
 
-  mapElements.forEach((mapElement) => {
-    const mapId: string = mapElement.id
-    let geoJsonData: GeoJSON.FeatureCollection | undefined
-    try {
-      geoJsonData = JSON.parse(
-        geoJsonDataObject[mapId],
-      ) as GeoJSON.FeatureCollection
-    } catch (e) {
-      console.error(`Failed to parse GeoJSON for ${mapId}`, e)
-      return
-    }
-
-    renderMap(mapId, geoJsonData)
+  Object.entries(geoJsonDataObject).forEach(([mapId, geoJsonData]) => {
+    renderMap(mapId, geoJsonData as GeoJSON.FeatureCollection)
   })
 }
 
-const renderMap = (mapId: string, geoJsonData?: GeoJSON.FeatureCollection) => {
+const renderMap = (mapId: string, geoJsonData: GeoJSON.FeatureCollection) => {
   console.log(`Rendering map with ID: ${mapId}`)
 
   if (geoJsonData) {

@@ -15,23 +15,22 @@
 >
   <!-- TODO(#11003): Build out applicant view of map question -->
   <div th:id="${mapId}" class="square-mobile"></div>
-  <div
-    th:data-mapid="|${mapId}|"
-    class="hidden"
+  <script
     th:if="${questionRendererParams.geoJson().isPresent()}"
-    th:value="${questionRendererParams.geoJson().get()}"
-  ></div>
-  <script th:inline="javascript" th:nonce="${cspNonce}">
+    th:inline="javascript"
+    th:nonce="${cspNonce}"
+  >
     window.app = window.app || {}
     window.app.data = window.app.data || {}
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-    if (
-      /*[[${questionRendererParams.geoJson().isPresent()}]]*/ mapDataIsPresent
-    ) {
-      window.app.data.maps[id] =
-        /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    try {
+      window.app.data.maps[id] = JSON.parse(
+        /*[[${questionRendererParams.geoJson().get()}]]*/ {},
+      )
+    } catch (e) {
+      console.error(`Failed to parse GeoJSON for ${mapId}`, e)
     }
   </script>
 </div>
