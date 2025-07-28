@@ -1,0 +1,21 @@
+<!--/*@thymesVar id="question" type="services.applicant.question.ApplicantQuestion"*/-->
+<!--/*@thymesVar id="questionRendererParams" type="views.questiontypes.ApplicantQuestionRendererParams"*/-->
+
+<div
+  th:fragment="map(question, questionRendererParams)"
+  th:with="mapQuestion=${question.createMapQuestion()},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+             firstPathWithError=${mapQuestion.getFirstPathWithError()},
+             hasGroupErrors=${mapQuestion.getValidationErrors().get(question.getContextualizedPath())},"
+  th:id="${questionId}"
+  class="cf-question-map"
+  th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <!-- TODO(#11003): Build out applicant view of map question -->
+  This is a map question!
+  <div
+    th:if="${questionRendererParams.geoJson().isPresent()}"
+    th:text="${questionRendererParams.geoJson().get()}"
+  ></div>
+</div>
