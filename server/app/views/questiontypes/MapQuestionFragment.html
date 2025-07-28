@@ -27,8 +27,11 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-    if (/*[[${questionRendererParams.geoJson().isPresent()}]]*/ mapDataIsPresent) {
-      window.app.data.maps[id] = /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    if (
+      /*[[${questionRendererParams.geoJson().isPresent()}]]*/ mapDataIsPresent
+    ) {
+      window.app.data.maps[id] =
+        /*[[${questionRendererParams.geoJson().get()}]]*/ {}
     }
   </script>
 </div>
