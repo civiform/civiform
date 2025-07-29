@@ -1,12 +1,8 @@
 package controllers.dev;
 
 import static j2html.TagCreator.h2;
-import static play.mvc.Results.badRequest;
 import static play.mvc.Results.ok;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -32,17 +28,6 @@ public final class GeoJsonApiController {
   public CompletionStage<Result> hxGetData(Http.Request request) {
     DynamicForm formData = formFactory.form().bindFromRequest(request);
     String geoJsonEndpoint = formData.get("geoJsonEndpoint");
-
-    if (geoJsonEndpoint == null || geoJsonEndpoint.isEmpty()) {
-      return CompletableFuture.completedFuture(badRequest("Missing geoJsonEndpoint"));
-    }
-
-    try {
-      new URL(geoJsonEndpoint);
-    } catch (MalformedURLException e) {
-      return CompletableFuture.completedFuture(
-          ok(h2("Invalid GeoJSON endpoint").withClass("text-red-500").toString()));
-    }
 
     return geoJsonClient
         .fetchGeoJson(geoJsonEndpoint)

@@ -4,6 +4,8 @@ import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -12,7 +14,6 @@ import models.GeoJsonDataModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
 import repository.GeoJsonDataRepository;
 
 public final class GeoJsonClient {
@@ -30,9 +31,17 @@ public final class GeoJsonClient {
   }
 
   public CompletionStage<FeatureCollection> fetchGeoJson(String endpoint) {
-    WSRequest request = ws.url(endpoint);
+    if (endpoint == null || endpoint.isEmpty()) {
+      throw new RuntimeException("Missing geoJsonEndpoint");
+    }
 
-    return request
+    try {
+      new URL(endpoint);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Invalid GeoJSON endpoint.");
+    }
+
+    return ws.url(endpoint)
         .get()
         .thenApplyAsync(
             res -> {
