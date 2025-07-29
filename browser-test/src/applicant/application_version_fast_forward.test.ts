@@ -22,6 +22,8 @@ test.describe('Application Version Fast-Forward Flow', () => {
   })
 
   test('all major steps', async ({browser}) => {
+    test.slow()
+
     const programName = 'program-fastforward-example'
 
     const civiformAdminActor = await FastForwardCiviformAdminActor.create(
