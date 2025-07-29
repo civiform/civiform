@@ -3,8 +3,12 @@ package controllers.dev;
 import static j2html.TagCreator.h2;
 import static play.mvc.Results.ok;
 
+import auth.Authorizers;
+
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
@@ -25,6 +29,7 @@ public final class GeoJsonApiController {
     this.geoJsonClient = geoJsonClient;
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> hxGetData(Http.Request request) {
     DynamicForm formData = formFactory.form().bindFromRequest(request);
     String geoJsonEndpoint = formData.get("geoJsonEndpoint");

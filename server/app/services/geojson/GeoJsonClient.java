@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.GeoJsonDataModel;
@@ -32,13 +33,15 @@ public final class GeoJsonClient {
 
   public CompletionStage<FeatureCollection> fetchGeoJson(String endpoint) {
     if (endpoint == null || endpoint.isEmpty()) {
-      throw new RuntimeException("Missing geoJsonEndpoint");
+      logger.error("Missing geoJsonEndpoint");
+      return CompletableFuture.failedFuture(new RuntimeException("Missing geoJsonEndpoint"));
     }
 
     try {
       new URL(endpoint);
     } catch (MalformedURLException e) {
-      throw new RuntimeException("Invalid GeoJSON endpoint.");
+      logger.error("Invalid GeoJSON endpoint: ", e);
+      return CompletableFuture.failedFuture(new RuntimeException("Invalid GeoJSON endpoint"));
     }
 
     return ws.url(endpoint)
