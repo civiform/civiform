@@ -1,22 +1,21 @@
-import {Map, Popup, LngLatLike, MapLayerMouseEvent} from 'maplibre-gl'
-import {FeatureCollection, Feature, Point} from 'geojson'
+import {Map} from 'maplibre-gl'
 
 export const init = () => {
   const geoJsonDataObject = window.app?.data?.maps || {}
 
   Object.entries(geoJsonDataObject).forEach(([mapId, geoJsonData]) => {
-    renderMap(mapId, geoJsonData as FeatureCollection)
+    renderMap(mapId, geoJsonData as GeoJSON.FeatureCollection)
   })
 }
 
-const renderMap = (mapId: string, geoJsonData: FeatureCollection) => {
+const renderMap = (mapId: string, geoJsonData: GeoJSON.FeatureCollection) => {
   console.log(`Rendering map with ID: ${mapId}`)
 
   if (geoJsonData) {
     console.log(`GeoJSON Data for ${mapId}:`, geoJsonData)
   }
 
-  const map = new Map({
+  new Map({
     container: mapId,
     style: {
       version: 8,
@@ -33,41 +32,5 @@ const renderMap = (mapId: string, geoJsonData: FeatureCollection) => {
     // TODO(#11095): Allow configurable center point
     center: [-122.3321, 47.6062],
     zoom: 8,
-  })
-
-  map.on('load', () => {
-    map.addSource(`${mapId}-locations`, {
-      type: 'geojson',
-      data: geoJsonData,
-    })
-    map.addLayer({
-      id: `${mapId}-locations-layer`,
-      type: 'circle',
-      source: `${mapId}-locations`,
-      paint: {
-        'circle-color': '#CC38FF',
-      },
-    })
-
-    map.on('click', `${mapId}-locations-layer`, (e: MapLayerMouseEvent) => {
-      const feature = e.features && (e.features[0] as Feature<Point>)
-      const coordinates = feature?.geometry?.coordinates as LngLatLike
-      const name = (feature?.properties?.name as string) || ''
-
-      new Popup({closeButton: false})
-        .setLngLat(coordinates)
-        .setHTML(name)
-        .addTo(map)
-    })
-
-    // Change the cursor to a pointer when the mouse is over the places layer.
-    map.on('mouseenter', `${mapId}-locations-layer`, () => {
-      map.getCanvas().style.cursor = 'pointer'
-    })
-
-    // Change it back to a pointer when it leaves.
-    map.on('mouseleave', `${mapId}-locations-layer`, () => {
-      map.getCanvas().style.cursor = ''
-    })
   })
 }

@@ -25,12 +25,6 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-    try {
-      window.app.data.maps[id] = JSON.parse(
-        /*[[${questionRendererParams.geoJson().get()}]]*/ {},
-      )
-    } catch (e) {
-      console.error(`Failed to parse GeoJSON for ${mapId}`, e)
-    }
+      window.app.data.maps[id] = /*[[${questionRendererParams.geoJson().get()}]]*/ {}
   </script>
 </div>
