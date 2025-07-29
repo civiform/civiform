@@ -472,6 +472,7 @@ public final class QuestionEditView extends BaseHtmlView {
               .setReadOnly(!forCreate)
               .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
               .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-trigger", "click delay:1s")
               .getInputTag());
       formTag.with(div().attr("id", "geoJsonOutput"));
     }

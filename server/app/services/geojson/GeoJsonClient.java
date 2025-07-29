@@ -4,7 +4,6 @@ import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -29,16 +28,12 @@ public final class GeoJsonClient {
       WSClient ws, GeoJsonDataRepository geoJsonDataRepository, ObjectMapper objectMapper) {
     this.ws = checkNotNull(ws);
     this.geoJsonDataRepository = geoJsonDataRepository;
-    this.objectMapper = Preconditions.checkNotNull(objectMapper);
+    this.objectMapper = checkNotNull(objectMapper);
   }
 
-  public CompletionStage<Optional<FeatureCollection>> fetchGeoJsonData(String endpoint) {
-
-    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
-        geoJsonDataRepository.getMostRecentGeoJsonRowForEndpoint(endpoint);
-
+  private CompletionStage<FeatureCollection> fetchGeoJsonData(String endpoint) {
+    // Request GeoJSON data from admin provided endpoint
     WSRequest request = ws.url(endpoint);
-
     CompletionStage<WSResponse> responsePromise = request.get();
     responsePromise.handle(
         (result, error) -> {
@@ -51,32 +46,47 @@ public final class GeoJsonClient {
           }
         });
 
-    return responsePromise.thenApply(
+    return responsePromise.thenCompose(
         res -> {
-          if (res.getStatus() != 200) {
-            return Optional.empty();
-          }
+          FeatureCollection geoJsonResponse;
 
-          FeatureCollection newGeoJsonData;
           try {
-            newGeoJsonData = objectMapper.readValue(res.getBody(), FeatureCollection.class);
+            geoJsonResponse = objectMapper.readValue(res.getBody(), FeatureCollection.class);
           } catch (JsonProcessingException e) {
+            logger.error("Unable to parse GeoJSON from response", e);
             throw new RuntimeException(e);
           }
-          if (maybeExistingGeoJsonDataRow.isEmpty()) {
-            saveData(endpoint, newGeoJsonData);
-          } else {
-            GeoJsonDataModel oldGeoJsonRow = maybeExistingGeoJsonDataRow.get();
-            FeatureCollection oldGeoJsonData = oldGeoJsonRow.getGeoJson();
-            if (oldGeoJsonData.equals(newGeoJsonData)) {
-              updateConfirmTime(oldGeoJsonRow);
-            } else {
-              saveData(endpoint, newGeoJsonData);
-            }
+
+          if (geoJsonResponse.features.isEmpty()) {
+            throw new RuntimeException("No GeoJSON response.");
           }
 
-          return Optional.of(newGeoJsonData);
+          return CompletableFuture.completedFuture(geoJsonResponse);
         });
+  }
+
+  public CompletionStage<FeatureCollection> getGeoJsonData(String endpoint) {
+
+    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+        geoJsonDataRepository.getMostRecentGeoJsonRowForEndpoint(endpoint);
+
+    return fetchGeoJsonData(endpoint)
+        .thenApply(
+            newGeoJsonData -> {
+              if (maybeExistingGeoJsonDataRow.isEmpty()) {
+                saveData(endpoint, newGeoJsonData);
+              } else {
+                GeoJsonDataModel oldGeoJsonRow = maybeExistingGeoJsonDataRow.get();
+                FeatureCollection oldGeoJsonData = oldGeoJsonRow.getGeoJson();
+                if (oldGeoJsonData.equals(newGeoJsonData)) {
+                  updateConfirmTime(oldGeoJsonRow);
+                } else {
+                  saveData(endpoint, newGeoJsonData);
+                }
+              }
+
+              return newGeoJsonData;
+            });
   }
 
   private void updateConfirmTime(GeoJsonDataModel geoJsonData) {

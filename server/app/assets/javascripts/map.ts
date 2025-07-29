@@ -1,5 +1,5 @@
-import {LngLatLike, Map, MapMouseEvent, Popup} from 'maplibre-gl'
-import {FeatureCollection, Point} from 'geojson'
+import {Map, Popup, LngLatLike, MapLayerMouseEvent} from 'maplibre-gl'
+import {FeatureCollection, Feature, Point} from 'geojson'
 
 export const init = () => {
   const geoJsonDataObject = window.app?.data?.maps || {}
@@ -35,7 +35,7 @@ const renderMap = (mapId: string, geoJsonData: FeatureCollection) => {
     zoom: 8,
   })
 
-  map.on('load', async () => {
+  map.on('load', () => {
     map.addSource(`${mapId}-locations`, {
       type: 'geojson',
       data: geoJsonData,
@@ -45,29 +45,29 @@ const renderMap = (mapId: string, geoJsonData: FeatureCollection) => {
       type: 'circle',
       source: `${mapId}-locations`,
       paint: {
-        'circle-color': '#CC38FF'
+        'circle-color': '#CC38FF',
       },
     })
 
-    map.on('click', `${mapId}-locations-layer`, (e: any) => {
-      const coordinates = e.features[0].geometry.coordinates.slice();
-      const name = e.features[0].properties.name;
+    map.on('click', `${mapId}-locations-layer`, (e: MapLayerMouseEvent) => {
+      const feature = e.features && (e.features[0] as Feature<Point>)
+      const coordinates = feature?.geometry?.coordinates as LngLatLike
+      const name = (feature?.properties?.name as string) || ''
+
       new Popup({closeButton: false})
         .setLngLat(coordinates)
         .setHTML(name)
-        .addTo(map);
+        .addTo(map)
     })
 
     // Change the cursor to a pointer when the mouse is over the places layer.
     map.on('mouseenter', `${mapId}-locations-layer`, () => {
-        map.getCanvas().style.cursor = 'pointer';
-    });
+      map.getCanvas().style.cursor = 'pointer'
+    })
 
     // Change it back to a pointer when it leaves.
     map.on('mouseleave', `${mapId}-locations-layer`, () => {
-        map.getCanvas().style.cursor = '';
-    });
-
+      map.getCanvas().style.cursor = ''
+    })
   })
-
 }
