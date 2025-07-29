@@ -13,7 +13,7 @@ public final class GeoJsonDataRepository {
     this.database = DB.getDefault();
   }
 
-  public Optional<GeoJsonDataModel> getMostRecentGeoJsonRowForEndpoint(String endpoint) {
+  public Optional<GeoJsonDataModel> getMostRecentGeoJsonDataRowForEndpoint(String endpoint) {
     return database
         .find(GeoJsonDataModel.class)
         .where()

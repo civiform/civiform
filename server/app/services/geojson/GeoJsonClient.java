@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.GeoJsonDataModel;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
 import repository.GeoJsonDataRepository;
 
 public final class GeoJsonClient {
@@ -31,70 +29,77 @@ public final class GeoJsonClient {
     this.objectMapper = checkNotNull(objectMapper);
   }
 
-  private CompletionStage<FeatureCollection> fetchGeoJsonData(String endpoint) {
-    // Request GeoJSON data from admin provided endpoint
+  public CompletionStage<FeatureCollection> fetchGeoJson(String endpoint) {
     WSRequest request = ws.url(endpoint);
-    CompletionStage<WSResponse> responsePromise = request.get();
-    responsePromise.handle(
-        (result, error) -> {
-          if (error != null || result.getStatus() != 200) {
-            logger.error(
-                "GeoJSON API error: {}", error != null ? error.toString() : result.getStatusText());
-            return responsePromise;
-          } else {
-            return CompletableFuture.completedFuture(result);
-          }
-        });
 
-    return responsePromise.thenCompose(
-        res -> {
-          FeatureCollection geoJsonResponse;
+    return request
+        .get()
+        .thenApplyAsync(
+            res -> {
+              int status = res.getStatus();
+              String responseBody = res.getBody();
 
-          try {
-            geoJsonResponse = objectMapper.readValue(res.getBody(), FeatureCollection.class);
-          } catch (JsonProcessingException e) {
-            logger.error("Unable to parse GeoJSON from response", e);
-            throw new RuntimeException(e);
-          }
-
-          if (geoJsonResponse.features.isEmpty()) {
-            throw new RuntimeException("No GeoJSON response.");
-          }
-
-          return CompletableFuture.completedFuture(geoJsonResponse);
-        });
-  }
-
-  public CompletionStage<FeatureCollection> getGeoJsonData(String endpoint) {
-
-    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
-        geoJsonDataRepository.getMostRecentGeoJsonRowForEndpoint(endpoint);
-
-    return fetchGeoJsonData(endpoint)
-        .thenApply(
-            newGeoJsonData -> {
-              if (maybeExistingGeoJsonDataRow.isEmpty()) {
-                saveData(endpoint, newGeoJsonData);
-              } else {
-                GeoJsonDataModel oldGeoJsonRow = maybeExistingGeoJsonDataRow.get();
-                FeatureCollection oldGeoJsonData = oldGeoJsonRow.getGeoJson();
-                if (oldGeoJsonData.equals(newGeoJsonData)) {
-                  updateConfirmTime(oldGeoJsonRow);
-                } else {
-                  saveData(endpoint, newGeoJsonData);
-                }
+              if (status != 200) {
+                logger.error(
+                    "GeoJSON fetch failed with status {}: {}", status, res.getStatusText());
+                throw new RuntimeException("Failed to fetch GeoJSON: " + status);
               }
 
-              return newGeoJsonData;
+              if (responseBody == null || responseBody.isBlank()) {
+                logger.error("Empty GeoJSON response for endpoint: {}", endpoint);
+                throw new RuntimeException("Empty GeoJSON response");
+              }
+
+              try {
+                FeatureCollection geoJson =
+                    objectMapper.readValue(responseBody, FeatureCollection.class);
+                validateGeoJson(geoJson);
+                saveGeoJson(endpoint, geoJson);
+                return geoJson;
+              } catch (JsonProcessingException e) {
+                logger.error("Failed to process GeoJSON response", e);
+                throw new RuntimeException("Invalid GeoJSON format", e);
+              }
             });
   }
 
-  private void updateConfirmTime(GeoJsonDataModel geoJsonData) {
+  private void validateGeoJson(FeatureCollection geoJson) {
+    if (geoJson.features.isEmpty()) {
+      throw new RuntimeException("GeoJSON has no features.");
+    }
+
+    for (Feature feature : geoJson.features) {
+      if (feature.geometry == null || feature.properties == null) {
+        throw new RuntimeException("Feature is missing geometry or properties.");
+      }
+    }
+  }
+
+  private void saveGeoJson(String endpoint, FeatureCollection newGeoJson) {
+    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+
+    if (maybeExistingGeoJsonDataRow.isEmpty()) {
+      // If no GeoJSON data exists for the endpoint, save a new row
+      saveNewGeoJson(endpoint, newGeoJson);
+    } else {
+      GeoJsonDataModel oldGeoJsonDataRow = maybeExistingGeoJsonDataRow.get();
+      if (oldGeoJsonDataRow.getGeoJson().equals(newGeoJson)) {
+        // If the old and new GeoJSON is the same, update the row's confirm_time
+        updateOldGeoJsonConfirmTime(oldGeoJsonDataRow);
+      } else {
+        // If the old and new GeoJSON is different, create a new row
+        saveNewGeoJson(endpoint, newGeoJson);
+      }
+    }
+  }
+
+  private void updateOldGeoJsonConfirmTime(GeoJsonDataModel geoJsonData) {
     geoJsonData.setConfirmTime(Instant.now());
     geoJsonData.save();
   }
 
-  private void saveData(String endpoint, FeatureCollection geoJson) {
+  private void saveNewGeoJson(String endpoint, FeatureCollection geoJson) {
     GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
     geoJsonData.setGeoJson(geoJson);
     geoJsonData.setEndpoint(endpoint);

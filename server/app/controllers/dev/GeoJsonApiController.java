@@ -40,16 +40,13 @@ public final class GeoJsonApiController {
     try {
       new URL(geoJsonEndpoint);
     } catch (MalformedURLException e) {
-      return CompletableFuture.completedFuture(ok("Invalid GeoJSON endpoint"));
+      return CompletableFuture.completedFuture(
+          ok(h2("Invalid GeoJSON endpoint").withClass("text-red-500").toString()));
     }
 
     return geoJsonClient
-        .getGeoJsonData(geoJsonEndpoint)
-        .thenApply(
-            geoJsonResponse -> {
-              // parse response
-              return ok(h2("Success!").withClass("text-green-500").toString());
-            })
+        .fetchGeoJson(geoJsonEndpoint)
+        .thenApply(geoJsonResponse -> ok(h2("Success!").toString()))
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);

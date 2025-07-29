@@ -25,6 +25,7 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-      window.app.data.maps[id] = /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    window.app.data.maps[id] =
+      /*[[${questionRendererParams.geoJson().get()}]]*/ {}
   </script>
 </div>
