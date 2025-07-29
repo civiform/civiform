@@ -1,6 +1,12 @@
 package services.geojson;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.concurrent.CompletableFuture;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
@@ -11,13 +17,6 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.test.WithApplication;
 import repository.GeoJsonDataRepository;
-
-import java.util.concurrent.CompletableFuture;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(JUnitParamsRunner.class)
 public class GeoJsonClientTest extends WithApplication {
@@ -43,7 +42,8 @@ public class GeoJsonClientTest extends WithApplication {
 
   @Test
   public void fetchGeoJson_invalidEndpoint() {
-    RuntimeException e = assertThrows(RuntimeException.class, () -> geoJsonClient.fetchGeoJson("test"));
+    RuntimeException e =
+        assertThrows(RuntimeException.class, () -> geoJsonClient.fetchGeoJson("test"));
     assertEquals("Invalid GeoJSON endpoint.", e.getMessage());
   }
 
@@ -51,9 +51,10 @@ public class GeoJsonClientTest extends WithApplication {
   public void fetchGeoJson_apiErrorResponse() {
     when(wsResponse.getStatus()).thenReturn(403);
 
-    RuntimeException e = assertThrows(RuntimeException.class, () ->
-      geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join()
-    );
+    RuntimeException e =
+        assertThrows(
+            RuntimeException.class,
+            () -> geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join());
 
     assertEquals("java.lang.RuntimeException: Failed to fetch GeoJSON: 403", e.getMessage());
   }
@@ -63,9 +64,12 @@ public class GeoJsonClientTest extends WithApplication {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn("");
 
-    RuntimeException e = assertThrows(RuntimeException.class, () -> {
-      geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
-    });
+    RuntimeException e =
+        assertThrows(
+            RuntimeException.class,
+            () -> {
+              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
+            });
 
     assertEquals("java.lang.RuntimeException: Empty GeoJSON response", e.getMessage());
   }
@@ -76,16 +80,19 @@ public class GeoJsonClientTest extends WithApplication {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn(testGeoJson);
 
-    RuntimeException e = assertThrows(RuntimeException.class, () -> {
-      geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
-    });
+    RuntimeException e =
+        assertThrows(
+            RuntimeException.class,
+            () -> {
+              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
+            });
 
     assertEquals("java.lang.RuntimeException: " + expectedMessage, e.getMessage());
   }
 
   private Object[] invalidGeoJsons() {
-    return new Object[]{
-      new Object[]{
+    return new Object[] {
+      new Object[] {
         """
         {
           "type": "FeatureCollection",
@@ -103,7 +110,7 @@ public class GeoJsonClientTest extends WithApplication {
         """,
         "Invalid GeoJSON format"
       },
-      new Object[]{
+      new Object[] {
         """
         {
           "type": "FeatureCollection",
@@ -116,7 +123,7 @@ public class GeoJsonClientTest extends WithApplication {
         """,
         "Feature is missing geometry or properties."
       },
-      new Object[]{
+      new Object[] {
         """
         {
           "type": "FeatureCollection",
