@@ -1,17 +1,25 @@
 package repository;
 
 import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Optional;
 import models.GeoJsonDataModel;
 
 public final class GeoJsonDataRepository {
-  public Optional<String> getMostRecentGeoJsonForEndpoint(String endpoint) {
-    return DB.find(GeoJsonDataModel.class)
+
+  private final Database database;
+
+  public GeoJsonDataRepository() {
+    this.database = DB.getDefault();
+  }
+
+  public Optional<GeoJsonDataModel> getMostRecentGeoJsonRowForEndpoint(String endpoint) {
+    return database
+        .find(GeoJsonDataModel.class)
         .where()
         .eq("endpoint", endpoint)
         .orderBy("createTime desc")
         .setMaxRows(1)
-        .findOneOrEmpty()
-        .map(GeoJsonDataModel::getGeoJson);
+        .findOneOrEmpty();
   }
 }

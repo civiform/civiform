@@ -12,9 +12,10 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.geojson.FeatureCollection;
 import services.geojson.GeoJsonClient;
 
-public class GeoJsonApiController {
+public final class GeoJsonApiController {
   private final FormFactory formFactory;
   private final GeoJsonClient geoJsonClient;
 
@@ -32,13 +33,13 @@ public class GeoJsonApiController {
       return CompletableFuture.completedFuture(badRequest("Missing geoJsonEndpoint"));
     }
 
-    CompletionStage<Optional<String>> geoJsonResponseStage =
+    CompletionStage<Optional<FeatureCollection>> geoJsonResponseStage =
         geoJsonClient.fetchGeoJsonData(geoJsonEndpoint);
 
     return geoJsonResponseStage.thenApply(
         optionalGeoJsonResponse -> {
-          String geoJsonString = optionalGeoJsonResponse.orElse("");
-          return ok(div(geoJsonString).toString());
+          // String geoJsonString = optionalGeoJsonResponse.orElse("");
+          return ok(div("Success!").toString());
         });
   }
 }

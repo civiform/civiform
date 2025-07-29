@@ -1,7 +1,9 @@
 package services.geojson;
 
-public class GeoJsonFeature {
+
+public final class Feature {
   public String type;
   public Object properties;
-  public GeoJsonGeometry geometry;
+  public Geometry geometry;
+  public String id;
 }
