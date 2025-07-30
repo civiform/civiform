@@ -62,7 +62,6 @@ public final class QuestionService {
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
           ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-
           ImmutableSet<CiviFormError> errors =
               ImmutableSet.<CiviFormError>builder()
                   .addAll(validationErrors)

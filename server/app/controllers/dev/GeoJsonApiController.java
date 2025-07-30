@@ -34,9 +34,14 @@ public final class GeoJsonApiController {
 
     return geoJsonClient
         .fetchGeoJson(geoJsonEndpoint)
-        .thenApply(geoJsonResponse -> ok(h2("Success!").toString()))
+        .thenApply(
+            geoJsonResponse -> {
+              // TODO(#11001): Parse GeoJSON upon response to populate question settings.
+              return ok(h2("Success!").toString());
+            })
         .exceptionally(
             ex -> {
+              // TODO(#11125): Implement error state.
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
               return ok(
                   h2("An error occurred trying to retrieve GeoJSON")
