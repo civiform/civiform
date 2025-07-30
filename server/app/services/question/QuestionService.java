@@ -11,7 +11,6 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import models.GeoJsonDataModel;
 import models.QuestionModel;
 import models.QuestionTag;
@@ -69,18 +68,18 @@ public final class QuestionService {
 
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
-        ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-        ImmutableSet<CiviFormError> geoJsonValidationErrors = ImmutableSet.of();
-        if (questionDefinition.getQuestionType() == QuestionType.MAP) {
-          geoJsonValidationErrors = validateGeoJson((MapQuestionDefinition) questionDefinition);
-        }
+          ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
+          ImmutableSet<CiviFormError> geoJsonValidationErrors = ImmutableSet.of();
+          if (questionDefinition.getQuestionType() == QuestionType.MAP) {
+            geoJsonValidationErrors = validateGeoJson((MapQuestionDefinition) questionDefinition);
+          }
 
-        ImmutableSet<CiviFormError> errors =
+          ImmutableSet<CiviFormError> errors =
               ImmutableSet.<CiviFormError>builder()
                   .addAll(validationErrors)
                   .addAll(conflictErrors)
                   .addAll(geoJsonValidationErrors)
-                .build();
+                  .build();
           if (!errors.isEmpty()) {
             return ErrorAnd.error(errors);
           }
@@ -376,7 +375,8 @@ public final class QuestionService {
 
   private ImmutableSet<CiviFormError> validateGeoJson(MapQuestionDefinition questionDefinition) {
     Optional<GeoJsonDataModel> maybeGeoJsonDataRow =
-      geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(questionDefinition.getMapValidationPredicates().geoJsonEndpoint());
+        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(
+            questionDefinition.getMapValidationPredicates().geoJsonEndpoint());
     if (maybeGeoJsonDataRow.isEmpty()) {
       return ImmutableSet.of(CiviFormError.of("GeoJSON endpoint was not properly connected"));
     }

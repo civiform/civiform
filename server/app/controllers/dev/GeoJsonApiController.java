@@ -4,10 +4,8 @@ import static j2html.TagCreator.h2;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
-
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
