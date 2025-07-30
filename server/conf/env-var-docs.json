@@ -926,6 +926,12 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables suffix dropdown field in name question.",
         "type": "bool"
+      },
+      "DATE_VALIDATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables admin validation settings for date questions.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -957,12 +963,6 @@
       "PROGRAM_SLUG_URLS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
-        "type": "bool",
-        "required": false
-      },
-      "DATE_VALIDATION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables admin validation settings for date questions.",
         "type": "bool",
         "required": false
       },
