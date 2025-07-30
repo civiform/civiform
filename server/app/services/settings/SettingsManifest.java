@@ -1069,6 +1069,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
+  /** Enables admin validation settings for date questions. */
+  public boolean getDateValidationEnabled(RequestHeader request) {
+    return getBool("DATE_VALIDATION_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
    * between deployed environments. Note: this should only be used on new environments, since
@@ -1099,11 +1104,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
   public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled(RequestHeader request) {
-    return getBool("DATE_VALIDATION_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
@@ -2312,6 +2312,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATE_VALIDATION_ENABLED",
+                          "Enables admin validation settings for date questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2356,13 +2362,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
                               + " URLs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
-                              + " questions.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
