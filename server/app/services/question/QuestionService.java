@@ -11,11 +11,9 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import models.GeoJsonDataModel;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
-import repository.GeoJsonDataRepository;
 import repository.QuestionRepository;
 import repository.TransactionManager;
 import repository.VersionRepository;
@@ -26,9 +24,7 @@ import services.Path;
 import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.MapQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * The service responsible for accessing the Question resource. Admins create {@link
@@ -41,18 +37,15 @@ public final class QuestionService {
   private final QuestionRepository questionRepository;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final TransactionManager transactionManager;
-  private final GeoJsonDataRepository geoJsonDataRepository;
 
   @Inject
   public QuestionService(
       QuestionRepository questionRepository,
       Provider<VersionRepository> versionRepositoryProvider,
-      TransactionManager transactionManager,
-      GeoJsonDataRepository geoJsonDataRepository) {
+      TransactionManager transactionManager) {
     this.questionRepository = checkNotNull(questionRepository);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
     this.transactionManager = checkNotNull(transactionManager);
-    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /**
@@ -69,16 +62,11 @@ public final class QuestionService {
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
           ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-          ImmutableSet<CiviFormError> geoJsonValidationErrors = ImmutableSet.of();
-          if (questionDefinition.getQuestionType() == QuestionType.MAP) {
-            geoJsonValidationErrors = validateGeoJson((MapQuestionDefinition) questionDefinition);
-          }
 
           ImmutableSet<CiviFormError> errors =
               ImmutableSet.<CiviFormError>builder()
                   .addAll(validationErrors)
                   .addAll(conflictErrors)
-                  .addAll(geoJsonValidationErrors)
                   .build();
           if (!errors.isEmpty()) {
             return ErrorAnd.error(errors);
@@ -369,16 +357,6 @@ public final class QuestionService {
               Path.create(questionDefinition.getQuestionNameKey()).toString(),
               questionRepository.getQuestionDefinition(conflict).getName());
       return ImmutableSet.of(CiviFormError.of(errorMessage));
-    }
-    return ImmutableSet.of();
-  }
-
-  private ImmutableSet<CiviFormError> validateGeoJson(MapQuestionDefinition questionDefinition) {
-    Optional<GeoJsonDataModel> maybeGeoJsonDataRow =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(
-            questionDefinition.getMapValidationPredicates().geoJsonEndpoint());
-    if (maybeGeoJsonDataRow.isEmpty()) {
-      return ImmutableSet.of(CiviFormError.of("GeoJSON endpoint was not properly connected"));
     }
     return ImmutableSet.of();
   }
