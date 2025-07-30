@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -21,6 +21,8 @@ test.describe('Yes/no options', () => {
 
     await test.step('Expect renders properly', async () => {
       const questionSettings = page.getByTestId('question-settings')
+      await expect(page.getByTestId('yes-no-options-label')).toBeVisible()
+
       await validateScreenshot(
         questionSettings,
         'yes-no-question-admin-options',
