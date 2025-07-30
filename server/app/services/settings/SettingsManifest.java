@@ -1119,6 +1119,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED");
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
+   * database.
+   */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2379,7 +2387,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.HIDDEN))))
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
+                              + " of directly from the database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
