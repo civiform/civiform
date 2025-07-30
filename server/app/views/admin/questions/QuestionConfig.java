@@ -488,7 +488,7 @@ public final class QuestionConfig {
           div()
               .with(
                   label()
-                      .withText("Select answwer options")
+                      .withText("Select answer options")
                       .withData("testId", "yes-no-options-label")
                       .with(ViewUtils.requiredQuestionIndicator())
                       .withClasses("text-sm", "font-medium", "text-gray-700")));
