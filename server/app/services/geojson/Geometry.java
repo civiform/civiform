@@ -21,7 +21,7 @@ public record Geometry(
   @JsonCreator
   public Geometry {
     if (!type.equalsIgnoreCase("Point")) {
-      throw new IllegalArgumentException("Invalid geometry type: " + type);
+      throw new IllegalArgumentException("Invalid type for Geometry: " + type);
     }
 
     if (coordinates == null || coordinates.size() != 2) {

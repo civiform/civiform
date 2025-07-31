@@ -24,7 +24,7 @@ public record FeatureCollection(
     }
 
     if (features == null || features.isEmpty()) {
-      throw new IllegalArgumentException("FeatureCollection must contain at least one feature.");
+      throw new IllegalArgumentException("FeatureCollection must contain at least one feature");
     }
   }
 }
