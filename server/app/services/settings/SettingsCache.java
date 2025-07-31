@@ -1,6 +1,7 @@
 package services.settings;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.ebean.DB;
 import io.ebean.Database;
 import java.net.SocketException;
 import java.sql.Connection;
@@ -40,6 +41,14 @@ public final class SettingsCache {
 
   @Inject
   public SettingsCache(
+      SettingsGroupRepository repo,
+      DatabaseExecutionContext dbExecutionContext,
+      ApplicationLifecycle lifecycle) {
+    this(repo, dbExecutionContext, DB.getDefault(), lifecycle);
+  }
+
+  @VisibleForTesting
+  SettingsCache(
       SettingsGroupRepository repo,
       DatabaseExecutionContext dbExecutionContext,
       Database database,
