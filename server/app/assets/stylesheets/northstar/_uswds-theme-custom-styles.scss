@@ -21,6 +21,10 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+.location-list {
+  height: 400px !important;
+}
+
 // Prevents improper scaling on mobile devices
 body,
 html {

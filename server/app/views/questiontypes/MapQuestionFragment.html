@@ -14,7 +14,187 @@
   data-testid="questionRoot"
 >
   <!-- TODO(#11003): Build out applicant view of map question -->
-  <div th:id="${mapId}" class="square-mobile"></div>
+  <div class="grid-row">
+    <div class="tablet:grid-col">
+      64 available locations
+      <ul class="location-list overflow-scroll">
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 1</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+        <li class="usa-card">
+          <div class="usa-card__container">
+            <div class="usa-card__body">
+              <h4 class="usa-card__heading">Location 2</h4>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+            <div class="usa-card__footer">
+              <a href="#" class="usa-button">Visit Florida Keys</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div th:id="${mapId}" class="square-mobile tablet:grid-col"></div>
+  </div>
+  <div>
+    <table class="usa-table usa-table--borderless">
+      <caption>
+        Selected locations
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col" class="bg-base-lighter">Name</th>
+          <th scope="col">Location</th>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Location 39</th>
+          <td>500 SW Spokane Street, Seattle, WA</td>
+          <td><a href="#">View more details</a></td>
+          <td><a href="#">Remove from list</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Location 55</th>
+          <td>500 SW Spokane Street, Seattle, WA</td>
+          <td><a href="#">View more details</a></td>
+          <td><a href="#">Remove from list</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Location 22</th>
+          <td>500 SW Spokane Street, Seattle, WA</td>
+          <td><a href="#">View more details</a></td>
+          <td><a href="#">Remove from list</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Location 10</th>
+          <td>500 SW Spokane Street, Seattle, WA</td>
+          <td><a href="#">View more details</a></td>
+          <td><a href="#" class="remove-from-list">Remove from list</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <script
     th:if="${questionRendererParams.geoJson().isPresent()}"
     th:inline="javascript"
