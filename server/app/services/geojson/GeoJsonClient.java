@@ -30,7 +30,7 @@ public final class GeoJsonClient {
 
   public CompletionStage<FeatureCollection> fetchGeoJson(String endpoint) {
     if (endpoint == null || endpoint.isEmpty()) {
-      logger.error("Missing geoJsonEndpoint");
+      logger.error("Missing GeoJSON endpoint");
       return CompletableFuture.failedFuture(
           new GeoJsonProcessingException("Missing GeoJSON endpoint"));
     }

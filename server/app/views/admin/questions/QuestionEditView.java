@@ -16,7 +16,7 @@ import static j2html.TagCreator.strong;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.dev.routes;
+import controllers.geojson.routes;
 import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
