@@ -1,6 +1,5 @@
 package repository;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.ebean.DB;
 import java.time.Instant;
 import java.util.Optional;

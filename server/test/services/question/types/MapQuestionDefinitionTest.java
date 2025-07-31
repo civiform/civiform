@@ -4,20 +4,58 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import models.GeoJsonDataModel;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.test.WithApplication;
 import services.CiviFormError;
 import services.LocalizedStrings;
+import services.geojson.Feature;
+import services.geojson.FeatureCollection;
+import services.geojson.Geometry;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 
 @RunWith(JUnitParamsRunner.class)
-public class MapQuestionDefinitionTest {
+public class MapQuestionDefinitionTest extends WithApplication {
+  private final FeatureCollection testFeatureCollection =
+      new FeatureCollection(
+          "FeatureCollection",
+          List.of(
+              new Feature(
+                  "Feature",
+                  new Geometry("Point", List.of(1.0, 1.0)),
+                  Map.of("name", "Feature 1.1"),
+                  "1"),
+              new Feature(
+                  "Feature",
+                  new Geometry("Point", List.of(1.0, 2.0)),
+                  Map.of("name", "Feature 1.2"),
+                  "2"),
+              new Feature(
+                  "Feature",
+                  new Geometry("Point", List.of(2.0, 3.0)),
+                  Map.of("name", "Feature 1.3"),
+                  "3")));
+  private final String endpoint = "http://example.com/geo.json";
+
+  @Before
+  public void setup() {
+    GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
+    geoJsonData.setGeoJson(testFeatureCollection);
+    geoJsonData.setEndpoint(endpoint);
+    geoJsonData.setConfirmTime(Instant.now());
+    geoJsonData.save();
+  }
 
   @Test
   public void buildMapQuestion() throws UnsupportedQuestionTypeException {
@@ -30,7 +68,7 @@ public class MapQuestionDefinitionTest {
             .setDescription(description)
             .setQuestionText(LocalizedStrings.of())
             .setValidationPredicates(
-                MapValidationPredicates.builder().setGeoJsonEndpoint("test endpoint").build())
+                MapValidationPredicates.builder().setGeoJsonEndpoint(endpoint).build())
             .setQuestionHelpText(LocalizedStrings.empty())
             .build();
 
@@ -41,7 +79,7 @@ public class MapQuestionDefinitionTest {
   }
 
   @Test
-  public void validate_withoutGeoJsonEndpoint_returnsError() {
+  public void validate_withoutGeoJson_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("test")
@@ -51,7 +89,7 @@ public class MapQuestionDefinitionTest {
             .build();
     QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
-        .containsOnly(CiviFormError.of("Map question must have a GeoJSON endpoint"));
+        .containsOnly(CiviFormError.of("Map question must have a valid GeoJSON endpoint"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
@@ -76,7 +114,7 @@ public class MapQuestionDefinitionTest {
         makeConfigBuilder()
             .setValidationPredicates(
                 MapValidationPredicates.builder()
-                    .setGeoJsonEndpoint("test endpoint")
+                    .setGeoJsonEndpoint(endpoint)
                     .setMaxLocationSelections(maxLocationSelections)
                     .build())
             .build();
