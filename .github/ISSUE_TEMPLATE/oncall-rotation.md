@@ -38,6 +38,7 @@ Resources:
 - [ ] Check Security lists daily
 - [ ] Check #eng-ci Slack channel daily to monitor failed pushes and e2e test runs
 - [ ] Check [needs triage bugs](https://github.com/civiform/civiform/issues?q=is%3Aopen+is%3Aissue+label%3Aneeds-triage) daily to ensure there aren't any P0s
+- [ ] Make some progress (< 1 day) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95) or a broken dependency update (see below)
 - [ ] Check for dependency updates
   - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
   - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 1 day, fix it and merge it.
