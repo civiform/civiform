@@ -485,6 +485,14 @@ public final class QuestionConfig {
     ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
     if (multiOptionQuestionForm.getOptions().size() == 0) {
       optionsBuilder.add(
+          div()
+              .with(
+                  label()
+                      .withText("Select answer options")
+                      .withData("testId", "yes-no-options-label")
+                      .with(ViewUtils.requiredQuestionIndicator())
+                      .withClasses("text-sm", "font-medium", "text-gray-700")));
+      optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
