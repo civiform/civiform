@@ -1,6 +1,6 @@
 package controllers.dev;
 
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
@@ -14,6 +14,7 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.geojson.GeoJsonClient;
+import services.geojson.GeoJsonProcessingException;
 
 public final class GeoJsonApiController {
   private static final Logger logger = LoggerFactory.getLogger(GeoJsonApiController.class);
@@ -34,19 +35,22 @@ public final class GeoJsonApiController {
 
     return geoJsonClient
         .fetchGeoJson(geoJsonEndpoint)
-        .thenApply(
+        .thenApplyAsync(
             geoJsonResponse -> {
               // TODO(#11001): Parse GeoJSON upon response to populate question settings.
-              return ok(h2("Success!").toString());
+              return ok(div("Success!").toString()).as(Http.MimeTypes.HTML);
             })
         .exceptionally(
             ex -> {
-              // TODO(#11125): Implement error state.
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
-              return ok(
-                  h2("An error occurred trying to retrieve GeoJSON")
-                      .withClass("text-red-500")
-                      .toString());
+              String errorMessage = "An error occurred trying to retrieve GeoJSON";
+              if (ex.getCause() instanceof GeoJsonProcessingException) {
+                errorMessage += ": " + ex.getCause().getMessage();
+              }
+
+              // TODO(#11125): Implement error state.
+              return ok(div(errorMessage).withClass("text-red-500").toString())
+                  .as(Http.MimeTypes.HTML);
             });
   }
 }
