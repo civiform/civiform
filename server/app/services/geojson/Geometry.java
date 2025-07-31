@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
+/**
+ * GeoJSON Geometry object <a href="https://datatracker.ietf.org/doc/html/rfc7946#section-3.1">See GeoJSON specs</a>
+ * @param type
+ * @param coordinates
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Geometry(
     @JsonProperty(required = true) @JsonAlias({"Type", "type"}) String type,

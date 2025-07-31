@@ -89,7 +89,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
             .build();
     QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
-        .containsOnly(CiviFormError.of("Map question must have a valid GeoJSON endpoint"));
+        .containsOnly(CiviFormError.of("Map question must have a valid GeoJSON"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below

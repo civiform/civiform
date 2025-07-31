@@ -37,7 +37,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     Optional<GeoJsonDataModel> maybeGeoJsonDataRow =
         geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint);
     if (maybeGeoJsonDataRow.isEmpty()) {
-      errors.add(CiviFormError.of("Map question must have a valid GeoJSON endpoint"));
+      errors.add(CiviFormError.of("Map question must have a valid GeoJSON"));
     }
 
     if (maxLocationSelections.isPresent()) {

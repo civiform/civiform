@@ -186,6 +186,9 @@ GET     /programs/:programParam/blocks/:blockId/addFile/:inReview               
 GET     /programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programParam: String, blockId: String, fileKey: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
+# Routes for handling GeoJSON
+POST    /dev/geoJsonApi/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
+
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
 # the path parameter as a string and decide how to handle it in the
@@ -287,7 +290,6 @@ GET     /dev/icons                                          controllers.dev.Icon
 GET     /dev/addressChecker                                 controllers.dev.AddressCheckerController.index(request: Request)
 POST    /dev/addressChecker/hx/correctAddress               controllers.dev.AddressCheckerController.hxCorrectAddress(request: Request)
 POST    /dev/addressChecker/hx/checkServiceArea             controllers.dev.AddressCheckerController.hxCheckServiceArea(request: Request)
-POST    /dev/geoJsonApi/hx/getData                          controllers.dev.GeoJsonApiController.hxGetData(request: Request)
 POST    /dev/runDurableJob                                  controllers.dev.DevToolsController.runDurableJob(request: Request)
 
 # Change feature flags

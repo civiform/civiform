@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers.geojson;
 
 import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
