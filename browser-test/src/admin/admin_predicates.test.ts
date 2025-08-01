@@ -28,7 +28,8 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
+    const hideQuestionName = 'hide-predicate-q'
+    await adminQuestions.addTextQuestion({questionName: hideQuestionName})
     await adminQuestions.addTextQuestion({
       questionName: 'hide-other-q',
       description: 'desc',
@@ -40,7 +41,7 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'hide-predicate-q'}],
+      questions: [{name: hideQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
@@ -58,7 +59,7 @@ test.describe('create and edit predicates', () => {
     await validateToastMessage(page, 'Please select a question')
 
     await adminPredicates.addPredicates({
-      questionName: 'hide-predicate-q',
+      questionName: hideQuestionName,
       action: 'hidden if',
       scalar: 'text',
       operator: 'is equal to',
@@ -69,8 +70,28 @@ test.describe('create and edit predicates', () => {
     )
     await validateScreenshot(page, 'hide-predicate')
 
-    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
-    await validateScreenshot(page, 'edit-block-with-hide-predicate')
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      hideQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = hideQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    await validateScreenshot(
+      page.locator('#' + hideQuestionName + '-visibility-accordion'),
+      'question-card-with-hide-predicate-collapsed',
+    )
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
+    await validateScreenshot(page, 'question-card-with-hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -127,8 +148,9 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
+    const showQuestionName = 'show-predicate-q'
     await adminQuestions.addTextQuestion({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       description: 'desc',
       questionText: 'text [markdown](example.com) *question*',
       helpText: '**bolded**',
@@ -145,7 +167,7 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'show-predicate-q'}],
+      questions: [{name: showQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
@@ -159,7 +181,7 @@ test.describe('create and edit predicates', () => {
       'Screen 2',
     )
     await adminPredicates.addPredicates({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       action: 'shown if',
       scalar: 'text',
       operator: 'is equal to',
@@ -170,8 +192,28 @@ test.describe('create and edit predicates', () => {
     )
     await validateScreenshot(page, 'show-predicate')
 
-    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
-    await validateScreenshot(page, 'edit-block-with-show-predicate')
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      showQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = showQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    await validateScreenshot(
+      page.locator('#' + showQuestionName + '-visibility-accordion'),
+      'question-card-with-show-predicate-collapsed',
+    )
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
+    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)

@@ -3,17 +3,22 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.ul;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import controllers.admin.routes;
@@ -24,16 +29,20 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.UlTag;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
@@ -77,6 +86,8 @@ import views.style.StyleUtils;
  * The read only version contains mostly the same elements, but without any of the edit controls.
  */
 public final class ProgramBlocksView extends ProgramBaseView {
+
+  private static final Logger logger = LoggerFactory.getLogger(ProgramBlocksView.class);
 
   private final AdminLayout layout;
   private final ProgramDisplayType programDisplayType;
@@ -503,6 +514,21 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   allQuestions));
     }
 
+    // Precompute a map of questions to block ids that use the question in visibility conditions.
+    // This will be used to render related visibility conditions in each question card.
+    ImmutableSetMultimap.Builder<Long, Long> questionIdToVisibilityBlockIdBuilder =
+        ImmutableSetMultimap.builder();
+    program.blockDefinitions().stream()
+        .filter(block -> block.visibilityPredicate().isPresent())
+        .forEach(
+            block ->
+                block.visibilityPredicate().get().getQuestions().stream()
+                    .forEach(
+                        questionId ->
+                            questionIdToVisibilityBlockIdBuilder.put(questionId, block.id())));
+    ImmutableSetMultimap<Long, Long> questionIdToVisibilityBlockIdMap =
+        questionIdToVisibilityBlockIdBuilder.build();
+
     DivTag programQuestions =
         div()
             .withId(QUESTIONS_SECTION_ID)
@@ -528,7 +554,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       index,
                       blockQuestions.size(),
                       question.getQuestionDefinition() instanceof NullQuestionDefinition,
-                      request));
+                      request,
+                      questionIdToVisibilityBlockIdMap.get(questionDefinition.getId())));
             });
 
     DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
@@ -718,7 +745,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionIndex,
       int questionsCount,
       boolean malformedQuestionDefinition,
-      Request request) {
+      Request request,
+      ImmutableSet<Long> visibilityGatedBlockIds) {
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -768,8 +796,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
         rowContent.add(renderReadOnlyLabel(label));
       }
     }
+    Optional<DivTag> visibilityAccordion =
+        visibilityGatedBlockIds.isEmpty()
+            ? Optional.empty()
+            : Optional.of(
+                renderVisibilityAccordion(
+                    questionDefinition, programDefinition, visibilityGatedBlockIds));
     return QuestionCard.renderForProgramPage(
-        questionDefinition, malformedQuestionDefinition, rowContent.build());
+        questionDefinition, malformedQuestionDefinition, rowContent.build(), visibilityAccordion);
   }
 
   /**
@@ -1048,6 +1082,67 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
         .with(removeButton);
+  }
+
+  /**
+   * Renders accordion that may be shown at the bottom of a question card if this question is used
+   * in visibility conditions. Includes the block name and links to edit the visibility conditions
+   * gated by this question.
+   */
+  private DivTag renderVisibilityAccordion(
+      QuestionDefinition questionDefinition,
+      ProgramDefinition programDefinition,
+      ImmutableSet<Long> visibilityGatedBlockIds) {
+    DivTag visibilityHeader =
+        div()
+            .with(
+                TagCreator.button()
+                    .withClasses(
+                        "usa-accordion__button",
+                        "flex",
+                        "gap-4",
+                        "items-center",
+                        "bg-transparent",
+                        "text-black",
+                        "font-thin")
+                    .withType("button")
+                    .attr("aria-expanded", "false")
+                    .attr("aria-controls", questionDefinition.getName() + "-visibility-content")
+                    .with(
+                        Icons.svg(Icons.VISIBILITY_OFF).withClasses("w-6", "h-5", "shrink-0"),
+                        p("This question shows or hides screens.").withClass("flex-grow")));
+    UlTag editVisibilityList = ul().withClasses("list-disc", "ml-4");
+    visibilityGatedBlockIds.forEach(
+        blockId -> {
+          try {
+            editVisibilityList.with(
+                li(
+                    a().withHref(
+                            routes.AdminProgramBlockPredicatesController.editVisibility(
+                                    programDefinition.id(), blockId)
+                                .url())
+                        .withText(programDefinition.getBlockDefinition(blockId).name())
+                        .withClasses("usa-link")));
+          } catch (ProgramBlockDefinitionNotFoundException e) {
+            // Log and skip if block definition can't be found.
+            // This is safe to ignore and proceed gracefully since this is a non-critical part of
+            // the page view.
+            logger.error("Program block not found: {}", e);
+          }
+        });
+    DivTag visibilityContent =
+        div()
+            .withId(questionDefinition.getName() + "-visibility-content")
+            .withClasses("pl-14", "pb-2", "text-black", "font-thin")
+            .with(
+                p("Edit related visibility conditions by clicking the below link(s):"),
+                editVisibilityList);
+    DivTag visibilityAccordion =
+        div()
+            .withId(questionDefinition.getName() + "-visibility-accordion")
+            .withClasses("bg-gray-100", "border-gray-300", "usa-accordion")
+            .with(visibilityHeader, visibilityContent);
+    return visibilityAccordion;
   }
 
   /** Creates the question panel, which shows all questions the admin can add to a program. */
