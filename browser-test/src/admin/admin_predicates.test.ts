@@ -79,7 +79,10 @@ test.describe('create and edit predicates', () => {
     )
     const visibilityContentId = hideQuestionName + '-visibility-content'
     await expect(page.locator('#' + visibilityContentId)).toBeHidden()
-    await validateScreenshot(page.locator('#' + hideQuestionName + '-visibility-accordion'), 'question-card-with-hide-predicate-collapsed')
+    await validateScreenshot(
+      page.locator('#' + hideQuestionName + '-visibility-accordion'),
+      'question-card-with-hide-predicate-collapsed',
+    )
     // Expand accordion and verify it displays the block containing the predicate
     await page
       .locator('button[aria-controls="' + visibilityContentId + '"]')
@@ -198,7 +201,10 @@ test.describe('create and edit predicates', () => {
     )
     const visibilityContentId = showQuestionName + '-visibility-content'
     await expect(page.locator('#' + visibilityContentId)).toBeHidden()
-    await validateScreenshot(page.locator('#' + showQuestionName + '-visibility-accordion'), 'question-card-with-show-predicate-collapsed')
+    await validateScreenshot(
+      page.locator('#' + showQuestionName + '-visibility-accordion'),
+      'question-card-with-show-predicate-collapsed',
+    )
     // Expand accordion and verify it displays the block containing the predicate
     await page
       .locator('button[aria-controls="' + visibilityContentId + '"]')
