@@ -1139,6 +1139,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 editVisibilityList);
     DivTag visibilityAccordion =
         div()
+            .withId(questionDefinition.getName() + "-visibility-accordion")
             .withClasses("bg-gray-100", "border-gray-300", "usa-accordion")
             .with(visibilityHeader, visibilityContent);
     return visibilityAccordion;
