@@ -48,6 +48,7 @@ import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateType;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -652,26 +653,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
+            .withId("visibility-predicate")
             .withClasses("my-4")
             .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"));
     if (predicate.isEmpty()) {
-      DivTag currentBlockStatus = div("This screen is always shown.");
-      div.with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
+      return div.with(
+          renderEmptyPredicate(
+              PredicateType.VISIBILITY, programId, blockId, viewAllowsEditingProgram()));
     } else {
-      div.with(renderExistingPredicate(blockName, predicate.get(), questions));
+      return div.with(
+          renderExistingPredicate(
+              programId,
+              blockId,
+              blockName,
+              predicate.get(),
+              questions,
+              PredicateType.VISIBILITY,
+              viewAllowsEditingProgram()));
     }
-    if (viewAllowsEditingProgram()) {
-      ButtonTag editScreenButton =
-          ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
-              .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
-      div.with(
-          asRedirectElement(
-              editScreenButton,
-              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId)
-                  .url()));
-    }
-    return div;
   }
 
   /**
@@ -685,24 +684,25 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
+            .withId("eligibility-predicate")
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
             .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
-    if (!predicate.isEmpty()) {
-      div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
+    if (predicate.isEmpty()) {
+      return div.with(
+          renderEmptyPredicate(
+              PredicateType.ELIGIBILITY, program.id(), blockId, viewAllowsEditingProgram()));
+    } else {
+      return div.with(
+          renderExistingPredicate(
+              program.id(),
+              blockId,
+              blockName,
+              predicate.get().predicate(),
+              questions,
+              PredicateType.ELIGIBILITY,
+              viewAllowsEditingProgram()));
     }
-    if (viewAllowsEditingProgram()) {
-      ButtonTag editScreenButton =
-          ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
-              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
-              .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
-      div.with(
-          asRedirectElement(
-              editScreenButton,
-              routes.AdminProgramBlockPredicatesController.editEligibility(program.id(), blockId)
-                  .url()));
-    }
-    return div;
   }
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {

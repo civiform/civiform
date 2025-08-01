@@ -31,6 +31,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.PredicateType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
@@ -89,7 +90,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> predicateQuestions,
-      ViewType type) {
+      PredicateType type) {
 
     // This render code is used to render eligibility and visibility predicate editors.
     // The following vars set the per-type visual and url values and the rest lays things out
@@ -125,7 +126,13 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         div()
                             .with(
                                 renderExistingPredicate(
-                                    blockDefinition.name(), pred, predicateQuestions)))
+                                    programDefinition.id(),
+                                    blockDefinition.id(),
+                                    blockDefinition.name(),
+                                    pred,
+                                    predicateQuestions,
+                                    type,
+                                    /* includeEditFooter= */ false)))
                 .orElse(div("This screen is always eligible."));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
@@ -155,7 +162,16 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                 .visibilityPredicate()
                 .map(
                     pred ->
-                        renderExistingPredicate(blockDefinition.name(), pred, predicateQuestions))
+                        div()
+                            .with(
+                                renderExistingPredicate(
+                                    programDefinition.id(),
+                                    blockDefinition.id(),
+                                    blockDefinition.name(),
+                                    pred,
+                                    predicateQuestions,
+                                    type,
+                                    /* includeEditFooter= */ false)))
                 .orElse(div("This screen is always shown."));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
@@ -231,7 +247,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             .with(removePredicateForm)
             // Show the eligibility message field, if it is eligibility condition page.
             .condWith(
-                type == ViewType.ELIGIBILITY,
+                type == PredicateType.ELIGIBILITY,
                 createEligibilityMessageForm(request, blockDefinition, programDefinition))
             // Show all available questions that predicates can be made for, for this block.
             .with(

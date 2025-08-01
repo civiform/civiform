@@ -31,6 +31,7 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateGenerator;
+import services.program.predicate.PredicateType;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -93,7 +94,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramPredicatesEditView.ViewType.VISIBILITY));
+              PredicateType.VISIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -121,7 +122,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramPredicatesEditView.ViewType.ELIGIBILITY));
+              PredicateType.ELIGIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
