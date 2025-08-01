@@ -72,7 +72,6 @@ test.describe('create and edit predicates', () => {
 
     // Visit block with question in predicate
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
-    await validateScreenshot(page, 'question-card-with-hide-predicate')
     // Verify question visibility accordion is shown
     await adminPrograms.expectQuestionCardWithLabel(
       hideQuestionName,
@@ -88,6 +87,7 @@ test.describe('create and edit predicates', () => {
     await expect(page.locator('#' + visibilityContentId)).toContainText(
       'Screen 2',
     )
+    await validateScreenshot(page, 'question-card-with-hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -190,7 +190,6 @@ test.describe('create and edit predicates', () => {
 
     // Visit block with question in predicate
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
-    await validateScreenshot(page, 'question-card-with-show-predicate')
     // Verify question visibility accordion is shown
     await adminPrograms.expectQuestionCardWithLabel(
       showQuestionName,
@@ -206,6 +205,7 @@ test.describe('create and edit predicates', () => {
     await expect(page.locator('#' + visibilityContentId)).toContainText(
       'Screen 2',
     )
+    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)

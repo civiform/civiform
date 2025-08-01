@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -84,6 +86,8 @@ import views.style.StyleUtils;
  * The read only version contains mostly the same elements, but without any of the edit controls.
  */
 public final class ProgramBlocksView extends ProgramBaseView {
+
+  private static final Logger logger = LoggerFactory.getLogger(ProgramBlocksView.class);
 
   private final AdminLayout layout;
   private final ProgramDisplayType programDisplayType;
@@ -517,12 +521,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
     program.blockDefinitions().stream()
         .filter(block -> block.visibilityPredicate().isPresent())
         .forEach(
-            block -> {
-              block.visibilityPredicate().get().getQuestions().stream()
-                  .forEach(
-                      questionId ->
-                          questionIdToVisibilityBlockIdBuilder.put(questionId, block.id()));
-            });
+            block ->
+                block.visibilityPredicate().get().getQuestions().stream()
+                    .forEach(
+                        questionId ->
+                            questionIdToVisibilityBlockIdBuilder.put(questionId, block.id())));
     ImmutableSetMultimap<Long, Long> questionIdToVisibilityBlockIdMap =
         questionIdToVisibilityBlockIdBuilder.build();
 
@@ -743,7 +746,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionsCount,
       boolean malformedQuestionDefinition,
       Request request,
-      ImmutableSet<Long> relatedVisibilityBlockIds) {
+      ImmutableSet<Long> visibilityGatedBlockIds) {
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -794,7 +797,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       }
     }
     Optional<DivTag> visibilityAccordion =
-        renderVisibilityAccordion(questionDefinition, programDefinition, relatedVisibilityBlockIds);
+        visibilityGatedBlockIds.isEmpty()
+            ? Optional.empty()
+            : Optional.of(
+                renderVisibilityAccordion(
+                    questionDefinition, programDefinition, visibilityGatedBlockIds));
     return QuestionCard.renderForProgramPage(
         questionDefinition, malformedQuestionDefinition, rowContent.build(), visibilityAccordion);
   }
@@ -1078,18 +1085,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders an optional accordion that may be shown at the bottom of a question card if this
-   * question is used in visibility conditions. Includes the block name and edit links to edit those
-   * related visibility conditions.
+   * Renders accordion that may be shown at the bottom of a question card if this question is used
+   * in visibility conditions. Includes the block name and links to edit the visibility conditions
+   * gated by this question.
    */
-  private Optional<DivTag> renderVisibilityAccordion(
+  private DivTag renderVisibilityAccordion(
       QuestionDefinition questionDefinition,
       ProgramDefinition programDefinition,
-      ImmutableSet<Long> relatedVisibilityBlockIds) {
-    if (relatedVisibilityBlockIds.isEmpty()) {
-      // Question is not used in any visibiility conditions
-      return Optional.empty();
-    }
+      ImmutableSet<Long> visibilityGatedBlockIds) {
     DivTag visibilityHeader =
         div()
             .with(
@@ -1109,7 +1112,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         Icons.svg(Icons.VISIBILITY_OFF).withClasses("w-6", "h-5", "shrink-0"),
                         p("This question shows or hides screens.").withClass("flex-grow")));
     UlTag editVisibilityList = ul().withClasses("list-disc", "ml-4");
-    relatedVisibilityBlockIds.forEach(
+    visibilityGatedBlockIds.forEach(
         blockId -> {
           try {
             editVisibilityList.with(
@@ -1121,7 +1124,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withText(programDefinition.getBlockDefinition(blockId).name())
                         .withClasses("usa-link")));
           } catch (ProgramBlockDefinitionNotFoundException e) {
-            // Skip blocks that can't be found
+            // Log and skip if block definition can't be found.
+            // This is safe to ignore and proceed gracefully since this is a non-critical part of
+            // the page view.
+            logger.error("Program block not found: {}", e);
           }
         });
     DivTag visibilityContent =
@@ -1135,7 +1141,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         div()
             .withClasses("bg-gray-100", "border-gray-300", "usa-accordion")
             .with(visibilityHeader, visibilityContent);
-    return Optional.of(visibilityAccordion);
+    return visibilityAccordion;
   }
 
   /** Creates the question panel, which shows all questions the admin can add to a program. */
