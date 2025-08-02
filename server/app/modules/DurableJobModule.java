@@ -40,6 +40,7 @@ import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -115,6 +116,7 @@ public final class DurableJobModule extends AbstractModule {
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
       ApplicantService applicantService,
+      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -155,7 +157,8 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
         JobType.RECURRING,
         persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
+            new CalculateEligibilityDeterminationJob(
+                applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     return durableJobRegistry;

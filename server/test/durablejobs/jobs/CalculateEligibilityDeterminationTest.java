@@ -34,6 +34,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.Scalar;
 import services.applications.ApplicationService;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -46,6 +47,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private QuestionService questionService;
   ApplicationService applicationService = instanceOf(ApplicationService.class);
+  ProgramService programService = instanceOf(ProgramService.class);
   ApplicationModel applicationModel = instanceOf(ApplicationModel.class);
   CiviFormProfile trustedIntermediaryProfile;
   ProgramDefinition programDefinition;
@@ -93,7 +95,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
     application.setEligibilityDetermination(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
 
     CalculateEligibilityDeterminationJob job =
-        new CalculateEligibilityDeterminationJob(applicantService, jobModel);
+        new CalculateEligibilityDeterminationJob(applicantService, programService, jobModel);
     job.run();
     application.refresh();
 
@@ -111,7 +113,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
         .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
 
     CalculateEligibilityDeterminationJob job =
-        new CalculateEligibilityDeterminationJob(applicantService, jobModel);
+        new CalculateEligibilityDeterminationJob(applicantService, programService, jobModel);
     job.run();
     application.refresh();
 
@@ -139,7 +141,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
         .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
 
     CalculateEligibilityDeterminationJob job =
-        new CalculateEligibilityDeterminationJob(applicantService, jobModel);
+        new CalculateEligibilityDeterminationJob(applicantService, programService, jobModel);
     job.run();
     firstApp.refresh();
     secondApp.refresh();
@@ -202,7 +204,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
         .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
 
     CalculateEligibilityDeterminationJob job =
-        new CalculateEligibilityDeterminationJob(applicantService, jobModel);
+        new CalculateEligibilityDeterminationJob(applicantService, programService, jobModel);
     job.run();
     application.refresh();
 
@@ -233,7 +235,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
             any(ProgramDefinition.class), any(ReadOnlyApplicantProgramService.class));
 
     CalculateEligibilityDeterminationJob job =
-        new CalculateEligibilityDeterminationJob(applicantService, jobModel);
+        new CalculateEligibilityDeterminationJob(applicantService, programService, jobModel);
     job.run();
 
     applicationsToProcess.forEach(ApplicationModel::refresh);
