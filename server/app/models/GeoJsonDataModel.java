@@ -9,13 +9,14 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import play.data.validation.Constraints;
+import services.geojson.FeatureCollection;
 
 @Entity
 @Table(name = "geo_json_data")
 @Getter
 public class GeoJsonDataModel extends Model {
 
-  @Constraints.Required @Setter @DbJsonB private String geoJson;
+  @Constraints.Required @Setter @DbJsonB private FeatureCollection geoJson;
 
   @Constraints.Required @Setter private String endpoint;
 

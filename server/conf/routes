@@ -186,6 +186,9 @@ GET     /programs/:programParam/blocks/:blockId/addFile/:inReview               
 GET     /programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programParam: String, blockId: String, fileKey: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
+# Routes for handling GeoJSON
+POST    /geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
+
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
 # the path parameter as a string and decide how to handle it in the

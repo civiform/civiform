@@ -16,6 +16,7 @@ import static j2html.TagCreator.strong;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.geojson.routes;
 import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -469,7 +470,13 @@ public final class QuestionEditView extends BaseHtmlView {
               .setRequired(true)
               // GeoJSON endpoint can only be added upon question creation
               .setReadOnly(!forCreate)
+              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
+              .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-trigger", "change delay:1s")
               .getInputTag());
+      // TODO(#11001): Display question settings for map question if successful response.
+      // TODO(#11125): Display failure state for map question if bad response.
+      formTag.with(div().attr("id", "geoJsonOutput"));
     }
 
     formTag.with(
