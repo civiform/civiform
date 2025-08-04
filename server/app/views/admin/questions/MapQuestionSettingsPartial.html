@@ -1,67 +1,40 @@
 <div>
   <label class="usa-label" for="name">Location name</label>
-  <div
-    class="usa-combo-box">
+  <div class="usa-combo-box">
     <select class="usa-select" name="name" id="name">
       <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
+      <option
+        th:each="key: ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+      ></option>
     </select>
   </div>
   <label class="usa-label" for="address">Location address</label>
-  <div
-    class="usa-combo-box">
+  <div class="usa-combo-box">
     <select class="usa-select" name="address" id="address">
       <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
+      <option
+        th:each="key: ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+      ></option>
     </select>
   </div>
   <label class="usa-label" for="url">Location details URL</label>
-  <div
-    class="usa-combo-box">
+  <div class="usa-combo-box">
     <select class="usa-select" name="url" id="url">
       <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
+      <option
+        th:each="key: ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+      ></option>
     </select>
   </div>
 
   <div>Filters</div>
   <div>Select up to three filters to make available to applicants.</div>
-  <label class="usa-label" for="key-1">Key</label>
-  <div
-    class="usa-combo-box">
-    <select class="usa-select" name="key-1" id="key-1">
-      <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
-    </select>
-  </div>
-  <label class="usa-label" for="key-1-display-name">Display name</label>
-  <input class="usa-input" id="key-1-display-name" name="key-1-display-name" />
 
-  <label class="usa-label" for="key-2">Key</label>
-  <div
-    class="usa-combo-box">
-    <select class="usa-select" name="key-2" id="key-2">
-      <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
-    </select>
-  </div>
-  <label class="usa-label" for="key-2-display-name">Display name</label>
-  <input class="usa-input" id="key-2-display-name" name="key-2-display-name" />
-  <label class="usa-label" for="key-3">Key</label>
-  <div
-    class="usa-combo-box">
-    <select class="usa-select" name="key-3" id="key-3">
-      <option value>Select a key</option>
-      <option value="apple">Apple</option>
-      <option value="apricot">Apricot</option>
-    </select>
-  </div>
-  <label class="usa-label" for="key-3-display-name">Display name</label>
-  <input class="usa-input" id="key-3-display-name" name="key-3-display-name"/>
   <div class="usa-button usa-button--outline">Add filter</div>
 </div>

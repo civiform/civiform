@@ -4,6 +4,8 @@ import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -25,7 +27,10 @@ public final class GeoJsonApiController {
   private final MapQuestionSettingsPartialView mapQuestionSettingsPartialView;
 
   @Inject
-  GeoJsonApiController(FormFactory formFactory, GeoJsonClient geoJsonClient, MapQuestionSettingsPartialView mapQuestionSettingsPartialView) {
+  GeoJsonApiController(
+      FormFactory formFactory,
+      GeoJsonClient geoJsonClient,
+      MapQuestionSettingsPartialView mapQuestionSettingsPartialView) {
     this.formFactory = formFactory;
     this.geoJsonClient = geoJsonClient;
     this.mapQuestionSettingsPartialView = mapQuestionSettingsPartialView;
@@ -40,10 +45,14 @@ public final class GeoJsonApiController {
         .fetchGeoJson(geoJsonEndpoint)
         .thenApplyAsync(
             geoJsonResponse -> {
-              MapQuestionSettingsPartialViewModel model = new MapQuestionSettingsPartialViewModel();
-              // TODO(#11001): Parse GeoJSON upon response to populate question settings.
-
-              return ok(mapQuestionSettingsPartialView.render(request, model)).as(Http.MimeTypes.HTML);
+              Set<String> possibleKeys = new HashSet<>();
+              geoJsonResponse
+                  .features()
+                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet()));
+              MapQuestionSettingsPartialViewModel model =
+                  new MapQuestionSettingsPartialViewModel(possibleKeys);
+              return ok(mapQuestionSettingsPartialView.render(request, model))
+                  .as(Http.MimeTypes.HTML);
             })
         .exceptionally(
             ex -> {
