@@ -756,16 +756,16 @@ validation.dateBeyondAllowablePast=እባክዎ ባለፉት {0} ዓመታት �
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=እባክዎ ከወደፊት {0} ዓመታት ያነሰ ቀን ያስገቡ
 # Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
-validation.futureDateRequired=Date must be after today''s date
+validation.futureDateRequired=ቀን ከዛሬው ቀን በኋላ መሆን አለበት
 # Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
-validation.dateTooFarInPast=Date must be after {0}
+validation.dateTooFarInPast=ቀን ከ{0} በኋላ መሆን አለበት
 # Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
-validation.pastDateRequired=Date must be before today''s date
+validation.pastDateRequired=ቀን ከዛሬው ቀን በፊት መሆን አለበት
 # Validation error shown when the user enters a date that is later than the maximum allowed date.
-validation.dateTooFarInFuture=Date must be before {0}
+validation.dateTooFarInFuture=ቀን ከ{0} በፊት መሆን አለበት
 # Validation error shown when the user enters a date that is before or after the allowed date range.
-validation.dateNotInRange=Date must be between {0} and {1}
-validation.currentDateRequired=Please enter today''s date
+validation.dateNotInRange=ቀን በ{0} እና {1} መካከል መሆን አለበት
+validation.currentDateRequired=እባክዎ የዛሬን ቀን ያስገቡ
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - ጃኑዋሪ
 # A month option when selecting a specific date from a dropdown menu.
