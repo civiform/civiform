@@ -657,6 +657,7 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1L))
             .setValue(mapQuestionForm.getMaxLocationSelections())
             .getNumberTag());
+    content.with(div().attr("id", "geoJsonOutput"));
     return this;
   }
 

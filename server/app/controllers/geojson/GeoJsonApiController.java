@@ -14,17 +14,21 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.geojson.GeoJsonClient;
+import views.admin.questions.MapQuestionSettingsPartialView;
+import views.admin.questions.MapQuestionSettingsPartialViewModel;
 
 public final class GeoJsonApiController {
   private static final Logger logger = LoggerFactory.getLogger(GeoJsonApiController.class);
 
   private final FormFactory formFactory;
   private final GeoJsonClient geoJsonClient;
+  private final MapQuestionSettingsPartialView mapQuestionSettingsPartialView;
 
   @Inject
-  GeoJsonApiController(FormFactory formFactory, GeoJsonClient geoJsonClient) {
+  GeoJsonApiController(FormFactory formFactory, GeoJsonClient geoJsonClient, MapQuestionSettingsPartialView mapQuestionSettingsPartialView) {
     this.formFactory = formFactory;
     this.geoJsonClient = geoJsonClient;
+    this.mapQuestionSettingsPartialView = mapQuestionSettingsPartialView;
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -36,8 +40,10 @@ public final class GeoJsonApiController {
         .fetchGeoJson(geoJsonEndpoint)
         .thenApplyAsync(
             geoJsonResponse -> {
+              MapQuestionSettingsPartialViewModel model = new MapQuestionSettingsPartialViewModel();
               // TODO(#11001): Parse GeoJSON upon response to populate question settings.
-              return ok(div("Success!").toString()).as(Http.MimeTypes.HTML);
+
+              return ok(mapQuestionSettingsPartialView.render(request, model)).as(Http.MimeTypes.HTML);
             })
         .exceptionally(
             ex -> {
