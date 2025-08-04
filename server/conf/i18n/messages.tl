@@ -756,16 +756,16 @@ validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (n
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
 # Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
-validation.futureDateRequired=Date must be after today''s date
+validation.futureDateRequired=Pagkatapos dapat ng petsa ngayong araw ang petsang ito
 # Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
-validation.dateTooFarInPast=Date must be after {0}
+validation.dateTooFarInPast=Pagkatapos dapat ng {0} ang petsang ito
 # Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
-validation.pastDateRequired=Date must be before today''s date
+validation.pastDateRequired=Dapat mauna ang petsang ito kaysa sa petsa ngayong araw
 # Validation error shown when the user enters a date that is later than the maximum allowed date.
-validation.dateTooFarInFuture=Date must be before {0}
+validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
 # Validation error shown when the user enters a date that is before or after the allowed date range.
-validation.dateNotInRange=Date must be between {0} and {1}
-validation.currentDateRequired=Please enter today''s date
+validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
+validation.currentDateRequired=Ilagay ang petsa ngayon
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
