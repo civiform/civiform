@@ -756,16 +756,16 @@ validation.dateBeyondAllowablePast=請輸入過去 {0} 年內的日期
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=請輸入未來 {0} 年內的日期
 # Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
-validation.futureDateRequired=Date must be after today''s date
+validation.futureDateRequired=必須輸入今天以後的日期
 # Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
-validation.dateTooFarInPast=Date must be after {0}
+validation.dateTooFarInPast=必須輸入 {0}以後的日期
 # Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
-validation.pastDateRequired=Date must be before today''s date
+validation.pastDateRequired=必須輸入今天以前的日期
 # Validation error shown when the user enters a date that is later than the maximum allowed date.
-validation.dateTooFarInFuture=Date must be before {0}
+validation.dateTooFarInFuture=必須輸入 {0}以前的日期
 # Validation error shown when the user enters a date that is before or after the allowed date range.
-validation.dateNotInRange=Date must be between {0} and {1}
-validation.currentDateRequired=Please enter today''s date
+validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
+validation.currentDateRequired=請輸入今天的日期
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
