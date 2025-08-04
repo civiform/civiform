@@ -14,7 +14,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.geojson.GeoJsonClient;
-import services.geojson.GeoJsonProcessingException;
 
 public final class GeoJsonApiController {
   private static final Logger logger = LoggerFactory.getLogger(GeoJsonApiController.class);
@@ -44,9 +43,6 @@ public final class GeoJsonApiController {
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
               String errorMessage = "An error occurred trying to retrieve GeoJSON";
-              if (ex.getCause() instanceof GeoJsonProcessingException) {
-                errorMessage += ": " + ex.getCause().getMessage();
-              }
 
               // TODO(#11125): Implement error state.
               return ok(div(errorMessage).withClass("text-red-500").toString())

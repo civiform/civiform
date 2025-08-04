@@ -8,8 +8,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
-import models.GeoJsonDataModel;
-import repository.GeoJsonDataRepository;
 import services.CiviFormError;
 
 public final class MapQuestionDefinition extends QuestionDefinition {
@@ -33,10 +31,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     String geoJsonEndpoint = getMapValidationPredicates().geoJsonEndpoint();
     OptionalInt maxLocationSelections = getMapValidationPredicates().maxLocationSelections();
 
-    GeoJsonDataRepository geoJsonDataRepository = new GeoJsonDataRepository();
-    Optional<GeoJsonDataModel> maybeGeoJsonDataRow =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint);
-    if (maybeGeoJsonDataRow.isEmpty()) {
+    if (geoJsonEndpoint.isEmpty()) {
       errors.add(CiviFormError.of("Map question must have valid GeoJSON"));
     }
 

@@ -162,6 +162,9 @@ GET     /admin/applicant-files/:fileKey                                        c
 GET     /admin/programs/:programId/files/:fileKey                              controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
 GET     /applicants/:applicantId/files/:fileKey                                controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)
 
+# Routes for handling GeoJSON
+POST    /admin/geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                                          controllers.Assets.versioned(file)
 

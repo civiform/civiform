@@ -1,38 +1,60 @@
 package repository;
 
+import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import io.ebean.DB;
+import io.ebean.Database;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
 import models.GeoJsonDataModel;
 import services.geojson.FeatureCollection;
 
 public final class GeoJsonDataRepository {
-  public Optional<GeoJsonDataModel> getMostRecentGeoJsonDataRowForEndpoint(String endpoint) {
-    return DB.find(GeoJsonDataModel.class)
-        .where()
-        .eq("endpoint", endpoint)
-        .orderBy("createTime desc")
-        .setMaxRows(1)
-        .findOneOrEmpty();
+  private final Database database;
+  private final DatabaseExecutionContext dbExecutionContext;
+  private final TransactionManager transactionManager;
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("GeoJsonDataRepository");
+
+  @Inject
+  public GeoJsonDataRepository(DatabaseExecutionContext dbExecutionContext) {
+    this.database = DB.getDefault();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
+    this.transactionManager = new TransactionManager();
+  }
+
+  public CompletableFuture<Optional<GeoJsonDataModel>> getMostRecentGeoJsonDataRowForEndpoint(
+      String endpoint) {
+    return supplyAsync(
+        () ->
+            database
+                .find(GeoJsonDataModel.class)
+                .setLabel("GeoJsonDataModel.lookupGeoJsonByEndpoint")
+                .setProfileLocation(queryProfileLocationBuilder.create("getGeoJsonData"))
+                .where()
+                .eq("endpoint", endpoint)
+                .orderBy("createTime desc")
+                .setMaxRows(1)
+                .findOneOrEmpty(),
+        dbExecutionContext);
   }
 
   public void saveGeoJson(String endpoint, FeatureCollection newGeoJson) {
-    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
-        getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+    transactionManager.execute(
+        () -> {
+          Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+              getMostRecentGeoJsonDataRowForEndpoint(endpoint).toCompletableFuture().join();
 
-    if (maybeExistingGeoJsonDataRow.isEmpty()) {
-      // If no GeoJSON data exists for the endpoint, save a new row
-      saveNewGeoJson(endpoint, newGeoJson);
-    } else {
-      GeoJsonDataModel oldGeoJsonDataRow = maybeExistingGeoJsonDataRow.get();
-      if (oldGeoJsonDataRow.getGeoJson().equals(newGeoJson)) {
-        // If the old and new GeoJSON is the same, update the row's confirm_time
-        updateOldGeoJsonConfirmTime(oldGeoJsonDataRow);
-      } else {
-        // If the old and new GeoJSON is different, create a new row
-        saveNewGeoJson(endpoint, newGeoJson);
-      }
-    }
+          if (maybeExistingGeoJsonDataRow.isPresent()
+              && maybeExistingGeoJsonDataRow.get().getGeoJson().equals(newGeoJson)) {
+            updateOldGeoJsonConfirmTime(maybeExistingGeoJsonDataRow.get());
+          } else {
+            saveNewGeoJson(endpoint, newGeoJson);
+          }
+        });
   }
 
   private void updateOldGeoJsonConfirmTime(GeoJsonDataModel geoJsonData) {

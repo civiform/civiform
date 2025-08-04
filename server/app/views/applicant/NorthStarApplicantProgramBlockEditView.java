@@ -297,7 +297,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             .geoJsonEndpoint();
 
     Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
-        mapDataRepository.getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint);
+        mapDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join();
 
     if (maybeExistingGeoJsonDataRow.isEmpty()) {
       // TODO(#11078): Failure state for missing GeoJSON data

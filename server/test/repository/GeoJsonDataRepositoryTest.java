@@ -61,7 +61,7 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
 
   @Before
   public void setup() {
-    geoJsonDataRepository = new GeoJsonDataRepository();
+    geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
 
     // Create a database record
     GeoJsonDataModel firstEntry = new GeoJsonDataModel();
@@ -81,7 +81,10 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
     secondEntry.save();
 
     Optional<GeoJsonDataModel> result =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(endpoint)
+            .toCompletableFuture()
+            .join();
 
     // Confirm that we get the second record
     assertTrue(result.isPresent() && result.get().getGeoJson().equals(testFeatureCollection2));
@@ -92,7 +95,10 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
     geoJsonDataRepository.saveGeoJson(endpoint, testFeatureCollection2);
 
     Optional<GeoJsonDataModel> model =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(endpoint)
+            .toCompletableFuture()
+            .join();
     assertTrue(model.isPresent() && model.get().getGeoJson().equals(testFeatureCollection2));
   }
 
@@ -101,14 +107,20 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
     String newEndpoint = "http://example.com/geo-new.json";
 
     Optional<GeoJsonDataModel> maybeOldGeoJson =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(newEndpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(newEndpoint)
+            .toCompletableFuture()
+            .join();
     assertTrue(maybeOldGeoJson.isEmpty());
 
     // Try to save GeoJson at a new endpoint that isn't in the database yet
     geoJsonDataRepository.saveGeoJson(newEndpoint, testFeatureCollection2);
 
     Optional<GeoJsonDataModel> maybeNewGeoJson =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(newEndpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(newEndpoint)
+            .toCompletableFuture()
+            .join();
     assertTrue(
         maybeNewGeoJson.isPresent()
             && maybeNewGeoJson.get().getGeoJson().equals(testFeatureCollection2));
@@ -117,7 +129,10 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
   @Test
   public void saveGeoJson_updateOldGeoJsonConfirmTime_success() {
     Optional<GeoJsonDataModel> maybeOldGeoJson =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(endpoint)
+            .toCompletableFuture()
+            .join();
     assertTrue(maybeOldGeoJson.isPresent());
 
     Instant oldConfirmTime = maybeOldGeoJson.get().getConfirmTime();
@@ -125,7 +140,10 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
     geoJsonDataRepository.saveGeoJson(endpoint, testFeatureCollection1);
 
     Optional<GeoJsonDataModel> maybeNewGeoJson =
-        geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(endpoint);
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(endpoint)
+            .toCompletableFuture()
+            .join();
     assertTrue(maybeNewGeoJson.isPresent());
     Instant newConfirmTime = maybeNewGeoJson.get().getConfirmTime();
     FeatureCollection newGeoJson = maybeNewGeoJson.get().getGeoJson();
