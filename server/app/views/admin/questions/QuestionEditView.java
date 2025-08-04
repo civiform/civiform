@@ -476,7 +476,6 @@ public final class QuestionEditView extends BaseHtmlView {
               .getInputTag());
       // TODO(#11001): Display question settings for map question if successful response.
       // TODO(#11125): Display failure state for map question if bad response.
-      formTag.with(div().attr("id", "geoJsonOutput"));
     }
 
     formTag.with(
