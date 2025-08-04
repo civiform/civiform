@@ -756,16 +756,16 @@ validation.dateBeyondAllowablePast=Допустимый период – пос
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
 # Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
-validation.futureDateRequired=Date must be after today''s date
+validation.futureDateRequired=Дата должна быть позже текущей.
 # Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
-validation.dateTooFarInPast=Date must be after {0}
+validation.dateTooFarInPast=Дата должна быть позже {0}.
 # Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
-validation.pastDateRequired=Date must be before today''s date
+validation.pastDateRequired=Дата должна быть раньше текущей.
 # Validation error shown when the user enters a date that is later than the maximum allowed date.
-validation.dateTooFarInFuture=Date must be before {0}
+validation.dateTooFarInFuture=Дата должна быть раньше {0}.
 # Validation error shown when the user enters a date that is before or after the allowed date range.
-validation.dateNotInRange=Date must be between {0} and {1}
-validation.currentDateRequired=Please enter today''s date
+validation.dateNotInRange=Дата должна быть между {0} и {1}.
+validation.currentDateRequired=Введите сегодняшнюю дату.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
