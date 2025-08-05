@@ -1069,6 +1069,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
+  /** Enables admin validation settings for date questions. */
+  public boolean getDateValidationEnabled(RequestHeader request) {
+    return getBool("DATE_VALIDATION_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
    * between deployed environments. Note: this should only be used on new environments, since
@@ -1101,11 +1106,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled(RequestHeader request) {
-    return getBool("DATE_VALIDATION_ENABLED", request);
-  }
-
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
@@ -1117,6 +1117,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getMapQuestionEnabled() {
     return getBool("MAP_QUESTION_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
+   * database.
+   */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2312,6 +2320,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATE_VALIDATION_ENABLED",
+                          "Enables admin validation settings for date questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2360,13 +2374,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables admin validation settings for date"
-                              + " questions.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
@@ -2379,7 +2386,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.HIDDEN))))
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
+                              + " of directly from the database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

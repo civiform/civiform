@@ -1,0 +1,36 @@
+<!--/*@thymesVar id="question" type="services.applicant.question.ApplicantQuestion"*/-->
+<!--/*@thymesVar id="questionRendererParams" type="views.questiontypes.ApplicantQuestionRendererParams"*/-->
+
+<div
+  th:fragment="map(question, questionRendererParams)"
+  th:with="mapQuestion=${question.createMapQuestion()},
+             questionId=${'id-' + #strings.randomAlphanumeric(8)},
+              mapId=${'cf-map-' + #strings.randomAlphanumeric(8)},
+              firstPathWithError=${mapQuestion.getFirstPathWithError()},
+             hasGroupErrors=${mapQuestion.getValidationErrors().get(question.getContextualizedPath())},"
+  th:id="${questionId}"
+  class="cf-question-map"
+  th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <!-- TODO(#11003): Build out applicant view of map question -->
+  <div th:id="${mapId}" class="square-mobile"></div>
+  <script
+    th:if="${questionRendererParams.geoJson().isPresent()}"
+    th:inline="javascript"
+    th:nonce="${cspNonce}"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.maps = window.app.data.maps || {}
+
+    id = /*[[${mapId}]]*/ 'id'
+    try {
+      window.app.data.maps[id] = JSON.parse(
+        /*[[${questionRendererParams.geoJson().get()}]]*/ {},
+      )
+    } catch (e) {
+      console.error(`Failed to parse GeoJSON for ${mapId}`, e)
+    }
+  </script>
+</div>

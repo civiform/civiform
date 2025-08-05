@@ -755,6 +755,17 @@ validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (na) taon
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Pagkatapos dapat ng petsa ngayong araw ang petsang ito
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Pagkatapos dapat ng {0} ang petsang ito
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Dapat mauna ang petsang ito kaysa sa petsa ngayong araw
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
+validation.currentDateRequired=Ilagay ang petsa ngayon
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=Oo
+option.no=Hindi
+option.notSure=Hindi sigurado
+option.maybe=Siguro
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

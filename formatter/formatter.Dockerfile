@@ -4,7 +4,7 @@
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
 FROM eclipse-temurin:17.0.15_6-jdk-alpine@sha256:4a763f969e0ef9abd2c77047cfde1eb98ccf7de8ba4ff843a47da7bb9580515c AS amd64
-FROM bellsoft/liberica-openjdk-alpine:17.0.13-12@sha256:3ca9f436cc6a806244b710bd461eb9b703d194965c3335c8569521ad8f2aaf9e AS arm64
+FROM bellsoft/liberica-openjdk-alpine:17.0.16-12@sha256:ed3d715eb5d00e7929d47b3bd4c4b872d773dc4830cf34222ccc9ab3ab1c9a84 AS arm64
 
 FROM ${TARGETARCH}
 

@@ -3,9 +3,7 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
@@ -56,23 +54,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_ok_get() throws ProgramNotFoundException {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    Result result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-                .method("GET")
-                .build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Image upload");
-  }
-
-  @Test
   public void index_programNotDraft_throws() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
@@ -94,27 +75,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     Long.MAX_VALUE,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
-  }
-
-  @Test
-  public void index_programHasDescription_displayed() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name")
-            .setLocalizedSummaryImageDescription(
-                LocalizedStrings.of(Locale.US, "fake summary description"))
-            .build();
-
-    Result result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-                .method("GET")
-                .build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("fake summary description");
   }
 
   @Test

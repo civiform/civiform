@@ -57,6 +57,7 @@ public class AdminImportView extends BaseHtmlView {
     String title = "Import an existing program";
     DivTag contentDiv =
         div()
+            .withId("admin-import-header") // Identify the import page in JS
             .withClasses("pt-10", "px-20", "font-family-sans", "grid-col-8")
             .with(renderBackButton())
             .with(h1(title))

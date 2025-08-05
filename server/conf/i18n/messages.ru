@@ -755,6 +755,17 @@ validation.invalidDateFormat=Укажите дату в правильном ф�
 validation.dateBeyondAllowablePast=Допустимый период – последние {0} лет.
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Дата должна быть позже текущей.
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Дата должна быть позже {0}.
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Дата должна быть раньше текущей.
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Дата должна быть раньше {0}.
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Дата должна быть между {0} и {1}.
+validation.currentDateRequired=Введите сегодняшнюю дату.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=Минимально допустимое число с�
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=Да
+option.no=Нет
+option.notSure=Затрудняюсь ответить
+option.maybe=Возможно
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

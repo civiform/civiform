@@ -128,7 +128,11 @@ public class SettingsServiceTest extends ResetPostgres {
     when(testProfile.getAuthorityId())
         .thenReturn(CompletableFuture.completedFuture(TEST_AUTHORITY_ID));
 
-    settingsService = new SettingsService(instanceOf(SettingsGroupRepository.class), testManifest);
+    settingsService =
+        new SettingsService(
+            instanceOf(SettingsGroupRepository.class),
+            testManifest,
+            instanceOf(SettingsCache.class));
   }
 
   @Test

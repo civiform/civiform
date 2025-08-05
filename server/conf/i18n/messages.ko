@@ -755,6 +755,17 @@ validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 validation.dateBeyondAllowablePast=지난 {0}년 이내의 날짜를 입력하세요
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=향후 {0}년 이내의 날짜를 입력하세요
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=오늘 이후의 날짜여야 합니다.
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast={0} 이후의 날짜여야 합니다.
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=오늘 이전의 날짜여야 합니다.
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture={0} 이전의 날짜여야 합니다.
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange={0}에서 {1} 사이의 날짜여야 합니다.
+validation.currentDateRequired=오늘 날짜를 입력하세요.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=네
+option.no=아니요
+option.notSure=잘 모르겠음
+option.maybe=확실하지 않음
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

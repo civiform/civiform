@@ -755,6 +755,17 @@ validation.invalidDateFormat=正しい形式で日付を入力してください
 validation.dateBeyondAllowablePast=過去 {0} 年以内の日付を入力してください
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=今後 {0} 年未満の日付を入力してください
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=今日より後の日付を入力してください
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast={0} より後の日付を入力してください
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=今日より前の日付を入力してください
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture={0} より前の日付を入力してください
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange={0} から {1} の間の日付を入力してください
+validation.currentDateRequired=今日の日付を入力してください
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort={0} 文字以上にしてください。
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=はい
+option.no=いいえ
+option.notSure=わからない
+option.maybe=おそらく
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

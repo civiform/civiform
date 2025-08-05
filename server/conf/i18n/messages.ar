@@ -755,6 +755,17 @@ validation.invalidDateFormat=يُرجى إدخال تاريخ بالتنسيق �
 validation.dateBeyondAllowablePast=يُرجى إدخال تاريخ يقع ضمن الأعوام الـ {0} الأخيرة
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=يُرجى إدخال تاريخ يقع بعد أقل من {0} من الأعوام في المستقبل
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=يجب أن يكون التاريخ بعد تاريخ اليوم
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=يجب أن يكون التاريخ بعد ‎{0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=يجب أن يكون التاريخ قبل تاريخ اليوم
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=يجب أن يكون التاريخ قبل ‎{0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=يجب أن يكون التاريخ بين ‎{0} و‎{1}
+validation.currentDateRequired=يُرجى إدخال تاريخ اليوم
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=‫01 - يناير
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=يجب أن تتضمن الإجابة {0} حرف كحد 
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=نعم
+option.no=لا
+option.notSure=لا أعلم
+option.maybe=ربما
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

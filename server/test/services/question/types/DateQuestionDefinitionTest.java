@@ -26,10 +26,15 @@ public class DateQuestionDefinitionTest {
       DateValidationOption.builder().setDateType(DateType.APPLICATION_DATE).build();
   private static final DateValidationOption EMPTY_CUSTOM_DATE =
       DateValidationOption.builder().setDateType(DateType.CUSTOM).build();
-  private static final DateValidationOption INVALID_CUSTOM_DATE =
+  private static final DateValidationOption CUSTOM_DATE_INVALID_TYPE =
       DateValidationOption.builder()
           .setDateType(DateType.ANY)
           .setCustomDate(Optional.of(LocalDate.of(2025, 1, 1)))
+          .build();
+  private static final DateValidationOption CUSTOM_DATE_INVALID_YEAR =
+      DateValidationOption.builder()
+          .setDateType(DateType.CUSTOM)
+          .setCustomDate(Optional.of(LocalDate.of(999999, 1, 1)))
           .build();
 
   @SuppressWarnings({"JavaTimeDefaultTimeZone", "TimeInStaticInitializer"})
@@ -71,7 +76,12 @@ public class DateQuestionDefinitionTest {
         },
         new Object[] {
           Optional.of(ANY_DATE),
-          Optional.of(INVALID_CUSTOM_DATE),
+          Optional.of(CUSTOM_DATE_INVALID_YEAR),
+          Optional.of("A valid date is required for custom start and end dates")
+        },
+        new Object[] {
+          Optional.of(ANY_DATE),
+          Optional.of(CUSTOM_DATE_INVALID_TYPE),
           Optional.of("Specific date must be empty if start and end date are not \"Custom date\"")
         },
         new Object[] {
@@ -100,7 +110,12 @@ public class DateQuestionDefinitionTest {
           Optional.of("A valid date is required for custom start and end dates")
         },
         new Object[] {
-          Optional.of(INVALID_CUSTOM_DATE),
+          Optional.of(CUSTOM_DATE_INVALID_YEAR),
+          Optional.of(ANY_DATE),
+          Optional.of("A valid date is required for custom start and end dates")
+        },
+        new Object[] {
+          Optional.of(CUSTOM_DATE_INVALID_TYPE),
           Optional.of(ANY_DATE),
           Optional.of("Specific date must be empty if start and end date are not \"Custom date\"")
         },

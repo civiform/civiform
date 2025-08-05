@@ -93,6 +93,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().radioApplicantFavoriteSeason())
             .build();
     applicant = createApplicantWithMockedProfile();
 
@@ -426,13 +428,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequestBuilder()
             .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .call(
-                routes.ApplicantProgramBlocksController.editWithApplicantId(
-                    applicant.id,
-                    programId,
-                    /* blockId= */ "1",
-                    /* questionName= */ Optional.empty(),
-                    /* isFromUrlCall= */ false))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
@@ -817,16 +812,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    badApplicantId,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
 
     Result result =
         subject
@@ -851,16 +837,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    draftProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
     Result result =
         subject
             .updateWithApplicantId(
@@ -886,16 +863,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    draftProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
     Result result =
         subject
             .updateWithApplicantId(
@@ -919,16 +887,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    obsoleteProgram.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
     Result result =
         subject
             .updateWithApplicantId(
@@ -947,16 +906,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    badProgramId,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
 
     Result result =
         subject
@@ -976,16 +926,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_invalidBlock_returnsBadRequest() {
     String badBlockId = "1000";
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    badBlockId,
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .build();
+    Request request = fakeRequestBuilder().build();
 
     Result result =
         subject
@@ -1004,17 +945,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_invalidPathsInRequest_returnsBadRequest() {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .bodyForm(ImmutableMap.of("fake.path", "value"))
-            .build();
+    Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of("fake.path", "value")).build();
 
     Result result =
         subject
@@ -1034,17 +965,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_reservedPathsInRequest_returnsBadRequest() {
     String reservedPath = Path.create("metadata").join(Scalar.PROGRAM_UPDATED_IN).toString();
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
-            .bodyForm(ImmutableMap.of(reservedPath, "value"))
-            .build();
+    Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of(reservedPath, "value")).build();
 
     Result result =
         subject
@@ -1062,16 +983,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_withValidationErrors_isOK() {
+  public void update_name_withValidationErrors_showsError() {
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1097,17 +1011,39 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("Please enter your last name.");
   }
 
+  // The question has 4 options 1-4, Options are 1 based so 0 is not valid.
+  @Test
+  @Parameters({"0", "5", "-1", "1.1", "11111", "Not a Number", "&nbsp;"})
+  public void update_radio_withValidationErrors_showsError(String errorValue) {
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_favorite_season")
+                        .join(Scalar.SELECTION)
+                        .toString(),
+                    errorValue))
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "3",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(contentAsString(result)).contains("Please enter valid input");
+  }
+
   @Test
   public void update_withValidationErrors_requestedActionReview_staysOnBlockAndShowsErrors() {
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1137,13 +1073,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void update_withValidationErrors_requestedActionPrevious_staysOnBlockAndShowsErrors() {
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1182,13 +1111,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequestBuilder()
             .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1229,13 +1151,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1280,13 +1195,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1328,13 +1236,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1376,13 +1277,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request requestWithAnswer =
         fakeRequestBuilder()
             .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1405,13 +1299,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request requestWithoutAnswer =
         fakeRequestBuilder()
             .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1452,13 +1339,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request requestWithAnswer =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1480,13 +1360,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, delete the answer
     Request requestWithoutAnswer =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    requestedAction))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1525,13 +1398,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1574,13 +1440,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1618,13 +1477,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1664,13 +1516,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "4",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_email_address.email").toString(),
@@ -1712,13 +1557,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1756,13 +1594,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1800,13 +1631,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "3",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_email_address.email").toString(),
@@ -1837,9 +1661,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id, program.id, "1", false, new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -1890,13 +1711,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
@@ -1990,15 +1804,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .build();
     String programSlug = activeProgram.getSlug();
 
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFile(
-                    programSlug,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK),
-                    /* isFromUrlCall= */ true));
+    RequestBuilder requestBuilder = fakeRequestBuilder();
     addQueryString(requestBuilder, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
     Request request = requestBuilder.build();
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
@@ -2367,16 +2173,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     storedFile.setName(fileKey);
     storedFile.save();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-                    applicant.id,
-                    programId,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(REVIEW_PAGE),
-                    /* isFromUrlCall= */ true));
+    RequestBuilder request = fakeRequestBuilder();
     addQueryString(request, ImmutableMap.of("key", fileKey, "bucket", "fake-bucket"));
 
     Result result =
@@ -2988,33 +2785,115 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void removeFile_invalidApplicant_returnsUnauthorized() {
+  public void
+      removeFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    String programId = Long.toString(program.id);
+
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request,
+                applicant.id,
+                programId,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  /**
+   * Tests that removeFileWithApplicantId() throws an error when the program param is a program slug
+   * but it should be the program id since the program slug feature is disabled.
+   * removeFileWithApplicantId() also throws error for other combinations when the program param is
+   * not properly parsed. We don't test all combinations here because ProgramSlugHandler have a
+   * comprehensive test cover for them.
+   */
+  @Test
+  public void
+      removeFileWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
+    program = ProgramBuilder.newActiveProgram("Program").build();
+    String programSlug = program.getSlug();
+    assertThatThrownBy(
+            () ->
+                subject.removeFileWithApplicantId(
+                    fakeRequest(),
+                    applicant.id,
+                    programSlug,
+                    /* blockId= */ "1",
+                    /* fileKeyToRemove= */ "fake-key",
+                    /* inReview= */ false,
+                    /* isFromUrlCall= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'program' to a numeric value");
+  }
+
+  /**
+   * Tests that removeFile() redirects to another page when the feature is enabled and is from url
+   * call with a program slug. removeFileWithApplicantId() also redirects for other combinations:
+   * when the feature is disabled OR when the call is not from a URL OR when the program param is a
+   * program slug (not numeric), AND the program ID was properly retrieved. We don't test all
+   * combinations here because the ProgramSlugHandler tests have a comprehensive test cover for
+   * them.
+   */
+  @Test
+  public void
+      removeFileWithApplicantid_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("Program with file upload")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+            .build();
+    String programSlug = activeProgram.getSlug();
+
+    Request request = fakeRequestWithKeyAndBucket();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .removeFileWithApplicantId(
+                request,
+                applicant.id,
+                programSlug,
+                /* blockId= */ "1",
+                /* fileKeyToRemove= */ "fake-key",
+                /* inReview= */ false,
+                /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+  }
+
+  @Test
+  public void removeFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-
+    String programId = Long.toString(program.id);
     long badApplicantId = applicant.id + 1000;
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    badApplicantId,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false));
 
     Result result =
         subject
             .removeFileWithApplicantId(
-                request.build(),
+                fakeRequest(),
                 badApplicantId,
-                program.id,
+                programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3046,7 +2925,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void removeFile_civiformAdminAccessToDraftProgram_redirects() {
+  public void removeFileWithApplicantId_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
@@ -3054,26 +2933,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
+    String draftProgramId = Long.toString(draftProgram.id);
 
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-                    applicant.id,
-                    draftProgram.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "fake-key",
-                    /* inReview= */ false))
-            .build();
     Result result =
         subject
             .removeFileWithApplicantId(
-                request,
+                fakeRequest(),
                 applicant.id,
-                draftProgram.id,
+                draftProgramId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
+                /* inReview= */ false,
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -3458,13 +3329,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    badApplicantId,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
@@ -3493,13 +3357,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
@@ -3529,13 +3386,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
@@ -3563,13 +3413,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
     Result result =
@@ -3593,13 +3436,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    badProgramId,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
@@ -3622,13 +3458,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void confirmAddress_noAddressJson_throws() {
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             // Don't set the ADDRESS_JSON_SESSION_KEY on the session
             .bodyForm(
                 ImmutableMap.of(
@@ -3664,13 +3493,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // First, answer the address question
     Request answerAddressQuestionRequest =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3703,13 +3525,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, send a confirmAddress request but don't fill in SELECTED_ADDRESS_NAME in the form body
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .build();
 
@@ -3787,13 +3602,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // suggestions (set in the session with the key ADDRESS_JSON_SESSION_KEY).
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(NEXT_BLOCK)))
             .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
             .bodyForm(ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address))
             .build();
@@ -3844,13 +3652,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE)))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
@@ -3898,13 +3699,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "2",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK)))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
@@ -3954,13 +3748,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // First, answer the address question
     Request answerAddressQuestionRequest =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.updateWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
@@ -3989,13 +3776,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, choose the original address during address correction
     Request confirmAddressRequest =
         fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
-                    applicant.id,
-                    program.id,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    new ApplicantRequestedActionWrapper()))
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(

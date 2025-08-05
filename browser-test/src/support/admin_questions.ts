@@ -29,6 +29,14 @@ type QuestionParams = {
   universal?: boolean
   primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
   markdown?: boolean
+  minDateType?: string | null
+  maxDateType?: string | null
+  minDateDay?: number | null
+  minDateMonth?: number | null
+  minDateYear?: number | null
+  maxDateDay?: number | null
+  maxDateMonth?: number | null
+  maxDateYear?: number | null
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -701,6 +709,14 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     primaryApplicantInfo = false,
+    minDateType = null,
+    maxDateType = null,
+    minDateDay = null,
+    minDateMonth = null,
+    minDateYear = null,
+    maxDateDay = null,
+    maxDateMonth = null,
+    maxDateYear = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -722,6 +738,33 @@ export class AdminQuestions {
       await this.clickPrimaryApplicantInfoToggle(
         PrimaryApplicantInfoField.APPLICANT_DOB,
       )
+    }
+
+    if (minDateType != null) {
+      await this.page.selectOption('#min-date-type', {value: minDateType})
+    }
+    if (maxDateType != null) {
+      await this.page.selectOption('#max-date-type', {value: maxDateType})
+    }
+    if (minDateDay != null) {
+      await this.page.fill('#min-custom-date-day', String(minDateDay))
+    }
+    if (minDateMonth != null) {
+      await this.page.selectOption('#min-custom-date-month', {
+        value: String(minDateMonth),
+      })
+    }
+    if (minDateYear != null) {
+      await this.page.fill('#min-custom-date-year', String(minDateYear))
+    }
+    if (maxDateDay != null) {
+      await this.page.fill('#max-custom-date-day', String(maxDateDay))
+    }
+    if (maxDateMonth != null) {
+      await this.page.fill('#max-custom-date-month', String(maxDateMonth))
+    }
+    if (maxDateYear != null) {
+      await this.page.fill('#max-custom-date-year', String(maxDateYear))
     }
 
     await this.clickSubmitButtonAndNavigate('Create')

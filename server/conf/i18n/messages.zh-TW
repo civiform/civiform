@@ -755,6 +755,17 @@ validation.invalidDateFormat=日期的格式不正確，請重新輸入
 validation.dateBeyondAllowablePast=請輸入過去 {0} 年內的日期
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=請輸入未來 {0} 年內的日期
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=必須輸入今天以後的日期
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=必須輸入 {0}以後的日期
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=必須輸入今天以前的日期
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=必須輸入 {0}以前的日期
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
+validation.currentDateRequired=請輸入今天的日期
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=是
+option.no=否
+option.notSure=不確定
+option.maybe=或許
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

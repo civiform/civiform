@@ -755,6 +755,17 @@ validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮ
 validation.dateBeyondAllowablePast=ກະລຸນາໃສ່ວັນທີໃນ {0} ປີທີ່ຜ່ານມາ
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=ກະລຸນາໃສ່ວັນທີໜ້ອຍກວ່າ {0} ປີໃນອະນາຄົດ
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=ວັນທີຕ້ອງເປັນວັນທີຫຼັງຈາກມື້ນີ້
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=ວັນທີຕ້ອງເປັນຫຼັງຈາກ {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=ວັນທີຕ້ອງເປັນວັນທີກ່ອນມື້ນີ້
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=ວັນທີຕ້ອງເປັນກ່ອນ {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=ວັນທີຕ້ອງຢູ່ລະຫວ່າງ {0} ແລະ {1}
+validation.currentDateRequired=ກະລຸນາໃສ່ວັນທີມື້ນີ້
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - ມັງກອນ
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,10 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
-option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.yes=ແມ່ນ
+option.no=ບໍ່
+option.notSure=ບໍ່ແນ່ໃຈ
+option.maybe=ອາດຈະ
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
