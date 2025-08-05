@@ -6,6 +6,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
@@ -28,8 +29,14 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
+import models.GeoJsonDataModel;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.LocalizedStrings;
@@ -67,7 +74,10 @@ public final class QuestionConfig {
       QuestionForm questionForm,
       Messages messages,
       SettingsManifest settingsManifest,
-      Request request) {
+      Request request,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      Optional<GeoJsonDataModel> geoJsonDataModel) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -90,7 +100,14 @@ public final class QuestionConfig {
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
       case MAP:
         return Optional.of(
-            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
+            config
+                .addMapQuestionConfig(
+                    (MapQuestionForm) questionForm,
+                    new MapQuestionSettingsPartialView(
+                        templateEngine, playThymeleafContextFactory, settingsManifest),
+                    request,
+                    geoJsonDataModel)
+                .getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -647,7 +664,12 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
+  private QuestionConfig addMapQuestionConfig(
+      MapQuestionForm mapQuestionForm,
+      MapQuestionSettingsPartialView mapQuestionSettingsPartialView,
+      Request request,
+      Optional<GeoJsonDataModel> maybeGeoJsonDataModel) {
+
     // TODO(#11001): Add settings for filters
     content.with(
         FieldWithLabel.number()
@@ -657,7 +679,28 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1L))
             .setValue(mapQuestionForm.getMaxLocationSelections())
             .getNumberTag());
-    content.with(div().attr("id", "geoJsonOutput"));
+
+    if (maybeGeoJsonDataModel.isPresent()) {
+      MapQuestionForm.Setting locationName = mapQuestionForm.getLocationName();
+      MapQuestionForm.Setting locationAddress = mapQuestionForm.getLocationAddress();
+      MapQuestionForm.Setting locationDetailsUrl = mapQuestionForm.getLocationDetailsUrl();
+      List<MapQuestionForm.Setting> filters = mapQuestionForm.getFilters();
+      Set<String> possibleKeys = new HashSet<>();
+      maybeGeoJsonDataModel
+          .get()
+          .getGeoJson()
+          .features()
+          .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet()));
+
+      MapQuestionSettingsPartialViewModel mapQuestionSettingsPartialViewModel =
+          new MapQuestionSettingsPartialViewModel(
+              locationName, locationAddress, locationDetailsUrl, filters, possibleKeys);
+      content.with(
+          rawHtml(
+              mapQuestionSettingsPartialView.render(request, mapQuestionSettingsPartialViewModel)));
+    } else {
+      content.with(div().attr("id", "geoJsonOutput"));
+    }
     return this;
   }
 

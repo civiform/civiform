@@ -34,7 +34,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import modules.ThymeleafModule;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
@@ -54,6 +56,9 @@ import views.style.StyleUtils;
  * rendered.
  */
 public abstract class BaseHtmlView {
+
+  protected ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  protected TemplateEngine templateEngine;
 
   public static H1Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
