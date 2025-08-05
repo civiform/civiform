@@ -117,7 +117,6 @@ public final class ApplicationRepository {
                 applicant.id,
                 program.id);
             application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
-            applicant.getAccount().save();
           } else {
             throw new RuntimeException(
                 String.format(
@@ -172,7 +171,6 @@ public final class ApplicationRepository {
           tiSubmitterEmail.ifPresent(application::setSubmitterEmail);
           application.save();
           application.getApplicant().getAccount().save();
-
           return application;
         });
   }
@@ -278,10 +276,7 @@ public final class ApplicationRepository {
   CompletionStage<ApplicationModel> createOrUpdateDraft(
       ApplicantModel applicant, ProgramModel program) {
     return supplyAsync(
-        () -> {
-          applicant.getAccount().save();
-          return createOrUpdateDraftApplicationInternal(applicant, program);
-        },
+        () -> createOrUpdateDraftApplicationInternal(applicant, program),
         dbExecutionContext.current());
   }
 
