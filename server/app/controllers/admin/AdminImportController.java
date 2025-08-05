@@ -12,10 +12,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Map.Entry;
-import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,25 +195,6 @@ public class AdminImportController extends CiviFormController {
                 .render());
       }
 
-      boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled();
-
-      // When we are importing without duplicate questions, we expect all drafts to be published
-      // before the import process begins.
-      Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
-      if (!withDuplicates
-          && draftVersion.isPresent()
-          // If there are either questions or programs in the draft, we should show this error
-          && (versionRepository.getProgramCountForVersion(draftVersion.get())
-                  + versionRepository.getQuestionCountForVersion(draftVersion.get())
-              > 0)) {
-        return ok(
-            adminImportViewPartial
-                .renderError(
-                    "There are draft programs and questions in our system.",
-                    "Please publish all drafts and try again.")
-                .render());
-      }
-
       if (questions == null) {
         return ok(
             adminImportViewPartial
@@ -225,8 +204,7 @@ public class AdminImportController extends CiviFormController {
                     questions,
                     /* duplicateQuestionNames= */ ImmutableList.of(),
                     /* updatedQuestionsMap= */ ImmutableMap.of(),
-                    jsonString,
-                    true)
+                    jsonString)
                 .render());
       }
 
@@ -241,7 +219,7 @@ public class AdminImportController extends CiviFormController {
       boolean duplicateHandlingOptionsEnabled =
           settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
-      if (withDuplicates && !duplicateHandlingOptionsEnabled) {
+      if (!duplicateHandlingOptionsEnabled) {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
       }
 
@@ -274,8 +252,7 @@ public class AdminImportController extends CiviFormController {
                   questions,
                   existingAdminNames,
                   updatedQuestionsMap,
-                  serializeResult.getResult(),
-                  withDuplicates)
+                  serializeResult.getResult())
               .render());
     } catch (RuntimeException e) {
       return ok(
@@ -311,17 +288,12 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
           duplicateHandlingOptions = programMigrationWrapper.getDuplicateQuestionHandlingOptions();
 
-      boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled();
       boolean duplicateHandlingEnabled =
           settingsManifest.getImportDuplicateHandlingOptionsEnabled();
 
       ErrorAnd<ProgramModel, String> savedProgram =
           programMigrationService.saveImportedProgram(
-              programOnJson,
-              questionsOnJson,
-              duplicateHandlingOptions,
-              withDuplicates,
-              duplicateHandlingEnabled);
+              programOnJson, questionsOnJson, duplicateHandlingOptions, duplicateHandlingEnabled);
       if (savedProgram.isError()) {
         return ok(
             adminImportViewPartial

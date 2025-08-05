@@ -404,7 +404,6 @@ public final class ProgramMigrationService {
    * @param questionDefinitions the {@link QuestionDefinition}s associated with the program
    * @param duplicateHandlingOptions the {@link DuplicateQuestionHandlingOption} for each question
    *     adminName
-   * @param withDuplicates whether to allow duplicate question names
    * @param duplicateHandlingEnabled whether to allow admin-specified duplicate handling
    * @return either the saved {@link ProgramModel} or a single error message
    */
@@ -413,7 +412,6 @@ public final class ProgramMigrationService {
       ImmutableList<QuestionDefinition> questionDefinitions,
       ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
           duplicateHandlingOptions,
-      boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
     ImmutableList<String> overwrittenQuestions =
         Utils.getQuestionNamesForDuplicateHandling(
@@ -440,7 +438,6 @@ public final class ProgramMigrationService {
                   overwrittenQuestions,
                   duplicatedQuestions,
                   reusedQuestions,
-                  withDuplicates,
                   duplicateHandlingEnabled));
     }
 
@@ -450,7 +447,6 @@ public final class ProgramMigrationService {
         overwrittenQuestions,
         duplicatedQuestions,
         reusedQuestions,
-        withDuplicates,
         duplicateHandlingEnabled);
   }
 
@@ -460,7 +456,6 @@ public final class ProgramMigrationService {
       ImmutableList<String> overwrittenQuestions,
       ImmutableList<String> duplicatedQuestions,
       ImmutableList<String> reusedQuestions,
-      boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
     ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
@@ -511,7 +506,7 @@ public final class ProgramMigrationService {
         programRepository.insertProgramSync(
             new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-    addProgramsToDraft(overwrittenQuestions, withDuplicates, duplicateHandlingEnabled);
+    addProgramsToDraft(overwrittenQuestions, duplicateHandlingEnabled);
     // TODO(#8613) migrate application statuses for the program
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         updatedProgram.adminName(), new StatusDefinitions());
@@ -636,9 +631,7 @@ public final class ProgramMigrationService {
    */
   @VisibleForTesting
   void addProgramsToDraft(
-      ImmutableList<String> overwrittenAdminNames,
-      boolean withDuplicates,
-      boolean duplicateHandlingEnabled) {
+      ImmutableList<String> overwrittenAdminNames, boolean duplicateHandlingEnabled) {
     if (duplicateHandlingEnabled) {
       // If the admin has elected to overwrite some question definition(s), then we put only the
       // programs that use that question(s) into the new draft.
@@ -658,23 +651,10 @@ public final class ProgramMigrationService {
             referencingProgram.id());
         programRepository.createOrUpdateDraft(referencingProgram);
       }
-    } else if (withDuplicates) {
+    } else {
       // If the admin is not overwriting any question definitions, we don't need to put any programs
       // into the draft.
       return;
-    } else {
-      ImmutableList<Long> programsInDraft =
-          versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
-              .map(p -> p.id)
-              .collect(ImmutableList.toImmutableList());
-      versionRepository
-          .getProgramsForVersion(versionRepository.getActiveVersion())
-          .forEach(
-              program -> {
-                if (!programsInDraft.contains(program.id)) {
-                  programRepository.createOrUpdateDraft(program);
-                }
-              });
     }
   }
 }

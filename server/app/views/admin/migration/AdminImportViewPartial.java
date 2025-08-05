@@ -86,8 +86,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * @param updatedQuestionsMap map of original question names to their updated question definitions
    *     (TODO: #9628 - remove this param)
    * @param json the JSON representation of the program being imported
-   * @param withDuplicates whether to handle duplicate questions in the import (TODO: #9628 - remove
-   *     this param)
    * @return the rendered HTML content for the program data
    */
   public DomContent renderProgramData(
@@ -96,8 +94,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> duplicateQuestionNames,
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
-      String json,
-      boolean withDuplicates) {
+      String json) {
 
     boolean duplicateHandlingOptionsEnabled =
         settingsManifest.getImportDuplicateHandlingOptionsEnabled();
@@ -111,7 +108,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             updatedQuestionsMap,
             newToOldQuestionNameMap,
             duplicateQuestionNames,
-            withDuplicates,
             duplicateHandlingOptionsEnabled);
 
     DivTag programDiv =
@@ -120,7 +116,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             : renderProgramDivLegacyUi(program, questionAlert, updatedQuestionsMap);
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
 
-    if (withDuplicates && !duplicateHandlingOptionsEnabled && !updatedQuestionsMap.isEmpty()) {
+    if (!duplicateHandlingOptionsEnabled && !updatedQuestionsMap.isEmpty()) {
       questionsById =
           updatedQuestionsMap.values().stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -128,9 +124,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
     // If there are no questions in the program, the "questions" field will not be included in the
     // JSON and questions will be null here.
-    // With the legacy migration flag, or the new UI/duplicate-handling flag, we use the regular
-    // questions definition to construct this map.
-    if ((duplicateHandlingOptionsEnabled || !withDuplicates) && questions != null) {
+    // We use the regular questions definition to construct this map.
+    if (duplicateHandlingOptionsEnabled && questions != null) {
       questionsById =
           questions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -178,7 +173,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                   questionsById,
                   duplicateQuestionNames,
                   newToOldQuestionNameMap,
-                  withDuplicates,
                   duplicateHandlingOptionsEnabled));
     }
 
@@ -229,9 +223,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         programName
             + " and its questions have been imported to your program dashboard. To view it,  visit"
             + " the program dashboard.";
-    if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled()) {
-      successText += " Before you import another program, you will need to publish all drafts.";
-    }
     return div()
         .with(
             AlertComponent.renderFullAlert(
@@ -245,9 +236,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     asRedirectElement(
                             button("View program"),
                             routes.AdminProgramBlocksController.index(programId).url())
-                        .withClasses("usa-button", "mr-2"))
-                .condWith(
-                    !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(),
+                        .withClasses("usa-button", "mr-2"),
                     asRedirectElement(
                             button("Import another program"),
                             routes.AdminImportController.index().url())
@@ -268,7 +257,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
       ImmutableMap<String, String> newToOldQuestionNameMap,
       ImmutableList<String> duplicateQuestionNames,
-      boolean withDuplicates,
       boolean withDuplicateHandlingOptions) {
     int numDuplicateQuestions =
         withDuplicateHandlingOptions
@@ -304,7 +292,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       return AlertComponent.renderSlimAlert(
           alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
     }
-    if (withDuplicates || numNewQuestions > 0) {
+    if (numNewQuestions > 0) {
       alertMessage += "Importing this program will add ";
     }
 
@@ -312,18 +300,15 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       alertMessage += buildAlertWithNewQuestions(numNewQuestions);
 
       if (numDuplicateQuestions > 0) {
-        alertMessage += withDuplicates ? " and " : " to the question bank. ";
-      } else if (withDuplicates || numDuplicateQuestions == 0) {
+        alertMessage += " and ";
+      } else if (numDuplicateQuestions == 0) {
         alertMessage += " to the question bank.";
       }
     }
     if (numDuplicateQuestions > 0) {
       alertType = AlertType.WARNING;
-      if (withDuplicates) {
-        alertMessage += addDuplicateMessageToAlert(numDuplicateQuestions);
-      } else {
-        alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
-      }
+      alertMessage += addDuplicateMessageToAlert(numDuplicateQuestions);
+      alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
     }
 
     return AlertComponent.renderFullAlert(
@@ -364,7 +349,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ImmutableMap<Long, QuestionDefinition> questionsById,
       ImmutableList<String> duplicateQuestionNames,
       ImmutableMap<String, String> newToOldQuestionNameMap,
-      boolean withDuplicates,
       boolean withDuplicateHandlingOptions) {
     DivTag blockDiv =
         withDuplicateHandlingOptions
@@ -386,8 +370,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     questionsById)
                 : renderQuestion(
                     Objects.requireNonNull(questionsById.get(question.id())),
-                    newToOldQuestionNameMap,
-                    withDuplicates));
+                    newToOldQuestionNameMap));
       }
     }
 
@@ -395,18 +378,14 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   private DomContent renderQuestion(
-      QuestionDefinition question,
-      ImmutableMap<String, String> newToOldQuestionNameMap,
-      boolean withDuplicates) {
+      QuestionDefinition question, ImmutableMap<String, String> newToOldQuestionNameMap) {
     String currentAdminName = question.getName();
     boolean questionIsDuplicate =
         !currentAdminName.equals(newToOldQuestionNameMap.get(currentAdminName));
 
-    String duplicateOrExistingText = withDuplicates ? "DUPLICATE QUESTION" : "EXISTING QUESTION";
-
     DivTag newOrDuplicateIndicator =
         questionIsDuplicate
-            ? div(p(duplicateOrExistingText).withClass("p-2"))
+            ? div(p("DUPLICATE QUESTION").withClass("p-2"))
                 .withClasses("bg-yellow-100", "w-44", "flex", "justify-center")
             : div(p("NEW QUESTION").withClass("p-2"))
                 .withClasses("bg-cyan-100", "w-32", "flex", "justify-center");
