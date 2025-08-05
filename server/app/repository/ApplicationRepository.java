@@ -117,6 +117,7 @@ public final class ApplicationRepository {
                 applicant.id,
                 program.id);
             application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
+            applicant.getAccount().save();
           } else {
             throw new RuntimeException(
                 String.format(
@@ -277,7 +278,10 @@ public final class ApplicationRepository {
   CompletionStage<ApplicationModel> createOrUpdateDraft(
       ApplicantModel applicant, ProgramModel program) {
     return supplyAsync(
-        () -> createOrUpdateDraftApplicationInternal(applicant, program),
+        () -> {
+          applicant.getAccount().save();
+          return createOrUpdateDraftApplicationInternal(applicant, program);
+        },
         dbExecutionContext.current());
   }
 
