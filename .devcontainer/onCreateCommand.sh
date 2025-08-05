@@ -8,7 +8,4 @@ sudo apt update
 sudo apt install -y tmux
 
 # Install Playwright
-npm install --no-save @playwright/test
-
-# Avoid space issues on the codespace
-npm cache clean --force
+npm install --no-save --no-browsers @playwright/test
