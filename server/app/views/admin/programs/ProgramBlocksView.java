@@ -1104,7 +1104,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         "items-center",
                         "bg-transparent",
                         "text-black",
-                        "font-thin")
+                        "font-normal")
                     .withType("button")
                     .attr("aria-expanded", "false")
                     .attr("aria-controls", questionDefinition.getName() + "-visibility-content")
@@ -1133,7 +1133,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag visibilityContent =
         div()
             .withId(questionDefinition.getName() + "-visibility-content")
-            .withClasses("pl-14", "pb-2", "text-black", "font-thin")
+            .withClasses("pl-14", "pb-2")
             .with(
                 p("Edit related visibility conditions by clicking the below link(s):"),
                 editVisibilityList);
