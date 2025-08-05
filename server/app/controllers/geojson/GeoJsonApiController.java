@@ -4,6 +4,8 @@ import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
+import forms.MapQuestionForm;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -49,8 +51,17 @@ public final class GeoJsonApiController {
               geoJsonResponse
                   .features()
                   .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet()));
+              ImmutableList.Builder<MapQuestionForm.Setting> builder = ImmutableList.builder();
+              builder.add(new MapQuestionForm.Setting("", ""));
+              builder.add(new MapQuestionForm.Setting("", ""));
+              builder.add(new MapQuestionForm.Setting("", ""));
               MapQuestionSettingsPartialViewModel model =
-                  new MapQuestionSettingsPartialViewModel(possibleKeys);
+                  new MapQuestionSettingsPartialViewModel(
+                      new MapQuestionForm.Setting("", "Name"),
+                      new MapQuestionForm.Setting("", "Address"),
+                      new MapQuestionForm.Setting("", "URL"),
+                      builder.build(),
+                      possibleKeys);
               return ok(mapQuestionSettingsPartialView.render(request, model))
                   .as(Http.MimeTypes.HTML);
             })

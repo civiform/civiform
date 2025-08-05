@@ -1,40 +1,73 @@
 <div>
-  <label class="usa-label" for="name">Location name</label>
-  <div class="usa-combo-box">
-    <select class="usa-select" name="name" id="name">
-      <option value>Select a key</option>
-      <option
-        th:each="key: ${model.possibleKeys}"
-        th:value="${key}"
-        th:text="${key}"
-      ></option>
-    </select>
-  </div>
-  <label class="usa-label" for="address">Location address</label>
-  <div class="usa-combo-box">
-    <select class="usa-select" name="address" id="address">
-      <option value>Select a key</option>
-      <option
-        th:each="key: ${model.possibleKeys}"
-        th:value="${key}"
-        th:text="${key}"
-      ></option>
-    </select>
-  </div>
-  <label class="usa-label" for="url">Location details URL</label>
-  <div class="usa-combo-box">
-    <select class="usa-select" name="url" id="url">
-      <option value>Select a key</option>
-      <option
-        th:each="key: ${model.possibleKeys}"
-        th:value="${key}"
-        th:text="${key}"
-      ></option>
-    </select>
-  </div>
+  <label class="usa-label" for="locationName.key">Location name</label>
+  <select class="usa-select" name="locationName.key" id="locationName.key">
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationName.key}"
+    ></option>
+  </select>
+  <label class="usa-label" for="locationAddress.key">Location address</label>
+  <select
+    class="usa-select"
+    name="locationAddress.key"
+    id="locationAddress.key"
+  >
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationAddress.key}"
+    ></option>
+  </select>
+  <label class="usa-label" for="locationDetailsUrl.key"
+    >Location details URL</label
+  >
+  <select
+    class="usa-select"
+    name="locationDetailsUrl.key"
+    id="locationDetailsUrl.key"
+  >
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationDetailsUrl.key}"
+    ></option>
+  </select>
 
   <div>Filters</div>
   <div>Select up to three filters to make available to applicants.</div>
-
+  <div th:each="filter, i : ${model.filters}">
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
+      >Key</label
+    >
+    <select
+      class="usa-select"
+      th:name="'filters[' + ${i.index} + '].key'"
+      th:id="'filters[' + ${i.index} + '].key'"
+    >
+      <option value>Select a key</option>
+      <option
+        th:each="key: ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+        th:selected="${key == filter.key}"
+      ></option>
+    </select>
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
+      >Display Name</label
+    >
+    <input
+      class="usa-input"
+      th:id="'filters[' + ${i.index} + '].displayName'"
+      th:name="'filters[' + ${i.index} + '].displayName'"
+      th:value="${filter.displayName}"
+    />
+  </div>
   <div class="usa-button usa-button--outline">Add filter</div>
 </div>

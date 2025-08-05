@@ -27,12 +27,16 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
+import models.GeoJsonDataModel;
 import models.QuestionTag;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.GeoJsonDataRepository;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -74,6 +78,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private static final String NO_ENUMERATOR_ID_STRING = "";
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private enum FormMode {
     CREATE,
@@ -88,7 +93,10 @@ public final class QuestionEditView extends BaseHtmlView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
       QuestionPreview questionPreview,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      GeoJsonDataRepository geoJsonDataRepository) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
@@ -96,6 +104,9 @@ public final class QuestionEditView extends BaseHtmlView {
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionPreview = checkNotNull(questionPreview);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /** Render a fresh New Question Form. */
@@ -474,8 +485,6 @@ public final class QuestionEditView extends BaseHtmlView {
               .setAttribute("hx-target", "#geoJsonOutput")
               .setAttribute("hx-trigger", "change delay:1s")
               .getInputTag());
-      // TODO(#11001): Display question settings for map question if successful response.
-      // TODO(#11125): Display failure state for map question if bad response.
     }
 
     formTag.with(
@@ -488,8 +497,22 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
+    Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(
+                ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+            .toCompletableFuture()
+            .join();
+
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        QuestionConfig.buildQuestionConfig(
+            questionForm,
+            messages,
+            settingsManifest,
+            request,
+            templateEngine,
+            playThymeleafContextFactory,
+            maybeGeoJsonDataModel);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
