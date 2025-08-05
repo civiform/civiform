@@ -543,6 +543,26 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void updateDraftApplicationProgram_updatesAccountLastActivityTime() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ProgramModel programV1 = createActiveProgram("Program");
+
+    // Check the application points to program v1
+    ApplicationModel application =
+        repo.createOrUpdateDraft(applicant, programV1).toCompletableFuture().join();
+    assertThat(application.getProgram().id).isEqualTo(programV1.id);
+
+    // Update the application program v2
+    ProgramModel programV2 = createActiveProgram("Program");
+    repo.updateDraftApplicationProgram(applicant.id, programV2.id);
+
+    // Check if the account activity time has changed
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
+  }
+
+  @Test
   public void updateDraftApplicationProgram_throwIfProgramNotFound() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel programV1 = createActiveProgram("Program");
