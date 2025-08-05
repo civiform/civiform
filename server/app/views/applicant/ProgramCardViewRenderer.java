@@ -6,13 +6,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
-import static j2html.TagCreator.h4;
-import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
@@ -20,7 +17,6 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOG
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -35,7 +31,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -46,10 +41,8 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
-import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.ProgramImageUtils;
-import views.TranslationUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -119,14 +112,9 @@ public final class ProgramCardViewRenderer {
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
     if (sectionTitle.isPresent()) {
       div.with(
-          iffElse(
-              settingsManifest.getProgramFilteringEnabled(),
-              h2().withId(sectionHeaderId)
-                  .withText(messages.at(sectionTitle.get().getKeyName(), cards.size()))
-                  .withClasses("mb-4", "px-4", "text-xl", "font-semibold"),
-              h3().withId(sectionHeaderId)
-                  .withText(messages.at(sectionTitle.get().getKeyName()))
-                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE)));
+          h2().withId(sectionHeaderId)
+              .withText(messages.at(sectionTitle.get().getKeyName(), cards.size()))
+              .withClasses("mb-4", "px-4", "text-xl", "font-semibold"));
     }
     return div.with(
         ol().condAttr(sectionTitle.isPresent(), "aria-labelledby", sectionHeaderId)
@@ -144,8 +132,6 @@ public final class ProgramCardViewRenderer {
                             preferredLocale,
                             buttonTitle,
                             buttonSrText,
-                            sectionTitle.isPresent()
-                                && !settingsManifest.getProgramFilteringEnabled(),
                             bundle,
                             profile,
                             zoneId,
@@ -160,8 +146,6 @@ public final class ProgramCardViewRenderer {
    *     the card.
    * @param buttonSrText a message key for the screen reader text for the action button on the
    *     bottom of the card.
-   * @param nestedUnderSubheading true if this card appears under a heading (like "In Progress") and
-   *     false otherwise.
    */
   public LiTag createProgramCard(
       Http.Request request,
@@ -172,7 +156,6 @@ public final class ProgramCardViewRenderer {
       Locale preferredLocale,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
-      boolean nestedUnderSubheading,
       HtmlBundle bundle,
       Optional<CiviFormProfile> profile,
       ZoneId zoneId,
@@ -182,13 +165,9 @@ public final class ProgramCardViewRenderer {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     ContainerTag title =
-        nestedUnderSubheading
-            ? h4().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale))
-            : h3().withId(baseId + "-title")
-                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-                .withText(program.localizedName().getOrDefault(preferredLocale));
+        h3().withId(baseId + "-title")
+            .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+            .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
@@ -206,18 +185,6 @@ public final class ProgramCardViewRenderer {
         div()
             .withId(baseId + "-data")
             .withClasses("w-full", "px-4", "pt-4", "h-56", "overflow-auto");
-
-    if (cardData.latestSubmittedApplicationStatus().isPresent()
-        && !settingsManifest.getProgramFilteringEnabled()) {
-      programData.with(
-          programCardApplicationStatus(
-              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
-    }
-
-    if (shouldShowEligibilityTag(cardData) && !settingsManifest.getProgramFilteringEnabled()) {
-      programData.with(
-          eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
-    }
 
     programData.with(title, description);
 
@@ -241,19 +208,11 @@ public final class ProgramCardViewRenderer {
       programData.with(div(infoLink));
     }
 
-    if (cardData.latestSubmittedApplicationTime().isPresent()
-        && !settingsManifest.getProgramFilteringEnabled()) {
-      programData.with(
-          programCardSubmittedDate(
-              messages, cardData.latestSubmittedApplicationTime().get(), zoneId));
+    if (isInMyApplicationsSection) {
+      programData.with(programCardApplicationStatus(messages, preferredLocale, cardData));
     }
 
-    if (settingsManifest.getProgramFilteringEnabled() && isInMyApplicationsSection) {
-      programData.with(
-          programCardApplicationStatusWithFilteringEnabled(messages, preferredLocale, cardData));
-    }
-
-    if (shouldShowEligibilityTag(cardData) && settingsManifest.getProgramFilteringEnabled()) {
+    if (shouldShowEligibilityTag(cardData)) {
       programData.with(
           eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get(), profileUtils));
     }
@@ -295,7 +254,7 @@ public final class ProgramCardViewRenderer {
         .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM);
 
     DivTag categoriesDiv =
-        settingsManifest.getProgramFilteringEnabled() && !isInMyApplicationsSection
+        !isInMyApplicationsSection
             ? div()
                 .withClasses("flex", "flex-wrap", "gap-2", "mx-4", "mt-4")
                 .with(
@@ -308,28 +267,16 @@ public final class ProgramCardViewRenderer {
                                     category.getLocalizedName().getOrDefault(preferredLocale))))
             : div();
 
-    DivTag actionDiv =
-        settingsManifest.getProgramFilteringEnabled()
-            ? div(content).withClasses("mt-2", "mb-6", "mx-4", "flex")
-            : div(content).withClasses("mt-4", "mb-6", "flex", "items-center", "justify-center");
+    DivTag actionDiv = div(content).withClasses("mt-2", "mb-6", "mx-4", "flex");
     LiTag cardListItem =
         li().withId(baseId)
-            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
-            .condWith(
-                !settingsManifest.getProgramFilteringEnabled(),
-                // The visual bar at the top of each program card.
-                div()
-                    .withClasses(
-                        "block", "shrink-0", BaseStyles.BG_CIVIFORM_BLUE, "rounded-t-xl", "h-3"));
+            .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD);
 
     Optional<ImgTag> programImage =
         isInMyApplicationsSection
             ? Optional.empty()
             : programImageUtils.createProgramImage(
-                program,
-                preferredLocale,
-                /* isWithinProgramCard= */ true,
-                /* isProgramFilteringEnabled= */ settingsManifest.getProgramFilteringEnabled());
+                program, preferredLocale, /* isWithinProgramCard= */ true);
 
     programImage.ifPresent(cardListItem::with);
 
@@ -349,32 +296,6 @@ public final class ProgramCardViewRenderer {
   }
 
   private PTag programCardApplicationStatus(
-      Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses(
-            "border",
-            "rounded-full",
-            "px-2",
-            "py-1",
-            "mb-4",
-            "gap-x-2",
-            "inline-block",
-            "w-auto",
-            "bg-blue-100")
-        .with(
-            Icons.svg(Icons.INFO)
-                // 4.5 is 18px as defined in tailwind.config.js
-                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_CIVIFORM_BLUE),
-            span(String.format(
-                    "%s: %s",
-                    messages.at(MessageKey.TITLE_STATUS.getKeyName()),
-                    status.localizedStatusText().getOrDefault(preferredLocale)))
-                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_CIVIFORM_BLUE));
-  }
-
-  // TODO(#7610): Remove the method above this and rename this method to
-  // programCardApplicationStatus
-  //  once the program filtering feature flag is removed.
-  private PTag programCardApplicationStatusWithFilteringEnabled(
       Messages messages, Locale preferredLocale, ApplicantService.ApplicantProgramData cardData) {
     boolean isSubmitted = cardData.latestSubmittedApplicationTime().isPresent();
     boolean hasStatus = cardData.latestSubmittedApplicationStatus().isPresent();
@@ -429,52 +350,13 @@ public final class ProgramCardViewRenderer {
     String tagText =
         isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
 
-    return settingsManifest.getProgramFilteringEnabled()
-        ? p().withClasses(
-                tagClass, "border", "px-1", "mt-2", "flex", "items-center", "w-fit", color)
-            .with(
-                Icons.svg(icon)
-                    // 4.5 is 18px as defined in tailwind.config.js
-                    .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
-                span(messages.at(tagText)).withClasses("p-1", "text-xs", "font-medium", textColor))
-        : p().withClasses(
-                tagClass,
-                "border",
-                "rounded-full",
-                "px-2",
-                "py-1",
-                "mb-4",
-                "gap-x-2",
-                "inline-block",
-                "w-auto",
-                color)
-            .with(
-                Icons.svg(icon)
-                    // 4.5 is 18px as defined in tailwind.config.js
-                    .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
-                span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
-  }
-
-  private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate, ZoneId zoneId) {
-    TranslationUtils.TranslatedStringSplitResult translateResult =
-        TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
-    String beforeContent = translateResult.beforeInterpretedContent();
-    String afterContent = translateResult.afterInterpretedContent();
-
-    List<DomContent> submittedComponents = Lists.newArrayList();
-    if (!beforeContent.isEmpty()) {
-      submittedComponents.add(text(beforeContent));
-    }
-
-    String formattedSubmitTime = getFormattedSubmitDate(submittedDate, zoneId);
-    submittedComponents.add(
-        span(formattedSubmitTime).withClasses(ReferenceClasses.BT_DATE, "font-semibold"));
-
-    if (!afterContent.isEmpty()) {
-      submittedComponents.add(text(afterContent));
-    }
-
-    return div().withClasses("text-xs", "text-gray-700").with(submittedComponents);
+    return p().withClasses(
+            tagClass, "border", "px-1", "mt-2", "flex", "items-center", "w-fit", color)
+        .with(
+            Icons.svg(icon)
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
+            span(messages.at(tagText)).withClasses("p-1", "text-xs", "font-medium", textColor));
   }
 
   private String getFormattedSubmitDate(Instant submittedDate, ZoneId zoneId) {

@@ -236,7 +236,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
-            settingsManifest.getProgramFilteringEnabled() && !categoryOptions.isEmpty(),
+            !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
         // Program visibility
         fieldset(

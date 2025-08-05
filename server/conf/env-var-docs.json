@@ -905,11 +905,6 @@
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       },
-      "PROGRAM_FILTERING_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables filtering programs by category on the homepage",
-        "type": "bool"
-      },
       "CUSTOM_THEME_COLORS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enable using custom theme colors on North Star applicant UI.",
