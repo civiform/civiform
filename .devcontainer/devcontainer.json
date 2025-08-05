@@ -68,7 +68,7 @@
 
   "onCreateCommand": ".devcontainer/onCreateCommand.sh",
   "updateContentCommand": "bin/vscode-setup",
-  "postCreateCommand": "pip install requests && echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
+  "postCreateCommand": "pip install requests && echo 'export PATH=$PATH:/usr/bin' >> ~/.bashrc && echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc",
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [3390, 4566, 5432, 6645, 8888, 9000, 9100, 9999, 10000],
