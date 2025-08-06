@@ -14,6 +14,9 @@ import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+/**
+ * Form for {@link QuestionType#MAP} question configuration and settings.
+ */
 @Getter
 public class MapQuestionForm extends QuestionForm {
 
@@ -26,6 +29,14 @@ public class MapQuestionForm extends QuestionForm {
 
   private final List<String> DEFAULT_MAP_QUESTION_KEYS = Arrays.asList("Name", "Address", "URL");
 
+  public static final String LOCATION_NAME_DISPLAY = "Name";
+  public static final String LOCATION_ADDRESS_DISPLAY = "Address";
+  public static final String LOCATION_URL_DISPLAY = "URL";
+
+  /**
+   * Simple class for MAP question settings. Used for form processing
+   * and gets converted to {@link QuestionSetting} for database storage.
+   */
   @Getter
   @Setter
   public static final class Setting {
@@ -40,6 +51,18 @@ public class MapQuestionForm extends QuestionForm {
     public Setting(String key, String displayName) {
       this.key = key;
       this.displayName = displayName;
+    }
+
+    public static Setting emptySetting() {
+      return new Setting("", "");
+    }
+
+    public static Setting emptyKeyWithDisplayName(String displayName) {
+      return new Setting("", displayName);
+    }
+
+    public static List<Setting> emptyFilters() {
+      return Arrays.asList(emptySetting(), emptySetting(), emptySetting());
     }
   }
 
@@ -94,37 +117,38 @@ public class MapQuestionForm extends QuestionForm {
   }
 
   private void setFormWithDefaultQuestionSettings() {
-    this.locationName = new Setting("", "");
-    this.locationAddress = new Setting("", "");
-    this.locationDetailsUrl = new Setting("", "");
-    this.filters = Arrays.asList(new Setting("", ""), new Setting("", ""), new Setting("", ""));
+    this.locationName = Setting.emptySetting();
+    this.locationAddress = Setting.emptySetting();
+    this.locationDetailsUrl = Setting.emptySetting();
+    this.filters = Setting.emptyFilters();
   }
 
+  /** Converts persistent {@link QuestionSetting} back to form {@link Setting} for editing. */
   private void setFormWithQuestionSettings(List<QuestionSetting> settings) {
     this.locationName =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals("Name"))
+            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_NAME_DISPLAY))
             .findFirst()
             .map(
                 setting ->
                     new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
-            .orElse(new Setting("", ""));
+            .orElse(Setting.emptySetting());
     this.locationAddress =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals("Address"))
+            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_ADDRESS_DISPLAY))
             .findFirst()
             .map(
                 setting ->
                     new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
-            .orElse(new Setting("", ""));
+            .orElse(Setting.emptySetting());
     this.locationDetailsUrl =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals("URL"))
+            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_URL_DISPLAY))
             .findFirst()
             .map(
                 setting ->
                     new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
-            .orElse(new Setting("", ""));
+            .orElse(Setting.emptySetting());
 
     this.filters =
         settings.stream()
@@ -137,19 +161,20 @@ public class MapQuestionForm extends QuestionForm {
             .collect(Collectors.toList());
   }
 
+  /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
   private ImmutableList<QuestionSetting> buildQuestionSettings() {
     ImmutableList.Builder<QuestionSetting> builder = ImmutableList.builder();
 
     builder.add(
-        QuestionSetting.create(getLocationName().key, LocalizedStrings.withDefaultValue("Name")));
+        QuestionSetting.create(getLocationName().key, LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
 
     builder.add(
         QuestionSetting.create(
-            getLocationAddress().getKey(), LocalizedStrings.withDefaultValue("Address")));
+            getLocationAddress().getKey(), LocalizedStrings.withDefaultValue(LOCATION_ADDRESS_DISPLAY)));
 
     builder.add(
         QuestionSetting.create(
-            getLocationDetailsUrl().getKey(), LocalizedStrings.withDefaultValue("URL")));
+            getLocationDetailsUrl().getKey(), LocalizedStrings.withDefaultValue(LOCATION_URL_DISPLAY)));
 
     for (Setting filter : getFilters()) {
       if (isValidSetting(filter)) {

@@ -15,4 +15,16 @@ public record MapQuestionSettingsPartialViewModel(
     MapQuestionForm.Setting locationDetailsUrl,
     List<MapQuestionForm.Setting> filters,
     Set<String> possibleKeys)
-    implements BaseViewModel {}
+    implements BaseViewModel {
+
+  /** Creates an empty MapQuestionSettingsPartialViewModel with default placeholders. */
+  public static MapQuestionSettingsPartialViewModel withEmptyDefaults(Set<String> possibleKeys) {
+    return new MapQuestionSettingsPartialViewModel(
+        OptionalInt.empty(),
+        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_NAME_DISPLAY),
+        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_ADDRESS_DISPLAY),
+        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_URL_DISPLAY),
+        MapQuestionForm.Setting.emptyFilters(),
+        possibleKeys);
+  }
+}
