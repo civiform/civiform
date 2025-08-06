@@ -60,7 +60,8 @@ public class ProgramBaseViewTest {
                 predicateDefinition,
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
-                /* includeEditFooter= */ false);
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
@@ -90,7 +91,8 @@ public class ProgramBaseViewTest {
                 predicateDefinition,
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
-                /* includeEditFooter= */ true);
+                /* includeEditFooter= */ true,
+                /* expanded= */ false);
 
     assertThat(result.render()).contains("Edit visibility conditions");
   }
@@ -133,7 +135,8 @@ public class ProgramBaseViewTest {
                 predicateDefinition,
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
-                /* includeEditFooter= */ false);
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
@@ -201,7 +204,8 @@ public class ProgramBaseViewTest {
                 predicateDefinition,
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
-                /* includeEditFooter= */ false);
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
