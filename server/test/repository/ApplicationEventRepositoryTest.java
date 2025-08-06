@@ -45,6 +45,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
     ApplicationEventModel insertedEvent = repo.insertAndRefreshSync(event);
+
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -90,6 +91,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
+    Instant activitytimeBeforeUpdate = actor.getLastActivityTime();
     ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
 
@@ -147,6 +149,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // events
     assertThat(application2.getStatusLastModifiedTime().get())
         .isEqualTo(insertedEvent1.getCreateTime());
+    Instant activitytimeAfterUpdate = actor.getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
@@ -306,6 +310,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
+    Instant activitytimeBeforeUpdate = actor.getLastActivityTime();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -325,6 +330,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
+    Instant activitytimeAfterUpdate = actor.getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
