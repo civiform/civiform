@@ -1194,7 +1194,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               "External Services",
               SettingsSection.create(
                   "External Services",
-                  "",
+                  "Configures connections to external services the CiviForm server relies on.",
                   ImmutableList.of(
                       SettingsSection.create(
                           "Applicant Identity Provider",
