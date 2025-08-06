@@ -74,12 +74,14 @@ public final class QuestionEditView extends BaseHtmlView {
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
   private final QuestionPreview questionPreview;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final TemplateEngine templateEngine;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
-  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private enum FormMode {
     CREATE,
