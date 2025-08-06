@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
@@ -28,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.thymeleaf.TemplateEngine;
-import play.api.mvc.request.RequestAttrKey;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -36,7 +34,6 @@ import services.question.types.DateQuestionDefinition.DateValidationOption.DateT
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
-import views.CspUtil;
 import views.admin.questions.MapQuestionSettingsPartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
@@ -56,7 +53,8 @@ public class QuestionConfigTest {
     request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
     playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
     when(settingsManifest.getDateValidationEnabled(request)).thenReturn(true);
-    when(playThymeleafContextFactory.create(request)).thenReturn(new ThymeleafModule.PlayThymeleafContext());
+    when(playThymeleafContextFactory.create(request))
+        .thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
 
   @Test
@@ -79,9 +77,7 @@ public class QuestionConfigTest {
               .build();
       MapQuestionSettingsPartialView view =
           new MapQuestionSettingsPartialView(
-              mock(TemplateEngine.class),
-              playThymeleafContextFactory,
-              settingsManifest);
+              mock(TemplateEngine.class), playThymeleafContextFactory, settingsManifest);
 
       Optional<DivTag> mapConfig = QuestionConfig.buildQuestionConfig(request, view, model);
       assertThat(mapConfig).isPresent();
