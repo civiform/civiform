@@ -145,7 +145,8 @@ public class MapQuestionForm extends QuestionForm {
     this.locationDetailsUrl =
         settings.stream()
             .filter(
-                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_DETAILS_URL_DISPLAY))
+                setting ->
+                    setting.settingDisplayName().getDefault().equals(LOCATION_DETAILS_URL_DISPLAY))
             .findFirst()
             .map(
                 setting ->

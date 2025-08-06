@@ -23,7 +23,8 @@ public record MapQuestionSettingsPartialViewModel(
         OptionalInt.empty(),
         MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_NAME_DISPLAY),
         MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_ADDRESS_DISPLAY),
-        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY),
+        MapQuestionForm.Setting.emptyKeyWithDisplayName(
+            MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY),
         MapQuestionForm.Setting.emptyFilters(),
         possibleKeys);
   }
