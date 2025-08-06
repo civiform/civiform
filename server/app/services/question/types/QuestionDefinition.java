@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -68,6 +69,11 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
+  }
+
+  @JsonIgnore
+  public QuestionDisplayMode getDisplayMode() {
+    return config.displayMode();
   }
 
   /**

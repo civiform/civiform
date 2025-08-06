@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
@@ -160,6 +161,11 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setConcurrencyToken(UUID concurrencyToken) {
     builder.setConcurrencyToken(concurrencyToken);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setDisplayMode(QuestionDisplayMode displayMode) {
+    builder.setDisplayMode(displayMode);
     return this;
   }
 
