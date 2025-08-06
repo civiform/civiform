@@ -116,14 +116,15 @@ public final class ProgramCardFactory {
                                 span("Visibility state: ").withClasses("font-semibold"),
                                 span(displayProgram.displayMode().visibilityState))
                             .withClasses(
-                                "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4")),
-                p(
-                        span("Categories:  ").withClasses("font-semibold"),
-                        iffElse(
-                            programCategoryNames.isEmpty(),
-                            span("None"),
-                            span(String.join(", ", programCategoryNames))))
-                    .withClasses("text-sm", StyleUtils.responsiveLarge("text-base")),
+                                "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
+                    .with(
+                        p(
+                                span("Categories:  ").withClasses("font-semibold"),
+                                iffElse(
+                                    programCategoryNames.isEmpty(),
+                                    span("None"),
+                                    span(String.join(", ", programCategoryNames))))
+                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base"))),
                 statusDiv.withClasses(
                     "flex-grow", "text-sm", StyleUtils.responsiveLarge("text-base")));
 
