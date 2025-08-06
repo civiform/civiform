@@ -4,11 +4,6 @@ import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
-import com.google.common.collect.ImmutableList;
-import forms.MapQuestionForm;
-import java.util.HashSet;
-import java.util.OptionalInt;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -47,8 +42,12 @@ public final class GeoJsonApiController {
     return geoJsonClient
         .fetchGeoJson(geoJsonEndpoint)
         .thenApplyAsync(
-            geoJsonResponse -> ok(mapQuestionSettingsPartialView.render(request, MapQuestionSettingsPartialViewModel.withEmptyDefaults(geoJsonResponse.getPossibleKeys())))
-                  .as(Http.MimeTypes.HTML))
+            geoJsonResponse ->
+                ok(mapQuestionSettingsPartialView.render(
+                        request,
+                        MapQuestionSettingsPartialViewModel.withEmptyDefaults(
+                            geoJsonResponse.getPossibleKeys())))
+                    .as(Http.MimeTypes.HTML))
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);

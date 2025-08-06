@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import models.GeoJsonDataModel;
 import models.QuestionTag;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -533,12 +532,13 @@ public final class QuestionEditView extends BaseHtmlView {
       SettingsManifest settingsManifest,
       Request request) {
     if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      Set<String> possibleKeys = geoJsonDataRepository
-          .getMostRecentGeoJsonDataRowForEndpoint(
-              ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-          .join()
-          .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
-          .orElse(new HashSet<>());
+      Set<String> possibleKeys =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .join()
+              .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+              .orElse(new HashSet<>());
 
       return QuestionConfig.buildQuestionConfig(
           request,

@@ -231,8 +231,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    * Renders the template as raw HTML for embedding in j2html components.
    *
    * <p><strong>Security Note:</strong> This method assumes the template content has been properly
-   * validated and sanitized. Only use with trusted Thymeleaf templates that properly escape
-   * dynamic content.
+   * validated and sanitized. Only use with trusted Thymeleaf templates that properly escape dynamic
+   * content.
    *
    * @param request Current Play HTTP request
    * @param model Model class implementing the {@link BaseViewModel} interface

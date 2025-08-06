@@ -31,7 +31,7 @@ public record FeatureCollection(
 
   /**
    * Extracts all unique property keys from all features in this collection.
-   * 
+   *
    * @return set of all possible property keys found across all features
    */
   public Set<String> getPossibleKeys() {

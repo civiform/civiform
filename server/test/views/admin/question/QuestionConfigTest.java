@@ -62,19 +62,21 @@ public class QuestionConfigTest {
     }
     if (questionType == QuestionType.MAP) {
       // Test the BaseView overload for MAP questions
-      MapQuestionSettingsPartialViewModel model = MapQuestionSettingsPartialViewModel.builder()
-          .maxLocationSelections(OptionalInt.of(5))
-          .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
-          .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
-          .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
-          .filters(ImmutableList.of())
-          .possibleKeys(Set.of("name_key", "address_key", "url_key"))
-          .build();
-      MapQuestionSettingsPartialView view = new MapQuestionSettingsPartialView(
-          mock(TemplateEngine.class),
-          mock(ThymeleafModule.PlayThymeleafContextFactory.class),
-          settingsManifest);
-      
+      MapQuestionSettingsPartialViewModel model =
+          MapQuestionSettingsPartialViewModel.builder()
+              .maxLocationSelections(OptionalInt.of(5))
+              .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
+              .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
+              .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
+              .filters(ImmutableList.of())
+              .possibleKeys(Set.of("name_key", "address_key", "url_key"))
+              .build();
+      MapQuestionSettingsPartialView view =
+          new MapQuestionSettingsPartialView(
+              mock(TemplateEngine.class),
+              mock(ThymeleafModule.PlayThymeleafContextFactory.class),
+              settingsManifest);
+
       Optional<DivTag> mapConfig = QuestionConfig.buildQuestionConfig(request, view, model);
       assertThat(mapConfig).isPresent();
       assertThat(mapConfig.get().renderFormatted()).contains("Maximum location selections");
