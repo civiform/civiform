@@ -29,6 +29,7 @@ fi
 
 
 # Copy the file to the local directory using the dynamic path.
+echo "Copying POM file from container path: $POM_PATH"
 docker::compose_dev --profile shell cp "civiform:${POM_PATH}" server/pom.xml
 
 BUILD=$(
