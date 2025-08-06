@@ -19,7 +19,6 @@ import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
-import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -29,12 +28,8 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.Set;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.LocalizedStrings;
@@ -43,9 +38,10 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
-import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
+import views.admin.BaseView;
+import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -125,6 +121,9 @@ public final class QuestionConfig {
                     .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
                     .getContainer())
             : Optional.empty();
+      case MAP:
+        // MAP question configuration is handled in QuestionEditView.getQuestionConfig
+        return Optional.empty();
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
@@ -134,28 +133,9 @@ public final class QuestionConfig {
     }
   }
 
-  public static Optional<DivTag> buildQuestionConfig(
-      QuestionForm questionForm,
-      Messages messages,
-      SettingsManifest settingsManifest,
-      Request request,
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      Set<String> possibleKeys) {
-    QuestionConfig config = new QuestionConfig();
-    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      return Optional.of(
-          config
-              .addMapQuestionConfig(
-                  (MapQuestionForm) questionForm,
-                  new MapQuestionSettingsPartialView(
-                      templateEngine, playThymeleafContextFactory, settingsManifest),
-                  request,
-                  possibleKeys)
-              .getContainer());
-    }
-
-    return buildQuestionConfig(questionForm, messages, settingsManifest, request);
+  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfig(
+      Request request, BaseView<TModel> view, TModel model) {
+    return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
   }
 
   private QuestionConfig addPhoneConfig() {
@@ -674,37 +654,11 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMapQuestionConfig(
-      MapQuestionForm mapQuestionForm,
-      MapQuestionSettingsPartialView mapQuestionSettingsPartialView,
-      Request request,
-      Set<String> possibleKeys) {
+  private <TModel extends BaseViewModel> QuestionConfig addConfig(
+      Request request, BaseView<TModel> view, TModel model) {
 
-    content.with(
-        FieldWithLabel.number()
-            .setFieldName("maxLocationSelections")
-            .setLabelText("Maximum location selections")
-            .setRequired(true)
-            .setMin(OptionalLong.of(1L))
-            .setValue(mapQuestionForm.getMaxLocationSelections())
-            .getNumberTag());
-
-    content.with(
-        rawHtml(
-            mapQuestionSettingsPartialView.render(
-                request, getMapQuestionSettingsPartialViewModel(mapQuestionForm, possibleKeys))));
+    content.with(view.renderAsRawHtml(request, model));
     return this;
-  }
-
-  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
-      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
-    MapQuestionForm.Setting locationName = mapQuestionForm.getLocationName();
-    MapQuestionForm.Setting locationAddress = mapQuestionForm.getLocationAddress();
-    MapQuestionForm.Setting locationDetailsUrl = mapQuestionForm.getLocationDetailsUrl();
-    List<MapQuestionForm.Setting> filters = mapQuestionForm.getFilters();
-
-    return new MapQuestionSettingsPartialViewModel(
-        locationName, locationAddress, locationDetailsUrl, filters, possibleKeys);
   }
 
   private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {

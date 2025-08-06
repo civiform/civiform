@@ -7,6 +7,7 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import forms.MapQuestionForm;
 import java.util.HashSet;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -57,6 +58,7 @@ public final class GeoJsonApiController {
               builder.add(new MapQuestionForm.Setting("", ""));
               MapQuestionSettingsPartialViewModel model =
                   new MapQuestionSettingsPartialViewModel(
+                      OptionalInt.empty(),
                       new MapQuestionForm.Setting("", "Name"),
                       new MapQuestionForm.Setting("", "Address"),
                       new MapQuestionForm.Setting("", "URL"),

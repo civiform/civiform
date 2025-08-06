@@ -1,4 +1,12 @@
 <div id="geoJsonOutput">
+  <label for="maxLocationSelections">Maximum location selections</label
+  ><input
+    class="usa-input"
+    name="maxLocationSelections"
+    id="maxLocationSelections"
+    type="number"
+    th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
+  />
   <label class="usa-label" for="locationName.key">Location name</label>
   <select class="usa-select" name="locationName.key" id="locationName.key">
     <option value>Select a key</option>

@@ -11,24 +11,31 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.CheckboxQuestionForm;
 import forms.DateQuestionForm;
+import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import views.admin.questions.MapQuestionSettingsPartialView;
+import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -51,6 +58,26 @@ public class QuestionConfigTest {
   public void resultForAllQuestions(QuestionType questionType) throws Exception {
     // A null question type is not allowed to be created and won't show in the list
     if (questionType == QuestionType.NULL_QUESTION) {
+      return;
+    }
+    if (questionType == QuestionType.MAP) {
+      // Test the BaseView overload for MAP questions
+      MapQuestionSettingsPartialViewModel model = MapQuestionSettingsPartialViewModel.builder()
+          .maxLocationSelections(OptionalInt.of(5))
+          .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
+          .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
+          .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
+          .filters(ImmutableList.of())
+          .possibleKeys(Set.of("name_key", "address_key", "url_key"))
+          .build();
+      MapQuestionSettingsPartialView view = new MapQuestionSettingsPartialView(
+          mock(TemplateEngine.class),
+          mock(ThymeleafModule.PlayThymeleafContextFactory.class),
+          settingsManifest);
+      
+      Optional<DivTag> mapConfig = QuestionConfig.buildQuestionConfig(request, view, model);
+      assertThat(mapConfig).isPresent();
+      assertThat(mapConfig.get().renderFormatted()).contains("Maximum location selections");
       return;
     }
 
@@ -103,10 +130,6 @@ public class QuestionConfigTest {
       case ID:
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
-        break;
-      case MAP:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Maximum location selections");
         break;
       case NAME:
         assertThat(maybeConfig).isEmpty();
