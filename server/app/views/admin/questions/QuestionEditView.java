@@ -25,8 +25,10 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import models.GeoJsonDataModel;
 import models.QuestionTag;
 import modules.ThymeleafModule;
@@ -472,7 +474,22 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
+    Set<String> possibleKeys = new HashSet<>();
     if (questionType.equals(QuestionType.MAP)) {
+      Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .toCompletableFuture()
+              .join();
+
+      maybeGeoJsonDataModel.ifPresent(
+          geoJsonDataModel ->
+              geoJsonDataModel
+                  .getGeoJson()
+                  .features()
+                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet())));
+
       formTag.with(
           FieldWithLabel.input()
               .setFieldName("geoJsonEndpoint")
@@ -497,12 +514,6 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
-        geoJsonDataRepository
-            .getMostRecentGeoJsonDataRowForEndpoint(
-                ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-            .toCompletableFuture()
-            .join();
 
     Optional<DivTag> questionConfig =
         QuestionConfig.buildQuestionConfig(
@@ -512,7 +523,7 @@ public final class QuestionEditView extends BaseHtmlView {
             request,
             templateEngine,
             playThymeleafContextFactory,
-            maybeGeoJsonDataModel);
+            possibleKeys);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
