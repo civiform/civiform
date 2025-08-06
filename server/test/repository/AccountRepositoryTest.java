@@ -111,7 +111,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "", "2020-10-10");
     assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("John");
-    assertThat(applicantUpdateTest.getMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getMiddleName()).isEmpty()
     assertThat(applicantUpdateTest.getLastName()).isEmpty();
     assertThat(applicantUpdateTest.getSuffix()).isEmpty();
   }
