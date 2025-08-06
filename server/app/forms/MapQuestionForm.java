@@ -29,7 +29,7 @@ public class MapQuestionForm extends QuestionForm {
 
   public static final String LOCATION_NAME_DISPLAY = "Name";
   public static final String LOCATION_ADDRESS_DISPLAY = "Address";
-  public static final String LOCATION_URL_DISPLAY = "URL";
+  public static final String LOCATION_DETAILS_URL_DISPLAY = "URL";
 
   /**
    * Simple class for MAP question settings. Used for form processing and gets converted to {@link
@@ -145,7 +145,7 @@ public class MapQuestionForm extends QuestionForm {
     this.locationDetailsUrl =
         settings.stream()
             .filter(
-                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_URL_DISPLAY))
+                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_DETAILS_URL_DISPLAY))
             .findFirst()
             .map(
                 setting ->
@@ -179,7 +179,7 @@ public class MapQuestionForm extends QuestionForm {
     builder.add(
         QuestionSetting.create(
             getLocationDetailsUrl().getKey(),
-            LocalizedStrings.withDefaultValue(LOCATION_URL_DISPLAY)));
+            LocalizedStrings.withDefaultValue(LOCATION_DETAILS_URL_DISPLAY)));
 
     for (Setting filter : getFilters()) {
       if (isValidSetting(filter)) {

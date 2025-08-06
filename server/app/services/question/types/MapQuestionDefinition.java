@@ -41,6 +41,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       }
     }
 
+    // TODO(#11199): Add validation for required fields (location name, address, details URL), num of filters, and require display names for each filter
     return errors.build();
   }
 

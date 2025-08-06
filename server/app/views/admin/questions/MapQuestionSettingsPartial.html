@@ -1,3 +1,4 @@
+<!-- TODO(#11161): Update styling to match design specifications -->
 <div id="geoJsonOutput">
   <label for="maxLocationSelections">Maximum location selections</label
   ><input
@@ -50,6 +51,7 @@
 
   <div>Filters</div>
   <div>Select up to three filters to make available to applicants.</div>
+  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
   <div th:each="filter, i : ${model.filters}">
     <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
       >Key</label
@@ -77,5 +79,6 @@
       th:value="${filter.displayName}"
     />
   </div>
+  <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
   <div class="usa-button usa-button--outline">Add filter</div>
 </div>
