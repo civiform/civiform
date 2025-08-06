@@ -17,7 +17,7 @@ import services.program.predicate.OrNode;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
-import services.program.predicate.PredicateType;
+import services.program.predicate.PredicateUseCase;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
@@ -59,7 +59,7 @@ public class ProgramBaseViewTest {
                 BLOCK_NAME,
                 predicateDefinition,
                 questionDefinitions,
-                PredicateType.VISIBILITY,
+                PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false);
 
     assertThat(result.render())
@@ -89,7 +89,7 @@ public class ProgramBaseViewTest {
                 BLOCK_NAME,
                 predicateDefinition,
                 questionDefinitions,
-                PredicateType.VISIBILITY,
+                PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ true);
 
     assertThat(result.render()).contains("Edit visibility conditions");
@@ -132,7 +132,7 @@ public class ProgramBaseViewTest {
                 BLOCK_NAME,
                 predicateDefinition,
                 questionDefinitions,
-                PredicateType.VISIBILITY,
+                PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false);
 
     assertThat(result.render())
@@ -200,7 +200,7 @@ public class ProgramBaseViewTest {
                 BLOCK_NAME,
                 predicateDefinition,
                 questionDefinitions,
-                PredicateType.VISIBILITY,
+                PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false);
 
     assertThat(result.render())

@@ -27,7 +27,7 @@ import models.CategoryModel;
 import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateType;
+import services.program.predicate.PredicateUseCase;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
@@ -127,40 +127,37 @@ abstract class ProgramBaseView extends BaseHtmlView {
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
+  /** Renders a div actively indicating there is no predicate condition for the admin. */
   protected final DivTag renderEmptyPredicate(
-      PredicateType predicateType, long programId, long blockId, boolean includeEditFooter) {
+      PredicateUseCase predicateUseCase, long programId, long blockId, boolean includeEditFooter) {
     DivTag emptyPredicateStatus =
         div().withClasses("border", "border-gray-200", "p-4", "usa-prose", "my-2");
-    DivTag description = div();
-    if (predicateType == PredicateType.ELIGIBILITY) {
-      description.withText("This screen is always eligible.");
-    } else if (predicateType == PredicateType.VISIBILITY) {
-      description.withText("This screen is always shown.");
+    String message =
+        switch (predicateUseCase) {
+          case ELIGIBILITY -> "This screen does not have any eligibility conditions.";
+          case VISIBILITY -> "This screen is always shown.";
+        };
+    emptyPredicateStatus.with(div().withText(message));
+
+    if (!includeEditFooter) {
+      return emptyPredicateStatus;
     }
-
-    emptyPredicateStatus.with(description);
-
-    if (includeEditFooter) {
-      ATag editLink = a().withClasses("usa-link");
-      if (predicateType == PredicateType.ELIGIBILITY) {
-        editLink
-            .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK)
-            .withHref(
-                routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
-                    .url())
-            .withText("Add eligibility conditions");
-      } else if (predicateType == PredicateType.VISIBILITY) {
-        editLink
-            .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK)
-            .withHref(
-                routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId)
-                    .url())
-            .withText("Add visibility conditions");
-      }
-      emptyPredicateStatus.with(div().with(editLink));
+    ATag editLink = a().withClasses("usa-link");
+    if (predicateUseCase == PredicateUseCase.ELIGIBILITY) {
+      editLink
+          .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK)
+          .withHref(
+              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+                  .url())
+          .withText("Add eligibility conditions");
+    } else if (predicateUseCase == PredicateUseCase.VISIBILITY) {
+      editLink
+          .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK)
+          .withHref(
+              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId).url())
+          .withText("Add visibility conditions");
     }
-
-    return emptyPredicateStatus;
+    return emptyPredicateStatus.with(div().with(editLink));
   }
 
   /** Renders a div presenting the predicate definition for the admin. */
@@ -170,8 +167,9 @@ abstract class ProgramBaseView extends BaseHtmlView {
       String blockName,
       PredicateDefinition predicateDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions,
-      PredicateType predicateType,
-      boolean includeEditFooter) {
+      PredicateUseCase predicateUseCase,
+      boolean includeEditFooter,
+      boolean expanded) {
     DivTag header =
         div()
             .with(
@@ -186,23 +184,24 @@ abstract class ProgramBaseView extends BaseHtmlView {
                         "font-normal",
                         "bg-transparent")
                     .withType("button")
-                    .attr("aria-expanded", "false")
+                    .attr("aria-expanded", expanded)
                     .attr(
-                        "aria-controls", predicateType.name().toLowerCase(Locale.ROOT) + "-content")
+                        "aria-controls",
+                        predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
                     .condWith(
-                        predicateType == PredicateType.VISIBILITY,
+                        predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                        p("This screen has eligibility conditions.").withClass("flex-grow"))
+                    .condWith(
+                        predicateUseCase == PredicateUseCase.VISIBILITY,
                         Icons.svg(Icons.VISIBILITY_OFF).withClasses("w-6", "h-5", "shrink-0"),
-                        p("This screen has visibility conditions.").withClass("flex-grow"))
-                    .condWith(
-                        predicateType == PredicateType.ELIGIBILITY,
-                        p("This screen has eligibility conditions.").withClass("flex-grow")));
+                        p("This screen has visibility conditions.").withClass("flex-grow")));
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
             blockName, predicateDefinition, questionDefinitions);
     DivTag content =
         div()
-            .withId(predicateType.name().toLowerCase(Locale.ROOT) + "-content")
+            .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
             .withClasses("prose-body", "px-4", "pb-4")
             .with(text(readablePredicate.heading()));
     if (readablePredicate.conditionList().isPresent()) {
@@ -224,32 +223,31 @@ abstract class ProgramBaseView extends BaseHtmlView {
                 StyleUtils.hover("text-gray-800", "bg-gray-100"))
             .with(header, content);
 
-    if (includeEditFooter) {
-      DivTag footer =
-          div()
-              .withClasses("prose-body", "px-4", "pb-4")
-              .condWith(
-                  predicateType == PredicateType.VISIBILITY,
-                  a().withHref(
-                          routes.AdminProgramBlockPredicatesController.editVisibility(
-                                  programId, blockId)
-                              .url())
-                      .withText("Edit visibility conditions")
-                      .withClasses("usa-link")
-                      .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK))
-              .condWith(
-                  predicateType == PredicateType.ELIGIBILITY,
-                  a().withHref(
-                          routes.AdminProgramBlockPredicatesController.editEligibility(
-                                  programId, blockId)
-                              .url())
-                      .withText("Edit eligibility conditions")
-                      .withClasses("usa-link")
-                      .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK));
-      container.with(footer);
+    if (!includeEditFooter) {
+      return container;
     }
-
-    return container;
+    DivTag footer =
+        div()
+            .withClasses("prose-body", "px-4", "pb-4")
+            .condWith(
+                predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                a().withHref(
+                        routes.AdminProgramBlockPredicatesController.editEligibility(
+                                programId, blockId)
+                            .url())
+                    .withText("Edit eligibility conditions")
+                    .withClasses("usa-link")
+                    .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK))
+            .condWith(
+                predicateUseCase == PredicateUseCase.VISIBILITY,
+                a().withHref(
+                        routes.AdminProgramBlockPredicatesController.editVisibility(
+                                programId, blockId)
+                            .url())
+                    .withText("Edit visibility conditions")
+                    .withClasses("usa-link")
+                    .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK));
+    return container.with(footer);
   }
 
   private ButtonTag renderHeaderButton(

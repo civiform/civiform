@@ -48,7 +48,7 @@ import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateType;
+import services.program.predicate.PredicateUseCase;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -659,7 +659,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (predicate.isEmpty()) {
       return div.with(
           renderEmptyPredicate(
-              PredicateType.VISIBILITY, programId, blockId, viewAllowsEditingProgram()));
+              PredicateUseCase.VISIBILITY,
+              programId,
+              blockId,
+              /* includeEditFooter= */ viewAllowsEditingProgram()));
     } else {
       return div.with(
           renderExistingPredicate(
@@ -668,8 +671,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
               blockName,
               predicate.get(),
               questions,
-              PredicateType.VISIBILITY,
-              viewAllowsEditingProgram()));
+              PredicateUseCase.VISIBILITY,
+              /* includeEditFooter= */ viewAllowsEditingProgram(),
+              /* expanded= */ false));
     }
   }
 
@@ -691,7 +695,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (predicate.isEmpty()) {
       return div.with(
           renderEmptyPredicate(
-              PredicateType.ELIGIBILITY, program.id(), blockId, viewAllowsEditingProgram()));
+              PredicateUseCase.ELIGIBILITY,
+              program.id(),
+              blockId,
+              /* includeEditFooter= */ viewAllowsEditingProgram()));
     } else {
       return div.with(
           renderExistingPredicate(
@@ -700,8 +707,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
               blockName,
               predicate.get().predicate(),
               questions,
-              PredicateType.ELIGIBILITY,
-              viewAllowsEditingProgram()));
+              PredicateUseCase.ELIGIBILITY,
+              /* includeEditFooter= */ viewAllowsEditingProgram(),
+              /* expanded= */ false));
     }
   }
 

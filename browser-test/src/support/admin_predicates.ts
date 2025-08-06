@@ -197,13 +197,7 @@ export class AdminPredicates {
     }
   }
 
-  async expectPredicateDisplayTextContains(
-    predicateType: 'visibility' | 'eligibility',
-    condition: string,
-  ) {
-    await this.page.click(
-      `button:has-text("This screen has ${predicateType} ")`,
-    )
+  async expectPredicateDisplayTextContains(condition: string) {
     expect(await this.page.innerText('.cf-display-predicate')).toContain(
       condition,
     )
