@@ -21,7 +21,7 @@ import repository.DatabaseExecutionContext;
 import repository.SettingsGroupRepository;
 
 @Singleton
-public final class SettingsCache {
+public final class SettingsCache implements SettingsGetter {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsCache.class);
 
@@ -53,6 +53,7 @@ public final class SettingsCache {
       DatabaseExecutionContext dbExecutionContext,
       Database database,
       ApplicationLifecycle lifecycle) {
+    logger.trace("Initiaizing the Settings Cache");
     this.repo = repo;
     this.dbExecutionContext = dbExecutionContext;
     this.database = database;
@@ -74,6 +75,7 @@ public final class SettingsCache {
   }
 
   /** Returns the current cached settings (may be empty if none yet). */
+  @Override
   public Optional<SettingsGroupModel> get() {
     return cache;
   }
@@ -84,7 +86,7 @@ public final class SettingsCache {
         .whenCompleteAsync(
             (freshOpt, ex) -> {
               if (ex != null) {
-                logger.error("SettingsCache reload failed", ex);
+                logger.warn("SettingsCache reload failed", ex);
               } else if (freshOpt.isPresent()) {
                 cache = freshOpt;
                 logger.debug("SettingsCache reloaded from DB");
