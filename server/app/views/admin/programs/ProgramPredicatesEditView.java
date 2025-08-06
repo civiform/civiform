@@ -126,7 +126,14 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                     predicateUseCase,
                                     /* includeEditFooter= */ false,
                                     /* expanded= */ true)))
-                .orElse(div("This screen is always eligible."));
+                .orElse(
+                    div()
+                        .with(
+                            renderEmptyPredicate(
+                                predicateUseCase,
+                                programDefinition.id(),
+                                blockDefinition.id(),
+                                /* includeEditFooter= */ false)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
                     programDefinition.id(), blockDefinition.id())
@@ -165,7 +172,13 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                     predicateUseCase,
                                     /* includeEditFooter= */ false,
                                     /* expanded= */ true)))
-                .orElse(div("This screen is always shown."));
+                .orElse(div()
+                        .with(
+                            renderEmptyPredicate(
+                                predicateUseCase,
+                                programDefinition.id(),
+                                blockDefinition.id(),
+                                /* includeEditFooter= */ false)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())
