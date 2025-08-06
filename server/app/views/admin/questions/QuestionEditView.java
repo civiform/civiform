@@ -499,7 +499,6 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-
     Optional<DivTag> questionConfig =
         getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
