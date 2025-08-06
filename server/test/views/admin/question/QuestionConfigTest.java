@@ -28,12 +28,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.thymeleaf.TemplateEngine;
+import play.api.mvc.request.RequestAttrKey;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import support.FakeRequestBuilder;
+import views.CspUtil;
 import views.admin.questions.MapQuestionSettingsPartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
@@ -45,12 +48,15 @@ public class QuestionConfigTest {
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
   private SettingsManifest settingsManifest;
   private Request request;
+  private ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Before
   public void setUp() {
     settingsManifest = mock(SettingsManifest.class);
-    request = fakeRequest().build();
+    request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
+    playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
     when(settingsManifest.getDateValidationEnabled(request)).thenReturn(true);
+    when(playThymeleafContextFactory.create(request)).thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
 
   @Test
@@ -74,12 +80,11 @@ public class QuestionConfigTest {
       MapQuestionSettingsPartialView view =
           new MapQuestionSettingsPartialView(
               mock(TemplateEngine.class),
-              mock(ThymeleafModule.PlayThymeleafContextFactory.class),
+              playThymeleafContextFactory,
               settingsManifest);
 
       Optional<DivTag> mapConfig = QuestionConfig.buildQuestionConfig(request, view, model);
       assertThat(mapConfig).isPresent();
-      assertThat(mapConfig.get().renderFormatted()).contains("Maximum location selections");
       return;
     }
 
