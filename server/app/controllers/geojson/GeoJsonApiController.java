@@ -47,26 +47,8 @@ public final class GeoJsonApiController {
     return geoJsonClient
         .fetchGeoJson(geoJsonEndpoint)
         .thenApplyAsync(
-            geoJsonResponse -> {
-              Set<String> possibleKeys = new HashSet<>();
-              geoJsonResponse
-                  .features()
-                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet()));
-              ImmutableList.Builder<MapQuestionForm.Setting> builder = ImmutableList.builder();
-              builder.add(new MapQuestionForm.Setting("", ""));
-              builder.add(new MapQuestionForm.Setting("", ""));
-              builder.add(new MapQuestionForm.Setting("", ""));
-              MapQuestionSettingsPartialViewModel model =
-                  new MapQuestionSettingsPartialViewModel(
-                      OptionalInt.empty(),
-                      new MapQuestionForm.Setting("", "Name"),
-                      new MapQuestionForm.Setting("", "Address"),
-                      new MapQuestionForm.Setting("", "URL"),
-                      builder.build(),
-                      possibleKeys);
-              return ok(mapQuestionSettingsPartialView.render(request, model))
-                  .as(Http.MimeTypes.HTML);
-            })
+            geoJsonResponse -> ok(mapQuestionSettingsPartialView.render(request, MapQuestionSettingsPartialViewModel.withEmptyDefaults(geoJsonResponse.getPossibleKeys())))
+                  .as(Http.MimeTypes.HTML))
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);

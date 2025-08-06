@@ -533,20 +533,12 @@ public final class QuestionEditView extends BaseHtmlView {
       SettingsManifest settingsManifest,
       Request request) {
     if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      Set<String> possibleKeys = new HashSet<>();
-      Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
-          geoJsonDataRepository
-              .getMostRecentGeoJsonDataRowForEndpoint(
-                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-              .toCompletableFuture()
-              .join();
-
-      maybeGeoJsonDataModel.ifPresent(
-          geoJsonDataModel ->
-              geoJsonDataModel
-                  .getGeoJson()
-                  .features()
-                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet())));
+      Set<String> possibleKeys = geoJsonDataRepository
+          .getMostRecentGeoJsonDataRowForEndpoint(
+              ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+          .join()
+          .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+          .orElse(new HashSet<>());
 
       return QuestionConfig.buildQuestionConfig(
           request,
