@@ -29,12 +29,10 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
-import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -45,6 +43,7 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -74,10 +73,7 @@ public final class QuestionConfig {
       QuestionForm questionForm,
       Messages messages,
       SettingsManifest settingsManifest,
-      Request request,
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      Optional<GeoJsonDataModel> geoJsonDataModel) {
+      Request request) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -98,16 +94,6 @@ public final class QuestionConfig {
       case ID:
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
-      case MAP:
-        return Optional.of(
-            config
-                .addMapQuestionConfig(
-                    (MapQuestionForm) questionForm,
-                    new MapQuestionSettingsPartialView(
-                        templateEngine, playThymeleafContextFactory, settingsManifest),
-                    request,
-                    geoJsonDataModel)
-                .getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -146,6 +132,30 @@ public final class QuestionConfig {
       default:
         return Optional.empty();
     }
+  }
+
+  public static Optional<DivTag> buildQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      Set<String> possibleKeys) {
+    QuestionConfig config = new QuestionConfig();
+    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
+      return Optional.of(
+          config
+              .addMapQuestionConfig(
+                  (MapQuestionForm) questionForm,
+                  new MapQuestionSettingsPartialView(
+                      templateEngine, playThymeleafContextFactory, settingsManifest),
+                  request,
+                  possibleKeys)
+              .getContainer());
+    }
+
+    return buildQuestionConfig(questionForm, messages, settingsManifest, request);
   }
 
   private QuestionConfig addPhoneConfig() {
@@ -668,9 +678,8 @@ public final class QuestionConfig {
       MapQuestionForm mapQuestionForm,
       MapQuestionSettingsPartialView mapQuestionSettingsPartialView,
       Request request,
-      Optional<GeoJsonDataModel> maybeGeoJsonDataModel) {
+      Set<String> possibleKeys) {
 
-    // TODO(#11001): Add settings for filters
     content.with(
         FieldWithLabel.number()
             .setFieldName("maxLocationSelections")
@@ -680,28 +689,22 @@ public final class QuestionConfig {
             .setValue(mapQuestionForm.getMaxLocationSelections())
             .getNumberTag());
 
-    if (maybeGeoJsonDataModel.isPresent()) {
-      MapQuestionForm.Setting locationName = mapQuestionForm.getLocationName();
-      MapQuestionForm.Setting locationAddress = mapQuestionForm.getLocationAddress();
-      MapQuestionForm.Setting locationDetailsUrl = mapQuestionForm.getLocationDetailsUrl();
-      List<MapQuestionForm.Setting> filters = mapQuestionForm.getFilters();
-      Set<String> possibleKeys = new HashSet<>();
-      maybeGeoJsonDataModel
-          .get()
-          .getGeoJson()
-          .features()
-          .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet()));
-
-      MapQuestionSettingsPartialViewModel mapQuestionSettingsPartialViewModel =
-          new MapQuestionSettingsPartialViewModel(
-              locationName, locationAddress, locationDetailsUrl, filters, possibleKeys);
-      content.with(
-          rawHtml(
-              mapQuestionSettingsPartialView.render(request, mapQuestionSettingsPartialViewModel)));
-    } else {
-      content.with(div().attr("id", "geoJsonOutput"));
-    }
+    content.with(
+        rawHtml(
+            mapQuestionSettingsPartialView.render(
+                request, getMapQuestionSettingsPartialViewModel(mapQuestionForm, possibleKeys))));
     return this;
+  }
+
+  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
+      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+    MapQuestionForm.Setting locationName = mapQuestionForm.getLocationName();
+    MapQuestionForm.Setting locationAddress = mapQuestionForm.getLocationAddress();
+    MapQuestionForm.Setting locationDetailsUrl = mapQuestionForm.getLocationDetailsUrl();
+    List<MapQuestionForm.Setting> filters = mapQuestionForm.getFilters();
+
+    return new MapQuestionSettingsPartialViewModel(
+        locationName, locationAddress, locationDetailsUrl, filters, possibleKeys);
   }
 
   private QuestionConfig addNumberQuestionConfig(NumberQuestionForm numberQuestionForm) {
