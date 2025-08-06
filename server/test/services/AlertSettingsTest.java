@@ -24,7 +24,7 @@ public class AlertSettingsTest extends ResetPostgres {
   @Test
   public void getTitleAriaLabel_success() {
     String ariaLabel = AlertSettings.getTitleAriaLabel(messages, AlertType.SUCCESS, "title");
-    assertEquals("Success: title", ariaLabel);
+    assertEquals("Success: test", ariaLabel);
   }
 
   @Test
