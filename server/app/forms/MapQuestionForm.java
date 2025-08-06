@@ -28,7 +28,7 @@ public class MapQuestionForm extends QuestionForm {
 
   @Getter
   @Setter
-  public static class Setting {
+  public static final class Setting {
     private String key;
     private String displayName;
 
