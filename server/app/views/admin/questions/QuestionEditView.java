@@ -474,21 +474,7 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    Set<String> possibleKeys = new HashSet<>();
     if (questionType.equals(QuestionType.MAP)) {
-      Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
-          geoJsonDataRepository
-              .getMostRecentGeoJsonDataRowForEndpoint(
-                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-              .toCompletableFuture()
-              .join();
-
-      maybeGeoJsonDataModel.ifPresent(
-          geoJsonDataModel ->
-              geoJsonDataModel
-                  .getGeoJson()
-                  .features()
-                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet())));
 
       formTag.with(
           FieldWithLabel.input()
@@ -516,14 +502,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
 
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(
-            questionForm,
-            messages,
-            settingsManifest,
-            request,
-            templateEngine,
-            playThymeleafContextFactory,
-            possibleKeys);
+        getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
@@ -546,6 +525,48 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private Optional<DivTag> getQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
+    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
+      Set<String> possibleKeys = new HashSet<>();
+      Optional<GeoJsonDataModel> maybeGeoJsonDataModel =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .toCompletableFuture()
+              .join();
+
+      maybeGeoJsonDataModel.ifPresent(
+          geoJsonDataModel ->
+              geoJsonDataModel
+                  .getGeoJson()
+                  .features()
+                  .forEach((feature) -> possibleKeys.addAll(feature.properties().keySet())));
+
+      return QuestionConfig.buildQuestionConfig(
+          request,
+          new MapQuestionSettingsPartialView(
+              templateEngine, playThymeleafContextFactory, settingsManifest),
+          getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
+    }
+    return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+  }
+
+  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
+      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        possibleKeys);
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
