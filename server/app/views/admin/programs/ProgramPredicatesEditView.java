@@ -172,7 +172,8 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                     predicateUseCase,
                                     /* includeEditFooter= */ false,
                                     /* expanded= */ true)))
-                .orElse(div()
+                .orElse(
+                    div()
                         .with(
                             renderEmptyPredicate(
                                 predicateUseCase,
