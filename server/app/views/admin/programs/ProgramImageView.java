@@ -357,7 +357,6 @@ public final class ProgramImageView extends BaseHtmlView {
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile,
             zoneId,

@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.span;
@@ -116,7 +115,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
             title,
             description,
             adminNote,
-            iff(settingsManifest.getProgramFilteringEnabled(), categoriesDiv),
+            categoriesDiv,
             headerButtonsDiv)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
