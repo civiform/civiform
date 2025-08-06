@@ -15,14 +15,14 @@ fi
 
 bin/sbt makePom
 
-# Copy the generated target directory from the docker container to a local dir
-# so that we can use globs to copy the correct file out.
-docker::compose_dev --profile shell cp civiform:/usr/src/server/target server/temp
+# Wait a few seconds to ensure the file is generated.
+sleep 5
 
-cp server/temp/scala-*/*.pom \
-  server/pom.xml
+# Get the full path of the generated pom file dynamically.
+POM_PATH=$(docker::compose_dev --profile shell exec civiform find /usr/src/server/target -name "civiform-server_*.pom")
 
-rm -rf server/temp
+# Copy the file to the local directory using the dynamic path.
+docker::compose_dev --profile shell cp "civiform:${POM_PATH}" server/pom.xml
 
 BUILD=$(
   cat <<END
