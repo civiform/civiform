@@ -30,11 +30,10 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     String geoJsonEndpoint = getMapValidationPredicates().geoJsonEndpoint();
     OptionalInt maxLocationSelections = getMapValidationPredicates().maxLocationSelections();
-    if (geoJsonEndpoint.isEmpty()) {
-      errors.add(CiviFormError.of("Map question must have a GeoJSON endpoint"));
-    }
 
-    // TODO(#11002): Add validation that the GeoJSON endpoint is valid.
+    if (geoJsonEndpoint.isEmpty()) {
+      errors.add(CiviFormError.of("Map question must have valid GeoJSON"));
+    }
 
     if (maxLocationSelections.isPresent()) {
       if (maxLocationSelections.getAsInt() < 1) {

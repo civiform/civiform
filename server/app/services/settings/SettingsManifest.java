@@ -1046,11 +1046,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** Enables filtering programs by category on the homepage */
-  public boolean getProgramFilteringEnabled() {
-    return getBool("PROGRAM_FILTERING_ENABLED");
-  }
-
   /** Enable using custom theme colors on North Star applicant UI. */
   public boolean getCustomThemeColorsEnabled(RequestHeader request) {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
@@ -2295,12 +2290,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "PROGRAM_FILTERING_ENABLED",
-                          "Enables filtering programs by category on the homepage",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "Enable using custom theme colors on North Star applicant UI.",

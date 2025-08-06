@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.10",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.11",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -129,7 +129,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.34",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.35",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.31",
 
       // JSON Schema validation

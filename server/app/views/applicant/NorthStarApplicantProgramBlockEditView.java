@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
+import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
@@ -22,6 +23,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -289,14 +291,18 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                 }));
   }
 
-  private String getQuestionGeoJsonData(ApplicantQuestion question) {
+  private FeatureCollection getQuestionGeoJsonData(ApplicantQuestion question) {
     String geoJsonEndpoint =
         ((MapValidationPredicates) question.getQuestionDefinition().getValidationPredicates())
             .geoJsonEndpoint();
 
-    String geoJsonData =
-        mapDataRepository.getMostRecentGeoJsonForEndpoint(geoJsonEndpoint).orElse("");
-    if (geoJsonData.isEmpty()) {
+    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+        mapDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join();
+
+    if (maybeExistingGeoJsonDataRow.isEmpty()) {
       // TODO(#11078): Failure state for missing GeoJSON data
       throw new IllegalStateException(
           String.format(
@@ -304,7 +310,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
               question.getQuestionDefinition().getName()));
     }
 
-    return geoJsonData;
+    return maybeExistingGeoJsonDataRow.get().getGeoJson();
   }
 
   private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {
