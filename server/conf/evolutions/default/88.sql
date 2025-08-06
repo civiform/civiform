@@ -1,9 +1,7 @@
-# --- Add question settings for map questions
 -- Setting up the Settings Cache
 
 # --- !Ups
 
-alter table questions add question_settings jsonb;
 CREATE OR REPLACE FUNCTION notify_settings_update() RETURNS TRIGGER AS $$
 BEGIN
   -- Payload is unused, but may be used/changed in the future.
@@ -19,8 +17,6 @@ CREATE OR REPLACE TRIGGER settings_update_trigger
   EXECUTE PROCEDURE notify_settings_update();
 
 # --- !Downs
-
-alter table questions drop column question_settings;
 
 DROP TRIGGER IF EXISTS settings_update_trigger ON civiform_settings;
 DROP FUNCTION IF EXISTS notify_settings_update();
