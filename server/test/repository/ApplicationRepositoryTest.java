@@ -183,7 +183,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void submitApplication_updatesAccountLastActivityTime() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createActiveProgram("Program");
-    
+
     Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     ApplicationModel app =
         repo.submitApplication(
