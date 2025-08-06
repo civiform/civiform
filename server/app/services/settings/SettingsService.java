@@ -47,13 +47,13 @@ public final class SettingsService {
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
-  private final SettingsCache settingsCache;
+  private final SettingsCacheInterface settingsCache;
 
   @Inject
   public SettingsService(
       SettingsGroupRepository settingsGroupRepository,
       SettingsManifest settingsManifest,
-      SettingsCache settingsCache) {
+      SettingsCacheInterface settingsCache) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.settingsCache = checkNotNull(settingsCache);
@@ -66,13 +66,16 @@ public final class SettingsService {
    * <p>TODO: #11042 - Make this method synchronous once the cache is fully launched
    */
   public CompletionStage<Optional<ImmutableMap<String, String>>> loadSettings() {
-    if (settingsManifest.getSettingsCacheEnabled()) {
-      return CompletableFuture.completedFuture(
-          settingsCache.get().map(SettingsGroupModel::getSettings));
-    }
-    return settingsGroupRepository
-        .getCurrentSettings()
-        .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroupModel::getSettings));
+    return CompletableFuture.completedFuture(
+        settingsCache.get().map(SettingsGroupModel::getSettings));
+    // if (settingsManifest.getSettingsCacheEnabled()) {
+    //   return CompletableFuture.completedFuture(
+    //       settingsCache.get().map(SettingsGroupModel::getSettings));
+    // }
+    // return settingsGroupRepository
+    //     .getCurrentSettings()
+    //     .thenApply(maybeSettingsGroup ->
+    // maybeSettingsGroup.map(SettingsGroupModel::getSettings));
   }
 
   /**
