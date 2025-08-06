@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
@@ -119,6 +120,8 @@ public final class QuestionTranslationView extends TranslationFormView {
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
       case PHONE: // fallthrough intended
+      case YES_NO:
+        return Optional.of(div("Yes/No question options are pre-translated.").withClass("mb-4"));
       default:
         return Optional.empty();
     }
