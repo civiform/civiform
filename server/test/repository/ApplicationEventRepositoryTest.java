@@ -149,6 +149,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // events
     assertThat(application2.getStatusLastModifiedTime().get())
         .isEqualTo(insertedEvent1.getCreateTime());
+    // check if accounts table is updated
+    actor.refresh();
     Instant activitytimeAfterUpdate = actor.getLastActivityTime();
     assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
@@ -330,6 +332,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
+    // Check if activity time ins updated in Accounts
+    actor.refresh();
     Instant activitytimeAfterUpdate = actor.getLastActivityTime();
     assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
