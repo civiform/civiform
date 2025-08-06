@@ -5,14 +5,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
+import lombok.Getter;
 import services.CiviFormError;
+import services.question.QuestionSetting;
 
+@Getter
 public final class MapQuestionDefinition extends QuestionDefinition {
-  public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
+  @JsonProperty("questionSettings")
+  private final ImmutableList<QuestionSetting> questionSettings;
+
+  public MapQuestionDefinition(
+      @JsonProperty("config") QuestionDefinitionConfig config,
+      @JsonProperty("questionSettings") ImmutableList<QuestionSetting> questionSettings) {
     super(config);
+    this.questionSettings = questionSettings;
   }
 
   @Override

@@ -27,9 +27,11 @@ import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -74,6 +76,9 @@ public class QuestionModel extends BaseModel {
 
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
+
+  // questionSettings is the current storage column for map questions.
+  private @DbJsonB ImmutableList<QuestionSetting> questionSettings;
 
   private @DbJsonB LocalizedStrings enumeratorEntityType;
 
@@ -190,6 +195,7 @@ public class QuestionModel extends BaseModel {
 
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
+    setQuestionSettings(builder);
 
     this.questionDefinition = builder.build();
   }
@@ -225,6 +231,22 @@ public class QuestionModel extends BaseModel {
 
     if (questionOptions != null) {
       builder.setQuestionOptions(questionOptions);
+    }
+  }
+
+  /**
+   * Add {@link QuestionOption}s to the builder.
+   *
+   * <p>The majority of questions should have a `questionOptions`.
+   */
+  private void setQuestionSettings(QuestionDefinitionBuilder builder)
+      throws InvalidQuestionTypeException {
+    if (QuestionType.of(questionType) != QuestionType.MAP) {
+      return;
+    }
+
+    if (questionSettings != null) {
+      builder.setQuestionSettings(questionSettings);
     }
   }
 
@@ -265,6 +287,10 @@ public class QuestionModel extends BaseModel {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
       questionOptions = multiOption.getOptions();
+    }
+
+    if (questionDefinition instanceof MapQuestionDefinition mapQuestionDefinition) {
+      questionSettings = mapQuestionDefinition.getQuestionSettings();
     }
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {

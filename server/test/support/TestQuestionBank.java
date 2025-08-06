@@ -664,7 +664,8 @@ public class TestQuestionBank {
                 .setDescription("select locations")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                .build());
+                .build(),
+            ImmutableList.of());
     return maybeSave(definition);
   }
 
