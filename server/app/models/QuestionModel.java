@@ -85,6 +85,8 @@ public class QuestionModel extends BaseModel {
   /** When the question was last modified. */
   @WhenModified private Instant lastModifiedTime;
 
+  private @Constraints.Required QuestionDisplayMode displayMode;
+
   private UUID concurrencyToken;
 
   @ManyToMany(mappedBy = "questions")
@@ -179,6 +181,7 @@ public class QuestionModel extends BaseModel {
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
     if (concurrencyToken != null) {
@@ -255,6 +258,7 @@ public class QuestionModel extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
+    displayMode = questionDefinition.getDisplayMode();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
@@ -331,5 +335,14 @@ public class QuestionModel extends BaseModel {
 
   public UUID getConcurrencyToken() {
     return this.concurrencyToken;
+  }
+
+  public QuestionDisplayMode getDisplayMode() {
+    return this.displayMode;
+  }
+
+  public QuestionModel setDisplayMode(QuestionDisplayMode displayMode) {
+    this.displayMode = displayMode;
+    return this;
   }
 }

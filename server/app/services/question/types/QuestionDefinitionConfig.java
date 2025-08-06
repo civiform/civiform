@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 
@@ -60,6 +61,9 @@ public abstract class QuestionDefinitionConfig {
   @JsonIgnore
   abstract Optional<UUID> concurrencyToken();
 
+  @JsonProperty("displayMode")
+  public abstract QuestionDisplayMode displayMode();
+
   @JsonProperty("universal")
   abstract boolean universal();
 
@@ -74,6 +78,7 @@ public abstract class QuestionDefinitionConfig {
   public static RequiredName builder() {
     return new AutoValue_QuestionDefinitionConfig.Builder()
         .setUniversal(false)
+        .setDisplayMode(QuestionDisplayMode.VISIBLE)
         .setPrimaryApplicantInfoTags(ImmutableSet.of());
   }
 
@@ -117,6 +122,9 @@ public abstract class QuestionDefinitionConfig {
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
 
     public abstract Builder setConcurrencyToken(UUID concurrencyToken);
+
+    @JsonProperty("displayMode")
+    public abstract Builder setDisplayMode(QuestionDisplayMode displayMode);
 
     @JsonProperty("validationPredicates")
     public abstract Builder setValidationPredicates(

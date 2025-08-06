@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 
@@ -71,6 +72,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   @Override
   Optional<UUID> concurrencyToken() {
     return Optional.empty();
+  }
+
+  @Override
+  public QuestionDisplayMode displayMode() {
+    return QuestionDisplayMode.VISIBLE;
   }
 
   @Override
@@ -140,6 +146,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setConcurrencyToken(UUID concurrencyToken) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setDisplayMode(QuestionDisplayMode display) {
       return this;
     }
 

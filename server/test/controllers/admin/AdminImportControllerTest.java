@@ -1245,6 +1245,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 1,
               "universal" : false,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : [ ]
               }
           } ]
@@ -1420,6 +1421,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 13,
                 "universal" : true,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ "APPLICANT_NAME" ]
               }
             }, {
@@ -1446,6 +1448,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1477,6 +1480,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 94,
                 "enumeratorId" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1508,6 +1512,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 95,
                 "enumeratorId" : 94,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               }
             } ]
@@ -1762,6 +1767,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 3,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1786,6 +1792,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 4,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1809,6 +1816,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 5,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1834,6 +1842,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 6,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         } ]
@@ -1946,6 +1955,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 3,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_DOB"]
               }
           }, {
@@ -1970,6 +1980,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 4,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_NAME"]
               }
           }, {
@@ -1994,6 +2005,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 5,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_PHONE"]
               }
           }, {
@@ -2018,6 +2030,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 6,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_EMAIL"]
               }
           }]
@@ -2136,6 +2149,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 1,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         } ]
