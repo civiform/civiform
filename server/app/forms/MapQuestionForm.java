@@ -14,9 +14,7 @@ import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-/**
- * Form for {@link QuestionType#MAP} question configuration and settings.
- */
+/** Form for {@link QuestionType#MAP} question configuration and settings. */
 @Getter
 public class MapQuestionForm extends QuestionForm {
 
@@ -34,8 +32,8 @@ public class MapQuestionForm extends QuestionForm {
   public static final String LOCATION_URL_DISPLAY = "URL";
 
   /**
-   * Simple class for MAP question settings. Used for form processing
-   * and gets converted to {@link QuestionSetting} for database storage.
+   * Simple class for MAP question settings. Used for form processing and gets converted to {@link
+   * QuestionSetting} for database storage.
    */
   @Getter
   @Setter
@@ -127,7 +125,8 @@ public class MapQuestionForm extends QuestionForm {
   private void setFormWithQuestionSettings(List<QuestionSetting> settings) {
     this.locationName =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_NAME_DISPLAY))
+            .filter(
+                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_NAME_DISPLAY))
             .findFirst()
             .map(
                 setting ->
@@ -135,7 +134,9 @@ public class MapQuestionForm extends QuestionForm {
             .orElse(Setting.emptySetting());
     this.locationAddress =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_ADDRESS_DISPLAY))
+            .filter(
+                setting ->
+                    setting.settingDisplayName().getDefault().equals(LOCATION_ADDRESS_DISPLAY))
             .findFirst()
             .map(
                 setting ->
@@ -143,7 +144,8 @@ public class MapQuestionForm extends QuestionForm {
             .orElse(Setting.emptySetting());
     this.locationDetailsUrl =
         settings.stream()
-            .filter(setting -> setting.settingDisplayName().getDefault().equals(LOCATION_URL_DISPLAY))
+            .filter(
+                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_URL_DISPLAY))
             .findFirst()
             .map(
                 setting ->
@@ -166,15 +168,18 @@ public class MapQuestionForm extends QuestionForm {
     ImmutableList.Builder<QuestionSetting> builder = ImmutableList.builder();
 
     builder.add(
-        QuestionSetting.create(getLocationName().key, LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
+        QuestionSetting.create(
+            getLocationName().key, LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
 
     builder.add(
         QuestionSetting.create(
-            getLocationAddress().getKey(), LocalizedStrings.withDefaultValue(LOCATION_ADDRESS_DISPLAY)));
+            getLocationAddress().getKey(),
+            LocalizedStrings.withDefaultValue(LOCATION_ADDRESS_DISPLAY)));
 
     builder.add(
         QuestionSetting.create(
-            getLocationDetailsUrl().getKey(), LocalizedStrings.withDefaultValue(LOCATION_URL_DISPLAY)));
+            getLocationDetailsUrl().getKey(),
+            LocalizedStrings.withDefaultValue(LOCATION_URL_DISPLAY)));
 
     for (Setting filter : getFilters()) {
       if (isValidSetting(filter)) {
