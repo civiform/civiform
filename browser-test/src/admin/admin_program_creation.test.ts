@@ -468,7 +468,7 @@ test.describe('program creation', () => {
     )
 
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'open-question-search',
       /* fullPage= */ false,
     )
@@ -1056,7 +1056,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.launchRemoveProgramBlockModal(programName, 'Screen 1')
     await validateScreenshot(
-      page,
+      page.locator('#block-delete-modal'),
       'delete-screen-confirmation-modal',
       /* fullPage= */ false,
     )
@@ -1265,7 +1265,7 @@ test.describe('program creation', () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page,
+      page.locator('#confirm-common-intake-change'),
       'confirm-pre-screener-change-modal',
       /* fullPage= */ false,
     )
@@ -1319,7 +1319,7 @@ test.describe('program creation', () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page,
+      page.locator('#confirm-common-intake-change'),
       'confirm-pre-screener-change-modal-with-external-programs-feature',
       /* fullPage= */ false,
     )
