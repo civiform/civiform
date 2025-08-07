@@ -16,7 +16,7 @@ import services.geojson.FeatureCollection;
 import services.geojson.Geometry;
 
 public class GeoJsonDataRepositoryTest extends ResetPostgres {
-  private GeoJsonDataRepository geoJsonDataRepository;
+  private final GeoJsonDataRepository geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
   private final String endpoint = "http://example.com/geo.json";
   private static final FeatureCollection testFeatureCollection1 =
       new FeatureCollection(
@@ -58,20 +58,10 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
                   Map.of("name", "Feature 2.3"),
                   "3")));
 
-  @Before
-  public void setup() {
-    geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
-
-    // Create a database record
-    GeoJsonDataModel firstEntry = new GeoJsonDataModel();
-    firstEntry.setEndpoint(endpoint);
-    firstEntry.setGeoJson(testFeatureCollection1);
-    firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
-    firstEntry.save();
-  }
-
   @Test
   public void getMostRecentGeoJsonDataRowForEndpoint_success() {
+    createInitialDbRecord();
+
     // Create a second record in the database
     GeoJsonDataModel secondEntry = new GeoJsonDataModel();
     secondEntry.setEndpoint(endpoint);
@@ -91,6 +81,8 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
 
   @Test
   public void saveGeoJson_saveNewGeoJson_success() {
+    createInitialDbRecord();
+
     geoJsonDataRepository.saveGeoJson(endpoint, testFeatureCollection2);
 
     Optional<GeoJsonDataModel> model =
@@ -104,6 +96,8 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
   @Test
   public void saveGeoJson_emptyRow_saveNewGeoJson_success() {
     String newEndpoint = "http://example.com/geo-new.json";
+
+    createInitialDbRecord();
 
     Optional<GeoJsonDataModel> maybeOldGeoJson =
         geoJsonDataRepository
@@ -127,6 +121,8 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
 
   @Test
   public void saveGeoJson_updateOldGeoJsonConfirmTime_success() {
+    createInitialDbRecord();
+
     Optional<GeoJsonDataModel> maybeOldGeoJson =
         geoJsonDataRepository
             .getMostRecentGeoJsonDataRowForEndpoint(endpoint)
@@ -150,5 +146,14 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
     assertEquals(testFeatureCollection1, oldGeoJson);
     assertEquals(testFeatureCollection1, newGeoJson);
     assertNotEquals(oldConfirmTime, newConfirmTime);
+  }
+
+  private void createInitialDbRecord() {
+    // Create a database record
+    GeoJsonDataModel firstEntry = new GeoJsonDataModel();
+    firstEntry.setEndpoint(endpoint);
+    firstEntry.setGeoJson(testFeatureCollection1);
+    firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
+    firstEntry.save();
   }
 }
