@@ -1320,7 +1320,7 @@ test.describe('program creation', () => {
 
     await validateScreenshot(
       page.locator('#confirm-common-intake-change'),
-      'confirm-pre-screener-change-modal-with-external-programs-feature',
+      'confirm-pre-screener-change-modal.png',
       /* fullPage= */ false,
     )
 
