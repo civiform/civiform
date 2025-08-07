@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import models.GeoJsonDataModel;
-import org.junit.Before;
 import org.junit.Test;
 import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.geojson.Geometry;
 
 public class GeoJsonDataRepositoryTest extends ResetPostgres {
-  private final GeoJsonDataRepository geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
+  private final GeoJsonDataRepository geoJsonDataRepository =
+      instanceOf(GeoJsonDataRepository.class);
   private final String endpoint = "http://example.com/geo.json";
   private static final FeatureCollection testFeatureCollection1 =
       new FeatureCollection(
