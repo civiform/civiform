@@ -31,7 +31,6 @@ import services.question.QuestionSetting;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -77,7 +76,7 @@ public class QuestionModel extends BaseModel {
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
-  // questionSettings is the current storage column for map questions.
+  // questionSettings is a storage column for question-specific settings
   private @DbJsonB ImmutableList<QuestionSetting> questionSettings;
 
   private @DbJsonB LocalizedStrings enumeratorEntityType;
@@ -234,14 +233,10 @@ public class QuestionModel extends BaseModel {
     }
   }
 
-  /**
-   * Add {@link QuestionOption}s to the builder.
-   *
-   * <p>The majority of questions should have a `questionOptions`.
-   */
+  /** Add {@link QuestionSetting}s to the builder. */
   private void setQuestionSettings(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
-    if (QuestionType.of(questionType) != QuestionType.MAP) {
+    if (!QuestionType.supportsQuestionSettings(QuestionType.of(questionType))) {
       return;
     }
 
@@ -289,8 +284,9 @@ public class QuestionModel extends BaseModel {
       questionOptions = multiOption.getOptions();
     }
 
-    if (questionDefinition instanceof MapQuestionDefinition mapQuestionDefinition) {
-      questionSettings = mapQuestionDefinition.getQuestionSettings();
+    if (QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())
+        && questionDefinition.getQuestionSettings().isPresent()) {
+      questionSettings = questionDefinition.getQuestionSettings().get();
     }
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {

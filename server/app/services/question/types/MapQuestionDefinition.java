@@ -31,6 +31,11 @@ public final class MapQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
+  public Optional<ImmutableList<QuestionSetting>> getQuestionSettings() {
+    return Optional.of(questionSettings);
+  }
+
+  @Override
   ValidationPredicates getDefaultValidationPredicates() {
     return MapValidationPredicates.builder().setGeoJsonEndpoint("").build();
   }

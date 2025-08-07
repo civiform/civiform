@@ -8,7 +8,10 @@ import java.util.Locale;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 
-/** Represents a setting in a {@link services.question.types.MapQuestionDefinition}. */
+/**
+ * Represents a question setting in a {@link services.question.types.QuestionDefinition} for
+ * question types that support Question Settings.
+ */
 @JsonDeserialize(builder = AutoValue_QuestionSetting.Builder.class)
 @AutoValue
 public abstract class QuestionSetting {
@@ -64,10 +67,10 @@ public abstract class QuestionSetting {
   public LocalizedQuestionSetting localizeOrDefault(Locale locale) {
     try {
       String localizedText = settingDisplayName().get(locale);
-      return LocalizedQuestionSetting.create(localizedText, locale);
+      return LocalizedQuestionSetting.create(settingKey(), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionSetting.create(
-          settingDisplayName().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
+          settingKey(), settingDisplayName().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
     }
   }
 

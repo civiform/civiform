@@ -77,9 +77,9 @@ public final class QuestionDefinitionBuilder {
       questionOptions = multiOption.getOptions();
     }
 
-    if (definition.getQuestionType().equals(QuestionType.MAP)) {
-      MapQuestionDefinition mapQuestionDefinition = (MapQuestionDefinition) definition;
-      questionSettings = mapQuestionDefinition.getQuestionSettings();
+    if (QuestionType.supportsQuestionSettings(definition.getQuestionType())
+        && definition.getQuestionSettings().isPresent()) {
+      questionSettings = definition.getQuestionSettings().get();
     }
   }
 

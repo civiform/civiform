@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -30,6 +31,7 @@ import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 
 /**
  * Superclass for all question types.
@@ -334,6 +336,12 @@ public abstract class QuestionDefinition {
   /** Get the type of this question. */
   @JsonIgnore
   public abstract QuestionType getQuestionType();
+
+  /** Get the question settings for this question. Returns empty Optional if not supported. */
+  @JsonIgnore
+  public Optional<ImmutableList<QuestionSetting>> getQuestionSettings() {
+    return Optional.empty();
+  }
 
   /** Get the default validation predicates for this question type. */
   @JsonIgnore

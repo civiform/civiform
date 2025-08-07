@@ -5,16 +5,20 @@ import java.util.Locale;
 import views.components.TextFormatter;
 
 /**
- * Represents a single option in a {@link services.question.types.MapQuestionDefinition}, localized
- * to a specific locale.
+ * Represents a question setting in a {@link services.question.types.QuestionDefinition} for
+ * question types that support Question Settings, localized to a specific locale.
  */
 @AutoValue
 public abstract class LocalizedQuestionSetting {
 
   /** Create a LocalizedQuestionSetting. */
-  public static LocalizedQuestionSetting create(String settingDisplayName, Locale locale) {
-    return new AutoValue_LocalizedQuestionSetting(settingDisplayName, locale);
+  public static LocalizedQuestionSetting create(
+      String settingKey, String settingDisplayName, Locale locale) {
+    return new AutoValue_LocalizedQuestionSetting(settingKey, settingDisplayName, locale);
   }
+
+  /** The key used for the setting. */
+  public abstract String settingKey();
 
   /** The text strings to display to the user. */
   public abstract String settingDisplayName();
