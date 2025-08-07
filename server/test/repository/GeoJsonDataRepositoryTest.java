@@ -76,7 +76,8 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
     GeoJsonDataModel secondEntry = new GeoJsonDataModel();
     secondEntry.setEndpoint(endpoint);
     secondEntry.setGeoJson(testFeatureCollection2);
-    secondEntry.setConfirmTime(testClock.instant().minusSeconds(1800)); // 30 minutes ago (more recent than the first)
+    secondEntry.setConfirmTime(
+        testClock.instant().minusSeconds(1800)); // 30 minutes ago (more recent than the first)
     secondEntry.save();
 
     Optional<GeoJsonDataModel> result =
