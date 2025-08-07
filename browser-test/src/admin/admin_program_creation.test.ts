@@ -743,7 +743,7 @@ test.describe('program creation', () => {
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'question-bank-markdown',
       /* fullPage= */ false,
     )
@@ -806,7 +806,11 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
+    await validateScreenshot(
+      page.locator('.cf-question-bank-panel'),
+      'question-bank-empty',
+      /* fullPage= */ false,
+    )
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -842,7 +846,7 @@ test.describe('program creation', () => {
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'question-bank-with-created-question',
       /* fullPage= */ false,
     )
