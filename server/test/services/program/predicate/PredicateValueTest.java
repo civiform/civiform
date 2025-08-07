@@ -62,102 +62,162 @@ public class PredicateValueTest extends WithApplication {
   }
 
   @Test
-  public void toDisplayString_currency() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_currency(boolean useFormatted) {
     QuestionDefinition currencyDef =
         testQuestionBank.currencyApplicantMonthlyIncome().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(10001);
 
     assertThat(value.value()).isEqualTo("10001");
-    assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(currencyDef).render())
+          .isEqualTo("<strong>$100.01</strong>");
+    } else {
+      assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
+    }
   }
 
   @Test
-  public void toDisplayString_currencyPair() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_currencyPair(boolean useFormatted) {
     QuestionDefinition currencyDef =
         testQuestionBank.currencyApplicantMonthlyIncome().getQuestionDefinition();
     PredicateValue value = PredicateValue.pairOfLongs(10001, 20002);
 
     assertThat(value.value()).isEqualTo("[10001, 20002]");
-    assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01 and $200.02");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(currencyDef).render())
+          .isEqualTo("<strong>$100.01</strong> and <strong>$200.02</strong>");
+    } else {
+      assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01 and $200.02");
+    }
   }
 
   @Test
-  public void toDisplayString_date() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_date(boolean useFormatted) {
     QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
     PredicateValue value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
 
     assertThat(value.value()).isEqualTo("1609459200000");
-    assertThat(value.toDisplayString(dateDef)).isEqualTo("2021-01-01");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(dateDef).render())
+          .isEqualTo("<strong>2021-01-01</strong>");
+    } else {
+      assertThat(value.toDisplayString(dateDef)).isEqualTo("2021-01-01");
+    }
   }
 
   @Test
-  public void toDisplayString_listOfLongs() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_listOfLongs(boolean useFormatted) {
     QuestionDefinition longDef =
         testQuestionBank.numberApplicantJugglingNumber().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
 
     assertThat(value.value()).isEqualTo("[1, 2, 3]");
-    assertThat(value.toDisplayString(longDef)).isEqualTo("[1, 2, 3]");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(longDef).render())
+          .isEqualTo("<strong>[1, 2, 3]</strong>");
+    } else {
+      assertThat(value.toDisplayString(longDef)).isEqualTo("[1, 2, 3]");
+    }
   }
 
   @Test
-  public void toDisplayString_simpleList() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_simpleList(boolean useFormatted) {
     QuestionDefinition stringDef =
         testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("kangaroo", "turtle"));
 
-    assertThat(value.toDisplayString(stringDef)).isEqualTo("[\"kangaroo\", \"turtle\"]");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(stringDef).render())
+          .isEqualTo("<strong>[&quot;kangaroo&quot;, &quot;turtle&quot;]</strong>");
+    } else {
+      assertThat(value.toDisplayString(stringDef)).isEqualTo("[\"kangaroo\", \"turtle\"]");
+    }
   }
 
   @Test
-  public void toDisplayString_multiOptionList() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_multiOptionList(boolean useFormatted) {
     QuestionDefinition multiOption =
         testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, strawberry]");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(multiOption).render())
+          .isEqualTo("<strong>[chocolate, strawberry]</strong>");
+    } else {
+      assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, strawberry]");
+    }
   }
 
   @Test
-  public void toDisplayString_multiOptionSingleValue_convertsIdToString() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_multiOptionSingleValue_convertsIdToString(boolean useFormatted) {
     QuestionDefinition multiOption =
         testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.of("1");
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("toaster");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(multiOption).render())
+          .isEqualTo("<strong>toaster</strong>");
+    } else {
+      assertThat(value.toDisplayString(multiOption)).isEqualTo("toaster");
+    }
   }
 
   @Test
-  public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete(boolean useFormatted) {
     QuestionDefinition multiOption =
         testQuestionBank.dropdownApplicantIceCream().getQuestionDefinition();
 
     PredicateValue value =
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(multiOption).render())
+          .isEqualTo("<strong>[chocolate, &lt;obsolete&gt;]</strong>");
+    } else {
+      assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
+    }
   }
 
   @Test
-  public void toDisplayString_pairOfDates() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_pairOfDates(boolean useFormatted) {
     QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
 
     LocalDate date1 = LocalDate.of(2024, 5, 1);
     LocalDate date2 = LocalDate.of(2024, 5, 2);
     PredicateValue value = PredicateValue.pairOfDates(date1, date2);
 
-    assertThat(value.toDisplayString(dateDef)).isEqualTo("2024-05-01 and 2024-05-02");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(dateDef).render())
+          .isEqualTo("<strong>2024-05-01</strong> and <strong>2024-05-02</strong>");
+    } else {
+      assertThat(value.toDisplayString(dateDef)).isEqualTo("2024-05-01 and 2024-05-02");
+    }
   }
 
   @Test
-  public void toDisplayString_pairOfLongs() {
+  @Parameters({"false", "true"})
+  public void toDisplayString_pairOfLongs(boolean useFormatted) {
     QuestionDefinition dateDef = testQuestionBank.dateApplicantBirthdate().getQuestionDefinition();
 
     PredicateValue value = PredicateValue.pairOfLongs(18, 30);
 
-    assertThat(value.toDisplayString(dateDef)).isEqualTo("18 and 30");
+    if (useFormatted) {
+      assertThat(value.toFormattedDisplayString(dateDef).render())
+          .isEqualTo("<strong>18</strong> and <strong>30</strong>");
+    } else {
+      assertThat(value.toDisplayString(dateDef)).isEqualTo("18 and 30");
+    }
   }
 
   @Test

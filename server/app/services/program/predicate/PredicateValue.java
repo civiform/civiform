@@ -1,12 +1,16 @@
 package services.program.predicate;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import controllers.admin.PredicateUtils;
+import j2html.tags.UnescapedText;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -109,19 +113,19 @@ public abstract class PredicateValue {
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
       if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
         return splitListString(value())
-            .map(PredicateValue::formatCurrencyString)
+            .map(PredicateValue::displayCurrencyString)
             .collect(Collectors.joining(" and "));
       }
-      return formatCurrencyString(value());
+      return displayCurrencyString(value());
     }
 
     if (type() == OperatorRightHandType.DATE) {
-      return formatDateString(value());
+      return displayDateString(value());
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_DATES) {
       return splitListString(value())
-          .map(PredicateValue::formatDateString)
+          .map(PredicateValue::displayDateString)
           .collect(Collectors.joining(" and "));
     }
 
@@ -150,6 +154,75 @@ public abstract class PredicateValue {
   }
 
   /**
+   * Returns the value in a formatted, human-readable format.
+   *
+   * <ul>
+   *   <li>Currency: $1000.23, $3.00
+   *   <li>Dates: yyyy-MM-dd
+   *   <li>User entered strings: Always quoted, including in lists
+   *   <li>Question defined strings: as defined in the default locale, unquoted
+   *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
+   * </ul>
+   *
+   * @param question the question the predicate is applied to.
+   */
+  public UnescapedText toFormattedDisplayString(QuestionDefinition question) {
+    /* Special handling of "simple" question types, EG non-multivalued questions. */
+
+    // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
+    if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
+      if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
+        return PredicateUtils.joinUnescapedText(
+            splitListString(value())
+                .map(value -> formatDisplayString(displayCurrencyString(value)))
+                .collect(toImmutableList()),
+            /* delimiter= */ " and ");
+      }
+      return formatDisplayString(displayCurrencyString(value()));
+    }
+
+    if (type() == OperatorRightHandType.DATE) {
+      return formatDisplayString(displayDateString(value()));
+    }
+
+    if (type() == OperatorRightHandType.PAIR_OF_DATES) {
+      return PredicateUtils.joinUnescapedText(
+          splitListString(value())
+              .map(value -> formatDisplayString(displayDateString(value)))
+              .collect(toImmutableList()),
+          /* delimiter= */ "and");
+    }
+
+    if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
+      return PredicateUtils.joinUnescapedText(
+          splitListString(value())
+              .map(value -> formatDisplayString(value))
+              .collect(toImmutableList()),
+          /* delimiter= */ "and");
+    }
+
+    // For all other "simple" questions use the stored value directly.
+    if (!question.getQuestionType().isMultiOptionType()) {
+      return formatDisplayString(value());
+    }
+
+    // For multi option questions the value ids are stored in the database, so we need to convert
+    // them to the human-readable strings.
+    // We return the readable values in the default locale.
+    // If an ID is not valid for the question, show "<obsolete>"; An obsolete ID does not affect
+    // evaluation.
+    MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
+    if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
+      return formatDisplayString(
+          splitListString(value())
+              .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
+              .collect(toImmutableList())
+              .toString());
+    }
+    return formatDisplayString(parseMultiOptionIdToText(multiOptionQuestion, value()));
+  }
+
+  /**
    * Splits a List in its toString format (e.g. "[123, 456]" or "[abc, def]" to a stream of strings
    * (e.g. "123", "456" or "abc", "def"). The strings can be further parsed to an expected type
    * (e.g. long).
@@ -169,18 +242,22 @@ public abstract class PredicateValue {
     return String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
   }
 
-  private static String formatCurrencyString(String value) {
+  private static String displayCurrencyString(String value) {
     long storedCents = Long.parseLong(value);
     long dollars = storedCents / 100;
     long cents = storedCents % 100;
     return String.format("$%d.%02d", dollars, cents);
   }
 
-  private static String formatDateString(String value) {
+  private static String displayDateString(String value) {
     return Instant.ofEpochMilli(Long.parseLong(value))
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+  }
+
+  private static UnescapedText formatDisplayString(String value) {
+    return join(strong(value));
   }
 
   /**

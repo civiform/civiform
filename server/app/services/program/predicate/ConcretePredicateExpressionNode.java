@@ -3,6 +3,7 @@ package services.program.predicate;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import services.question.types.QuestionDefinition;
 
 /** Common methods that all predicate node types need to implement. */
@@ -36,6 +37,16 @@ public interface ConcretePredicateExpressionNode {
    * @return a human-readable representation of this node
    */
   String toDisplayString(ImmutableList<QuestionDefinition> questions);
+
+  /**
+   * Returns a formatted, human-readable representation of this node. Identical to {@link
+   * #toDisplayString(ImmutableList)} with the exception that the display string may have additional
+   * HTML formatting such as <strong> tags to emphasize certain parts of the predicate.
+   *
+   * @param questions the list of questions this predicate may use
+   * @return a formatted, human-readable representation of this node
+   */
+  UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions);
 
   void accept(PredicateExpressionNodeVisitor v);
 }

@@ -5,10 +5,9 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
-import static j2html.TagCreator.ul;
 import static views.style.AdminStyles.HEADER_BUTTON_STYLES;
 
 import com.google.common.collect.ImmutableList;
@@ -19,7 +18,7 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.UlTag;
+import j2html.tags.specialized.OlTag;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -203,10 +202,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
         div()
             .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
             .withClasses("prose-body", "px-4", "pb-4")
-            .with(text(readablePredicate.heading()));
-    if (readablePredicate.conditionList().isPresent()) {
-      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
-      readablePredicate.conditionList().get().stream()
+            .with(p(readablePredicate.formattedHeading()).withClass("pb-4"));
+    if (readablePredicate.formattedConditionList().isPresent()) {
+      OlTag conditionList = ol().withClasses("list-decimal", "ml-4", "mb-4");
+      readablePredicate.formattedConditionList().get().stream()
           .forEach(condition -> conditionList.with(li(condition)));
       content.with(conditionList);
     }

@@ -33,7 +33,12 @@ public class PredicateUtilsTest {
 
     assertThat(readablePredicate.heading())
         .isEqualTo("My Test Block is shown if number is greater than or equal to 1000");
+    assertThat(readablePredicate.formattedHeading().toString())
+        .isEqualTo(
+            "My Test Block is <strong>shown</strong> if number is greater than or equal to"
+                + " <strong>1000</strong>");
     assertThat(readablePredicate.conditionList()).isEmpty();
+    assertThat(readablePredicate.formattedConditionList()).isEmpty();
   }
 
   @Test
@@ -72,9 +77,15 @@ public class PredicateUtilsTest {
 
     assertThat(readablePredicate.heading())
         .isEqualTo(
-            "My Test Block is hidden if city is equal to \"Phoenix\" and number is less than 4 and"
+            "My Test Block is hidden if city is equal to \"Phoenix\" AND number is less than 4 AND"
                 + " text is not equal to \"hello\"");
+    assertThat(readablePredicate.formattedHeading().toString())
+        .isEqualTo(
+            "My Test Block is <strong>hidden</strong> if city is equal to"
+                + " <strong>&quot;Phoenix&quot;</strong> AND number is less than <strong>4</strong>"
+                + " AND text is not equal to <strong>&quot;hello&quot;</strong>");
     assertThat(readablePredicate.conditionList()).isEmpty();
+    assertThat(readablePredicate.formattedConditionList()).isEmpty();
   }
 
   @Test
@@ -122,12 +133,27 @@ public class PredicateUtilsTest {
         PredicateUtils.getReadablePredicateDescription(
             "My Test Block", predicate, ImmutableList.of());
 
-    assertThat(readablePredicate.heading()).isEqualTo("My Test Block is eligible if any of:");
+    assertThat(readablePredicate.heading())
+        .isEqualTo("Applicant is eligible if any of the following is true:");
+    assertThat(readablePredicate.formattedHeading().toString())
+        .isEqualTo(
+            "Applicant is <strong>eligible</strong> if <strong>any</strong> of the following is"
+                + " true:");
     assertThat(readablePredicate.conditionList()).isPresent();
     assertThat(readablePredicate.conditionList().get().size()).isEqualTo(2);
     assertThat(readablePredicate.conditionList().get().get(0))
-        .isEqualTo("number is equal to 4 and text is equal to \"four\"");
+        .isEqualTo("number is equal to 4 AND text is equal to \"four\"");
     assertThat(readablePredicate.conditionList().get().get(1))
-        .isEqualTo("number is equal to 5 and text is equal to \"five\"");
+        .isEqualTo("number is equal to 5 AND text is equal to \"five\"");
+    assertThat(readablePredicate.formattedConditionList()).isPresent();
+    assertThat(readablePredicate.formattedConditionList().get().size()).isEqualTo(2);
+    assertThat(readablePredicate.formattedConditionList().get().get(0).toString())
+        .isEqualTo(
+            "number is equal to <strong>4</strong> AND text is equal to"
+                + " <strong>&quot;four&quot;</strong>");
+    assertThat(readablePredicate.formattedConditionList().get().get(1).toString())
+        .isEqualTo(
+            "number is equal to <strong>5</strong> AND text is equal to"
+                + " <strong>&quot;five&quot;</strong>");
   }
 }

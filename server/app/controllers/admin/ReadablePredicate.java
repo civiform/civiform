@@ -2,6 +2,7 @@ package controllers.admin;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import java.util.Optional;
 
 /**
@@ -10,8 +11,12 @@ import java.util.Optional;
 @AutoValue
 public abstract class ReadablePredicate {
   public static ReadablePredicate create(
-      String heading, Optional<ImmutableList<String>> conditionList) {
-    return new AutoValue_ReadablePredicate(heading, conditionList);
+      String heading,
+      UnescapedText formattedHeading,
+      Optional<ImmutableList<String>> conditionList,
+      Optional<ImmutableList<UnescapedText>> formattedConditionList) {
+    return new AutoValue_ReadablePredicate(
+        heading, formattedHeading, conditionList, formattedConditionList);
   }
 
   /**
@@ -19,6 +24,13 @@ public abstract class ReadablePredicate {
    * preface sentence that explains the {@link #conditionList()}.
    */
   public abstract String heading();
+
+  /**
+   * The formatted main heading for the predicate. Identical to {@link #heading()} with the
+   * exception that it may have additional HTML formatting such as <strong> tags to emphasize
+   * certain parts of the predicate.
+   */
+  public abstract UnescapedText formattedHeading();
 
   /**
    * An optional list of conditions required for this predicate.
@@ -30,4 +42,11 @@ public abstract class ReadablePredicate {
    * $30"].
    */
   public abstract Optional<ImmutableList<String>> conditionList();
+
+  /**
+   * An optional list of formatted conditions required for this predicate. Identical to {@link
+   * #conditionList()} with the exception that conditions may have additional HTML formatting such
+   * as <strong> tags to emphasize certain parts of the condition.
+   */
+  public abstract Optional<ImmutableList<UnescapedText>> formattedConditionList();
 }
