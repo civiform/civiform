@@ -77,7 +77,7 @@ public class QuestionModel extends BaseModel {
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
   // questionSettings is a storage column for question-specific settings
-  private @DbJsonB ImmutableList<QuestionSetting> questionSettings;
+  private @DbJsonB ImmutableSet<QuestionSetting> questionSettings;
 
   private @DbJsonB LocalizedStrings enumeratorEntityType;
 

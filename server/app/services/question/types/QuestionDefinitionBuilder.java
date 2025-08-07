@@ -43,7 +43,7 @@ public final class QuestionDefinitionBuilder {
 
   // Additional per-question fields.
   private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
-  private ImmutableList<QuestionSetting> questionSettings = ImmutableList.of();
+  private ImmutableSet<QuestionSetting> questionSettings = ImmutableSet.of();
   private String validationPredicatesString = "";
   private QuestionType questionType;
   private LocalizedStrings entityType;
@@ -161,7 +161,7 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setQuestionSettings(ImmutableList<QuestionSetting> settings) {
+  public QuestionDefinitionBuilder setQuestionSettings(ImmutableSet<QuestionSetting> settings) {
     this.questionSettings = settings;
     return this;
   }

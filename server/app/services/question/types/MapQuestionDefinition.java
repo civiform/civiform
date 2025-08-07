@@ -16,11 +16,11 @@ import services.question.QuestionSetting;
 @Getter
 public final class MapQuestionDefinition extends QuestionDefinition {
   @JsonProperty("questionSettings")
-  private final ImmutableList<QuestionSetting> questionSettings;
+  private final ImmutableSet<QuestionSetting> questionSettings;
 
   public MapQuestionDefinition(
       @JsonProperty("config") QuestionDefinitionConfig config,
-      @JsonProperty("questionSettings") ImmutableList<QuestionSetting> questionSettings) {
+      @JsonProperty("questionSettings") ImmutableSet<QuestionSetting> questionSettings) {
     super(config);
     this.questionSettings = questionSettings;
   }
@@ -31,7 +31,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
-  public Optional<ImmutableList<QuestionSetting>> getQuestionSettings() {
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
     return Optional.of(questionSettings);
   }
 

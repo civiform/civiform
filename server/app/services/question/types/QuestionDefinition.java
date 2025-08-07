@@ -339,7 +339,7 @@ public abstract class QuestionDefinition {
 
   /** Get the question settings for this question. Returns empty Optional if not supported. */
   @JsonIgnore
-  public Optional<ImmutableList<QuestionSetting>> getQuestionSettings() {
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
     return Optional.empty();
   }
 
