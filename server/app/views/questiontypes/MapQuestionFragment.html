@@ -13,6 +13,35 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
+  <form class="usa-form">
+    <label
+      class="usa-label"
+      for="filter1"
+      th:utext="${mapQuestion.getFilters()[0].formattedSettingDisplayName(ariaLabelForNewTabs)}"
+    ></label>
+    <select class="usa-select" name="filter1" id="filter1">
+      <option value>- Select -</option>
+      <option value="value1">Option A</option>
+    </select>
+    <label
+      class="usa-label"
+      for="filter2"
+      th:utext="${mapQuestion.getFilters()[1].formattedSettingDisplayName(ariaLabelForNewTabs)}"
+    ></label>
+    <select class="usa-select" name="filter2" id="filter2">
+      <option value>- Select -</option>
+      <option value="value1">Option A</option>
+    </select>
+    <label
+      class="usa-label"
+      for="filter3"
+      th:utext="${mapQuestion.getFilters()[2].formattedSettingDisplayName(ariaLabelForNewTabs)}"
+    ></label>
+    <select class="usa-select" name="filter3" id="filter3">
+      <option value>- Select -</option>
+      <option value="value1">Option A</option>
+    </select>
+  </form>
   <!-- TODO(#11003): Build out applicant view of map question -->
   <!-- TODO(#11150): Add map question preview functionality -->
   <div th:id="${mapId}" class="square-mobile"></div>
