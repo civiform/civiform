@@ -10,10 +10,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.CheckboxQuestionForm;
 import forms.DateQuestionForm;
-import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
+import services.LocalizedStrings;
+import services.question.QuestionSetting;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -69,9 +70,9 @@ public class QuestionConfigTest {
       MapQuestionSettingsPartialViewModel model =
           MapQuestionSettingsPartialViewModel.builder()
               .maxLocationSelections(OptionalInt.of(5))
-              .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
-              .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
-              .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
+              .locationName(QuestionSetting.create("name_key", LocalizedStrings.withDefaultValue("Location Name")))
+              .locationAddress(QuestionSetting.create("address_key", LocalizedStrings.withDefaultValue("Location Address")))
+              .locationDetailsUrl(QuestionSetting.create("url_key", LocalizedStrings.withDefaultValue("Details URL")))
               .filters(ImmutableList.of())
               .possibleKeys(Set.of("name_key", "address_key", "url_key"))
               .build();

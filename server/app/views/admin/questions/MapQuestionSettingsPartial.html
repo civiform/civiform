@@ -8,44 +8,44 @@
     type="number"
     th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
   />
-  <label class="usa-label" for="locationName.key">Location name</label>
-  <select class="usa-select" name="locationName.key" id="locationName.key">
+  <label class="usa-label" for="locationName.settingKey">Location name</label>
+  <select class="usa-select" name="locationName.settingKey" id="locationName.settingKey">
     <option value>Select a key</option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationName.key}"
+      th:selected="${key == model.locationName.settingKey()}"
     ></option>
   </select>
-  <label class="usa-label" for="locationAddress.key">Location address</label>
+  <label class="usa-label" for="locationAddress.settingKey">Location address</label>
   <select
     class="usa-select"
-    name="locationAddress.key"
-    id="locationAddress.key"
+    name="locationAddress.settingKey"
+    id="locationAddress.settingKey"
   >
     <option value>Select a key</option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationAddress.key}"
+      th:selected="${key == model.locationAddress.settingKey()}"
     ></option>
   </select>
-  <label class="usa-label" for="locationDetailsUrl.key"
+  <label class="usa-label" for="locationDetailsUrl.settingKey"
     >Location details URL</label
   >
   <select
     class="usa-select"
-    name="locationDetailsUrl.key"
-    id="locationDetailsUrl.key"
+    name="locationDetailsUrl.settingKey"
+    id="locationDetailsUrl.settingKey"
   >
     <option value>Select a key</option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationDetailsUrl.key}"
+      th:selected="${key == model.locationDetailsUrl.settingKey()}"
     ></option>
   </select>
 
@@ -53,30 +53,30 @@
   <div>Select up to three filters to make available to applicants.</div>
   <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
   <div th:each="filter, i : ${model.filters}">
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].settingKey'"
       >Key</label
     >
     <select
       class="usa-select"
-      th:name="'filters[' + ${i.index} + '].key'"
-      th:id="'filters[' + ${i.index} + '].key'"
+      th:name="'filters[' + ${i.index} + '].settingKey'"
+      th:id="'filters[' + ${i.index} + '].settingKey'"
     >
       <option value>Select a key</option>
       <option
         th:each="key: ${model.possibleKeys}"
         th:value="${key}"
         th:text="${key}"
-        th:selected="${key == filter.key}"
+        th:selected="${key == filter.settingKey()}"
       ></option>
     </select>
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].settingDisplayName'"
       >Display Name</label
     >
     <input
       class="usa-input"
-      th:id="'filters[' + ${i.index} + '].displayName'"
-      th:name="'filters[' + ${i.index} + '].displayName'"
-      th:value="${filter.displayName}"
+      th:id="'filters[' + ${i.index} + '].settingDisplayName'"
+      th:name="'filters[' + ${i.index} + '].settingDisplayName'"
+      th:value="${filter.settingDisplayName().default}"
     />
   </div>
   <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
