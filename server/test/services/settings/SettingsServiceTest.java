@@ -132,7 +132,7 @@ public class SettingsServiceTest extends ResetPostgres {
         new SettingsService(
             instanceOf(SettingsGroupRepository.class),
             testManifest,
-            instanceOf(SettingsCache.class));
+            instanceOf(FakeSettingsCache.class));
   }
 
   @Test

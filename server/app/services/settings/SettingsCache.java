@@ -21,7 +21,7 @@ import repository.DatabaseExecutionContext;
 import repository.SettingsGroupRepository;
 
 @Singleton
-public final class SettingsCache {
+public final class SettingsCache implements SettingsCacheInterface {
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsCache.class);
 
@@ -53,6 +53,7 @@ public final class SettingsCache {
       DatabaseExecutionContext dbExecutionContext,
       Database database,
       ApplicationLifecycle lifecycle) {
+    logger.warn("REAL CACHE INIT");
     this.repo = repo;
     this.dbExecutionContext = dbExecutionContext;
     this.database = database;
@@ -74,6 +75,7 @@ public final class SettingsCache {
   }
 
   /** Returns the current cached settings (may be empty if none yet). */
+  @Override
   public Optional<SettingsGroupModel> get() {
     return cache;
   }
