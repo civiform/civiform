@@ -15,6 +15,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     super(config);
   }
 
+  // ADD A COMMENT TO TRIGGER TEST RUN
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.MAP;
