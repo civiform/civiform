@@ -52,17 +52,14 @@ test.describe('Yes/no translations', () => {
     })
 
     await test.step('Navigate to translation editor', async () => {
-      await page.goto('/admin/questions/yes-no-question/translations/am/edit')
-      await waitForPageJsLoad(page)
+      await adminQuestions.goToQuestionTranslationPage('yes-no-question')
     })
 
-    await test.step('Verify snapshot and message', async () => {
-      const mainContent = page.locator('main')
-      await validateScreenshot(mainContent, 'yes-no-question-translation-view')
-
+    await test.step('Verify message and hide answer options', async () => {
       await expect(
         page.getByText('Yes/No question options are pre-translated.'),
       ).toBeVisible()
+      await expect(page.getByText('Answer options')).toHaveCount(0)
     })
   })
 })
