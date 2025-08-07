@@ -26,7 +26,12 @@
         th:id="'filter' + ${i.index + 1}"
       >
         <option value>- Select -</option>
-        <option value="value1">Option A</option>
+        <option
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingKey())}"
+          th:value="${option}"
+          th:text="${option}"
+        ></option>
       </select>
     </div>
   </form>
