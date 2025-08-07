@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import com.google.common.collect.ImmutableSet;
 import models.LifecycleStage;
 import models.QuestionModel;
 import models.VersionModel;
@@ -665,7 +667,7 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                 .build(),
-            ImmutableList.of());
+            ImmutableSet.of());
     return maybeSave(definition);
   }
 
