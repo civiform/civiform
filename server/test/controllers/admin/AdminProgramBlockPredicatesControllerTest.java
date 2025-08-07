@@ -125,7 +125,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(content).contains("Eligibility condition for Screen 1");
-    assertThat(content).contains("This screen is always eligible");
+    assertThat(content).contains("This screen does not have any eligibility conditions");
     assertThat(content).contains("Admin ID: applicant name");
     assertThat(content).contains("what is your name?");
   }
