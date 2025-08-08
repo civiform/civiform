@@ -9,16 +9,22 @@
     th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
   />
   <label class="usa-label" for="locationName.key">Location name</label>
-  <select class="usa-select" name="locationName.key" id="locationName.key">
+  <select
+    class="usa-select"
+    name="locationName.key"
+    id="locationName.key"
+  >
     <option value>Select a key</option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationName.key}"
+      th:selected="${key == model.locationName.getKey()}"
     ></option>
   </select>
-  <label class="usa-label" for="locationAddress.key">Location address</label>
+  <label class="usa-label" for="locationAddress.key"
+    >Location address</label
+  >
   <select
     class="usa-select"
     name="locationAddress.key"
@@ -29,7 +35,7 @@
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationAddress.key}"
+      th:selected="${key == model.locationAddress.getKey()}"
     ></option>
   </select>
   <label class="usa-label" for="locationDetailsUrl.key"
@@ -45,7 +51,7 @@
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
       th:text="${key}"
-      th:selected="${key == model.locationDetailsUrl.key}"
+      th:selected="${key == model.locationDetailsUrl.getKey()}"
     ></option>
   </select>
 
@@ -66,17 +72,19 @@
         th:each="key: ${model.possibleKeys}"
         th:value="${key}"
         th:text="${key}"
-        th:selected="${key == filter.key}"
+        th:selected="${key == filter.getKey()}"
       ></option>
     </select>
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
+    <label
+      class="usa-label"
+      th:for="'filters[' + ${i.index} + '].displayName'"
       >Display Name</label
     >
     <input
       class="usa-input"
       th:id="'filters[' + ${i.index} + '].displayName'"
       th:name="'filters[' + ${i.index} + '].displayName'"
-      th:value="${filter.displayName}"
+      th:value="${filter.getDisplayName()}"
     />
   </div>
   <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->

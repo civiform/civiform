@@ -21,11 +21,11 @@ public record MapQuestionSettingsPartialViewModel(
   public static MapQuestionSettingsPartialViewModel withEmptyDefaults(Set<String> possibleKeys) {
     return new MapQuestionSettingsPartialViewModel(
         OptionalInt.empty(),
-        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_NAME_DISPLAY),
-        MapQuestionForm.Setting.emptyKeyWithDisplayName(MapQuestionForm.LOCATION_ADDRESS_DISPLAY),
-        MapQuestionForm.Setting.emptyKeyWithDisplayName(
+        MapQuestionForm.Setting.emptySettingWithDisplayName(MapQuestionForm.LOCATION_NAME_DISPLAY),
+        MapQuestionForm.Setting.emptySettingWithDisplayName(MapQuestionForm.LOCATION_ADDRESS_DISPLAY),
+        MapQuestionForm.Setting.emptySettingWithDisplayName(
             MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY),
-        MapQuestionForm.Setting.emptyFilters(),
+      MapQuestionForm.Setting.emptyFilters(),
         possibleKeys);
   }
 }
