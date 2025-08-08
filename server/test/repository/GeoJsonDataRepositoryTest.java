@@ -1,5 +1,6 @@
 package repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,10 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
             .join();
 
     // Confirm that we get the second record
-    assertTrue(result.isPresent() && result.get().getGeoJson().equals(testFeatureCollection2));
+    assertThat(result).isNotNull();
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getGeoJson()).isNotNull();
+    assertThat(result.get().getGeoJson()).isEqualTo(testFeatureCollection2);
   }
 
   @Test
