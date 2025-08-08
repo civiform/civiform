@@ -28,7 +28,7 @@ public class MapQuestionForm extends QuestionForm {
   public static final String LOCATION_NAME_DISPLAY = "Name";
   public static final String LOCATION_ADDRESS_DISPLAY = "Address";
   public static final String LOCATION_DETAILS_URL_DISPLAY = "URL";
-  private final List<String> DEFAULT_MAP_QUESTION_KEYS =
+  public static final List<String> DEFAULT_MAP_QUESTION_KEYS =
       Arrays.asList(LOCATION_NAME_DISPLAY, LOCATION_ADDRESS_DISPLAY, LOCATION_DETAILS_URL_DISPLAY);
 
   /**
@@ -52,10 +52,10 @@ public class MapQuestionForm extends QuestionForm {
     }
 
     public static Setting emptySetting() {
-      return new Setting("", "");
+      return new Setting();
     }
 
-    public static Setting emptyKeyWithDisplayName(String displayName) {
+    public static Setting emptySettingWithDisplayName(String displayName) {
       return new Setting("", displayName);
     }
 

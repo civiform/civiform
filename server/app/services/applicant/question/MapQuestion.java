@@ -3,7 +3,9 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import forms.MapQuestionForm;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -38,35 +40,45 @@ public final class MapQuestion extends AbstractQuestion {
     return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getFilters() {
+  private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
+    return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
+  }
+
+  public ImmutableSet<LocalizedQuestionSetting> getFilters() {
     return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getFilters(Locale locale) {
-    return getQuestionDefinition().getFiltersForLocaleOrDefault(locale);
+  public ImmutableSet<LocalizedQuestionSetting> getFilters(Locale locale) {
+    return getSettings(locale).stream().filter(setting ->
+                !MapQuestionForm.DEFAULT_MAP_QUESTION_KEYS.contains(setting.settingDisplayName()))
+            .collect(ImmutableSet.toImmutableSet());
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getNameSetting() {
-    return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  public Optional<LocalizedQuestionSetting> getNameSetting() {
+    return getNameSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getNameSetting(Locale locale) {
-    return getQuestionDefinition().getFiltersForLocaleOrDefault(locale);
+  public Optional<LocalizedQuestionSetting> getNameSetting(Locale locale) {
+    return getSettings(locale).stream().filter(setting -> MapQuestionForm.LOCATION_NAME_DISPLAY.equals(setting.settingDisplayName()))
+            .findFirst();
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getAddressSetting() {
-    return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  public Optional<LocalizedQuestionSetting> getAddressSetting() {
+    return getAddressSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getAddressSetting(Locale locale) {
-    return getQuestionDefinition().getFiltersForLocaleOrDefault(locale);
+  public Optional<LocalizedQuestionSetting> getAddressSetting(Locale locale) {
+    return getSettings(locale).stream().filter(setting -> MapQuestionForm.LOCATION_ADDRESS_DISPLAY.equals(setting.settingDisplayName()))
+      .findFirst();
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getLocationDetailsUrlSetting() {
-    return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting() {
+    return getLocationDetailsUrlSetting(
+        applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  public ImmutableList<LocalizedQuestionSetting> getLocationDetailsUrlSetting(Locale locale) {
-    return getQuestionDefinition().getFiltersForLocaleOrDefault(locale);
+  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting(Locale locale) {
+    return getSettings(locale).stream().filter(setting -> MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY.equals(setting.settingDisplayName()))
+      .findFirst();
   }
 }
