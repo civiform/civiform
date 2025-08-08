@@ -32,18 +32,16 @@ test.describe('Yes/no options', () => {
 })
 
 test.describe('Yes/no translations', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
   test('renders translation screen with pre-translated message only', async ({
     page,
     adminQuestions,
   }) => {
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'north_star_admin_ui')
-
     await test.step('Create a yes/no question', async () => {
-      adminQuestions.gotoAdminQuestionsPage = async () => {
-        await page.goto('/admin/questions')
-        await waitForPageJsLoad(page)
-      }
+      await loginAsAdmin(page)
+      await adminQuestions.gotoAdminQuestionsPage()
 
       await adminQuestions.addYesNoQuestion({
         questionName: 'yes-no-question',
