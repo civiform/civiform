@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import io.ebean.DB;
+import io.ebean.Transaction;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -68,17 +70,22 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
     firstEntry.setEndpoint(endpoint);
     firstEntry.setGeoJson(testFeatureCollection1);
     firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
+    // firstEntry.setConfirmTime(LocalDateTime.of(2023, 5, 25, 0, 0).toInstant(ZoneOffset.UTC));
     firstEntry.save();
   }
 
   @Test
   public void getMostRecentGeoJsonDataRowForEndpoint_success() {
     // Create a second record in the database
-    GeoJsonDataModel secondEntry = new GeoJsonDataModel();
-    secondEntry.setEndpoint(endpoint);
-    secondEntry.setGeoJson(testFeatureCollection2);
-    secondEntry.setConfirmTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
-    secondEntry.save();
+
+    try (Transaction transaction = DB.beginTransaction()) {
+      GeoJsonDataModel secondEntry = new GeoJsonDataModel();
+      secondEntry.setEndpoint(endpoint);
+      secondEntry.setGeoJson(testFeatureCollection2);
+      secondEntry.setConfirmTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
+      secondEntry.save();
+      transaction.commit();
+    }
 
     Optional<GeoJsonDataModel> result =
         geoJsonDataRepository
