@@ -102,6 +102,9 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     }
 
     IdTokens idTokens = account.get().getIdTokens();
+    if (idTokens == null) {
+      return Optional.empty();
+    }
 
     // When we build the logout action, we do not remove the id token. We leave it in place in case
     // of transient logout failures. Expired tokens are purged at login time instead.
