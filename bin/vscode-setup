@@ -4,6 +4,9 @@
 # This allows VSCode IDE features to find Java imports for symbols and code
 # completion.  Needs to be rerun when dependencies are changed.
 
+# Log all output and errors to bin/vscode-setup.log
+exec > >(tee -a bin/vscode-setup.log) 2>&1
+
 source bin/lib.sh
 docker::set_project_name_dev
 
@@ -18,17 +21,22 @@ bin/sbt makePom
 # Wait a few seconds to ensure the file is generated.
 sleep 5
 
-# Get the full path of the generated pom file dynamically.
+# Find the scala directory with the highest version
+SCALA_DIR=$(docker::compose_dev --profile shell exec civiform sh -c 'ls -d /usr/src/server/target/scala-* 2>/dev/null | sort -V | tail -n 1')
 
-POM_PATH=$(docker::compose_dev --profile shell exec civiform find /usr/src/server/target/scala* -name "civiform-server_*.pom")
-
-if [ -z "$POM_PATH" ]; then
-  echo "ERROR: POM file not found. Check if 'bin/sbt makePom' succeeded and the file exists in /usr/src/server/target."
+if [ -z "$SCALA_DIR" ]; then
+  echo "ERROR: No scala-* directory found in /usr/src/server/target."
   exit 1
 fi
 
+# Find the POM file in the highest version scala directory
+POM_PATH=$(docker::compose_dev --profile shell exec civiform find "$SCALA_DIR" -name "civiform-server_*.pom" | head -n 1)
 
-# Copy the file to the local directory using the dynamic path.
+if [ -z "$POM_PATH" ]; then
+  echo "ERROR: POM file not found in $SCALA_DIR. Check if 'bin/sbt makePom' succeeded."
+  exit 1
+fi
+
 echo "Copying POM file from container path: $POM_PATH"
 docker::compose_dev --profile shell cp "civiform:${POM_PATH}" server/pom.xml
 
