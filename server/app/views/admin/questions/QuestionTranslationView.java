@@ -105,6 +105,8 @@ public final class QuestionTranslationView extends TranslationFormView {
   private Optional<DomContent> getQuestionTypeSpecificContent(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
+      case YES_NO:
+        return Optional.of(div("Yes/No question options are pre-translated.").withClass("mb-4"));
       case CHECKBOX: // fallthrough intended
       case DROPDOWN: // fallthrough intended
       case RADIO_BUTTON:
@@ -120,8 +122,6 @@ public final class QuestionTranslationView extends TranslationFormView {
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
       case PHONE: // fallthrough intended
-      case YES_NO:
-        return Optional.of(div("Yes/No question options are pre-translated.").withClass("mb-4"));
       default:
         return Optional.empty();
     }
