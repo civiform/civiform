@@ -199,4 +199,43 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     assertThat(queryParamValue(locationUri, "custom_target_url_parameter_name"))
         .hasValue(targetUrl);
   }
+
+  @Test
+  public void testBuilderLogsOutIfIdTokensNull() throws URISyntaxException {
+    // By default, the `post_logout_redirect_url` is parameter is set. In this case, we want to use
+    // a custom parameter name.
+    Config civiformConfig =
+        ConfigFactory.parseMap(
+            ImmutableMap.of("auth.oidc_post_logout_param", "custom_target_url_parameter_name"));
+
+    AccountModel account = new AccountModel();
+    IdTokens idTokens = null;
+    account.setIdTokens(idTokens);
+    Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
+
+    OidcClientProviderParams params =
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
+    CiviformOidcLogoutActionBuilder builder =
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
+
+    Optional<RedirectionAction> logoutAction =
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+
+    assertThat(logoutAction).isNotEmpty();
+    assertThat(logoutAction.get().getCode()).isEqualTo(302);
+
+    String location = ((FoundAction) logoutAction.get()).getLocation();
+    assertThat(location).isNotEmpty();
+    URI locationUri = new URI(location);
+    assertThat(locationUri.getHost()).isEqualTo(oidcHost);
+    assertThat(locationUri.getPort()).isEqualTo(oidcPort);
+    assertThat(locationUri.getPath()).isEqualTo("/session/end");
+
+    assertThat(queryParamValue(locationUri, "client_id")).hasValue(clientId);
+    // Check the value of the custom parameter.
+    assertThat(queryParamValue(locationUri, "custom_target_url_parameter_name"))
+        .hasValue(targetUrl);
+  }
 }
