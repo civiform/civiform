@@ -1,9 +1,11 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
@@ -13,15 +15,19 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.PredicateUtils;
 import controllers.admin.ReadablePredicate;
 import controllers.admin.routes;
+import j2html.TagCreator;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import models.CategoryModel;
 import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateUseCase;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
@@ -29,6 +35,7 @@ import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.components.Icons;
 import views.components.TextFormatter;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 abstract class ProgramBaseView extends BaseHtmlView {
@@ -120,35 +127,127 @@ abstract class ProgramBaseView extends BaseHtmlView {
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 
+  /** Renders a div actively indicating there is no predicate condition for the admin. */
+  protected final DivTag renderEmptyPredicate(
+      PredicateUseCase predicateUseCase, long programId, long blockId, boolean includeEditFooter) {
+    DivTag emptyPredicateStatus =
+        div().withClasses("border", "border-gray-200", "p-4", "usa-prose", "my-2");
+    String message =
+        switch (predicateUseCase) {
+          case ELIGIBILITY -> "This screen does not have any eligibility conditions.";
+          case VISIBILITY -> "This screen is always shown.";
+        };
+    emptyPredicateStatus.with(div().withText(message));
+
+    if (!includeEditFooter) {
+      return emptyPredicateStatus;
+    }
+    ATag editLink = a().withClasses("usa-link");
+    if (predicateUseCase == PredicateUseCase.ELIGIBILITY) {
+      editLink
+          .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK)
+          .withHref(
+              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+                  .url())
+          .withText("Add eligibility conditions");
+    } else if (predicateUseCase == PredicateUseCase.VISIBILITY) {
+      editLink
+          .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK)
+          .withHref(
+              routes.AdminProgramBlockPredicatesController.editVisibility(programId, blockId).url())
+          .withText("Add visibility conditions");
+    }
+    return emptyPredicateStatus.with(div().with(editLink));
+  }
+
   /** Renders a div presenting the predicate definition for the admin. */
   protected final DivTag renderExistingPredicate(
+      long programId,
+      long blockId,
       String blockName,
       PredicateDefinition predicateDefinition,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      PredicateUseCase predicateUseCase,
+      boolean includeEditFooter,
+      boolean expanded) {
+    DivTag header =
+        div()
+            .with(
+                TagCreator.button()
+                    .withClasses(
+                        "usa-accordion__button",
+                        "flex",
+                        "p-4",
+                        "gap-4",
+                        "items-center",
+                        "text-black",
+                        "font-normal",
+                        "bg-transparent")
+                    .withType("button")
+                    .attr("aria-expanded", expanded)
+                    .attr(
+                        "aria-controls",
+                        predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
+                    .condWith(
+                        predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                        p("This screen has eligibility conditions.").withClass("flex-grow"))
+                    .condWith(
+                        predicateUseCase == PredicateUseCase.VISIBILITY,
+                        Icons.svg(Icons.VISIBILITY_OFF).withClasses("w-6", "h-5", "shrink-0"),
+                        p("This screen has visibility conditions.").withClass("flex-grow")));
+
+    ReadablePredicate readablePredicate =
+        PredicateUtils.getReadablePredicateDescription(
+            blockName, predicateDefinition, questionDefinitions);
+    DivTag content =
+        div()
+            .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
+            .withClasses("prose-body", "px-4", "pb-4")
+            .with(text(readablePredicate.heading()));
+    if (readablePredicate.conditionList().isPresent()) {
+      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
+      readablePredicate.conditionList().get().stream()
+          .forEach(condition -> conditionList.with(li(condition)));
+      content.with(conditionList);
+    }
+
     DivTag container =
         div()
             .withClasses(
                 "my-2",
                 "border",
                 "border-gray-200",
-                "px-4",
-                "py-4",
                 "gap-4",
                 "items-center",
-                StyleUtils.hover("text-gray-800", "bg-gray-100"));
+                "usa-accordion",
+                StyleUtils.hover("text-gray-800", "bg-gray-100"))
+            .with(header, content);
 
-    ReadablePredicate readablePredicate =
-        PredicateUtils.getReadablePredicateDescription(
-            blockName, predicateDefinition, questionDefinitions);
-
-    container.with(text(readablePredicate.heading()));
-    if (readablePredicate.conditionList().isPresent()) {
-      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
-      readablePredicate.conditionList().get().stream()
-          .forEach(condition -> conditionList.with(li(condition)));
-      container.with(conditionList);
+    if (!includeEditFooter) {
+      return container;
     }
-    return container;
+    DivTag footer =
+        div()
+            .withClasses("prose-body", "px-4", "pb-4")
+            .condWith(
+                predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                a().withHref(
+                        routes.AdminProgramBlockPredicatesController.editEligibility(
+                                programId, blockId)
+                            .url())
+                    .withText("Edit eligibility conditions")
+                    .withClasses("usa-link")
+                    .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_LINK))
+            .condWith(
+                predicateUseCase == PredicateUseCase.VISIBILITY,
+                a().withHref(
+                        routes.AdminProgramBlockPredicatesController.editVisibility(
+                                programId, blockId)
+                            .url())
+                    .withText("Edit visibility conditions")
+                    .withClasses("usa-link")
+                    .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_LINK));
+    return container.with(footer);
   }
 
   private ButtonTag renderHeaderButton(
