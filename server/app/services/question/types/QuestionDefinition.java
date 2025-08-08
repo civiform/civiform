@@ -336,7 +336,7 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public abstract QuestionType getQuestionType();
 
-  /** Get the question settings for this question. Returns empty Optional if not supported. */
+  /** Get the question settings for this question. */
   @JsonIgnore
   public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
     return config.questionSettings();
