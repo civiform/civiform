@@ -8,12 +8,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
-import lombok.Getter;
 import services.CiviFormError;
 
-@Getter
 public final class MapQuestionDefinition extends QuestionDefinition {
-
   public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
   }
