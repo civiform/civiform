@@ -1,0 +1,40 @@
+%TEMPLATE_MODE HTML
+# ------------------------------------------
+%NAME Iterator Test with Product List
+# ------------------------------------------
+# Context variables with a collection - using the correct format
+%CONTEXT
+products = {'product1', 'product2'}
+# ------------------------------------------
+%INPUT
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div>
+    <h2>Product List</h2>
+    <ul>
+      <li th:each="product : ${products}">
+        <span th:text="${product}">Product name</span>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
+# ------------------------------------------
+%OUTPUT
+<!DOCTYPE html>
+<html>
+<body>
+  <div>
+    <h2>Product List</h2>
+    <ul>
+      <li>
+        <span>product1</span>
+      </li>
+      <li>
+        <span>product2</span>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
