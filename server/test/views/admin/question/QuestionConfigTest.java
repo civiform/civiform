@@ -13,8 +13,6 @@ import forms.DateQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
-import services.LocalizedStrings;
-import services.question.QuestionSetting;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -31,6 +29,8 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.LocalizedStrings;
+import services.question.QuestionSetting;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -70,9 +70,15 @@ public class QuestionConfigTest {
       MapQuestionSettingsPartialViewModel model =
           MapQuestionSettingsPartialViewModel.builder()
               .maxLocationSelections(OptionalInt.of(5))
-              .locationName(QuestionSetting.create("name_key", LocalizedStrings.withDefaultValue("Location Name")))
-              .locationAddress(QuestionSetting.create("address_key", LocalizedStrings.withDefaultValue("Location Address")))
-              .locationDetailsUrl(QuestionSetting.create("url_key", LocalizedStrings.withDefaultValue("Details URL")))
+              .locationName(
+                  QuestionSetting.create(
+                      "name_key", LocalizedStrings.withDefaultValue("Location Name")))
+              .locationAddress(
+                  QuestionSetting.create(
+                      "address_key", LocalizedStrings.withDefaultValue("Location Address")))
+              .locationDetailsUrl(
+                  QuestionSetting.create(
+                      "url_key", LocalizedStrings.withDefaultValue("Details URL")))
               .filters(ImmutableList.of())
               .possibleKeys(Set.of("name_key", "address_key", "url_key"))
               .build();

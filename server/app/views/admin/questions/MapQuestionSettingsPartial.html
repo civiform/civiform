@@ -9,7 +9,11 @@
     th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
   />
   <label class="usa-label" for="locationName.settingKey">Location name</label>
-  <select class="usa-select" name="locationName.settingKey" id="locationName.settingKey">
+  <select
+    class="usa-select"
+    name="locationName.settingKey"
+    id="locationName.settingKey"
+  >
     <option value>Select a key</option>
     <option
       th:each="key: ${model.possibleKeys}"
@@ -18,7 +22,9 @@
       th:selected="${key == model.locationName.settingKey()}"
     ></option>
   </select>
-  <label class="usa-label" for="locationAddress.settingKey">Location address</label>
+  <label class="usa-label" for="locationAddress.settingKey"
+    >Location address</label
+  >
   <select
     class="usa-select"
     name="locationAddress.settingKey"
@@ -69,14 +75,16 @@
         th:selected="${key == filter.settingKey()}"
       ></option>
     </select>
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].settingDisplayName'"
+    <label
+      class="usa-label"
+      th:for="'filters[' + ${i.index} + '].localizedSettingDisplayName'"
       >Display Name</label
     >
     <input
       class="usa-input"
-      th:id="'filters[' + ${i.index} + '].settingDisplayName'"
-      th:name="'filters[' + ${i.index} + '].settingDisplayName'"
-      th:value="${filter.settingDisplayName().default}"
+      th:id="'filters[' + ${i.index} + '].localizedSettingDisplayName'"
+      th:name="'filters[' + ${i.index} + '].localizedSettingDisplayName'"
+      th:value="${filter.localizedSettingDisplayName().default}"
     />
   </div>
   <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->

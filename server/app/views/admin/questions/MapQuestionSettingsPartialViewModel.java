@@ -2,7 +2,6 @@ package views.admin.questions;
 
 import forms.MapQuestionForm;
 import forms.QuestionSettingUtils;
-
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
