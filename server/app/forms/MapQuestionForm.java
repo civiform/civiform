@@ -1,6 +1,6 @@
 package forms;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
@@ -76,7 +76,11 @@ public class MapQuestionForm extends QuestionForm {
     this.geoJsonEndpoint = qd.getMapValidationPredicates().geoJsonEndpoint();
     this.maxLocationSelections = qd.getMapValidationPredicates().maxLocationSelections();
 
-    setFormWithQuestionSettings(qd.getQuestionSettings());
+    if (qd.getQuestionSettings().isPresent()) {
+      setFormWithQuestionSettings(qd.getQuestionSettings().get());
+    } else {
+      setFormWithDefaultQuestionSettings();
+    }
   }
 
   @Override
@@ -122,51 +126,66 @@ public class MapQuestionForm extends QuestionForm {
   }
 
   /** Converts persistent {@link QuestionSetting} back to form {@link Setting} for editing. */
-  private void setFormWithQuestionSettings(List<QuestionSetting> settings) {
+  private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
     this.locationName =
         settings.stream()
             .filter(
-                setting -> setting.settingDisplayName().getDefault().equals(LOCATION_NAME_DISPLAY))
+                setting ->
+                    setting
+                        .localizedSettingDisplayName()
+                        .getDefault()
+                        .equals(LOCATION_NAME_DISPLAY))
             .findFirst()
             .map(
                 setting ->
-                    new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
+                    new Setting(
+                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
             .orElse(Setting.emptySetting());
     this.locationAddress =
         settings.stream()
             .filter(
                 setting ->
-                    setting.settingDisplayName().getDefault().equals(LOCATION_ADDRESS_DISPLAY))
+                    setting
+                        .localizedSettingDisplayName()
+                        .getDefault()
+                        .equals(LOCATION_ADDRESS_DISPLAY))
             .findFirst()
             .map(
                 setting ->
-                    new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
+                    new Setting(
+                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
             .orElse(Setting.emptySetting());
     this.locationDetailsUrl =
         settings.stream()
             .filter(
                 setting ->
-                    setting.settingDisplayName().getDefault().equals(LOCATION_DETAILS_URL_DISPLAY))
+                    setting
+                        .localizedSettingDisplayName()
+                        .getDefault()
+                        .equals(LOCATION_DETAILS_URL_DISPLAY))
             .findFirst()
             .map(
                 setting ->
-                    new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
+                    new Setting(
+                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
             .orElse(Setting.emptySetting());
 
     this.filters =
         settings.stream()
             .filter(
                 setting ->
-                    !DEFAULT_MAP_QUESTION_KEYS.contains(setting.settingDisplayName().getDefault()))
+                    !DEFAULT_MAP_QUESTION_KEYS.contains(
+                        setting.localizedSettingDisplayName().getDefault()))
             .map(
                 setting ->
-                    new Setting(setting.settingKey(), setting.settingDisplayName().getDefault()))
+                    new Setting(
+                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
             .collect(Collectors.toList());
   }
 
   /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
-  private ImmutableList<QuestionSetting> buildQuestionSettings() {
-    ImmutableList.Builder<QuestionSetting> builder = ImmutableList.builder();
+  private ImmutableSet<QuestionSetting> buildQuestionSettings() {
+    ImmutableSet.Builder<QuestionSetting> builder = ImmutableSet.builder();
 
     builder.add(
         QuestionSetting.create(
