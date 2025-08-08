@@ -25,11 +25,11 @@ public class MapQuestionForm extends QuestionForm {
   @Setter private Setting locationDetailsUrl;
   @Setter private List<Setting> filters;
 
-  private final List<String> DEFAULT_MAP_QUESTION_KEYS = Arrays.asList("Name", "Address", "URL");
-
   public static final String LOCATION_NAME_DISPLAY = "Name";
   public static final String LOCATION_ADDRESS_DISPLAY = "Address";
   public static final String LOCATION_DETAILS_URL_DISPLAY = "URL";
+  private final List<String> DEFAULT_MAP_QUESTION_KEYS =
+      Arrays.asList(LOCATION_NAME_DISPLAY, LOCATION_ADDRESS_DISPLAY, LOCATION_DETAILS_URL_DISPLAY);
 
   /**
    * Simple class for MAP question settings. Used for form processing and gets converted to {@link
