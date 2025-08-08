@@ -19,7 +19,13 @@ bin/sbt makePom
 sleep 5
 
 # Get the full path of the generated pom file dynamically.
-POM_PATH=$(docker::compose_dev --profile shell exec civiform find /usr/src/server/target -name "civiform-server_*.pom")
+POM_PATH=$(docker compose exec -T civiform find /usr/src/server/target/scala-*/ -name "civiform-server_*.pom" | head -n 1)
+
+# Check if a pom file was found.
+if [ -z "$POM_PATH" ]; then
+    echo "Error: No pom file found in the container."
+    exit 1
+fi
 
 # Copy the file to the local directory using the dynamic path.
 docker::compose_dev --profile shell cp "civiform:${POM_PATH}" server/pom.xml
