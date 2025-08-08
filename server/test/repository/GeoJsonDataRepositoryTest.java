@@ -66,12 +66,15 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
     geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
 
     // Create a database record
-    GeoJsonDataModel firstEntry = new GeoJsonDataModel();
-    firstEntry.setEndpoint(endpoint);
-    firstEntry.setGeoJson(testFeatureCollection1);
-    firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
-    // firstEntry.setConfirmTime(LocalDateTime.of(2023, 5, 25, 0, 0).toInstant(ZoneOffset.UTC));
-    firstEntry.save();
+    try (Transaction transaction = DB.beginTransaction()) {
+      GeoJsonDataModel firstEntry = new GeoJsonDataModel();
+      firstEntry.setEndpoint(endpoint);
+      firstEntry.setGeoJson(testFeatureCollection1);
+      firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
+      // firstEntry.setConfirmTime(LocalDateTime.of(2023, 5, 25, 0, 0).toInstant(ZoneOffset.UTC));
+      firstEntry.save();
+      transaction.commit();
+    }
   }
 
   @Test
