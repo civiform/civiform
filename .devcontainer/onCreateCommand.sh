@@ -9,3 +9,6 @@ sudo apt install -y tmux
 
 # Install Playwright
 npm install --no-save --no-browsers @playwright/test
+
+# Clean up apt cache to save space
+sudo apt clean
