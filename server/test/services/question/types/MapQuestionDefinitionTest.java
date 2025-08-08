@@ -87,7 +87,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
             .build();
-    QuestionDefinition question = new MapQuestionDefinition(config, ImmutableSet.of());
+    QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Map question must have valid GeoJSON"));
   }
@@ -119,7 +119,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
                     .build())
             .build();
 
-    QuestionDefinition question = new MapQuestionDefinition(config, ImmutableSet.of());
+    QuestionDefinition question = new MapQuestionDefinition(config);
 
     ImmutableSet<CiviFormError> errors = question.validate();
 

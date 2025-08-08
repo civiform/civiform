@@ -2,7 +2,6 @@ package support;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -665,8 +664,7 @@ public class TestQuestionBank {
                 .setDescription("select locations")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                .build(),
-            ImmutableSet.of());
+                .build());
     return maybeSave(definition);
   }
 

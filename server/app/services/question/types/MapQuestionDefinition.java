@@ -10,28 +10,17 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import lombok.Getter;
 import services.CiviFormError;
-import services.question.QuestionSetting;
 
 @Getter
 public final class MapQuestionDefinition extends QuestionDefinition {
-  @JsonProperty("questionSettings")
-  private final ImmutableSet<QuestionSetting> questionSettings;
 
-  public MapQuestionDefinition(
-      @JsonProperty("config") QuestionDefinitionConfig config,
-      @JsonProperty("questionSettings") ImmutableSet<QuestionSetting> questionSettings) {
+  public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
     super(config);
-    this.questionSettings = questionSettings;
   }
 
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.MAP;
-  }
-
-  @Override
-  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
-    return Optional.of(questionSettings);
   }
 
   @Override

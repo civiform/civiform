@@ -278,8 +278,7 @@ public final class SampleQuestionDefinitions {
                           "help text",
                           Lang.forCode("ar").toLocale(),
                           "نص المساعدة")))
-              .build(),
-          ImmutableSet.of());
+              .build());
 
   @VisibleForTesting
   public static final NameQuestionDefinition NAME_QUESTION_DEFINITION =

@@ -43,7 +43,6 @@ public final class QuestionDefinitionBuilder {
 
   // Additional per-question fields.
   private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
-  private ImmutableSet<QuestionSetting> questionSettings = ImmutableSet.of();
   private String validationPredicatesString = "";
   private QuestionType questionType;
   private LocalizedStrings entityType;
@@ -75,11 +74,6 @@ public final class QuestionDefinitionBuilder {
     if (definition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
       questionOptions = multiOption.getOptions();
-    }
-
-    if (QuestionType.supportsQuestionSettings(definition.getQuestionType())
-        && definition.getQuestionSettings().isPresent()) {
-      questionSettings = definition.getQuestionSettings().get();
     }
   }
 
@@ -162,7 +156,7 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder setQuestionSettings(ImmutableSet<QuestionSetting> settings) {
-    this.questionSettings = settings;
+    builder.setQuestionSettings(settings);
     return this;
   }
 
@@ -257,7 +251,7 @@ public final class QuestionDefinitionBuilder {
           builder.setValidationPredicates(
               MapValidationPredicates.parse(validationPredicatesString));
         }
-        return new MapQuestionDefinition(builder.build(), questionSettings);
+        return new MapQuestionDefinition(builder.build());
 
       case NAME:
         if (!validationPredicatesString.isEmpty()) {

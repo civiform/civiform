@@ -284,8 +284,8 @@ public class QuestionModel extends BaseModel {
       questionOptions = multiOption.getOptions();
     }
 
-    if (QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())
-        && questionDefinition.getQuestionSettings().isPresent()) {
+    if (questionDefinition.getQuestionSettings().isPresent()
+        && QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())) {
       questionSettings = questionDefinition.getQuestionSettings().get();
     }
 

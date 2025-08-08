@@ -339,7 +339,7 @@ public abstract class QuestionDefinition {
   /** Get the question settings for this question. Returns empty Optional if not supported. */
   @JsonIgnore
   public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
-    return Optional.empty();
+    return config.questionSettings();
   }
 
   /** Get the default validation predicates for this question type. */

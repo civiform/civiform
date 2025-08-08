@@ -21,7 +21,7 @@ public abstract class QuestionSetting {
 
   /** The text strings to display to the user, keyed by locale. */
   @JsonProperty("localizedSettingDisplayName")
-  public abstract LocalizedStrings settingDisplayName();
+  public abstract LocalizedStrings localizedSettingDisplayName();
 
   /**
    * Creates a QuestionSetting from JSON data during deserialization.
@@ -41,18 +41,19 @@ public abstract class QuestionSetting {
   /**
    * Create a {@link QuestionSetting}.
    *
-   * @param settingDisplayName the option's user-facing text
+   * @param localizedSettingDisplayName the option's user-facing text
    * @return the {@link QuestionSetting}
    */
-  public static QuestionSetting create(String settingKey, LocalizedStrings settingDisplayName) {
+  public static QuestionSetting create(
+      String settingKey, LocalizedStrings localizedSettingDisplayName) {
     return QuestionSetting.builder()
         .setSettingKey(settingKey)
-        .setSettingDisplayName(settingDisplayName)
+        .setLocalizedSettingDisplayName(localizedSettingDisplayName)
         .build();
   }
 
   public LocalizedQuestionSetting localize(Locale locale) {
-    if (!settingDisplayName().hasTranslationFor(locale)) {
+    if (!localizedSettingDisplayName().hasTranslationFor(locale)) {
       throw new RuntimeException(
           String.format("Locale %s not supported for question option %s", locale, this));
     }
@@ -66,11 +67,13 @@ public abstract class QuestionSetting {
    */
   public LocalizedQuestionSetting localizeOrDefault(Locale locale) {
     try {
-      String localizedText = settingDisplayName().get(locale);
+      String localizedText = localizedSettingDisplayName().get(locale);
       return LocalizedQuestionSetting.create(settingKey(), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionSetting.create(
-          settingKey(), settingDisplayName().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
+          settingKey(),
+          localizedSettingDisplayName().getDefault(),
+          LocalizedStrings.DEFAULT_LOCALE);
     }
   }
 
@@ -84,7 +87,8 @@ public abstract class QuestionSetting {
   public abstract static class Builder {
 
     @JsonProperty("localizedSettingDisplayName")
-    public abstract Builder setSettingDisplayName(LocalizedStrings settingDisplayName);
+    public abstract Builder setLocalizedSettingDisplayName(
+        LocalizedStrings localizedSettingDisplayName);
 
     @JsonProperty("settingKey")
     public abstract Builder setSettingKey(String settingKey);
