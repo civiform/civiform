@@ -1575,7 +1575,7 @@ export class AdminPrograms {
 
     if (clickFilterButton) {
       await Promise.all([
-        this.page.waitForNavigation(),
+        this.page.waitForLoadState(),
         await this.page.click('button:has-text("Filter")'),
       ])
     }
@@ -1585,7 +1585,7 @@ export class AdminPrograms {
 
   async clearFilterProgramApplications() {
     await Promise.all([
-      this.page.waitForNavigation(),
+      this.page.waitForLoadState(),
       await this.page.click('a:has-text("Clear")'),
     ])
     await waitForPageJsLoad(this.page)
@@ -1652,7 +1652,7 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await Promise.all([this.page.waitForLoadState(), confirmButton.click()])
     await waitForPageJsLoad(this.page)
   }
 
@@ -1701,7 +1701,7 @@ export class AdminPrograms {
     // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await Promise.all([this.page.waitForLoadState(), saveButton.click()])
     await waitForPageJsLoad(this.page)
   }
 
