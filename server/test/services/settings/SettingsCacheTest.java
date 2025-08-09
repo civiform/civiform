@@ -91,6 +91,8 @@ public class SettingsCacheTest extends ResetPostgres {
             instanceOf(DatabaseExecutionContext.class),
             database,
             lifecycle);
+
+    cache.init();
   }
 
   @After
