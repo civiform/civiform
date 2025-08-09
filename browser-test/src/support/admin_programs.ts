@@ -1091,7 +1091,14 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      'as a Program Admin because they haven’t previously logged into' +
+        ' CiviForm. Have the user login as an admin on the home page, which will' +
+        ' create a CiviForm account associated with your admin authentication' +
+        ' provider. When they first login, they won’t see any programs available to' +
+        ' them, but after they do that, you can come back here and add them as a' +
+        ' Program Admin.  After they’ve been added as a Program Admin for programs' +
+        ' they manage, they can log back in and see the programs they’ve been' +
+        ' assigned to.',
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -1568,7 +1575,7 @@ export class AdminPrograms {
 
     if (clickFilterButton) {
       await Promise.all([
-        this.page.waitForNavigation(),
+        this.page.waitForLoadState(),
         await this.page.click('button:has-text("Filter")'),
       ])
     }
@@ -1578,7 +1585,7 @@ export class AdminPrograms {
 
   async clearFilterProgramApplications() {
     await Promise.all([
-      this.page.waitForNavigation(),
+      this.page.waitForLoadState(),
       await this.page.click('a:has-text("Clear")'),
     ])
     await waitForPageJsLoad(this.page)
@@ -1645,7 +1652,7 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await Promise.all([this.page.waitForLoadState(), confirmButton.click()])
     await waitForPageJsLoad(this.page)
   }
 
@@ -1694,7 +1701,7 @@ export class AdminPrograms {
     // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await Promise.all([this.page.waitForLoadState(), saveButton.click()])
     await waitForPageJsLoad(this.page)
   }
 
