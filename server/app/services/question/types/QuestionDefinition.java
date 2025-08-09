@@ -30,6 +30,7 @@ import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 
 /**
  * Superclass for all question types.
@@ -334,6 +335,12 @@ public abstract class QuestionDefinition {
   /** Get the type of this question. */
   @JsonIgnore
   public abstract QuestionType getQuestionType();
+
+  /** Get the question settings for this question. */
+  @JsonIgnore
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
+    return config.questionSettings();
+  }
 
   /** Get the default validation predicates for this question type. */
   @JsonIgnore

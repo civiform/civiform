@@ -9,6 +9,7 @@ import java.util.UUID;
 import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionSetting;
 
 /**
  * This is an empty QuestionDefinitionConfig that is used when the system can't find the question.
@@ -87,6 +88,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   @Override
   ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags() {
     return ImmutableSet.of();
+  }
+
+  @Override
+  Optional<ImmutableSet<QuestionSetting>> questionSettings() {
+    return Optional.empty();
   }
 
   /** Used to create a new {@link Builder} based on an existing one. */
@@ -168,6 +174,12 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     public QuestionDefinitionConfig.Builder setPrimaryApplicantInfoTags(
         ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setQuestionSettings(
+        ImmutableSet<QuestionSetting> questionSettings) {
       return this;
     }
 

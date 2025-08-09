@@ -13,6 +13,7 @@ import java.util.UUID;
 import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionSetting;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
@@ -69,6 +70,9 @@ public abstract class QuestionDefinitionConfig {
 
   @JsonProperty("primaryApplicantInfoTags")
   abstract ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags();
+
+  @JsonProperty("questionSettings")
+  abstract Optional<ImmutableSet<QuestionSetting>> questionSettings();
 
   /**
    * Used to create a new {@link QuestionDefinitionConfig}. We default some fields here to avoid
@@ -143,6 +147,9 @@ public abstract class QuestionDefinitionConfig {
     @JsonProperty("primaryApplicantInfoTags")
     public abstract Builder setPrimaryApplicantInfoTags(
         ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags);
+
+    @JsonProperty("questionSettings")
+    public abstract Builder setQuestionSettings(ImmutableSet<QuestionSetting> questionSettings);
 
     public abstract QuestionDefinitionConfig build();
   }
