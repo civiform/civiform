@@ -5,8 +5,8 @@ import java.util.Random;
 import org.pac4j.core.context.FrameworkParameters;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.context.session.SessionStoreFactory;
+import org.pac4j.play.store.JdkAesDataEncrypter;
 import org.pac4j.play.store.PlayCookieSessionStore;
-import org.pac4j.play.store.ShiroAesDataEncrypter;
 
 public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   private final Config config;
@@ -46,7 +46,7 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
     byte[] aesKey = new byte[32];
     r.nextBytes(aesKey);
 
-    var sessionStore = new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
+    var sessionStore = new PlayCookieSessionStore(new JdkAesDataEncrypter(aesKey));
     sessionStore.setSerializer(serializer);
 
     return sessionStore;
