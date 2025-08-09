@@ -1,8 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -30,7 +28,6 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
@@ -41,7 +38,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
   private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private AdminImportController controller;
-  private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
   private Database database;
 
   @Before
@@ -53,7 +49,6 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
-            mockSettingsManifest,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(ProgramService.class));
@@ -184,8 +179,8 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     // see the error
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("There was an error rendering your program.");
-    assertThat(contentAsString(result)).contains("Please check your data and try again.");
+    assertThat(contentAsString(result)).contains("One or more question errors occured");
+    assertThat(contentAsString(result)).contains("Question ID 2 is not defined");
   }
 
   @Test
@@ -482,8 +477,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void deserialize_malformedOption_returnsError() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
-
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
             fakeRequestBuilder()
@@ -506,8 +499,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void deserialize_multipleOptions_parsesCorrectly() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
-
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
             fakeRequestBuilder()
@@ -534,30 +525,6 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(duplicateOptions).containsKey("Text");
     assertThat(duplicateOptions.get("Text"))
         .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
-  }
-
-  @Test
-  public void deserializeDuplicateHandlingNotEnabled_parsesProgramOnly() {
-    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
-        controller.getDeserializeResult(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        PROGRAM_JSON_WITH_ONE_QUESTION,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
-                        OVERWRITE_EXISTING,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Text",
-                        CREATE_DUPLICATE,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Phone",
-                        "Boo"))
-                .build());
-
-    assertThat(deserializeResult.isError()).isFalse();
-    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption> duplicateOptions =
-        deserializeResult.getResult().getDuplicateQuestionHandlingOptions();
-    assertThat(duplicateOptions).isEmpty();
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =

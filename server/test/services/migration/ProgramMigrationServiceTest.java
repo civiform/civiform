@@ -397,7 +397,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .buildDefinition();
 
     ErrorAnd<ProgramModel, String> savedProgram =
-        service.saveImportedProgram(programDefinition, null, ImmutableMap.of(), false);
+        service.saveImportedProgram(programDefinition, null, ImmutableMap.of());
 
     assertThat(savedProgram.hasResult()).isTrue();
     assertThat(savedProgram.getResult().getProgramDefinition().adminName())
@@ -423,8 +423,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             QUESTIONS_1_2,
             ImmutableMap.of(
                 QUESTION_1_NAME,
-                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE),
-            /* duplicateHandlingEnabled= */ true);
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE));
 
     ImmutableList<ProgramQuestionDefinition> savedQs =
         savedProgram
@@ -463,8 +462,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             ImmutableList.of(QUESTION_1, question3),
             ImmutableMap.of(
                 QUESTION_1_NAME,
-                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE),
-            /* duplicateHandlingEnabled= */ true);
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE));
 
     ImmutableList<ProgramQuestionDefinition> savedQs =
         savedProgram
@@ -509,8 +507,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             QUESTIONS_1_2,
             ImmutableMap.of(
                 QUESTION_1_NAME,
-                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING),
-            /* duplicateHandlingEnabled= */ true);
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING));
 
     // Verify error
     assertThat(savedProgram.hasResult()).isFalse();
@@ -568,8 +565,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             QUESTION_1_NAME,
             ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING,
             QUESTION_2_NAME,
-            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING),
-        /* duplicateHandlingEnabled= */ true);
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING));
 
     currentQuestions =
         questionRepository.getExistingQuestions(
@@ -597,11 +593,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(QUESTION_2)
             .buildDefinition();
 
-    service.saveImportedProgram(
-        programDefinition,
-        ImmutableList.of(QUESTION_1),
-        ImmutableMap.of(),
-        /* duplicateHandlingEnabled= */ true);
+    service.saveImportedProgram(programDefinition, ImmutableList.of(QUESTION_1), ImmutableMap.of());
 
     ImmutableMap<String, QuestionDefinition> currentQuestions =
         questionRepository.getExistingQuestions(ImmutableSet.of(QUESTION_1_NAME, QUESTION_2_NAME));
@@ -612,10 +604,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             RuntimeException.class,
             () ->
                 service.saveImportedProgram(
-                    conflictingProgramDefinition,
-                    ImmutableList.of(QUESTION_2),
-                    ImmutableMap.of(),
-                    /* duplicateHandlingEnabled= */ true));
+                    conflictingProgramDefinition, ImmutableList.of(QUESTION_2), ImmutableMap.of()));
 
     assertThat(e).hasMessageContaining("Program program1 already has a draft!");
     // Confirm that the questions (which are written before attempting to save the program) were
@@ -634,7 +623,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     QuestionDefinition question = createTextQuestion(QUESTION_1_NAME, 1L);
     ImmutableList<QuestionDefinition> questionDefinitions = ImmutableList.of(question);
 
-    service.saveImportedProgram(programDefinition, questionDefinitions, ImmutableMap.of(), false);
+    service.saveImportedProgram(programDefinition, questionDefinitions, ImmutableMap.of());
 
     assertThat(applicationStatusesRepository.lookupActiveStatusDefinitions(PROGRAM_NAME_1))
         .isNotNull();
@@ -653,8 +642,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
               return service.updateEnumeratorIdsAndSaveQuestions(
                   questionsToWrite,
                   ImmutableList.of(),
-                  ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2),
-                  /* duplicateHandlingEnabled= */ true);
+                  ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2));
             });
 
     assertThat(result).hasSize(2);
@@ -690,8 +678,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
                   questionsToWrite,
                   /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
                   ImmutableMap.of(
-                      1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3),
-                  /* duplicateHandlingEnabled= */ true);
+                      1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3));
             });
 
     assertThat(result).hasSize(4);
@@ -742,9 +729,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             versionRepository.getProgramNamesForVersion(versionRepository.getDraftVersion().get()))
         .containsExactly(PROGRAM_NAME_2);
 
-    service.addProgramsToDraft(
-        /* overwrittenAdminNames= */ ImmutableList.of(QUESTION_1_NAME),
-        /* duplicateHandlingEnabled= */ true);
+    service.addProgramsToDraft(/* overwrittenAdminNames= */ ImmutableList.of(QUESTION_1_NAME));
 
     // Verify that the draft version contains both programs that reference the question
     assertThat(versionRepository.getDraftVersion()).isPresent();

@@ -1051,14 +1051,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
-  /**
-   * Enable options for handling duplicate questions when importing/migrating programs: create a
-   * duplicate, use the existing question, or overwrite the existing question.
-   */
-  public boolean getImportDuplicateHandlingOptionsEnabled() {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED");
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -2287,14 +2279,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "Enable options for handling duplicate questions when importing/migrating"
-                              + " programs: create a duplicate, use the existing question, or"
-                              + " overwrite the existing question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
