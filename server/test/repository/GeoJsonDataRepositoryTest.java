@@ -1,9 +1,12 @@
 package repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import io.ebean.DB;
+import io.ebean.Transaction;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -65,21 +68,29 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
     geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
 
     // Create a database record
-    GeoJsonDataModel firstEntry = new GeoJsonDataModel();
-    firstEntry.setEndpoint(endpoint);
-    firstEntry.setGeoJson(testFeatureCollection1);
-    firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
-    firstEntry.save();
+    try (Transaction transaction = DB.beginTransaction()) {
+      GeoJsonDataModel firstEntry = new GeoJsonDataModel();
+      firstEntry.setEndpoint(endpoint);
+      firstEntry.setGeoJson(testFeatureCollection1);
+      firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
+      // firstEntry.setConfirmTime(LocalDateTime.of(2023, 5, 25, 0, 0).toInstant(ZoneOffset.UTC));
+      firstEntry.save();
+      transaction.commit();
+    }
   }
 
   @Test
   public void getMostRecentGeoJsonDataRowForEndpoint_success() {
     // Create a second record in the database
-    GeoJsonDataModel secondEntry = new GeoJsonDataModel();
-    secondEntry.setEndpoint(endpoint);
-    secondEntry.setGeoJson(testFeatureCollection2);
-    secondEntry.setConfirmTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
-    secondEntry.save();
+
+    try (Transaction transaction = DB.beginTransaction()) {
+      GeoJsonDataModel secondEntry = new GeoJsonDataModel();
+      secondEntry.setEndpoint(endpoint);
+      secondEntry.setGeoJson(testFeatureCollection2);
+      secondEntry.setConfirmTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
+      secondEntry.save();
+      transaction.commit();
+    }
 
     Optional<GeoJsonDataModel> result =
         geoJsonDataRepository
@@ -88,7 +99,10 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
             .join();
 
     // Confirm that we get the second record
-    assertTrue(result.isPresent() && result.get().getGeoJson().equals(testFeatureCollection2));
+    assertThat(result).isNotNull();
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getGeoJson()).isNotNull();
+    assertThat(result.get().getGeoJson()).isEqualTo(testFeatureCollection2);
   }
 
   @Test
