@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -151,5 +152,19 @@ public class ApplicationModelTest extends ResetPostgres {
 
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     assertThat(application.getIsAdmin()).isTrue();
+  }
+
+  @Test
+  public void create_new_application_updatesLastActivityTime() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+    application.refresh();
+
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 }

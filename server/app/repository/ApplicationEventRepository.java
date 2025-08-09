@@ -115,6 +115,7 @@ public final class ApplicationEventRepository {
                       .eq("id", application.id)
                       .update();
                   application.save();
+                  application.getApplicant().getAccount().save();
                   return event;
                 }),
         dbExecutionContext.current());
@@ -194,6 +195,7 @@ public final class ApplicationEventRepository {
               .eq("id", application.id)
               .update();
           application.save();
+          application.getApplicant().getAccount().save();
         });
   }
 }

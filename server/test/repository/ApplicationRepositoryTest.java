@@ -180,6 +180,24 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void submitApplication_updatesAccountLastActivityTime() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel program = createActiveProgram("Program");
+
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ApplicationModel app =
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
+    app.refresh();
+
+    // Check if the account activity time has changed
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
+  }
+
+  @Test
   public void submitApplication_noDrafts() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
@@ -540,6 +558,26 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Reload the application and check that it points to program v2
     application = repo.getApplication(application.id).toCompletableFuture().join().get();
     assertThat(application.getProgram().id).isEqualTo(programV2.id);
+  }
+
+  @Test
+  public void updateDraftApplicationProgram_updatesAccountLastActivityTime() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ProgramModel programV1 = createActiveProgram("Program");
+
+    // Check the application points to program v1
+    ApplicationModel application =
+        repo.createOrUpdateDraft(applicant, programV1).toCompletableFuture().join();
+    assertThat(application.getProgram().id).isEqualTo(programV1.id);
+
+    // Update the application program v2
+    ProgramModel programV2 = createActiveProgram("Program");
+    repo.updateDraftApplicationProgram(applicant.id, programV2.id);
+
+    // Check if the account activity time has changed
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
