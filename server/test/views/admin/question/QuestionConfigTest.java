@@ -65,7 +65,6 @@ public class QuestionConfigTest {
       return;
     }
     if (questionType == QuestionType.MAP) {
-      // Test the BaseView overload for MAP questions
       MapQuestionSettingsPartialViewModel model =
           MapQuestionSettingsPartialViewModel.builder()
               .maxLocationSelections(OptionalInt.of(5))

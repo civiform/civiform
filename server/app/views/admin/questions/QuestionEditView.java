@@ -476,7 +476,6 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     if (questionType.equals(QuestionType.MAP)) {
-
       formTag.with(
           FieldWithLabel.input()
               .setFieldName("geoJsonEndpoint")

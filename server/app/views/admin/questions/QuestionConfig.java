@@ -120,9 +120,8 @@ public final class QuestionConfig {
                     .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
                     .getContainer())
             : Optional.empty();
-      case MAP:
-        // MAP question configuration is handled in QuestionEditView.getQuestionConfig
-        return Optional.empty();
+      case MAP: // fallthrough intended - MAP question configuration is handled in
+        // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
@@ -132,6 +131,7 @@ public final class QuestionConfig {
     }
   }
 
+  // Build question config using a Thymeleaf Partial View
   public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfig(
       Request request, BaseView<TModel> view, TModel model) {
     return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
