@@ -1,5 +1,7 @@
 package forms;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.OptionalInt;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
@@ -9,7 +11,13 @@ import services.question.types.QuestionType;
 // TODO(#11001): Add settings for filters
 public class MapQuestionForm extends QuestionForm {
 
+  public static final String LOCATION_NAME_DISPLAY = "Name";
+  public static final String LOCATION_ADDRESS_DISPLAY = "Address";
+  public static final String LOCATION_DETAILS_URL_DISPLAY = "URL";
+  public static final List<String> DEFAULT_MAP_QUESTION_KEYS =
+      Arrays.asList(LOCATION_NAME_DISPLAY, LOCATION_ADDRESS_DISPLAY, LOCATION_DETAILS_URL_DISPLAY);
   private String geoJsonEndpoint;
+
   private OptionalInt maxLocationSelections;
 
   public MapQuestionForm() {
