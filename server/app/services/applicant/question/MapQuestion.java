@@ -3,9 +3,14 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import forms.MapQuestionForm;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Locale;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.question.LocalizedQuestionSetting;
+import services.question.types.MapQuestionDefinition;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
 import services.question.types.MapQuestionDefinition;
@@ -58,5 +63,45 @@ public final class MapQuestion extends AbstractQuestion {
     return getSettings(locale).stream()
         .filter(setting -> setting.settingType() == MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  public MapQuestionDefinition getQuestionDefinition() {
+    return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  public Optional<LocalizedQuestionSetting> getNameSetting() {
+    return getNameSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  }
+
+  public Optional<LocalizedQuestionSetting> getNameSetting(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(
+            setting -> MapQuestionForm.LOCATION_NAME_DISPLAY.equals(setting.settingDisplayName()))
+        .findFirst();
+  }
+
+  public Optional<LocalizedQuestionSetting> getAddressSetting() {
+    return getAddressSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  }
+
+  public Optional<LocalizedQuestionSetting> getAddressSetting(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(
+            setting ->
+                MapQuestionForm.LOCATION_ADDRESS_DISPLAY.equals(setting.settingDisplayName()))
+        .findFirst();
+  }
+
+  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting() {
+    return getLocationDetailsUrlSetting(
+        applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  }
+
+  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(
+            setting ->
+                MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY.equals(setting.settingDisplayName()))
+        .findFirst();
   }
 }
