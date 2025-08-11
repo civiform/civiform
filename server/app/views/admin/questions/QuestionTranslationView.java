@@ -112,6 +112,9 @@ public final class QuestionTranslationView extends TranslationFormView {
       case ENUMERATOR:
         EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) question;
         return enumeratorQuestionFields(enumerator.getEntityType(), toUpdate);
+      case MAP:
+        // TODO(#11197): Add translation support for map question settings
+        return Optional.empty();
       case ADDRESS: // fallthrough intended
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended

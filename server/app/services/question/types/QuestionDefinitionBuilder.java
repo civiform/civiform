@@ -11,6 +11,7 @@ import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.DateQuestionDefinition.DateValidationPredicates;
@@ -151,6 +152,11 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setQuestionOptions(ImmutableList<QuestionOption> options) {
     this.questionOptions = options;
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setQuestionSettings(ImmutableSet<QuestionSetting> settings) {
+    builder.setQuestionSettings(settings);
     return this;
   }
 
