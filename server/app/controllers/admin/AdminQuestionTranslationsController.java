@@ -23,6 +23,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -151,16 +152,19 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
-    return questionService
-        .getReadOnlyQuestionService()
-        .toCompletableFuture()
-        .join()
-        .getActiveAndDraftQuestions()
-        .getDraftQuestionDefinition(questionName)
-        .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("No draft found for question: \"%s\"", questionName)));
+    ReadOnlyQuestionService readOnlyQuestionService = questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    Optional<QuestionDefinition> draftQuestionOptional = readOnlyQuestionService.getActiveAndDraftQuestions().getDraftQuestionDefinition(questionName);
+
+    if (draftQuestionOptional.isPresent()) {
+      return draftQuestionOptional.get();
+    }
+
+    return readOnlyQuestionService.getActiveAndDraftQuestions().getActiveQuestionDefinition(questionName)
+    .orElseThrow(
+     () ->
+     new BadRequestException(
+                    String.format("No draft found for question: \"%s\"", questionName)
+    ));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
