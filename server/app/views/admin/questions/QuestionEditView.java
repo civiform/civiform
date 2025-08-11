@@ -540,7 +540,7 @@ public final class QuestionEditView extends BaseHtmlView {
               .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
               .orElse(new HashSet<>());
 
-      return QuestionConfig.buildQuestionConfig(
+      return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
           new MapQuestionSettingsPartialView(
               templateEngine, playThymeleafContextFactory, settingsManifest),

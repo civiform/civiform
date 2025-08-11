@@ -189,7 +189,7 @@ public class MapQuestionForm extends QuestionForm {
 
     builder.add(
         QuestionSetting.create(
-            getLocationName().key, LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
+            getLocationName().getKey(), LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
 
     builder.add(
         QuestionSetting.create(

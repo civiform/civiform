@@ -132,8 +132,7 @@ public final class QuestionConfig {
     }
   }
 
-  // Build question config using a Thymeleaf Partial View
-  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfig(
+  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfigUsingThymeleaf(
       Request request, BaseView<TModel> view, TModel model) {
     return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
   }

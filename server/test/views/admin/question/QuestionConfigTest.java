@@ -78,7 +78,8 @@ public class QuestionConfigTest {
           new MapQuestionSettingsPartialView(
               mock(TemplateEngine.class), playThymeleafContextFactory, settingsManifest);
 
-      Optional<DivTag> mapConfig = QuestionConfig.buildQuestionConfig(request, view, model);
+      Optional<DivTag> mapConfig =
+          QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
       assertThat(mapConfig).isPresent();
       return;
     }
