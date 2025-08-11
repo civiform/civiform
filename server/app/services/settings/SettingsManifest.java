@@ -1113,6 +1113,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SETTINGS_CACHE_ENABLED");
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2361,6 +2366,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
                               + " of directly from the database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
+                              + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))
