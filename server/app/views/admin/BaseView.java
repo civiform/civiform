@@ -1,10 +1,8 @@
 package views.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.rawHtml;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.DomContent;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
@@ -225,20 +223,5 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    */
   protected ImmutableList<String> getPageBodyScripts() {
     return ImmutableList.of();
-  }
-
-  /**
-   * Renders the template as raw HTML for embedding in j2html components.
-   *
-   * <p><strong>Security Note:</strong> This method assumes the template content has been properly
-   * validated and sanitized. Only use with trusted Thymeleaf templates that properly escape dynamic
-   * content.
-   *
-   * @param request Current Play HTTP request
-   * @param model Model class implementing the {@link BaseViewModel} interface
-   * @return Rendered template as raw HTML content
-   */
-  public final DomContent renderAsRawHtml(Http.Request request, TModel model) {
-    return rawHtml(render(request, model));
   }
 }

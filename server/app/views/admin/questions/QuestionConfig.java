@@ -6,6 +6,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
@@ -655,8 +656,7 @@ public final class QuestionConfig {
 
   private <TModel extends BaseViewModel> QuestionConfig addConfig(
       Request request, BaseView<TModel> view, TModel model) {
-
-    content.with(view.renderAsRawHtml(request, model));
+    content.with(rawHtml(view.render(request, model)));
     return this;
   }
 
