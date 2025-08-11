@@ -171,6 +171,8 @@ public final class ApplicationEventRepository {
           .in("id", applicationIds)
           .update();
 
+      // update account's lastActivityTime
+      applications.stream().forEach(app -> app.getApplicant().getAccount().save());
       transaction.commit();
     }
   }
