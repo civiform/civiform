@@ -1070,15 +1070,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
-   * between deployed environments. Note: this should only be used on new environments, since
-   * existing programs will be modified if a program with the same question gets imported.
-   */
-  public boolean getNoDuplicateQuestionsForMigrationEnabled() {
-    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED");
-  }
-
-  /**
    * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
    * replayed if the user logs out
    */
@@ -2324,16 +2315,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
-                              + " migrating programs between deployed environments. Note: this"
-                              + " should only be used on new environments, since existing programs"
-                              + " will be modified if a program with the same question gets"
-                              + " imported.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "SESSION_REPLAY_PROTECTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"

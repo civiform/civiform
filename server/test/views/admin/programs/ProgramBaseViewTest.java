@@ -17,6 +17,7 @@ import services.program.predicate.OrNode;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateUseCase;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
@@ -27,6 +28,8 @@ import views.ViewUtils.ProgramDisplayType;
 @RunWith(JUnitParamsRunner.class)
 public class ProgramBaseViewTest {
 
+  private static final long PROGRAM_ID = 1;
+  private static final long BLOCK_ID = 2;
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
   private SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -50,12 +53,48 @@ public class ProgramBaseViewTest {
 
     DivTag result =
         new ProgramBlockBaseViewTestChild(mockSettingsManifest)
-            .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
+            .renderExistingPredicate(
+                PROGRAM_ID,
+                BLOCK_ID,
+                BLOCK_NAME,
+                predicateDefinition,
+                questionDefinitions,
+                PredicateUseCase.VISIBILITY,
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
             "Block_name is hidden if &quot;applicant birth date&quot; date is equal to"
                 + " 2023-01-01");
+  }
+
+  @Test
+  public void renderExistingPredicate_includeEditFooter() {
+    var predicateDefinition =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.builder()
+                    .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
+                    .setScalar(Scalar.DATE)
+                    .setOperator(Operator.EQUAL_TO)
+                    .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                    .build()),
+            PredicateAction.HIDE_BLOCK);
+
+    DivTag result =
+        new ProgramBlockBaseViewTestChild(mockSettingsManifest)
+            .renderExistingPredicate(
+                PROGRAM_ID,
+                BLOCK_ID,
+                BLOCK_NAME,
+                predicateDefinition,
+                questionDefinitions,
+                PredicateUseCase.VISIBILITY,
+                /* includeEditFooter= */ true,
+                /* expanded= */ false);
+
+    assertThat(result.render()).contains("Edit visibility conditions");
   }
 
   @Test
@@ -89,7 +128,15 @@ public class ProgramBaseViewTest {
 
     DivTag result =
         new ProgramBlockBaseViewTestChild(mockSettingsManifest)
-            .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
+            .renderExistingPredicate(
+                PROGRAM_ID,
+                BLOCK_ID,
+                BLOCK_NAME,
+                predicateDefinition,
+                questionDefinitions,
+                PredicateUseCase.VISIBILITY,
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
@@ -150,7 +197,15 @@ public class ProgramBaseViewTest {
 
     DivTag result =
         new ProgramBlockBaseViewTestChild(mockSettingsManifest)
-            .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
+            .renderExistingPredicate(
+                PROGRAM_ID,
+                BLOCK_ID,
+                BLOCK_NAME,
+                predicateDefinition,
+                questionDefinitions,
+                PredicateUseCase.VISIBILITY,
+                /* includeEditFooter= */ false,
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(

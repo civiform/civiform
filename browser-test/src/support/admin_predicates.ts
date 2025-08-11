@@ -202,4 +202,10 @@ export class AdminPredicates {
       condition,
     )
   }
+
+  async expandPredicateDisplay(predicateType: 'visibility' | 'eligibility') {
+    await this.page.click(
+      `button:has-text("This screen has ${predicateType} ")`,
+    )
+  }
 }

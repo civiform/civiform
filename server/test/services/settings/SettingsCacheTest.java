@@ -106,13 +106,6 @@ public class SettingsCacheTest extends ResetPostgres {
   }
 
   @Test
-  public void get_noneYet_returnsEmpty() {
-    // We rely on the asynchronous nature of the initial load from the DB to test the initial empty
-    // state of the cache.
-    assertThat(cache.get()).isEmpty();
-  }
-
-  @Test
   public void get_waitForInitialLoad_returnsInitialSettings() throws Exception {
     // Wait for the initial load on class constructions
     Thread.sleep(100);

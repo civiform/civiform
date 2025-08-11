@@ -13,7 +13,6 @@ import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import models.SettingsGroupModel;
@@ -47,29 +46,19 @@ public final class SettingsService {
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
-  private final SettingsCache settingsCache;
 
   @Inject
   public SettingsService(
-      SettingsGroupRepository settingsGroupRepository,
-      SettingsManifest settingsManifest,
-      SettingsCache settingsCache) {
+      SettingsGroupRepository settingsGroupRepository, SettingsManifest settingsManifest) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.settingsCache = checkNotNull(settingsCache);
   }
 
   /**
    * Load settings stored in the database. If the admin has never updated any settings this returns
    * an empty map.
-   *
-   * <p>TODO: #11042 - Make this method synchronous once the cache is fully launched
    */
   public CompletionStage<Optional<ImmutableMap<String, String>>> loadSettings() {
-    if (settingsManifest.getSettingsCacheEnabled()) {
-      return CompletableFuture.completedFuture(
-          settingsCache.get().map(SettingsGroupModel::getSettings));
-    }
     return settingsGroupRepository
         .getCurrentSettings()
         .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroupModel::getSettings));

@@ -49,6 +49,12 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'hide-other-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
+
     // Edit predicate for second block
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
       programName,
@@ -69,6 +75,18 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-expanded',
+    )
 
     // Visit block with question in predicate
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -175,6 +193,12 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'show-other-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
+
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
       programName,
@@ -191,6 +215,18 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-expanded',
+    )
 
     // Visit block with question in predicate
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -291,6 +327,12 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'eligibility-predicate-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    expect(await page.innerText('#eligibility-predicate')).toContain(
+      'This screen does not have any eligibility conditions',
+    )
+
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
@@ -359,6 +401,14 @@ test.describe('create and edit predicates', () => {
 
     await page.click(`a:has-text("Back")`)
     await validateScreenshot(page, 'block-settings-page')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    await adminPredicates.expandPredicateDisplay('eligibility')
+    await validateScreenshot(
+      page.locator('#eligibility-predicate'),
+      'block-eligibility-predicate',
+    )
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -707,11 +757,11 @@ test.describe('create and edit predicates', () => {
       },
     )
 
-    let predicateDisplay = await page.innerText('.cf-display-predicate')
     await validateScreenshot(
       page,
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
     expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
