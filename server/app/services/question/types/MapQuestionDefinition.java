@@ -22,7 +22,12 @@ public final class MapQuestionDefinition extends QuestionDefinition {
 
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
-    return MapValidationPredicates.builder().setGeoJsonEndpoint("").build();
+    return MapValidationPredicates.builder()
+        .setGeoJsonEndpoint("")
+        .setNameKey("")
+        .setAddressKey("")
+        .setDetailsUrlKey("")
+        .build();
   }
 
   @Override
@@ -64,6 +69,9 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       return builder()
           .setMaxLocationSelections(maxLocationSelections)
           .setGeoJsonEndpoint(geoJsonEndpoint)
+          .setNameKey("")
+          .setAddressKey("")
+          .setDetailsUrlKey("")
           .build();
     }
 
@@ -86,6 +94,15 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     @JsonProperty("geoJsonEndpoint")
     public abstract String geoJsonEndpoint();
 
+    @JsonProperty("nameKey")
+    public abstract String nameKey();
+
+    @JsonProperty("addressKey")
+    public abstract String addressKey();
+
+    @JsonProperty("detailsUrlKey")
+    public abstract String detailsUrlKey();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -98,6 +115,15 @@ public final class MapQuestionDefinition extends QuestionDefinition {
 
       @JsonProperty("geoJsonEndpoint")
       public abstract MapValidationPredicates.Builder setGeoJsonEndpoint(String geoJsonEndpoint);
+
+      @JsonProperty("nameKey")
+      public abstract MapValidationPredicates.Builder setNameKey(String nameKey);
+
+      @JsonProperty("addressKey")
+      public abstract MapValidationPredicates.Builder setAddressKey(String addressKey);
+
+      @JsonProperty("detailsUrlKey")
+      public abstract MapValidationPredicates.Builder setDetailsUrlKey(String detailsUrlKey);
 
       public abstract MapValidationPredicates build();
     }
