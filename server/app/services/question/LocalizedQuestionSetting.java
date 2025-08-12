@@ -18,7 +18,12 @@ public abstract class LocalizedQuestionSetting {
         settingValue, settingType, settingDisplayName, locale);
   }
 
-  /** The key used for the setting. */
+  /**
+   * The value identifying this setting within the question used that is provided by CiviForm Admins
+   * during question creation.
+   *
+   * @return a string (e.g. 'name' or 'address'
+   */
   public abstract String settingValue();
 
   /** Identifier indicating how this setting will be used. */

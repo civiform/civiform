@@ -17,6 +17,12 @@ import services.TranslationNotFoundException;
 @AutoValue
 public abstract class QuestionSetting {
 
+  /**
+   * The value identifying this setting within the question used that is provided by CiviForm Admins
+   * during question creation.
+   *
+   * @return a string (e.g. 'name' or 'address'
+   */
   @JsonProperty("settingValue")
   public abstract String settingValue();
 
@@ -33,7 +39,7 @@ public abstract class QuestionSetting {
   /**
    * Creates a QuestionSetting from JSON data during deserialization.
    *
-   * @param settingValue the unique key identifying this setting within the question
+   * @param settingValue the value identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used
    * @param localizedSettingDisplayName the display text for this setting, localized for different
    *     languages
@@ -51,7 +57,7 @@ public abstract class QuestionSetting {
   /**
    * Create a {@link QuestionSetting} with a display name.
    *
-   * @param settingValue the unique key identifying this setting within the question
+   * @param settingValue the value identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used
    * @param localizedSettingDisplayName the option's user-facing text (only required for FILTER
    *     settings)
@@ -71,7 +77,7 @@ public abstract class QuestionSetting {
   /**
    * Create a {@link QuestionSetting} without a display name.
    *
-   * @param settingValue the unique key identifying this setting within the question
+   * @param settingValue the value identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used
    * @return the {@link QuestionSetting}
    */
