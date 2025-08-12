@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import com.typesafe.config.Config;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
@@ -53,6 +54,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramPredicateConfigureView predicatesConfigureView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final Config config;
 
   @Inject
   public AdminProgramBlockPredicatesController(
@@ -64,7 +66,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      Config config) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
@@ -73,6 +76,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.predicatesConfigureView = checkNotNull(predicatesConfigureView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.config = checkNotNull(config);
   }
 
   /**
@@ -144,7 +148,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           predicateGenerator.generatePredicateDefinition(
               programService.getFullProgramDefinition(programId),
               formFactory.form().bindFromRequest(request),
-              roQuestionService);
+              roQuestionService,
+              config);
 
       programService.setBlockVisibilityPredicate(
           programId, blockDefinitionId, Optional.of(predicateDefinition));
@@ -321,7 +326,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   predicateGenerator.generatePredicateDefinition(
                       programService.getFullProgramDefinition(programId),
                       formFactory.form().bindFromRequest(request),
-                      roQuestionService))
+                      roQuestionService,
+                      config))
               .build();
 
       programService.setBlockEligibilityDefinition(

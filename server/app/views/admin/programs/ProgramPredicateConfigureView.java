@@ -2,15 +2,7 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.iff;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.option;
-import static j2html.TagCreator.select;
-import static j2html.TagCreator.text;
+import static j2html.TagCreator.*;
 import static play.mvc.Http.HttpVerbs.POST;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
@@ -26,9 +18,11 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -664,8 +658,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
           assertLeafAddressServiceAreaNode(maybeLeafNode)
               .map(LeafAddressServiceAreaExpressionNode::serviceAreaId);
 
-      ImmutableCollection<EsriServiceAreaValidationOption> serviceAreaOptions =
-          esriServiceAreaValidationConfig.getImmutableMap().values();
+      var esriConfigMap = esriServiceAreaValidationConfig.getImmutableMap();
+      ImmutableSet<Map.Entry<String, EsriServiceAreaValidationOption>> serviceAreaOptions = esriConfigMap.entrySet();
 
       SelectWithLabel select =
           new SelectWithLabel()
@@ -677,15 +671,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                       .map(
                           option ->
                               SelectWithLabel.OptionValue.builder()
-                                  .setLabel(option.getLabel())
-                                  .setValue(option.getId())
+                                  .setLabel(option.getValue().getLabel())
+                                  .setValue(option.getKey())
                                   .build())
                       .collect(ImmutableList.toImmutableList()));
 
       if (maybeServiceArea.isPresent()) {
+        esriConfigMap.entrySet().stream().filter(entry -> entry.getKey().equals(maybeServiceArea.get())).findFirst().ifPresent(entry -> {})
         select.setValue(maybeServiceArea.get());
       } else if (serviceAreaOptions.size() == 1) {
-        select.setValue(serviceAreaOptions.stream().findFirst().get().getId());
+        select.setValue(serviceAreaOptions.stream().findFirst().get().getKey());
       }
 
       return valueField
