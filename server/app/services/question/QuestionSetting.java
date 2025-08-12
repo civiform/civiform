@@ -49,7 +49,7 @@ public abstract class QuestionSetting {
   }
 
   /**
-   * Create a {@link QuestionSetting}.
+   * Create a {@link QuestionSetting} with a display name.
    *
    * @param settingKey the unique key identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used
@@ -63,35 +63,24 @@ public abstract class QuestionSetting {
       Optional<LocalizedStrings> localizedSettingDisplayName) {
     return QuestionSetting.builder()
         .setSettingKey(settingKey)
-        .setsettingType(settingType)
+        .setSettingType(settingType)
         .setLocalizedSettingDisplayName(localizedSettingDisplayName)
         .build();
   }
 
   /**
-   * Create a {@link QuestionSetting} for FILTER type with localized display name.
+   * Create a {@link QuestionSetting} without a display name.
    *
    * @param settingKey the unique key identifying this setting within the question
-   * @param localizedSettingDisplayName the user-facing text for the filter
+   * @param settingType identifier indicating how this setting will be used
    * @return the {@link QuestionSetting}
    */
-  public static QuestionSetting createFilter(
-      String settingKey, LocalizedStrings localizedSettingDisplayName) {
-    return create(settingKey, SettingType.FILTER, Optional.of(localizedSettingDisplayName));
-  }
-
-  /**
-   * Create a {@link QuestionSetting} for mapping types (NAME, ADDRESS, URL) without display name.
-   *
-   * @param settingKey the GeoJSON field name this setting maps to
-   * @param settingType the type of mapping (NAME, ADDRESS, or URL)
-   * @return the {@link QuestionSetting}
-   */
-  public static QuestionSetting createMapping(String settingKey, SettingType settingType) {
-    if (settingType == SettingType.FILTER) {
-      throw new IllegalArgumentException("Use createFilter() for FILTER settings");
-    }
-    return create(settingKey, settingType, Optional.empty());
+  public static QuestionSetting create(String settingKey, SettingType settingType) {
+    return QuestionSetting.builder()
+        .setSettingKey(settingKey)
+        .setSettingType(settingType)
+        .setLocalizedSettingDisplayName(Optional.empty())
+        .build();
   }
 
   public LocalizedQuestionSetting localize(Locale locale) {
@@ -143,7 +132,7 @@ public abstract class QuestionSetting {
     public abstract Builder setSettingKey(String settingKey);
 
     @JsonProperty("settingType")
-    public abstract Builder setsettingType(SettingType settingType);
+    public abstract Builder setSettingType(SettingType settingType);
 
     public abstract QuestionSetting build();
   }

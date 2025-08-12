@@ -117,64 +117,55 @@ public class MapQuestionForm extends QuestionForm {
     this.filters = Setting.emptyFilters();
   }
 
-  /** Converts persistent {@link QuestionSetting} back to form {@link Setting} for editing. */
   private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
-    this.locationAddress =
-        settings.stream()
-            .filter(setting -> setting.settingType().equals(SettingType.NAME))
-            .map(setting -> new Setting(setting.settingKey(), ""))
-            .findFirst()
-            .orElse(new Setting());
-    this.locationAddress =
-        settings.stream()
-            .filter(setting -> setting.settingType().equals(SettingType.ADDRESS))
-            .map(setting -> new Setting(setting.settingKey(), ""))
-            .findFirst()
-            .orElse(new Setting());
-    this.locationDetailsUrl =
-        settings.stream()
-            .filter(setting -> setting.settingType().equals(SettingType.URL))
-            .map(setting -> new Setting(setting.settingKey(), ""))
-            .findFirst()
-            .orElse(new Setting());
+    this.locationName = getSettingFromQuestionSettings(settings, SettingType.NAME);
+    this.locationAddress = getSettingFromQuestionSettings(settings, SettingType.ADDRESS);
+    this.locationDetailsUrl = getSettingFromQuestionSettings(settings, SettingType.URL);
 
-    this.filters =
-        settings.stream()
-            .filter(setting -> setting.settingType().equals(SettingType.FILTER))
-            .map(
-                setting ->
-                    new Setting(
-                        setting.settingKey(),
-                        setting.localizedSettingDisplayName().isPresent()
-                            ? setting.localizedSettingDisplayName().get().getDefault()
-                            : ""))
-            .collect(Collectors.toList());
+    this.filters = getFiltersFromQuestionSettings(settings);
+  }
+
+  /** Converts {@link QuestionSetting} back to form {@link Setting} for editing. */
+  private Setting getSettingFromQuestionSettings(
+      ImmutableSet<QuestionSetting> settings, SettingType type) {
+    return settings.stream()
+        .filter(setting -> setting.settingType().equals(type))
+        .map(setting -> new Setting(setting.settingKey(), ""))
+        .findFirst()
+        .orElse(new Setting());
+  }
+
+  /** Converts {@link QuestionSetting} back to form {@link Setting} list for editing filters. */
+  private List<Setting> getFiltersFromQuestionSettings(ImmutableSet<QuestionSetting> settings) {
+    return settings.stream()
+        .filter(setting -> setting.settingType().equals(SettingType.FILTER))
+        .map(
+            setting ->
+                new Setting(
+                    setting.settingKey(),
+                    setting.localizedSettingDisplayName().isPresent()
+                        ? setting.localizedSettingDisplayName().get().getDefault()
+                        : ""))
+        .collect(Collectors.toList());
   }
 
   /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
   private ImmutableSet<QuestionSetting> buildQuestionSettings() {
     ImmutableSet.Builder<QuestionSetting> builder = ImmutableSet.builder();
 
-    builder.add(
-        QuestionSetting.create(getLocationName().getKey(), SettingType.NAME, Optional.empty()));
+    builder.add(QuestionSetting.create(getLocationName().getKey(), SettingType.NAME));
+    builder.add(QuestionSetting.create(getLocationAddress().getKey(), SettingType.ADDRESS));
+    builder.add(QuestionSetting.create(getLocationDetailsUrl().getKey(), SettingType.URL));
 
-    builder.add(
-        QuestionSetting.create(
-            getLocationAddress().getKey(), SettingType.ADDRESS, Optional.empty()));
-
-    builder.add(
-        QuestionSetting.create(
-            getLocationDetailsUrl().getKey(), SettingType.URL, Optional.empty()));
-
-    for (Setting filter : getFilters()) {
-      if (isValidSetting(filter)) {
-        builder.add(
-            QuestionSetting.create(
-                filter.getKey(),
-                SettingType.FILTER,
-                Optional.of(LocalizedStrings.withDefaultValue(filter.getDisplayName()))));
-      }
-    }
+    getFilters().stream()
+        .filter(this::isValidSetting)
+        .forEach(
+            filter ->
+                builder.add(
+                    QuestionSetting.create(
+                        filter.getKey(),
+                        SettingType.FILTER,
+                        Optional.of(LocalizedStrings.withDefaultValue(filter.getDisplayName())))));
     return builder.build();
   }
 
