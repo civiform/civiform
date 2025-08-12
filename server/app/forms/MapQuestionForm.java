@@ -100,6 +100,9 @@ public class MapQuestionForm extends QuestionForm {
     MapValidationPredicates.Builder predicateBuilder = MapValidationPredicates.builder();
 
     predicateBuilder.setGeoJsonEndpoint(getGeoJsonEndpoint());
+    predicateBuilder.setNameKey(getNameKey());
+    predicateBuilder.setAddressKey(getAddressKey());
+    predicateBuilder.setDetailsUrlKey(getDetailsUrlKey());
 
     if (getMaxLocationSelections().isPresent()) {
       predicateBuilder.setMaxLocationSelections(getMaxLocationSelections());

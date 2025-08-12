@@ -48,7 +48,13 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-    window.app.data.maps[id] =
-      /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    window.app.data.maps[id] = {
+      geoJson: /*[[${questionRendererParams.geoJson().get()}]]*/ {},
+      settings: {
+        nameKey: /*[[${mapQuestion.nameKey()}]]*/ '',
+        addressKey: /*[[${mapQuestion.addressKey()}]]*/ '',
+        detailsUrlKey: /*[[${mapQuestion.detailsUrlKey()}]]*/ '',
+      },
+    }
   </script>
 </div>
