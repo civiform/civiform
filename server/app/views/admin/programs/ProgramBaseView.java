@@ -190,6 +190,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
                         predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
                     .condWith(
                         predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                        Icons.svg(Icons.HOW_TO_REG).withClasses("w-6", "h-5", "shrink-0"),
                         p("This screen has eligibility conditions.").withClass("flex-grow"))
                     .condWith(
                         predicateUseCase == PredicateUseCase.VISIBILITY,
