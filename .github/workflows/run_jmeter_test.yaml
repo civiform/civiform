@@ -27,9 +27,10 @@ on:
       test_to_run:
         description: 'The load test to run from load-test/'
         type: choice
-        default: applicant_submit_application
+        default: applicant_submit_comprehensive_sample_program
         options:
-        - applicant_submit_application
+        - applicant_submit_comprehensive_sample_program
+        - applicant_submit_minimal_sample_program
         - applicant_landing_page
         - ti_landing_page
         
