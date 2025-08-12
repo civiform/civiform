@@ -12,10 +12,10 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   AdminProgramStatuses,
-  disableFeatureFlag,
+  enableFeatureFlag,
 } from '../support'
 
-test.describe('with program statuses', () => {
+test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
   const rejectedStatusName = 'Rejected'
@@ -23,7 +23,7 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -37,8 +37,8 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
@@ -76,8 +76,8 @@ test.describe('with program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage(true)
     }
     const id = await adminPrograms.getApplicationId()
 
@@ -116,7 +116,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
   const noEmailStatusName = 'No email status'
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await setupProgramsWithStatuses(
         page,
         adminPrograms,
@@ -205,15 +205,15 @@ test.describe('when email is configured for the status and applicant, a checkbox
     })
 
     await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
   }
