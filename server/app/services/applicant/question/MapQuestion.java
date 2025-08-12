@@ -57,7 +57,7 @@ public final class MapQuestion extends AbstractQuestion {
    */
   public ImmutableList<LocalizedQuestionSetting> getFilters(Locale locale) {
     return getSettings(locale).stream()
-        .filter(setting -> setting.settingId() == SettingType.FILTER)
+        .filter(setting -> setting.settingType() == SettingType.FILTER)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -69,7 +69,7 @@ public final class MapQuestion extends AbstractQuestion {
    */
   public Optional<String> getNameFieldKey(Locale locale) {
     return getSettings(locale).stream()
-        .filter(setting -> setting.settingId() == SettingType.NAME)
+        .filter(setting -> setting.settingType() == SettingType.NAME)
         .map(LocalizedQuestionSetting::settingKey)
         .findFirst();
   }
@@ -82,7 +82,7 @@ public final class MapQuestion extends AbstractQuestion {
    */
   public Optional<String> getAddressFieldKey(Locale locale) {
     return getSettings(locale).stream()
-        .filter(setting -> setting.settingId() == SettingType.ADDRESS)
+        .filter(setting -> setting.settingType() == SettingType.ADDRESS)
         .map(LocalizedQuestionSetting::settingKey)
         .findFirst();
   }
@@ -95,7 +95,7 @@ public final class MapQuestion extends AbstractQuestion {
    */
   public Optional<String> getUrlFieldKey(Locale locale) {
     return getSettings(locale).stream()
-        .filter(setting -> setting.settingId() == SettingType.URL)
+        .filter(setting -> setting.settingType() == SettingType.URL)
         .map(LocalizedQuestionSetting::settingKey)
         .findFirst();
   }

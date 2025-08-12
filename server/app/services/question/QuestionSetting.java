@@ -21,8 +21,8 @@ public abstract class QuestionSetting {
   public abstract String settingKey();
 
   /** Identifier indicating how this setting will be used. */
-  @JsonProperty("settingId")
-  public abstract SettingType settingId();
+  @JsonProperty("settingType")
+  public abstract SettingType settingType();
 
   /**
    * The text strings to display to the user, keyed by locale. Only required for FILTER settings.
@@ -34,7 +34,7 @@ public abstract class QuestionSetting {
    * Creates a QuestionSetting from JSON data during deserialization.
    *
    * @param settingKey the unique key identifying this setting within the question
-   * @param settingId identifier indicating how this setting will be used
+   * @param settingType identifier indicating how this setting will be used
    * @param localizedSettingDisplayName the display text for this setting, localized for different
    *     languages
    * @return a new QuestionSetting instance
@@ -42,28 +42,28 @@ public abstract class QuestionSetting {
   @JsonCreator
   public static QuestionSetting jsonCreator(
       @JsonProperty("settingKey") String settingKey,
-      @JsonProperty("settingId") SettingType settingId,
+      @JsonProperty("settingType") SettingType settingType,
       @JsonProperty("localizedSettingDisplayName")
           Optional<LocalizedStrings> localizedSettingDisplayName) {
-    return QuestionSetting.create(settingKey, settingId, localizedSettingDisplayName);
+    return QuestionSetting.create(settingKey, settingType, localizedSettingDisplayName);
   }
 
   /**
    * Create a {@link QuestionSetting}.
    *
    * @param settingKey the unique key identifying this setting within the question
-   * @param settingId identifier indicating how this setting will be used
+   * @param settingType identifier indicating how this setting will be used
    * @param localizedSettingDisplayName the option's user-facing text (only required for FILTER
    *     settings)
    * @return the {@link QuestionSetting}
    */
   public static QuestionSetting create(
       String settingKey,
-      SettingType settingId,
+      SettingType settingType,
       Optional<LocalizedStrings> localizedSettingDisplayName) {
     return QuestionSetting.builder()
         .setSettingKey(settingKey)
-        .setSettingId(settingId)
+        .setsettingType(settingType)
         .setLocalizedSettingDisplayName(localizedSettingDisplayName)
         .build();
   }
@@ -111,16 +111,16 @@ public abstract class QuestionSetting {
   public LocalizedQuestionSetting localizeOrDefault(Locale locale) {
     if (localizedSettingDisplayName().isEmpty()) {
       // For non-localized settings, use empty string as display text
-      return LocalizedQuestionSetting.create(settingKey(), settingId(), "", locale);
+      return LocalizedQuestionSetting.create(settingKey(), settingType(), "", locale);
     }
 
     try {
       String localizedText = localizedSettingDisplayName().get().get(locale);
-      return LocalizedQuestionSetting.create(settingKey(), settingId(), localizedText, locale);
+      return LocalizedQuestionSetting.create(settingKey(), settingType(), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionSetting.create(
           settingKey(),
-          settingId(),
+          settingType(),
           localizedSettingDisplayName().get().getDefault(),
           LocalizedStrings.DEFAULT_LOCALE);
     }
@@ -142,8 +142,8 @@ public abstract class QuestionSetting {
     @JsonProperty("settingKey")
     public abstract Builder setSettingKey(String settingKey);
 
-    @JsonProperty("settingId")
-    public abstract Builder setSettingId(SettingType settingId);
+    @JsonProperty("settingType")
+    public abstract Builder setsettingType(SettingType settingType);
 
     public abstract QuestionSetting build();
   }
