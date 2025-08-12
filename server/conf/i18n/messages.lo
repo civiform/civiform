@@ -1024,6 +1024,9 @@ category.tag.housing=ທີ່ຢູ່ອາໄສ
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=ອິນເຕີເນັດ
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Military
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=ການຝຶກອົບຮົມ
 
@@ -1032,6 +1035,9 @@ category.tag.transportation=ການຂົນສົ່ງ
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=ສາທາລະນູປະໂພກ
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veteran
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ໝວດໝູ່
