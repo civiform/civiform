@@ -38,10 +38,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await applicantQuestions.applyProgram(
-        programWithoutStatusesName,
-        true
-      )
+      await applicantQuestions.applyProgram(programWithoutStatusesName, true)
       await applicantQuestions.submitFromReviewPage(true)
 
       // Navigate to the submitted application as the program admin.
@@ -91,10 +88,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         await logout(page)
 
         // Submit an application as a guest.
-        await applicantQuestions.applyProgram(
-          programWithoutStatusesName,
-          true
-        )
+        await applicantQuestions.applyProgram(programWithoutStatusesName, true)
         await applicantQuestions.submitFromReviewPage(true)
 
         await loginAsProgramAdmin(page)
@@ -439,7 +433,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         // Submit an application as a guest.
         await applicantQuestions.applyProgram(
           programWithDefaultStatusName,
-          true
+          true,
         )
         await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
@@ -448,7 +442,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         await loginAsTestUser(page)
         await applicantQuestions.applyProgram(
           programWithDefaultStatusName,
-          true
+          true,
         )
         await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
@@ -534,9 +528,9 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         await logout(page)
 
         // Submit an application as a guest.
-        await applicantQuestions.applyProgram(programForFilteringName)
+        await applicantQuestions.applyProgram(programForFilteringName, true)
         await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         await loginAsProgramAdmin(page)
       },
@@ -730,16 +724,17 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
+        await adminPrograms.expectActiveProgram(eligibilityProgramName)
         await logout(page)
 
         // Before eligibility conditions are added, submit ineligible app
-        await applicantQuestions.applyProgram(eligibilityProgramName)
+        await applicantQuestions.applyProgram(eligibilityProgramName, true)
 
         // Fill out application and submit.
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Robin', 'Hood')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
 
@@ -762,11 +757,11 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         await logout(page)
 
         // Submit eligible app
-        await applicantQuestions.applyProgram(eligibilityProgramName)
+        await applicantQuestions.applyProgram(eligibilityProgramName, true)
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Sonny', 'Hood')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
 
         await logout(page)
@@ -824,9 +819,9 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       const guestEmail = 'guestemail@example.com'
 
       await test.step('submit application as guest', async () => {
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(programWithStatusesName, true)
         await applicantQuestions.answerEmailQuestion(guestEmail)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
@@ -877,9 +872,14 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
 
       await test.step('submit application as a logged in user with a different email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(
+          programWithStatusesName,
+          true,
+          false,
+        )
+        await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
@@ -938,9 +938,14 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
     }) => {
       await test.step('submit application as a logged in user with the same email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(
+          programWithStatusesName,
+          true,
+          false,
+        )
+        await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(testUserDisplayName())
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
@@ -1004,16 +1009,14 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
     })
 
     await test.step('submit an application as a guest', async () => {
-        await applicantQuestions.applyProgram(
-        programWithStatusesName, true)
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
       await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(
-        programWithStatusesName, true)
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
       await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
