@@ -37,6 +37,13 @@ type QuestionParams = {
   maxDateDay?: number | null
   maxDateMonth?: number | null
   maxDateYear?: number | null
+  // Map question parameters
+  geoJsonEndpoint?: string
+  maxLocationSelections?: string | null
+  locationNameKey?: string | null
+  locationAddressKey?: string | null
+  locationDetailsUrlKey?: string | null
+  filters?: Array<{key?: string | null; displayName?: string | null}> | null
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -61,6 +68,7 @@ export enum QuestionType {
   DROPDOWN = 'dropdown',
   EMAIL = 'email',
   ID = 'id',
+  MAP = 'map',
   NAME = 'name',
   NUMBER = 'number',
   RADIO = 'radio',
@@ -559,6 +567,9 @@ export class AdminQuestions {
       case QuestionType.DATE:
         await this.addDateQuestion({questionName})
         break
+      case QuestionType.MAP:
+        await this.addMapQuestion({questionName})
+        break
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
@@ -771,6 +782,92 @@ export class AdminQuestions {
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async addMapQuestion({
+    questionName,
+    description = 'map description',
+    questionText = 'map question text',
+    helpText = 'map question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    geoJsonEndpoint = 'http://mock-web-services:8000/geojson/data',
+    maxLocationSelections = '1',
+    locationNameKey = null,
+    locationAddressKey = null,
+    locationDetailsUrlKey = null,
+    filters = null,
+  }: QuestionParams) {
+    await this.gotoAdminQuestionsPage()
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-map-question')
+    await waitForPageJsLoad(this.page)
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    // Fill in GeoJSON endpoint and trigger change event
+    const geoJsonInput = this.page.getByLabel('GeoJSON endpoint')
+    const htmxResponsePromise = this.page.waitForResponse(
+      '**/admin/geoJson/hx/getData',
+    )
+    await geoJsonInput.fill(geoJsonEndpoint)
+    await geoJsonInput.dispatchEvent('change')
+    await htmxResponsePromise
+
+    // Set max location selections
+    if (maxLocationSelections != null) {
+      await this.page
+        .getByLabel('Maximum location selections')
+        .fill(maxLocationSelections)
+    }
+
+    // Configure location settings if provided
+    if (locationNameKey != null) {
+      await this.page
+        .getByLabel('Location name')
+        .selectOption({value: locationNameKey})
+    }
+    if (locationAddressKey != null) {
+      await this.page
+        .getByLabel('Location address')
+        .selectOption({value: locationAddressKey})
+    }
+    if (locationDetailsUrlKey != null) {
+      await this.page
+        .getByLabel('Location details URL')
+        .selectOption({value: locationDetailsUrlKey})
+    }
+
+    // Configure filters if provided
+    if (filters != null) {
+      for (let i = 0; i < filters.length && i < 3; i++) {
+        const filter = filters[i]
+        if (filter.key != null) {
+          await this.page
+            .locator('select[name^="filters["]')
+            .nth(i)
+            .selectOption({value: filter.key})
+        }
+        if (filter.displayName != null) {
+          await this.page
+            .locator('input[name*="displayName"]')
+            .nth(i)
+            .fill(filter.displayName)
+        }
+      }
+    }
+
+    await this.clickSubmitButtonAndNavigate('Create')
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 

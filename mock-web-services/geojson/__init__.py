@@ -31,5 +31,3 @@ def get_geojson_data():
     except Exception as e:
         print(e, flush=True)
         return Response("Error loading GeoJSON data.", status=500)
-
-
