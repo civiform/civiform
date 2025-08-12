@@ -86,6 +86,40 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void northStar_programBySlug_showsActiveProgramVersionForExistingApplications() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    ProgramModel programModelV2 =
+        resourceCreator().insertDraftProgram(programDefinition.adminName());
+    versionRepository.publishNewSynchronizedVersion();
+
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
+    Result result =
+        instanceOf(ProgramSlugHandler.class)
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
+    // Verify it's showing the newer version (programModelV2) by checking for its ID in the content
+    assertThat(content).contains(String.valueOf(programModelV2.id));
+  }
+
+  @Test
   public void programBySlug_clearsOutRedirectSessionKey_existingProgram() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();

@@ -389,6 +389,23 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void northStar_show_withStringProgramParam_showsProgramOverview() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
+  }
+
+  @Test
   public void show_withProgramIdRedirects() {
     Result result = controller.show(fakeRequest(), "123").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -427,6 +444,26 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             routes.ApplicantProgramReviewController.review(
                     Long.toString(program.id), /* isFromUrlCall= */ false)
                 .url());
+  }
+
+  @Test
+  public void northStar_showWithApplicantId_withStringProgramParam_showsProgramOverview() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
   }
 
   @Test
