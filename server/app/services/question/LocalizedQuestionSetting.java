@@ -13,14 +13,18 @@ public abstract class LocalizedQuestionSetting {
 
   /** Create a LocalizedQuestionSetting. */
   public static LocalizedQuestionSetting create(
-      String settingKey, String settingDisplayName, Locale locale) {
-    return new AutoValue_LocalizedQuestionSetting(settingKey, settingDisplayName, locale);
+      String settingKey, SettingType settingId, String settingDisplayName, Locale locale) {
+    return new AutoValue_LocalizedQuestionSetting(
+        settingKey, settingId, settingDisplayName, locale);
   }
 
   /** The key used for the setting. */
   public abstract String settingKey();
 
-  /** The text strings to display to the user. */
+  /** Identifier indicating how this setting will be used. */
+  public abstract SettingType settingId();
+
+  /** The text string to display to the user. */
   public abstract String settingDisplayName();
 
   /** Sanitized HTML for the option that processes Markdown. */

@@ -3,11 +3,12 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import forms.MapQuestionForm;
 import java.util.Locale;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
+import services.question.SettingType;
 import services.question.types.MapQuestionDefinition;
 
 // TODO(#11003): Build out map question.
@@ -47,22 +48,71 @@ public final class MapQuestion extends AbstractQuestion {
     return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  // In a MAP question, any setting that is not in the DEFAULT_MAP_QUESTION_KEYS is used as a
-  // filter, and the admin is limited to submitting 3 filters
-
   /**
-   * In a MAP question, filters include any setting that is not in {@link
-   * MapQuestionForm#DEFAULT_MAP_QUESTION_KEYS}, and will be used as filters in the question. The
+   * In a MAP question, filters include any setting that has {@link SettingType#FILTER} type. The
    * admin is limited to submitting 3 filters when creating the question.
    *
    * @param locale the {@link Locale} of the applicant
-   * @return Question Settings excluding {@link MapQuestionForm#DEFAULT_MAP_QUESTION_KEYS}
+   * @return Question Settings with {@link SettingType#FILTER} type
    */
   public ImmutableList<LocalizedQuestionSetting> getFilters(Locale locale) {
     return getSettings(locale).stream()
-        .filter(
-            setting ->
-                !MapQuestionForm.DEFAULT_MAP_QUESTION_KEYS.contains(setting.settingDisplayName()))
+        .filter(setting -> setting.settingId() == SettingType.FILTER)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Get the GeoJSON field name that contains the location name.
+   *
+   * @param locale the {@link Locale} of the applicant
+   * @return the GeoJSON field name for location name, if configured
+   */
+  public Optional<String> getNameFieldKey(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingId() == SettingType.NAME)
+        .map(LocalizedQuestionSetting::settingKey)
+        .findFirst();
+  }
+
+  /**
+   * Get the GeoJSON field name that contains the location address.
+   *
+   * @param locale the {@link Locale} of the applicant
+   * @return the GeoJSON field name for location address, if configured
+   */
+  public Optional<String> getAddressFieldKey(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingId() == SettingType.ADDRESS)
+        .map(LocalizedQuestionSetting::settingKey)
+        .findFirst();
+  }
+
+  /**
+   * Get the GeoJSON field name that contains the location details URL.
+   *
+   * @param locale the {@link Locale} of the applicant
+   * @return the GeoJSON field name for location URL, if configured
+   */
+  public Optional<String> getUrlFieldKey(Locale locale) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingId() == SettingType.URL)
+        .map(LocalizedQuestionSetting::settingKey)
+        .findFirst();
+  }
+
+  /** Get the GeoJSON field name for location name using the applicant's preferred locale. */
+  public Optional<String> getNameFieldKey() {
+    return getNameFieldKey(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  }
+
+  /** Get the GeoJSON field name for location address using the applicant's preferred locale. */
+  public Optional<String> getAddressFieldKey() {
+    return getAddressFieldKey(
+        applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+  }
+
+  /** Get the GeoJSON field name for location URL using the applicant's preferred locale. */
+  public Optional<String> getUrlFieldKey() {
+    return getUrlFieldKey(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 }
