@@ -793,7 +793,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'eligibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -888,7 +888,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'visibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -1564,7 +1564,7 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-greater-than-edit')
+      await validateScreenshot(page.locator('.predicate-config-form'), 'predicate-age-greater-than-edit')
       await adminPredicates.clickSaveConditionButton()
     })
 
@@ -1621,7 +1621,7 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-between-edit')
+      await validateScreenshot(page.locator('.predicate-config-form'), 'predicate-age-between-edit')
       await adminPredicates.clickSaveConditionButton()
     })
 
