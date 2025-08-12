@@ -72,6 +72,7 @@ public class ApplicationModel extends BaseModel {
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
     application.save();
+    applicant.getAccount().save();
     return application;
   }
 
