@@ -213,6 +213,7 @@ public enum Icons {
           + " 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41"
           + " 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975"
           + " 12.025Q16.95 41 24 41Zm0-17Z"),
+  // Icon of a person with a checkmark that is used to show that a screen has eligibility conditions
   HOW_TO_REG(
       24,
       "M11 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2"
