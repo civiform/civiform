@@ -116,6 +116,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     ImmutableList<Modal> publishSingleProgramModals =
         buildPublishSingleProgramModals(programs.getDraftPrograms(), universalQuestionIds, request);
+    ImmutableList.Builder<ProgramDefinition> allProgramDefs = ImmutableList.builder();
+    allProgramDefs.addAll(programs.getActivePrograms()).addAll(programs.getDraftPrograms());
+    ImmutableList<Modal> duplicateProgramModals =
+        buildDuplicateProgramModal(allProgramDefs.build(), request);
 
     DivTag headerContent =
         div()
@@ -178,6 +182,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     request,
                                     profile,
                                     publishSingleProgramModals,
+                                    duplicateProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
                         .map(cardData -> programCardFactory.renderCard(cardData, request)))));
@@ -190,6 +195,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .addModals(demographicsCsvModal);
 
     publishSingleProgramModals.stream()
+        .forEach(
+            (modal) -> {
+              htmlBundle.addModals(modal);
+            });
+    duplicateProgramModals.stream()
         .forEach(
             (modal) -> {
               htmlBundle.addModals(modal);
@@ -501,6 +511,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       Optional<CiviFormProfile> profile,
       ImmutableList<Modal> publishSingleProgramModals,
+      ImmutableList<Modal> duplicateProgramModals,
       ImmutableList<Long> universalQuestionIds) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
@@ -523,6 +534,13 @@ public final class ProgramIndexView extends BaseHtmlView {
       maybeRenderManageTranslationsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageApplications(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderExportProgramLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
+      duplicateProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                if (modal.modalId().equals(buildDuplicateModalId(draftProgram.get().id()))) {
+                  draftRowExtraActions.add(modal.getButton());
+                }
+              });
 
       draftRow =
           Optional.of(
@@ -550,6 +568,13 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
+      duplicateProgramModals.stream()
+          .forEach(
+              (modal) -> {
+                if (modal.modalId().equals(buildDuplicateModalId(activeProgram.get().id()))) {
+                  activeRowExtraActions.add(modal.getButton());
+                }
+              });
 
       activeRow =
           Optional.of(
@@ -729,5 +754,59 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Export program", Icons.DOWNLOAD)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return Optional.of(asRedirectElement(button, adminLink));
+  }
+
+  private ImmutableList<Modal> buildDuplicateProgramModal(
+      ImmutableList<ProgramDefinition> programs, Http.Request request) {
+    return programs.stream()
+        .map(
+            program -> {
+              FormTag duplicateProgramForm =
+                  form(makeCsrfTokenInputTag(request))
+                      .withMethod(HttpVerbs.POST)
+                      .withAction(
+                          routes.AdminProgramController.duplicateProgram(program.id()).url())
+                      .with(
+                          FieldWithLabel.input()
+                              .setLabelText(
+                                  "Choose an admin name for the new program. This can't be changed"
+                                      + " later.")
+                              .setPlaceholderText(program.adminName())
+                              .setId("program-name")
+                              .setFieldName("program-name")
+                              .setAttribute("rows", "12")
+                              .setRequired(true)
+                              .getInputTag());
+
+              DivTag buttons =
+                  div(
+                          submitButton("Duplicate program").withClasses(ButtonStyles.SOLID_BLUE),
+                          button("Cancel")
+                              .withClasses(
+                                  ButtonStyles.LINK_STYLE_WITH_TRANSPARENCY,
+                                  ReferenceClasses.MODAL_CLOSE))
+                      .withClasses(
+                          "flex", "flex-col", StyleUtils.responsiveMedium("flex-row"), "py-4");
+
+              return Modal.builder()
+                  .setModalId(buildDuplicateModalId(program.id()))
+                  .setLocation(Modal.Location.ADMIN_FACING)
+                  .setContent(duplicateProgramForm.with(buttons))
+                  .setModalTitle(getDuplicateProgramTitle(program.adminName()))
+                  .setTriggerButtonContent(
+                      makeSvgTextButton("Duplicate program", Icons.CONTENT_COPY)
+                          .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN))
+                  .setWidth(Modal.Width.THIRD)
+                  .build();
+            })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private String buildDuplicateModalId(long id) {
+    return "duplicate-program-with-id-" + id;
+  }
+
+  private String getDuplicateProgramTitle(String name) {
+    return "Create a duplicate of program \"" + name + "\"";
   }
 }
