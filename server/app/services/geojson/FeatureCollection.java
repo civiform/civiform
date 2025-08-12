@@ -30,17 +30,6 @@ public record FeatureCollection(
   }
 
   /**
-   * Extracts all unique property keys from all features in this collection.
-   *
-   * @return set of all possible property keys found across all features
-   */
-  public Set<String> getPossibleKeys() {
-    Set<String> keys = new HashSet<>();
-    features().forEach(feature -> keys.addAll(feature.properties().keySet()));
-    return keys;
-  }
-
-  /**
    * Extracts all unique values for a specific property key from all features in this collection.
    *
    * @param key the property key to get values for

@@ -24,7 +24,6 @@ public class MapQuestionForm extends QuestionForm {
   public static final List<String> DEFAULT_MAP_QUESTION_KEYS =
       Arrays.asList(LOCATION_NAME_DISPLAY, LOCATION_ADDRESS_DISPLAY, LOCATION_DETAILS_URL_DISPLAY);
   private String geoJsonEndpoint;
-
   private OptionalInt maxLocationSelections;
   @Setter private Setting locationName;
   @Setter private Setting locationAddress;

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.MapQuestionForm;
 import java.util.Locale;
-import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -44,51 +43,26 @@ public final class MapQuestion extends AbstractQuestion {
     return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
   }
 
-  public ImmutableSet<LocalizedQuestionSetting> getFilters() {
+  public ImmutableList<LocalizedQuestionSetting> getFilters() {
     return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
   }
 
-  public ImmutableSet<LocalizedQuestionSetting> getFilters(Locale locale) {
+  // In a MAP question, any setting that is not in the DEFAULT_MAP_QUESTION_KEYS is used as a
+  // filter, and the admin is limited to submitting 3 filters
+
+  /**
+   * In a MAP question, filters include any setting that is not in {@link
+   * MapQuestionForm#DEFAULT_MAP_QUESTION_KEYS}, and will be used as filters in the question. The
+   * admin is limited to submitting 3 filters when creating the question.
+   *
+   * @param locale the {@link Locale} of the applicant
+   * @return Question Settings excluding {@link MapQuestionForm#DEFAULT_MAP_QUESTION_KEYS}
+   */
+  public ImmutableList<LocalizedQuestionSetting> getFilters(Locale locale) {
     return getSettings(locale).stream()
         .filter(
             setting ->
                 !MapQuestionForm.DEFAULT_MAP_QUESTION_KEYS.contains(setting.settingDisplayName()))
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  public Optional<LocalizedQuestionSetting> getNameSetting() {
-    return getNameSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
-  }
-
-  public Optional<LocalizedQuestionSetting> getNameSetting(Locale locale) {
-    return getSettings(locale).stream()
-        .filter(
-            setting -> MapQuestionForm.LOCATION_NAME_DISPLAY.equals(setting.settingDisplayName()))
-        .findFirst();
-  }
-
-  public Optional<LocalizedQuestionSetting> getAddressSetting() {
-    return getAddressSetting(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
-  }
-
-  public Optional<LocalizedQuestionSetting> getAddressSetting(Locale locale) {
-    return getSettings(locale).stream()
-        .filter(
-            setting ->
-                MapQuestionForm.LOCATION_ADDRESS_DISPLAY.equals(setting.settingDisplayName()))
-        .findFirst();
-  }
-
-  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting() {
-    return getLocationDetailsUrlSetting(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale());
-  }
-
-  public Optional<LocalizedQuestionSetting> getLocationDetailsUrlSetting(Locale locale) {
-    return getSettings(locale).stream()
-        .filter(
-            setting ->
-                MapQuestionForm.LOCATION_DETAILS_URL_DISPLAY.equals(setting.settingDisplayName()))
-        .findFirst();
+        .collect(ImmutableList.toImmutableList());
   }
 }
