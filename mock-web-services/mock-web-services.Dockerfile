@@ -10,6 +10,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt --no-warn-script-location
 COPY . .
 COPY --from=server /test/resources/esri /server/test/resources/esri
+COPY --from=server /test/resources/geojson /server/test/resources/geojson
 
 EXPOSE 8000
 
