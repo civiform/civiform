@@ -108,7 +108,7 @@ public abstract class QuestionSetting {
       return LocalizedQuestionSetting.create(settingValue(), settingType(), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionSetting.create(
-        settingValue(),
+          settingValue(),
           settingType(),
           localizedSettingDisplayName().get().getDefault(),
           LocalizedStrings.DEFAULT_LOCALE);

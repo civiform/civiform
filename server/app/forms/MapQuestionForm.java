@@ -118,9 +118,12 @@ public class MapQuestionForm extends QuestionForm {
   }
 
   private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
-    this.locationName = getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
-    this.locationAddress = getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
-    this.locationDetailsUrl = getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+    this.locationName =
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
+    this.locationAddress =
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
+    this.locationDetailsUrl =
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
 
     this.filters = getFiltersFromQuestionSettings(settings);
   }
@@ -138,7 +141,8 @@ public class MapQuestionForm extends QuestionForm {
   /** Converts {@link QuestionSetting} back to form {@link Setting} list for editing filters. */
   private List<Setting> getFiltersFromQuestionSettings(ImmutableSet<QuestionSetting> settings) {
     return settings.stream()
-        .filter(setting -> setting.settingType().equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY))
+        .filter(
+            setting -> setting.settingType().equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY))
         .map(
             setting ->
                 new Setting(
@@ -153,9 +157,15 @@ public class MapQuestionForm extends QuestionForm {
   private ImmutableSet<QuestionSetting> buildQuestionSettings() {
     ImmutableSet.Builder<QuestionSetting> builder = ImmutableSet.builder();
 
-    builder.add(QuestionSetting.create(getLocationName().getKey(), MapSettingType.LOCATION_NAME_GEO_JSON_KEY));
-    builder.add(QuestionSetting.create(getLocationAddress().getKey(), MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY));
-    builder.add(QuestionSetting.create(getLocationDetailsUrl().getKey(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY));
+    builder.add(
+        QuestionSetting.create(
+            getLocationName().getKey(), MapSettingType.LOCATION_NAME_GEO_JSON_KEY));
+    builder.add(
+        QuestionSetting.create(
+            getLocationAddress().getKey(), MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY));
+    builder.add(
+        QuestionSetting.create(
+            getLocationDetailsUrl().getKey(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY));
 
     getFilters().stream()
         .filter(this::isValidSetting)
@@ -164,7 +174,7 @@ public class MapQuestionForm extends QuestionForm {
                 builder.add(
                     QuestionSetting.create(
                         filter.getKey(),
-                      MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
                         Optional.of(LocalizedStrings.withDefaultValue(filter.getDisplayName())))));
     return builder.build();
   }
