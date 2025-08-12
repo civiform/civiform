@@ -25,14 +25,19 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import models.QuestionTag;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.GeoJsonDataRepository;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -69,6 +74,9 @@ public final class QuestionEditView extends BaseHtmlView {
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
   private final QuestionPreview questionPreview;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final TemplateEngine templateEngine;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -88,7 +96,10 @@ public final class QuestionEditView extends BaseHtmlView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
       QuestionPreview questionPreview,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      GeoJsonDataRepository geoJsonDataRepository) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
@@ -96,6 +107,9 @@ public final class QuestionEditView extends BaseHtmlView {
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionPreview = checkNotNull(questionPreview);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /** Render a fresh New Question Form. */
@@ -474,9 +488,6 @@ public final class QuestionEditView extends BaseHtmlView {
               .setAttribute("hx-target", "#geoJsonOutput")
               .setAttribute("hx-trigger", "change delay:1s")
               .getInputTag());
-      // TODO(#11001): Display question settings for map question if successful response.
-      // TODO(#11125): Display failure state for map question if bad response.
-      formTag.with(div().attr("id", "geoJsonOutput"));
     }
 
     formTag.with(
@@ -490,7 +501,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+        getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
@@ -513,6 +524,41 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private Optional<DivTag> getQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
+    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
+      Set<String> possibleKeys =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .join()
+              .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+              .orElse(new HashSet<>());
+
+      return QuestionConfig.buildQuestionConfigUsingThymeleaf(
+          request,
+          new MapQuestionSettingsPartialView(
+              templateEngine, playThymeleafContextFactory, settingsManifest),
+          getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
+    }
+    return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+  }
+
+  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
+      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        possibleKeys);
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
