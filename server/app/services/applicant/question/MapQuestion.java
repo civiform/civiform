@@ -7,7 +7,7 @@ import java.util.Locale;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
-import services.question.SettingType;
+import services.question.MapSettingType;
 import services.question.types.MapQuestionDefinition;
 
 // TODO(#11003): Build out map question.
@@ -48,15 +48,15 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   /**
-   * In a MAP question, filters include any setting that has {@link SettingType#FILTER} type. The
+   * In a MAP question, filters include any setting that has {@link MapSettingType#FILTER} type. The
    * admin is limited to submitting 3 filters when creating the question.
    *
    * @param locale the {@link Locale} of the applicant
-   * @return Question Settings with {@link SettingType#FILTER} type
+   * @return Question Settings with {@link MapSettingType#LOCATION_FILTER_GEO_JSON_KEY} type
    */
   public ImmutableList<LocalizedQuestionSetting> getFilters(Locale locale) {
     return getSettings(locale).stream()
-        .filter(setting -> setting.settingType() == SettingType.FILTER)
+        .filter(setting -> setting.settingType() == MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)
         .collect(ImmutableList.toImmutableList());
   }
 }

@@ -13,13 +13,13 @@ public abstract class LocalizedQuestionSetting {
 
   /** Create a LocalizedQuestionSetting. */
   public static LocalizedQuestionSetting create(
-      String settingKey, SettingType settingType, String settingDisplayName, Locale locale) {
+      String settingValue, SettingType settingType, String settingDisplayName, Locale locale) {
     return new AutoValue_LocalizedQuestionSetting(
-        settingKey, settingType, settingDisplayName, locale);
+        settingValue, settingType, settingDisplayName, locale);
   }
 
   /** The key used for the setting. */
-  public abstract String settingKey();
+  public abstract String settingValue();
 
   /** Identifier indicating how this setting will be used. */
   public abstract SettingType settingType();
