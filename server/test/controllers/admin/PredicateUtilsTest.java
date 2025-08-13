@@ -80,13 +80,13 @@ public class PredicateUtilsTest {
         .isEqualTo(
             """
             My Test Block is hidden if city is equal to "Phoenix" AND number is less than 4 AND \
-            text is not equal to "hello"\"""");
+            text is not equal to "hello\"""");
     assertThat(readablePredicate.formattedHtmlHeading().toString())
         .isEqualTo(
             """
             My Test Block is <strong>hidden</strong> if city is equal to \
-            <strong>"Phoenix"</strong> AND number is less than <strong>4</strong> \
-            AND text is not equal to <strong>"hello"</strong>""");
+            <strong>&quot;Phoenix&quot;</strong> AND number is less than <strong>4</strong> \
+            AND text is not equal to <strong>&quot;hello&quot;</strong>""");
     assertThat(readablePredicate.conditionList()).isEmpty();
     assertThat(readablePredicate.formattedHtmlConditionList()).isEmpty();
   }
@@ -155,11 +155,11 @@ public class PredicateUtilsTest {
         .isEqualTo(
             """
             number is equal to <strong>4</strong> AND text is equal to \
-            <strong>"four"</strong>""");
+            <strong>&quot;four&quot;</strong>""");
     assertThat(readablePredicate.formattedHtmlConditionList().get().get(1).toString())
         .isEqualTo(
             """
             number is equal to <strong>5</strong> AND text is equal to \
-            <strong>"five"</strong>""");
+            <strong>&quot;five&quot;</strong>""");
   }
 }
