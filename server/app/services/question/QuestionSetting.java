@@ -54,25 +54,25 @@ public abstract class QuestionSetting {
       @JsonProperty("settingTypeString") String settingTypeString,
       @JsonProperty("localizedSettingDisplayName")
           Optional<LocalizedStrings> localizedSettingDisplayName) {
-    return QuestionSetting.create(settingValue, settingTypeString, localizedSettingDisplayName);
+    return QuestionSetting.create(settingValue, MapSettingType.valueOf(settingTypeString), localizedSettingDisplayName);
   }
 
   /**
    * Create a {@link QuestionSetting} with a display name.
    *
    * @param settingValue the value identifying this setting within the question
-   * @param settingTypeString identifier indicating how this setting will be used, as a string
+   * @param settingType identifier indicating how this setting will be used, as a string
    * @param localizedSettingDisplayName the option's user-facing text (only required for FILTER
    *     settings)
    * @return the {@link QuestionSetting}
    */
   public static QuestionSetting create(
       String settingValue,
-      String settingTypeString,
+      SettingType settingType,
       Optional<LocalizedStrings> localizedSettingDisplayName) {
     return QuestionSetting.builder()
         .setSettingValue(settingValue)
-        .setSettingTypeString(settingTypeString)
+        .setSettingTypeString(settingType.toString())
         .setLocalizedSettingDisplayName(localizedSettingDisplayName)
         .build();
   }
