@@ -13,6 +13,28 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
+  <form class="usa-form">
+    <div th:each="filter, i : ${mapQuestion.getFilters()}">
+      <label
+        class="usa-label"
+        th:for="'filter' + ${i.index + 1}"
+        th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
+      ></label>
+      <select
+        class="usa-select"
+        th:name="'filter' + ${i.index + 1}"
+        th:id="'filter' + ${i.index + 1}"
+      >
+        <option value>- Select -</option>
+        <option
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
+          th:value="${option}"
+          th:text="${option}"
+        ></option>
+      </select>
+    </div>
+  </form>
   <!-- TODO(#11003): Build out applicant view of map question -->
   <!-- TODO(#11150): Add map question preview functionality -->
   <div th:id="${mapId}" class="square-mobile"></div>

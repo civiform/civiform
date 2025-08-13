@@ -3,11 +3,13 @@ package forms;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import services.LocalizedStrings;
+import services.question.MapSettingType;
 import services.question.QuestionSetting;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
@@ -24,12 +26,6 @@ public class MapQuestionForm extends QuestionForm {
   @Setter private Setting locationAddress;
   @Setter private Setting locationDetailsUrl;
   @Setter private List<Setting> filters;
-
-  public static final String LOCATION_NAME_DISPLAY = "Name";
-  public static final String LOCATION_ADDRESS_DISPLAY = "Address";
-  public static final String LOCATION_DETAILS_URL_DISPLAY = "URL";
-  public static final List<String> DEFAULT_MAP_QUESTION_KEYS =
-      Arrays.asList(LOCATION_NAME_DISPLAY, LOCATION_ADDRESS_DISPLAY, LOCATION_DETAILS_URL_DISPLAY);
 
   /**
    * Simple class for MAP question settings. Used for form processing and gets converted to {@link
@@ -53,10 +49,6 @@ public class MapQuestionForm extends QuestionForm {
 
     public static Setting emptySetting() {
       return new Setting();
-    }
-
-    public static Setting emptySettingWithDisplayName(String displayName) {
-      return new Setting("", displayName);
     }
 
     public static List<Setting> emptyFilters() {
@@ -125,62 +117,40 @@ public class MapQuestionForm extends QuestionForm {
     this.filters = Setting.emptyFilters();
   }
 
-  /** Converts persistent {@link QuestionSetting} back to form {@link Setting} for editing. */
   private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
     this.locationName =
-        settings.stream()
-            .filter(
-                setting ->
-                    setting
-                        .localizedSettingDisplayName()
-                        .getDefault()
-                        .equals(LOCATION_NAME_DISPLAY))
-            .findFirst()
-            .map(
-                setting ->
-                    new Setting(
-                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
-            .orElse(Setting.emptySetting());
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
     this.locationAddress =
-        settings.stream()
-            .filter(
-                setting ->
-                    setting
-                        .localizedSettingDisplayName()
-                        .getDefault()
-                        .equals(LOCATION_ADDRESS_DISPLAY))
-            .findFirst()
-            .map(
-                setting ->
-                    new Setting(
-                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
-            .orElse(Setting.emptySetting());
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
     this.locationDetailsUrl =
-        settings.stream()
-            .filter(
-                setting ->
-                    setting
-                        .localizedSettingDisplayName()
-                        .getDefault()
-                        .equals(LOCATION_DETAILS_URL_DISPLAY))
-            .findFirst()
-            .map(
-                setting ->
-                    new Setting(
-                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
-            .orElse(Setting.emptySetting());
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
 
-    this.filters =
-        settings.stream()
-            .filter(
-                setting ->
-                    !DEFAULT_MAP_QUESTION_KEYS.contains(
-                        setting.localizedSettingDisplayName().getDefault()))
-            .map(
-                setting ->
-                    new Setting(
-                        setting.settingKey(), setting.localizedSettingDisplayName().getDefault()))
-            .collect(Collectors.toList());
+    this.filters = getFiltersFromQuestionSettings(settings);
+  }
+
+  /** Converts {@link QuestionSetting} back to form {@link Setting} for editing. */
+  private Setting getSettingFromQuestionSettings(
+      ImmutableSet<QuestionSetting> settings, MapSettingType type) {
+    return settings.stream()
+        .filter(setting -> setting.settingType().equals(type))
+        .map(setting -> new Setting(setting.settingValue(), ""))
+        .findFirst()
+        .orElse(new Setting());
+  }
+
+  /** Converts {@link QuestionSetting} back to form {@link Setting} list for editing filters. */
+  private List<Setting> getFiltersFromQuestionSettings(ImmutableSet<QuestionSetting> settings) {
+    return settings.stream()
+        .filter(
+            setting -> setting.settingType().equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY))
+        .map(
+            setting ->
+                new Setting(
+                    setting.settingValue(),
+                    setting.localizedSettingDisplayName().isPresent()
+                        ? setting.localizedSettingDisplayName().get().getDefault()
+                        : ""))
+        .collect(Collectors.toList());
   }
 
   /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
@@ -189,25 +159,23 @@ public class MapQuestionForm extends QuestionForm {
 
     builder.add(
         QuestionSetting.create(
-            getLocationName().getKey(), LocalizedStrings.withDefaultValue(LOCATION_NAME_DISPLAY)));
-
+            getLocationName().getKey(), MapSettingType.LOCATION_NAME_GEO_JSON_KEY));
     builder.add(
         QuestionSetting.create(
-            getLocationAddress().getKey(),
-            LocalizedStrings.withDefaultValue(LOCATION_ADDRESS_DISPLAY)));
-
+            getLocationAddress().getKey(), MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY));
     builder.add(
         QuestionSetting.create(
-            getLocationDetailsUrl().getKey(),
-            LocalizedStrings.withDefaultValue(LOCATION_DETAILS_URL_DISPLAY)));
+            getLocationDetailsUrl().getKey(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY));
 
-    for (Setting filter : getFilters()) {
-      if (isValidSetting(filter)) {
-        builder.add(
-            QuestionSetting.create(
-                filter.getKey(), LocalizedStrings.withDefaultValue(filter.getDisplayName())));
-      }
-    }
+    getFilters().stream()
+        .filter(this::isValidSetting)
+        .forEach(
+            filter ->
+                builder.add(
+                    QuestionSetting.create(
+                        filter.getKey(),
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(LocalizedStrings.withDefaultValue(filter.getDisplayName())))));
     return builder.build();
   }
 
