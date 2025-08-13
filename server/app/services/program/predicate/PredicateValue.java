@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -109,48 +109,8 @@ public abstract class PredicateValue {
   public String toDisplayString(QuestionDefinition question) {
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
-    // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
-    if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
-      if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-        return splitListString(value())
-            .map(PredicateValue::displayCurrencyString)
-            .collect(Collectors.joining(" and "));
-      }
-      return displayCurrencyString(value());
-    }
-
-    if (type() == OperatorRightHandType.DATE) {
-      return displayDateString(value());
-    }
-
-    if (type() == OperatorRightHandType.PAIR_OF_DATES) {
-      return splitListString(value())
-          .map(PredicateValue::displayDateString)
-          .collect(Collectors.joining(" and "));
-    }
-
-    if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-      return splitListString(value()).collect(Collectors.joining(" and "));
-    }
-
-    // For all other "simple" questions use the stored value directly.
-    if (!question.getQuestionType().isMultiOptionType()) {
-      return value();
-    }
-
-    // For multi option questions the value ids are stored in the database, so we need to convert
-    // them to the human-readable strings.
-    // We return the readable values in the default locale.
-    // If an ID is not valid for the question, show "<obsolete>"; An obsolete ID does not affect
-    // evaluation.
-    MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
-    if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-      return splitListString(value())
-          .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
-          .collect(toImmutableList())
-          .toString();
-    }
-    return parseMultiOptionIdToText(multiOptionQuestion, value());
+    return toDisplayStringInternal(
+        question, str -> str, collection -> String.join(" and ", collection));
   }
 
   /**
@@ -167,43 +127,49 @@ public abstract class PredicateValue {
    * @param question the question the predicate is applied to.
    */
   public UnescapedText toFormattedDisplayString(QuestionDefinition question) {
+    return toDisplayStringInternal(
+        question,
+        PredicateValue::formatDisplayString,
+        collection -> PredicateUtils.joinUnescapedText(collection, "and"));
+  }
+
+  public <T> T toDisplayStringInternal(
+      QuestionDefinition question,
+      Function<String, T> formatter,
+      Function<ImmutableList<T>, T> aggregator) {
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
     // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
       if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-        return PredicateUtils.joinUnescapedText(
+        return aggregator.apply(
             splitListString(value())
-                .map(value -> formatDisplayString(displayCurrencyString(value)))
-                .collect(toImmutableList()),
-            /* delimiter= */ " and ");
+                .map(PredicateValue::displayCurrencyString)
+                .map(formatter)
+                .collect(toImmutableList()));
       }
-      return formatDisplayString(displayCurrencyString(value()));
+      return formatter.apply(displayCurrencyString(value()));
     }
 
     if (type() == OperatorRightHandType.DATE) {
-      return formatDisplayString(displayDateString(value()));
+      return formatter.apply(displayDateString(value()));
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_DATES) {
-      return PredicateUtils.joinUnescapedText(
+      return aggregator.apply(
           splitListString(value())
-              .map(value -> formatDisplayString(displayDateString(value)))
-              .collect(toImmutableList()),
-          /* delimiter= */ "and");
+              .map(PredicateValue::displayDateString)
+              .map(formatter)
+              .collect(toImmutableList()));
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-      return PredicateUtils.joinUnescapedText(
-          splitListString(value())
-              .map(value -> formatDisplayString(value))
-              .collect(toImmutableList()),
-          /* delimiter= */ "and");
+      return aggregator.apply(splitListString(value()).map(formatter).collect(toImmutableList()));
     }
 
     // For all other "simple" questions use the stored value directly.
     if (!question.getQuestionType().isMultiOptionType()) {
-      return formatDisplayString(value());
+      return formatter.apply(value());
     }
 
     // For multi option questions the value ids are stored in the database, so we need to convert
@@ -213,13 +179,13 @@ public abstract class PredicateValue {
     // evaluation.
     MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
     if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-      return formatDisplayString(
+      return formatter.apply(
           splitListString(value())
               .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
               .collect(toImmutableList())
               .toString());
     }
-    return formatDisplayString(parseMultiOptionIdToText(multiOptionQuestion, value()));
+    return formatter.apply(parseMultiOptionIdToText(multiOptionQuestion, value()));
   }
 
   /**
