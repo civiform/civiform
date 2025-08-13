@@ -1564,7 +1564,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page.locator('.predicate-config-form'), 'predicate-age-greater-than-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-greater-than-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 
@@ -1621,7 +1624,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page.locator('.predicate-config-form'), 'predicate-age-between-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-between-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 
