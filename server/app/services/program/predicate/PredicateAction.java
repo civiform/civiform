@@ -24,7 +24,7 @@ public enum PredicateAction {
     return this.actionString + " if";
   }
 
-  public UnescapedText toFormattedDisplayString() {
+  public UnescapedText toDisplayFormattedHtml() {
     return join(strong(this.actionString), "if");
   }
 }

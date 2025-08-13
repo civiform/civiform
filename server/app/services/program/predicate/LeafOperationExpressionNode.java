@@ -90,12 +90,12 @@ public abstract class LeafOperationExpressionNode implements LeafExpressionNode 
   }
 
   /**
-   * Displays a formatted, human-readable representation of this expression, in the format
+   * Displays a formatted, human-readable representation of this expression in HTML, in the format
    * "<strong>[question name]'s</strong> [scalar] [operator] <strong>[value]</strong>". For example:
    * "<strong>home address's</strong> city is one of <strong>["Seattle", "Tacoma"]</strong>".
    */
   @Override
-  public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
     Optional<QuestionDefinition> question =
         questions.stream().filter(q -> q.getId() == questionId()).findFirst();
     UnescapedText displayValue =

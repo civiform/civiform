@@ -111,7 +111,7 @@ public abstract class PredicateExpressionNode {
     return node().toDisplayString(questions);
   }
 
-  public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
-    return node().toFormattedDisplayString(questions);
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
+    return node().toDisplayFormattedHtml(questions);
   }
 }

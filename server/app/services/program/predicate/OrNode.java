@@ -56,10 +56,10 @@ public abstract class OrNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
-  public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
     return PredicateUtils.joinUnescapedText(
         children().stream()
-            .map(c -> c.node().toFormattedDisplayString(questions))
+            .map(c -> c.node().toDisplayFormattedHtml(questions))
             .collect(toImmutableList()),
         /* delimiter= */ "OR");
   }

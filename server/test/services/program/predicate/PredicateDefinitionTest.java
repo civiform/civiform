@@ -30,7 +30,7 @@ public class PredicateDefinitionTest {
                     1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Phoenix"))),
             PredicateAction.HIDE_BLOCK);
 
-    assertThat(predicate.toFormattedDisplayString("My Block", ImmutableList.of()).toString())
+    assertThat(predicate.toDisplayFormattedHtml("My Block", ImmutableList.of()).toString())
         .isEqualTo(
             "My Block is <strong>hidden</strong> if city is equal to"
                 + " <strong>&quot;Phoenix&quot;</strong>");

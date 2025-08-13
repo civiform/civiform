@@ -202,10 +202,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
         div()
             .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
             .withClasses("prose-body", "px-4", "pb-4")
-            .with(p(readablePredicate.formattedHeading()));
-    if (readablePredicate.formattedConditionList().isPresent()) {
-      OlTag conditionList = ol().withClasses("list-decimal", "ml-4", "mb-4", "pt-4");
-      readablePredicate.formattedConditionList().get().stream()
+            .with(p(readablePredicate.formattedHtmlHeading()));
+    if (readablePredicate.formattedHtmlConditionList().isPresent()) {
+      OlTag conditionList = ol().withClasses("list-decimal", "ml-4", "pt-4");
+      readablePredicate.formattedHtmlConditionList().get().stream()
           .forEach(condition -> conditionList.with(li(condition)));
       content.with(conditionList);
     }

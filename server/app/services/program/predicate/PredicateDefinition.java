@@ -77,6 +77,10 @@ public abstract class PredicateDefinition {
    * Formats this predicate definition as a human-readable sentence, in the format "[applicant or
    * block name] is [eligible or hidden or shown if] [predicate expression]" - ex: "My Block is
    * hidden if applicant address's city is equal to 'Seattle'".
+   *
+   * <p>This should only be used when a plain string representation is necessary, such as for PDF
+   * Export. Most user-facing application use cases should use {@link
+   * #toDisplayFormattedHtml(String, ImmutableList)} instead.
    */
   public String toDisplayString(String blockName, ImmutableList<QuestionDefinition> questions) {
     return Joiner.on(' ')
@@ -88,18 +92,18 @@ public abstract class PredicateDefinition {
   }
 
   /**
-   * Formats this predicate definition as a human-readable sentence, in the format "[applicant or
-   * block name] is <strong>[eligible or hidden or shown if]</strong> [predicate expression]" - ex:
-   * "My Block is <strong>hidden</strong> if applicant address's city is equal to
+   * Formats this predicate definition as a human-readable sentence in HTML, in the format
+   * "[applicant or block name] is <strong>[eligible or hidden or shown if]</strong> [predicate
+   * expression]" - ex: "My Block is <strong>hidden</strong> if applicant address's city is equal to
    * <strong>'Seattle'</strong>".
    */
-  public UnescapedText toFormattedDisplayString(
+  public UnescapedText toDisplayFormattedHtml(
       String blockName, ImmutableList<QuestionDefinition> questions) {
     return join(
         getPredicateSubject(blockName),
         "is",
-        action().toFormattedDisplayString(),
-        rootNode().toFormattedDisplayString(questions));
+        action().toDisplayFormattedHtml(),
+        rootNode().toDisplayFormattedHtml(questions));
   }
 
   /**

@@ -64,12 +64,12 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
-  public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
     Comparator<PredicateExpressionNode> childComparator = getChildComparator(questions);
     ImmutableList<UnescapedText> sortedQuestions =
         children().stream()
             .sorted(childComparator)
-            .map(c -> c.node().toFormattedDisplayString(questions))
+            .map(c -> c.node().toDisplayFormattedHtml(questions))
             .collect(ImmutableList.toImmutableList());
     return PredicateUtils.joinUnescapedText(sortedQuestions, /* delimiter= */ "AND");
   }

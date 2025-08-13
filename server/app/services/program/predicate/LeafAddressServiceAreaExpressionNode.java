@@ -66,11 +66,11 @@ public abstract class LeafAddressServiceAreaExpressionNode implements LeafExpres
   }
 
   /**
-   * Displays a formatted, human-readable representation of the assertion in the format
+   * Displays a formatted, human-readable representation of the assertion in HTML, in the format
    * "<strong>[question name]</strong> is in service area <strong>[service area ID]</strong>".
    */
   @Override
-  public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
     return join(
         strong(getAddressLabel(questions)),
         "is",
