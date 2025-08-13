@@ -54,7 +54,8 @@ public abstract class QuestionSetting {
       @JsonProperty("settingTypeString") String settingTypeString,
       @JsonProperty("localizedSettingDisplayName")
           Optional<LocalizedStrings> localizedSettingDisplayName) {
-    return QuestionSetting.create(settingValue, MapSettingType.valueOf(settingTypeString), localizedSettingDisplayName);
+    return QuestionSetting.create(
+        settingValue, MapSettingType.valueOf(settingTypeString), localizedSettingDisplayName);
   }
 
   /**
