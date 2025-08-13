@@ -26,13 +26,16 @@ public abstract class QuestionSetting {
   @JsonProperty("settingValue")
   public abstract String settingValue();
 
-  /** Identifier indicating how this setting will be used. */
-  @JsonProperty("settingType")
-  public abstract SettingType settingType();
+  /** Identifier indicating how this setting will be used, stored as string. */
+  @JsonProperty("settingTypeString")
+  public abstract String settingTypeString();
 
-  /**
-   * The text strings to display to the user, keyed by locale. Only required for FILTER settings.
-   */
+  /** Get the setting type as a SettingType enum. */
+  public SettingType settingType() {
+    return MapSettingType.valueOf(settingTypeString());
+  }
+
+  /** The text strings to display to the user, keyed by locale. Only required for some settings. */
   @JsonProperty("localizedSettingDisplayName")
   public abstract Optional<LocalizedStrings> localizedSettingDisplayName();
 
@@ -40,7 +43,7 @@ public abstract class QuestionSetting {
    * Creates a QuestionSetting from JSON data during deserialization.
    *
    * @param settingValue the value identifying this setting within the question
-   * @param settingType identifier indicating how this setting will be used
+   * @param settingTypeString identifier indicating how this setting will be used, as a string
    * @param localizedSettingDisplayName the display text for this setting, localized for different
    *     languages
    * @return a new QuestionSetting instance
@@ -48,28 +51,28 @@ public abstract class QuestionSetting {
   @JsonCreator
   public static QuestionSetting jsonCreator(
       @JsonProperty("settingValue") String settingValue,
-      @JsonProperty("settingType") SettingType settingType,
+      @JsonProperty("settingTypeString") String settingTypeString,
       @JsonProperty("localizedSettingDisplayName")
           Optional<LocalizedStrings> localizedSettingDisplayName) {
-    return QuestionSetting.create(settingValue, settingType, localizedSettingDisplayName);
+    return QuestionSetting.create(settingValue, settingTypeString, localizedSettingDisplayName);
   }
 
   /**
    * Create a {@link QuestionSetting} with a display name.
    *
    * @param settingValue the value identifying this setting within the question
-   * @param settingType identifier indicating how this setting will be used
+   * @param settingTypeString identifier indicating how this setting will be used, as a string
    * @param localizedSettingDisplayName the option's user-facing text (only required for FILTER
    *     settings)
    * @return the {@link QuestionSetting}
    */
   public static QuestionSetting create(
       String settingValue,
-      SettingType settingType,
+      String settingTypeString,
       Optional<LocalizedStrings> localizedSettingDisplayName) {
     return QuestionSetting.builder()
         .setSettingValue(settingValue)
-        .setSettingType(settingType)
+        .setSettingTypeString(settingTypeString)
         .setLocalizedSettingDisplayName(localizedSettingDisplayName)
         .build();
   }
@@ -84,7 +87,7 @@ public abstract class QuestionSetting {
   public static QuestionSetting create(String settingValue, SettingType settingType) {
     return QuestionSetting.builder()
         .setSettingValue(settingValue)
-        .setSettingType(settingType)
+        .setSettingTypeString(settingType.toString())
         .setLocalizedSettingDisplayName(Optional.empty())
         .build();
   }
@@ -137,8 +140,8 @@ public abstract class QuestionSetting {
     @JsonProperty("settingValue")
     public abstract Builder setSettingValue(String settingValue);
 
-    @JsonProperty("settingType")
-    public abstract Builder setSettingType(SettingType settingType);
+    @JsonProperty("settingTypeString")
+    public abstract Builder setSettingTypeString(String settingTypeString);
 
     public abstract QuestionSetting build();
   }
