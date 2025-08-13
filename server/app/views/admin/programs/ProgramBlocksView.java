@@ -912,7 +912,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "bg-transparent",
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
-            .withType("submit")
+            .withType("button")
             .attr("hx-post", toggleOptionalAction)
             .attr("hx-select-oob", String.format("#%s", toggleOptionalFormId))
             .with(p("optional").withClasses("hover-group:text-white"))
@@ -1019,7 +1019,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "bg-transparent",
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
-            .withType("submit")
+            .withType("button")
             .attr("hx-post", toggleAddressCorrectionAction)
             // Replace entire Questions section so that the tooltips for all address
             // questions get updated.

@@ -559,7 +559,9 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
     await validateScreenshot(
-      page,
+      page.locator(
+        adminPrograms.questionCardSelectorInProgramView('ace-address'),
+      ),
       'program-detail-page-with-address-correction-false',
     )
 
@@ -572,7 +574,9 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput).toHaveValue('true')
 
     await validateScreenshot(
-      page,
+      page.locator(
+        adminPrograms.questionCardSelectorInProgramView('ace-address'),
+      ),
       'program-detail-page-with-address-correction-true',
     )
 
@@ -608,7 +612,7 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-multiple-address-correction-false',
     )
 
@@ -635,7 +639,7 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-first-address-correction-true',
     )
 
@@ -648,8 +652,8 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
-      page,
-      'program-detail-page-with-first-address-correction-true',
+      page.locator('#questions-section'),
+      'program-detail-page-with-first-address-correction-true-second-false',
     )
 
     // Once we untoggle the first one, we should be able to toggle the second one
@@ -662,7 +666,7 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-second-address-correction-true',
     )
 
