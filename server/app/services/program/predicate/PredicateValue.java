@@ -110,7 +110,9 @@ public abstract class PredicateValue {
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
     return toDisplayStringInternal(
-        question, str -> str, collection -> String.join(" and ", collection));
+        question,
+        /* formatter= */ str -> str, // Don't apply extra formating
+        /* aggregator= */ collection -> String.join(" and ", collection));
   }
 
   /**
@@ -133,7 +135,14 @@ public abstract class PredicateValue {
         collection -> PredicateUtils.joinUnescapedText(collection, "and"));
   }
 
-  public <T> T toDisplayStringInternal(
+  /**
+   * Generalized string creator to represent the predicate that allows for customization.
+   *
+   * @param formatter formats the String value into the templated type.
+   * @param aggregator collects multiple templated items into a single representation of the
+   *     templates type.
+   */
+  private <T> T toDisplayStringInternal(
       QuestionDefinition question,
       Function<String, T> formatter,
       Function<ImmutableList<T>, T> aggregator) {
