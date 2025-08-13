@@ -70,24 +70,24 @@ const renderMap = (mapId: string, mapData: MapData) => {
       let popupContent = ''
 
       // Display name if available
-      const nameKey = settings['nameKey']
-      if (nameKey && properties[nameKey]) {
-        const name = properties[nameKey] as string
+      const nameGeoJsonKey = settings['nameGeoJsonKey']
+      if (nameGeoJsonKey && properties[nameGeoJsonKey]) {
+        const name = properties[nameGeoJsonKey] as string
         popupContent += `<div class="text-bold font-serif-sm padding-bottom-2">${name}</div>`
       }
 
       // Display address if available
-      const addressKey = settings['addressKey']
-      if (addressKey && properties[addressKey]) {
-        const address = properties[addressKey] as string
+      const addressGeoJsonKey = settings['addressGeoJsonKey']
+      if (addressGeoJsonKey && properties[addressGeoJsonKey]) {
+        const address = properties[addressGeoJsonKey] as string
         popupContent += `<div class="font-sans-sm">${address}</div>`
       }
 
       // Display details URL if available
-      const detailsUrlKey = settings['detailsUrlKey']
-      if (detailsUrlKey && properties[detailsUrlKey]) {
-        const websiteurl = properties[detailsUrlKey] as string
-        popupContent += `<a class="font-sans-sm usa-link usa-link--external" href="${websiteurl}" target="_blank">View more details</a>`
+      const detailsUrlGeoJsonKey = settings['detailsUrlGeoJsonKey']
+      if (detailsUrlGeoJsonKey && properties[detailsUrlGeoJsonKey]) {
+        const detailsUrl = properties[detailsUrlGeoJsonKey] as string
+        popupContent += `<a class="font-sans-sm usa-link usa-link--external" href="${detailsUrl}" target="_blank">View more details</a>`
       }
 
       const popup = new Popup({closeButton: false}).setLngLat(coordinates)
