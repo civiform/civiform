@@ -48,12 +48,13 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
+    console.log(/*[[${mapQuestion.getNameValue()}]]*/ '', /*[[${mapQuestion.getAddressValue()}]]*/ '', /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '')
     window.app.data.maps[id] = {
       geoJson: /*[[${questionRendererParams.geoJson().get()}]]*/ {},
       settings: {
-        nameKey: /*[[${mapQuestion.nameKey()}]]*/ '',
-        addressKey: /*[[${mapQuestion.addressKey()}]]*/ '',
-        detailsUrlKey: /*[[${mapQuestion.detailsUrlKey()}]]*/ '',
+        nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
+        addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
+        detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
       },
     }
   </script>
