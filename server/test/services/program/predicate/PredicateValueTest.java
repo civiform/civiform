@@ -70,7 +70,7 @@ public class PredicateValueTest extends WithApplication {
 
     assertThat(value.value()).isEqualTo("10001");
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(currencyDef).render())
+      assertThat(value.toDisplayFormattedHtml(currencyDef).render())
           .isEqualTo("<strong>$100.01</strong>");
     } else {
       assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01");
@@ -86,7 +86,7 @@ public class PredicateValueTest extends WithApplication {
 
     assertThat(value.value()).isEqualTo("[10001, 20002]");
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(currencyDef).render())
+      assertThat(value.toDisplayFormattedHtml(currencyDef).render())
           .isEqualTo("<strong>$100.01</strong> and <strong>$200.02</strong>");
     } else {
       assertThat(value.toDisplayString(currencyDef)).isEqualTo("$100.01 and $200.02");
@@ -101,7 +101,7 @@ public class PredicateValueTest extends WithApplication {
 
     assertThat(value.value()).isEqualTo("1609459200000");
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(dateDef).render())
+      assertThat(value.toDisplayFormattedHtml(dateDef).render())
           .isEqualTo("<strong>2021-01-01</strong>");
     } else {
       assertThat(value.toDisplayString(dateDef)).isEqualTo("2021-01-01");
@@ -117,7 +117,7 @@ public class PredicateValueTest extends WithApplication {
 
     assertThat(value.value()).isEqualTo("[1, 2, 3]");
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(longDef).render())
+      assertThat(value.toDisplayFormattedHtml(longDef).render())
           .isEqualTo("<strong>[1, 2, 3]</strong>");
     } else {
       assertThat(value.toDisplayString(longDef)).isEqualTo("[1, 2, 3]");
@@ -132,7 +132,7 @@ public class PredicateValueTest extends WithApplication {
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("kangaroo", "turtle"));
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(stringDef).render())
+      assertThat(value.toDisplayFormattedHtml(stringDef).render())
           .isEqualTo("<strong>[&quot;kangaroo&quot;, &quot;turtle&quot;]</strong>");
     } else {
       assertThat(value.toDisplayString(stringDef)).isEqualTo("[\"kangaroo\", \"turtle\"]");
@@ -148,7 +148,7 @@ public class PredicateValueTest extends WithApplication {
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(multiOption).render())
+      assertThat(value.toDisplayFormattedHtml(multiOption).render())
           .isEqualTo("<strong>[chocolate, strawberry]</strong>");
     } else {
       assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, strawberry]");
@@ -164,7 +164,7 @@ public class PredicateValueTest extends WithApplication {
     PredicateValue value = PredicateValue.of("1");
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(multiOption).render())
+      assertThat(value.toDisplayFormattedHtml(multiOption).render())
           .isEqualTo("<strong>toaster</strong>");
     } else {
       assertThat(value.toDisplayString(multiOption)).isEqualTo("toaster");
@@ -181,7 +181,7 @@ public class PredicateValueTest extends WithApplication {
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(multiOption).render())
+      assertThat(value.toDisplayFormattedHtml(multiOption).render())
           .isEqualTo("<strong>[chocolate, &lt;obsolete&gt;]</strong>");
     } else {
       assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
@@ -198,7 +198,7 @@ public class PredicateValueTest extends WithApplication {
     PredicateValue value = PredicateValue.pairOfDates(date1, date2);
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(dateDef).render())
+      assertThat(value.toDisplayFormattedHtml(dateDef).render())
           .isEqualTo("<strong>2024-05-01</strong> and <strong>2024-05-02</strong>");
     } else {
       assertThat(value.toDisplayString(dateDef)).isEqualTo("2024-05-01 and 2024-05-02");
@@ -213,7 +213,7 @@ public class PredicateValueTest extends WithApplication {
     PredicateValue value = PredicateValue.pairOfLongs(18, 30);
 
     if (useFormatted) {
-      assertThat(value.toFormattedDisplayString(dateDef).render())
+      assertThat(value.toDisplayFormattedHtml(dateDef).render())
           .isEqualTo("<strong>18</strong> and <strong>30</strong>");
     } else {
       assertThat(value.toDisplayString(dateDef)).isEqualTo("18 and 30");

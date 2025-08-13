@@ -116,7 +116,7 @@ public abstract class PredicateValue {
   }
 
   /**
-   * Returns the value in a formatted, human-readable format.
+   * Returns the value in a formatted, human-readable HTML format.
    *
    * <ul>
    *   <li>Currency: $1000.23, $3.00
@@ -128,10 +128,10 @@ public abstract class PredicateValue {
    *
    * @param question the question the predicate is applied to.
    */
-  public UnescapedText toFormattedDisplayString(QuestionDefinition question) {
+  public UnescapedText toDisplayFormattedHtml(QuestionDefinition question) {
     return toDisplayStringInternal(
         question,
-        PredicateValue::formatDisplayString,
+        PredicateValue::formatDisplayHtml,
         collection -> PredicateUtils.joinUnescapedText(collection, "and"));
   }
 
@@ -231,7 +231,7 @@ public abstract class PredicateValue {
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
   }
 
-  private static UnescapedText formatDisplayString(String value) {
+  private static UnescapedText formatDisplayHtml(String value) {
     return join(strong(value));
   }
 

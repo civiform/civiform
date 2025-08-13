@@ -100,7 +100,7 @@ public abstract class LeafOperationExpressionNode implements LeafExpressionNode 
         questions.stream().filter(q -> q.getId() == questionId()).findFirst();
     UnescapedText displayValue =
         question
-            .map(q -> comparedValue().toFormattedDisplayString(q))
+            .map(q -> comparedValue().toDisplayFormattedHtml(q))
             .orElseGet(() -> join(strong(comparedValue().value())));
     UnescapedText phrase =
         join(scalar().toDisplayString(), operator().toDisplayString(), displayValue);

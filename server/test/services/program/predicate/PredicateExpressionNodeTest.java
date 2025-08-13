@@ -72,7 +72,7 @@ public class PredicateExpressionNodeTest {
 
     assertThat(node.toDisplayString(ImmutableList.of(question)))
         .isEqualTo(String.format("\"%s\" city is equal to \"Seattle\"", question.getName()));
-    assertThat(node.toFormattedDisplayString(ImmutableList.of(question)).toString())
+    assertThat(node.toDisplayFormattedHtml(ImmutableList.of(question)).toString())
         .isEqualTo(
             String.format(
                 "<strong>&quot;%s&quot;</strong> city is equal to"
@@ -92,7 +92,7 @@ public class PredicateExpressionNodeTest {
         .isEqualTo(String.format("\"%s\" is in service area \"Seattle\"", question.getName()));
     assertThat(
             PredicateExpressionNode.create(leaf)
-                .toFormattedDisplayString(ImmutableList.of(question))
+                .toDisplayFormattedHtml(ImmutableList.of(question))
                 .toString())
         .isEqualTo(
             String.format(
@@ -113,7 +113,7 @@ public class PredicateExpressionNodeTest {
         .isEqualTo(String.format("address is in service area \"Seattle\""));
     assertThat(
             PredicateExpressionNode.create(leaf)
-                .toFormattedDisplayString(ImmutableList.of())
+                .toDisplayFormattedHtml(ImmutableList.of())
                 .toString())
         .isEqualTo(
             String.format(
@@ -144,12 +144,13 @@ public class PredicateExpressionNodeTest {
                 "\"%s\" number is greater than 45 AND "
                     + "\"%s\" number is less than or equal to 72",
                 question.getName(), question.getName()));
-    assertThat(node.toFormattedDisplayString(ImmutableList.of(question)).toString())
+    assertThat(node.toDisplayFormattedHtml(ImmutableList.of(question)).toString())
         .isEqualTo(
             String.format(
-                "<strong>&quot;%s&quot;</strong> number is greater than <strong>45</strong> AND"
-                    + " <strong>&quot;%s&quot;</strong> number is less than or equal to"
-                    + " <strong>72</strong>",
+                """
+                <strong>&quot;%s&quot;</strong> number is greater than <strong>45</strong> AND \
+                <strong>&quot;%s&quot;</strong> number is less than or equal to \
+                <strong>72</strong>""",
                 question.getName(), question.getName()));
   }
 
@@ -184,12 +185,13 @@ public class PredicateExpressionNodeTest {
                 "\"%s\" selection is one of [chocolate, strawberry]"
                     + " OR \"%s\" date is earlier than 2021-01-01",
                 multiOption.getName(), date.getName()));
-    assertThat(node.toFormattedDisplayString(ImmutableList.of(multiOption, date)).toString())
+    assertThat(node.toDisplayFormattedHtml(ImmutableList.of(multiOption, date)).toString())
         .isEqualTo(
             String.format(
-                "<strong>&quot;%s&quot;</strong> selection is one of <strong>[chocolate,"
-                    + " strawberry]</strong> OR <strong>&quot;%s&quot;</strong> date is earlier"
-                    + " than <strong>2021-01-01</strong>",
+                """
+                <strong>&quot;%s&quot;</strong> selection is one of <strong>[chocolate, \
+                strawberry]</strong> OR <strong>&quot;%s&quot;</strong> date is earlier \
+                than <strong>2021-01-01</strong>""",
                 multiOption.getName(), date.getName()));
   }
 }

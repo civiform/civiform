@@ -75,7 +75,7 @@ public final class PredicateUtils {
     }
   }
 
-  /** Join formatted HTML components with delimiter inserted between components. */
+  /** Join HTML components with delimiter inserted between components. */
   public static UnescapedText joinUnescapedText(
       ImmutableList<UnescapedText> components, String delimiter) {
     if (components.size() == 1) {

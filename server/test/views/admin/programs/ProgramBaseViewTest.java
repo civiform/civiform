@@ -65,8 +65,9 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is <strong>hidden</strong> if <strong>&quot;applicant birth"
-                + " date&quot;</strong> date is equal to <strong>2023-01-01</strong>");
+            """
+            Block_name is <strong>hidden</strong> if <strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong>""");
   }
 
   @Test
@@ -140,10 +141,11 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is <strong>hidden</strong> if <strong>&quot;applicant birth"
-                + " date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND"
-                + " <strong>&quot;applicant email address&quot;</strong> email is equal to"
-                + " <strong>&quot;test@example.com&quot;</strong>");
+            """
+            Block_name is <strong>hidden</strong> if <strong>&quot;applicant \
+            birth date&quot;</strong> date is equal to <strong>2023-01-01</strong> \
+            AND <strong>&quot;applicant email address&quot;</strong> email is \
+            equal to <strong>&quot;test@example.com&quot;</strong>""");
   }
 
   @Test
@@ -210,17 +212,20 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is"
-                + " true:</p>");
+            """
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            true:</p>""");
     assertThat(result.render())
         .contains(
-            "<li><strong>&quot;applicant birth date&quot;</strong> date is equal to"
-                + " <strong>2023-01-01</strong> AND <strong>&quot;applicant email"
-                + " address&quot;</strong> email is equal to"
-                + " <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant"
-                + " birth date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND"
-                + " <strong>&quot;applicant email address&quot;</strong> email is equal to"
-                + " <strong>&quot;other@example.com&quot;</strong></li>");
+            """
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;other@example.com&quot;</strong></li>""");
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
