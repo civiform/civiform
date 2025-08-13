@@ -73,7 +73,7 @@ public abstract class LeafAddressServiceAreaExpressionNode implements LeafExpres
   public UnescapedText toFormattedDisplayString(ImmutableList<QuestionDefinition> questions) {
     return join(
         strong(getAddressLabel(questions)),
-        " is ",
+        "is",
         operator().toDisplayString(),
         strong(String.format("\"%s\"", serviceAreaId())));
   }

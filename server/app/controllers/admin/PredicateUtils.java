@@ -21,7 +21,7 @@ public final class PredicateUtils {
       case SINGLE_QUESTION:
         return ReadablePredicate.create(
             /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
-            predicate.toFormattedDisplayString(blockName, questionDefinitions),
+            /* formattedHeading= */ predicate.toFormattedDisplayString(blockName, questionDefinitions),
             /* conditionList= */ Optional.empty(),
             /* formattedConditionList= */ Optional.empty());
       case OR_OF_SINGLE_LAYER_ANDS:
