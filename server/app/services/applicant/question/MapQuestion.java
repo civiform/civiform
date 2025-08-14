@@ -8,8 +8,8 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
-import services.question.types.MapQuestionDefinition;
 import services.question.MapSettingType;
+import services.question.types.MapQuestionDefinition;
 
 // TODO(#11003): Build out map question.
 public final class MapQuestion extends AbstractQuestion {

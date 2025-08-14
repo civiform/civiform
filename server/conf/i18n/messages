@@ -917,14 +917,20 @@ option.maybe=Maybe
 # MAP QUESTION - text specific to map questions.              #
 #-------------------------------------------------------------#
 
+# Text for map question apply filters button
+map.applyFiltersButtonText=Apply filters
+# Link text for location details URLs
+map.locationLinkText=See more details
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Displaying {0} of {1} locations
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No locations have been selected.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Reset
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
-# Link text for location details URLs
-map.locationLinkText=See more details
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Select -
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
