@@ -1,10 +1,17 @@
 package repository;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.settings.SettingsManifest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -22,25 +29,26 @@ public final class AccountDeletionRepository {
   }
 
   public  void deleteAccount(AccountModel account) {
-    List<Long> applicant_ids = database
+    ImmutableList<ApplicantModel> applicants = database
       .sqlQuery(  "SELECT id FROM applicants WHERE account_id=:currentAccount")
       .setParameter("currentAccount",account.id)
-      .find(ApplicantModal.class)
       .findList()
       .stream()
-      .map(sqlRow -> sqlRow.getLong("id"))
-      .collect(ArrayList.toList());
+      .collect(ImmutableList.toImmutableList());
 
-    for(Long appId :  applicant_ids){
-      List<Long> applicationIds =
+    for(ApplicantModel applicant :  applicants){
+      ImmutableList<ApplicationModel> applications =
         database
           .sqlQuery(  "SELECT id FROM applications WHERE applicant_id=:currentApplicant")
-          .setParameter("currentApplicant",applicantId )
-          .find(ApplicationModel.class)
+          .setParameter("currentApplicant",applicant.id )
           .findList()
           .stream()
-          .map(sqlRow -> sqlRow.getLong("id"))
-          .collect(ArrayList.toList());
+          .collect(ImmutableList.toImmutableList());
+
+      for(ApplicationModel application :  applications){
+       database.sqlQuery("DELETE FROM application_events WHERE application_id=:applicationId");
+      }
+
 
     }
 
