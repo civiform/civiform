@@ -44,14 +44,11 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.ActiveAndDraftQuestions;
-import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import services.statuses.StatusDefinitions;
 
@@ -66,9 +63,6 @@ public final class ProgramMigrationService {
   // It will transform to a key formatted like `%s__%s`
   private static final String CONFLICTING_QUESTION_FORMAT = "%s -_- %s";
   private static final Pattern SUFFIX_PATTERN = Pattern.compile(" -_- [a-z]+$");
-
-  private static final ImmutableSet<String> ALLOWED_YES_NO_OPTIONS =
-      ImmutableSet.of("yes", "no", "maybe", "not-sure");
 
   private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ObjectMapper objectMapper;
@@ -188,38 +182,13 @@ public final class ProgramMigrationService {
       return questionErrors;
     }
 
-    try {
-      validateYesNoQuestions(questions);
-    } catch (IllegalStateException e) {
-      return ImmutableSet.of(CiviFormError.of(e.getMessage()));
+    questionErrors = QuestionValidationUtils.validateYesNoQuestions(questions);
+    if (!questionErrors.isEmpty()) {
+      return questionErrors;
     }
 
     return QuestionValidationUtils.validateRepeatedQuestions(
         program, questions, existingAdminNames);
-  }
-
-  /**
-   * Validates that YES_NO questions only contain the allowed options.
-   *
-   * @param questions the list of questions to validate
-   * @throws IllegalStateException if a YES_NO question contains unsupported options
-   */
-  private void validateYesNoQuestions(ImmutableList<QuestionDefinition> questions) {
-    for (QuestionDefinition question : questions) {
-      if (question.getQuestionType() == QuestionType.YES_NO) {
-        MultiOptionQuestionDefinition yesNoQuestion = (MultiOptionQuestionDefinition) question;
-
-        for (QuestionOption option : yesNoQuestion.getOptions()) {
-          if (!ALLOWED_YES_NO_OPTIONS.contains(option.adminName())) {
-            throw new IllegalStateException(
-                String.format(
-                    "Yes/No question '%s' contains unsupported option: '%s'. "
-                        + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-                    question.getName(), option.adminName()));
-          }
-        }
-      }
-    }
   }
 
   /**
@@ -480,11 +449,11 @@ public final class ProgramMigrationService {
       ImmutableList<String> reusedQuestions) {
     ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
-      // Validate YES_NO questions before saving
-      try {
-        validateYesNoQuestions(questionDefinitions);
-      } catch (IllegalStateException e) {
-        return ErrorAnd.error(ImmutableSet.of(e.getMessage()));
+      ImmutableSet<CiviFormError> yesNoErrors =
+          QuestionValidationUtils.validateYesNoQuestions(questionDefinitions);
+      if (!yesNoErrors.isEmpty()) {
+        String errorMessage = yesNoErrors.iterator().next().message();
+        return ErrorAnd.error(ImmutableSet.of(errorMessage));
       }
 
       if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
