@@ -6,7 +6,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
-  test('has civiform build tag', async ({page, applicantQuestions}) => {
+  test('has civiform favicon link', async ({page, applicantQuestions}) => {
     await applicantQuestions.gotoApplicantHomePage()
 
     const metaTagLocator = page.locator('meta[name="civiform-build-tag"]')
