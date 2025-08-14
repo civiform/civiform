@@ -1,4 +1,8 @@
-import {FilterSpecification, Map as MapLibreMap} from 'maplibre-gl'
+import {
+  ExpressionSpecification,
+  FilterSpecification,
+  Map as MapLibreMap,
+} from 'maplibre-gl'
 import {FeatureCollection, Feature, Geometry, GeoJsonProperties} from 'geojson'
 import {
   CF_APPLY_FILTERS_BUTTON,
@@ -7,7 +11,7 @@ import {
   MapData,
   queryMapSelectOptions,
   mapQuerySelector,
-  queryLocationCheckboxes
+  queryLocationCheckboxes,
 } from './map_util'
 
 export const initFilters = (
@@ -114,9 +118,9 @@ const buildMapFilterExpression = (filters: {
     return ['==', ['get', key], value] as FilterSpecification
   }
 
-  const specifications: FilterSpecification[] = [['all']]
+  const specifications: ExpressionSpecification[] = []
   Object.entries(filters).forEach(([key, value]) => {
     specifications.push(['==', ['get', key], value])
   })
-  return specifications as FilterSpecification
+  return ['all', ...specifications] as ExpressionSpecification
 }
