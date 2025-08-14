@@ -1,6 +1,10 @@
 package controllers.admin;
 
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
+
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import java.util.Optional;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -17,28 +21,69 @@ public final class PredicateUtils {
       case SINGLE_QUESTION:
         return ReadablePredicate.create(
             /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
-            /* conditionList= */ Optional.empty());
+            /* formattedHtmlHeading= */ predicate.toDisplayFormattedHtml(
+                blockName, questionDefinitions),
+            /* conditionList= */ Optional.empty(),
+            /* formattedHtmlConditionList= */ Optional.empty());
       case OR_OF_SINGLE_LAYER_ANDS:
-        String headingPrefix = blockName + " is " + predicate.action().toDisplayString();
+        String headingPrefix =
+            predicate.getPredicateSubject(blockName)
+                + " is "
+                + predicate.action().toDisplayString();
+        UnescapedText formattedHtmlHeadingPrefix =
+            join(
+                predicate.getPredicateSubject(blockName),
+                "is",
+                predicate.action().toDisplayFormattedHtml());
         ImmutableList<PredicateExpressionNode> andNodes =
             predicate.rootNode().getOrNode().children();
         if (andNodes.size() == 1) {
-          return ReadablePredicate.create(
-              /* heading= */ headingPrefix
+          String heading =
+              headingPrefix
                   + " "
-                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions),
-              /* conditionList= */ Optional.empty());
+                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions);
+          UnescapedText formattedHeading =
+              join(
+                  formattedHtmlHeadingPrefix,
+                  andNodes.get(0).getAndNode().toDisplayFormattedHtml(questionDefinitions));
+          return ReadablePredicate.create(
+              heading,
+              formattedHeading,
+              /* conditionList= */ Optional.empty(),
+              /* formattedHtmlConditionList= */ Optional.empty());
         } else {
-          String heading = headingPrefix + " any of:";
+          String heading = headingPrefix + " any of the following is true:";
+          UnescapedText formattedHtmlHeading =
+              join(formattedHtmlHeadingPrefix, strong("any"), "of the following is true:");
           ImmutableList<String> conditionList =
               andNodes.stream()
                   .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
                   .collect(ImmutableList.toImmutableList());
-          return ReadablePredicate.create(heading, Optional.of(conditionList));
+          ImmutableList<UnescapedText> formattedHtmlConditionList =
+              andNodes.stream()
+                  .map(andNode -> andNode.getAndNode().toDisplayFormattedHtml(questionDefinitions))
+                  .collect(ImmutableList.toImmutableList());
+          return ReadablePredicate.create(
+              heading,
+              formattedHtmlHeading,
+              Optional.of(conditionList),
+              Optional.of(formattedHtmlConditionList));
         }
       default:
         throw new IllegalStateException(
             String.format("Predicate format [%s] not handled", predicate.predicateFormat().name()));
     }
+  }
+
+  /** Join HTML components with delimiter inserted between components. */
+  public static UnescapedText joinUnescapedText(
+      ImmutableList<UnescapedText> components, String delimiter) {
+    return components.stream()
+        .reduce(
+            new UnescapedText(""),
+            (first, second) -> {
+              // Only insert delimiter when at least 2 elements are present
+              return first.toString().isEmpty() ? second : join(first, delimiter, second);
+            });
   }
 }
