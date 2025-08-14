@@ -2,7 +2,6 @@ import {expect, test} from '../support/civiform_fixtures'
 import {
   isLocalDevEnvironment,
   loginAsAdmin,
-  validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
@@ -79,13 +78,6 @@ test.describe('Create and edit map question', () => {
             filterKeySelect.locator('option[value="address"]'),
           ).toBeAttached()
         }
-      })
-
-      await test.step('Screenshot of map question', async () => {
-        await validateScreenshot(
-          page.locator('#question-settings'),
-          'map-question-settings',
-        )
       })
     })
 

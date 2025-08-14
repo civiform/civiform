@@ -60,7 +60,7 @@ export enum PrimaryApplicantInfoAlertType {
   TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
 }
 
-// New question types are not supported in North Star
+// New question types are only supported in North Star
 export enum QuestionTypeLegacy {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
