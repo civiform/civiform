@@ -104,11 +104,11 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         predicateUseCaseNameTitleCase = "Eligibility";
         textNewCondition =
             """
-            You can select the questions you would like to add eligibility conditions to. When\
+            You can select the questions you would like to add eligibility conditions to. When
              you create an eligibility condition, it replaces the present one:""";
         textNoAvailableQuestions =
             """
-            There are no available questions with which to set an eligibility condition for this\
+            There are no available questions with which to set an eligibility condition for this
              screen.""";
         hasExistingPredicate = blockDefinition.eligibilityDefinition().isPresent();
         existingPredicateDisplay =

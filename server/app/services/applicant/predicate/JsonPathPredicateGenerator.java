@@ -133,8 +133,6 @@ public final class JsonPathPredicateGenerator {
                 dateConverter.getDateTimestampFromAge(ageRange.get(0)),
                 dateConverter.getDateTimestampFromAge(ageRange.get(1)),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
-
-        // Check that the date value is between the two age timestamps.
       }
       case AGE_OLDER_THAN, AGE_YOUNGER_THAN -> {
         return JsonPathPredicate.create(
