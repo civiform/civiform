@@ -102,10 +102,10 @@ public class FieldWithLabel {
   private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
-    public String fieldErrorsId;
-    public boolean hasFieldErrors;
+    String fieldErrorsId;
+    boolean hasFieldErrors;
 
-    public FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
+    FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
       this.fieldErrorsId = fieldErrorsId;
       this.hasFieldErrors = hasFieldErrors;
     }

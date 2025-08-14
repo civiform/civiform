@@ -321,24 +321,24 @@ public final class QuestionService {
     }
 
     switch (questionExportState) {
-      case DEMOGRAPHIC:
+      case DEMOGRAPHIC -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
         question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
         question.addTag(QuestionTag.DEMOGRAPHIC);
-        break;
-      case DEMOGRAPHIC_PII:
+      }
+      case DEMOGRAPHIC_PII -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC);
         question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
         question.addTag(QuestionTag.DEMOGRAPHIC_PII);
-        break;
-      case NON_DEMOGRAPHIC:
+      }
+      case NON_DEMOGRAPHIC -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
         question.removeTag(QuestionTag.DEMOGRAPHIC);
         question.addTag(QuestionTag.NON_DEMOGRAPHIC);
-        break;
-      default:
-        throw new InvalidUpdateException(
-            String.format("Unknown question export state: %s", questionExportState));
+      }
+      default ->
+          throw new InvalidUpdateException(
+              String.format("Unknown/Unsupported question export state: %s", questionExportState));
     }
     question.save();
   }

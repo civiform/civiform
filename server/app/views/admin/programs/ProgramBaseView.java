@@ -258,39 +258,38 @@ abstract class ProgramBaseView extends BaseHtmlView {
 
   private ButtonTag renderHeaderButton(
       ProgramHeaderButton headerButton, ProgramDefinition programDefinition, Http.Request request) {
-    switch (headerButton) {
-      case EDIT_PROGRAM:
+    return switch (headerButton) {
+      case EDIT_PROGRAM -> {
         ButtonTag editButton = getStandardizedEditButton("Edit program");
         String editLink =
             routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
-        return toLinkButtonForPost(editButton, editLink, request);
-      case EDIT_PROGRAM_DETAILS:
-        return asRedirectElement(
-            getStandardizedEditButton("Edit program details"),
-            routes.AdminProgramController.edit(
-                    programDefinition.id(), ProgramEditStatus.EDIT.name())
-                .url());
-      case EDIT_PROGRAM_IMAGE:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
-                .withClasses(HEADER_BUTTON_STYLES)
-                .withId("header_edit_program_image_button"),
-            routes.AdminProgramImageController.index(
-                    programDefinition.id(), ProgramEditStatus.EDIT.name())
-                .url());
-      case PREVIEW_AS_APPLICANT:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
-                .withClasses(HEADER_BUTTON_STYLES),
-            routes.AdminProgramPreviewController.preview(programDefinition.slug()).url());
-      case DOWNLOAD_PDF_PREVIEW:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
-                .withClasses(HEADER_BUTTON_STYLES),
-            routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
-      default:
-        throw new IllegalStateException("All header buttons handled");
-    }
+        yield toLinkButtonForPost(editButton, editLink, request);
+      }
+      case EDIT_PROGRAM_DETAILS ->
+          asRedirectElement(
+              getStandardizedEditButton("Edit program details"),
+              routes.AdminProgramController.edit(
+                      programDefinition.id(), ProgramEditStatus.EDIT.name())
+                  .url());
+      case EDIT_PROGRAM_IMAGE ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
+                  .withClasses(HEADER_BUTTON_STYLES)
+                  .withId("header_edit_program_image_button"),
+              routes.AdminProgramImageController.index(
+                      programDefinition.id(), ProgramEditStatus.EDIT.name())
+                  .url());
+      case PREVIEW_AS_APPLICANT ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
+                  .withClasses(HEADER_BUTTON_STYLES),
+              routes.AdminProgramPreviewController.preview(programDefinition.slug()).url());
+      case DOWNLOAD_PDF_PREVIEW ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
+                  .withClasses(HEADER_BUTTON_STYLES),
+              routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
+    };
   }
 
   private ButtonTag getStandardizedEditButton(String buttonText) {

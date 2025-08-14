@@ -157,8 +157,8 @@ final class Utils {
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
 
-    switch (predicateExpressionNode.getType()) {
-      case OR:
+    return switch (predicateExpressionNode.getType()) {
+      case OR -> {
         OrNode orNode = predicateExpressionNode.getOrNode();
         ImmutableList<PredicateExpressionNode> orNodeChildren =
             orNode.children().stream()
@@ -166,8 +166,9 @@ final class Utils {
                     child ->
                         updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
                 .collect(ImmutableList.toImmutableList());
-        return PredicateExpressionNode.create(OrNode.create(orNodeChildren));
-      case AND:
+        yield PredicateExpressionNode.create(OrNode.create(orNodeChildren));
+      }
+      case AND -> {
         AndNode andNode = predicateExpressionNode.getAndNode();
         ImmutableList<PredicateExpressionNode> andNodeChildren =
             andNode.children().stream()
@@ -175,27 +176,25 @@ final class Utils {
                     child ->
                         updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
                 .collect(ImmutableList.toImmutableList());
-        return PredicateExpressionNode.create(AndNode.create(andNodeChildren));
-      case LEAF_ADDRESS_SERVICE_AREA:
+        yield PredicateExpressionNode.create(AndNode.create(andNodeChildren));
+      }
+      case LEAF_ADDRESS_SERVICE_AREA -> {
         LeafAddressServiceAreaExpressionNode leafAddressNode =
             predicateExpressionNode.getLeafAddressNode();
-        return PredicateExpressionNode.create(
+        yield PredicateExpressionNode.create(
             leafAddressNode.toBuilder()
                 .setQuestionId(
                     getNewQuestionid(leafAddressNode, questionsOnJsonById, updatedQuestionsMap))
                 .build());
-      case LEAF_OPERATION:
+      }
+      case LEAF_OPERATION -> {
         LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafOperationNode();
-        return PredicateExpressionNode.create(
+        yield PredicateExpressionNode.create(
             leafNode.toBuilder()
                 .setQuestionId(getNewQuestionid(leafNode, questionsOnJsonById, updatedQuestionsMap))
                 .build());
-      default:
-        throw new IllegalStateException(
-            String.format(
-                "Unsupported predicate expression type for import: %s",
-                predicateExpressionNode.getType()));
-    }
+      }
+    };
   }
 
   static Long getNewQuestionid(

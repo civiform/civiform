@@ -237,10 +237,10 @@ public final class ApplicationRepository {
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static final class ApplicationArguments {
-    public ProgramModel program;
-    public ApplicantModel applicant;
+    ProgramModel program;
+    ApplicantModel applicant;
 
-    public ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
+    ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
       this.applicant = applicant;
     }

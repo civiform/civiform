@@ -37,57 +37,56 @@ public abstract class PredicateExpressionNode {
   @JsonIgnore
   @Memoized
   public LeafOperationExpressionNode getLeafOperationNode() {
-    if (!(node() instanceof LeafOperationExpressionNode)) {
-      throw new RuntimeException(
-          String.format("Expected a LEAF node but received %s node", getType()));
+    if (node() instanceof LeafOperationExpressionNode len) {
+      return len;
     }
-    return (LeafOperationExpressionNode) node();
+    throw new RuntimeException(
+        String.format("Expected a LEAF node but received %s node", getType()));
   }
 
   /** Get a leaf node if it exists, or throw if this is not a leaf node. */
   @JsonIgnore
   @Memoized
   public LeafExpressionNode getLeafNode() {
-    if (!(node() instanceof LeafExpressionNode)) {
-      throw new RuntimeException(
-          String.format(
-              "Expected a LEAF or LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
+    if (node() instanceof LeafExpressionNode len) {
+      return len;
     }
-    return (LeafExpressionNode) node();
+    throw new RuntimeException(
+        String.format(
+            "Expected a LEAF or LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
   }
 
   /** Get a leaf address node if it exists, or throw if this is not a leaf address node. */
   @JsonIgnore
   @Memoized
   public LeafAddressServiceAreaExpressionNode getLeafAddressNode() {
-    if (!(node() instanceof LeafAddressServiceAreaExpressionNode)) {
-      throw new RuntimeException(
-          String.format(
-              "Expected a LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
+    if (node() instanceof LeafAddressServiceAreaExpressionNode len) {
+      return len;
     }
-    return (LeafAddressServiceAreaExpressionNode) node();
+    throw new RuntimeException(
+        String.format("Expected a LEAF_ADDRESS_SERVICE_AREA node but received %s node", getType()));
   }
 
   /** Get an and node if it exists, or throw if this is not an and node. */
   @JsonIgnore
   @Memoized
   public AndNode getAndNode() {
-    if (!(node() instanceof AndNode)) {
-      throw new RuntimeException(
-          String.format("Expected an AND node but received %s node", getType()));
+    if (node() instanceof AndNode andNode) {
+      return andNode;
     }
-    return (AndNode) node();
+    throw new RuntimeException(
+        String.format("Expected an AND node but received %s node", getType()));
   }
 
   /** Get an or node if it exists, or throw if this is not an or node. */
   @JsonIgnore
   @Memoized
   public OrNode getOrNode() {
-    if (!(node() instanceof OrNode)) {
-      throw new RuntimeException(
-          String.format("Expected an OR node but received %s node", getType()));
+    if (node() instanceof OrNode orNode) {
+      return orNode;
     }
-    return (OrNode) node();
+    throw new RuntimeException(
+        String.format("Expected an OR node but received %s node", getType()));
   }
 
   @JsonIgnore
