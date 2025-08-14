@@ -63,7 +63,9 @@ test.describe('map applicant flow', () => {
       })
 
       await test.step('Verify initial messaging is shown', async () => {
-        const noSelectionsMessage = page.getByText("No locations have been selected.")
+        const noSelectionsMessage = page.getByText(
+          'No locations have been selected.',
+        )
         if (await noSelectionsMessage.isVisible()) {
           await expect(noSelectionsMessage).toBeVisible()
         }
@@ -106,13 +108,18 @@ test.describe('map applicant flow', () => {
       })
 
       await test.step('Verify location appears in selected list', async () => {
-        const selectedLocationsList = page.getByTestId('selected-locations-list')
-        const selectedLocationsCheckboxes = selectedLocationsList.getByRole('checkbox')
+        const selectedLocationsList = page.getByTestId(
+          'selected-locations-list',
+        )
+        const selectedLocationsCheckboxes =
+          selectedLocationsList.getByRole('checkbox')
         expect(await selectedLocationsCheckboxes.count()).toBeGreaterThan(0)
       })
 
       await test.step('Verify no selections message is hidden', async () => {
-        const noSelectionsMessage = page.getByText("No locations have been selected.")
+        const noSelectionsMessage = page.getByText(
+          'No locations have been selected.',
+        )
         if (await noSelectionsMessage.isVisible()) {
           await expect(noSelectionsMessage).toBeHidden()
         }
@@ -205,7 +212,9 @@ test.describe('map applicant flow', () => {
         if (selectButtonsCount > 0) {
           await selectButtons.first().click()
 
-          const selectedLocationsList = page.getByTestId('selected-locations-list')
+          const selectedLocationsList = page.getByTestId(
+            'selected-locations-list',
+          )
           const checkboxes = selectedLocationsList.getByRole('checkbox')
           const checkboxCount = await checkboxes.count()
           expect(checkboxCount).toBeGreaterThan(0)
@@ -245,10 +254,7 @@ test.describe('map applicant flow', () => {
       })
     })
 
-    test.only('display multiple maps', async ({
-      page,
-      applicantQuestions,
-    }) => {
+    test('display multiple maps', async ({page, applicantQuestions}) => {
       await test.step('Navigate to multiple map questions', async () => {
         await applicantQuestions.applyProgram(programName, true)
       })
@@ -271,9 +277,11 @@ test.describe('map applicant flow', () => {
       })
 
       await test.step('Verify selections are independent', async () => {
-        const firstMapCheckedBoxes = locationsLists.first().getByRole('checkbox', {
-          checked: true,
-        })
+        const firstMapCheckedBoxes = locationsLists
+          .first()
+          .getByRole('checkbox', {
+            checked: true,
+          })
 
         // Should have exactly one checked box in the first map
         await expect(firstMapCheckedBoxes).toHaveCount(1)
