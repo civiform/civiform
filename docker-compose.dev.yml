@@ -23,6 +23,8 @@ services:
       - 9000:9000
       - 8457:8457
       - 50000:50000
+    environment:
+      FAVICON_URL: "https://img.icons8.com/?size=100&id=80349&format=png&color=000000"
 
   civiform-shell:
     image: civiform-dev
@@ -83,7 +85,7 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
 
-  grafana:  
+  grafana:
     profiles: ['monitoring']
     image: grafana/grafana@sha256:1bf0ac005f1bf15bb5840c94cea715516526fb98dc28d0c630db24d02cd2ef17
     depends_on:
