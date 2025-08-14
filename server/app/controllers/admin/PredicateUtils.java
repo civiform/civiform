@@ -51,30 +51,23 @@ public final class PredicateUtils {
               formattedHeading,
               /* conditionList= */ Optional.empty(),
               /* formattedHtmlConditionList= */ Optional.empty());
-        } else {
-          String heading = headingPrefix + " any of the following is true:";
-          UnescapedText formattedHtmlHeading =
-              join(formattedHtmlHeadingPrefix, strong("any"), "of the following is true:");
-          ImmutableList<String> conditionList =
-              andNodes.stream()
-                  .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
-                  .collect(ImmutableList.toImmutableList());
-          ImmutableList<UnescapedText> formattedHtmlConditionList =
-              andNodes.stream()
-                  .map(andNode -> andNode.getAndNode().toDisplayFormattedHtml(questionDefinitions))
-                  .collect(ImmutableList.toImmutableList());
-          yield ReadablePredicate.create(
-              heading,
-              formattedHtmlHeading,
-              Optional.of(conditionList),
-              Optional.of(formattedHtmlConditionList));
         }
-        String heading = headingPrefix + " any of:";
+        String heading = headingPrefix + " any of the following is true:";
+        UnescapedText formattedHtmlHeading =
+            join(formattedHtmlHeadingPrefix, strong("any"), "of the following is true:");
         ImmutableList<String> conditionList =
             andNodes.stream()
                 .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
                 .collect(ImmutableList.toImmutableList());
-        yield ReadablePredicate.create(heading, Optional.of(conditionList));
+        ImmutableList<UnescapedText> formattedHtmlConditionList =
+            andNodes.stream()
+                .map(andNode -> andNode.getAndNode().toDisplayFormattedHtml(questionDefinitions))
+                .collect(ImmutableList.toImmutableList());
+        yield ReadablePredicate.create(
+            heading,
+            formattedHtmlHeading,
+            Optional.of(conditionList),
+            Optional.of(formattedHtmlConditionList));
       }
     };
   }
