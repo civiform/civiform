@@ -78,11 +78,12 @@ public final class PredicateUtils {
   /** Join HTML components with delimiter inserted between components. */
   public static UnescapedText joinUnescapedText(
       ImmutableList<UnescapedText> components, String delimiter) {
-    if (components.size() == 1) {
-      return components.get(0);
-    }
-
-    return components.subList(1, components.size()).stream()
-        .reduce(join(components.get(0)), (first, second) -> join(first, delimiter, second));
+    return components.stream()
+        .reduce(
+            new UnescapedText(""),
+            (first, second) -> {
+              // Only insert delimiter when at least 2 elements are present
+              return first.toString().isEmpty() ? second : join(first, delimiter, second);
+            });
   }
 }

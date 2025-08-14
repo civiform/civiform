@@ -1,8 +1,10 @@
 package controllers.admin;
 
+import static j2html.TagCreator.join;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import org.junit.Test;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
@@ -161,5 +163,25 @@ public class PredicateUtilsTest {
             """
             number is equal to <strong>5</strong> AND text is equal to \
             <strong>&quot;five&quot;</strong>""");
+  }
+
+  @Test
+  public void joinUnescapedText_emptyList() {
+    UnescapedText result = PredicateUtils.joinUnescapedText(ImmutableList.of(), "AND");
+    assertThat(result.toString()).isEqualTo("");
+  }
+
+  @Test
+  public void joinUnescapedText_singleElement() {
+    UnescapedText result =
+        PredicateUtils.joinUnescapedText(ImmutableList.of(join("single component")), "AND");
+    assertThat(result.toString()).isEqualTo("single component");
+  }
+
+  @Test
+  public void joinUnescapedText_multipleElements() {
+    UnescapedText result =
+        PredicateUtils.joinUnescapedText(ImmutableList.of(join("first"), join("second")), "AND");
+    assertThat(result.toString()).isEqualTo("first AND second");
   }
 }
