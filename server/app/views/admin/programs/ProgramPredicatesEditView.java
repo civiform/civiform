@@ -100,14 +100,16 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
     final boolean hasExistingPredicate;
 
     switch (predicateUseCase) {
-      case ELIGIBILITY:
+      case ELIGIBILITY -> {
         predicateUseCaseNameTitleCase = "Eligibility";
         textNewCondition =
-            "You can select the questions you would like to add eligibility conditions to. When"
-                + " you create an eligibility condition, it replaces the present one:";
+            """
+            You can select the questions you would like to add eligibility conditions to. When\
+             you create an eligibility condition, it replaces the present one:""";
         textNoAvailableQuestions =
-            "There are no available questions with which to set an eligibility condition for this"
-                + " screen.";
+            """
+            There are no available questions with which to set an eligibility condition for this\
+             screen.""";
         hasExistingPredicate = blockDefinition.eligibilityDefinition().isPresent();
         existingPredicateDisplay =
             blockDefinition
@@ -146,8 +148,8 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             routes.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        break;
-      case VISIBILITY:
+      }
+      case VISIBILITY -> {
         predicateUseCaseNameTitleCase = "Visibility";
         textNewCondition =
             "You can select the questions you would like to add visibility conditions to. When you"
@@ -192,10 +194,10 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             routes.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Predicate use case %s is unsupported.", predicateUseCase));
+      }
+      default ->
+          throw new IllegalArgumentException(
+              String.format("Predicate use case %s is unsupported.", predicateUseCase));
     }
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 

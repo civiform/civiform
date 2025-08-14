@@ -549,7 +549,7 @@ public final class ApplicantService {
                             .forEach(
                                 tag -> {
                                   switch (tag) {
-                                    case APPLICANT_NAME:
+                                    case APPLICANT_NAME -> {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
@@ -568,28 +568,23 @@ public final class ApplicantService {
                                           applicantData
                                               .readString(path.join(Scalar.NAME_SUFFIX))
                                               .orElse(""));
-                                      break;
-                                    case APPLICANT_EMAIL:
-                                      applicant.setEmailAddress(
-                                          applicantData
-                                              .readString(path.join(Scalar.EMAIL))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_PHONE:
-                                      // Country code is set automatically by setPhoneNumber
-                                      applicant.setPhoneNumber(
-                                          applicantData
-                                              .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_DOB:
-                                      applicant.setDateOfBirth(
-                                          applicantData
-                                              .readDate(path.join(Scalar.DATE))
-                                              .orElse(null));
-                                      break;
-                                    default:
-                                      break;
+                                    }
+                                    case APPLICANT_EMAIL ->
+                                        applicant.setEmailAddress(
+                                            applicantData
+                                                .readString(path.join(Scalar.EMAIL))
+                                                .orElse(""));
+                                    case APPLICANT_PHONE ->
+                                        // Country code is set automatically by setPhoneNumber
+                                        applicant.setPhoneNumber(
+                                            applicantData
+                                                .readString(path.join(Scalar.PHONE_NUMBER))
+                                                .orElse(""));
+                                    case APPLICANT_DOB ->
+                                        applicant.setDateOfBirth(
+                                            applicantData
+                                                .readDate(path.join(Scalar.DATE))
+                                                .orElse(null));
                                   }
                                 });
                       });
@@ -1667,50 +1662,45 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
-          case PHONE_NUMBER:
+          case PHONE_NUMBER -> {
             try {
               applicantData.putPhoneNumber(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case CURRENCY_CENTS:
+          }
+          case CURRENCY_CENTS -> {
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DATE:
+          }
+          case DATE -> {
             try {
               applicantData.putDate(currentPath, update.value());
             } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case LIST_OF_STRINGS:
-          case STRING:
-            applicantData.putString(currentPath, update.value());
-            break;
-          case LONG:
+          }
+          case LIST_OF_STRINGS, STRING -> applicantData.putString(currentPath, update.value());
+          case LONG -> {
             try {
               applicantData.putLong(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DOUBLE:
+          }
+          case DOUBLE -> {
             try {
               applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case SERVICE_AREA:
+          }
+          case SERVICE_AREA -> {
             // service areas get updated below
-            break;
-          default:
-            throw new UnsupportedScalarTypeException(type);
+          }
         }
       }
     }

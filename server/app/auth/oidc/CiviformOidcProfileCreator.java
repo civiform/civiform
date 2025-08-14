@@ -174,6 +174,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
+  @SuppressWarnings("PatternMatchingInstanceof")
   public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
     ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
     Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
@@ -185,7 +186,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
       logger.warn(
-          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
+          "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
     }

@@ -381,10 +381,8 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     }
 
     TiClientInfoForm form = optionalForm.get().value().get();
-    switch (key) {
-      case TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX:
-        select.setValue(form.getNameSuffix());
-        break;
+    if (key.equals(TrustedIntermediaryService.FORM_FIELD_NAME_SUFFIX)) {
+      select.setValue(form.getNameSuffix());
     }
 
     if (optionalForm.get().error(key).isPresent()) {
@@ -404,27 +402,18 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
 
     TiClientInfoForm form = optionalForm.get().value().get();
     switch (key) {
-      case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME:
-        field.setValue(form.getFirstName());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME:
-        field.setValue(form.getLastName());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME:
-        field.setValue(form.getMiddleName());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB:
-        field.setValue(form.getDob());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE:
-        field.setValue(form.getPhoneNumber());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS:
-        field.setValue(form.getEmailAddress());
-        break;
-      case TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES:
-        field.setValue(form.getTiNote());
-        break;
+      case TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME ->
+          field.setValue(form.getFirstName());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME ->
+          field.setValue(form.getLastName());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME ->
+          field.setValue(form.getMiddleName());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_DOB -> field.setValue(form.getDob());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_PHONE ->
+          field.setValue(form.getPhoneNumber());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS ->
+          field.setValue(form.getEmailAddress());
+      case TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES -> field.setValue(form.getTiNote());
     }
 
     if (optionalForm.get().error(key).isPresent()) {

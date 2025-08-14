@@ -115,7 +115,7 @@ public final class JsonPathPredicateGenerator {
   private JsonPathPredicate formatAgePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
     switch (node.operator()) {
-      case AGE_BETWEEN:
+      case AGE_BETWEEN -> {
         // Value is stored as "[18, 30]"
         String arrayString = node.comparedValue().value();
         ImmutableList<Long> ageRange =
@@ -133,8 +133,10 @@ public final class JsonPathPredicateGenerator {
                 dateConverter.getDateTimestampFromAge(ageRange.get(0)),
                 dateConverter.getDateTimestampFromAge(ageRange.get(1)),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
-      case AGE_OLDER_THAN:
-      case AGE_YOUNGER_THAN:
+
+        // Check that the date value is between the two age timestamps.
+      }
+      case AGE_OLDER_THAN, AGE_YOUNGER_THAN -> {
         return JsonPathPredicate.create(
             String.format(
                 "%s[?(%s %s @.%s)]",
@@ -143,9 +145,10 @@ public final class JsonPathPredicateGenerator {
                     Double.parseDouble(node.comparedValue().value())),
                 node.operator().toJsonPathOperator(),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
-      default:
-        throw new InvalidPredicateException(
-            String.format("Expecting an age predicate but instead received %s", node.operator()));
+      }
+      default ->
+          throw new InvalidPredicateException(
+              String.format("Expecting an age predicate but instead received %s", node.operator()));
     }
   }
 

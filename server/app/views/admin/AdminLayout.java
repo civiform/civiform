@@ -286,8 +286,7 @@ public final class AdminLayout extends BaseHtmlLayout {
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
 
     switch (primaryAdminType) {
-      case CIVIFORM_ADMIN:
-        {
+      case CIVIFORM_ADMIN ->
           adminHeaderUl.with(
               programsNavItem,
               questionsNavItem,
@@ -296,18 +295,13 @@ public final class AdminLayout extends BaseHtmlLayout {
               apiNavItemDropdown,
               settingsNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"),
               logoutNavItem);
-          break;
-        }
-      case PROGRAM_ADMIN:
-        {
+      case PROGRAM_ADMIN ->
           adminHeaderUl
               .with(programAdminProgramsHeaderLink, reportingNavItem)
               .condWith(
                   getSettingsManifest().getApiGeneratedDocsEnabled(request),
                   programAdminApiNavItemDropdown)
               .with(logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
-          break;
-        }
     }
 
     return adminHeaderUl;

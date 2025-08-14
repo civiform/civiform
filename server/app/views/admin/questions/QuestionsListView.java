@@ -778,7 +778,7 @@ public final class QuestionsListView extends BaseHtmlView {
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
     switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
-      case PENDING_DELETION:
+      case PENDING_DELETION -> {
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
@@ -788,7 +788,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 restoreLink,
                 request);
         return Pair.of(unarchiveButton, Optional.empty());
-      case DELETABLE:
+      }
+      case DELETABLE -> {
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
         ButtonTag archiveButton =
@@ -798,7 +799,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 archiveLink,
                 request);
         return Pair.of(archiveButton, Optional.empty());
-      default:
+      }
+      default -> {
         DivTag modalHeader =
             div()
                 .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
@@ -818,6 +820,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withId(maybeModal.get().getTriggerButtonId());
 
         return Pair.of(cantArchiveButton, maybeModal);
+      }
     }
   }
 }

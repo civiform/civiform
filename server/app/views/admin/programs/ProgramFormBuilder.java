@@ -375,17 +375,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       // program, since an external program cannot change type after creation.
       if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
         switch (programType) {
-          case DEFAULT:
-          case COMMON_INTAKE_FORM:
+          case DEFAULT, COMMON_INTAKE_FORM -> {
             defaultProgramFieldDisabled = false;
             commonIntakeFieldDisabled = false;
             externalProgramFieldDisabled = true;
-            break;
-          case EXTERNAL:
+          }
+          case EXTERNAL -> {
             defaultProgramFieldDisabled = true;
             commonIntakeFieldDisabled = true;
             externalProgramFieldDisabled = false;
-            break;
+          }
         }
       }
 
