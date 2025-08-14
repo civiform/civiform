@@ -60,22 +60,19 @@
     <!-- Scrollable container with location checkboxes -->
     <div class="grid-col-6">
       <fieldset class="usa-fieldset">
-        <legend class="usa-legend">Locations</legend>
         <div
           th:if="${questionRendererParams.geoJson().isPresent()}"
-          th:with="totalLocations=${questionRendererParams.geoJson().get().features().size()}"
-          class="text-base-dark margin-bottom-1 cf-location-count"
-          th:data-map-id="${mapId}"
-        >
-          Displaying <span th:text="${totalLocations}"></span> of
-          <span th:text="${totalLocations}"></span> locations
-        </div>
-        <div
           class="cf-locations-list overflow-y-auto border-1px border-gray-30 padding-1"
+          data-testid="locations-list"
           th:data-map-id="${mapId}"
         >
           <div
-            th:if="${questionRendererParams.geoJson().isPresent()}"
+            th:with="totalLocations=${questionRendererParams.geoJson().get().features().size()}"
+            class="text-base-dark margin-bottom-1 cf-location-count"
+            th:data-map-id="${mapId}"
+            th:text="'Displaying ' + ${totalLocations} + ' of ' + ${totalLocations} + ' locations'"
+          ></div>
+          <div
             th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
             th:with="locationId='location-' + ${iterator.index},
                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
@@ -136,6 +133,7 @@
       </p>
       <div
         class="display-none cf-selected-locations-list"
+        data-testid="selected-locations-list"
         th:data-map-id="${mapId}"
       >
         <!-- Selected locations will be dynamically populated here -->
