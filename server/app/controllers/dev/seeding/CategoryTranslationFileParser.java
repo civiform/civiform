@@ -40,9 +40,11 @@ public final class CategoryTranslationFileParser {
   private Map<String, String> healthcareMap = new HashMap<>();
   private Map<String, String> housingMap = new HashMap<>();
   private Map<String, String> internetMap = new HashMap<>();
+  private Map<String, String> militaryMap = new HashMap<>();
   private Map<String, String> trainingMap = new HashMap<>();
   private Map<String, String> transportationMap = new HashMap<>();
   private Map<String, String> utilitiesMap = new HashMap<>();
+  private Map<String, String> veteranMap = new HashMap<>();
   private static final Logger logger = LoggerFactory.getLogger(CategoryTranslationFileParser.class);
 
   public CategoryTranslationFileParser(Environment environment) {
@@ -65,9 +67,11 @@ public final class CategoryTranslationFileParser {
             healthcareMap,
             housingMap,
             internetMap,
+            militaryMap,
             trainingMap,
             transportationMap,
-            utilitiesMap);
+            utilitiesMap,
+            veteranMap);
 
     categoryMaps.stream()
         .filter(map -> !map.isEmpty())
@@ -150,6 +154,9 @@ public final class CategoryTranslationFileParser {
                       case "category.tag.internet":
                         internetMap.put(fileLanguage, (String) entry.getValue());
                         break;
+                      case "category.tag.military":
+                        militaryMap.put(fileLanguage, (String) entry.getValue());
+                        break;
                       case "category.tag.training":
                         trainingMap.put(fileLanguage, (String) entry.getValue());
                         break;
@@ -158,6 +165,9 @@ public final class CategoryTranslationFileParser {
                         break;
                       case "category.tag.utilities":
                         utilitiesMap.put(fileLanguage, (String) entry.getValue());
+                        break;
+                      case "category.tag.veteran":
+                        veteranMap.put(fileLanguage, (String) entry.getValue());
                         break;
                       default:
                         logger.error("Unknown category: " + entry.getKey());
