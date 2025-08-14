@@ -22,9 +22,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
 
   @Override
   ValidationPredicates getDefaultValidationPredicates() {
-    return MapValidationPredicates.builder()
-        .setGeoJsonEndpoint("")
-        .build();
+    return MapValidationPredicates.builder().setGeoJsonEndpoint("").build();
   }
 
   @Override
