@@ -81,6 +81,7 @@
                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
                      locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
                      locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())}"
+            th:data-location-name="${locationName}"
             class="usa-checkbox cf-location-checkbox"
           >
             <input

@@ -8,11 +8,13 @@ import {
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL,
   mapQuerySelector,
   queryLocationCheckboxes,
+  DATA_LOCATION_NAME_ATTR,
+  CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
-  
+
   locationCheckboxes.forEach((locationCheckbox) => {
     // Add event listener to each checkbox to update selected locations on change event
     locationCheckbox.addEventListener('change', () =>
@@ -20,16 +22,16 @@ export const initLocationSelection = (mapId: string): void => {
     )
   })
 
-  // Add event listener for select location buttons within this map's container
   document.addEventListener('click', (e) => {
+    // Add event listener to select location buttons in map popups to update selected locations on click event
     const target = e.target as HTMLElement
     if (target.classList.contains(CF_SELECT_LOCATION_BUTTON)) {
-      // TODO: Use location ID
-      const locationName = target.getAttribute('data-location-name')
+      // TODO: Use location ID instead of name
+      const locationName = target.getAttribute(DATA_LOCATION_NAME_ATTR)
       if (locationName) {
-        selectLocationFromMap(locationName, mapId)
+        selectLocationsFromMap(locationName, mapId)
         // Close any open popups on click of select location button
-        // Change color of button when selected? But not close popup?
+        // TODO: Change color of button when selected? But not close popup? Talk to UX.
         const popups = document.querySelectorAll('.maplibregl-popup')
         popups.forEach((popup) => popup.remove())
       }
@@ -81,28 +83,25 @@ const updateSelectedLocations = (mapId: string): void => {
           locationLabel,
           mapId,
         )
-        selectedLocationsList.appendChild(selectedItem)
+        if (selectedItem) {
+          selectedLocationsList.appendChild(selectedItem)
+        }
       }
     })
   }
 }
 
-const selectLocationFromMap = (locationName: string, mapId: string): void => {
-  const mapLocationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  )
-  if (!mapLocationsContainer) return
+const selectLocationsFromMap = (locationName: string, mapId: string): void => {
+  const checkboxes = queryLocationCheckboxes(mapId)
 
   // Find the checkbox with the matching location name within this map's container
-  const checkboxes = mapLocationsContainer.querySelectorAll(
-    'input[type="checkbox"]',
-  )
   checkboxes.forEach((checkbox) => {
-    const checkboxValue = checkbox.getAttribute('value')
-    if (checkboxValue === locationName) {
-      ;(checkbox as HTMLInputElement).checked = true
-      // Trigger the change event to update the selected locations
+    const checkboxValue = checkbox.getAttribute(DATA_LOCATION_NAME_ATTR)
+    if (checkboxValue == locationName) {
+      const checkboxInputElement = checkbox.querySelector(
+        CF_LOCATION_CHECKBOX_INPUT,
+      ) as HTMLInputElement
+      checkboxInputElement.checked = true
       checkbox.dispatchEvent(new Event('change'))
     }
   })
@@ -139,13 +138,13 @@ const createSelectedLocationCheckboxFromTemplate = (
   originalCheckbox: Element,
   locationLabel: Element,
   mapId: string,
-): HTMLElement => {
+): HTMLElement | undefined => {
   const selectedLocationTemplate = mapQuerySelector(
     mapId,
     CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE,
   )
   if (!selectedLocationTemplate) {
-    throw new Error(`Selected location template not found for map ${mapId}`)
+    return
   }
 
   const selectedLocation = selectedLocationTemplate.cloneNode(
