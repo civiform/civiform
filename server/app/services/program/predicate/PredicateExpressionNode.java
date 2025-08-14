@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import services.question.types.QuestionDefinition;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
@@ -107,5 +108,9 @@ public abstract class PredicateExpressionNode {
 
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     return node().toDisplayString(questions);
+  }
+
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
+    return node().toDisplayFormattedHtml(questions);
   }
 }

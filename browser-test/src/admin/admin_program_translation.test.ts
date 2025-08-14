@@ -460,7 +460,7 @@ test.describe('Admin can manage program translations', () => {
         value: 'eligible',
       })
       await adminPredicates.expectPredicateDisplayTextContains(
-        'Screen 1 is eligible if "eligibility-question-q" text is equal to "eligible"',
+        'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
       )
     })
 
