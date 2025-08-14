@@ -84,22 +84,22 @@
             class="usa-checkbox"
           >
             <input
-              class="usa-checkbox__input"
+              class="usa-checkbox__input cf-location-checkbox-input"
               th:id="${locationId}"
               th:value="${locationName}"
               type="checkbox"
             />
-            <label class="usa-checkbox__label" th:for="${locationId}">
-              <div class="text-bold" th:text="${locationName}"></div>
+            <label class="usa-checkbox__label cf-location-checkbox-label" th:for="${locationId}">
+              <div class="text-bold cf-location-checkbox-name" th:text="${locationName}"></div>
               <div
-                class="text-base-dark margin-top-05"
+                class="text-base-dark margin-top-05 cf-location-checkbox-address"
                 th:if="${locationAddress}"
                 th:text="${locationAddress}"
               ></div>
-              <div class="margin-top-05" th:if="${locationUrl}">
+              <div class="margin-top-05 cf-location-checkbox-link-container" th:if="${locationUrl}">
                 <a
                   th:href="${locationUrl}"
-                  class="usa-link text-primary"
+                  class="usa-link usa-link--external text-primary cf-location-checkbox-link"
                   target="_blank"
                   >See more details</a
                 >
@@ -133,6 +133,27 @@
         th:data-map-id="${mapId}"
       >
         <!-- Selected locations will be dynamically populated here -->
+      </div>
+
+      <!-- Hidden template for selected location checkboxes -->
+      <div
+        class="usa-checkbox hidden cf-selected-location-checkbox-template"
+        th:data-map-id="${mapId}"
+      >
+        <input
+          class="usa-checkbox__input cf-selected-location-checkbox-template-input"
+          type="checkbox"
+          checked
+        />
+        <label class="usa-checkbox__label cf-selected-location-checkbox-template-label" for="cf-selected-location-checkbox-template-input">
+          <div class="text-bold cf-selected-location-checkbox-template-name"></div>
+          <div class="text-base-dark margin-top-05 cf-selected-location-checkbox-template-address"></div>
+          <div class="margin-top-05 cf-selected-location-checkbox-template-link-container">
+            <a class="usa-link usa-link--external text-primary cf-selected-location-checkbox-template-link" target="_blank"
+              >See more details</a
+            >
+          </div>
+        </label>
       </div>
     </div>
   </div>
