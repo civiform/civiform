@@ -38,20 +38,20 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.25.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.25.0",
+      "org.commonmark" % "commonmark" % "0.25.1",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.25.1",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.32.12",
-      "software.amazon.awssdk" % "ses" % "2.32.12",
+      "software.amazon.awssdk" % "s3" % "2.32.19",
+      "software.amazon.awssdk" % "ses" % "2.32.19",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.16.2",
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.48.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.49.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
@@ -65,9 +65,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.27.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.4" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.27.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.4" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.4.8-jre" % Test,
@@ -100,7 +100,7 @@ lazy val root = (project in file("."))
       "org.checkerframework" % "dataflow-errorprone" % "3.49.5",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.14.0",
+      "org.apache.commons" % "commons-csv" % "1.14.1",
       "commons-validator" % "commons-validator" % "1.10.0",
 
       // pdf library for export
@@ -112,7 +112,7 @@ lazy val root = (project in file("."))
       "com.github.slugify" % "slugify" % "3.0.7",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.11.1",
+      "commons-net" % "commons-net" % "3.12.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",

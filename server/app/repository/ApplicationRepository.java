@@ -170,7 +170,7 @@ public final class ApplicationRepository {
               .setSubmitTimeToNow();
           tiSubmitterEmail.ifPresent(application::setSubmitterEmail);
           application.save();
-
+          applicant.getAccount().save();
           return application;
         });
   }
@@ -267,6 +267,7 @@ public final class ApplicationRepository {
               existingDraft.orElseGet(
                   () -> new ApplicationModel(applicant, program, LifecycleStage.DRAFT));
           application.save();
+          applicant.getAccount().save();
           return application;
         });
   }

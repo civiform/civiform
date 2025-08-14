@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
@@ -104,6 +105,8 @@ public final class QuestionTranslationView extends TranslationFormView {
   private Optional<DomContent> getQuestionTypeSpecificContent(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
+      case YES_NO:
+        return Optional.of(div("Yes/No question options are pre-translated.").withClass("mb-4"));
       case CHECKBOX: // fallthrough intended
       case DROPDOWN: // fallthrough intended
       case RADIO_BUTTON:
@@ -112,6 +115,9 @@ public final class QuestionTranslationView extends TranslationFormView {
       case ENUMERATOR:
         EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) question;
         return enumeratorQuestionFields(enumerator.getEntityType(), toUpdate);
+      case MAP:
+        // TODO(#11197): Add translation support for map question settings
+        return Optional.empty();
       case ADDRESS: // fallthrough intended
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended

@@ -1,0 +1,83 @@
+<!-- TODO(#11161): Update styling to match design specifications -->
+<div id="geoJsonOutput">
+  <label for="maxLocationSelections">Maximum location selections</label
+  ><input
+    class="usa-input"
+    name="maxLocationSelections"
+    id="maxLocationSelections"
+    type="number"
+    th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
+  />
+  <label class="usa-label" for="locationName.key">Location name</label>
+  <select class="usa-select" name="locationName.key" id="locationName.key">
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationName.key}"
+    ></option>
+  </select>
+  <label class="usa-label" for="locationAddress.key">Location address</label>
+  <select
+    class="usa-select"
+    name="locationAddress.key"
+    id="locationAddress.key"
+  >
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationAddress.key}"
+    ></option>
+  </select>
+  <label class="usa-label" for="locationDetailsUrl.key"
+    >Location details URL</label
+  >
+  <select
+    class="usa-select"
+    name="locationDetailsUrl.key"
+    id="locationDetailsUrl.key"
+  >
+    <option value>Select a key</option>
+    <option
+      th:each="key: ${model.possibleKeys}"
+      th:value="${key}"
+      th:text="${key}"
+      th:selected="${key == model.locationDetailsUrl.key}"
+    ></option>
+  </select>
+
+  <div>Filters</div>
+  <div>Select up to three filters to make available to applicants.</div>
+  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
+  <div th:each="filter, i : ${model.filters}">
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
+      >Key</label
+    >
+    <select
+      class="usa-select"
+      th:name="'filters[' + ${i.index} + '].key'"
+      th:id="'filters[' + ${i.index} + '].key'"
+    >
+      <option value>Select a key</option>
+      <option
+        th:each="key: ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+        th:selected="${key == filter.key}"
+      ></option>
+    </select>
+    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
+      >Display Name</label
+    >
+    <input
+      class="usa-input"
+      th:id="'filters[' + ${i.index} + '].displayName'"
+      th:name="'filters[' + ${i.index} + '].displayName'"
+      th:value="${filter.displayName}"
+    />
+  </div>
+  <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
+</div>

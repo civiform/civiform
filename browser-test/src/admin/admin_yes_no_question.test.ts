@@ -30,3 +30,34 @@ test.describe('Yes/no options', () => {
     })
   })
 })
+
+test.describe('Yes/no translations', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+  test('renders translation screen with pre-translated message only', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('Create a yes/no question', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.gotoAdminQuestionsPage()
+
+      await adminQuestions.addYesNoQuestion({
+        questionName: 'yes-no-question',
+        description: 'do you agree?',
+      })
+    })
+
+    await test.step('Navigate to translation editor', async () => {
+      await adminQuestions.goToQuestionTranslationPage('yes-no-question')
+    })
+
+    await test.step('Verify message and hide answer options', async () => {
+      await expect(
+        page.getByText('Yes/No question options are pre-translated.'),
+      ).toBeVisible()
+      await expect(page.getByText('Answer options')).toHaveCount(0)
+    })
+  })
+})
