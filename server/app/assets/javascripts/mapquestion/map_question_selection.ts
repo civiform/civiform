@@ -7,19 +7,12 @@ import {
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_INPUT,
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL,
   mapQuerySelector,
+  queryLocationCheckboxes,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
-  const locationsListContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  )
-
-  if (!locationsListContainer) return
-
-  const locationCheckboxes = locationsListContainer.querySelectorAll(
-    'input[type="checkbox"]',
-  )
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+  
   locationCheckboxes.forEach((locationCheckbox) => {
     // Add event listener to each checkbox to update selected locations on change event
     locationCheckbox.addEventListener('change', () =>

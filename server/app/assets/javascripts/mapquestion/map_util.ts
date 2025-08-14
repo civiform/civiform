@@ -34,3 +34,13 @@ export const mapQuerySelector = (
 export const queryMapSelectOptions = (mapId: string): NodeListOf<Element> => {
   return document.querySelectorAll(`select[data-map-id="${mapId}"]`)
 }
+
+export const queryLocationCheckboxes = (mapId: string) => {
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  ) as HTMLElement | null
+  if (!locationsListContainer) return []
+
+  return locationsListContainer.querySelectorAll(CF_LOCATION_CHECKBOX)
+}
