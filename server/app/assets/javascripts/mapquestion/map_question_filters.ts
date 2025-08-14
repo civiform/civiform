@@ -4,10 +4,10 @@ import {
   CF_APPLY_FILTERS_BUTTON,
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
-  CF_LOCATIONS_LIST_CONTAINER,
   MapData,
   queryMapSelectOptions,
   mapQuerySelector,
+  queryLocationCheckboxes
 } from './map_util'
 
 export const initFilters = (
@@ -38,24 +38,19 @@ const applyLocationFilters = (
   mapData: MapData,
   reset?: boolean,
 ): void => {
-  const filters = reset ? {} : getFilterValues(mapId)
+  const filters = reset ? {} : getFilters(mapId)
 
   map.setFilter('locations-layer', buildMapFilterExpression(filters))
 
-  // Apply to checkboxes within this map's container
   const features: FeatureCollection['features'] =
     mapData?.geoJson?.features || ([] as FeatureCollection['features'])
-  const mapLocationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!mapLocationsContainer) return
 
-  const checkboxContainers =
-    mapLocationsContainer.querySelectorAll('.usa-checkbox')
+  const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
-  checkboxContainers.forEach((container, index) => {
+  locationCheckboxContainers.forEach((container, index) => {
     const containerElement = container as HTMLElement
+    // Assuming order of features matches order of location checkboxes
+    // TODO: Improve this by linking via location ID
     containerElement.style.display = featureMatchesFilters(
       features[index],
       filters,
@@ -68,23 +63,18 @@ const applyLocationFilters = (
 }
 
 const updateLocationCountForMap = (mapId: string): void => {
-  const mapLocationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!mapLocationsContainer) return
-
-  const allCheckboxes = mapLocationsContainer.querySelectorAll('.usa-checkbox')
-  const visibleCount = Array.from(allCheckboxes).filter(
-    (cb) => (cb as HTMLElement).style.display !== 'none',
-  ).length
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+  const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
+    const checkboxElement = checkbox as HTMLElement
+    return checkboxElement.style.display !== 'none'
+  }).length
 
   const countText = mapQuerySelector(
     mapId,
     CF_LOCATION_COUNT,
   ) as HTMLElement | null
   if (countText) {
-    countText.textContent = `Displaying ${visibleCount} of ${allCheckboxes.length} locations`
+    countText.textContent = `Displaying ${visibleCount} of ${locationCheckboxes.length} locations`
   }
 }
 
@@ -92,18 +82,20 @@ const featureMatchesFilters = (
   feature: Feature<Geometry, GeoJsonProperties> | undefined,
   filters: {[key: string]: string},
 ): boolean => {
+  // if no properties or no filters, consider it a match
   if (!feature?.properties || Object.keys(filters).length === 0) return true
   return Object.entries(filters).every(
     ([key, value]) => feature.properties && feature.properties[key] === value,
   )
 }
 
-const getFilterValues = (mapId: string): {[key: string]: string} => {
+const getFilters = (mapId: string): {[key: string]: string} => {
   const activeFilters: {[key: string]: string} = {}
-  const filterSelects = queryMapSelectOptions(mapId)
+  const filterSelectOptions = queryMapSelectOptions(mapId)
 
-  filterSelects.forEach((selectElement) => {
+  filterSelectOptions.forEach((selectElement) => {
     const select = selectElement as HTMLSelectElement
+    // if a value is selected, add to active filters
     if (select.value && select.value !== '') {
       activeFilters[select.name] = select.value
     }
@@ -122,9 +114,9 @@ const buildMapFilterExpression = (filters: {
     return ['==', ['get', key], value] as FilterSpecification
   }
 
-  const conditions: FilterSpecification[] = [['all']]
+  const specifications: FilterSpecification[] = [['all']]
   Object.entries(filters).forEach(([key, value]) => {
-    conditions.push(['==', ['get', key], value])
+    specifications.push(['==', ['get', key], value])
   })
-  return conditions as FilterSpecification
+  return specifications as FilterSpecification
 }
