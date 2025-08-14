@@ -1701,20 +1701,16 @@ public final class ApplicantService {
           case SERVICE_AREA -> {
             // service areas get updated below
           }
+          default -> throw new UnsupportedScalarTypeException(type);
         }
       }
     }
 
-    if (serviceAreaUpdate.isPresent()) {
-      applicantData.putServiceAreaInclusionEntities(
-          serviceAreaUpdate
-              .get()
-              .path()
-              .parentPath()
-              .join(Scalar.SERVICE_AREAS.name())
-              .asArrayElement(),
-          serviceAreaUpdate.get().value());
-    }
+    serviceAreaUpdate.ifPresent(
+        areaUpdate ->
+            applicantData.putServiceAreaInclusionEntities(
+                areaUpdate.path().parentPath().join(Scalar.SERVICE_AREAS.name()).asArrayElement(),
+                areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
