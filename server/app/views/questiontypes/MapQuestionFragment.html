@@ -41,14 +41,14 @@
     <div class="margin-top-2">
       <button
         type="button"
-        class="usa-button cf-apply-filters-btn"
+        class="usa-button cf-apply-filters-button"
         th:data-map-id="${mapId}"
       >
         Apply filters
       </button>
       <button
         type="button"
-        class="usa-button usa-button--outline cf-reset-filters-btn"
+        class="usa-button usa-button--outline cf-reset-filters-button"
         th:data-map-id="${mapId}"
       >
         Reset
@@ -81,7 +81,7 @@
                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
                      locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
                      locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())}"
-            class="usa-checkbox"
+            class="usa-checkbox cf-location-checkbox"
           >
             <input
               class="usa-checkbox__input cf-location-checkbox-input"
@@ -89,21 +89,26 @@
               th:value="${locationName}"
               type="checkbox"
             />
-            <label class="usa-checkbox__label cf-location-checkbox-label" th:for="${locationId}">
-              <div class="text-bold cf-location-checkbox-name" th:text="${locationName}"></div>
+            <label
+              class="usa-checkbox__label cf-location-checkbox-label"
+              th:for="${locationId}"
+            >
+              <div
+                class="text-bold cf-location-checkbox-name"
+                th:text="${locationName}"
+              ></div>
               <div
                 class="text-base-dark margin-top-05 cf-location-checkbox-address"
                 th:if="${locationAddress}"
                 th:text="${locationAddress}"
               ></div>
-              <div class="margin-top-05 cf-location-checkbox-link-container" th:if="${locationUrl}">
-                <a
-                  th:href="${locationUrl}"
-                  class="usa-link usa-link--external text-primary cf-location-checkbox-link"
-                  target="_blank"
-                  >See more details</a
-                >
-              </div>
+              <a
+                th:if="${locationUrl}"
+                th:href="${locationUrl}"
+                class="usa-link usa-link--external text-primary cf-location-checkbox-link"
+                target="_blank"
+                >See more details</a
+              >
             </label>
           </div>
         </div>
@@ -145,14 +150,21 @@
           type="checkbox"
           checked
         />
-        <label class="usa-checkbox__label cf-selected-location-checkbox-template-label" for="cf-selected-location-checkbox-template-input">
-          <div class="text-bold cf-selected-location-checkbox-template-name"></div>
-          <div class="text-base-dark margin-top-05 cf-selected-location-checkbox-template-address"></div>
-          <div class="margin-top-05 cf-selected-location-checkbox-template-link-container">
-            <a class="usa-link usa-link--external text-primary cf-selected-location-checkbox-template-link" target="_blank"
-              >See more details</a
-            >
-          </div>
+        <label
+          class="usa-checkbox__label cf-selected-location-checkbox-template-label"
+          for="cf-selected-location-checkbox-template-input"
+        >
+          <div
+            class="text-bold cf-selected-location-checkbox-template-name"
+          ></div>
+          <div
+            class="text-base-dark margin-top-05 cf-selected-location-checkbox-template-address"
+          ></div>
+          <a
+            class="usa-link usa-link--external text-primary cf-selected-location-checkbox-template-link"
+            target="_blank"
+            >See more details</a
+          >
         </label>
       </div>
     </div>
