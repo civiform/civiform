@@ -219,7 +219,7 @@ public class ProgramBaseViewTest {
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
 
-    public ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
+    ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
       super(settingsManifest);
     }
 

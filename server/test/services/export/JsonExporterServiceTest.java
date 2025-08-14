@@ -2447,7 +2447,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   private static class ResultAsserter {
-    public final CfJsonDocumentContext resultJson;
+    final CfJsonDocumentContext resultJson;
 
     ResultAsserter(String resultJsonString) {
       this.resultJson = new CfJsonDocumentContext(resultJsonString);

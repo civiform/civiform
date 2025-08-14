@@ -88,80 +88,65 @@ public class QuestionConfigTest {
     Optional<DivTag> maybeConfig =
         QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
     switch (questionType) {
-      case ADDRESS:
+      case ADDRESS -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Disallow post office boxes");
-        break;
-      case CHECKBOX:
+      }
+      case CHECKBOX -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted())
             .contains("Minimum number of choices required");
         assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case CURRENCY:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case DATE:
+      }
+      case CURRENCY, STATIC -> assertThat(maybeConfig).isEmpty();
+      case DATE -> {
         assertThat(maybeConfig).isPresent();
         String dateConfig = maybeConfig.get().renderFormatted();
         assertThat(dateConfig).contains("Validation parameters");
         assertThat(dateConfig).contains("Start date");
         assertThat(dateConfig).contains("End date");
-        break;
-      case DROPDOWN:
+      }
+      case DROPDOWN, RADIO_BUTTON -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case EMAIL:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case PHONE:
+      }
+      case EMAIL -> assertThat(maybeConfig).isEmpty();
+      case PHONE -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted())
             .contains(
                 "This supports only US and CA phone numbers. If you need other international"
                     + " numbers, please use a Text question.");
-        break;
-      case ENUMERATOR:
+      }
+      case ENUMERATOR -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("What are we enumerating");
-        break;
-      case FILEUPLOAD:
+      }
+      case FILEUPLOAD -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Maximum number of file uploads");
-        break;
-      case ID:
+      }
+      case ID, TEXT -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
-        break;
-      case NAME:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case NUMBER:
+      }
+      case NAME -> assertThat(maybeConfig).isEmpty();
+      case NUMBER -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum value");
-        break;
-      case RADIO_BUTTON:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case STATIC:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case TEXT:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
-        break;
-      case YES_NO:
+      }
+      case YES_NO -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Yes");
-        break;
-      default:
-        fail(
-            "Unhandled question type: %s. Please add a configuration in"
-                + " QuestionConfig.buildQuestionConfig and add an explicit case statement for the"
-                + " type.",
-            questionType);
+      }
+      default -> {
+        var unused =
+            fail(
+                "Unhandled question type: %s. Please add a configuration in"
+                    + " QuestionConfig.buildQuestionConfig and add an explicit case statement for"
+                    + " the type.",
+                questionType);
+      }
     }
   }
 
