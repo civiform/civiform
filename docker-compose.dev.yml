@@ -23,8 +23,6 @@ services:
       - 9000:9000
       - 8457:8457
       - 50000:50000
-    environment:
-      FAVICON_URL: "https://img.icons8.com/?size=100&id=80349&format=png&color=000000"
 
   civiform-shell:
     image: civiform-dev
