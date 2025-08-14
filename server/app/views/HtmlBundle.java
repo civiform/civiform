@@ -245,15 +245,15 @@ public final class HtmlBundle {
   private HeadTag renderHead() {
     // TODO: Throw exception if page title is not set.
     return head()
-      .with(title(pageTitle))
-      .condWith(
-        faviconURL.isPresent(),
-        link().withRel("icon").withHref(faviconURL.get()),
-        link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
-        link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
-      .with(metadata)
-      .with(CspUtil.applyCsp(request, headScripts))
-      .with(CspUtil.applyCspToStyles(request, stylesheets));
+        .with(title(pageTitle))
+        .condWith(
+            faviconURL.isPresent(),
+            link().withRel("icon").withHref(faviconURL.get()),
+            link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
+            link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
+        .with(metadata)
+        .with(CspUtil.applyCsp(request, headScripts))
+        .with(CspUtil.applyCspToStyles(request, stylesheets));
   }
 
   private HeaderTag renderHeader() {
