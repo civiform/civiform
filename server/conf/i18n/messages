@@ -927,6 +927,8 @@ map.locationsCount=Displaying {0} of {1} locations
 map.noSelectionsMessage=No locations have been selected.
 # Text for map question reset filters button
 map.resetFiltersButtonText=Reset
+# Placeholder text for map question select option dropdown
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
 # Placeholder text for map question select option dropdown

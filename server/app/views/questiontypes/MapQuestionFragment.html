@@ -164,6 +164,26 @@
           ></a>
         </label>
       </div>
+      <!-- Hidden template for popups -->
+      <div class="hidden cf-popup-content-template" th:data-map-id="${mapId}">
+        <div
+          class="hidden text-bold font-serif-sm padding-bottom-2 cf-popup-content-location-name"
+        ></div>
+        <div
+          class="hidden font-sans-sm cf-popup-content-location-address"
+        ></div>
+        <a
+          class="hidden font-sans-sm usa-link usa-link--external cf-popup-content-location-link"
+          target="_blank"
+          th:text="#{map.locationLinkText}"
+        ></a>
+        <button
+          type="button"
+          class="hidden usa-button usa-button--secondary margin-top-1 cf-select-location-button"
+          data-feature-id="${featureId}"
+          th:text="#{map.selectLocationButtonText}"
+        ></button>
+      </div>
     </div>
   </div>
 

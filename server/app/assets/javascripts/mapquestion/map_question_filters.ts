@@ -3,7 +3,7 @@ import {
   FilterSpecification,
   Map as MapLibreMap,
 } from 'maplibre-gl'
-import {FeatureCollection, Feature, Geometry, GeoJsonProperties} from 'geojson'
+import {Feature, Geometry, GeoJsonProperties} from 'geojson'
 import {
   CF_APPLY_FILTERS_BUTTON,
   CF_RESET_FILTERS_BUTTON,
@@ -19,9 +19,16 @@ export const initFilters = (
   mapElement: MapLibreMap,
   mapData: MapData,
 ): void => {
+  const featureMap = new Map<string, Feature>()
+  mapData.geoJson.features.forEach((feature) => {
+    if (feature.id) {
+      featureMap.set(feature.id.toString(), feature)
+    }
+  })
+
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, mapData),
+    () => applyLocationFilters(mapId, mapElement, featureMap),
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -31,7 +38,7 @@ export const initFilters = (
         const selectOptionElement = selectOption as HTMLSelectElement
         selectOptionElement.value = ''
       })
-      applyLocationFilters(mapId, mapElement, mapData, true)
+      applyLocationFilters(mapId, mapElement, featureMap, true)
     },
   )
 }
@@ -39,24 +46,24 @@ export const initFilters = (
 const applyLocationFilters = (
   mapId: string,
   map: MapLibreMap,
-  mapData: MapData,
+  featureMap: Map<string, Feature>,
   reset?: boolean,
 ): void => {
   const filters = reset ? {} : getFilters(mapId)
 
   map.setFilter('locations-layer', buildMapFilterExpression(filters))
 
-  const features: FeatureCollection['features'] =
-    mapData?.geoJson?.features || ([] as FeatureCollection['features'])
-
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
-  locationCheckboxContainers.forEach((container, index) => {
+  locationCheckboxContainers.forEach((container) => {
     const containerElement = container as HTMLElement
-    // Assuming order of features matches order of location checkboxes
-    // TODO: Improve this by linking via location ID
+
+    const featureId = containerElement.getAttribute('data-feature-id')
+    if (!featureId) return
+
+    const matchingFeature = featureMap.get(featureId)
     containerElement.style.display = featureMatchesFilters(
-      features[index],
+      matchingFeature,
       filters,
     )
       ? 'block'

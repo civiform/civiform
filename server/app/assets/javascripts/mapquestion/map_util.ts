@@ -23,6 +23,7 @@ export const CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL =
 export const CF_LOCATION_CHECKBOX = '.cf-location-checkbox'
 export const CF_LOCATION_CHECKBOX_INPUT = '.cf-location-checkbox-input'
 export const DATA_FEATURE_ID_ATTR = 'data-feature-id'
+export const CF_POPUP_CONTENT_TEMPLATE = 'cf-popup-content-template'
 
 // Query elements within a specific map container
 export const mapQuerySelector = (

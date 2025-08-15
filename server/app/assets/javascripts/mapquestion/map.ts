@@ -1,6 +1,11 @@
 import {LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
 import {GeoJsonProperties, Feature} from 'geojson'
-import {MapData, CF_SELECT_LOCATION_BUTTON} from './map_util'
+import {
+  MapData,
+  CF_SELECT_LOCATION_BUTTON,
+  mapQuerySelector,
+  CF_POPUP_CONTENT_TEMPLATE,
+} from './map_util'
 import {initLocationSelection} from './map_question_selection'
 import {initFilters} from './map_question_filters'
 
@@ -72,43 +77,74 @@ const addLocationsToMap = (
 }
 
 const createPopupContent = (
+  mapId: string,
   settings: MapData['settings'],
   properties: GeoJsonProperties,
   featureId: string,
-): string | undefined => {
-  if (!properties) return
-
-  let popupContent = ''
-
+): Node | null => {
+  if (!properties) return null
   const name: string = properties[settings['nameGeoJsonKey']] as string
-  if (name) {
-    popupContent += `<div class="text-bold font-serif-sm padding-bottom-2">${name}</div>`
-  }
-
   const address: string = properties[settings['addressGeoJsonKey']] as string
-  if (address) {
-    popupContent += `<div class="font-sans-sm">${address}</div>`
-  }
-
   const detailsUrl: string = properties[
     settings['detailsUrlGeoJsonKey']
   ] as string
-  if (detailsUrl) {
-    popupContent += `<a class="font-sans-sm usa-link usa-link--external" href="${detailsUrl}" target="_blank">View more details</a>`
+
+  const popupContentTemplate = mapQuerySelector(
+    mapId,
+    CF_POPUP_CONTENT_TEMPLATE,
+  )
+  if (!popupContentTemplate) return null
+
+  const popupContent = popupContentTemplate.cloneNode(true) as HTMLElement
+  popupContent.classList.remove('hidden', CF_POPUP_CONTENT_TEMPLATE)
+
+  if (name) {
+    const nameElement = popupContent.querySelector(
+      '.cf-popup-content-location-name',
+    ) as HTMLElement
+    nameElement.textContent = name
+    nameElement.classList.remove('hidden')
   }
 
-  const selectButton: string = `<button 
-      type="button"
-      class="usa-button usa-button--secondary margin-top-1 ${CF_SELECT_LOCATION_BUTTON}" 
-      data-feature-id="${featureId}">
-      Select location
-    </button>`
-  popupContent += selectButton
+  if (address) {
+    const addressElement = popupContent.querySelector(
+      '.cf-popup-content-location-address',
+    ) as HTMLElement
+    addressElement.textContent = address
+    addressElement.classList.remove('hidden')
+  }
+
+  if (detailsUrl) {
+    const detailsLinkElement = popupContent.querySelector(
+      '.cf-popup-content-location-link',
+    ) as HTMLAnchorElement
+    try {
+      const url = new URL(detailsUrl)
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        detailsLinkElement.href = detailsUrl
+        detailsLinkElement.classList.remove('hidden')
+      } else {
+        console.warn('Invalid URL protocol, skipping link:', detailsUrl)
+      }
+    } catch {
+      console.warn('Invalid URL format, skipping link:', detailsUrl)
+    }
+  }
+
+  if (featureId) {
+    const selectLocationButton = popupContent.querySelector(
+      `.${CF_SELECT_LOCATION_BUTTON}`,
+    ) as HTMLButtonElement
+    selectLocationButton.setAttribute('data-map-id', mapId)
+    selectLocationButton.setAttribute('data-feature-id', featureId)
+    selectLocationButton.classList.remove('hidden')
+  }
 
   return popupContent
 }
 
 const addPopupsToMap = (
+  mapId: string,
   map: MapLibreMap,
   settings: MapData['settings'],
 ): void => {
@@ -130,9 +166,14 @@ const addPopupsToMap = (
     const popup = new Popup({closeButton: false}).setLngLat(coordinates)
 
     const originalId: string = properties.originalId as string
-    const popupContent = createPopupContent(settings, properties, originalId)
+    const popupContent = createPopupContent(
+      mapId,
+      settings,
+      properties,
+      originalId,
+    )
     if (popupContent) {
-      popup.setHTML(popupContent)
+      popup.setDOMContent(popupContent)
     }
 
     popup.addTo(map)
@@ -147,16 +188,16 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
 
   map.on('load', () => {
     addLocationsToMap(map, geoJson)
-    addPopupsToMap(map, settings)
+    addPopupsToMap(mapId, map, settings)
 
-    map.on('mouseenter', 'locations', (): void => {
+    map.on('mouseenter', 'locations-layer', (): void => {
       const canvas = map.getCanvas()
       if (canvas) {
         canvas.style.cursor = 'pointer'
       }
     })
 
-    map.on('mouseleave', 'locations', (): void => {
+    map.on('mouseleave', 'locations-layer', (): void => {
       const canvas = map.getCanvas()
       if (canvas) {
         canvas.style.cursor = ''
