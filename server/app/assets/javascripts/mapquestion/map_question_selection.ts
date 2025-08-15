@@ -8,7 +8,7 @@ import {
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL,
   mapQuerySelector,
   queryLocationCheckboxes,
-  DATA_LOCATION_NAME_ATTR,
+  DATA_FEATURE_ID_ATTR,
   CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
@@ -26,10 +26,9 @@ export const initLocationSelection = (mapId: string): void => {
     // Add event listener to select location buttons in map popups to update selected locations on click event
     const target = e.target as HTMLElement
     if (target.classList.contains(CF_SELECT_LOCATION_BUTTON)) {
-      // TODO: Use location ID instead of name
-      const locationName = target.getAttribute(DATA_LOCATION_NAME_ATTR)
-      if (locationName) {
-        selectLocationsFromMap(locationName, mapId)
+      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+      if (featureId) {
+        selectLocationsFromMap(featureId, mapId)
         // Close any open popups on click of select location button
         // TODO: Change color of button when selected? But not close popup? Talk to UX.
         const popups = document.querySelectorAll('.maplibregl-popup')
@@ -91,13 +90,13 @@ const updateSelectedLocations = (mapId: string): void => {
   }
 }
 
-const selectLocationsFromMap = (locationName: string, mapId: string): void => {
+const selectLocationsFromMap = (featureId: string, mapId: string): void => {
   const checkboxes = queryLocationCheckboxes(mapId)
 
-  // Find the checkbox with the matching location name within this map's container
+  // Find the checkbox with the matching feature ID within this map's container
   checkboxes.forEach((checkbox) => {
-    const checkboxValue = checkbox.getAttribute(DATA_LOCATION_NAME_ATTR)
-    if (checkboxValue == locationName) {
+    const checkboxValue = checkbox.getAttribute(DATA_FEATURE_ID_ATTR)
+    if (checkboxValue === featureId) {
       const checkboxInputElement = checkbox.querySelector(
         CF_LOCATION_CHECKBOX_INPUT,
       ) as HTMLInputElement

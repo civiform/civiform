@@ -42,9 +42,21 @@ const addLocationsToMap = (
   map: MapLibreMap,
   geoJson: GeoJSON.FeatureCollection,
 ): void => {
+  // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
+  const modifiedGeoJson = {
+    ...geoJson,
+    features: geoJson.features.map((feature) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        originalId: feature.id,
+      },
+    })),
+  }
+
   map.addSource('locations', {
     type: 'geojson',
-    data: geoJson,
+    data: modifiedGeoJson,
   })
 
   // TODO: Add custom icons to the map markers
@@ -62,6 +74,7 @@ const addLocationsToMap = (
 const createPopupContent = (
   settings: MapData['settings'],
   properties: GeoJsonProperties,
+  featureId: string,
 ): string | undefined => {
   if (!properties) return
 
@@ -84,15 +97,13 @@ const createPopupContent = (
     popupContent += `<a class="font-sans-sm usa-link usa-link--external" href="${detailsUrl}" target="_blank">View more details</a>`
   }
 
-  if (name) {
-    const selectButton: string = `<button 
-        type="button"
-        class="usa-button usa-button--secondary margin-top-1 ${CF_SELECT_LOCATION_BUTTON}" 
-        data-location-name="${name}">
-        Select location
-      </button>`
-    popupContent += selectButton
-  }
+  const selectButton: string = `<button 
+      type="button"
+      class="usa-button usa-button--secondary margin-top-1 ${CF_SELECT_LOCATION_BUTTON}" 
+      data-feature-id="${featureId}">
+      Select location
+    </button>`
+  popupContent += selectButton
 
   return popupContent
 }
@@ -118,7 +129,8 @@ const addPopupsToMap = (
 
     const popup = new Popup({closeButton: false}).setLngLat(coordinates)
 
-    const popupContent = createPopupContent(settings, properties)
+    const originalId: string = properties.originalId as string
+    const popupContent = createPopupContent(settings, properties, originalId)
     if (popupContent) {
       popup.setHTML(popupContent)
     }
