@@ -75,8 +75,9 @@
             th:with="locationId='location-' + ${iterator.index},
                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
                      locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
-                     locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())}"
-            th:data-location-name="${locationName}"
+                     locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                     featureId=${feature.id}"
+            th:data-feature-id="${featureId}"
             class="usa-checkbox cf-location-checkbox"
           >
             <input
