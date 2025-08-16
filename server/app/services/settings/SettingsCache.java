@@ -32,6 +32,7 @@ public final class SettingsCache {
   private final DatabaseExecutionContext dbExecutionContext;
   // Need for mocking unit tests, rather than the static DB.getDefault(),
   private final Database database;
+  private final ApplicationLifecycle lifecycle;
 
   // Volatile so updates are immediately visible to all threads
   private volatile Optional<SettingsGroupModel> cache = Optional.empty();
@@ -56,6 +57,10 @@ public final class SettingsCache {
     this.repo = repo;
     this.dbExecutionContext = dbExecutionContext;
     this.database = database;
+    this.lifecycle = lifecycle;
+  }
+
+  public void init() {
 
     // Load initial settings into cache
     reloadFromDb();
