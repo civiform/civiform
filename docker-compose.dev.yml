@@ -83,7 +83,7 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
 
-  grafana:  
+  grafana:
     profiles: ['monitoring']
     image: grafana/grafana@sha256:38e62c46a4a0f8b6124ad318f42c65ad6ac7644ab1f7d90a582d847ced28180c
     depends_on:
