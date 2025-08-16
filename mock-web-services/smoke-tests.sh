@@ -35,3 +35,4 @@ assert_200 "http://localhost:8000/esri/serviceAreaFeatures?geometry=\\{\"y\":100
 assert_200 "http://localhost:8000/api-bridge/health-check"
 assert_200 "http://localhost:8000/api-bridge/discovery"
 assert_200 "http://localhost:8000/api-bridge/bridge/success" "{\"payload\": {\"accountNumber\": 1111}}"
+assert_200 "http://localhost:8000/geojson/data"

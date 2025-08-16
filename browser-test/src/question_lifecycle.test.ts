@@ -7,7 +7,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-import {QuestionType} from './support/admin_questions'
+import {QuestionTypeLegacy} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
@@ -34,7 +34,7 @@ test.describe('normal question lifecycle', () => {
 
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
-  for (const type of Object.values(QuestionType)) {
+  for (const type of Object.values(QuestionTypeLegacy)) {
     test(`${type} question: create, update, publish, create a new version, and update`, async ({
       page,
       adminQuestions,
@@ -49,7 +49,7 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.addQuestionForType(type, questionName)
       const repeatedQuestion = 'qlc-repeated-number'
-      const isEnumerator = type === QuestionType.ENUMERATOR
+      const isEnumerator = type === QuestionTypeLegacy.ENUMERATOR
       if (isEnumerator) {
         // Add to the front of the list because creating a new version of the enumerator question will
         // automatically create a new version of the repeated question. This is important for
@@ -67,7 +67,7 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await validateScreenshot(page, `${type}-edit-page`)
-      if (type === QuestionType.DATE) {
+      if (type === QuestionTypeLegacy.DATE) {
         await enableFeatureFlag(page, 'date_validation_enabled')
         await adminQuestions.gotoQuestionEditPage(questionName)
         await validateScreenshot(

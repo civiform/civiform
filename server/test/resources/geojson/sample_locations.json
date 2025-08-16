@@ -1,0 +1,85 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "sf-public-library",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4194, 37.7749]
+      },
+      "properties": {
+        "name": "San Francisco Public Library",
+        "address": "100 Larkin St, San Francisco, CA 94102",
+        "type": "library",
+        "hours": "Mon-Thu: 9am-8pm, Fri-Sat: 9am-6pm, Sun: 12pm-6pm",
+        "phone": "(415) 557-4400",
+        "website": "https://sfpl.org"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "chinatown-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4089, 37.7849]
+      },
+      "properties": {
+        "name": "Chinatown Community Center",
+        "address": "965 Clay St, San Francisco, CA 94108",
+        "type": "community_center",
+        "hours": "Mon-Fri: 8am-6pm",
+        "phone": "(415) 392-0328",
+        "website": "https://chinatowncc.org"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "mission-district-health-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4094, 37.7849]
+      },
+      "properties": {
+        "name": "Mission District Health Center",
+        "address": "240 Shotwell St, San Francisco, CA 94103",
+        "type": "health_center",
+        "hours": "Mon-Fri: 7am-7pm, Sat: 8am-4pm",
+        "phone": "(415) 641-7000",
+        "website": "https://missionhealth.org"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bayview-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3892, 37.7699]
+      },
+      "properties": {
+        "name": "Bayview Community Center",
+        "address": "1801 Oakdale Ave, San Francisco, CA 94124",
+        "type": "community_center",
+        "hours": "Mon-Fri: 9am-9pm, Sat-Sun: 10am-6pm",
+        "phone": "(415) 671-2200",
+        "website": "https://bayviewcc.org"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "richmond-branch-library",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4675, 37.7849]
+      },
+      "properties": {
+        "name": "Richmond Branch Library",
+        "address": "351 9th Ave, San Francisco, CA 94118",
+        "type": "library",
+        "hours": "Tue-Wed: 10am-8pm, Thu-Fri: 12pm-6pm, Sat: 10am-6pm",
+        "phone": "(415) 355-5600",
+        "website": "https://sfpl.org/locations/richmond"
+      }
+    }
+  ]
+}
