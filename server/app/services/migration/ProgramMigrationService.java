@@ -181,6 +181,12 @@ public final class ProgramMigrationService {
     if (!questionErrors.isEmpty()) {
       return questionErrors;
     }
+
+    questionErrors = QuestionValidationUtils.validateYesNoQuestions(questions);
+    if (!questionErrors.isEmpty()) {
+      return questionErrors;
+    }
+
     return QuestionValidationUtils.validateRepeatedQuestions(
         program, questions, existingAdminNames);
   }
@@ -443,6 +449,13 @@ public final class ProgramMigrationService {
       ImmutableList<String> reusedQuestions) {
     ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
+      ImmutableSet<CiviFormError> yesNoErrors =
+          QuestionValidationUtils.validateYesNoQuestions(questionDefinitions);
+      if (!yesNoErrors.isEmpty()) {
+        String errorMessage = yesNoErrors.iterator().next().message();
+        return ErrorAnd.error(ImmutableSet.of(errorMessage));
+      }
+
       if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
         return ErrorAnd.error(
             ImmutableSet.of(

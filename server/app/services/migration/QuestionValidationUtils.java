@@ -7,11 +7,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 /** Utility class to validate questions during the program import flow. */
 final class QuestionValidationUtils {
+
+  // The allowed options for YES_NO questions
+  private static final ImmutableSet<String> ALLOWED_YES_NO_OPTIONS =
+      ImmutableSet.of("yes", "no", "maybe", "not-sure");
 
   /**
    * Validates attributes of the question, including admin name, help text, and question options.
@@ -43,6 +49,33 @@ final class QuestionValidationUtils {
         .filter(qid -> !questionDefinitionIds.contains(qid))
         .map(qid -> CiviFormError.of("Question ID " + qid + " is not defined"))
         .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
+   * Validates that YES_NO questions only contain the allowed options.
+   *
+   * @param questions the list of questions to validate
+   * @return a set of validation errors, empty if all YES_NO questions are valid
+   */
+  static ImmutableSet<CiviFormError> validateYesNoQuestions(
+      ImmutableList<QuestionDefinition> questions) {
+    for (QuestionDefinition question : questions) {
+      if (question.getQuestionType() == QuestionType.YES_NO) {
+        MultiOptionQuestionDefinition yesNoQuestion = (MultiOptionQuestionDefinition) question;
+
+        for (QuestionOption option : yesNoQuestion.getOptions()) {
+          if (!ALLOWED_YES_NO_OPTIONS.contains(option.adminName())) {
+            return ImmutableSet.of(
+                CiviFormError.of(
+                    String.format(
+                        "Yes/No question '%s' contains unsupported option: '%s'. "
+                            + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+                        question.getName(), option.adminName())));
+          }
+        }
+      }
+    }
+    return ImmutableSet.of();
   }
 
   /**
