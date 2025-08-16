@@ -115,7 +115,7 @@ public final class EsriServiceAreaValidationConfig {
               .setAttribute(this.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES.get().get(i))
               .build();
 
-      mapBuilder.put(ids.get(i), option);
+      mapBuilder.put(String.valueOf(option.hashCode()), option);
     }
 
     esriServiceAreaValidationMap = mapBuilder.build();
@@ -124,7 +124,7 @@ public final class EsriServiceAreaValidationConfig {
 
   /**
    * Creates a list of {@link EsriServiceAreaValidationOption}s with the same URL as the passed in
-   * EsriServiceAreaValidationOption, given a map returned from {@link getImmutableMap}.
+   * EsriServiceAreaValidationOption, given a map returned from {@link #getImmutableMap}.
    */
   public ImmutableList<EsriServiceAreaValidationOption> getOptionsWithSharedBackend(
       String serviceAreaUrl) {
