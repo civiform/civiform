@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.9@sha256:ddfe3e8713e3ee5b8f286082cb12512488dfbf3f5a1ecb0b74a42e6055af0a5f
+    image: postgres:16.10@sha256:3c2aa0f6e0a0f71adf7c362c7278578148ae697e37b0224c0e1bbadb9d2a2058
     restart: always
     expose:
       - '5432'
