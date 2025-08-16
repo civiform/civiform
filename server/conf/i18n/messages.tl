@@ -1024,6 +1024,9 @@ category.tag.housing=Pabahay
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Military
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Pagsasanay
 
@@ -1032,6 +1035,9 @@ category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veteran
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Mga Kategorya
