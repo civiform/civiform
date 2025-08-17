@@ -9,10 +9,11 @@ import static services.apibridge.ApiBridgeServiceDto.IProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ValidationProblemDetail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
@@ -21,16 +22,53 @@ import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import services.ErrorAnd;
+import services.JsonUtils;
 
 /** Handles the direct http communication with a bridge service. */
-public class ApiBridgeService implements WSBodyReadables {
+public final class ApiBridgeService implements WSBodyReadables {
   private static final Logger logger = LoggerFactory.getLogger(ApiBridgeService.class);
   private final WSClient wsClient;
   private final ApiBridgeExecutionContext executionContext;
   private final ObjectMapper mapper;
 
-  private static final String HEALTHCHECK_PATH = "/health-check";
-  private static final String DISCOVERY_PATH = "/discovery";
+  private final class PrometheusHelper {
+    private static final Counter requestsTotal =
+        Counter.build()
+            .name("api_bridge_requests_total")
+            .help("Total number of API bridge requests")
+            .labelNames("method_name", "status")
+            .register();
+
+    private static final Histogram requestDuration =
+        Histogram.build()
+            .name("api_bridge_request_duration_ms")
+            .help("Time spent on API bridge requests")
+            .labelNames("method_name", "status")
+            .register();
+
+    /** Records metrics for success/error responses */
+    static <T> void recordMetrics(
+        String methodName, ErrorAnd<T, IProblemDetail> result, long startTime) {
+      String status = result.isError() ? "error" : "success";
+      double elapsedMs = (System.nanoTime() - startTime) / 1_000_000.0;
+
+      requestDuration.labels(methodName, status).observe(elapsedMs);
+      requestsTotal.labels(methodName, status).inc();
+    }
+
+    /** Records metrics for exceptions */
+    static void recordErrorMetrics(String methodName, Throwable ex, long startTime) {
+      String status = ex.getClass().getSimpleName();
+      double elapsedMs = (System.nanoTime() - startTime) / 1_000_000.0;
+
+      requestDuration.labels(methodName, status).observe(elapsedMs);
+      requestsTotal.labels(methodName, status).inc();
+    }
+  }
+
+  private static final String HEALTHCHECK_PATH = "health-check";
+  private static final String DISCOVERY_PATH = "discovery";
+  private static final String BRIDGE_ROOT_PATH = "bridge";
 
   @Inject
   public ApiBridgeService(
@@ -49,13 +87,29 @@ public class ApiBridgeService implements WSBodyReadables {
   public CompletionStage<ErrorAnd<HealthcheckResponse, IProblemDetail>> healthcheck(
       String hostUrl) {
     String url = String.format("%s/%s", hostUrl, HEALTHCHECK_PATH);
+    long startTime = System.nanoTime();
+
     try {
       return wsClient
           .url(url)
           .get()
-          .thenApplyAsync(res -> handleResponse(res, HealthcheckResponse.class), executionContext)
-          .exceptionallyAsync(ex -> handleError(url, ex), executionContext);
+          .thenApplyAsync(
+              res -> {
+                ErrorAnd<HealthcheckResponse, IProblemDetail> result =
+                    handleResponse(res, HealthcheckResponse.class);
+                PrometheusHelper.recordMetrics(HEALTHCHECK_PATH, result, startTime);
+                return result;
+              },
+              executionContext)
+          .exceptionallyAsync(
+              ex -> {
+                ErrorAnd<HealthcheckResponse, IProblemDetail> result = handleError(url, ex);
+                PrometheusHelper.recordErrorMetrics(HEALTHCHECK_PATH, ex, startTime);
+                return result;
+              },
+              executionContext);
     } catch (RuntimeException ex) {
+      PrometheusHelper.recordErrorMetrics(HEALTHCHECK_PATH, ex, startTime);
       return CompletableFuture.completedFuture(handleError(url, ex));
     }
   }
@@ -68,13 +122,29 @@ public class ApiBridgeService implements WSBodyReadables {
    */
   public CompletionStage<ErrorAnd<DiscoveryResponse, IProblemDetail>> discovery(String hostUrl) {
     String url = String.format("%s/%s", hostUrl, DISCOVERY_PATH);
+    long startTime = System.nanoTime();
+
     try {
       return wsClient
           .url(url)
           .get()
-          .thenApplyAsync(res -> handleResponse(res, DiscoveryResponse.class), executionContext)
-          .exceptionallyAsync(ex -> handleError(url, ex), executionContext);
+          .thenApplyAsync(
+              res -> {
+                ErrorAnd<DiscoveryResponse, IProblemDetail> result =
+                    handleResponse(res, DiscoveryResponse.class);
+                PrometheusHelper.recordMetrics(DISCOVERY_PATH, result, startTime);
+                return result;
+              },
+              executionContext)
+          .exceptionallyAsync(
+              ex -> {
+                ErrorAnd<DiscoveryResponse, IProblemDetail> result = handleError(url, ex);
+                PrometheusHelper.recordErrorMetrics(DISCOVERY_PATH, ex, startTime);
+                return result;
+              },
+              executionContext);
     } catch (RuntimeException ex) {
+      PrometheusHelper.recordErrorMetrics(DISCOVERY_PATH, ex, startTime);
       return CompletableFuture.completedFuture(handleError(url, ex));
     }
   }
@@ -88,27 +158,34 @@ public class ApiBridgeService implements WSBodyReadables {
    */
   public CompletionStage<ErrorAnd<BridgeResponse, IProblemDetail>> bridge(
       String fullBridgeUrl, BridgeRequest request) {
+    long startTime = System.nanoTime();
+
     try {
-      String jsonBody = toJsonString(request);
+      String jsonBody = JsonUtils.writeValueAsString(mapper, request);
       logger.debug("URL: {} Body: {}", fullBridgeUrl, jsonBody);
 
       return wsClient
           .url(fullBridgeUrl)
           .setContentType("application/json")
           .post(jsonBody)
-          .thenApplyAsync(res -> handleResponse(res, BridgeResponse.class), executionContext)
-          .exceptionallyAsync(ex -> handleError(fullBridgeUrl, ex), executionContext);
+          .thenApplyAsync(
+              res -> {
+                ErrorAnd<BridgeResponse, IProblemDetail> result =
+                    handleResponse(res, BridgeResponse.class);
+                PrometheusHelper.recordMetrics(BRIDGE_ROOT_PATH, result, startTime);
+                return result;
+              },
+              executionContext)
+          .exceptionallyAsync(
+              ex -> {
+                ErrorAnd<BridgeResponse, IProblemDetail> result = handleError(fullBridgeUrl, ex);
+                PrometheusHelper.recordErrorMetrics(BRIDGE_ROOT_PATH, ex, startTime);
+                return result;
+              },
+              executionContext);
     } catch (RuntimeException ex) {
+      PrometheusHelper.recordErrorMetrics(BRIDGE_ROOT_PATH, ex, startTime);
       return CompletableFuture.completedFuture(handleError(fullBridgeUrl, ex));
-    }
-  }
-
-  /** Convert object to JSON without having to use stupid checked exceptions */
-  private String toJsonString(Object object) {
-    try {
-      return mapper.writeValueAsString(object);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
     }
   }
 
