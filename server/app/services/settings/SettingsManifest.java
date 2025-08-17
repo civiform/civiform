@@ -1110,6 +1110,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
+  public boolean getApiBridgeEnabled() {
+    return getBool("API_BRIDGE_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2357,6 +2362,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables translation management improvement"
                               + " phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "API_BRIDGE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))
