@@ -13,46 +13,44 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
-  <fieldset class="usa-form">
-    <div class="grid-row grid-gap">
-      <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col">
-        <label
-          class="usa-label"
-          th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
-          th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
-        ></label>
-        <select
-          class="usa-select"
-          th:name="${filter.settingValue()}"
-          th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
-          th:data-map-id="${mapId}"
-        >
-          <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-          <option
-            th:if="${questionRendererParams.geoJson().isPresent()}"
-            th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
-            th:value="${option}"
-            th:text="${option}"
-          ></option>
-        </select>
-      </div>
-    </div>
-    <!-- Apply filters buttons -->
-    <div class="margin-top-2">
-      <button
-        type="button"
-        class="usa-button cf-apply-filters-button"
+  <div class="grid-row grid-gap">
+    <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col">
+      <label
+        class="usa-label"
+        th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
+        th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
+      ></label>
+      <select
+        class="usa-select"
+        th:name="${filter.settingValue()}"
+        th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
         th:data-map-id="${mapId}"
-        th:text="#{map.applyFiltersButtonText}"
-      ></button>
-      <button
-        type="button"
-        class="usa-button usa-button--outline cf-reset-filters-button"
-        th:data-map-id="${mapId}"
-        th:text="#{map.resetFiltersButtonText}"
-      ></button>
+      >
+        <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+        <option
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
+          th:value="${option}"
+          th:text="${option}"
+        ></option>
+      </select>
     </div>
-  </fieldset>
+  </div>
+  <!-- Apply filters buttons -->
+  <div class="margin-bottom-2">
+    <button
+      type="button"
+      class="usa-button cf-apply-filters-button"
+      th:data-map-id="${mapId}"
+      th:text="#{map.applyFiltersButtonText}"
+    ></button>
+    <button
+      type="button"
+      class="usa-button usa-button--outline cf-reset-filters-button"
+      th:data-map-id="${mapId}"
+      th:text="#{map.resetFiltersButtonText}"
+    ></button>
+  </div>
 
   <div class="grid-row grid-gap">
     <!-- Scrollable container with location checkboxes -->
