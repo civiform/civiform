@@ -973,6 +973,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
         "type": "bool",
         "required": false
+      },
+      "API_BRIDGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+        "type": "bool",
+        "required": false
       }
     }
   }
