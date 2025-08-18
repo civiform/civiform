@@ -35,12 +35,14 @@ import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import repository.GeoJsonDataRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.geojson.GeoJsonClient;
 import services.program.ProgramService;
 
 /**
@@ -123,7 +125,9 @@ public final class DurableJobModule extends AbstractModule {
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
       VersionRepository versionRepository,
-      Config config) {
+      Config config,
+      GeoJsonDataRepository geoJsonDataRepository,
+      GeoJsonClient geoJsonClient) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -172,7 +176,8 @@ public final class DurableJobModule extends AbstractModule {
       durableJobRegistry.register(
           DurableJobName.REFRESH_MAP_DATA,
           JobType.RECURRING,
-          MapRefreshJob::new,
+          persistedDurableJobModel ->
+              new MapRefreshJob(persistedDurableJobModel, geoJsonDataRepository, geoJsonClient),
           new RecurringJobExecutionTimeResolvers.AdminConfiguredIntervalResolver(refreshInterval));
     }
 

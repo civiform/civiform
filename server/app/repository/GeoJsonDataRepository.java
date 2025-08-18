@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.GeoJsonDataModel;
 import services.geojson.FeatureCollection;
+import services.geojson.GeoJsonClient;
 
 public final class GeoJsonDataRepository {
   private final Database database;
@@ -68,5 +69,18 @@ public final class GeoJsonDataRepository {
     geoJsonData.setEndpoint(endpoint);
     geoJsonData.setConfirmTime(Instant.now());
     geoJsonData.save();
+  }
+
+  public void refreshGeoJson(GeoJsonClient geoJsonClient) {
+    database
+        .sqlQuery(
+            "select distinct on (endpoint) endpoint "
+                + "from geo_json_data "
+                + "order by endpoint, confirm_time DESC;")
+        .findEachRow(
+            (resultSet, rowNum) -> {
+              String endpoint = resultSet.getString("endpoint");
+              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
+            });
   }
 }
