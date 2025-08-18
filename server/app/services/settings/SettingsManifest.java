@@ -2364,7 +2364,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
