@@ -44,6 +44,12 @@ type QuestionParams = {
   locationAddressKey?: string | null
   locationDetailsUrlKey?: string | null
   filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  displayMode?: QuestionDisplayMode | null
+}
+
+export enum QuestionDisplayMode {
+  VISIBLE = 'Visible',
+  HIDDEN = 'Hidden',
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -207,6 +213,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    displayMode = null,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Question text")', questionText ?? '')
@@ -228,6 +235,10 @@ export class AdminQuestions {
     if (universal) {
       await this.clickUniversalToggle()
     }
+
+    if (displayMode != null) {
+      await this.selectDisplayMode(displayMode)
+    }
   }
 
   async selectExportOption(exportOption: string) {
@@ -238,6 +249,14 @@ export class AdminQuestions {
     await this.page
       .getByRole('radio', {name: exportOption, exact: true})
       .check()
+  }
+
+  async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
+    if (displayMode == null) {
+      throw new Error('A non-empty displayMode option must be provided')
+    }
+
+    await this.page.getByRole('radio', {name: displayMode}).check()
   }
 
   async updateQuestionText(updateText: string) {
@@ -1440,6 +1459,7 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     markdown = false,
+    displayMode = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1455,6 +1475,7 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
       universal,
+      displayMode,
     })
 
     if (minNum != null) {
@@ -1714,5 +1735,13 @@ export class AdminQuestions {
   /** Clicks on the questions sorting dropdown and selects the specified sortOption. The sortOption should match the value of the desired option. */
   async sortQuestions(sortOption: string) {
     return this.page.locator('#question-bank-sort').selectOption(sortOption)
+  }
+
+  async expectDisplayModeCheck(displayMode: QuestionDisplayMode) {
+    const selectedOption = this.page
+      .getByRole('group', {name: 'Display Mode'})
+      .getByRole('radio', {name: displayMode})
+
+    await expect(selectedOption).toBeChecked()
   }
 }
