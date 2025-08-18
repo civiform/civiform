@@ -466,7 +466,8 @@ public abstract class QuestionDefinition {
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
           && getValidationPredicates().equals(o.getValidationPredicates())
-          && getConcurrencyToken().equals(o.getConcurrencyToken());
+          && getConcurrencyToken().equals(o.getConcurrencyToken())
+          && getDisplayMode().equals(o.getDisplayMode());
     }
     return false;
   }

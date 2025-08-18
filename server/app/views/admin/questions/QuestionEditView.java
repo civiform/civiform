@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import models.QuestionDisplayMode;
 import models.QuestionTag;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -516,6 +517,10 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
 
+    if (settingsManifest.getApiBridgeEnabled(request)) {
+      questionSettingsContentBuilder.add(buildDisplayModeFields(questionForm, submittable));
+    }
+
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -703,6 +708,39 @@ public final class QuestionEditView extends BaseHtmlView {
                 .opensInNewTab()
                 .asAnchorText(),
             span("."));
+  }
+
+  /** Generates a radio button list with the {@link QuestionDisplayMode} options. */
+  private DomContent buildDisplayModeFields(QuestionForm questionForm, boolean submittable) {
+    QuestionDisplayMode displayMode = questionForm.getDisplayMode();
+
+    return fieldset()
+        .with(
+            legend("Display Mode")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(span("This controls whether or not the question is visible to Applicants.")),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Shown to Applicants", QuestionDisplayMode.VISIBLE.getLabel()))
+                .setValue(QuestionDisplayMode.VISIBLE.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.VISIBLE)
+                .getRadioTag(),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Not shown to Applicants", QuestionDisplayMode.HIDDEN.getLabel()))
+                .setValue(QuestionDisplayMode.HIDDEN.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.HIDDEN)
+                .getRadioTag());
   }
 
   /**

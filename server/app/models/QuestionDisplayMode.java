@@ -13,9 +13,13 @@ public enum QuestionDisplayMode {
     return this.name();
   }
 
-  public final String displayMode;
+  private final String displayMode;
 
   QuestionDisplayMode(String displayMode) {
     this.displayMode = displayMode;
+  }
+
+  public String getLabel() {
+    return this.displayMode;
   }
 }
