@@ -2338,6 +2338,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
+                              + " phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
@@ -2358,13 +2365,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
-                              + " phase one",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
