@@ -1,10 +1,12 @@
 package support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +18,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.GeoJsonDataModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -26,6 +29,7 @@ import play.Mode;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
+import services.geojson.FeatureCollection;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -194,6 +198,20 @@ public class ResourceCreator {
     CategoryModel category = new CategoryModel(translations);
     category.save();
     return category;
+  }
+
+  public GeoJsonDataModel insertGeoJsonData() throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    FeatureCollection sampleData =
+        objectMapper.readValue(
+            getClass().getResourceAsStream("/geojson/sample_locations.json"),
+            FeatureCollection.class);
+    GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
+    geoJsonData.setGeoJson(sampleData);
+    geoJsonData.setEndpoint("sample-locations");
+    geoJsonData.setConfirmTime(Instant.now());
+    geoJsonData.save();
+    return geoJsonData;
   }
 
   public ImmutableList<CategoryModel> insertCategoriesFromParser() {
