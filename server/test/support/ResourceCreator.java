@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
@@ -27,6 +28,7 @@ import models.TrustedIntermediaryGroupModel;
 import play.Environment;
 import play.Mode;
 import play.inject.Injector;
+import repository.DatabaseExecutionContext;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
 import services.geojson.FeatureCollection;
@@ -200,17 +202,19 @@ public class ResourceCreator {
     return category;
   }
 
-  public GeoJsonDataModel insertGeoJsonData() throws IOException {
+  public GeoJsonDataModel insertGeoJsonData(DatabaseExecutionContext dbExecutionContext)
+      throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     FeatureCollection sampleData =
         objectMapper.readValue(
             getClass().getResourceAsStream("/geojson/sample_locations.json"),
             FeatureCollection.class);
+
     GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
     geoJsonData.setGeoJson(sampleData);
-    geoJsonData.setEndpoint("sample-locations");
+    geoJsonData.setEndpoint("http://mock-web-services:8000/geojson/data");
     geoJsonData.setConfirmTime(Instant.now());
-    geoJsonData.save();
+    CompletableFuture.runAsync(geoJsonData::save, dbExecutionContext).join();
     return geoJsonData;
   }
 

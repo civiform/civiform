@@ -1,9 +1,6 @@
 package durablejobs.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import io.ebean.DB;
 import java.io.IOException;
@@ -26,34 +23,34 @@ import services.geojson.Geometry;
 
 public class MapRefreshJobTest extends ResetPostgres {
   private DatabaseExecutionContext dbExecutionContext;
-  private GeoJsonDataModel testGeoJsonData1;
-  private FeatureCollection testGeoJsonData2;
-  private GeoJsonClient mockClient;
+  private GeoJsonDataModel geoJsonData;
 
   @Before
   public void setup() throws IOException {
     dbExecutionContext = instanceOf(DatabaseExecutionContext.class);
-    testGeoJsonData1 = resourceCreator.insertGeoJsonData();
-    mockClient = mock(GeoJsonClient.class);
+    geoJsonData = resourceCreator.insertGeoJsonData(dbExecutionContext);
+  }
 
-    testGeoJsonData2 =
+  @Test
+  public void run_mapRefreshJobIfDataUpdated() throws IOException {
+    // Change the stored data to be different from what mock service will return
+    FeatureCollection differentData =
         new FeatureCollection(
             "FeatureCollection",
             List.of(
                 new Feature(
                     "Feature",
                     new Geometry("Point", List.of(-122.0, 37.0)),
-                    Map.of("name", "Test Location"),
-                    "test-1")));
-  }
+                    Map.of("name", "Different Test Location"),
+                    "test-different")));
 
-  @Test
-  public void run_mapRefreshJobIfDataUpdated() throws IOException {
+    geoJsonData.setGeoJson(differentData);
+    CompletableFuture.runAsync(geoJsonData::save, dbExecutionContext).join();
+
     int originalCount = getGeoJsonDataCount();
-    when(mockClient.fetchGeoJson(anyString()))
-        .thenReturn(CompletableFuture.completedFuture(testGeoJsonData2));
-    runJob(mockClient);
-    testGeoJsonData1.refresh();
+
+    runJob();
+    geoJsonData.refresh();
 
     int newCount = getGeoJsonDataCount();
     assertThat(newCount).isEqualTo(originalCount + 1);
@@ -61,10 +58,8 @@ public class MapRefreshJobTest extends ResetPostgres {
 
   @Test
   public void run_mapRefreshJobIfDataNotUpdated() throws IOException {
-    Instant originalConfirmTime = testGeoJsonData1.getConfirmTime();
+    Instant originalConfirmTime = geoJsonData.getConfirmTime();
     int originalCount = getGeoJsonDataCount();
-    when(mockClient.fetchGeoJson(anyString()))
-        .thenReturn(CompletableFuture.completedFuture(testGeoJsonData1.getGeoJson()));
 
     // Add small delay to ensure timestamp difference
     try {
@@ -73,12 +68,13 @@ public class MapRefreshJobTest extends ResetPostgres {
       Thread.currentThread().interrupt();
     }
 
-    runJob(mockClient);
-    testGeoJsonData1.refresh();
+    runJob();
 
+    geoJsonData.refresh();
     int newCount = getGeoJsonDataCount();
+
     assertThat(newCount).isEqualTo(originalCount);
-    assertThat(testGeoJsonData1.getConfirmTime()).isAfter(originalConfirmTime);
+    assertThat(geoJsonData.getConfirmTime()).isAfter(originalConfirmTime);
   }
 
   private int getGeoJsonDataCount() {
@@ -87,12 +83,12 @@ public class MapRefreshJobTest extends ResetPostgres {
         .join();
   }
 
-  private void runJob(GeoJsonClient mockClient) {
+  private void runJob() {
     MapRefreshJob job =
         new MapRefreshJob(
             new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()),
             instanceOf(GeoJsonDataRepository.class),
-            mockClient);
+            instanceOf(GeoJsonClient.class));
     job.run();
   }
 }
