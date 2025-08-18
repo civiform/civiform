@@ -7,16 +7,25 @@ import io.ebean.Transaction;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.GeoJsonDataRepository;
+import services.geojson.GeoJsonClient;
 
 public class MapRefreshJob extends DurableJob {
   private static final Logger logger = LoggerFactory.getLogger(MapRefreshJob.class);
 
   private final PersistedDurableJobModel persistedDurableJobModel;
   private final Database database;
+  private final GeoJsonDataRepository geoJsonDataRepository;
+  private final GeoJsonClient geoJsonClient;
 
-  public MapRefreshJob(PersistedDurableJobModel persistedDurableJobModel) {
+  public MapRefreshJob(
+      PersistedDurableJobModel persistedDurableJobModel,
+      GeoJsonDataRepository geoJsonDataRepository,
+      GeoJsonClient geoJsonClient) {
     this.persistedDurableJobModel = persistedDurableJobModel;
+    this.geoJsonDataRepository = geoJsonDataRepository;
     this.database = DB.getDefault();
+    this.geoJsonClient = geoJsonClient;
   }
 
   @Override
@@ -26,36 +35,20 @@ public class MapRefreshJob extends DurableJob {
 
   @Override
   public void run() {
-    System.out.println("Running MapRefreshJob!");
     logger.info("Starting job to refresh map data.");
     int errorCount = 0;
     try (Transaction jobTransaction = database.beginTransaction()) {
       try {
-        //        database
-        //            .sqlQuery(
-        //                "select distinct on (endpoint) endpoint, geojson "
-        //                    + "from map_data "
-        //                    + "order by endpoint, last_updated DESC;")
-        //            .findEachRow(
-        //                (resultSet, rowNum) -> {
-        //                  String endpoint = resultSet.getString("endpoint");
-        //                  // hit map api
-        //                  // compare new geojson to old
-        //                  String old_geojson = resultSet.getString("geojson");
-        //                  // if different, insert a new row
-        //                });
-        logger.info("Try block for refreshing map data.");
+        geoJsonDataRepository.refreshGeoJson(geoJsonClient);
       } catch (RuntimeException e) {
         errorCount++;
         logger.error(e.getMessage(), e);
       }
 
       if (errorCount == 0) {
-        System.out.println("Finished MapRefreshJob!");
         logger.info("Finished refreshing map data.");
         jobTransaction.commit();
       } else {
-        System.out.println("Error in MapRefreshJob!");
         logger.error(
             "Failed to refresh map data. See previous logs for failures. Total failures: {0}",
             errorCount);
