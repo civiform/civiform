@@ -3,6 +3,7 @@ package modules;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -17,10 +18,7 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.CalculateEligibilityDeterminationJob;
-import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
-import durablejobs.jobs.CopyFileKeyForMultipleFileUpload;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -42,6 +40,7 @@ import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -117,6 +116,7 @@ public final class DurableJobModule extends AbstractModule {
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
       ApplicantService applicantService,
+      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -157,7 +157,8 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
         JobType.RECURRING,
         persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
+            new CalculateEligibilityDeterminationJob(
+                applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     return durableJobRegistry;
@@ -166,18 +167,10 @@ public final class DurableJobModule extends AbstractModule {
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository, Environment environment) {
+      CategoryRepository categoryRepository,
+      Environment environment,
+      Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
 
     // TODO(#8833): Remove job from registry once all category translations are in.
     durableJobRegistry.registerStartupJob(
@@ -185,12 +178,7 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ON_EACH_STARTUP,
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
-                categoryRepository, environment, persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new CopyFileKeyForMultipleFileUpload(persistedDurableJob));
+                categoryRepository, environment, persistedDurableJob, mapperProvider.get()));
 
     return durableJobRegistry;
   }

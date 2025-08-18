@@ -216,7 +216,7 @@ button.viewAndApplySr=Xem và đăng ký {0}
 # The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=Xem trong thẻ mới
 # The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
-button.viewInNewTabSr=View {0} in new tab
+button.viewInNewTabSr=Xem {0} trong thẻ mới
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -755,6 +755,17 @@ validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
 validation.dateBeyondAllowablePast=Vui lòng nhập một ngày trong vòng {0} năm qua
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Vui lòng nhập một ngày trong vòng {0} năm tới
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Ngày phải sau ngày hôm nay
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Ngày phải sau ngày {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Ngày phải trước ngày hôm nay
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Ngày phải trước ngày {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Ngày phải nằm trong khoảng từ ngày {0} đến {1}
+validation.currentDateRequired=Vui lòng nhập ngày hôm nay
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 — Tháng 1
 # A month option when selecting a specific date from a dropdown menu.
@@ -892,6 +903,15 @@ validation.numberNonInteger=Phải là số nguyên dương và chỉ có thể 
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.textTooShort=Phải có ít nhất {0} ký tự.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Có
+option.no=Không
+option.notSure=Không chắc
+option.maybe=Có thể
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1040,3 +1060,6 @@ session.extended.success=Đã gia hạn phiên thành công
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Không gia hạn được phiên
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

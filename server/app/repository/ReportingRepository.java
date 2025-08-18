@@ -119,9 +119,7 @@ public final class ReportingRepository {
 
   private static double getSecondsFromPgIntervalRowValue(SqlRow row, String key) {
     Object interval =
-        checkNotNull(
-            row.get(key),
-            String.format("Expected SqlRow to have key %s but not found in %s", key, row));
+        checkNotNull(row.get(key), "Expected SqlRow to have key %s but not found in %s", key, row);
 
     if (!(interval instanceof PGInterval pgInterval)) {
       throw new IllegalStateException(

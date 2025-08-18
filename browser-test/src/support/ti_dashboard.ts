@@ -184,7 +184,7 @@ export class TIDashboard {
 
   async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
     await this.page.fill('label:has-text("Day")', dobDay)
-    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.selectOption('#date-of-birth-month', dobMonth)
     await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
@@ -197,7 +197,7 @@ export class TIDashboard {
   ) {
     await this.page.fill('label:has-text("Search by name(s)")', name)
     await this.page.fill('label:has-text("Day")', dobDay)
-    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.selectOption('#date-of-birth-month', dobMonth)
     await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
@@ -274,17 +274,17 @@ export class TIDashboard {
   ) {
     if (missingMonth) {
       expect(
-        this.page.locator('#date_of_birth_month .usa-input--error'),
+        this.page.locator('#date-of-birth-month .usa-input--error'),
       ).not.toBeNull()
     }
     if (missingDay) {
       expect(
-        this.page.locator('#date_of_birth_day .usa-input--error'),
+        this.page.locator('#date-of-birth-day .usa-input--error'),
       ).not.toBeNull()
     }
     if (missingYear) {
       expect(
-        this.page.locator('#date_of_birth_year .usa-input--error'),
+        this.page.locator('#date-of-birth-year .usa-input--error'),
       ).not.toBeNull()
     }
   }

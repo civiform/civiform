@@ -1,5 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, enableFeatureFlag} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -15,8 +20,6 @@ test.describe(
     const draftQuestionText = `${questionText} new version`
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
-
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
@@ -130,15 +133,13 @@ test.describe(
 )
 
 test.describe('publishing all programs with universal questions feature flag on', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
-
-  test('shows a modal with information about universal questions', async ({
+  test('shows a modal with information about universal questions - pre-northstar', async ({
     page,
     adminPrograms,
     adminQuestions,
   }) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+
     const programOne = 'program one'
     const programTwo = 'program two'
     const nameQuestion = 'name'
@@ -206,4 +207,83 @@ test.describe('publishing all programs with universal questions feature flag on'
       await adminPrograms.expectActiveProgram(programTwo)
     })
   })
+
+  test(
+    'shows a modal with information about universal questions',
+    {tag: ['@northstar']},
+    async ({page, adminPrograms, adminQuestions}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      const programOne = 'program one'
+      const programTwo = 'program two'
+      const nameQuestion = 'name'
+      const textQuestion = 'text'
+      const addressQuestion = 'address'
+
+      await loginAsAdmin(page)
+
+      await test.step('Create programs', async () => {
+        await adminPrograms.addProgram(programOne)
+        await adminPrograms.addProgram(programTwo)
+      })
+
+      await test.step('Create questions', async () => {
+        await adminQuestions.addNameQuestion({
+          questionName: nameQuestion,
+          universal: true,
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: textQuestion,
+          universal: true,
+        })
+
+        await adminQuestions.addAddressQuestion({
+          questionName: addressQuestion,
+          universal: false,
+        })
+      })
+
+      await test.step('Add questions to programs', async () => {
+        await adminPrograms.gotoEditDraftProgramPage(programOne)
+        await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+        await adminPrograms.addQuestionFromQuestionBank(textQuestion)
+        await adminPrograms.gotoEditDraftProgramPage(programTwo)
+        await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+        await adminPrograms.addQuestionFromQuestionBank(addressQuestion)
+      })
+
+      await test.step('Trigger the modal', async () => {
+        await adminPrograms.gotoAdminProgramsPage()
+
+        await page.locator('#publish-all-programs-modal-button').click()
+
+        await expect(page.locator('#publish-all-programs-modal')).toContainText(
+          'program one (Publicly visible) - Contains all universal questions',
+        )
+
+        await expect(page.locator('#publish-all-programs-modal')).toContainText(
+          'program two (Publicly visible) - Contains 1 of 2 universal questions',
+        )
+
+        await validateScreenshot(
+          page,
+          'publish-all-programs-modal-with-uq-northstar',
+        )
+      })
+
+      await test.step('Publish the programs', async () => {
+        await adminQuestions.clickSubmitButtonAndNavigate(
+          'Publish all draft programs and questions',
+        )
+      })
+
+      await test.step('Assert program data', async () => {
+        await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
+        await adminPrograms.expectDoesNotHaveDraftProgram(programTwo)
+        await adminPrograms.expectActiveProgram(programOne)
+        await adminPrograms.expectActiveProgram(programTwo)
+      })
+    },
+  )
 })

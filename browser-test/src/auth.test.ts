@@ -8,14 +8,15 @@ import {
   loginAsAdmin,
   validateAccessibility,
   validateToastMessage,
-  enableFeatureFlag,
+  disableFeatureFlag,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
 test.describe('Applicant auth', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
+
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')

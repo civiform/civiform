@@ -9,15 +9,12 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -25,7 +22,6 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
-import j2html.tags.specialized.UlTag;
 import java.util.Objects;
 import java.util.Optional;
 import play.mvc.Http;
@@ -34,31 +30,17 @@ import services.RandomStringUtils;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
-import services.question.QuestionOption;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
-import views.ViewUtils;
+import views.admin.QuestionCard;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.components.SvgTag;
-import views.components.TextFormatter;
 import views.questiontypes.RadioButtonQuestionRenderer;
-import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
-  private final SettingsManifest settingsManifest;
-
-  @Inject
-  AdminImportViewPartial(SettingsManifest settingsManifest) {
-    this.settingsManifest = settingsManifest;
-  }
-
   /**
    * The ID for the div containing the imported program data. Must be applied to the top-level DOM
    * element of each partial so that replacement works correctly.
@@ -86,11 +68,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * @param program the program definition to be imported
    * @param questions the list of question definitions associated with the program
    * @param duplicateQuestionNames list of question names that are duplicates of existing questions
-   * @param updatedQuestionsMap map of original question names to their updated question definitions
-   *     (TODO: #9628 - remove this param)
    * @param json the JSON representation of the program being imported
-   * @param withDuplicates whether to handle duplicate questions in the import (TODO: #9628 - remove
-   *     this param)
    * @return the rendered HTML content for the program data
    */
   public DomContent renderProgramData(
@@ -98,42 +76,17 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> duplicateQuestionNames,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
-      String json,
-      boolean withDuplicates) {
+      String json) {
 
-    boolean duplicateHandlingOptionsEnabled =
-        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+    DivTag questionAlert = buildQuestionAlert(questions, duplicateQuestionNames);
 
-    ImmutableMap<String, String> newToOldQuestionNameMap =
-        getNewToOldQuestionAdminNameMap(updatedQuestionsMap);
-
-    DivTag questionAlert =
-        buildQuestionAlert(
-            questions,
-            updatedQuestionsMap,
-            newToOldQuestionNameMap,
-            duplicateQuestionNames,
-            withDuplicates,
-            duplicateHandlingOptionsEnabled);
-
-    DivTag programDiv =
-        duplicateHandlingOptionsEnabled
-            ? renderProgramDiv(program, questionAlert, questions)
-            : renderProgramDivLegacyUi(program, questionAlert, updatedQuestionsMap);
+    DivTag programDiv = renderProgramDiv(program, questionAlert, questions);
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
-
-    if (withDuplicates && !duplicateHandlingOptionsEnabled && !updatedQuestionsMap.isEmpty()) {
-      questionsById =
-          updatedQuestionsMap.values().stream()
-              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
-    }
 
     // If there are no questions in the program, the "questions" field will not be included in the
     // JSON and questions will be null here.
-    // With the legacy migration flag, or the new UI/duplicate-handling flag, we use the regular
-    // questions definition to construct this map.
-    if ((duplicateHandlingOptionsEnabled || !withDuplicates) && questions != null) {
+    // We use the regular questions definition to construct this map.
+    if (questions != null) {
       questionsById =
           questions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -165,27 +118,17 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .setValue(json)
                     .getTextareaTag()
                     .withClass("hidden"))
-            .condWith(!duplicateHandlingOptionsEnabled, formButtons)
             .condWith(
-                duplicateHandlingOptionsEnabled && duplicateQuestionNames.size() > 1,
-                renderToplevelDuplicateQuestionHandlingOptions())
+                duplicateQuestionNames.size() > 1, renderToplevelDuplicateQuestionHandlingOptions())
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
     for (BlockDefinition block : program.blockDefinitions()) {
       // Before the duplicate-handling UI is launched, we still keep the form separate (solely for
       // JSON), and display everything else in a regular div ahead of it.
-      (duplicateHandlingOptionsEnabled ? programForm : programDiv)
-          .with(
-              renderProgramBlock(
-                  block,
-                  questionsById,
-                  duplicateQuestionNames,
-                  newToOldQuestionNameMap,
-                  withDuplicates,
-                  duplicateHandlingOptionsEnabled));
+      programForm.with(renderProgramBlock(block, questionsById, duplicateQuestionNames));
     }
 
-    return programDiv.with(programForm.condWith(duplicateHandlingOptionsEnabled, formButtons));
+    return programDiv.with(programForm.with(formButtons));
   }
 
   /** Renders a top-level program container. */
@@ -197,7 +140,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withId(PROGRAM_DATA_ID)
         .with(
             h3("Program preview"),
-            AlertComponent.renderSlimAlert(
+            AlertComponent.renderSlimInfoAlert(
                 /* text= */ "Please review the program name and details before saving.",
                 /* classes...= */ "mb-2"))
         .condWith(!questions.isEmpty(), questionAlert)
@@ -206,35 +149,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             h4("Admin name: " + program.adminName()).withClass("mb-2"));
   }
 
-  /**
-   * Renders a top-level program container with the legacy UI (before duplicate handling options).
-   */
-  private DivTag renderProgramDivLegacyUi(
-      ProgramDefinition program,
-      DivTag questionAlert,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    return div()
-        .withId(PROGRAM_DATA_ID)
-        .with(
-            h3("Program preview"),
-            AlertComponent.renderFullAlert(
-                /* text= */ "Please review the program name and details before saving.",
-                /* classes...= */ "mb-2"))
-        .condWith(!updatedQuestionsMap.isEmpty(), questionAlert)
-        .with(
-            h4("Program name: " + program.localizedName().getDefault()).withClass("mb-2"),
-            h4("Admin name: " + program.adminName()).withClass("mb-2"));
-  }
-
   /** Renders a message saying the program was successfully saved. */
-  public DomContent renderProgramSaved(Http.Request request, String programName, Long programId) {
+  public DomContent renderProgramSaved(String programName, Long programId) {
     String successText =
         programName
             + " and its questions have been imported to your program dashboard. To view it,  visit"
             + " the program dashboard.";
-    if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
-      successText += " Before you import another program, you will need to publish all drafts.";
-    }
     return div()
         .with(
             AlertComponent.renderFullAlert(
@@ -248,9 +168,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     asRedirectElement(
                             button("View program"),
                             routes.AdminProgramBlocksController.index(programId).url())
-                        .withClasses("usa-button", "mr-2"))
-                .condWith(
-                    !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request),
+                        .withClasses("usa-button", "mr-2"),
                     asRedirectElement(
                             button("Import another program"),
                             routes.AdminImportController.index().url())
@@ -258,191 +176,57 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 .withClasses("flex", "my-5"));
   }
 
-  private ImmutableMap<String, String> getNewToOldQuestionAdminNameMap(
-      ImmutableMap<String, QuestionDefinition> questions) {
-    return questions.entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(
-                entry -> entry.getValue().getName(), entry -> entry.getKey()));
-  }
-
   private DivTag buildQuestionAlert(
-      ImmutableList<QuestionDefinition> questions,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
-      ImmutableMap<String, String> newToOldQuestionNameMap,
-      ImmutableList<String> duplicateQuestionNames,
-      boolean withDuplicates,
-      boolean withDuplicateHandlingOptions) {
-    int numDuplicateQuestions =
-        withDuplicateHandlingOptions
-            ? duplicateQuestionNames.size()
-            : countDuplicateQuestions(newToOldQuestionNameMap);
-    int numNewQuestions =
-        withDuplicateHandlingOptions
-            ? questions.size() - numDuplicateQuestions
-            : updatedQuestionsMap.size() - numDuplicateQuestions;
+      ImmutableList<QuestionDefinition> questions, ImmutableList<String> duplicateQuestionNames) {
+    int numDuplicateQuestions = duplicateQuestionNames.size();
+    int numNewQuestions = questions.size() - numDuplicateQuestions;
 
     AlertType alertType = AlertType.INFO;
     String alertMessage = "";
 
-    if (withDuplicateHandlingOptions) {
-      alertMessage += "This program ";
-      if (numNewQuestions > 0) {
-        alertMessage +=
-            String.format(
-                "will add %d new question%s to the question bank",
-                numNewQuestions, numNewQuestions > 1 ? "s" : "");
-        if (numDuplicateQuestions > 0) {
-          alertMessage += " and ";
-        }
-      }
-      if (numDuplicateQuestions > 0) {
-        alertType = AlertType.WARNING;
-        alertMessage +=
-            String.format(
-                "contains %d duplicate question%s that must be resolved",
-                numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
-      }
-      alertMessage += ".";
-      return AlertComponent.renderSlimAlert(
-          alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
-    }
-    if (withDuplicates || numNewQuestions > 0) {
-      alertMessage += "Importing this program will add ";
-    }
-
+    alertMessage += "This program ";
     if (numNewQuestions > 0) {
-      alertMessage += buildAlertWithNewQuestions(numNewQuestions);
-
+      alertMessage +=
+          String.format(
+              "will add %d new question%s to the question bank",
+              numNewQuestions, numNewQuestions > 1 ? "s" : "");
       if (numDuplicateQuestions > 0) {
-        alertMessage += withDuplicates ? " and " : " to the question bank. ";
-      } else if (withDuplicates || numDuplicateQuestions == 0) {
-        alertMessage += " to the question bank.";
+        alertMessage += " and ";
       }
     }
     if (numDuplicateQuestions > 0) {
       alertType = AlertType.WARNING;
-      if (withDuplicates) {
-        alertMessage += addDuplicateMessageToAlert(numDuplicateQuestions);
-      } else {
-        alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
-      }
+      alertMessage +=
+          String.format(
+              "contains %d duplicate question%s that must be resolved",
+              numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
     }
-
-    return AlertComponent.renderFullAlert(
-        alertType,
-        alertMessage,
-        /* title= */ Optional.empty(),
-        /* hidden= */ false,
-        /* classes...= */ "");
-  }
-
-  private String buildAlertWithNewQuestions(int numNewQuestions) {
-    return String.format("%s new question%s", numNewQuestions, numNewQuestions > 1 ? "s" : "");
-  }
-
-  private String addDuplicateMessageToAlert(int numDuplicateQuestions) {
-    return String.format(
-        "%s duplicate question%s to the question bank.",
-        numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
-  }
-
-  private String addExistingMessageToAlert(int numExistingQuestions) {
-    boolean plural = numExistingQuestions > 1;
-    String makePlural = plural ? "s" : "";
-    return String.format(
-        "There %s %s existing question%s that will appear as draft%s in the question bank.",
-        plural ? "are" : "is", numExistingQuestions, makePlural, makePlural);
-  }
-
-  private int countDuplicateQuestions(ImmutableMap<String, String> newToOldQuestionNameMap) {
-    return newToOldQuestionNameMap.entrySet().stream()
-        .filter(question -> !question.getKey().equals(question.getValue()))
-        .collect(ImmutableList.toImmutableList())
-        .size();
+    alertMessage += ".";
+    return AlertComponent.renderSlimAlert(
+        alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
   }
 
   private DomContent renderProgramBlock(
       BlockDefinition block,
       ImmutableMap<Long, QuestionDefinition> questionsById,
-      ImmutableList<String> duplicateQuestionNames,
-      ImmutableMap<String, String> newToOldQuestionNameMap,
-      boolean withDuplicates,
-      boolean withDuplicateHandlingOptions) {
+      ImmutableList<String> duplicateQuestionNames) {
     DivTag blockDiv =
-        withDuplicateHandlingOptions
-            ? div()
-                .withClasses("border-t", "border-gray-200", "pt-2")
-                .with(h4(block.name()).withClasses("font-semibold"), p(block.description()))
-            : div()
-                .withClasses("border", "border-gray-200", "p-2")
-                .with(h4(block.name()), p(block.description()));
+        div()
+            .withClasses("border-t", "border-gray-200", "pt-2")
+            .with(h4(block.name()).withClasses("font-semibold"), p(block.description()));
     // TODO: #7087 - Display eligibility and visibility predicates.
 
     if (!questionsById.isEmpty()) {
       for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
         blockDiv.with(
-            withDuplicateHandlingOptions
-                ? renderQuestionCard(
-                    Objects.requireNonNull(questionsById.get(question.id())),
-                    duplicateQuestionNames)
-                : renderQuestion(
-                    Objects.requireNonNull(questionsById.get(question.id())),
-                    newToOldQuestionNameMap,
-                    withDuplicates));
+            renderQuestionCard(
+                Objects.requireNonNull(questionsById.get(question.id())),
+                duplicateQuestionNames,
+                questionsById));
       }
     }
 
     return blockDiv;
-  }
-
-  private DomContent renderQuestion(
-      QuestionDefinition question,
-      ImmutableMap<String, String> newToOldQuestionNameMap,
-      boolean withDuplicates) {
-    String currentAdminName = question.getName();
-    boolean questionIsDuplicate =
-        !currentAdminName.equals(newToOldQuestionNameMap.get(currentAdminName));
-
-    String duplicateOrExistingText = withDuplicates ? "DUPLICATE QUESTION" : "EXISTING QUESTION";
-
-    DivTag newOrDuplicateIndicator =
-        questionIsDuplicate
-            ? div(p(duplicateOrExistingText).withClass("p-2"))
-                .withClasses("bg-yellow-100", "w-44", "flex", "justify-center")
-            : div(p("NEW QUESTION").withClass("p-2"))
-                .withClasses("bg-cyan-100", "w-32", "flex", "justify-center");
-    DivTag questionDiv =
-        div()
-            .withClasses("p-2")
-            .with(
-                newOrDuplicateIndicator,
-                div()
-                    .with(
-                        TextFormatter.formatTextForAdmins(question.getQuestionText().getDefault()))
-                    .withClass("font-bold")
-                    .withData("testid", "question-div"));
-    if (!question.getQuestionHelpText().isEmpty()) {
-      questionDiv.with(
-          TextFormatter.formatTextForAdmins(question.getQuestionHelpText().getDefault()));
-    }
-
-    questionDiv.with(
-        p("Admin name: " + question.getName()),
-        p("Admin description: " + question.getDescription()),
-        p("Question type: " + question.getQuestionType().name()));
-
-    // If a question offers options, show them
-    if (question.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-      UlTag optionList = ul().withClasses("list-disc", "ml-10");
-      for (QuestionOption option : multiOption.getOptions()) {
-        optionList.with(li(option.optionText().getDefault()));
-      }
-      questionDiv.with(optionList);
-    }
-
-    return questionDiv;
   }
 
   /**
@@ -450,83 +234,30 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * should be shown next to the question in the list of questions.
    */
   private DivTag renderQuestionCard(
-      QuestionDefinition questionDefinition, ImmutableList<String> duplicateQuestionNames) {
-    String adminName = questionDefinition.getName();
-    boolean questionIsUniversal = questionDefinition.isUniversal();
-    boolean questionIsDuplicate = duplicateQuestionNames.contains(adminName);
+      QuestionDefinition questionDefinition,
+      ImmutableList<String> duplicateQuestionNames,
+      ImmutableMap<Long, QuestionDefinition> questionsById) {
+    // We use the old admin name (the one inputted by the admin) rather than the de-duped suffixed
+    // name, since the admin has not yet decided how to handle this duplicate question. In the event
+    // they choose to create a new duplicate, then the de-duped suffixed name will be used by the
+    // backend to create a new question.
+    boolean questionIsDuplicate = duplicateQuestionNames.contains(questionDefinition.getName());
+    boolean questionIsRepeated = questionDefinition.getEnumeratorId().isPresent();
 
-    // TODO: #9628 - The classes below are copied from the Question Card-rendering method in
-    // ProgramBlockView. We should consider factoring out the card rendering logic to a common
-    // helper method to limit the potential for diverging styles.
-    DivTag cardDiv =
-        div()
-            // We use the old admin name (the one inputted by the admin) rather than the de-duped
-            // suffixed name, since the admin has not yet decided how to handle this duplicate
-            // question. In the event they choose to create a new duplicate, then the de-duped
-            // suffixed name will be used by the backend to create a new question.
-            .withData("testid", "question-admin-name-" + adminName)
-            .withClasses(
-                ReferenceClasses.PROGRAM_QUESTION,
-                "my-2",
-                "px-4",
-                "py-2",
-                "items-center",
-                "rounded-md",
-                "border",
-                StyleUtils.hover("text-gray-800", "bg-gray-100"))
-            .with(
-                div()
-                    .condWith(
-                        questionIsUniversal,
-                        ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
-                    .with(
-                        questionIsDuplicate ? makeDuplicateQuestionBadge() : makeNewQuestionBadge())
-                    .withClasses("flex", "mt-2", "mb-4"));
-
-    SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType())
-            .withClasses("shrink-0", "h-12", "w-6");
-    String questionHelpText =
-        questionDefinition.getQuestionHelpText().isEmpty()
-            ? ""
-            : questionDefinition.getQuestionHelpText().getDefault();
-
-    DivTag content =
-        div()
-            .withClass("flex-grow")
-            .with(
-                div()
-                    .with(
-                        TextFormatter.formatTextForAdmins(
-                            questionDefinition.getQuestionText().getDefault()))
-                    .withData("testid", "question-div"),
-                div()
-                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
-                    .withClasses("mt-1", "text-sm"),
-                p(String.format("Admin ID: %s", adminName)).withClasses("mt-1", "text-sm"))
-            .condWith(
-                questionDefinition.getQuestionType().isMultiOptionType(),
-                questionDefinition.getQuestionType().isMultiOptionType()
-                    ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
-                    : null);
-
-    // TODO: #9628 - If this is a repeated Q, and its parent is a duplicate for which the admin opts
-    // to create a new admin name, then we should dynamically add a badge here that indicates this
-    // Q's parent will *not* be the existing parent, but rather this new duplicated enumerator Q.
-    DivTag row =
-        div()
-            .withClasses("flex", "gap-4", "items-center")
-            .with(icon, content)
-            .condWith(questionIsDuplicate, renderDuplicateQuestionHandlingOptions(adminName));
-    return cardDiv.with(row);
-  }
-
-  private static UlTag getOptions(MultiOptionQuestionDefinition question) {
-    UlTag options = ul().withClasses("list-disc", "mx-4", "mt-2");
-    for (QuestionOption option : question.getOptions()) {
-      options.with(li(option.optionText().getDefault()));
-    }
-    return options;
+    return QuestionCard.renderForImport(
+            questionDefinition,
+            questionIsDuplicate ? makeDuplicateQuestionBadge() : makeNewQuestionBadge(),
+            questionIsDuplicate
+                ? Optional.of(renderDuplicateQuestionHandlingOptions(questionDefinition))
+                : Optional.empty())
+        .withCondData(
+            questionIsRepeated,
+            "enumerator",
+            // Ternary operator to short-circuit, since otherwise `withCondData` would evaluate
+            // a null expression
+            questionIsRepeated
+                ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
+                : "");
   }
 
   private static DivTag makeDuplicateQuestionBadge(String... classes) {
@@ -572,7 +303,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .withData("testid", "toplevel-duplicate-handling")
         .with(
             legend("How do you want to handle all duplicate questions?")
-                .withClasses("usa-legend", "font-semibold", "text-base"),
+                .withClasses("usa-legend", "font-semibold", "font-sans-xs"),
             div("Selecting an option for any individual question will override this selection")
                 .withClasses("text-gray-500"),
             renderRadioOption(
@@ -601,19 +332,34 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    * Radio group for handling a duplicate question. Renders with USWDS style. We prefer this to
    * {@link RadioButtonQuestionRenderer} for higher information density.
    *
-   * @param adminName the admin name of the question, used for both the cross-link to the question
-   *     bank and the HTML form data specifying how to handle this duplicate question.
+   * @param question the question for which duplicate-handling options should be rendered
    * @return a radio group with options for how to handle the duplicate question.
    */
-  private static FieldsetTag renderDuplicateQuestionHandlingOptions(String adminName) {
+  private static FieldsetTag renderDuplicateQuestionHandlingOptions(QuestionDefinition question) {
+    String adminName = question.getName();
     return fieldset()
         .withName(AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX)
         .withClasses("usa-fieldset", "shrink-0", "mb-4")
         .with(
             legend("How do you want to handle this duplicate question?")
-                .withClasses("usa-legend", "font-semibold", "text-base"),
-            // TODO: #9628 - Add dynamic disabling for the "use existing" options if this question
-            // has a parent enumerator question that is being duplicated with a new admin name
+                .withClasses("usa-legend", "font-semibold", "font-sans-xs"))
+        .condWith(
+            question.isEnumerator(),
+            AlertComponent.renderSlimInfoAlert(
+                "Duplicate repeated questions of this enumerator will also be set to 'Create a new"
+                    + " duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .condWith(
+            question.isRepeated(),
+            AlertComponent.renderSlimInfoAlert(
+                "Some options are disabled because the associated enumerator is set to 'Create a"
+                    + " new duplicate question.'",
+                /* hidden= */ true,
+                /* classes...= */ "mb-2",
+                "repeated-disabled-warning"))
+        .with(
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "USE_EXISTING",
@@ -660,7 +406,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     LabelTag labelTag =
         label()
             .withFor(id)
-            .withClasses("usa-radio__label", "inline-block", "w-full", "h-full", "text-base")
+            .withClasses("usa-radio__label", "inline-block", "w-full", "h-full", "font-sans-xs")
             .with(text);
 
     // A fully-styled USWDS radio would include the "usa-radio" class. However, we omit it to avoid

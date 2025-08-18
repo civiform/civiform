@@ -11,6 +11,7 @@ public final class Models {
       ImmutableList.of(
           AccountModel.class,
           ApiKeyModel.class,
+          ApiBridgeConfigurationModel.class,
           ApplicantModel.class,
           ApplicationModel.class,
           ApplicationEventModel.class,
@@ -22,7 +23,8 @@ public final class Models {
           TrustedIntermediaryGroupModel.class,
           VersionModel.class,
           SettingsGroupModel.class,
-          ApplicationStatusesModel.class);
+          ApplicationStatusesModel.class,
+          GeoJsonDataModel.class);
 
   /** Get the complete list of ebean models to truncate. */
   public static void truncate(Database database) {

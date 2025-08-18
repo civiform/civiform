@@ -32,12 +32,12 @@ import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -65,15 +65,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -107,7 +110,8 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index(Optional.empty())
                                 .url(),
-                            /* isPrimaryButton= */ true)),
+                            /* isPrimaryButton= */ true,
+                            settingsManifest)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
@@ -210,11 +214,9 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using Universal questions in your program for all personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(universalQuestionContent));
     }
     questionContent.with(
@@ -775,8 +777,8 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
-      case PENDING_DELETION:
+    return switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION -> {
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
@@ -785,8 +787,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
-        return Pair.of(unarchiveButton, Optional.empty());
-      case DELETABLE:
+        yield Pair.of(unarchiveButton, Optional.empty());
+      }
+      case DELETABLE -> {
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
         ButtonTag archiveButton =
@@ -795,8 +798,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
-        return Pair.of(archiveButton, Optional.empty());
-      default:
+        yield Pair.of(archiveButton, Optional.empty());
+      }
+      case NOT_ACTIVE, NOT_DELETABLE -> {
         DivTag modalHeader =
             div()
                 .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
@@ -815,7 +819,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
-        return Pair.of(cantArchiveButton, maybeModal);
-    }
+        yield Pair.of(cantArchiveButton, maybeModal);
+      }
+    };
   }
 }

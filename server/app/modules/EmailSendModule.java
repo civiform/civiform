@@ -33,12 +33,8 @@ public class EmailSendModule extends AbstractModule {
     }
 
     switch (emailSendProvider) {
-      case AWS_SES:
-        bind(EmailSendClient.class).to(SimpleEmail.class);
-        break;
-      case GRAPH_API:
-        bind(EmailSendClient.class).to(GraphApiEmailClient.class);
-        break;
+      case AWS_SES -> bind(EmailSendClient.class).to(SimpleEmail.class);
+      case GRAPH_API -> bind(EmailSendClient.class).to(GraphApiEmailClient.class);
     }
   }
 }

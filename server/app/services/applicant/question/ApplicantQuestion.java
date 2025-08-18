@@ -292,6 +292,10 @@ public final class ApplicantQuestion {
     return new IdQuestion(this);
   }
 
+  public MapQuestion createMapQuestion() {
+    return new MapQuestion(this);
+  }
+
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
   }
@@ -333,9 +337,10 @@ public final class ApplicantQuestion {
       case EMAIL -> createEmailQuestion();
       case FILEUPLOAD -> createFileUploadQuestion();
       case ID -> createIdQuestion();
+      case MAP -> createMapQuestion();
       case NAME -> createNameQuestion();
       case NUMBER -> createNumberQuestion(); // fallthrough to RADIO_BUTTON
-      case DROPDOWN, RADIO_BUTTON -> createSingleSelectQuestion();
+      case DROPDOWN, RADIO_BUTTON, YES_NO -> createSingleSelectQuestion();
       case ENUMERATOR -> createEnumeratorQuestion();
       case TEXT -> createTextQuestion();
       case STATIC -> createStaticContentQuestion();

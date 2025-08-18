@@ -16,10 +16,12 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
+import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -43,6 +45,8 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.routing.Router;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
@@ -87,6 +91,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
   private final MessagesApi messagesApi;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantLayout(
@@ -99,7 +104,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
       PageNotProductionBanner pageNotProductionBanner,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ApplicantRoutes applicantRoutes) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -108,6 +114,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
     this.messagesApi = checkNotNull(messagesApi);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Override
@@ -247,7 +254,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                                     StyleUtils.joinStyles(ApplicantStyles.LINK, "cursor-pointer"))))
                 .with(
                     div(
-                            getLanguageForm(request, messages, applicantId),
+                            getLanguageForm(request, messages, profile, applicantId),
                             authDisplaySection(applicantPersonalInfo, profile, messages))
                         .withClasses(
                             "flex",
@@ -263,7 +270,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag<?> getLanguageForm(
-      Http.Request request, Messages messages, Optional<Long> applicantId) {
+      Http.Request request,
+      Messages messages,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
     String updateLanguageAction =
@@ -277,7 +287,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-    InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+    InputTag redirectInput =
+        input()
+            .isHidden()
+            .withValue(getUpdateLanguageRedirectUri(request, profile, applicantId))
+            .withName("redirectLink");
     String preferredLanguage = languageUtils.getPreferredLanguage(request).code();
     SelectTag languageDropdown =
         languageSelector
@@ -293,6 +307,48 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(languageDropdown)
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     return languageFormDiv;
+  }
+
+  /**
+   * Calculate the redirect location after the language is changed. If the current request is a
+   * POST, the redirect is be mapped to the associated GET uri.
+   */
+  private String getUpdateLanguageRedirectUri(
+      Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
+    // Default to the current request if it is not a POST or a redirect can't be constructed.
+    if (!request.method().equals("POST")
+        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      return request.uri();
+    }
+    RouteExtractor routeExtractor = new RouteExtractor(request);
+    if (!routeExtractor.containsKey("programId")) {
+      return request.uri();
+    }
+
+    long programId = routeExtractor.getParamLongValue("programId");
+    // If the language was changed during /submit, redirect to /review
+    if (request.path().contains("submit")) {
+      String submitRedirectUri =
+          applicantId.isPresent() && profile.isPresent()
+              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.review(programId).url();
+      return submitRedirectUri;
+    }
+    // If the language was changed during a block update, redirect to /block/edit or /block/review
+    if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
+      boolean inReview =
+          routeExtractor.containsKey("inReview")
+              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              profile.get(),
+              applicantId.get(),
+              programId,
+              routeExtractor.getParamStringValue("blockId"),
+              inReview)
+          .url();
+    }
+    return request.uri();
   }
 
   private ATag branding(Http.Request request) {

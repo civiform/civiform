@@ -1,7 +1,15 @@
 import {test, expect} from './support/civiform_fixtures'
-import {validateAccessibility, validateScreenshot} from './support'
+import {
+  disableFeatureFlag,
+  validateAccessibility,
+  validateScreenshot,
+} from './support'
 
 test.describe('the footer', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('does not have civiform version when feature flag is disabled', async ({
     page,
   }) => {

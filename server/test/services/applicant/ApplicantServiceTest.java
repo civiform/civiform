@@ -320,7 +320,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(numberPath.toString(), "4")
-            .put(dropdownPath.toString(), "chocolate")
+            // Radio values are their id's not their visible text.
+            .put(dropdownPath.toString(), "1")
             .build();
 
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
@@ -334,7 +335,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder()
             .put(numberPath.toString(), "")
-            .put(dropdownPath.toString(), "strawberry")
+            .put(dropdownPath.toString(), "2")
             .build();
 
     // Then, try to remove the answer to one question, and change the value of another. Neither
@@ -348,7 +349,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantData.readLong(numberPath)).contains(4l);
-    assertThat(applicantData.readString(dropdownPath)).contains("chocolate");
+    assertThat(applicantData.readString(dropdownPath)).contains("1");
   }
 
   @Test
@@ -2174,16 +2175,16 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
-            result.commonIntakeForm().get(),
+            result.preScreenerForm().get(),
             result.inProgress().get(0),
             result.submitted().get(0),
             result.unapplied().get(0),
             result.unapplied().get(1));
-    assertThat(result.inProgressIncludingCommonIntake().stream().map(p -> p.program().id()))
+    assertThat(result.inProgressIncludingPreScreener().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(commonIntakeForm.id, programForDraft.id);
   }
 
@@ -2218,8 +2219,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.allPrograms().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
             commonIntakeForm.id, program1.id, program2.id, program3.id, programDefinition.id());
@@ -2276,7 +2277,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isFalse();
+    assertThat(result.preScreenerForm().isPresent()).isFalse();
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
             result.inProgress().get(0),
@@ -2304,9 +2305,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isFalse();
 
     // CIF application in progress.
@@ -2323,11 +2324,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isTrue();
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().get())
         .isEqualTo(LifecycleStage.DRAFT);
 
     // CIF application submitted.
@@ -2480,7 +2481,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_externalProgram() {
+  public void relevantProgramsForApplicant_externalProgram_NorthStar() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel externalProgram =
         ProgramBuilder.newActiveProgram(
@@ -2491,10 +2492,14 @@ public class ApplicantServiceTest extends ResetPostgres {
                 ProgramType.EXTERNAL)
             .build();
 
-    // External program is not included in 'unapplied' list when request does not have the feature
+    // External program is not included in 'unapplied' list when request does not have the external
+    // program card feature
     // enabled
     Request request =
-        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false").build();
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
+            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false")
+            .build();
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
@@ -2504,9 +2509,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
 
-    // External program is included in 'unapplied' list when request has the feature enabled
+    // External program is included in 'unapplied' list when request has external program card and
+    // North Star features enabled
     Request requestWithFeature =
-        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true").build();
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
+            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true")
+            .build();
     ApplicantService.ApplicationPrograms resultWithFeature =
         subject
             .relevantProgramsForApplicant(
@@ -2515,6 +2524,30 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(resultWithFeature.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(externalProgram.id, programDefinition.id());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_externalProgram() {
+    ApplicantModel applicant = createTestApplicant();
+    ProgramBuilder.newActiveProgram(
+            "External Program", "External Program", "", DisplayMode.PUBLIC, ProgramType.EXTERNAL)
+        .build();
+
+    // External program is not included in 'unapplied' list when North Star is disabled, regardless
+    // of external program card feature being enabled
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
+            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true")
+            .build();
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
+            .toCompletableFuture()
+            .join();
+    // programDefinition is created during test set up.
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
   }
 
   @Test
@@ -4442,5 +4475,96 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isTrue();
     assertThat(eligibleApplication.getEligibilityDetermination())
         .isEqualTo(EligibilityDetermination.ELIGIBLE);
+  }
+
+  @Test
+  public void getLatestProgramId() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("program-a", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    // Start a draft application for the program
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, activeProgram.id)
+        .toCompletableFuture()
+        .join();
+    Optional<Long> result =
+        subject
+            .getLatestProgramId(activeProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(activeProgram.id);
+
+    // Submit the application for the program
+    applicationRepository
+        .submitApplication(
+            applicant, activeProgram, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
+    result =
+        subject
+            .getLatestProgramId(activeProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(activeProgram.id);
+  }
+
+  @Test
+  public void getLatestProgramId_whenProgramVersionChanges() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Create initial active program version
+    ProgramModel originalProgram = ProgramBuilder.newActiveProgram("program a", "desc").build();
+
+    // Start a draft application for the original program
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgram.id)
+        .toCompletableFuture()
+        .join();
+
+    // Create a new draft version of the program
+    ProgramBuilder.newDraftProgram("program a", "desc").build();
+
+    // Publish the new version, making it active
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Get the latest draft application for "program a"
+    Optional<Long> result =
+        subject
+            .getLatestProgramId(originalProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify the draft application is still associated with the original program version
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(originalProgram.id);
+  }
+
+  @Test
+  public void getLatestProgramId_whenNoApplication() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Optional<Long> result =
+        subject.getLatestProgramId(program.getSlug(), applicant.id).toCompletableFuture().join();
+
+    assertThat(result).isEmpty();
   }
 }

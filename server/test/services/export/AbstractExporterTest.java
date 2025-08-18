@@ -97,71 +97,71 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getQuestionDefinition()
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     switch (questionType) {
-      case ADDRESS:
-        QuestionAnswerer.answerAddressQuestion(
-            applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
+      case ADDRESS ->
+          QuestionAnswerer.answerAddressQuestion(
+              applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
+
         // applicant two did not answer this question.
-        break;
-      case CHECKBOX:
+      case CHECKBOX -> {
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 0, 1L);
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
         // applicant two did not answer this question.
-        break;
-      case CURRENCY:
-        QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
-        break;
-      case DATE:
-        QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
+      }
+      case CURRENCY ->
+          QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
+      case DATE -> QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
+
         // applicant two did not answer this question.
-        break;
-      case DROPDOWN:
-        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
+      case DROPDOWN ->
+          QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
+
         // applicant two did not answer this question.
-        break;
-      case EMAIL:
-        QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
+      case EMAIL ->
+          QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
+
         // applicant two did not answer this question.
-        break;
-      case FILEUPLOAD:
-        QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
+      case FILEUPLOAD ->
+          QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
+
         // applicant two did not answer this question.
-        break;
-      case ID:
+      case ID -> {
         QuestionAnswerer.answerIdQuestion(applicantDataOne, answerPath, "012");
         QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
-        break;
-      case NAME:
+      }
+      case NAME -> {
         QuestionAnswerer.answerNameQuestion(
             applicantDataOne, answerPath, "Alice", "M", "Appleton", "Jr");
         QuestionAnswerer.answerNameQuestion(
             applicantDataTwo, answerPath, "Bob", "M", "Baker", "Sr");
-        break;
-      case NUMBER:
-        QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
+      }
+      case NUMBER -> QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
+
         // applicant two did not answer this question.
-        break;
-      case RADIO_BUTTON:
-        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+      case RADIO_BUTTON ->
+          QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+
         // applicant two did not answer this question.
-        break;
-      case ENUMERATOR:
-        QuestionAnswerer.answerEnumeratorQuestion(
-            applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
+      case ENUMERATOR ->
+          QuestionAnswerer.answerEnumeratorQuestion(
+              applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
+
         // applicant two did not answer this question.
-        break;
-      case TEXT:
-        QuestionAnswerer.answerTextQuestion(
-            applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
+      case TEXT ->
+          QuestionAnswerer.answerTextQuestion(
+              applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
+
         // applicant two did not answer this question.
-        break;
-      case PHONE:
-        QuestionAnswerer.answerPhoneQuestion(applicantDataOne, answerPath, "US", "(615) 757-1010");
-        break;
-      case STATIC:
+      case PHONE ->
+          QuestionAnswerer.answerPhoneQuestion(
+              applicantDataOne, answerPath, "US", "(615) 757-1010");
+      case YES_NO -> QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+      case STATIC -> {
         // Do nothing.
-        break;
-      case NULL_QUESTION:
+      }
+        // TODO(#11007): Allow export of Map question data.
+      case MAP, NULL_QUESTION -> {
         // Do nothing.
+      }
     }
   }
 

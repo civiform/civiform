@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.cloud.StorageUploadRequest;
+import services.geojson.FeatureCollection;
 
 /** Contains necessary parameters for an applicant question renderer to render a question. */
 @AutoValue
@@ -66,9 +67,13 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Messages messages();
 
+  public abstract Optional<FeatureCollection> geoJson();
+
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
   public abstract Optional<Boolean> isNameSuffixEnabled();
+
+  public abstract Optional<Boolean> isYesNoQuestionEnabled();
 
   public abstract ErrorDisplayMode errorDisplayMode();
 
@@ -113,9 +118,13 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setIsNameSuffixEnabled(boolean isNameSuffixEnabled);
 
+    public abstract Builder setIsYesNoQuestionEnabled(boolean isYesNoQuestionEnabled);
+
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
     public abstract Builder setAutofocus(AutoFocusTarget autofocus);
+
+    public abstract Builder setGeoJson(FeatureCollection geoJson);
 
     public abstract ApplicantQuestionRendererParams build();
   }

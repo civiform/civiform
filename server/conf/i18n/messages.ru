@@ -216,7 +216,7 @@ button.viewAndApplySr=Узнать больше и подать заявку н�
 # The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=Открыть в новой вкладке
 # The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
-button.viewInNewTabSr=View {0} in new tab
+button.viewInNewTabSr=Открыть "{0}" в новой вкладке
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -755,6 +755,17 @@ validation.invalidDateFormat=Укажите дату в правильном ф�
 validation.dateBeyondAllowablePast=Допустимый период – последние {0} лет.
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Дата должна быть позже текущей.
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Дата должна быть позже {0}.
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Дата должна быть раньше текущей.
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Дата должна быть раньше {0}.
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Дата должна быть между {0} и {1}.
+validation.currentDateRequired=Введите сегодняшнюю дату.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -892,6 +903,15 @@ validation.numberNonInteger=Укажите положительное целое
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Максимально допустимое число символов: {0}.
 validation.textTooShort=Минимально допустимое число символов: {0}.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Да
+option.no=Нет
+option.notSure=Затрудняюсь ответить
+option.maybe=Возможно
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1040,3 +1060,6 @@ session.extended.success=Сеанс продлен.
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

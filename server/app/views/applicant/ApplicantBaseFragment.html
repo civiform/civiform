@@ -50,6 +50,13 @@
     th:src="${uswdsJsBundle}"
     type="text/javascript"
   ></script>
+  <link
+    th:if="${mapQuestionEnabled}"
+    th:href="${mapLibreGLStylesheet}"
+    type="text/css"
+    rel="stylesheet"
+    th:nonce="${cspNonce}"
+  />
 </th:block>
 
 <div th:fragment="requiredFieldsExplanation">

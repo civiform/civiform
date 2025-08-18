@@ -549,7 +549,7 @@ public final class ApplicantService {
                             .forEach(
                                 tag -> {
                                   switch (tag) {
-                                    case APPLICANT_NAME:
+                                    case APPLICANT_NAME -> {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
@@ -568,28 +568,23 @@ public final class ApplicantService {
                                           applicantData
                                               .readString(path.join(Scalar.NAME_SUFFIX))
                                               .orElse(""));
-                                      break;
-                                    case APPLICANT_EMAIL:
-                                      applicant.setEmailAddress(
-                                          applicantData
-                                              .readString(path.join(Scalar.EMAIL))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_PHONE:
-                                      // Country code is set automatically by setPhoneNumber
-                                      applicant.setPhoneNumber(
-                                          applicantData
-                                              .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_DOB:
-                                      applicant.setDateOfBirth(
-                                          applicantData
-                                              .readDate(path.join(Scalar.DATE))
-                                              .orElse(null));
-                                      break;
-                                    default:
-                                      break;
+                                    }
+                                    case APPLICANT_EMAIL ->
+                                        applicant.setEmailAddress(
+                                            applicantData
+                                                .readString(path.join(Scalar.EMAIL))
+                                                .orElse(""));
+                                    case APPLICANT_PHONE ->
+                                        // Country code is set automatically by setPhoneNumber
+                                        applicant.setPhoneNumber(
+                                            applicantData
+                                                .readString(path.join(Scalar.PHONE_NUMBER))
+                                                .orElse(""));
+                                    case APPLICANT_DOB ->
+                                        applicant.setDateOfBirth(
+                                            applicantData
+                                                .readDate(path.join(Scalar.DATE))
+                                                .orElse(null));
                                   }
                                 });
                       });
@@ -1113,7 +1108,7 @@ public final class ApplicantService {
    * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
-   *     <p>Does not include the Common Intake Form.
+   *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
    *     auth.CiviFormProfile)}.
    */
@@ -1160,6 +1155,15 @@ public final class ApplicantService {
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
+  }
+
+  /**
+   * Returns the program ID from the applicant's latest active or draft application for the
+   * specified program slug if one exists, or empty otherwise.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(String programSlug, long applicantId) {
+    return applicationRepository.getLatestProgramId(
+        applicantId, programSlug, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
   }
 
   private ApplicationPrograms relevantProgramsForApplicantInternal(
@@ -1232,7 +1236,7 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
             if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+              relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());
             }
@@ -1312,10 +1316,11 @@ public final class ApplicantService {
 
           ProgramType programType = program.programType();
           if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-            relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+            relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
+                  && settingsManifest.getExternalProgramCardsEnabled(request)
+                  && settingsManifest.getNorthStarApplicantUi(request))) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
@@ -1657,64 +1662,55 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
-          case PHONE_NUMBER:
+          case PHONE_NUMBER -> {
             try {
               applicantData.putPhoneNumber(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case CURRENCY_CENTS:
+          }
+          case CURRENCY_CENTS -> {
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DATE:
+          }
+          case DATE -> {
             try {
               applicantData.putDate(currentPath, update.value());
             } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case LIST_OF_STRINGS:
-          case STRING:
-            applicantData.putString(currentPath, update.value());
-            break;
-          case LONG:
+          }
+          case LIST_OF_STRINGS, STRING -> applicantData.putString(currentPath, update.value());
+          case LONG -> {
             try {
               applicantData.putLong(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DOUBLE:
+          }
+          case DOUBLE -> {
             try {
               applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case SERVICE_AREA:
+          }
+          case SERVICE_AREA -> {
             // service areas get updated below
-            break;
-          default:
-            throw new UnsupportedScalarTypeException(type);
+          }
+          default -> throw new UnsupportedScalarTypeException(type);
         }
       }
     }
 
-    if (serviceAreaUpdate.isPresent()) {
-      applicantData.putServiceAreaInclusionEntities(
-          serviceAreaUpdate
-              .get()
-              .path()
-              .parentPath()
-              .join(Scalar.SERVICE_AREAS.name())
-              .asArrayElement(),
-          serviceAreaUpdate.get().value());
-    }
+    serviceAreaUpdate.ifPresent(
+        areaUpdate ->
+            applicantData.putServiceAreaInclusionEntities(
+                areaUpdate.path().parentPath().join(Scalar.SERVICE_AREAS.name()).asArrayElement(),
+                areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
@@ -1746,10 +1742,10 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicationPrograms {
     /**
-     * Common Intake Form, if it exists and hasn't been submitted, is populated here and not in
+     * Pre-Screener Form, if it exists and hasn't been submitted, is populated here and not in
      * inProgress or unapplied, regardless of its application status.
      */
-    public abstract Optional<ApplicantProgramData> commonIntakeForm();
+    public abstract Optional<ApplicantProgramData> preScreenerForm();
 
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
@@ -1775,7 +1771,7 @@ public final class ApplicantService {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setCommonIntakeForm(ApplicantProgramData value);
+      abstract Builder setPreScreenerForm(ApplicantProgramData value);
 
       abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
 
@@ -1791,8 +1787,8 @@ public final class ApplicantService {
       ImmutableList.Builder<ApplicantProgramData> allPrograms =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      if (commonIntakeForm().isPresent()) {
-        allPrograms.add(commonIntakeForm().get());
+      if (preScreenerForm().isPresent()) {
+        allPrograms.add(preScreenerForm().get());
       }
       allPrograms.addAll(inProgress());
       allPrograms.addAll(submitted());
@@ -1801,17 +1797,17 @@ public final class ApplicantService {
     }
 
     /**
-     * Returns all programs that are in progress, including the Common Intake Form, which usually is
+     * Returns all programs that are in progress, including the Pre-Screener Form, which usually is
      * not included in the inProgress list.
      */
-    public ImmutableList<ApplicantProgramData> inProgressIncludingCommonIntake() {
+    public ImmutableList<ApplicantProgramData> inProgressIncludingPreScreener() {
       ImmutableList.Builder<ApplicantProgramData> inProgress =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      commonIntakeForm()
+      preScreenerForm()
           .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
           .filter(stage -> stage.equals(LifecycleStage.DRAFT))
-          .ifPresent(programData -> inProgress.add(commonIntakeForm().get()));
+          .ifPresent(programData -> inProgress.add(preScreenerForm().get()));
 
       inProgress.addAll(inProgress());
       return inProgress.build();

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -20,14 +21,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.question.LocalizedQuestionSetting;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 
 /**
  * Superclass for all question types.
@@ -44,6 +48,7 @@ import services.question.QuestionOption;
   @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
   @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
   @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+  @JsonSubTypes.Type(value = MapQuestionDefinition.class, name = "map"),
   @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
   @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
   @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
@@ -66,6 +71,11 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
+  }
+
+  @JsonIgnore
+  public QuestionDisplayMode getDisplayMode() {
+    return config.displayMode();
   }
 
   /**
@@ -98,6 +108,9 @@ public abstract class QuestionDefinition {
         value = AutoValue_IdQuestionDefinition_IdValidationPredicates.class,
         name = "id"),
     @JsonSubTypes.Type(
+        value = AutoValue_MapQuestionDefinition_MapValidationPredicates.class,
+        name = "map"),
+    @JsonSubTypes.Type(
         value = AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class,
         name = "multioption"),
     @JsonSubTypes.Type(
@@ -118,7 +131,10 @@ public abstract class QuestionDefinition {
   })
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+        new ObjectMapper()
+            .registerModule(new GuavaModule())
+            .registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule());
 
     static {
       mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -320,6 +336,28 @@ public abstract class QuestionDefinition {
   /** Get the type of this question. */
   @JsonIgnore
   public abstract QuestionType getQuestionType();
+
+  /** Get the question settings for this question. */
+  @JsonIgnore
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
+    return config.questionSettings();
+  }
+
+  /**
+   * Get localized question settings for the specified locale, falling back to default if needed.
+   */
+  @JsonIgnore
+  public Optional<ImmutableSet<LocalizedQuestionSetting>> getSettingsForLocaleOrDefault(
+      Locale locale) {
+    if (config.questionSettings().isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        config.questionSettings().get().stream()
+            .map(setting -> setting.localizeOrDefault(locale))
+            .collect(ImmutableSet.toImmutableSet()));
+  }
 
   /** Get the default validation predicates for this question type. */
   @JsonIgnore

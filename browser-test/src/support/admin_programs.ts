@@ -46,6 +46,7 @@ export enum FormField {
   NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
+  PROGRAM_EXTERNAL_LINK,
 }
 
 export enum ProgramType {
@@ -213,7 +214,73 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates a program with given name.
+   * Creates a pre-screener with the given parameters
+   *
+   * @param {boolean} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addPreScreenerNS(
+    programName: string,
+    shortDescription: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required on North Star. Disabled
+    // fields must have an empty or undefined value, since disabled elements
+    // are readonly and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description =*/ '',
+      shortDescription,
+      /* externalLink= */ '',
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.PRE_SCREENER,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates an external program with the given parameters
+   *
+   * @param {string} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {string} externalLink - Link to the external program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addExternalProgram(
+    programName: string,
+    shortDescription: string,
+    externalLink: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required. Disabled fields must not
+    // have an empty or undefined value, since disabled elements are readonly
+    // and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description= */ '',
+      shortDescription,
+      externalLink,
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.EXTERNAL,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates a program with given name. Optional fields check for value
+   * existence before adding it to the form. Disabled fields must not receive a
+   * value, since disabled elements are readonly and cannot be edited
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
    * to the database and then the admin will be redirected to the next page in the
@@ -240,7 +307,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
-    eligibility = Eligibility.IS_GATING,
+    eligibility = undefined,
     submitNewProgram = true,
     applicationSteps = [{title: 'title', description: 'description'}],
   ) {
@@ -248,38 +315,63 @@ export class AdminPrograms {
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    // program name must be in url-compatible form so we slugify it
-    await this.page.fill('#program-name-input', slugify(programName))
+    // program slug must be in url-compatible form so we slugify the program name
+    await this.page.fill('#program-slug', slugify(programName))
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
-    await this.page.fill('#program-display-description-textarea', description)
-
     await this.page.fill(
       '#program-display-short-description-textarea',
       shortDescription,
     )
-    await this.page.fill('#program-external-link-input', externalLink)
-    await this.page.fill(
-      '#program-confirmation-message-textarea',
-      confirmationMessage,
-    )
+
+    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+    // When enabled, form has program type options. Otherwise, form has a
+    // pre-screener checkbox.
+    // IMPORTANT: Select the program type first since some of the next fields
+    // are disabled based on the program type.
+    const hasProgramTypeOptions = await this.page
+      .getByTestId('program-type-options')
+      .isVisible()
+    if (hasProgramTypeOptions) {
+      await this.selectProgramType(programType)
+    } else if (programType === ProgramType.PRE_SCREENER) {
+      await this.clickPreScreenerFormToggle()
+    }
+
+    if (eligibility) {
+      await this.chooseEligibility(eligibility)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.chooseEligibility(eligibility)
+    // This method adds an external link by default. The external link field is
+    // disabled for default programs and pre-screeners in North Star. Therefore,
+    // tests will fail if we try to add default external link to a disabled
+    // field.
+    // TODO(#10630): Ideally, this method should not have a default value for
+    // the external link (or any field, for that matter) but that would require
+    // updating lots of tests. Thus, for now we will fix this by only adding the
+    // external link if its field is enabled. We can fix this when we clean up
+    // the tests for North Star, since there will be less tests to migrate.
+    const externalLinkEnabled = await this.page
+      .getByRole('textbox', {name: 'Link to program website'})
+      .isEnabled()
+    if (externalLinkEnabled) {
+      await this.page.fill('#program-external-link-input', externalLink)
+    }
 
-    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
-    // When enabled, form has program type options. Otherwise, form has a
-    // pre-screener checkbox.
-    const externalProgramsFeatureEnabled =
-      await this.getProgramTypeOption(programType).isVisible()
-    if (externalProgramsFeatureEnabled) {
-      await this.selectProgramType(programType)
-    } else if (programType === ProgramType.PRE_SCREENER) {
-      await this.clickPreScreenerFormToggle()
+    if (description.length > 0) {
+      await this.page.fill('#program-display-description-textarea', description)
+    }
+
+    if (confirmationMessage.length) {
+      await this.page.fill(
+        '#program-confirmation-message-textarea',
+        confirmationMessage,
+      )
     }
 
     if (programType === ProgramType.DEFAULT) {
@@ -323,7 +415,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeDisabled()
           expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isHidden()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeHidden()
+            await expect(descriptionRequiredIndicator).toBeHidden()
           }
         }
         break
@@ -342,7 +440,6 @@ export class AdminPrograms {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
         expect(await longDescription.getAttribute('readonly')).not.toBeNull()
-
         break
       }
 
@@ -376,6 +473,17 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeDisabled()
+        expect(await externalLink.getAttribute('readonly')).not.toBeNull()
+        const requiredIndicator = this.getRequiredIndicatorFor(
+          'program-external-link-input',
+        )
+        await expect(requiredIndicator).toBeHidden()
+        break
+      }
+
       default:
         throw new Error(
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
@@ -384,14 +492,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether the given form field ais enabled.
+   * Verifies whether the given form field is enabled.
    *
    * @param formField - The specific form field type to verify (from FormField enum)
+   * @param programType - Optional program type to specify context (from ProgramType enum).
+   *                      Not all form fields require a program type for verification.
    *
    * @throws Will throw an error if the elements' states don't match the expected enabled state
    * @throws Will throw an error if an invalid or unsupported form field type is provided
    */
-  async expectFormFieldEnabled(formField: FormField) {
+  async expectFormFieldEnabled(
+    formField: FormField,
+    programType?: ProgramType,
+  ) {
     switch (formField) {
       case FormField.APPLICATION_STEPS: {
         for (let i = 0; i < 5; i++) {
@@ -407,7 +520,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeEnabled()
           expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isVisible()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeVisible()
+            await expect(descriptionRequiredIndicator).toBeVisible()
           }
         }
         break
@@ -450,6 +569,26 @@ export class AdminPrograms {
             name: eligibilityName,
           })
           await expect(option).toBeEnabled()
+        }
+        break
+      }
+
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeEnabled()
+        expect(await externalLink.getAttribute('readonly')).toBeNull()
+        // In pre - North Star, the external link field is optional for
+        // 'default' and 'pre-screeners'. In North Star, the external link field
+        // is disabled for 'default' and 'pre-screeners' and required for
+        // 'external programs'. Therefore, required indicator is dependent on
+        // program type. This condition can be removed once North Star is fully
+        // launched, since the required indicator will always be present if the
+        // field is enabled.
+        if (programType && programType === ProgramType.EXTERNAL) {
+          const requiredIndicator = this.getRequiredIndicatorFor(
+            'program-external-link-input',
+          )
+          await expect(requiredIndicator).toBeVisible()
         }
         break
       }
@@ -952,7 +1091,10 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      "as a Program Admin because they haven't previously logged into" +
+        ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
+        " they've been added, they will need refresh their browser see the programs" +
+        " they've been assigned to.",
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -987,15 +1129,6 @@ export class AdminPrograms {
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
-    // Compare string case insensitively because style may not have been computed.
-    expect(
-      (await this.page.innerText('[for=block-name-input]')).toUpperCase(),
-    ).toEqual('SCREEN NAME')
-    expect(
-      (
-        await this.page.innerText('[for=block-description-textarea]')
-      ).toUpperCase(),
-    ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
@@ -1154,9 +1287,11 @@ export class AdminPrograms {
 
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
+    await this.page
+      .locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
@@ -1435,20 +1570,14 @@ export class AdminPrograms {
     }
 
     if (clickFilterButton) {
-      await Promise.all([
-        this.page.waitForNavigation(),
-        await this.page.click('button:has-text("Filter")'),
-      ])
+      await this.page.click('button:has-text("Filter")')
     }
 
     await waitForPageJsLoad(this.page)
   }
 
   async clearFilterProgramApplications() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('a:has-text("Clear")'),
-    ])
+    await this.page.click('a:has-text("Clear")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -1513,7 +1642,7 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await confirmButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1562,7 +1691,7 @@ export class AdminPrograms {
     // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await saveButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1727,9 +1856,19 @@ export class AdminPrograms {
     })
   }
 
+  getExternalLinkField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Link to program website',
+    })
+  }
+
+  getRequiredIndicatorFor(labelId: string): Locator {
+    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+  }
+
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
-      name: 'Long program description (optional)',
+      name: 'Long program description',
     })
   }
 
@@ -1747,14 +1886,14 @@ export class AdminPrograms {
         'A custom message that will be shown on the confirmation page ' +
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
-        'highlight other programs to apply for. (optional)',
+        'highlight other programs to apply for.',
     })
   }
 
   getProgramCard(programName: string, lifecycle: string): Locator {
     return this.page
       .locator('div.cf-admin-program-card')
-      .filter({has: this.page.getByText(programName)})
+      .filter({has: this.page.getByText(programName, {exact: true})})
       .filter({has: this.page.getByText(lifecycle)})
   }
 

@@ -216,7 +216,7 @@ button.viewAndApplySr=Afficher {0} et faire une demande
 # The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=Afficher dans un nouvel onglet
 # The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
-button.viewInNewTabSr=View {0} in new tab
+button.viewInNewTabSr=Afficher {0} dans un nouvel onglet
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Remplir la demande
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -755,6 +755,17 @@ validation.invalidDateFormat=Veuillez saisir une date au format correct
 validation.dateBeyondAllowablePast=Veuillez saisir une date au cours des {0} dernières années
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Veuillez saisir une date dans les {0} prochaines années
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=La date doit être ultérieure à la date du jour
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=La date doit être ultérieure au {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=La date doit être antérieure à la date du jour
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=La date doit être antérieure au {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=La date doit être entre le {0} et le {1}
+validation.currentDateRequired=Veuillez saisir la date du jour
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - janvier
 # A month option when selecting a specific date from a dropdown menu.
@@ -892,6 +903,15 @@ validation.numberNonInteger=Le nombre doit être un nombre entier positif compos
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Doit contenir {0} caractères au plus.
 validation.textTooShort=Doit contenir au moins {0} caractère(s).
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Oui
+option.no=Non
+option.notSure=Je ne sais pas
+option.maybe=Peut-être
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1040,3 +1060,6 @@ session.extended.success=Session prolongée
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Échec de la prolongation de la session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

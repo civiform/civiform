@@ -10,18 +10,20 @@ import {
   closeWarningMessage,
   AdminPredicates,
   testUserDisplayName,
-  enableFeatureFlag,
+  disableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
-  test.beforeEach(async ({seeding, page}) => {
+  test.beforeEach(async ({page, seeding}) => {
     await seeding.clearDatabase()
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('all major steps', async ({browser}) => {
+    test.slow()
+
     const programName = 'program-fastforward-example'
 
     const civiformAdminActor = await FastForwardCiviformAdminActor.create(

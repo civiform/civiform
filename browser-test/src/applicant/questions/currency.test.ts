@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -13,6 +14,10 @@ test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('single currency question', () => {
     const programName = 'Test program for single currency'

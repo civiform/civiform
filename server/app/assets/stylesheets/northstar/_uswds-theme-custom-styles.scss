@@ -524,6 +524,11 @@ main {
 }
 
 [dir='rtl'] {
+  .usa-button:not(.margin-left-0, .cf-apply-button) {
+    margin-right: 0px;
+    margin-left: 0.5rem;
+  }
+
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
     position: absolute;
@@ -657,6 +662,11 @@ main {
   .usa-breadcrumb__link::before {
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
+  }
+
+  .usa-modal,
+  .usa-modal-content {
+    text-align: right;
   }
 
   .usa-modal__close {

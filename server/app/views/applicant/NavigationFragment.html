@@ -225,7 +225,7 @@
 
 <div th:fragment="showDebugTools">
   <a
-    class="usa-button usa-button--outline margin-right-0"
+    class="usa-button usa-button--outline margin-right-0 margin-left-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -248,7 +248,7 @@
   <th:block th:if="${isGuest}">
     <a
       role="button"
-      class="usa-button usa-button--outline margin-right-0"
+      class="usa-button usa-button--outline margin-right-0 margin-left-0"
       th:text="#{button.login}"
       id="login-button"
       data-testid="login-button"
@@ -259,7 +259,7 @@
   <th:block th:if="${!isGuest}">
     <a
       role="button"
-      class="usa-button usa-button--outline margin-right-0"
+      class="usa-button usa-button--outline margin-right-0 margin-left-0"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -270,7 +270,7 @@
 <div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
-    <input hidden th:value="${requestUri}" name="redirectLink" />
+    <input hidden th:value="${redirectUri}" name="redirectLink" />
 
     <ul class="usa-language__primary usa-accordion">
       <li class="usa-language__primary-item">

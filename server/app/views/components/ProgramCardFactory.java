@@ -44,7 +44,6 @@ public final class ProgramCardFactory {
 
   public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
-    boolean showCategories = settingsManifest.getProgramFilteringEnabled(request);
     boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
     String programTitleText = displayProgram.localizedName().getDefault();
@@ -118,8 +117,7 @@ public final class ProgramCardFactory {
                                 span(displayProgram.displayMode().visibilityState))
                             .withClasses(
                                 "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
-                    .condWith(
-                        showCategories,
+                    .with(
                         p(
                                 span("Categories:  ").withClasses("font-semibold"),
                                 iffElse(
@@ -255,12 +253,7 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ false,
-            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
-    // if isWithProgramCard is false, we never reach the code that evaluates
-    // isProgramFilteringEnabled.
+            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     }

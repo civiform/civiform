@@ -18,6 +18,7 @@ import * as adminSettingsView from './admin_settings_view'
 import * as adminValidation from './admin_validation'
 import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
+import * as map from './map'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
 import PreviewController, * as preview from './preview'
@@ -73,5 +74,6 @@ function initializeEverything(): void {
 
 function afterSettle(): void {
   PreviewController.updateListeners()
+  map.init()
   enumerator.updateListeners()
 }

@@ -26,6 +26,7 @@ import play.Mode;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
+import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
@@ -153,16 +154,16 @@ public class ResourceCreator {
     return ProgramBuilder.newActiveCommonIntakeForm(name).build();
   }
 
+  public ProgramModel insertActiveExternalProgram(String name) {
+    return ProgramBuilder.newActiveProgram().withProgramType(ProgramType.EXTERNAL).build();
+  }
+
   public ProgramModel insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
   public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
     return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
-  }
-
-  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
-    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
   public ApplicationModel insertApplication(

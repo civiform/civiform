@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1@sha256:9857836c9ee4268391bb5b09f9f157f3c91bb15821bb77969642813b0d00518d
-FROM python:3.13.3-slim@sha256:914bf5c12ea40a97a78b2bff97fbdb766cc36ec903bfb4358faf2b74d73b555b
+# syntax=docker/dockerfile:1@sha256:38387523653efa0039f8e1c89bb74a30504e76ee9f565e25c9a09841f9427b05
+FROM python:3.13.7-slim@sha256:8220ccec22e88cddd9a541cacd1bf48423bda8cdeb1015249e4b298edf86cdc7
 
 RUN useradd --create-home appuser --no-log-init
 
@@ -10,6 +10,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt --no-warn-script-location
 COPY . .
 COPY --from=server /test/resources/esri /server/test/resources/esri
+COPY --from=server /test/resources/geojson /server/test/resources/geojson
 
 EXPOSE 8000
 

@@ -91,9 +91,27 @@ class AdminPrograms {
       /* fieldSelectors= */ '[id^="program-eligibility"]',
       /* shouldDisable= */ disableProgramEligibility,
     )
-    this.hideRequiredIndicators(
+    this.updateRequiredIndicatorState(
       /* fieldSelector= */ '#program-eligibility',
       /* shouldHide= */ disableProgramEligibility,
+    )
+
+    // Program external link
+    const externalLink = document.getElementById(
+      'program-external-link-input',
+    ) as HTMLInputElement
+    const isNorthstarEnabled = externalLink.dataset.northstarEnabled === 'true'
+    const disableExternalLink =
+      (programType === ProgramType.DEFAULT ||
+        programType === ProgramType.COMMON_INTAKE_FORM) &&
+      isNorthstarEnabled
+    this.updateTextFieldElementDisabledState(
+      /* fieldElement= */ externalLink,
+      /* shouldDisable= */ disableExternalLink,
+    )
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="program-external-link-input"]',
+      /* shouldHide= */ programType !== ProgramType.EXTERNAL,
     )
 
     // Notification preferences
@@ -104,16 +122,13 @@ class AdminPrograms {
     )
 
     // Long program description
-    const longDescription = document.getElementById(
-      'program-display-description-textarea',
-    ) as HTMLInputElement
     const disableLongDescription =
       (programType === ProgramType.COMMON_INTAKE_FORM ||
         programType === ProgramType.EXTERNAL) &&
-      longDescription.dataset.northstarEnabled === 'true'
-    this.updateTextFieldElementDisabledState(
-      /* fieldElement= */ longDescription,
-      /* shouldDisable= */ disableLongDescription,
+      isNorthstarEnabled
+    this.updateTextFieldSelectorsDisabledState(
+      'textarea[id="program-display-description-textarea"]',
+      disableLongDescription,
     )
 
     // Application steps
@@ -128,8 +143,12 @@ class AdminPrograms {
       /* fieldSelectors= */ 'textarea[id^="apply-step"]',
       /* shouldDisable= */ disableApplicationSteps,
     )
-    this.hideRequiredIndicators(
-      /* fieldSelector= */ '#apply-step-1-div',
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="apply-step-1-title"]',
+      /* shouldHide= */ disableApplicationSteps,
+    )
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="apply-step-1-description"]',
       /* shouldHide= */ disableApplicationSteps,
     )
 
@@ -210,16 +229,25 @@ class AdminPrograms {
    * @param {string} fieldSelector - The selector for the field
    * @param {boolean} shouldHide - Whether to show or hide the required indicator
    */
-  static hideRequiredIndicators(fieldSelector: string, shouldHide: boolean) {
-    const field = document.querySelector(fieldSelector)
-    const requiredIndicators = field?.querySelectorAll('span')
-    requiredIndicators?.forEach((indicator) => {
-      if (shouldHide) {
-        indicator.classList.add('hidden')
-      } else {
-        indicator.classList.remove('hidden')
-      }
-    })
+  static updateRequiredIndicatorState(
+    fieldSelector: string,
+    shouldHide: boolean,
+  ) {
+    const labelElement = document.querySelector(fieldSelector)
+    if (!labelElement) {
+      return
+    }
+
+    const requiredSpan = labelElement.querySelector('.required-indicator')
+    if (!requiredSpan) {
+      return
+    }
+
+    if (shouldHide) {
+      requiredSpan.classList.add('hidden')
+    } else {
+      requiredSpan.classList.remove('hidden')
+    }
   }
 
   static attachEventListenersToEditTIButton() {

@@ -52,6 +52,7 @@ public class BaseHtmlLayout {
   private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
   private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
   private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
+  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
   private final AssetsFinder assetsFinder;
@@ -133,6 +134,9 @@ public class BaseHtmlLayout {
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
+    if (settingsManifest.getMapQuestionEnabled()) {
+      bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+    }
 
     // Add Google analytics scripts.
     measurementId
@@ -187,16 +191,16 @@ public class BaseHtmlLayout {
             .isAsync()
             .withType("text/javascript");
     String googleAnalyticsCode =
-        "window.dataLayer = window.dataLayer || [];"
-            + "\nfunction gtag() {"
-            + "\n\tdataLayer.push(arguments);"
-            + "\n}"
-            + "\ngtag('js', new Date());"
-            + "\ngtag('config', '%s');";
-    ScriptTag rawScript =
-        script()
-            .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .withType("text/javascript");
+        String.format(
+            """
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '%s');""",
+            trackingTag);
+    ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 

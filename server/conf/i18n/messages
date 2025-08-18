@@ -755,6 +755,17 @@ validation.invalidDateFormat=Please enter a date in the correct format
 validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Date must be after today''s date
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Date must be after {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Date must be before today''s date
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Date must be before {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Date must be between {0} and {1}
+validation.currentDateRequired=Please enter today''s date
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
@@ -894,6 +905,15 @@ validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -1004,6 +1024,9 @@ category.tag.housing=Housing
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Military
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Training
 
@@ -1012,6 +1035,9 @@ category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veteran
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Categories
@@ -1040,3 +1066,6 @@ session.extended.success=Session successfully extended
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

@@ -17,7 +17,13 @@ import {HtmxRequest} from './htmx_request'
  * choosing how to handle each question individually.
  */
 class AdminImportView {
+  duplicateQuestionHandlingPrefix = 'duplicateQuestionHandling-'
+
   constructor() {
+    // If we aren't on the import page, do nothing
+    if (!document.getElementById('admin-import-header')) {
+      return
+    }
     this.addRedirectListeners()
     this.addStringifyJsonListener()
   }
@@ -32,7 +38,7 @@ class AdminImportView {
       .item(0) as HTMLFieldSetElement
 
     const duplicateQuestionRadios = document.getElementsByName(
-      'duplicateQuestionHandling-',
+      this.duplicateQuestionHandlingPrefix,
     )
 
     toplevelRadio.addEventListener('change', (event) => {
@@ -43,10 +49,56 @@ class AdminImportView {
     })
 
     duplicateQuestionRadios.forEach((radio) => {
-      radio.addEventListener('change', () =>
-        this.setRadioToValue(toplevelRadio, 'DECIDE_FOR_EACH'),
+      radio.addEventListener('change', (event) =>
+        this.onDuplicateQuestionRadioChange(event, toplevelRadio),
       )
     })
+  }
+
+  onDuplicateQuestionRadioChange(
+    event: Event,
+    toplevelRadio: HTMLFieldSetElement,
+  ) {
+    this.setRadioToValue(toplevelRadio, 'DECIDE_FOR_EACH')
+    this.setRepeatedQuestionHandling(event)
+  }
+
+  setRepeatedQuestionHandling(event: Event) {
+    const target = <HTMLInputElement>event.target
+    const currentAdminName = target?.name.slice(
+      this.duplicateQuestionHandlingPrefix.length,
+    )
+    const repeatedQs = document.querySelectorAll(
+      '[data-enumerator="' + currentAdminName + '"]',
+    )
+    const selection = (<HTMLInputElement>event.target)?.value
+    // If an enumerator is using/overwriting an existing question,
+    // then its repeated questions can do whatever they want.
+    // If it's creating a duplicate, then its repeated Qs must as well.
+    if (repeatedQs.length > 0) {
+      const parentFieldset = target?.closest('fieldset') as HTMLFieldSetElement
+      const warnings = parentFieldset.getElementsByClassName(
+        'repeated-disabled-warning',
+      )
+      const duplicate = selection === 'CREATE_DUPLICATE'
+      for (let i = 0; i < (warnings?.length || 0); i++) {
+        warnings[i].toggleAttribute('hidden', !duplicate)
+      }
+
+      repeatedQs.forEach((repeatedQ) => {
+        const radios = repeatedQ.getElementsByTagName('fieldset')
+        if (radios.length > 0) {
+          const radio = <HTMLFieldSetElement>(
+            repeatedQ.getElementsByTagName('fieldset').item(0)
+          )
+          if (duplicate) {
+            this.disableRadioValuesExcept(radio, 'CREATE_DUPLICATE')
+          } else {
+            this.enableAllRadioValues(radio)
+          }
+        }
+      })
+    }
   }
 
   setAllQuestionRadiosToSpecifiedValue(
@@ -64,6 +116,31 @@ class AdminImportView {
         radioInput.checked = true
       }
     })
+  }
+
+  disableRadioValuesExcept(radio: HTMLFieldSetElement, value: string) {
+    Array.from(radio.getElementsByTagName('input')).forEach((radioInput) => {
+      const shouldDisableInput = radioInput.value !== value
+      radioInput.disabled = shouldDisableInput
+    })
+    this.hideRepeatedWarning(radio, false)
+    this.setRadioToValue(radio, value)
+  }
+
+  enableAllRadioValues(radio: HTMLFieldSetElement) {
+    Array.from(radio.getElementsByTagName('input')).forEach((radioInput) => {
+      radioInput.disabled = false
+    })
+    this.hideRepeatedWarning(radio, true)
+  }
+
+  hideRepeatedWarning(parentElement: HTMLElement, hide: boolean) {
+    const warnings = parentElement.getElementsByClassName(
+      'repeated-disabled-warning',
+    )
+    for (let i = 0; i < (warnings?.length || 0); i++) {
+      warnings[i].toggleAttribute('hidden', hide)
+    }
   }
 
   addRedirectListeners() {

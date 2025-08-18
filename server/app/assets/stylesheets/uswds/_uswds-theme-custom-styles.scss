@@ -79,7 +79,8 @@ See the radio-option below as an example.
  * Remove top margin because other surrounding elements add this margin.
  */
 .usa-legend,
-.cf-question-date .usa-memorable-date .usa-form-group {
+.cf-question-date .usa-memorable-date .usa-form-group,
+.cf-question-config .usa-memorable-date .usa-form-group {
   margin-top: 0;
 }
 
@@ -218,4 +219,45 @@ button.usa-button.usa-button--unstyled.htmx-request {
   &:disabled:hover {
     background-color: transparent;
   }
+}
+
+// Removing padding around the admin header nav items
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
+  padding: 0 1rem;
+}
+
+// Removing padding around the admin header nav items settings icon
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
+  padding: 0;
+}
+
+// This keeps the main content visible at reasonable smaller widths so
+// that the admin header does not cover anything. The entire admin site
+// starts to fall apart under 800px. At extreme min widths overlapping
+// may still occur.
+@media (screen and max-width: 800px) {
+  .admin-responsive-main-padding {
+    @include u-padding-top(4);
+  }
+}
+
+// Set the background color to match tailwind bg-gray-900
+// for non-tailwind pages
+.usa-banner.cf-admin-heading-background-color {
+  background-color: rgb(17 24 39);
+}
+
+// Having to override this way due to specificity issues
+.usa-banner__inner.margin-left-0 {
+  margin-left: 0;
+}
+
+// Gradient used in the admin background. USWDS does not have
+// built in gradient utility classes like Tailwind does.
+.body-background-gradient {
+  /* gray-100 -> white -> gray-100 */
+  background-image: linear-gradient(to right, #f3f4f6, #ffffff, #f3f4f6);
 }

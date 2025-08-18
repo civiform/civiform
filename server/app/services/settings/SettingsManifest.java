@@ -81,7 +81,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A primary color is the color displayed most prominently across your website. Enter the hex code
-   * for this color. Not ready for production use.
+   * for this color.
    */
   public Optional<String> getThemeColorPrimary(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY", request);
@@ -89,7 +89,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * A darker version of your primary color can be applied to your website for some purposes. Enter
-   * the hex code for this color. Not ready for production use.
+   * the hex code for this color.
    */
   public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY_DARK", request);
@@ -721,7 +721,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
-  /** This email address receives error notifications from CiviForm when things break. */
+  /**
+   * This email address receives error notifications from CiviForm when there is an internal server
+   * error or a durable job fails.
+   */
   public Optional<String> getItEmailAddress(RequestHeader request) {
     return getString("IT_EMAIL_ADDRESS", request);
   }
@@ -1038,23 +1041,24 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
-   * between deployed environments. Note: this should only be used on new environments, since
-   * existing programs will be modified if a program with the same question gets imported.
-   */
-  public boolean getNoDuplicateQuestionsForMigrationEnabled(RequestHeader request) {
-    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED", request);
+  /** Enables showing new UI with an updated user experience in Applicant flows */
+  public boolean getNorthStarApplicantUi(RequestHeader request) {
+    return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage */
-  public boolean getProgramFilteringEnabled(RequestHeader request) {
-    return getBool("PROGRAM_FILTERING_ENABLED", request);
+  /** Enable using custom theme colors on North Star applicant UI. */
+  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question. */
+  /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  }
+
+  /** Enables admin validation settings for date questions. */
+  public boolean getDateValidationEnabled(RequestHeader request) {
+    return getBool("DATE_VALIDATION_ENABLED", request);
   }
 
   /**
@@ -1065,22 +1069,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant
-   * flows
-   */
-  public boolean getNorthStarApplicantUi(RequestHeader request) {
-    return getBool("NORTH_STAR_APPLICANT_UI", request);
-  }
-
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI. */
-  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
@@ -1088,13 +1079,40 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
+  public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
+    return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled() {
+    return getBool("YES_NO_QUESTION_ENABLED");
+  }
+
   /**
-   * (NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when
-   * importing/migrating programs: create a duplicate, use the existing question, or overwrite the
-   * existing question.
+   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
+   * programs.
    */
-  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
+  public boolean getMapQuestionEnabled() {
+    return getBool("MAP_QUESTION_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
+   * database.
+   */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
+  public boolean getApiBridgeEnabled(RequestHeader request) {
+    return getBool("API_BRIDGE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1152,8 +1170,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY",
                           "A primary color is the color displayed most prominently across your"
-                              + " website. Enter the hex code for this color. Not ready for"
-                              + " production use.",
+                              + " website. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1161,8 +1178,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
                           "A darker version of your primary color can be applied to your website"
-                              + " for some purposes. Enter the hex code for this color. Not ready"
-                              + " for production use.",
+                              + " for some purposes. Enter the hex code for this color.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -1987,8 +2003,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "IT_EMAIL_ADDRESS",
-                          "This email address receives error notifications from CiviForm when"
-                              + " things break.",
+                          "This email address receives error notifications from CiviForm when there"
+                              + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2259,6 +2275,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " screen.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NORTH_STAR_APPLICANT_UI",
+                          "Enables showing new UI with an updated user experience in Applicant"
+                              + " flows",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "CUSTOM_THEME_COLORS_ENABLED",
+                          "Enable using custom theme colors on North Star applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NAME_SUFFIX_DROPDOWN_ENABLED",
+                          "Enables suffix dropdown field in name question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATE_VALIDATION_ENABLED",
+                          "Enables admin validation settings for date questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2269,30 +2310,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
-                              + " migrating programs between deployed environments. Note: this"
-                              + " should only be used on new environments, since existing programs"
-                              + " will be modified if a program with the same question gets"
-                              + " imported.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "PROGRAM_FILTERING_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the"
-                              + " homepage",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "NAME_SUFFIX_DROPDOWN_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name"
-                              + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "SESSION_REPLAY_PROTECTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
                               + " session cookie cannot be replayed if the user logs out",
@@ -2300,23 +2317,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
-                          "NORTH_STAR_APPLICANT_UI",
-                          "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user"
-                              + " experience in Applicant flows",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
                               + " maximum duration.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "CUSTOM_THEME_COLORS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
-                              + " applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2328,10 +2331,43 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
-                              + " when importing/migrating programs: create a duplicate, use the"
-                              + " existing question, or overwrite the existing question.",
+                          "PROGRAM_SLUG_URLS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
+                              + " URLs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
+                              + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
+                              + " question to their programs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
+                              + " of directly from the database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
+                              + " phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "API_BRIDGE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

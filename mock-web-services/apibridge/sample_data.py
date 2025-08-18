@@ -9,12 +9,15 @@ request_schema = {
             "accountNumber":
                 {
                     "type": "number",
+                    "title": "Account Number",
                     "description": "Account Number",
                 },
-            "zipCode": {
-                "type": "string",
-                "description": "Zip Code"
-            },
+            "zipCode":
+                {
+                    "type": "string",
+                    "title": "ZIP Code",
+                    "description": "ZIP Code description",
+                },
         },
     "required": [
         "accountNumber",
@@ -34,12 +37,15 @@ response_schema = {
             "accountNumber":
                 {
                     "type": "number",
+                    "title": "Account Number",
                     "description": "Account Number",
                 },
-            "isValid": {
-                "type": "boolean",
-                "description": "Has valid account",
-            },
+            "isValid":
+                {
+                    "type": "boolean",
+                    "title": "Is Valid",
+                    "description": "Has valid account",
+                },
         },
     "required": ["accountNumber, isValid"],
     "additionalProperties": False,

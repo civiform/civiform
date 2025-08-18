@@ -8,11 +8,13 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'date_validation_enabled')
   })
 
   test.describe('single date question', () => {
@@ -54,7 +56,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
 
       await test.step('when returning to the page, expect date is filled in', async () => {
         await applicantQuestions.answerMemorableDateQuestion(
-          '2022',
+          '2025',
           '05 - May',
           '2',
         )
@@ -82,6 +84,69 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
 
         await expect(page.getByText('This question is required.')).toBeVisible()
       })
+
+      await test.step('with unallowable date in past does not submit', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2000',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await expect(
+          page.getByText('Date must be after 2025-01-01'),
+        ).toBeVisible()
+      })
+
+      await test.step('with filled in date submits successfully', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2025',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      })
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      expect(page.getByLabel('Day').getAttribute('aria-required')).toBeTruthy()
+      expect(
+        page.getByLabel('Month').getAttribute('aria-required'),
+      ).toBeTruthy()
+      expect(page.getByLabel('Year').getAttribute('aria-required')).toBeTruthy()
+
+      await validateAccessibility(page)
+    })
+  })
+
+  test.describe('date validation disabled', () => {
+    const programName = 'Test program for disabled date validation'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'date_validation_enabled')
+      await setUpSingleDateQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+        /* withValidation= */ false,
+      )
+    })
+
+    test('attempts to submit', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await test.step('with unallowable date in past does not submit', async () => {
         await applicantQuestions.answerMemorableDateQuestion(
@@ -121,23 +186,6 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
       })
-    })
-
-    test('has no accessiblity violations', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
-      expect(page.getByLabel('Day').getAttribute('aria-required')).toBeTruthy()
-      expect(
-        page.getByLabel('Month').getAttribute('aria-required'),
-      ).toBeTruthy()
-      expect(page.getByLabel('Year').getAttribute('aria-required')).toBeTruthy()
-
-      await validateAccessibility(page)
     })
   })
 
@@ -230,11 +278,23 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     page: Page,
     adminQuestions: AdminQuestions,
     adminPrograms: AdminPrograms,
+    withValidation: boolean = true,
   ) {
     // As admin, create program with single date question.
     await loginAsAdmin(page)
 
-    await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
+    if (withValidation) {
+      await adminQuestions.addDateQuestion({
+        questionName: 'general-date-q',
+        minDateType: 'CUSTOM',
+        minDateDay: 1,
+        minDateMonth: 1,
+        minDateYear: 2025,
+        maxDateType: 'ANY',
+      })
+    } else {
+      await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
+    }
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['general-date-q'],
       programName,

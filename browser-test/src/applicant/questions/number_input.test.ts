@@ -7,10 +7,15 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Number question for applicant flow', () => {
   const numberInputError = 'div.cf-question-number-error'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('single number question', () => {
     const programName = 'Test program for single number'
