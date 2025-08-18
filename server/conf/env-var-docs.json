@@ -975,7 +975,7 @@
         "required": false
       },
       "API_BRIDGE_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
         "type": "bool",
         "required": false

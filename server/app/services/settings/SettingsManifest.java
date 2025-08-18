@@ -1111,8 +1111,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
-  public boolean getApiBridgeEnabled() {
-    return getBool("API_BRIDGE_ENABLED");
+  public boolean getApiBridgeEnabled(RequestHeader request) {
+    return getBool("API_BRIDGE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2370,7 +2370,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
