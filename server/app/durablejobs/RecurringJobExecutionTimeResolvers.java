@@ -74,12 +74,8 @@ public final class RecurringJobExecutionTimeResolvers {
   }
 
   /** Admin configured interval for durable jobs. Used for REFRESH_MAP_DATA */
-  public static final class AdminConfiguredIntervalResolver implements JobExecutionTimeResolver {
-    private final int refreshInterval;
-
-    public AdminConfiguredIntervalResolver(int refreshInterval) {
-      this.refreshInterval = refreshInterval;
-    }
+  public static final class EveryThirtyMinutes implements JobExecutionTimeResolver {
+    private static final int REFRESH_INTERVAL = 30;
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
@@ -92,7 +88,7 @@ public final class RecurringJobExecutionTimeResolvers {
     }
 
     private int minutesUntilNextInterval(LocalDateTime now) {
-      return this.refreshInterval - (now.getMinute() % this.refreshInterval);
+      return REFRESH_INTERVAL - (now.getMinute() % REFRESH_INTERVAL);
     }
   }
 }

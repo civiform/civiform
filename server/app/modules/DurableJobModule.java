@@ -168,17 +168,13 @@ public final class DurableJobModule extends AbstractModule {
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
     if (config.getBoolean("map_question_enabled")
-        && config.hasPath("durable_jobs.map_refresh_interval")) {
-      int refreshInterval = config.getInt("durable_jobs.map_refresh_interval");
-      if (refreshInterval < 30) {
-        throw new IllegalArgumentException("Refresh interval must be >= 30 minutes.");
-      }
+        && config.getBoolean("durable_jobs.map_refresh")) {
       durableJobRegistry.register(
           DurableJobName.REFRESH_MAP_DATA,
           JobType.RECURRING,
           persistedDurableJobModel ->
               new MapRefreshJob(persistedDurableJobModel, geoJsonDataRepository, geoJsonClient),
-          new RecurringJobExecutionTimeResolvers.AdminConfiguredIntervalResolver(refreshInterval));
+          new RecurringJobExecutionTimeResolvers.EveryThirtyMinutes());
     }
 
     return durableJobRegistry;

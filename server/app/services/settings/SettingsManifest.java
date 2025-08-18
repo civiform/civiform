@@ -932,12 +932,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
-  /**
-   * An integer specifying the refresh interval in minutes for map data used in CiviForm. If this
-   * value is not set, map data will not refresh. The minimum is 30.
-   */
-  public Optional<Integer> getDurableJobsMapRefreshIntervalMinutes() {
-    return getInt("DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES");
+  /** A boolean specifying whether or not to refresh map data for the CiviForm instance. */
+  public boolean getDurableJobsMapRefresh() {
+    return getBool("DURABLE_JOBS_MAP_REFRESH");
   }
 
   /**
@@ -2153,12 +2150,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.INT,
                           SettingMode.HIDDEN),
                       SettingDescription.create(
-                          "DURABLE_JOBS_MAP_REFRESH_INTERVAL_MINUTES",
-                          "An integer specifying the refresh interval in minutes for map data used"
-                              + " in CiviForm. If this value is not set, map data will not refresh."
-                              + " The minimum is 30.",
+                          "DURABLE_JOBS_MAP_REFRESH",
+                          "A boolean specifying whether or not to refresh map data for the CiviForm"
+                              + " instance.",
                           /* isRequired= */ false,
-                          SettingType.INT,
+                          SettingType.BOOLEAN,
                           SettingMode.HIDDEN))))
           .put(
               "Session Management",
