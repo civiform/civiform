@@ -13,7 +13,7 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
-  <form class="usa-form">
+  <fieldset class="usa-form">
     <div class="grid-row grid-gap">
       <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col">
         <label
@@ -52,7 +52,7 @@
         th:text="#{map.resetFiltersButtonText}"
       ></button>
     </div>
-  </form>
+  </fieldset>
 
   <div class="grid-row grid-gap">
     <!-- Scrollable container with location checkboxes -->

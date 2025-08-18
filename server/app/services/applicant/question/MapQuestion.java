@@ -20,6 +20,7 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    System.out.println("Validating");
     // TODO(#11002): Add map question validation.
     return ImmutableMap.of();
   }

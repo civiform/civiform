@@ -8,6 +8,7 @@ import {
   CF_APPLY_FILTERS_BUTTON,
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
+  LOCATIONS_LAYER,
   MapData,
   queryMapSelectOptions,
   mapQuerySelector,
@@ -35,7 +36,8 @@ export const initFilters = (
     'click',
     () => {
       queryMapSelectOptions(mapId).forEach((selectOption) => {
-        const selectOptionElement = selectOption as HTMLSelectElement
+        const selectOptionElement = (selectOption as HTMLSelectElement) || null
+        if (!selectOptionElement) return
         selectOptionElement.value = ''
       })
       applyLocationFilters(mapId, mapElement, featureMap, true)
@@ -51,23 +53,25 @@ const applyLocationFilters = (
 ): void => {
   const filters = reset ? {} : getFilters(mapId)
 
-  map.setFilter('locations-layer', buildMapFilterExpression(filters))
+  map.setFilter(LOCATIONS_LAYER, buildMapFilterExpression(filters))
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
   locationCheckboxContainers.forEach((container) => {
-    const containerElement = container as HTMLElement
+    const containerElement = (container as HTMLElement) || null
+    if (!containerElement) return
 
     const featureId = containerElement.getAttribute('data-feature-id')
     if (!featureId) return
 
     const matchingFeature = featureMap.get(featureId)
-    containerElement.style.display = featureMatchesFilters(
-      matchingFeature,
-      filters,
-    )
-      ? 'block'
-      : 'none'
+    const matchesFilter = featureMatchesFilters(matchingFeature, filters)
+
+    if (matchesFilter) {
+      containerElement.classList.remove('cf-location-hidden')
+    } else {
+      containerElement.classList.add('cf-location-hidden')
+    }
   })
 
   updateLocationCountForMap(mapId)
@@ -76,8 +80,11 @@ const applyLocationFilters = (
 const updateLocationCountForMap = (mapId: string): void => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = checkbox as HTMLElement
-    return checkboxElement.style.display !== 'none'
+    const checkboxElement = (checkbox as HTMLElement) || null
+    return (
+      checkboxElement &&
+      !checkboxElement.classList.contains('cf-location-hidden')
+    )
   }).length
 
   const countText = mapQuerySelector(
@@ -105,7 +112,8 @@ const getFilters = (mapId: string): {[key: string]: string} => {
   const filterSelectOptions = queryMapSelectOptions(mapId)
 
   filterSelectOptions.forEach((selectElement) => {
-    const select = selectElement as HTMLSelectElement
+    const select = (selectElement as HTMLSelectElement) || null
+    if (!select) return
     // if a value is selected, add to active filters
     if (select.value && select.value !== '') {
       activeFilters[select.name] = select.value

@@ -5,6 +5,12 @@ import {
   CF_SELECT_LOCATION_BUTTON,
   mapQuerySelector,
   CF_POPUP_CONTENT_TEMPLATE,
+  LOCATIONS_LAYER,
+  DEFAULT_MAP_CENTER_POINT,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_MAP_MARKER_TYPE,
+  DEFAULT_MAP_MARKER_STYLE,
+  DEFAULT_MAP_STYLE,
 } from './map_util'
 import {initLocationSelection} from './map_question_selection'
 import {initFilters} from './map_question_filters'
@@ -25,21 +31,10 @@ export const init = (): void => {
 const createMap = (mapId: string) => {
   return new MapLibreMap({
     container: mapId,
-    style: {
-      version: 8,
-      sources: {
-        osm: {
-          type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: '© OpenStreetMap contributors',
-        },
-      },
-      layers: [{id: 'osm', type: 'raster', source: 'osm'}],
-    },
+    style: DEFAULT_MAP_STYLE,
     // TODO(#11095): Allow configurable center point
-    center: [-122.3321, 47.6062],
-    zoom: 8,
+    center: DEFAULT_MAP_CENTER_POINT,
+    zoom: DEFAULT_MAP_ZOOM,
   })
 }
 
@@ -66,13 +61,10 @@ const addLocationsToMap = (
 
   // TODO: Add custom icons to the map markers
   map.addLayer({
-    id: 'locations-layer',
-    type: 'circle',
+    id: LOCATIONS_LAYER,
+    type: DEFAULT_MAP_MARKER_TYPE,
     source: 'locations',
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#005EA2',
-    },
+    paint: DEFAULT_MAP_MARKER_STYLE,
   })
 }
 
@@ -95,39 +87,50 @@ const createPopupContent = (
   )
   if (!popupContentTemplate) return null
 
-  const popupContent = popupContentTemplate.cloneNode(true) as HTMLElement
+  const popupContent =
+    (popupContentTemplate.cloneNode(true) as HTMLElement) || null
+  if (!popupContent) return null
   popupContent.classList.remove('hidden', CF_POPUP_CONTENT_TEMPLATE)
 
   if (name) {
-    const nameElement = popupContent.querySelector(
-      '.cf-popup-content-location-name',
-    ) as HTMLElement
-    nameElement.textContent = name
-    nameElement.classList.remove('hidden')
+    const nameElement =
+      (popupContent.querySelector(
+        '.cf-popup-content-location-name',
+      ) as HTMLElement) || null
+    if (nameElement) {
+      nameElement.textContent = name
+      nameElement.classList.remove('hidden')
+    }
   }
 
   if (address) {
-    const addressElement = popupContent.querySelector(
-      '.cf-popup-content-location-address',
-    ) as HTMLElement
-    addressElement.textContent = address
-    addressElement.classList.remove('hidden')
+    const addressElement =
+      (popupContent.querySelector(
+        '.cf-popup-content-location-address',
+      ) as HTMLElement) || null
+    if (addressElement) {
+      addressElement.textContent = address
+      addressElement.classList.remove('hidden')
+    }
   }
 
   if (detailsUrl) {
-    const detailsLinkElement = popupContent.querySelector(
-      '.cf-popup-content-location-link',
-    ) as HTMLAnchorElement
-    try {
-      const url = new URL(detailsUrl)
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        detailsLinkElement.href = detailsUrl
-        detailsLinkElement.classList.remove('hidden')
-      } else {
-        console.warn('Invalid URL protocol, skipping link:', detailsUrl)
+    const detailsLinkElement =
+      (popupContent.querySelector(
+        '.cf-popup-content-location-link',
+      ) as HTMLAnchorElement) || null
+    if (detailsLinkElement) {
+      try {
+        const url = new URL(detailsUrl)
+        if (url.protocol === 'http:' || url.protocol === 'https:') {
+          detailsLinkElement.href = detailsUrl
+          detailsLinkElement.classList.remove('hidden')
+        } else {
+          console.warn('Invalid URL protocol, skipping link:', detailsUrl)
+        }
+      } catch {
+        console.warn('Invalid URL format, skipping link:', detailsUrl)
       }
-    } catch {
-      console.warn('Invalid URL format, skipping link:', detailsUrl)
     }
   }
 
@@ -148,7 +151,7 @@ const addPopupsToMap = (
   map: MapLibreMap,
   settings: MapData['settings'],
 ): void => {
-  map.on('click', 'locations-layer', (e) => {
+  map.on('click', LOCATIONS_LAYER, (e) => {
     const features: Feature[] | undefined = e.features
     if (!features || features.length === 0) {
       return
@@ -190,14 +193,14 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
     addLocationsToMap(map, geoJson)
     addPopupsToMap(mapId, map, settings)
 
-    map.on('mouseenter', 'locations-layer', (): void => {
+    map.on('mouseenter', LOCATIONS_LAYER, (): void => {
       const canvas = map.getCanvas()
       if (canvas) {
         canvas.style.cursor = 'pointer'
       }
     })
 
-    map.on('mouseleave', 'locations-layer', (): void => {
+    map.on('mouseleave', LOCATIONS_LAYER, (): void => {
       const canvas = map.getCanvas()
       if (canvas) {
         canvas.style.cursor = ''
