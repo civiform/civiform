@@ -694,8 +694,10 @@ public final class QuestionsListView extends BaseHtmlView {
     // Add Archive option only if current question is draft or it's active, but
     // there is no draft version of the question.
     if (isEditable) {
-      Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
-      maybeTranslationLink.ifPresent(extraActions::add);
+      if (settingsManifest.getTranslationManagementImprovementEnabled()) {
+        Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
+        maybeTranslationLink.ifPresent(extraActions::add);
+      }
       Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
           renderArchiveOptions(cardData, question, activeAndDraftQuestions, request);
       extraActions.add(archiveOptionsAndModal.getLeft());

@@ -152,19 +152,24 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
-    ReadOnlyQuestionService readOnlyQuestionService = questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-    Optional<QuestionDefinition> draftQuestionOptional = readOnlyQuestionService.getActiveAndDraftQuestions().getDraftQuestionDefinition(questionName);
+    ReadOnlyQuestionService readOnlyQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    Optional<QuestionDefinition> draftQuestionOptional =
+        readOnlyQuestionService
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionName);
 
     if (draftQuestionOptional.isPresent()) {
       return draftQuestionOptional.get();
     }
 
-    return readOnlyQuestionService.getActiveAndDraftQuestions().getActiveQuestionDefinition(questionName)
-    .orElseThrow(
-     () ->
-     new BadRequestException(
-                    String.format("No draft found for question: \"%s\"", questionName)
-    ));
+    return readOnlyQuestionService
+        .getActiveAndDraftQuestions()
+        .getActiveQuestionDefinition(questionName)
+        .orElseThrow(
+            () ->
+                new BadRequestException(
+                    String.format("No draft found for question: \"%s\"", questionName)));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {

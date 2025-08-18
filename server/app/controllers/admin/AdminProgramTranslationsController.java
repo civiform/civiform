@@ -94,7 +94,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = getDraftProgramDefinition(programName);
+    ProgramDefinition program = getDraftAndActiveProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
         request.flash().get(FlashKey.ERROR).map(m -> ToastMessage.errorNonLocalized(m));
@@ -116,7 +116,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             errorMessage));
   }
 
-  private ProgramDefinition getDraftProgramDefinition(String programName)
+  private ProgramDefinition getDraftAndActiveProgramDefinition(String programName)
       throws ProgramNotFoundException {
     Optional<ProgramDefinition> optionalProgram =
         service.getActiveAndDraftPrograms().getDraftOrActiveProgramDefinition(programName);
@@ -156,7 +156,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result update(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = getDraftProgramDefinition(programName);
+    ProgramDefinition program = getDraftAndActiveProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     StatusDefinitions currentStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(programName);
