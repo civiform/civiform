@@ -88,8 +88,9 @@ public final class ApiBridgeService implements WSBodyReadables {
               },
               executionContext);
     } catch (RuntimeException ex) {
+      ErrorAnd<HealthcheckResponse, IProblemDetail> result = handleError(url, ex);
       recordErrorMetrics(HEALTH_CHECK_PATH, ex, startTimeNs);
-      return CompletableFuture.completedFuture(handleError(url, ex));
+      return CompletableFuture.completedFuture(result);
     }
   }
 
@@ -123,8 +124,9 @@ public final class ApiBridgeService implements WSBodyReadables {
               },
               executionContext);
     } catch (RuntimeException ex) {
+      ErrorAnd<DiscoveryResponse, IProblemDetail> result = handleError(url, ex);
       recordErrorMetrics(DISCOVERY_PATH, ex, startTimeNs);
-      return CompletableFuture.completedFuture(handleError(url, ex));
+      return CompletableFuture.completedFuture(result);
     }
   }
 
@@ -163,8 +165,9 @@ public final class ApiBridgeService implements WSBodyReadables {
               },
               executionContext);
     } catch (RuntimeException | JsonProcessingException ex) {
+      ErrorAnd<BridgeResponse, IProblemDetail> result = handleError(fullBridgeUrl, ex);
       recordErrorMetrics(BRIDGE_ROOT_PATH, ex, startTimeNs);
-      return CompletableFuture.completedFuture(handleError(fullBridgeUrl, ex));
+      return CompletableFuture.completedFuture(result);
     }
   }
 
