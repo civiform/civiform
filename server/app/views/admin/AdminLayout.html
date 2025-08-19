@@ -41,7 +41,12 @@
       type="text/javascript"
     ></script>
   </head>
-  <body class="display-flex minh-viewport body-background-gradient">
+
+  <!--/* Body sets HTMX header so the CSRF token is always there */-->
+  <body
+    class="display-flex minh-viewport body-background-gradient"
+    th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
+  >
     <!--/* Header navigation */-->
     <th:block th:insert="~{admin/shared/AdminCommonHeader}"></th:block>
 
