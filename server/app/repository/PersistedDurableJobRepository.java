@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
-import java.time.Instant;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -32,15 +32,16 @@ public final class PersistedDurableJobRepository {
    * Find the first scheduled job matching the job name and execution time, or an empty Optional if
    * none exists
    */
-  public Optional<PersistedDurableJobModel> findScheduledJob(
-      String jobName, Instant executionTime) {
+  public Optional<PersistedDurableJobModel> findScheduledRecurringJob(
+      String jobName) {
     return database
         .find(PersistedDurableJobModel.class)
         .setLabel("PersistedDurableJobModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("findScheduledJob"))
         .where()
         .eq("job_name", jobName)
-        .eq("execution_time", executionTime)
+        .isNull("success_time")
+        .gt("remaining_attempts", 0)
         .setMaxRows(1)
         .findOneOrEmpty();
   }

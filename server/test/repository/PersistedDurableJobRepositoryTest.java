@@ -30,9 +30,9 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
     Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
     var job = new PersistedDurableJobModel("fake-name", JobType.RECURRING, tomorrow);
 
-    assertThat(repo.findScheduledJob("fake-name", tomorrow)).isEmpty();
+    assertThat(repo.findScheduledRecurringJob("fake-name")).isEmpty();
     job.save();
-    assertThat(repo.findScheduledJob("fake-name", tomorrow)).contains(job);
+    assertThat(repo.findScheduledRecurringJob("fake-name")).contains(job);
   }
 
   @Test
