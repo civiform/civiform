@@ -951,7 +951,7 @@
         "required": false
       },
       "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
         "type": "bool",
         "required": false
