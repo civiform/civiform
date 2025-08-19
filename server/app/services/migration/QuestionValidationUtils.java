@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
-import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -52,30 +52,36 @@ final class QuestionValidationUtils {
   }
 
   /**
-   * Validates that YES_NO questions only contain the allowed options.
+   * Validates YES_NO questions and returns errors for any that contain invalid options.
+   *
+   * <p>Only validates YES_NO question types. Other question types are ignored. Valid YES_NO options
+   * are: 'yes', 'no', 'maybe', and 'not-sure'.
    *
    * @param questions the list of questions to validate
-   * @return a set of validation errors, empty if all YES_NO questions are valid
+   * @return a set of validation errors for YES_NO questions with invalid options, empty if all
+   *     YES_NO questions have valid options
    */
-  static ImmutableSet<CiviFormError> validateYesNoQuestions(
+  public static ImmutableSet<CiviFormError> validateYesNoQuestions(
       ImmutableList<QuestionDefinition> questions) {
-    for (QuestionDefinition question : questions) {
-      if (question.getQuestionType() == QuestionType.YES_NO) {
-        MultiOptionQuestionDefinition yesNoQuestion = (MultiOptionQuestionDefinition) question;
 
-        for (QuestionOption option : yesNoQuestion.getOptions()) {
-          if (!ALLOWED_YES_NO_OPTIONS.contains(option.adminName())) {
-            return ImmutableSet.of(
+    return questions.stream()
+        .filter(question -> question.getQuestionType() == QuestionType.YES_NO)
+        .map(question -> (MultiOptionQuestionDefinition) question)
+        .flatMap(yesNoQuestion -> validateSingleYesNoQuestion(yesNoQuestion))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  private static Stream<CiviFormError> validateSingleYesNoQuestion(
+      MultiOptionQuestionDefinition yesNoQuestion) {
+    return yesNoQuestion.getOptions().stream()
+        .filter(option -> !ALLOWED_YES_NO_OPTIONS.contains(option.adminName()))
+        .map(
+            option ->
                 CiviFormError.of(
                     String.format(
-                        "Yes/No question '%s' contains unsupported option: '%s'. "
+                        "YES_NO question '%s' contains invalid option '%s'. "
                             + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-                        question.getName(), option.adminName())));
-          }
-        }
-      }
-    }
-    return ImmutableSet.of();
+                        yesNoQuestion.getName(), option.adminName())));
   }
 
   /**

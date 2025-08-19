@@ -238,12 +238,12 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .contains(
-            "Yes/No question 'invalid-yes-no-question' contains unsupported option: 'absolutely'. "
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. "
                 + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
 
   @Test
-  public void validateYesNoQuestions_multipleInvalidOptions_returnsFirstError() {
+  public void validateYesNoQuestions_multipleInvalidOptions_returnsAllErrors() {
     QuestionDefinition yesNoQuestion =
         createYesNoQuestionWithOptions(
             "invalid-yes-no-question", ImmutableList.of("yes", "absolutely", "definitely-not"));
@@ -251,10 +251,12 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
 
-    assertThat(errors).hasSize(1);
-    assertThat(errors.iterator().next().message())
+    assertThat(errors).hasSize(2);
+    assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "Yes/No question 'invalid-yes-no-question' contains unsupported option: 'absolutely'. "
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. "
+                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'definitely-not'. "
                 + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
 
@@ -275,7 +277,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   }
 
   @Test
-  public void validateYesNoQuestions_mixedValidAndInvalidYesNo_returnsFirstInvalidError() {
+  public void validateYesNoQuestions_mixedValidAndInvalidYesNo_returnsInvalidError() {
     QuestionDefinition validYesNoQuestion =
         createYesNoQuestionWithOptions("valid-yes-no-question", ImmutableList.of("yes", "no"));
     QuestionDefinition invalidYesNoQuestion =
@@ -289,7 +291,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .contains(
-            "Yes/No question 'invalid-yes-no-question' contains unsupported option: 'perhaps'. "
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'perhaps'. "
                 + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
 
@@ -323,10 +325,12 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
 
-    assertThat(errors).hasSize(1);
-    assertThat(errors.iterator().next().message())
+    assertThat(errors).hasSize(2);
+    assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "Yes/No question 'case-sensitive-question' contains unsupported option: 'Yes'. "
+            "YES_NO question 'case-sensitive-question' contains invalid option 'Yes'. "
+                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'case-sensitive-question' contains invalid option 'No'. "
                 + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
 

@@ -164,31 +164,26 @@ public final class ProgramMigrationService {
   /**
    * Validates questions before they are rendered to the admin.
    *
+   * @param program The program definition being validated.
    * @param questions The questions to validate.
    * @param existingAdminNames The existing admin names of questions in the Question Bank.
-   * @return A set of validation errors.
+   * @return A set of validation errors from all validation checks.
    */
   public ImmutableSet<CiviFormError> validateQuestions(
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> existingAdminNames) {
-    ImmutableSet<CiviFormError> questionErrors =
-        QuestionValidationUtils.validateQuestionOptionAdminNames(questions);
-    if (!questionErrors.isEmpty()) {
-      return questionErrors;
-    }
-    questionErrors = QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions);
-    if (!questionErrors.isEmpty()) {
-      return questionErrors;
-    }
 
-    questionErrors = QuestionValidationUtils.validateYesNoQuestions(questions);
-    if (!questionErrors.isEmpty()) {
-      return questionErrors;
-    }
+    ImmutableSet.Builder<CiviFormError> allErrors = ImmutableSet.builder();
 
-    return QuestionValidationUtils.validateRepeatedQuestions(
-        program, questions, existingAdminNames);
+    allErrors.addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions));
+    allErrors.addAll(
+        QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions));
+    allErrors.addAll(QuestionValidationUtils.validateYesNoQuestions(questions));
+    allErrors.addAll(
+        QuestionValidationUtils.validateRepeatedQuestions(program, questions, existingAdminNames));
+
+    return allErrors.build();
   }
 
   /**
@@ -449,19 +444,13 @@ public final class ProgramMigrationService {
       ImmutableList<String> reusedQuestions) {
     ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
-      ImmutableSet<CiviFormError> yesNoErrors =
-          QuestionValidationUtils.validateYesNoQuestions(questionDefinitions);
-      if (!yesNoErrors.isEmpty()) {
-        String errorMessage = yesNoErrors.iterator().next().message();
-        return ErrorAnd.error(ImmutableSet.of(errorMessage));
-      }
-
       if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
         return ErrorAnd.error(
             ImmutableSet.of(
                 "Overwriting question definitions is only supported when there are no"
                     + " existing drafts. Please publish all drafts and try again."));
       }
+
       validateEnumeratorAndRepeatedQuestions(
           questionDefinitions, overwrittenQuestions, duplicatedQuestions, reusedQuestions);
       // When admins can select how to handle duplicate questions, we do not show admins a

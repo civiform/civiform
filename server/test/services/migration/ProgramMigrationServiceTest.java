@@ -851,9 +851,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .contains(
-            "Yes/No question '"
-                + INVALID_YES_NO_NAME
-                + "' contains unsupported option: 'absolutely'");
+            "YES_NO question '" + INVALID_YES_NO_NAME + "' contains invalid option 'absolutely'");
     assertThat(errors.iterator().next().message())
         .contains("Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
@@ -876,13 +874,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .contains(
-            "Yes/No question '"
-                + INVALID_YES_NO_NAME
-                + "' contains unsupported option: 'absolutely'");
+            "YES_NO question '" + INVALID_YES_NO_NAME + "' contains invalid option 'absolutely'");
   }
 
   @Test
-  public void validateQuestions_nonYesNoQuestionsOnly_noErrors() {
+  public void validateQuestions_withoutYesNoQuestions_noErrors() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test-program")
             .withBlock("Test Block")
@@ -911,52 +907,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-  }
-
-  @Test
-  public void saveImportedProgram_invalidYesNoQuestion_returnsError() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test-program")
-            .withBlock("Test Block")
-            .withRequiredQuestionDefinition(INVALID_YES_NO_QUESTION)
-            .buildDefinition();
-
-    ErrorAnd<ProgramModel, String> result =
-        service.saveImportedProgram(
-            programDefinition, ImmutableList.of(INVALID_YES_NO_QUESTION), ImmutableMap.of());
-
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
-        .contains(
-            "Yes/No question '"
-                + INVALID_YES_NO_NAME
-                + "' contains unsupported option: 'absolutely'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
-  }
-
-  @Test
-  public void saveImportedProgram_multipleYesNoQuestionsWithMixedValidity_returnsFirstError() {
-    QuestionDefinition anotherInvalidYesNo =
-        createYesNoQuestion("anotherInvalidYesNo", 10L, ImmutableList.of("yes", "no", "perhaps"));
-
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test-program")
-            .withBlock("Test Block")
-            .withRequiredQuestionDefinition(VALID_YES_NO_QUESTION)
-            .withRequiredQuestionDefinition(anotherInvalidYesNo)
-            .buildDefinition();
-
-    ErrorAnd<ProgramModel, String> result =
-        service.saveImportedProgram(
-            programDefinition,
-            ImmutableList.of(VALID_YES_NO_QUESTION, anotherInvalidYesNo),
-            ImmutableMap.of());
-
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
-        .contains(
-            "Yes/No question 'anotherInvalidYesNo' contains unsupported option: 'perhaps'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
   }
 
   @Test
