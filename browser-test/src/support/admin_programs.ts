@@ -1635,12 +1635,9 @@ export class AdminPrograms {
     return waitForAnyModalLocator(this.page)
   }
   /**
-   * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
-   * containing the modal has been refreshed.
+   * Clicks the confirm button in the status update confirmation dialog
    */
   async confirmStatusUpdateModal(modal: Locator) {
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
     await confirmButton.click()
     await waitForPageJsLoad(this.page)
@@ -1688,8 +1685,6 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
-    // Confirming should cause the page to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
     await saveButton.click()
     await waitForPageJsLoad(this.page)
