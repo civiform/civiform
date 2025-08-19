@@ -36,22 +36,13 @@ public class MapRefreshJob extends DurableJob {
   @Override
   public void run() {
     logger.info("Starting job to refresh map data.");
-    int errorCount = 0;
     try (Transaction jobTransaction = database.beginTransaction()) {
       try {
         geoJsonDataRepository.refreshGeoJson(geoJsonClient);
-      } catch (RuntimeException e) {
-        errorCount++;
-        logger.error(e.getMessage(), e);
-      }
-
-      if (errorCount == 0) {
         logger.info("Finished refreshing map data.");
         jobTransaction.commit();
-      } else {
-        logger.error(
-            "Failed to refresh map data. See previous logs for failures. Total failures: {0}",
-            errorCount);
+      } catch (RuntimeException e) {
+        logger.error("Failed to refresh map data: {}", e.getMessage(), e);
         jobTransaction.rollback();
       }
     }
