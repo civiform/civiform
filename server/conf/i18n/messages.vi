@@ -1025,7 +1025,7 @@ category.tag.housing=Nhà ở
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to the military.
-category.tag.military=Military
+category.tag.military=Quân đội
 
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Đào tạo
@@ -1037,7 +1037,7 @@ category.tag.transportation=Vận tải
 category.tag.utilities=Dịch vụ tiện ích
 
 # A tag used to filter the list of programs down to those that are related to military veterans.
-category.tag.veteran=Veteran
+category.tag.veteran=Cựu chiến binh
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Danh mục
