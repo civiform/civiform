@@ -1025,7 +1025,7 @@ category.tag.housing=住宅
 category.tag.internet=網際網路
 
 # A tag used to filter the list of programs down to those that are related to the military.
-category.tag.military=Military
+category.tag.military=軍人
 
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=訓練
@@ -1037,7 +1037,7 @@ category.tag.transportation=交通運輸
 category.tag.utilities=公用事業
 
 # A tag used to filter the list of programs down to those that are related to military veterans.
-category.tag.veteran=Veteran
+category.tag.veteran=退伍軍人
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=類別
