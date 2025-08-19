@@ -317,8 +317,8 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   /**
-   * Asserts that the prometheus metric for the specific method label is from an unhandled error and
-   * has a non-zero sample size
+   * Asserts that the prometheus metric for the specific method label has a non-zero sample size and
+   * verifies the unhandled exception is not recorded as success or error.
    */
   private void assertPrometheusMetricForUnhandledErrors(String metricName, String methodName) {
     Optional<Collector.MetricFamilySamples.Sample> optionalSample =
