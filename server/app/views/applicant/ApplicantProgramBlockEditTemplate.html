@@ -59,6 +59,7 @@
               <div
                 th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
               ></div>
+
               <div
                 th:each="question: ${applicationParams.block().getQuestions()}"
               >
