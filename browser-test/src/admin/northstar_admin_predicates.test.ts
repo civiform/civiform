@@ -394,7 +394,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
-      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
+      'Applicant is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
@@ -760,7 +760,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
     let predicateDisplay = await page.innerText('.cf-display-predicate')
-    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    expect(predicateDisplay).toContain(
+      'Applicant is eligible if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -853,7 +855,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       page,
       'visibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      'Screen 2 is hidden if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
