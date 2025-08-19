@@ -687,3 +687,30 @@ main {
     }
   }
 }
+
+// Map question custom styles
+// Custom height for map question location container
+.cf-locations-list {
+  height: 400px;
+}
+
+// Custom height for map question map container
+.cf-map-container {
+  height: 400px;
+  min-height: 400px;
+  max-height: 400px;
+}
+
+.cf-question-map {
+  overflow: hidden;
+}
+
+.cf-question-map .grid-row {
+  max-height: 500px;
+}
+
+// Ensure MapLibre attribution links are underlined and styled consistently for accessibility
+.maplibregl-ctrl-attrib a {
+  text-decoration: underline !important;
+  color: color('blue-60v') !important;
+}
