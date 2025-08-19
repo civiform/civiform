@@ -1084,6 +1084,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
@@ -1103,11 +1108,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSettingsCacheEnabled() {
     return getBool("SETTINGS_CACHE_ENABLED");
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled() {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -2338,6 +2338,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
+                              + " phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
@@ -2355,13 +2362,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
                               + " of directly from the database.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
-                              + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
