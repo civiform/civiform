@@ -3,6 +3,7 @@ import {
   AdminQuestions,
   disableFeatureFlag,
   enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -40,6 +41,9 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
       adminQuestions,
       adminPrograms,
     }) => {
+      if (type === QuestionType.MAP && isLocalDevEnvironment()) {
+        test.skip()
+      }
       await loginAsAdmin(page)
 
       const questionName = `qlc-${type}`
