@@ -73,13 +73,15 @@ public final class GeoJsonDataRepository {
 
   public void refreshGeoJson(GeoJsonClient geoJsonClient) {
     database
-        .sqlQuery(
-            "select distinct on (endpoint) endpoint "
-                + "from geo_json_data "
-                + "order by endpoint, confirm_time DESC;")
-        .findEachRow(
-            (resultSet, rowNum) -> {
-              String endpoint = resultSet.getString("endpoint");
+        .find(GeoJsonDataModel.class)
+        .setLabel("GeoJsonDataModel.getDistinctEndpoints")
+        .setProfileLocation(queryProfileLocationBuilder.create("refreshGeoJson"))
+        .select("endpoint")
+        .setDistinct(true)
+        .findList()
+        .forEach(
+            geoJsonData -> {
+              String endpoint = geoJsonData.getEndpoint();
               geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
             });
   }
