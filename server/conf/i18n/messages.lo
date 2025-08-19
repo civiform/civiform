@@ -1025,7 +1025,7 @@ category.tag.housing=ທີ່ຢູ່ອາໄສ
 category.tag.internet=ອິນເຕີເນັດ
 
 # A tag used to filter the list of programs down to those that are related to the military.
-category.tag.military=Military
+category.tag.military=ທະຫານ
 
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=ການຝຶກອົບຮົມ
@@ -1037,7 +1037,7 @@ category.tag.transportation=ການຂົນສົ່ງ
 category.tag.utilities=ສາທາລະນູປະໂພກ
 
 # A tag used to filter the list of programs down to those that are related to military veterans.
-category.tag.veteran=Veteran
+category.tag.veteran=ທະຫານຜ່ານເສິກ
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ໝວດໝູ່
@@ -1068,4 +1068,4 @@ session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດ�
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.
