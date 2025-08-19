@@ -110,16 +110,20 @@ const createPopupContent = (
   }
 
   if (detailsUrl) {
+    const detailsLinkElementContainer =
+      (popupContent.querySelector(
+        '.cf-popup-content-location-link-container',
+      ) as HTMLElement) || null
     const detailsLinkElement =
       (popupContent.querySelector(
         '.cf-popup-content-location-link',
       ) as HTMLAnchorElement) || null
-    if (detailsLinkElement) {
+    if (detailsLinkElementContainer && detailsLinkElement) {
       try {
         const url = new URL(detailsUrl)
         if (url.protocol === 'http:' || url.protocol === 'https:') {
           detailsLinkElement.href = detailsUrl
-          detailsLinkElement.classList.remove('hidden')
+          detailsLinkElementContainer.classList.remove('hidden')
         } else {
           console.warn('Invalid URL protocol, skipping link:', detailsUrl)
         }
@@ -127,6 +131,10 @@ const createPopupContent = (
         console.warn('Invalid URL format, skipping link:', detailsUrl)
       }
     }
+  }
+
+  if (!name && !address && !detailsUrl) {
+    return null
   }
 
   return popupContent

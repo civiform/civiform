@@ -95,11 +95,13 @@
       class="hidden text-bold font-serif-sm padding-bottom-2 cf-popup-content-location-name"
     ></div>
     <div class="hidden font-sans-sm cf-popup-content-location-address"></div>
-    <a
-      class="hidden font-sans-sm usa-link usa-link--external cf-popup-content-location-link"
-      target="_blank"
-      th:text="#{map.locationLinkText}"
-    ></a>
+    <div class="hidden cf-popup-content-location-link-container">
+      <a
+        class="hidden font-sans-sm usa-link usa-link--external cf-popup-content-location-link"
+        target="_blank"
+        th:text="#{map.locationLinkText}"
+      ></a>
+    </div>
   </div>
 
   <script
