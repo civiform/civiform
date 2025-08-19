@@ -692,6 +692,30 @@ main {
 // Custom height for map question location container
 .cf-locations-list {
   height: 400px;
+  scroll-behavior: smooth;
+}
+
+// Ensure locations column matches map height exactly
+.cf-locations-column {
+  height: 400px;
+
+  // Custom scrollbar styling to remove background
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color('gray-50');
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color('gray-60');
+  }
 }
 
 // Custom height for map question map container
@@ -699,14 +723,6 @@ main {
   height: 400px;
   min-height: 400px;
   max-height: 400px;
-}
-
-.cf-question-map {
-  overflow: hidden;
-}
-
-.cf-question-map .grid-row {
-  max-height: 500px;
 }
 
 // Ensure MapLibre attribution links are underlined and styled consistently for accessibility
