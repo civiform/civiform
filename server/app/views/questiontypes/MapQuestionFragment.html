@@ -17,6 +17,14 @@
     <!-- Scrollable container with location checkboxes -->
     <div class="grid-col-6">
       <fieldset class="usa-fieldset">
+        <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
+        <input
+          type="checkbox"
+          class="hidden"
+          value=""
+          th:name="${mapQuestion.getSelectionPathAsArray()}"
+          checked
+        />
         <div
           th:if="${questionRendererParams.geoJson().isPresent()}"
           class="cf-locations-list overflow-y-auto border-1px border-gray-30 padding-1"
@@ -43,6 +51,8 @@
               class="usa-checkbox__input cf-location-checkbox-input"
               th:id="${locationId}"
               th:value="${locationName}"
+              th:name="${mapQuestion.getSelectionPathAsArray()}"
+              th:checked="${mapQuestion.locationIsSelected(locationName)}"
               type="checkbox"
             />
             <label

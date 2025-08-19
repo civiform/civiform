@@ -26,22 +26,13 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   public String getAnswerString() {
-    // TODO(#11003) Create answer string
-    return "";
+    Optional<ImmutableList<String>> selectedLocationNames = getSelectedLocationNames();
+    return selectedLocationNames.map(strings -> String.join(", ", strings)).orElse("-");
   }
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    // @TODO(#11003): Return a real value for the map question
-    return ImmutableList.of();
-  }
-
-  public MapQuestionDefinition getQuestionDefinition() {
-    return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
-  }
-
-  private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
-    return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
+    return ImmutableList.of(getSelectionPath());
   }
 
   public ImmutableList<LocalizedQuestionSetting> getFilters() {
@@ -78,6 +69,31 @@ public final class MapQuestion extends AbstractQuestion {
     return getSettingValue(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+  }
+
+  public Path getSelectionPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.SELECTIONS);
+  }
+
+  public String getSelectionPathAsArray() {
+    return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
+  }
+
+  public Optional<ImmutableList<String>> getSelectedLocationNames() {
+    return applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+  }
+
+  public boolean locationIsSelected(String locationName) {
+    Optional<ImmutableList<String>> selectedNames = getSelectedLocationNames();
+    return selectedNames.isPresent() && selectedNames.get().contains(locationName);
+  }
+
+  private MapQuestionDefinition getQuestionDefinition() {
+    return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
+    return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
   }
 
   private String getSettingValue(Locale locale, MapSettingType settingType) {
