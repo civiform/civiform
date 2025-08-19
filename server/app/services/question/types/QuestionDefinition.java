@@ -21,14 +21,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.question.LocalizedQuestionSetting;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 
 /**
  * Superclass for all question types.
@@ -68,6 +71,11 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
+  }
+
+  @JsonIgnore
+  public QuestionDisplayMode getDisplayMode() {
+    return config.displayMode();
   }
 
   /**
@@ -329,6 +337,28 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public abstract QuestionType getQuestionType();
 
+  /** Get the question settings for this question. */
+  @JsonIgnore
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
+    return config.questionSettings();
+  }
+
+  /**
+   * Get localized question settings for the specified locale, falling back to default if needed.
+   */
+  @JsonIgnore
+  public Optional<ImmutableSet<LocalizedQuestionSetting>> getSettingsForLocaleOrDefault(
+      Locale locale) {
+    if (config.questionSettings().isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        config.questionSettings().get().stream()
+            .map(setting -> setting.localizeOrDefault(locale))
+            .collect(ImmutableSet.toImmutableSet()));
+  }
+
   /** Get the default validation predicates for this question type. */
   @JsonIgnore
   abstract ValidationPredicates getDefaultValidationPredicates();
@@ -436,7 +466,8 @@ public abstract class QuestionDefinition {
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
           && getValidationPredicates().equals(o.getValidationPredicates())
-          && getConcurrencyToken().equals(o.getConcurrencyToken());
+          && getConcurrencyToken().equals(o.getConcurrencyToken())
+          && getDisplayMode().equals(o.getDisplayMode());
     }
     return false;
   }

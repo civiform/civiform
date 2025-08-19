@@ -3,7 +3,7 @@
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:17.0.15_6-jdk-alpine@sha256:4a763f969e0ef9abd2c77047cfde1eb98ccf7de8ba4ff843a47da7bb9580515c AS amd64
+FROM eclipse-temurin:17.0.16_8-jdk-alpine@sha256:c0dfec8fb4aec4adad2d00d267c5cb5348465d77f087e455d2905fb180ce27d2 AS amd64
 FROM bellsoft/liberica-openjdk-alpine:17.0.16-12@sha256:ed3d715eb5d00e7929d47b3bd4c4b872d773dc4830cf34222ccc9ab3ab1c9a84 AS arm64
 
 FROM ${TARGETARCH}

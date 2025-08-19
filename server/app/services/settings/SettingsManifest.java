@@ -1051,14 +1051,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
-  /**
-   * Enable options for handling duplicate questions when importing/migrating programs: create a
-   * duplicate, use the existing question, or overwrite the existing question.
-   */
-  public boolean getImportDuplicateHandlingOptionsEnabled() {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED");
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -1067,15 +1059,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables admin validation settings for date questions. */
   public boolean getDateValidationEnabled(RequestHeader request) {
     return getBool("DATE_VALIDATION_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
-   * between deployed environments. Note: this should only be used on new environments, since
-   * existing programs will be modified if a program with the same question gets imported.
-   */
-  public boolean getNoDuplicateQuestionsForMigrationEnabled() {
-    return getBool("NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED");
   }
 
   /**
@@ -1120,6 +1103,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSettingsCacheEnabled() {
     return getBool("SETTINGS_CACHE_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
+  public boolean getApiBridgeEnabled(RequestHeader request) {
+    return getBool("API_BRIDGE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2297,14 +2290,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "Enable options for handling duplicate questions when importing/migrating"
-                              + " programs: create a duplicate, use the existing question, or"
-                              + " overwrite the existing question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
@@ -2324,16 +2309,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
-                              + " migrating programs between deployed environments. Note: this"
-                              + " should only be used on new environments, since existing programs"
-                              + " will be modified if a program with the same question gets"
-                              + " imported.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "SESSION_REPLAY_PROTECTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
@@ -2382,7 +2357,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " of directly from the database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
+                              + " phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "API_BRIDGE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

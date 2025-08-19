@@ -183,14 +183,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       return Optional.empty();
     }
 
-    if (!(oidcProfile.get() instanceof OidcProfile)) {
+    if (!(oidcProfile.get() instanceof OidcProfile profile)) {
       logger.warn(
-          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
+          "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
     }
 
-    OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());

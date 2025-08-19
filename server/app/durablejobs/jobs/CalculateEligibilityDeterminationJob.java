@@ -12,12 +12,13 @@ import javax.inject.Inject;
 import models.ApplicationModel;
 import models.EligibilityDetermination;
 import models.PersistedDurableJobModel;
-import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 
 /**
  * Calculate the eligibility determination for applications submitted before the pre-compute
@@ -27,14 +28,18 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
   private static final Logger logger =
       LoggerFactory.getLogger(CalculateEligibilityDeterminationJob.class);
   private final ApplicantService applicantService;
+  private final ProgramService programService;
 
   private final Database database;
   private final PersistedDurableJobModel persistedDurableJobModel;
 
   @Inject
   public CalculateEligibilityDeterminationJob(
-      ApplicantService applicantService, PersistedDurableJobModel persistedDurableJobModel) {
+      ApplicantService applicantService,
+      ProgramService programService,
+      PersistedDurableJobModel persistedDurableJobModel) {
     this.applicantService = checkNotNull(applicantService);
+    this.programService = checkNotNull(programService);
     this.persistedDurableJobModel = checkNotNull(persistedDurableJobModel);
     this.database = DB.getDefault();
   }
@@ -47,7 +52,6 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
   @Override
   public void run() {
     logger.info("Starting job to calculate eligibility determination.");
-
     try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       jobTransaction.setBatchMode(true);
       jobTransaction.setBatchSize(50);
@@ -72,11 +76,14 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
                   "Calculating eligibility determination for application id {}",
                   application.id); // Use the captured ID
 
-              ProgramModel pm = application.getProgram();
-              ProgramDefinition programDefinition = pm.getProgramDefinition();
+              Long programId = application.getProgram().id;
+              ProgramDefinition programDefinition =
+                  programService.getFullProgramDefinition(programId);
+
               ReadOnlyApplicantProgramService roAppProgramService =
                   applicantService.getReadOnlyApplicantProgramService(
                       application, programDefinition);
+
               EligibilityDetermination eligibilityDetermination =
                   applicantService.calculateEligibilityDetermination(
                       programDefinition, roAppProgramService);
@@ -86,7 +93,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
               logger.warn("Query returned a null application despite hasNext() being true.");
               errorCount++;
             }
-          } catch (RuntimeException e) {
+          } catch (RuntimeException | ProgramNotFoundException e) {
             errorCount++;
             final Long finalApplicationId = currentApplicationId;
             applicationOptional.ifPresentOrElse(

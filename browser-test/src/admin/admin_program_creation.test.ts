@@ -468,7 +468,7 @@ test.describe('program creation', () => {
     )
 
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'open-question-search',
       /* fullPage= */ false,
     )
@@ -559,7 +559,9 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
     await validateScreenshot(
-      page,
+      page.locator(
+        adminPrograms.questionCardSelectorInProgramView('ace-address'),
+      ),
       'program-detail-page-with-address-correction-false',
     )
 
@@ -572,7 +574,9 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput).toHaveValue('true')
 
     await validateScreenshot(
-      page,
+      page.locator(
+        adminPrograms.questionCardSelectorInProgramView('ace-address'),
+      ),
       'program-detail-page-with-address-correction-true',
     )
 
@@ -608,7 +612,7 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-multiple-address-correction-false',
     )
 
@@ -635,7 +639,7 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-first-address-correction-true',
     )
 
@@ -648,8 +652,8 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
     await validateScreenshot(
-      page,
-      'program-detail-page-with-first-address-correction-true',
+      page.locator('#questions-section'),
+      'program-detail-page-with-first-address-correction-true-second-false',
     )
 
     // Once we untoggle the first one, we should be able to toggle the second one
@@ -662,7 +666,7 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
 
     await validateScreenshot(
-      page,
+      page.locator('#questions-section'),
       'program-detail-page-with-second-address-correction-true',
     )
 
@@ -743,7 +747,7 @@ test.describe('program creation', () => {
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'question-bank-markdown',
       /* fullPage= */ false,
     )
@@ -806,7 +810,11 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty', /* fullPage= */ false)
+    await validateScreenshot(
+      page.locator('.cf-question-bank-panel'),
+      'question-bank-empty',
+      /* fullPage= */ false,
+    )
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -842,7 +850,7 @@ test.describe('program creation', () => {
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
     await validateScreenshot(
-      page,
+      page.locator('.cf-question-bank-panel'),
       'question-bank-with-created-question',
       /* fullPage= */ false,
     )
@@ -1056,7 +1064,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.launchRemoveProgramBlockModal(programName, 'Screen 1')
     await validateScreenshot(
-      page,
+      page.locator('#block-delete-modal'),
       'delete-screen-confirmation-modal',
       /* fullPage= */ false,
     )
@@ -1265,7 +1273,7 @@ test.describe('program creation', () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page,
+      page.locator('#confirm-common-intake-change'),
       'confirm-pre-screener-change-modal',
       /* fullPage= */ false,
     )
@@ -1319,8 +1327,8 @@ test.describe('program creation', () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page,
-      'confirm-pre-screener-change-modal-with-external-programs-feature',
+      page.locator('#confirm-common-intake-change'),
+      'confirm-pre-screener-change-modal',
       /* fullPage= */ false,
     )
 

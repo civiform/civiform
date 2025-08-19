@@ -83,7 +83,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   private static class CredentialedResourceRetriever extends DefaultResourceRetriever {
     private final Credentials cred;
 
-    public CredentialedResourceRetriever(OidcConfiguration configuration, Credentials cred) {
+    CredentialedResourceRetriever(OidcConfiguration configuration, Credentials cred) {
       super(configuration.getConnectTimeout(), configuration.getReadTimeout());
       this.cred = cred;
     }
@@ -104,7 +104,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   private static class CachedResourceRetriever extends DefaultResourceRetriever {
     private final ImmutableMap<URI, Resource> resources;
 
-    public CachedResourceRetriever(
+    CachedResourceRetriever(
         OidcConfiguration configuration, ImmutableMap<URI, Resource> resources) {
       super(configuration.getConnectTimeout(), configuration.getReadTimeout());
       this.resources = resources;

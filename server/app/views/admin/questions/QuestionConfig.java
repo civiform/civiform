@@ -6,6 +6,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
@@ -18,7 +19,6 @@ import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
-import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -40,6 +40,8 @@ import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
+import views.admin.BaseView;
+import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -88,9 +90,6 @@ public final class QuestionConfig {
       case ID:
         return Optional.of(
             config.addIdQuestionConfig((IdQuestionForm) questionForm).getContainer());
-      case MAP:
-        return Optional.of(
-            config.addMapQuestionConfig((MapQuestionForm) questionForm).getContainer());
       case NUMBER:
         return Optional.of(
             config.addNumberQuestionConfig((NumberQuestionForm) questionForm).getContainer());
@@ -122,6 +121,8 @@ public final class QuestionConfig {
                     .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
                     .getContainer())
             : Optional.empty();
+      case MAP: // fallthrough intended - MAP question configuration is handled in
+        // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
@@ -129,6 +130,11 @@ public final class QuestionConfig {
       default:
         return Optional.empty();
     }
+  }
+
+  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfigUsingThymeleaf(
+      Request request, BaseView<TModel> view, TModel model) {
+    return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
   }
 
   private QuestionConfig addPhoneConfig() {
@@ -647,16 +653,9 @@ public final class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addMapQuestionConfig(MapQuestionForm mapQuestionForm) {
-    // TODO(#11001): Add settings for filters
-    content.with(
-        FieldWithLabel.number()
-            .setFieldName("maxLocationSelections")
-            .setLabelText("Maximum location selections")
-            .setRequired(true)
-            .setMin(OptionalLong.of(1L))
-            .setValue(mapQuestionForm.getMaxLocationSelections())
-            .getNumberTag());
+  private <TModel extends BaseViewModel> QuestionConfig addConfig(
+      Request request, BaseView<TModel> view, TModel model) {
+    content.with(rawHtml(view.render(request, model)));
     return this;
   }
 

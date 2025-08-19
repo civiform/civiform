@@ -30,7 +30,7 @@ Resources:
 - [ ] If the release is going to be published later than Wednesday EOD, email civiform-announce@googlegroups.com and civiform-technical@googlegroups.com to let admins know when to expect the next release.
 - [ ] After publishing, email release notes
   - The email should include both a link to the release notes on GitHub, and a sentence or two summarizing what is in the release. It should be friendly to non-technical readers (think CiviForm and Program Admins). Feel free to use phrases like "small usability improvements" rather than listing each improvement. Edit the GitHub release notes and add this small summary to the top of it as well.
-- [ ] Upgrade the demo site config files to the latest version by running [this action](https://github.com/civiform/civiform-staging-deploy/actions/workflows/update_demo_versions.yaml) then approving and merging the generated PR.
+- [ ] Upgrade the demo site config files to the latest version by running [this action](https://github.com/civiform/civiform-staging-deploy/actions/workflows/update_demo_versions.yaml) then approving and merging the [generated PR](https://github.com/civiform/civiform-staging-deploy/pulls).
 
 ## General
 

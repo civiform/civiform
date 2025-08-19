@@ -123,51 +123,38 @@ public final class CategoryTranslationFileParser {
                       return;
                     }
                     switch ((String) entry.getKey()) {
-                      case "category.tag.childcare":
-                        childcareMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.economic":
-                        economicMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.education":
-                        educationMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.employment":
-                        employmentMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.food":
-                        foodMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.general":
-                        generalMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.healthcare":
-                        healthcareMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.housing":
-                        housingMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.internet":
-                        internetMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.training":
-                        trainingMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.transportation":
-                        transportationMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.utilities":
-                        utilitiesMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      default:
-                        logger.error("Unknown category: " + entry.getKey());
+                      case "category.tag.childcare" ->
+                          childcareMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.economic" ->
+                          economicMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.education" ->
+                          educationMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.employment" ->
+                          employmentMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.food" ->
+                          foodMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.general" ->
+                          generalMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.healthcare" ->
+                          healthcareMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.housing" ->
+                          housingMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.internet" ->
+                          internetMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.training" ->
+                          trainingMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.transportation" ->
+                          transportationMap.put(fileLanguage, (String) entry.getValue());
+                      case "category.tag.utilities" ->
+                          utilitiesMap.put(fileLanguage, (String) entry.getValue());
+                      default -> logger.error("Unknown category: {}", entry.getKey());
                     }
                   });
 
         } catch (FileNotFoundException e) {
-          logger.error("File not found: " + file.getName(), e);
+          logger.error("File not found: {}", file.getName(), e);
         } catch (IOException e) {
-          logger.error("Error reading file: " + file.getName(), e);
+          logger.error("Error reading file: {}", file.getName(), e);
         }
       }
     } catch (SecurityException e) {

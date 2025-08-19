@@ -276,12 +276,12 @@ public final class JsonExporterService {
       var maybeJsonValue = entry.getValue();
       if (maybeJsonValue.isEmpty()) {
         jsonApplication.putNull(path);
-      } else if (maybeJsonValue.get() instanceof String) {
-        jsonApplication.putString(path, (String) maybeJsonValue.get());
-      } else if (maybeJsonValue.get() instanceof Long) {
-        jsonApplication.putLong(path, (Long) maybeJsonValue.get());
-      } else if (maybeJsonValue.get() instanceof Double) {
-        jsonApplication.putDouble(path, (Double) maybeJsonValue.get());
+      } else if (maybeJsonValue.get() instanceof String str) {
+        jsonApplication.putString(path, str);
+      } else if (maybeJsonValue.get() instanceof Long l) {
+        jsonApplication.putLong(path, l);
+      } else if (maybeJsonValue.get() instanceof Double d) {
+        jsonApplication.putDouble(path, d);
       } else if (instanceOfNonEmptyImmutableListOfString(maybeJsonValue.get())) {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();

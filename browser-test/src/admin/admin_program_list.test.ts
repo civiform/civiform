@@ -91,7 +91,7 @@ test.describe('Program list page.', () => {
       )
     })
 
-    await test.step('check that long description is shown when North Star flag is off', async () => {
+    await test.step('check that long description is shown', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgramCard.locator(
@@ -103,22 +103,6 @@ test.describe('Program list page.', () => {
       await expect(
         firstProgramDesc.locator(`text=${programShortDescription}`),
       ).toHaveCount(0) // short description should not be shown
-    })
-
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-    await test.step('check that short description is shown when North Star flag is on', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      const firstProgramCard = page.locator('.cf-admin-program-card').first()
-      const firstProgramDesc = firstProgramCard.locator(
-        '.cf-program-description',
-      )
-      await expect(
-        firstProgramDesc.getByText(programShortDescription),
-      ).toBeVisible()
-      await expect(
-        firstProgramDesc.locator(`text=${programLongDescription}`),
-      ).toHaveCount(0) // long description should not be shown
     })
   })
 

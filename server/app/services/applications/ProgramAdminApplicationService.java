@@ -212,7 +212,7 @@ public final class ProgramAdminApplicationService {
         isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(), subject, body);
   }
 
-  /*
+  /**
    * Sets the note on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
@@ -221,7 +221,7 @@ public final class ProgramAdminApplicationService {
     eventRepository.insertNoteEvent(application, note, admin);
   }
 
-  /* Returns the note content for {@code application}. */
+  /** Returns the note content for {@code application}. */
   public Optional<String> getNote(ApplicationModel application) {
     // The most recent note event is the current value for the note.
     return application.getApplicationEvents().stream()

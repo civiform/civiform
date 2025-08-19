@@ -167,21 +167,21 @@ public final class ViewUtils {
   public static PTag makeLifecycleBadge(ProgramDisplayType status, String... extraClasses) {
     String badgeText = "", badgeBGColor = "", badgeFillColor = "";
     switch (status) {
-      case ACTIVE:
+      case ACTIVE -> {
         badgeText = "Active";
         badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
         badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
-        break;
-      case DRAFT:
+      }
+      case DRAFT -> {
         badgeText = "Draft";
         badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
         badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
-        break;
-      case PENDING_DELETION:
+      }
+      case PENDING_DELETION -> {
         badgeText = "Archived";
         badgeBGColor = BaseStyles.BG_CIVIFORM_YELLOW_LIGHT;
         badgeFillColor = BaseStyles.TEXT_CIVIFORM_YELLOW;
-        break;
+      }
     }
     return p().withClasses(
             badgeBGColor,

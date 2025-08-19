@@ -1,5 +1,6 @@
 package services.question.types;
 
+import java.util.List;
 import java.util.Locale;
 import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
@@ -44,9 +45,22 @@ public enum QuestionType {
   private final String label;
   private final Class<? extends AbstractQuestion> supportedQuestion;
 
+  private static final List<QuestionType> QUESTION_TYPES_SUPPORTING_SETTINGS =
+      List.of(QuestionType.MAP);
+
   QuestionType(String label, Class<? extends AbstractQuestion> supportedQuestion) {
     this.label = label;
     this.supportedQuestion = supportedQuestion;
+  }
+
+  /**
+   * Determines if a {@link QuestionType} supports Question Settings
+   *
+   * @param questionType a {@link QuestionType}
+   * @return boolean to indicate whether the question type supports settings
+   */
+  public static boolean supportsQuestionSettings(QuestionType questionType) {
+    return QUESTION_TYPES_SUPPORTING_SETTINGS.contains(questionType);
   }
 
   /**

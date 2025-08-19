@@ -1091,7 +1091,10 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      "as a Program Admin because they haven't previously logged into" +
+        ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
+        " they've been added, they will need refresh their browser see the programs" +
+        " they've been assigned to.",
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -1567,20 +1570,14 @@ export class AdminPrograms {
     }
 
     if (clickFilterButton) {
-      await Promise.all([
-        this.page.waitForNavigation(),
-        await this.page.click('button:has-text("Filter")'),
-      ])
+      await this.page.click('button:has-text("Filter")')
     }
 
     await waitForPageJsLoad(this.page)
   }
 
   async clearFilterProgramApplications() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('a:has-text("Clear")'),
-    ])
+    await this.page.click('a:has-text("Clear")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -1645,7 +1642,7 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await confirmButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1694,7 +1691,7 @@ export class AdminPrograms {
     // Confirming should cause the page to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await saveButton.click()
     await waitForPageJsLoad(this.page)
   }
 

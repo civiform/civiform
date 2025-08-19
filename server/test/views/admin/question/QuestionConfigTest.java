@@ -4,31 +4,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.CheckboxQuestionForm;
 import forms.DateQuestionForm;
+import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import support.FakeRequestBuilder;
+import views.admin.questions.MapQuestionSettingsPartialView;
+import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -38,12 +45,16 @@ public class QuestionConfigTest {
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
   private SettingsManifest settingsManifest;
   private Request request;
+  private ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Before
   public void setUp() {
     settingsManifest = mock(SettingsManifest.class);
-    request = fakeRequest().build();
+    request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
+    playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
     when(settingsManifest.getDateValidationEnabled(request)).thenReturn(true);
+    when(playThymeleafContextFactory.create(request))
+        .thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
 
   @Test
@@ -53,89 +64,89 @@ public class QuestionConfigTest {
     if (questionType == QuestionType.NULL_QUESTION) {
       return;
     }
+    if (questionType == QuestionType.MAP) {
+      MapQuestionSettingsPartialViewModel model =
+          MapQuestionSettingsPartialViewModel.builder()
+              .maxLocationSelections(OptionalInt.of(5))
+              .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
+              .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
+              .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
+              .filters(ImmutableList.of())
+              .possibleKeys(Set.of("name_key", "address_key", "url_key"))
+              .build();
+      MapQuestionSettingsPartialView view =
+          new MapQuestionSettingsPartialView(
+              mock(TemplateEngine.class), playThymeleafContextFactory, settingsManifest);
+
+      Optional<DivTag> mapConfig =
+          QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
+      assertThat(mapConfig).isPresent();
+      return;
+    }
 
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     Optional<DivTag> maybeConfig =
         QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
     switch (questionType) {
-      case ADDRESS:
+      case ADDRESS -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Disallow post office boxes");
-        break;
-      case CHECKBOX:
+      }
+      case CHECKBOX -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted())
             .contains("Minimum number of choices required");
         assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case CURRENCY:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case DATE:
+      }
+      case CURRENCY, STATIC -> assertThat(maybeConfig).isEmpty();
+      case DATE -> {
         assertThat(maybeConfig).isPresent();
         String dateConfig = maybeConfig.get().renderFormatted();
         assertThat(dateConfig).contains("Validation parameters");
         assertThat(dateConfig).contains("Start date");
         assertThat(dateConfig).contains("End date");
-        break;
-      case DROPDOWN:
+      }
+      case DROPDOWN, RADIO_BUTTON -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case EMAIL:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case PHONE:
+      }
+      case EMAIL -> assertThat(maybeConfig).isEmpty();
+      case PHONE -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted())
             .contains(
                 "This supports only US and CA phone numbers. If you need other international"
                     + " numbers, please use a Text question.");
-        break;
-      case ENUMERATOR:
+      }
+      case ENUMERATOR -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("What are we enumerating");
-        break;
-      case FILEUPLOAD:
+      }
+      case FILEUPLOAD -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Maximum number of file uploads");
-        break;
-      case ID:
+      }
+      case ID, TEXT -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
-        break;
-      case MAP:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Maximum location selections");
-        break;
-      case NAME:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case NUMBER:
+      }
+      case NAME -> assertThat(maybeConfig).isEmpty();
+      case NUMBER -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Minimum value");
-        break;
-      case RADIO_BUTTON:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Add answer option");
-        break;
-      case STATIC:
-        assertThat(maybeConfig).isEmpty();
-        break;
-      case TEXT:
-        assertThat(maybeConfig).isPresent();
-        assertThat(maybeConfig.get().renderFormatted()).contains("Minimum length");
-        break;
-      case YES_NO:
+      }
+      case YES_NO -> {
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("Yes");
-        break;
-      default:
-        fail(
-            "Unhandled question type: %s. Please add a configuration in"
-                + " QuestionConfig.buildQuestionConfig and add an explicit case statement for the"
-                + " type.",
-            questionType);
+      }
+      default -> {
+        var unused =
+            fail(
+                "Unhandled question type: %s. Please add a configuration in"
+                    + " QuestionConfig.buildQuestionConfig and add an explicit case statement for"
+                    + " the type.",
+                questionType);
+      }
     }
   }
 

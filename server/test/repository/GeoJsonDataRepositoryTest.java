@@ -1,5 +1,6 @@
 package repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -8,16 +9,18 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import models.GeoJsonDataModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.test.WithApplication;
 import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.geojson.Geometry;
 
-public class GeoJsonDataRepositoryTest extends WithApplication {
+public class GeoJsonDataRepositoryTest extends ResetPostgres {
   private GeoJsonDataRepository geoJsonDataRepository;
+  private DatabaseExecutionContext dbExecutionContext;
+
   private final String endpoint = "http://example.com/geo.json";
   private static final FeatureCollection testFeatureCollection1 =
       new FeatureCollection(
@@ -62,13 +65,14 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
   @Before
   public void setup() {
     geoJsonDataRepository = instanceOf(GeoJsonDataRepository.class);
+    dbExecutionContext = instanceOf(DatabaseExecutionContext.class);
 
     // Create a database record
     GeoJsonDataModel firstEntry = new GeoJsonDataModel();
     firstEntry.setEndpoint(endpoint);
     firstEntry.setGeoJson(testFeatureCollection1);
     firstEntry.setConfirmTime(Instant.ofEpochSecond(1685047575)); // May 25, 2023 4:46 pm EDT
-    firstEntry.save();
+    CompletableFuture.runAsync(firstEntry::save, dbExecutionContext).join();
   }
 
   @Test
@@ -78,7 +82,7 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
     secondEntry.setEndpoint(endpoint);
     secondEntry.setGeoJson(testFeatureCollection2);
     secondEntry.setConfirmTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
-    secondEntry.save();
+    CompletableFuture.runAsync(secondEntry::save, dbExecutionContext).join();
 
     Optional<GeoJsonDataModel> result =
         geoJsonDataRepository
@@ -87,7 +91,10 @@ public class GeoJsonDataRepositoryTest extends WithApplication {
             .join();
 
     // Confirm that we get the second record
-    assertTrue(result.isPresent() && result.get().getGeoJson().equals(testFeatureCollection2));
+    assertThat(result).isNotNull();
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getGeoJson()).isNotNull();
+    assertThat(result.get().getGeoJson()).isEqualTo(testFeatureCollection2);
   }
 
   @Test

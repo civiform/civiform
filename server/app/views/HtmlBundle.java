@@ -322,7 +322,7 @@ public final class HtmlBundle {
   private static class HtmlBundleContent implements Content {
     HtmlTag bundleContent;
 
-    public HtmlBundleContent(HtmlTag bundleContent) {
+    HtmlBundleContent(HtmlTag bundleContent) {
       this.bundleContent = bundleContent;
     }
 
