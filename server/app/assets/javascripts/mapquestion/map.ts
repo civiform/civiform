@@ -38,6 +38,7 @@ const addLocationsToMap = (
   geoJson: GeoJSON.FeatureCollection,
 ): void => {
   // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
+  // Will need these later for filtering and selection
   const modifiedGeoJson = {
     ...geoJson,
     features: geoJson.features.map((feature) => ({
@@ -54,7 +55,7 @@ const addLocationsToMap = (
     data: modifiedGeoJson,
   })
 
-  // TODO: Add custom icons to the map markers
+  // TODO(#11279): Add custom icons to the map markers
   map.addLayer({
     id: LOCATIONS_LAYER,
     type: DEFAULT_MAP_MARKER_TYPE,
