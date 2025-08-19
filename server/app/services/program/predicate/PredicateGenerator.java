@@ -82,10 +82,9 @@ public final class PredicateGenerator {
     Multimap<Integer, LeafExpressionNode> leafNodes =
         getLeafNodes(programDefinition, predicateForm, roQuestionService);
 
-    switch (detectFormat(leafNodes)) {
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return PredicateDefinition.create(
+    return switch (detectFormat(leafNodes)) {
+      case OR_OF_SINGLE_LAYER_ANDS ->
+          PredicateDefinition.create(
               PredicateExpressionNode.create(
                   OrNode.create(
                       leafNodes.keySet().stream()
@@ -104,23 +103,14 @@ public final class PredicateGenerator {
                           .map(PredicateExpressionNode::create)
                           .collect(toImmutableList()))),
               predicateAction);
-        }
+      case SINGLE_QUESTION -> {
+        LeafExpressionNode singleQuestionNode =
+            leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
 
-      case SINGLE_QUESTION:
-        {
-          LeafExpressionNode singleQuestionNode =
-              leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
-
-          return PredicateDefinition.create(
-              PredicateExpressionNode.create(singleQuestionNode), predicateAction);
-        }
-
-      default:
-        {
-          throw new BadRequestException(
-              String.format("Unrecognized predicate format: %s", detectFormat(leafNodes)));
-        }
-    }
+        yield PredicateDefinition.create(
+            PredicateExpressionNode.create(singleQuestionNode), predicateAction);
+      }
+    };
   }
 
   /**
@@ -288,14 +278,14 @@ public final class PredicateGenerator {
     }
 
     switch (scalar.toScalarType()) {
-      case CURRENCY_CENTS:
+      case CURRENCY_CENTS -> {
         // Currency is inputted as dollars and cents but stored as cents.
         if (operator == Operator.BETWEEN) {
           return PredicateValue.pairOfLongs(parseCents(value), parseCents(secondValue.get()));
         }
         return PredicateValue.of(parseCents(value));
-
-      case DATE:
+      }
+      case DATE -> {
         // Age values are inputted as numbers.
         if (operator.equals(Operator.AGE_OLDER_THAN)
             || operator.equals(Operator.AGE_YOUNGER_THAN)) {
@@ -313,11 +303,12 @@ public final class PredicateGenerator {
         } else {
           return PredicateValue.of(parseDate(value));
         }
-
-      case SERVICE_AREA:
+        // Age values are inputted as numbers.
+      }
+      case SERVICE_AREA -> {
         return PredicateValue.serviceArea(value);
-
-      case LONG:
+      }
+      case LONG -> {
         switch (operator) {
           case IN:
           case NOT_IN:
@@ -336,24 +327,22 @@ public final class PredicateGenerator {
             // LESS_THAN_OR_EQUAL_TO
             return PredicateValue.of(Long.parseLong(value));
         }
-
-      default: // STRING - we list all operators here, but in reality only IN and NOT_IN are
+      }
+      default -> {
         // expected. The others are handled using the "values" field in the predicate form
-        switch (operator) {
-          case ANY_OF:
-          case IN:
-          case NONE_OF:
-          case NOT_IN:
-          case SUBSET_OF:
+        return switch (operator) {
+          case ANY_OF, IN, NONE_OF, NOT_IN, SUBSET_OF -> {
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)
                     .map(String::trim)
                     .collect(ImmutableList.toImmutableList());
-            return PredicateValue.listOfStrings(listOfStrings);
-          default: // EQUAL_TO, NOT_EQUAL_TO
-            return PredicateValue.of(value);
-        }
+            yield PredicateValue.listOfStrings(listOfStrings);
+          }
+          default -> // EQUAL_TO, NOT_EQUAL_TO
+              PredicateValue.of(value);
+        };
+      }
     }
   }
 

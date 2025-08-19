@@ -5,10 +5,9 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
-import static j2html.TagCreator.ul;
 import static views.style.AdminStyles.HEADER_BUTTON_STYLES;
 
 import com.google.common.collect.ImmutableList;
@@ -19,7 +18,7 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.UlTag;
+import j2html.tags.specialized.OlTag;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -190,10 +189,17 @@ abstract class ProgramBaseView extends BaseHtmlView {
                         predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
                     .condWith(
                         predicateUseCase == PredicateUseCase.ELIGIBILITY,
+                        Icons.svg(Icons.HOW_TO_REG)
+                            .withClasses("w-6", "h-5", "shrink-0")
+                            .attr("role", "img")
+                            .attr("aria-hidden", "true"),
                         p("This screen has eligibility conditions.").withClass("flex-grow"))
                     .condWith(
                         predicateUseCase == PredicateUseCase.VISIBILITY,
-                        Icons.svg(Icons.VISIBILITY_OFF).withClasses("w-6", "h-5", "shrink-0"),
+                        Icons.svg(Icons.VISIBILITY_OFF)
+                            .withClasses("w-6", "h-5", "shrink-0")
+                            .attr("role", "img")
+                            .attr("aria-hidden", "true"),
                         p("This screen has visibility conditions.").withClass("flex-grow")));
 
     ReadablePredicate readablePredicate =
@@ -203,10 +209,10 @@ abstract class ProgramBaseView extends BaseHtmlView {
         div()
             .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")
             .withClasses("prose-body", "px-4", "pb-4")
-            .with(text(readablePredicate.heading()));
-    if (readablePredicate.conditionList().isPresent()) {
-      UlTag conditionList = ul().withClasses("list-disc", "ml-4", "mb-4");
-      readablePredicate.conditionList().get().stream()
+            .with(p(readablePredicate.formattedHtmlHeading()));
+    if (readablePredicate.formattedHtmlConditionList().isPresent()) {
+      OlTag conditionList = ol().withClasses("list-decimal", "ml-4", "pt-4");
+      readablePredicate.formattedHtmlConditionList().get().stream()
           .forEach(condition -> conditionList.with(li(condition)));
       content.with(conditionList);
     }
@@ -252,39 +258,38 @@ abstract class ProgramBaseView extends BaseHtmlView {
 
   private ButtonTag renderHeaderButton(
       ProgramHeaderButton headerButton, ProgramDefinition programDefinition, Http.Request request) {
-    switch (headerButton) {
-      case EDIT_PROGRAM:
+    return switch (headerButton) {
+      case EDIT_PROGRAM -> {
         ButtonTag editButton = getStandardizedEditButton("Edit program");
         String editLink =
             routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
-        return toLinkButtonForPost(editButton, editLink, request);
-      case EDIT_PROGRAM_DETAILS:
-        return asRedirectElement(
-            getStandardizedEditButton("Edit program details"),
-            routes.AdminProgramController.edit(
-                    programDefinition.id(), ProgramEditStatus.EDIT.name())
-                .url());
-      case EDIT_PROGRAM_IMAGE:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
-                .withClasses(HEADER_BUTTON_STYLES)
-                .withId("header_edit_program_image_button"),
-            routes.AdminProgramImageController.index(
-                    programDefinition.id(), ProgramEditStatus.EDIT.name())
-                .url());
-      case PREVIEW_AS_APPLICANT:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
-                .withClasses(HEADER_BUTTON_STYLES),
-            routes.AdminProgramPreviewController.preview(programDefinition.slug()).url());
-      case DOWNLOAD_PDF_PREVIEW:
-        return asRedirectElement(
-            ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
-                .withClasses(HEADER_BUTTON_STYLES),
-            routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
-      default:
-        throw new IllegalStateException("All header buttons handled");
-    }
+        yield toLinkButtonForPost(editButton, editLink, request);
+      }
+      case EDIT_PROGRAM_DETAILS ->
+          asRedirectElement(
+              getStandardizedEditButton("Edit program details"),
+              routes.AdminProgramController.edit(
+                      programDefinition.id(), ProgramEditStatus.EDIT.name())
+                  .url());
+      case EDIT_PROGRAM_IMAGE ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Edit program image", Icons.IMAGE)
+                  .withClasses(HEADER_BUTTON_STYLES)
+                  .withId("header_edit_program_image_button"),
+              routes.AdminProgramImageController.index(
+                      programDefinition.id(), ProgramEditStatus.EDIT.name())
+                  .url());
+      case PREVIEW_AS_APPLICANT ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
+                  .withClasses(HEADER_BUTTON_STYLES),
+              routes.AdminProgramPreviewController.preview(programDefinition.slug()).url());
+      case DOWNLOAD_PDF_PREVIEW ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
+                  .withClasses(HEADER_BUTTON_STYLES),
+              routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
+    };
   }
 
   private ButtonTag getStandardizedEditButton(String buttonText) {

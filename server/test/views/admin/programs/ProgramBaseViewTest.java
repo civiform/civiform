@@ -65,8 +65,9 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is hidden if &quot;applicant birth date&quot; date is equal to"
-                + " 2023-01-01");
+            """
+            Block_name is <strong>hidden</strong> if <strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong>""");
   }
 
   @Test
@@ -140,9 +141,11 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is hidden if &quot;applicant birth date&quot; date is equal to 2023-01-01"
-                + " and &quot;applicant email address&quot; email is equal to"
-                + " &quot;test@example.com&quot;");
+            """
+            Block_name is <strong>hidden</strong> if <strong>&quot;applicant \
+            birth date&quot;</strong> date is equal to <strong>2023-01-01</strong> \
+            AND <strong>&quot;applicant email address&quot;</strong> email is \
+            equal to <strong>&quot;test@example.com&quot;</strong>""");
   }
 
   @Test
@@ -209,17 +212,25 @@ public class ProgramBaseViewTest {
 
     assertThat(result.render())
         .contains(
-            "Block_name is hidden if any of:<ul class=\"list-disc ml-4 mb-4\"><li>&quot;applicant"
-                + " birth date&quot; date is equal to 2023-01-01 and &quot;applicant email"
-                + " address&quot; email is equal to"
-                + " &quot;test@example.com&quot;</li><li>&quot;applicant birth date&quot; date is"
-                + " equal to 2023-03-03 and &quot;applicant email address&quot; email is equal to"
-                + " &quot;other@example.com&quot;</li></ul>");
+            """
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            true:</p>""");
+    assertThat(result.render())
+        .contains(
+            """
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;other@example.com&quot;</strong></li>""");
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
 
-    public ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
+    ProgramBlockBaseViewTestChild(SettingsManifest settingsManifest) {
       super(settingsManifest);
     }
 

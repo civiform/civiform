@@ -395,7 +395,7 @@ test.describe('create and edit predicates', () => {
     await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
-      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
+      'Applicant is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
@@ -762,7 +762,9 @@ test.describe('create and edit predicates', () => {
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
     let predicateDisplay = await page.innerText('.cf-display-predicate')
-    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    expect(predicateDisplay).toContain(
+      'Applicant is eligible if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -791,7 +793,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'eligibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -855,7 +857,9 @@ test.describe('create and edit predicates', () => {
       page,
       'visibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      'Screen 2 is hidden if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -884,7 +888,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'visibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -1560,7 +1564,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-greater-than-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-greater-than-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 
@@ -1617,7 +1624,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-between-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-between-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 

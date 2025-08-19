@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.32.19",
-      "software.amazon.awssdk" % "ses" % "2.32.19",
+      "software.amazon.awssdk" % "s3" % "2.32.24",
+      "software.amazon.awssdk" % "ses" % "2.32.24",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.16.2",
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.49.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.50.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.25.2",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.25.3",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.2.0",
+      "org.pac4j" % "pac4j-core" % "6.2.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.2.0",
+      "org.pac4j" % "pac4j-http" % "6.2.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.2.0",
+      "org.pac4j" % "pac4j-oidc" % "6.2.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.2.0",
+      "org.pac4j" % "pac4j-saml" % "6.2.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -96,7 +96,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.37.0",
+      "com.google.errorprone" % "error_prone_core" % "2.41.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.49.5",
 
       // Apache libraries for export
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.11",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.12",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",

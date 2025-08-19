@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import models.QuestionModel;
 import models.QuestionTag;
 import services.LocalizedStrings;
@@ -32,6 +33,7 @@ public abstract class QuestionForm {
   private String redirectUrl;
   private boolean isUniversal;
   private UUID concurrencyToken;
+  private QuestionDisplayMode displayMode;
   private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
 
   protected QuestionForm() {
@@ -46,6 +48,7 @@ public abstract class QuestionForm {
     // If we don't get a token from the client, generate one so any updates fail.
     concurrencyToken = UUID.randomUUID();
     primaryApplicantInfoTags = ImmutableSet.of();
+    displayMode = QuestionDisplayMode.VISIBLE;
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -71,6 +74,7 @@ public abstract class QuestionForm {
     isUniversal = qd.isUniversal();
     concurrencyToken = qd.getConcurrencyToken().orElse(UUID.randomUUID());
     primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
+    displayMode = qd.getDisplayMode();
   }
 
   public final String getQuestionName() {
@@ -124,6 +128,14 @@ public abstract class QuestionForm {
     this.questionHelpText = checkNotNull(questionHelpText);
   }
 
+  public final QuestionDisplayMode getDisplayMode() {
+    return displayMode;
+  }
+
+  public final void setDisplayMode(QuestionDisplayMode displayMode) {
+    this.displayMode = displayMode;
+  }
+
   public final String getRedirectUrl() {
     // Adding validation to prevent a non-absolute URL from being returned by the form.
     // There are potentially many ways for the private variable to be set (constructor,
@@ -159,6 +171,7 @@ public abstract class QuestionForm {
             .setQuestionHelpText(questionHelpTextMap)
             .setUniversal(isUniversal)
             .setConcurrencyToken(concurrencyToken)
+            .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return builder;
   }

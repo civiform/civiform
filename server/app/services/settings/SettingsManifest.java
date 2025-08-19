@@ -1051,14 +1051,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
-  /**
-   * Enable options for handling duplicate questions when importing/migrating programs: create a
-   * duplicate, use the existing question, or overwrite the existing question.
-   */
-  public boolean getImportDuplicateHandlingOptionsEnabled() {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED");
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -1116,6 +1108,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
   public boolean getTranslationManagementImprovementEnabled() {
     return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
+  public boolean getApiBridgeEnabled(RequestHeader request) {
+    return getBool("API_BRIDGE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2293,14 +2290,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
-                          "Enable options for handling duplicate questions when importing/migrating"
-                              + " programs: create a duplicate, use the existing question, or"
-                              + " overwrite the existing question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
@@ -2375,7 +2364,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "API_BRIDGE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

@@ -13,14 +13,23 @@ public abstract class LocalizedQuestionSetting {
 
   /** Create a LocalizedQuestionSetting. */
   public static LocalizedQuestionSetting create(
-      String settingKey, String settingDisplayName, Locale locale) {
-    return new AutoValue_LocalizedQuestionSetting(settingKey, settingDisplayName, locale);
+      String settingValue, SettingType settingType, String settingDisplayName, Locale locale) {
+    return new AutoValue_LocalizedQuestionSetting(
+        settingValue, settingType, settingDisplayName, locale);
   }
 
-  /** The key used for the setting. */
-  public abstract String settingKey();
+  /**
+   * The value identifying this setting within the question used that is provided by CiviForm Admins
+   * during question creation.
+   *
+   * @return a string (e.g. 'name' or 'address'
+   */
+  public abstract String settingValue();
 
-  /** The text strings to display to the user. */
+  /** Identifier indicating how this setting will be used. */
+  public abstract SettingType settingType();
+
+  /** The text string to display to the user. */
   public abstract String settingDisplayName();
 
   /** Sanitized HTML for the option that processes Markdown. */

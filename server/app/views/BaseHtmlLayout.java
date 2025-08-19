@@ -191,16 +191,16 @@ public class BaseHtmlLayout {
             .isAsync()
             .withType("text/javascript");
     String googleAnalyticsCode =
-        "window.dataLayer = window.dataLayer || [];"
-            + "\nfunction gtag() {"
-            + "\n\tdataLayer.push(arguments);"
-            + "\n}"
-            + "\ngtag('js', new Date());"
-            + "\ngtag('config', '%s');";
-    ScriptTag rawScript =
-        script()
-            .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .withType("text/javascript");
+        String.format(
+            """
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '%s');""",
+            trackingTag);
+    ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 

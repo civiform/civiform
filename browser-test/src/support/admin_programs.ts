@@ -1091,7 +1091,10 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      "as a Program Admin because they haven't previously logged into" +
+        ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
+        " they've been added, they will need refresh their browser see the programs" +
+        " they've been assigned to.",
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -1637,7 +1640,6 @@ export class AdminPrograms {
   async confirmStatusUpdateModal(modal: Locator) {
     const confirmButton = modal.getByText('Confirm')
     await confirmButton.click()
-
     await waitForPageJsLoad(this.page)
   }
 

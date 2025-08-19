@@ -890,37 +890,37 @@ public final class VersionRepository {
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as this method reads from the DB, and the
     //  caller likely read/updated it and will seemingly save the response.
-    switch (node.getType()) {
-      case AND:
+    return switch (node.getType()) {
+      case AND -> {
         AndNode and = node.getAndNode();
         ImmutableList<PredicateExpressionNode> updatedAndChildren =
             and.children().stream()
                 .map(this::updatePredicateNodeVersions)
                 .collect(toImmutableList());
-        return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
-      case OR:
+        yield PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
+      }
+      case OR -> {
         OrNode or = node.getOrNode();
         ImmutableList<PredicateExpressionNode> updatedOrChildren =
             or.children().stream()
                 .map(this::updatePredicateNodeVersions)
                 .collect(toImmutableList());
-        return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
-      case LEAF_OPERATION:
+        yield PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
+      }
+      case LEAF_OPERATION -> {
         LeafOperationExpressionNode leaf = node.getLeafOperationNode();
         Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
-        return PredicateExpressionNode.create(
+        yield PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
-      case LEAF_ADDRESS_SERVICE_AREA:
+      }
+      case LEAF_ADDRESS_SERVICE_AREA -> {
         LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
         Optional<QuestionModel> updatedQuestion =
             getLatestVersionOfQuestion(leafAddress.questionId());
-        return PredicateExpressionNode.create(
+        yield PredicateExpressionNode.create(
             leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
-    }
-    // ErrorProne will require the switch to handle all types since there isn't a default, we should
-    // never get here.
-    throw new AssertionError(
-        String.format("Predicate type is unhandled and must be: %s", node.getType()));
+      }
+    };
   }
 
   /**

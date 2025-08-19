@@ -10,6 +10,7 @@ import java.util.Optional;
 import models.ApiBridgeConfigurationModel;
 import org.junit.Before;
 import org.junit.Test;
+import services.applicant.question.Scalar;
 
 public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
 
@@ -76,7 +77,7 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
             new ApiBridgeDefinition(
                 ImmutableList.of(
                     new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                        "questionName1", "externalName1")),
+                        "questionName1", Scalar.TEXT, "externalName1")),
                 ImmutableList.of()))
         .setEnabled(false);
 
@@ -112,12 +113,12 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
     return new ApiBridgeDefinition(
         ImmutableList.of(
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName1", "externalName1"),
+                "questionName1", Scalar.TEXT, "externalName1"),
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName2", "externalName2")),
+                "questionName2", Scalar.TEXT, "externalName2")),
         ImmutableList.of(
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName3", "externalName3")));
+                "questionName3", Scalar.TEXT, "externalName3")));
   }
 
   private ApiBridgeConfigurationModel createBridgeConfigurationModel() {

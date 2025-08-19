@@ -777,8 +777,8 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
-      case PENDING_DELETION:
+    return switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION -> {
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
@@ -787,8 +787,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
-        return Pair.of(unarchiveButton, Optional.empty());
-      case DELETABLE:
+        yield Pair.of(unarchiveButton, Optional.empty());
+      }
+      case DELETABLE -> {
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
         ButtonTag archiveButton =
@@ -797,8 +798,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
-        return Pair.of(archiveButton, Optional.empty());
-      default:
+        yield Pair.of(archiveButton, Optional.empty());
+      }
+      case NOT_ACTIVE, NOT_DELETABLE -> {
         DivTag modalHeader =
             div()
                 .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
@@ -817,7 +819,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
-        return Pair.of(cantArchiveButton, maybeModal);
-    }
+        yield Pair.of(cantArchiveButton, maybeModal);
+      }
+    };
   }
 }

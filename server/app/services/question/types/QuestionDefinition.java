@@ -28,6 +28,7 @@ import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.question.LocalizedQuestionSetting;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.QuestionSetting;
@@ -342,6 +343,22 @@ public abstract class QuestionDefinition {
     return config.questionSettings();
   }
 
+  /**
+   * Get localized question settings for the specified locale, falling back to default if needed.
+   */
+  @JsonIgnore
+  public Optional<ImmutableSet<LocalizedQuestionSetting>> getSettingsForLocaleOrDefault(
+      Locale locale) {
+    if (config.questionSettings().isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        config.questionSettings().get().stream()
+            .map(setting -> setting.localizeOrDefault(locale))
+            .collect(ImmutableSet.toImmutableSet()));
+  }
+
   /** Get the default validation predicates for this question type. */
   @JsonIgnore
   abstract ValidationPredicates getDefaultValidationPredicates();
@@ -449,7 +466,8 @@ public abstract class QuestionDefinition {
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
           && getValidationPredicates().equals(o.getValidationPredicates())
-          && getConcurrencyToken().equals(o.getConcurrencyToken());
+          && getConcurrencyToken().equals(o.getConcurrencyToken())
+          && getDisplayMode().equals(o.getDisplayMode());
     }
     return false;
   }
