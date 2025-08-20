@@ -359,4 +359,34 @@ export class SessionTimeoutHandler {
   private static logout() {
     window.location.href = '/logout'
   }
+
+  /**
+   * Handles time change events. Currently only used by tests to simulate time advancement.
+   * Checks if any timeouts have been reached and executes appropriate actions.
+   */
+  private static handleTimeChange() {
+    // First check if we need to immediately logout due to timeout
+    const data = this.getTimeoutData()
+    if (data) {
+      const now = Math.floor(Date.now() / 1000)
+      // Check for timeout conditions first
+      if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
+        this.handleTimeout()
+        return
+      }
+    }
+
+    // If we have stored the next timeout action and time, check if it should fire
+    if (this.nextTimeoutAction && this.nextTimeoutTime) {
+      const now = Math.floor(Date.now() / 1000)
+      if (now >= this.nextTimeoutTime) {
+        const action = this.nextTimeoutAction
+        this.nextTimeoutAction = null
+        this.nextTimeoutTime = null
+        action()
+      }
+    }
+    // Always recheck timeouts after time change
+    void this.checkAndSetTimer()
+  }
 }
