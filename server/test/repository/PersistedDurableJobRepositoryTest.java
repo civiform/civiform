@@ -141,6 +141,27 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getRecurringJobForExecution_handlesTimezone() {
+    Instant now = Instant.now();
+    var nowJob = new PersistedDurableJobModel("now-job", JobType.RECURRING, now);
+    nowJob.save();
+
+    Instant futureTime = now.plus(1, ChronoUnit.MINUTES);
+    var futureJob = new PersistedDurableJobModel("future-job", JobType.RECURRING, futureTime);
+    futureJob.save();
+
+    Optional<PersistedDurableJobModel> foundJob = repo.getRecurringJobForExecution();
+    assertThat(foundJob).isPresent();
+    assertThat(foundJob.get()).isEqualTo(nowJob);
+
+    nowJob.setSuccessTime(now);
+    nowJob.save();
+
+    Optional<PersistedDurableJobModel> noJob = repo.getRecurringJobForExecution();
+    assertThat(noJob).isEmpty();
+  }
+
+  @Test
   public void deleteJobsOlderThanSixMonths() {
     Instant oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS);
     Instant fiveMonthsAgo = Instant.now().minus(5 * 30, ChronoUnit.DAYS);
