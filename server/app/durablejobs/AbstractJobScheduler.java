@@ -95,7 +95,7 @@ public abstract class AbstractJobScheduler {
       // Re-fetch upon each attempt so the transaction prevents duplicates.
 
       if (!persistedDurableJobRepository
-          .findScheduledJob(newJob.getJobName(), newJob.getExecutionTime())
+          .findScheduledRecurringJob(newJob.getJobName())
           .isPresent()) {
         newJob.save(transaction);
         transaction.commit();
