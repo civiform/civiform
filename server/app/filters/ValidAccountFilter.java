@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -17,9 +18,11 @@ import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
@@ -33,6 +36,8 @@ public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
+  private final Clock clock;
+  private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
@@ -40,10 +45,14 @@ public class ValidAccountFilter extends EssentialFilter {
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
+      Clock clock,
+      Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
+    this.clock = checkNotNull(clock);
+    this.sessionTimeoutService = sessionTimeoutService;
     this.databaseExecutionContext = databaseExecutionContext;
   }
 
@@ -69,6 +78,9 @@ public class ValidAccountFilter extends EssentialFilter {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
+                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                            profile.get().getProfileData().updateLastActivityTime(clock);
+                          }
                           return next.apply(request);
                         }
                       });
