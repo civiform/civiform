@@ -10,7 +10,11 @@ import {
   validateToastMessage,
   disableFeatureFlag,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramLifecycle,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
@@ -701,6 +705,29 @@ test.describe('Admin can manage program translations', () => {
       })
 
       // Updating translation is extensively tested in previous tests
+    })
+  })
+
+  test.describe('Manages translation even when the program is in active mode', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(
+        page,
+        'translation_management_improvement_enabled',
+      )
+    })
+
+    test('Adds translations for program in active mode', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await loginAsAdmin(page)
+
+      const programName = 'Active program to be translated'
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishProgram(programName)
+      await adminPrograms.gotoActiveProgramManageTranslationsPage(programName)
+
+      await validateScreenshot(page, 'active-program-translation')
     })
   })
 })
