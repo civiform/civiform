@@ -251,13 +251,14 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
 
-    assertThat(errors).hasSize(2);
+    assertThat(errors).hasSize(3);
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-            "YES_NO question 'invalid-yes-no-question' contains invalid option 'definitely-not'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. Only"
+                + " 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'definitely-not'."
+                + " Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'invalid-yes-no-question' is missing required 'no' option.");
   }
 
   @Test
@@ -325,13 +326,15 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
 
-    assertThat(errors).hasSize(2);
+    assertThat(errors).hasSize(4);
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "YES_NO question 'case-sensitive-question' contains invalid option 'Yes'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-            "YES_NO question 'case-sensitive-question' contains invalid option 'No'. "
-                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+            "YES_NO question 'case-sensitive-question' contains invalid option 'Yes'. Only 'yes',"
+                + " 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'case-sensitive-question' contains invalid option 'No'. Only 'yes',"
+                + " 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'case-sensitive-question' is missing required 'yes' option.",
+            "YES_NO question 'case-sensitive-question' is missing required 'no' option.");
   }
 
   // Helper methods for YES/NO question

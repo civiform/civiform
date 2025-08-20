@@ -61,7 +61,7 @@ final class QuestionValidationUtils {
    * @return a set of validation errors for YES_NO questions with invalid options, empty if all
    *     YES_NO questions have valid options
    */
-  public static ImmutableSet<CiviFormError> validateYesNoQuestions(
+  static ImmutableSet<CiviFormError> validateYesNoQuestions(
       ImmutableList<QuestionDefinition> questions) {
 
     return questions.stream()
@@ -73,15 +73,34 @@ final class QuestionValidationUtils {
 
   private static Stream<CiviFormError> validateSingleYesNoQuestion(
       MultiOptionQuestionDefinition yesNoQuestion) {
-    return yesNoQuestion.getOptions().stream()
-        .filter(option -> !ALLOWED_YES_NO_OPTIONS.contains(option.adminName()))
-        .map(
-            option ->
-                CiviFormError.of(
-                    String.format(
-                        "YES_NO question '%s' contains invalid option '%s'. "
-                            + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-                        yesNoQuestion.getName(), option.adminName())));
+
+    ImmutableSet<String> optionAdminNames =
+        yesNoQuestion.getOptions().stream()
+            .map(option -> option.adminName())
+            .collect(ImmutableSet.toImmutableSet());
+
+    Stream<CiviFormError> invalidOptionErrors =
+        yesNoQuestion.getOptions().stream()
+            .filter(option -> !ALLOWED_YES_NO_OPTIONS.contains(option.adminName()))
+            .map(
+                option ->
+                    CiviFormError.of(
+                        String.format(
+                            "YES_NO question '%s' contains invalid option '%s'. "
+                                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+                            yesNoQuestion.getName(), option.adminName())));
+
+    Stream<CiviFormError> missingRequiredErrors =
+        Stream.of("yes", "no")
+            .filter(requiredOption -> !optionAdminNames.contains(requiredOption))
+            .map(
+                missingOption ->
+                    CiviFormError.of(
+                        String.format(
+                            "YES_NO question '%s' is missing required '%s' option.",
+                            yesNoQuestion.getName(), missingOption)));
+
+    return Stream.concat(invalidOptionErrors, missingRequiredErrors);
   }
 
   /**
