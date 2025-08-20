@@ -58,6 +58,28 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void findScheduledRecurringJob_ignoresJobsWithSuccessTime() {
+    Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
+    var successfulJob = new PersistedDurableJobModel("successful-job", JobType.RECURRING, tomorrow);
+    successfulJob.setSuccessTime(Instant.now());
+    successfulJob.save();
+
+    assertThat(repo.findScheduledRecurringJob("successful-job")).isEmpty();
+  }
+
+  @Test
+  public void findScheduledRecurringJob_ignoresJobsWithZeroRemainingAttempts() {
+    Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
+    var failedJob = new PersistedDurableJobModel("failed-job", JobType.RECURRING, tomorrow);
+    failedJob.decrementRemainingAttempts();
+    failedJob.decrementRemainingAttempts();
+    failedJob.decrementRemainingAttempts(); // Now has 0 remaining attempts
+    failedJob.save();
+
+    assertThat(repo.findScheduledRecurringJob("failed-job")).isEmpty();
+  }
+
+  @Test
   public void findScheduledJob_findsJobs() {
     Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
     var job = new PersistedDurableJobModel("fake-name", JobType.RUN_ONCE, tomorrow);

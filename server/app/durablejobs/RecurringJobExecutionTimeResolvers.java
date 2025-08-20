@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
@@ -73,22 +72,15 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Admin configured interval for durable jobs. Used for REFRESH_MAP_DATA */
+  /** Every 30 minutes. Used for REFRESH_MAP_DATA */
   public static final class EveryThirtyMinutes implements JobExecutionTimeResolver {
-    private static final int REFRESH_INTERVAL = 30;
 
     @Override
     public Instant resolveExecutionTime(Clock clock) {
-      LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), clock.getZone());
-      return now.plusMinutes(minutesUntilNextInterval(now))
-          .withSecond(0)
-          .withNano(0)
-          .atZone(clock.getZone())
-          .toInstant();
-    }
-
-    private int minutesUntilNextInterval(LocalDateTime now) {
-      return REFRESH_INTERVAL - (now.getMinute() % REFRESH_INTERVAL);
+      Instant now = clock.instant();
+      long epochMinutes = now.getEpochSecond() / 60;
+      long minutesUntilNext = 30 - (epochMinutes % 30);
+      return now.plusSeconds(minutesUntilNext * 60).truncatedTo(ChronoUnit.MINUTES);
     }
   }
 }
