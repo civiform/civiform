@@ -14,7 +14,6 @@ import {
   AdminProgramStatuses,
   enableFeatureFlag,
 } from '../support'
-import {slugify} from '../support/admin_programs'
 
 test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
@@ -72,7 +71,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
     seeding,
   }) => {
     // There is already 1 application from the beforeEach, so create 105 more using bulk seeding.
-    await seeding.seedApplications(slugify(programName), 105)
+    await seeding.seedApplications(programName, 105)
 
     await logout(page)
     await loginAsProgramAdmin(page)

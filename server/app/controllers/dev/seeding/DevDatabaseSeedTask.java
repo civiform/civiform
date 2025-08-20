@@ -427,6 +427,7 @@ public final class DevDatabaseSeedTask {
     }
   }
 
+  /** Seed the specified program with {@code count} number of empty applications. */
   public void seedApplications(String programSlug, int count) {
     try {
       // Find the program by slug

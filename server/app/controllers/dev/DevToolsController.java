@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -56,6 +58,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi versionsByProgramCache;
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
+  private final FormFactory formFactory;
 
   @Inject
   public DevToolsController(
@@ -66,6 +69,7 @@ public class DevToolsController extends Controller {
       SettingsService settingsService,
       SettingsManifest settingsManifest,
       Clock clock,
+      FormFactory formFactory,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -84,6 +88,7 @@ public class DevToolsController extends Controller {
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
     this.clock = checkNotNull(clock);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   /**
@@ -134,8 +139,9 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedApplicationsHeadless(Request request) {
-    String programSlug = request.body().asFormUrlEncoded().get("programSlug")[0];
-    int count = Integer.parseInt(request.body().asFormUrlEncoded().get("count")[0]);
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+    String programSlug = formData.get("programSlug");
+    int count = Integer.parseInt(formData.get("count"));
     return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
   }
 
