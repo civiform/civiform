@@ -1085,8 +1085,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled() {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
+  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
