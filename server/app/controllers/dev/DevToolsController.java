@@ -133,6 +133,12 @@ public class DevToolsController extends Controller {
     return seedProgramsInternal() ? ok() : internalServerError();
   }
 
+  public Result seedApplicationsHeadless(Request request) {
+    String programSlug = request.body().asFormUrlEncoded().get("programSlug")[0];
+    int count = Integer.parseInt(request.body().asFormUrlEncoded().get("count")[0]);
+    return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
+  }
+
   private boolean seedProgramsInternal() {
     try {
       // TODO: Check whether test program already exists to prevent error.
@@ -145,6 +151,16 @@ public class DevToolsController extends Controller {
       return true;
     } catch (RuntimeException ex) {
       logger.error("Failed to seed programs.", ex);
+      return false;
+    }
+  }
+
+  private boolean seedApplicationsInternal(String programSlug, int count) {
+    try {
+      devDatabaseSeedTask.seedApplications(programSlug, count);
+      return true;
+    } catch (RuntimeException ex) {
+      logger.error("Failed to seed applications for program: {}", programSlug, ex);
       return false;
     }
   }

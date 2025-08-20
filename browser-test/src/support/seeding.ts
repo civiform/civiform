@@ -27,4 +27,19 @@ export class Seeding {
       await expect(response).toBeOK()
     })
   }
+
+  async seedApplications(programSlug: string, count: number) {
+    await test.step(`Seed ${count} applications for program ${programSlug}`, async () => {
+      const response = await this.request.post(
+        '/dev/seedApplicationsHeadless',
+        {
+          form: {
+            programSlug: programSlug,
+            count: count.toString(),
+          },
+        },
+      )
+      await expect(response).toBeOK()
+    })
+  }
 }

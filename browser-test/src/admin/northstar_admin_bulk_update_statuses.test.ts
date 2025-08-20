@@ -14,6 +14,7 @@ import {
   AdminProgramStatuses,
   enableFeatureFlag,
 } from '../support'
+import {slugify} from '../support/admin_programs'
 
 test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
@@ -67,19 +68,11 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
   test('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
-    applicantQuestions,
     adminProgramMigration,
+    seeding,
   }) => {
-    test.slow()
-    // There is already 1 application from the beforeEach, so apply 105 more times.
-    for (let i = 0; i < 105; i++) {
-      await logout(page)
-
-      // Submit an application as a guest.
-      await applicantQuestions.applyProgram(programName, true)
-      await applicantQuestions.submitFromReviewPage(true)
-    }
-    const id = await adminPrograms.getApplicationId()
+    // There is already 1 application from the beforeEach, so create 105 more using bulk seeding.
+    await seeding.seedApplications(slugify(programName), 105)
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -95,11 +88,12 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       'usa-alert--info',
     )
 
+    const applicationRows = page
+      .getByRole('row')
+      .filter({hasText: /Guest \(\d+\)/})
+
     for (let i = 0; i < 100; i++) {
-      await adminPrograms.expectApplicationHasStatusString(
-        `Guest (${id - i})`,
-        approvedStatusName,
-      )
+      await expect(applicationRows.nth(i)).toContainText(approvedStatusName)
     }
     await page.locator('.usa-pagination__button:has-text("2")').click()
     // last applicant
