@@ -1,0 +1,151 @@
+import {
+  CF_LOCATIONS_LIST_CONTAINER,
+  CF_NO_SELECTIONS_MESSAGE,
+  CF_SELECTED_LOCATIONS_LIST,
+  CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE,
+  CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_INPUT,
+  CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL,
+  mapQuerySelector,
+  queryLocationCheckboxes,
+} from './map_util'
+
+export const initLocationSelection = (mapId: string): void => {
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+
+  locationCheckboxes.forEach((locationCheckbox) => {
+    // Add event listener to each checkbox to update selected locations on change event
+    locationCheckbox.addEventListener('change', () =>
+      updateSelectedLocations(mapId),
+    )
+  })
+}
+
+const updateSelectedLocations = (mapId: string): void => {
+  const mapLocationsContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  )
+
+  if (!mapLocationsContainer) return
+
+  const selectedCheckboxes = mapLocationsContainer.querySelectorAll(
+    'input[type="checkbox"]:checked',
+  )
+  const noSelectionsMessage = mapQuerySelector(
+    mapId,
+    CF_NO_SELECTIONS_MESSAGE,
+  ) as HTMLElement | null
+  const selectedLocationsList = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATIONS_LIST,
+  ) as HTMLElement | null
+
+  if (!noSelectionsMessage || !selectedLocationsList) return
+
+  if (selectedCheckboxes.length === 0) {
+    // Show "no selections" message
+    noSelectionsMessage.classList.remove('display-none')
+    selectedLocationsList.classList.add('display-none')
+  } else {
+    // Hide "no selections" message and show selected locations
+    noSelectionsMessage.classList.add('display-none')
+    selectedLocationsList.classList.remove('display-none')
+
+    // Clear and rebuild the selected locations list
+    selectedLocationsList.innerHTML = ''
+
+    selectedCheckboxes.forEach((checkbox) => {
+      const locationLabel = mapLocationsContainer.querySelector(
+        `label[for="${checkbox.id}"]`,
+      )
+      if (locationLabel) {
+        const selectedItem = createSelectedLocationCheckboxFromTemplate(
+          checkbox,
+          locationLabel,
+          mapId,
+        )
+        if (selectedItem) {
+          selectedLocationsList.appendChild(selectedItem)
+        }
+      }
+    })
+  }
+}
+
+const copyFieldContent = (
+  fieldName: string,
+  locationLabel: Element,
+  selectedLocation: HTMLElement,
+): void => {
+  const sourceSelector = `.cf-location-checkbox-${fieldName}`
+  const templateSelector = `.cf-selected-location-checkbox-template-${fieldName}`
+
+  const sourceElement = locationLabel.querySelector(sourceSelector)
+  const templateElement =
+    (selectedLocation.querySelector(templateSelector) as HTMLElement) || null
+
+  if (sourceElement && templateElement) {
+    // For links, copy href attribute
+    if (fieldName === 'link') {
+      const sourceLink = (sourceElement as HTMLAnchorElement) || null
+      const templateLink = (templateElement as HTMLAnchorElement) || null
+      if (sourceLink && templateLink) {
+        templateLink.href = sourceLink.href
+      }
+    } else {
+      templateElement.textContent = sourceElement.textContent
+    }
+  } else if (templateElement) {
+    templateElement.style.display = 'none'
+  }
+}
+
+const createSelectedLocationCheckboxFromTemplate = (
+  originalCheckbox: Element,
+  locationLabel: Element,
+  mapId: string,
+): HTMLElement | undefined => {
+  const selectedLocationTemplate = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE,
+  )
+  if (!selectedLocationTemplate) {
+    return
+  }
+
+  const selectedLocation =
+    (selectedLocationTemplate.cloneNode(true) as HTMLElement) || null
+  if (!selectedLocation) return
+  selectedLocation.classList.remove(
+    'hidden',
+    CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE,
+  )
+
+  const selectedCheckbox =
+    (selectedLocation.querySelector(
+      CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_INPUT,
+    ) as HTMLInputElement) || null
+  const selectedLabel =
+    (selectedLocation.querySelector(
+      `.${CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL}`,
+    ) as HTMLLabelElement) || null
+  if (!selectedCheckbox || !selectedLabel) return
+  const selectedCheckboxId = `selected-${originalCheckbox.id}`
+  selectedCheckbox.id = selectedCheckboxId
+  selectedLabel.htmlFor = selectedCheckboxId
+
+  copyFieldContent('name', locationLabel, selectedLocation)
+  copyFieldContent('address', locationLabel, selectedLocation)
+  copyFieldContent('link', locationLabel, selectedLocation)
+
+  selectedCheckbox.addEventListener('change', () => {
+    const originalElement =
+      (document.getElementById(originalCheckbox.id) as HTMLInputElement) || null
+    if (originalElement) {
+      originalElement.checked = false
+      updateSelectedLocations(mapId)
+    }
+  })
+
+  return selectedLocation
+}
