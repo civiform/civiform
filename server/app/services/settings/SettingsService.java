@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.libs.typedmap.TypedKey;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
@@ -46,12 +47,16 @@ public final class SettingsService {
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
+  private final Environment environment;
 
   @Inject
   public SettingsService(
-      SettingsGroupRepository settingsGroupRepository, SettingsManifest settingsManifest) {
+      SettingsGroupRepository settingsGroupRepository,
+      SettingsManifest settingsManifest,
+      Environment environment) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.environment = checkNotNull(environment);
   }
 
   /**
@@ -114,6 +119,12 @@ public final class SettingsService {
 
     var newSettingsGroup = new SettingsGroupModel(newSettings, papertrail);
     newSettingsGroup.save();
+    // The SettingsCacheMaintainer will eventually clear the cache in all server instances. In
+    // tests, we want to clear the cache synchronously to ensure assertions on the new settings
+    // pass.
+    if (environment.isTest()) {
+      settingsGroupRepository.clearCurrentSettingsCache();
+    }
 
     return SettingsGroupUpdateResult.success();
   }
@@ -276,6 +287,12 @@ public final class SettingsService {
 
     var group = new SettingsGroupModel(settings, "system");
     group.save();
+    // The SettingsCacheMaintainer will eventually clear the cache in all server instances. In
+    // tests, we want to clear the cache synchronously to ensure assertions on the new settings
+    // pass.
+    if (environment.isTest()) {
+      settingsGroupRepository.clearCurrentSettingsCache();
+    }
 
     logger.info("Migrated {} settings from config to database.", settings.size());
 

@@ -1,4 +1,4 @@
-package services.settings;
+package repository;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.ebean.DB;
@@ -6,91 +6,58 @@ import io.ebean.Database;
 import java.net.SocketException;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.SettingsGroupModel;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.inject.ApplicationLifecycle;
-import repository.DatabaseExecutionContext;
-import repository.SettingsGroupRepository;
 
 @Singleton
-public final class SettingsCache {
+public final class SettingsCacheMaintainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(SettingsCache.class);
+  private static final Logger logger = LoggerFactory.getLogger(SettingsCacheMaintainer.class);
 
   @VisibleForTesting static final String CHANNEL = "settings_update";
   private static final int NOTIFY_TIMEOUT_MS = 500;
 
   private final SettingsGroupRepository repo;
-  private final DatabaseExecutionContext dbExecutionContext;
   // Need for mocking unit tests, rather than the static DB.getDefault(),
   private final Database database;
-
-  // Volatile so updates are immediately visible to all threads
-  private volatile Optional<SettingsGroupModel> cache = Optional.empty();
+  private final ApplicationLifecycle lifecycle;
 
   private Thread listenerThread;
   private volatile boolean running = true;
 
   @Inject
-  public SettingsCache(
-      SettingsGroupRepository repo,
-      DatabaseExecutionContext dbExecutionContext,
-      ApplicationLifecycle lifecycle) {
-    this(repo, dbExecutionContext, DB.getDefault(), lifecycle);
+  public SettingsCacheMaintainer(SettingsGroupRepository repo, ApplicationLifecycle lifecycle) {
+    this(repo, DB.getDefault(), lifecycle);
   }
 
   @VisibleForTesting
-  SettingsCache(
-      SettingsGroupRepository repo,
-      DatabaseExecutionContext dbExecutionContext,
-      Database database,
-      ApplicationLifecycle lifecycle) {
+  SettingsCacheMaintainer(
+      SettingsGroupRepository repo, Database database, ApplicationLifecycle lifecycle) {
     this.repo = repo;
-    this.dbExecutionContext = dbExecutionContext;
     this.database = database;
+    this.lifecycle = lifecycle;
+  }
 
-    // Load initial settings into cache
-    reloadFromDb();
-
+  public void init() {
     startNotifyListener();
 
     // On application shutdown, stop the listener thread
     lifecycle.addStopHook(
         () -> {
+          logger.info("Shutting down SettingsCacheMaintainer");
           running = false;
           if (listenerThread != null) {
             listenerThread.interrupt();
           }
           return CompletableFuture.completedFuture(null);
         });
-  }
-
-  /** Returns the current cached settings (may be empty if none yet). */
-  public Optional<SettingsGroupModel> get() {
-    return cache;
-  }
-
-  /** Reloads from the database into the cache asynchronously. */
-  private void reloadFromDb() {
-    repo.getCurrentSettings()
-        .whenCompleteAsync(
-            (freshOpt, ex) -> {
-              if (ex != null) {
-                logger.error("SettingsCache reload failed", ex);
-              } else if (freshOpt.isPresent()) {
-                cache = freshOpt;
-                logger.debug("SettingsCache reloaded from DB");
-              }
-            },
-            dbExecutionContext);
   }
 
   /** Spins up a dedicated thread that listens for Postgres notifications. */
@@ -107,7 +74,9 @@ public final class SettingsCache {
                   stmt.execute("LISTEN " + CHANNEL);
                   logger.info("Listening on '{}' (autocommit={})", CHANNEL, conn.getAutoCommit());
 
-                  // TODO: #11042 - Possibly reloadFromDb to ensure consistency on reconnection
+                  // Clear the cache each time the listener connects successfully, to ensure
+                  // consistency in case of an update while the listener was disconnected.
+                  repo.clearCurrentSettingsCache();
 
                   PGConnection pgConn = conn.unwrap(PGConnection.class);
 
@@ -119,7 +88,7 @@ public final class SettingsCache {
                     if (notifications != null && notifications.length > 0) {
                       logger.debug(
                           "Received {} notification(s) on '{}'", notifications.length, CHANNEL);
-                      reloadFromDb();
+                      repo.clearCurrentSettingsCache();
                     }
                   }
                 } catch (PSQLException e) {

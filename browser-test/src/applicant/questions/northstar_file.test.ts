@@ -228,9 +228,9 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      expect(
-        page.getByLabel('Drag file here').getAttribute('aria-required'),
-      ).toBeTruthy()
+      await expect(page.getByLabel('Drag file here')).toHaveAttribute(
+        'aria-required',
+      )
       await validateAccessibility(page)
     })
 
@@ -1103,7 +1103,7 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
 
         // Then look for fileUploadQuestionText.
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           fileUploadQuestionText,
         )
 
@@ -1124,13 +1124,13 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         )
 
         // Advance past the email question.
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           emailQuestionText,
         )
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           fileUploadQuestionText,
         )
 
@@ -1161,12 +1161,12 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionOnReviewPageNorthstar(
             emailQuestionText,
           )
           await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionOnReviewPageNorthstar(
             fileUploadQuestionText,
           )
 
@@ -1185,12 +1185,12 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionOnReviewPageNorthstar(
             emailQuestionText,
           )
           await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionOnReviewPageNorthstar(
             fileUploadQuestionText,
           )
 
@@ -1230,13 +1230,13 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           emailQuestionText,
         )
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           fileUploadQuestionText,
         )
 
@@ -1265,12 +1265,12 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
           programName,
         )
 
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           emailQuestionText,
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectAnswerQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           fileUploadQuestionText,
         )
 

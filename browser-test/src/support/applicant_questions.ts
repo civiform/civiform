@@ -262,7 +262,7 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async expectAnswerQuestionOnReviewPageNorthstar(questionText: string) {
+  async expectQuestionOnReviewPageNorthstar(questionText: string) {
     await expect(this.page.getByText(questionText)).toBeVisible()
   }
 
@@ -930,6 +930,15 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickGoBackAndEditOnIneligiblePageNorthStar() {
+    await this.page
+      .getByRole('button', {
+        name: 'Edit my responses',
+      })
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDuplicatesPage() {
     expect(await this.page.innerText('h2')).toContain(
       'There are no changes to save',
@@ -940,8 +949,23 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('li')).toContain(questionText)
   }
 
+  async expectIneligibleQuestionNorthStar(questionText: string) {
+    await expect(
+      this.page
+        .getByRole('alert')
+        .getByRole('listitem')
+        .getByText(questionText),
+    ).toHaveCount(1)
+  }
+
   async expectIneligibleQuestionsCount(number: number) {
     expect(await this.page.locator('li').count()).toEqual(number)
+  }
+
+  async expectIneligibleQuestionsCountNorthStar(number: number) {
+    await expect(
+      this.page.getByRole('alert').getByRole('listitem'),
+    ).toHaveCount(number)
   }
 
   async expectQuestionIsNotEligible(questionText: string) {
@@ -1008,6 +1032,18 @@ export class ApplicantQuestions {
     expect(await questionLocator.count()).toEqual(1)
     const summaryRowText = await questionLocator.innerText()
     expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionExistsOnReviewPage(questionText: string) {
+    await expect(
+      this.page.getByRole('listitem').getByText(questionText),
+    ).toBeVisible()
+  }
+
+  async expectQuestionDoesNotExistOnReviewPage(questionText: string) {
+    await expect(
+      this.page.getByRole('listitem').getByText(questionText),
+    ).toBeHidden()
   }
 
   async submitFromReviewPage(northStarEnabled = false) {

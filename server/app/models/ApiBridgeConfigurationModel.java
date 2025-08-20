@@ -14,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.regex.Pattern;
+import services.applicant.question.Scalar;
 
 /** Entity representing a bridge configuration. */
 @Entity
@@ -21,6 +22,7 @@ import java.util.regex.Pattern;
 public class ApiBridgeConfigurationModel extends BaseModel {
   public record ApiBridgeDefinitionItem(
       @JsonProperty("question_name") String questionName,
+      @JsonProperty("question_scalar") Scalar questionScalar,
       @JsonProperty("external_name") String externalName) {}
 
   public record ApiBridgeDefinition(
