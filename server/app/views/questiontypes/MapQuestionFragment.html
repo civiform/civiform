@@ -89,6 +89,49 @@
       <div th:id="${mapId}" class="cf-map-container width-full"></div>
     </div>
   </div>
+  <!-- Selected locations section -->
+  <div class="margin-top-3">
+    <h3 class="usa-prose-h3" th:text="#{map.selectedLocationsHeading}"></h3>
+    <div class="cf-selected-locations-container" th:data-map-id="${mapId}">
+      <p
+        class="text-base-dark cf-no-selections-message"
+        th:data-map-id="${mapId}"
+        th:text="#{map.noSelectionsMessage}"
+      ></p>
+      <div
+        class="display-none cf-selected-locations-list"
+        data-testid="selected-locations-list"
+        th:data-map-id="${mapId}"
+      >
+        <!-- Selected locations will be dynamically populated here -->
+      </div>
+    </div>
+  </div>
+  <!-- Hidden template for selected location checkboxes -->
+  <div
+    class="usa-checkbox hidden cf-selected-location-checkbox-template"
+    th:data-map-id="${mapId}"
+  >
+    <input
+      class="usa-checkbox__input cf-selected-location-checkbox-template-input"
+      type="checkbox"
+      checked
+    />
+    <label
+      class="usa-checkbox__label cf-selected-location-checkbox-template-label"
+      for="cf-selected-location-checkbox-template-input"
+    >
+      <div class="text-bold cf-selected-location-checkbox-template-name"></div>
+      <div
+        class="text-base-dark margin-top-05 cf-selected-location-checkbox-template-address"
+      ></div>
+      <a
+        class="usa-link usa-link--external text-primary cf-selected-location-checkbox-template-link"
+        target="_blank"
+        th:text="#{map.locationLinkText}"
+      ></a>
+    </label>
+  </div>
   <!-- Hidden template for popups -->
   <div class="hidden cf-popup-content-template" th:data-map-id="${mapId}">
     <div

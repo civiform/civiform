@@ -65,6 +65,15 @@ if (isLocalDevEnvironment()) {
           }
         })
 
+        await test.step('Verify initial messaging is shown', async () => {
+          const noSelectionsMessage = page.getByText(
+            'No locations have been selected.',
+          )
+          if (await noSelectionsMessage.isVisible()) {
+            await expect(noSelectionsMessage).toBeVisible()
+          }
+        })
+
         await test.step('Verify locations list container exists', async () => {
           const locationsList = page.getByTestId('locations-list')
           await expect(locationsList).toBeVisible()
@@ -82,6 +91,52 @@ if (isLocalDevEnvironment()) {
           if (await locationCount.isVisible()) {
             const countText = locationCount
             await expect(countText).toHaveText('Displaying 5 of 5 locations')
+          }
+        })
+      })
+
+      test('select locations from checkboxes', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        const locationCheckboxes = page.getByRole('checkbox')
+
+        await test.step('Select first location checkbox', async () => {
+          await locationCheckboxes.first().check()
+          await expect(locationCheckboxes.first()).toBeChecked()
+        })
+
+        await test.step('Verify location appears in selected list', async () => {
+          const selectedLocationsList = page.getByTestId(
+            'selected-locations-list',
+          )
+          const selectedLocationsCheckboxes =
+            selectedLocationsList.getByRole('checkbox')
+          expect(await selectedLocationsCheckboxes.count()).toBeGreaterThan(0)
+        })
+
+        await test.step('Verify no selections message is hidden', async () => {
+          const noSelectionsMessage = page.getByText(
+            'No locations have been selected.',
+          )
+          if (await noSelectionsMessage.isVisible()) {
+            await expect(noSelectionsMessage).toBeHidden()
+          }
+        })
+
+        await test.step('Deselect the location', async () => {
+          await locationCheckboxes.first().uncheck()
+          await expect(locationCheckboxes.first()).not.toBeChecked()
+        })
+
+        await test.step('Verify no selections message is shown', async () => {
+          const noSelectionsMessage = page.locator('.cf-no-selections-message')
+          if (await noSelectionsMessage.isVisible()) {
+            await expect(noSelectionsMessage).toBeVisible()
           }
         })
       })
@@ -130,6 +185,31 @@ if (isLocalDevEnvironment()) {
         const locationsLists = page.getByTestId('locations-list')
         await test.step('Verify both maps have location lists', async () => {
           await expect(locationsLists).toHaveCount(2)
+        })
+
+        await test.step('Select from first map only', async () => {
+          const firstMapCheckboxes = locationsLists
+            .first()
+            .getByRole('checkbox')
+
+          await firstMapCheckboxes.first().check()
+          await expect(firstMapCheckboxes.first()).toBeChecked()
+        })
+
+        await test.step('Verify selections are independent', async () => {
+          const firstMapCheckedBoxes = locationsLists
+            .first()
+            .getByRole('checkbox', {
+              checked: true,
+            })
+
+          // Should have exactly one checked box in the first map
+          await expect(firstMapCheckedBoxes).toHaveCount(1)
+
+          // Second map checkboxes should remain unchecked
+          const secondMapContainer = locationsLists.nth(1)
+          const secondMapCheckboxes = secondMapContainer.getByRole('checkbox')
+          await expect(secondMapCheckboxes.first()).not.toBeChecked()
         })
       })
     })

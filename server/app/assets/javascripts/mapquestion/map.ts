@@ -11,6 +11,7 @@ import {
   DEFAULT_MAP_MARKER_STYLE,
   DEFAULT_MAP_STYLE,
 } from './map_util'
+import {initLocationSelection} from './map_question_selection'
 
 // Container for all the maps on the page
 const maps = new Map<string, MapLibreMap>()
@@ -19,6 +20,7 @@ export const init = (): void => {
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     const mapElement = renderMap(mapId, mapData as MapData)
+    initLocationSelection(mapId)
     maps.set(mapId, mapElement)
   })
 }
