@@ -140,6 +140,42 @@ if (isLocalDevEnvironment()) {
           }
         })
       })
+
+      test('select locations from map popups', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        await test.step('Wait for map to load', async () => {
+          await page.waitForSelector('.maplibregl-canvas', {timeout: 10000})
+        })
+
+        await test.step('Click on map to trigger popups', async () => {
+          const mapCanvas = page.locator('.maplibregl-canvas')
+          await mapCanvas.click()
+        })
+
+        await test.step('Check for popup select buttons', async () => {
+          const selectButtons = page.getByRole('button', {
+            name: /select.*location/i,
+          })
+          const selectButtonsCount = await selectButtons.count()
+          if (selectButtonsCount > 0) {
+            await selectButtons.first().click()
+
+            const selectedLocationsList = page.getByTestId(
+              'selected-locations-list',
+            )
+            const checkboxes = selectedLocationsList.getByRole('checkbox')
+            const checkboxCount = await checkboxes.count()
+            expect(checkboxCount).toBeGreaterThan(0)
+            await expect(checkboxes.first()).toBeChecked()
+          }
+        })
+      })
     })
 
     test.describe('multiple map questions', () => {

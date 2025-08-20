@@ -2,6 +2,7 @@ import {LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
 import {GeoJsonProperties, Feature} from 'geojson'
 import {
   MapData,
+  CF_SELECT_LOCATION_BUTTON,
   mapQuerySelector,
   CF_POPUP_CONTENT_TEMPLATE,
   LOCATIONS_LAYER,
@@ -40,7 +41,6 @@ const addLocationsToMap = (
   geoJson: GeoJSON.FeatureCollection,
 ): void => {
   // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
-  // Will need these later for filtering and selection
   const modifiedGeoJson = {
     ...geoJson,
     features: geoJson.features.map((feature) => ({
@@ -70,6 +70,7 @@ const createPopupContent = (
   mapId: string,
   settings: MapData['settings'],
   properties: GeoJsonProperties,
+  featureId: string,
 ): Node | null => {
   if (!properties) return null
   const name: string = properties[settings['nameGeoJsonKey']] as string
@@ -139,6 +140,15 @@ const createPopupContent = (
     return null
   }
 
+  if (featureId) {
+    const selectLocationButton = popupContent.querySelector(
+      `.${CF_SELECT_LOCATION_BUTTON}`,
+    ) as HTMLButtonElement
+    selectLocationButton.setAttribute('data-map-id', mapId)
+    selectLocationButton.setAttribute('data-feature-id', featureId)
+    selectLocationButton.classList.remove('hidden')
+  }
+
   return popupContent
 }
 
@@ -164,7 +174,13 @@ const addPopupsToMap = (
 
     const popup = new Popup({closeButton: false}).setLngLat(coordinates)
 
-    const popupContent = createPopupContent(mapId, settings, properties)
+    const originalId: string = properties.originalId as string
+    const popupContent = createPopupContent(
+      mapId,
+      settings,
+      properties,
+      originalId,
+    )
     if (popupContent) {
       popup.setDOMContent(popupContent)
     }

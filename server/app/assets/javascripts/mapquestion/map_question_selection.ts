@@ -2,11 +2,14 @@ import {
   CF_LOCATIONS_LIST_CONTAINER,
   CF_NO_SELECTIONS_MESSAGE,
   CF_SELECTED_LOCATIONS_LIST,
+  CF_SELECT_LOCATION_BUTTON,
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE,
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_INPUT,
   CF_SELECTED_LOCATION_CHECKBOX_TEMPLATE_LABEL,
   mapQuerySelector,
   queryLocationCheckboxes,
+  DATA_FEATURE_ID_ATTR,
+  CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
@@ -17,6 +20,20 @@ export const initLocationSelection = (mapId: string): void => {
     locationCheckbox.addEventListener('change', () =>
       updateSelectedLocations(mapId),
     )
+  })
+
+  document.addEventListener('click', (e) => {
+    // Add event listener to select location buttons in map popups to update selected locations on click event
+    const target = (e.target as HTMLElement) || null
+    if (target && target.classList.contains(CF_SELECT_LOCATION_BUTTON)) {
+      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+      if (featureId) {
+        selectLocationsFromMap(featureId, mapId)
+        // TODO: Popup styling
+        const popups = document.querySelectorAll('.maplibregl-popup')
+        popups.forEach((popup) => popup.remove())
+      }
+    }
   })
 }
 
@@ -70,6 +87,25 @@ const updateSelectedLocations = (mapId: string): void => {
       }
     })
   }
+}
+
+const selectLocationsFromMap = (featureId: string, mapId: string): void => {
+  const checkboxes = queryLocationCheckboxes(mapId)
+
+  // Find the checkbox with the matching feature ID within this map's container
+  checkboxes.forEach((checkbox) => {
+    const checkboxValue = checkbox.getAttribute(DATA_FEATURE_ID_ATTR)
+    if (checkboxValue === featureId) {
+      const checkboxInputElement =
+        (checkbox.querySelector(
+          `.${CF_LOCATION_CHECKBOX_INPUT}`,
+        ) as HTMLInputElement) || null
+      if (checkboxInputElement) {
+        checkboxInputElement.checked = true
+        checkbox.dispatchEvent(new Event('change'))
+      }
+    }
+  })
 }
 
 const copyFieldContent = (
@@ -138,6 +174,7 @@ const createSelectedLocationCheckboxFromTemplate = (
   copyFieldContent('address', locationLabel, selectedLocation)
   copyFieldContent('link', locationLabel, selectedLocation)
 
+  // Add event listener for unchecking original checkbox
   selectedCheckbox.addEventListener('change', () => {
     const originalElement =
       (document.getElementById(originalCheckbox.id) as HTMLInputElement) || null
