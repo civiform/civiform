@@ -43,7 +43,6 @@ import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -91,10 +90,10 @@ public final class DevDatabaseSeedTask {
   private final QuestionService questionService;
   private final ProgramService programService;
   private final StatusService statusService;
-  private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
+  private final CategoryTranslationFileParser categoryTranslationFileParser;
 
   @Inject
   public DevDatabaseSeedTask(
@@ -103,14 +102,14 @@ public final class DevDatabaseSeedTask {
       StatusService statusService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
-      Environment environment) {
+      CategoryTranslationFileParser categoryTranslationFileParser) {
     this.questionService = checkNotNull(questionService);
     this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
-    this.environment = checkNotNull(environment);
+    this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
   }
 
   /**
@@ -372,8 +371,7 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
-    List<CategoryModel> categories = parser.createCategoryModelList();
+    List<CategoryModel> categories = categoryTranslationFileParser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(
