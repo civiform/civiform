@@ -365,7 +365,10 @@ test.describe('create and edit predicates', () => {
       value: '',
     })
     await adminPredicates.expectPredicateErrorToast('form fields')
-    await validateScreenshot(page, 'predicate-error')
+    await validateScreenshot(
+      page.locator('#toast-container'),
+      'predicate-error',
+    )
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
@@ -758,7 +761,7 @@ test.describe('create and edit predicates', () => {
     )
 
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
     let predicateDisplay = await page.innerText('.cf-display-predicate')
