@@ -65,6 +65,7 @@ public abstract class NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
+    context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled());
