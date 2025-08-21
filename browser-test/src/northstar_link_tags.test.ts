@@ -11,7 +11,6 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
 
     const linkTagLocator = page.locator('link[rel="icon"]')
 
-    await expect(linkTagLocator).toHaveAttribute('href')
-    expect(await linkTagLocator.getAttribute('href')).not.toBeNull()
+    await expect(linkTagLocator).toHaveAttribute('href', /.+/)
   })
 })
