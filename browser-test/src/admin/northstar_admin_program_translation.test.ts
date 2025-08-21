@@ -4,12 +4,11 @@ import {
   loginAsAdmin,
   logout,
   loginAsTestUser,
-  selectApplicantLanguage,
   selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateToastMessage,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {ProgramVisibility} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
 test.describe(
@@ -91,12 +90,12 @@ test.describe(
 
       // View the applicant program page in Spanish and check that the translations are present
       await logout(page)
-      await selectApplicantLanguage(page, 'Español')
+      await selectApplicantLanguageNorthstar(page, 'es-US')
       const cardText = await page.innerText(
         '.cf-application-card:has-text("' + publicName + '")',
       )
       expect(cardText).toContain('Spanish name')
-      expect(cardText).toContain('Spanish description')
+      expect(cardText).toContain('Short Spanish desc')
     })
 
     test('creates a program with statuses and adds translations for program statuses', async ({
@@ -226,14 +225,10 @@ test.describe(
 
       await test.step('Add a pre-screener program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           programName,
-          'description',
           'short description',
-          'https://www.example.com',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
       })
 
@@ -242,9 +237,6 @@ test.describe(
         await adminTranslations.selectLanguage('Spanish')
 
         await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
-        await adminTranslations.expectFormFieldVisible(
-          FormField.PROGRAM_DESCRIPTION,
-        )
         await adminTranslations.expectFormFieldVisible(
           FormField.CONFIRMATION_MESSAGE,
         )
@@ -257,6 +249,9 @@ test.describe(
         )
 
         await adminTranslations.expectFormFieldHidden(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(
           FormField.APPLICATION_STEP_ONE_TITLE,
         )
         await adminTranslations.expectFormFieldHidden(
@@ -267,12 +262,12 @@ test.describe(
       await test.step('Update translations', async () => {
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
-          description: 'Spanish description',
-          shortDescription: 'Spanish short description',
+          shortDescription: 'Spanish description',
           blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
           statuses: [],
           programType: 'pre-screener',
+          northStar: true,
         })
       })
 
@@ -286,9 +281,9 @@ test.describe(
 
         await adminTranslations.expectProgramTranslation({
           expectProgramName: 'Spanish name',
-          expectProgramDescription: 'Spanish description',
-          expectProgramShortDescription: 'Spanish short description',
+          expectProgramShortDescription: 'Spanish description',
           programType: 'pre-screener',
+          northStar: true,
         })
       })
     })
@@ -502,10 +497,16 @@ test.describe(
         await logout(page)
 
         await loginAsTestUser(page)
-        await selectApplicantLanguage(page, 'Español')
-        await applicantQuestions.applyProgram('Spanish name')
+        await selectApplicantLanguageNorthstar(page, 'es-US')
+        await applicantQuestions.applyProgram(
+          'Spanish name',
+          /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ true,
+          /* translatedOverviewTitle= */ 'Descripción general del programa',
+          /* translatedLinkText= */ 'Comenzar una solicitud',
+        )
         await applicantQuestions.answerTextQuestion('ineligible')
-        await page.click('text="Guardar y continuar"')
+        await page.click('text="Continuar"')
         await validateScreenshot(
           page,
           'ineligible-view-with-translated-eligibility-msg',
@@ -513,215 +514,58 @@ test.describe(
       })
     })
 
-    test.describe(
-      'North Star translations tests',
-      {tag: ['@northstar']},
-      () => {
-        test.beforeEach(async ({page}) => {
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
-        })
+    test('External program translations', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
 
-        test('Add translations for block name and description', async ({
-          page,
-          adminPrograms,
-          adminQuestions,
-          adminTranslations,
-          applicantQuestions,
-          applicantProgramOverview,
-        }) => {
-          const programName = 'Program with blocks'
+      await test.step('Add an external program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addExternalProgram(
+          'External program',
+          'short description',
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+        )
+      })
 
-          await test.step('Create program with block', async () => {
-            await loginAsAdmin(page)
-            await adminQuestions.addTextQuestion({
-              questionName: 'text-question',
-            })
-            await adminPrograms.addProgram(programName)
-            await adminPrograms.editProgramBlockUsingSpec(programName, {
-              name: 'Screen 1',
-              description: 'first screen',
-              questions: [{name: 'text-question'}],
-            })
-          })
+      await test.step('Open translations page and verify fields', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(
+          'External program',
+        )
+        await adminTranslations.selectLanguage('Spanish')
 
-          await test.step('Update translations', async () => {
-            await adminPrograms.gotoDraftProgramManageTranslationsPage(
-              programName,
-            )
-            await adminTranslations.selectLanguage('Spanish')
-            await adminTranslations.editProgramTranslations({
-              name: 'Spanish name',
-              description: 'Spanish description',
-              blockName: 'Spanish block name - bloque uno',
-              blockDescription: 'Spanish block description',
-              statuses: [],
-            })
-          })
+        await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SHORT_DESCRIPTION,
+        )
 
-          await test.step('Verify translations in translations page', async () => {
-            await adminPrograms.gotoDraftProgramManageTranslationsPage(
-              programName,
-            )
-            await adminTranslations.selectLanguage('Spanish')
-            await adminTranslations.expectBlockTranslations(
-              'Spanish block name - bloque uno',
-              'Spanish block description',
-            )
-          })
+        await adminTranslations.expectFormFieldHidden(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_TITLE,
+        )
+        await adminTranslations.expectFormFieldHidden(
+          FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldHidden(FormField.SCREEN_NAME)
+        await adminTranslations.expectFormFieldHidden(
+          FormField.SCREEN_DESCRIPTION,
+        )
 
-          await test.step('Publish and verify in the applicant experience', async () => {
-            await adminPrograms.publishProgram(programName)
-            await logout(page)
-            await selectApplicantLanguageNorthstar(page, 'es-US')
-            await applicantQuestions.clickApplyProgramButton('Spanish name')
-            await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
-              'Descripción general del programa', // translated page title
-              'Inscribirse en el programa Spanish name', // translated page header
-              'Comenzar una solicitud', // translated button text
-            )
+        await validateScreenshot(
+          page.locator('#program-translation-form'),
+          'external-program-translation',
+        )
+      })
 
-            await expect(
-              page.getByText('Spanish block name - bloque uno'),
-            ).toBeVisible()
-          })
-        })
-
-        test('Pre-screener form translations - north star', async ({
-          page,
-          adminPrograms,
-          adminTranslations,
-        }) => {
-          const programName = 'Pre-screener program'
-
-          await test.step('Add a pre-screener program', async () => {
-            await loginAsAdmin(page)
-            await adminPrograms.addPreScreenerNS(
-              programName,
-              'short description',
-              ProgramVisibility.PUBLIC,
-            )
-          })
-
-          await test.step('Open translations page and verify fields', async () => {
-            await adminPrograms.gotoDraftProgramManageTranslationsPage(
-              'Pre-screener program',
-            )
-            await adminTranslations.selectLanguage('Spanish')
-
-            await adminTranslations.expectFormFieldVisible(
-              FormField.PROGRAM_NAME,
-            )
-            await adminTranslations.expectFormFieldVisible(
-              FormField.CONFIRMATION_MESSAGE,
-            )
-            await adminTranslations.expectFormFieldVisible(
-              FormField.SHORT_DESCRIPTION,
-            )
-            await adminTranslations.expectFormFieldVisible(
-              FormField.SCREEN_NAME,
-            )
-            await adminTranslations.expectFormFieldVisible(
-              FormField.SCREEN_DESCRIPTION,
-            )
-
-            await adminTranslations.expectFormFieldHidden(
-              FormField.PROGRAM_DESCRIPTION,
-            )
-            await adminTranslations.expectFormFieldHidden(
-              FormField.APPLICATION_STEP_ONE_TITLE,
-            )
-            await adminTranslations.expectFormFieldHidden(
-              FormField.APPLICATION_STEP_ONE_DESCRIPTION,
-            )
-          })
-
-          await test.step('Update translations', async () => {
-            await adminTranslations.editProgramTranslations({
-              name: 'Spanish name',
-              shortDescription: 'Spanish description',
-              blockName: 'Spanish block name - bloque uno',
-              blockDescription: 'Spanish block description',
-              statuses: [],
-              programType: 'pre-screener',
-              northStar: true,
-            })
-          })
-
-          await test.step('Verify translations in translations page', async () => {
-            await adminPrograms.gotoDraftProgramManageTranslationsPage(
-              programName,
-            )
-            await adminTranslations.selectLanguage('Spanish')
-            await adminTranslations.expectBlockTranslations(
-              'Spanish block name - bloque uno',
-              'Spanish block description',
-            )
-
-            await adminTranslations.expectProgramTranslation({
-              expectProgramName: 'Spanish name',
-              expectProgramShortDescription: 'Spanish description',
-              programType: 'pre-screener',
-              northStar: true,
-            })
-          })
-        })
-
-        test('External program translations - north star', async ({
-          page,
-          adminPrograms,
-          adminTranslations,
-        }) => {
-          await enableFeatureFlag(page, 'external_program_cards_enabled')
-
-          await test.step('Add an external program', async () => {
-            await loginAsAdmin(page)
-            await adminPrograms.addExternalProgram(
-              'External program',
-              'short description',
-              'https://usa.gov',
-              ProgramVisibility.PUBLIC,
-            )
-          })
-
-          await test.step('Open translations page and verify fields', async () => {
-            await adminPrograms.gotoDraftProgramManageTranslationsPage(
-              'External program',
-            )
-            await adminTranslations.selectLanguage('Spanish')
-
-            await adminTranslations.expectFormFieldVisible(
-              FormField.PROGRAM_NAME,
-            )
-            await adminTranslations.expectFormFieldVisible(
-              FormField.SHORT_DESCRIPTION,
-            )
-
-            await adminTranslations.expectFormFieldHidden(
-              FormField.PROGRAM_DESCRIPTION,
-            )
-            await adminTranslations.expectFormFieldHidden(
-              FormField.CONFIRMATION_MESSAGE,
-            )
-            await adminTranslations.expectFormFieldHidden(
-              FormField.APPLICATION_STEP_ONE_TITLE,
-            )
-            await adminTranslations.expectFormFieldHidden(
-              FormField.APPLICATION_STEP_ONE_DESCRIPTION,
-            )
-            await adminTranslations.expectFormFieldHidden(FormField.SCREEN_NAME)
-            await adminTranslations.expectFormFieldHidden(
-              FormField.SCREEN_DESCRIPTION,
-            )
-
-            await validateScreenshot(
-              page.locator('#program-translation-form'),
-              'external-program-translation',
-            )
-          })
-
-          // Updating translation is extensively tested in previous tests
-        })
-      },
-    )
+      // Updating translation is extensively tested in previous tests
+    })
   },
 )
