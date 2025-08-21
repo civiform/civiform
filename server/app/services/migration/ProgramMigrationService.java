@@ -175,11 +175,13 @@ public final class ProgramMigrationService {
       ImmutableList<String> existingAdminNames) {
 
     return ImmutableSet.<CiviFormError>builder()
-    .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
-    .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
-    .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
-    .addAll(QuestionValidationUtils.validateRepeatedQuestions(program, questions, existingAdminNames))
-    .build();
+        .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
+        .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
+        .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
+        .addAll(
+            QuestionValidationUtils.validateRepeatedQuestions(
+                program, questions, existingAdminNames))
+        .build();
   }
 
   /**

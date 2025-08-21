@@ -79,14 +79,16 @@ final class QuestionValidationUtils {
             .map(option -> option.adminName())
             .collect(ImmutableSet.toImmutableSet());
 
-    Stream<CiviFormError> invalidOptionErrors = optionAdminNames.stream()
-    .filter(optionName -> !ALLOWED_YES_NO_OPTIONS.contains(optionName))
-    .map(optionName ->
-        CiviFormError.of(
-            String.format(
-                "YES_NO question '%s' contains invalid option '%s'. "
-                    + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
-                yesNoQuestion.getName(), optionName)));
+    Stream<CiviFormError> invalidOptionErrors =
+        optionAdminNames.stream()
+            .filter(optionName -> !ALLOWED_YES_NO_OPTIONS.contains(optionName))
+            .map(
+                optionName ->
+                    CiviFormError.of(
+                        String.format(
+                            "YES_NO question '%s' contains invalid option '%s'. "
+                                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+                            yesNoQuestion.getName(), optionName)));
 
     Stream<CiviFormError> missingRequiredErrors =
         Stream.of("yes", "no")

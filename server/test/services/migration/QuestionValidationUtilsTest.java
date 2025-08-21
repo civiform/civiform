@@ -337,7 +337,6 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             "YES_NO question 'case-sensitive-question' is missing required 'no' option.");
   }
 
-
   @Test
   public void validateYesNoQuestions_missingYesOption_returnsError() {
     QuestionDefinition yesNoQuestion =
@@ -384,7 +383,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   public void validateYesNoQuestions_hasRequiredOptionsAndInvalidOnes_returnsOnlyInvalidErrors() {
     QuestionDefinition yesNoQuestion =
         createYesNoQuestionWithOptions(
-            "valid-required-invalid-extra-question", ImmutableList.of("yes", "no", "invalid-option"));
+            "valid-required-invalid-extra-question",
+            ImmutableList.of("yes", "no", "invalid-option"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -392,7 +392,9 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "YES_NO question 'valid-required-invalid-extra-question' contains invalid option 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+            "YES_NO question 'valid-required-invalid-extra-question' contains invalid option"
+                + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
+                + " allowed.");
   }
 
   @Test
@@ -407,10 +409,11 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(2);
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
-            "YES_NO question 'missing-and-invalid-question' contains invalid option 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'missing-and-invalid-question' contains invalid option"
+                + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
+                + " allowed.",
             "YES_NO question 'missing-and-invalid-question' is missing required 'no' option.");
   }
-
 
   // Helper methods for YES/NO question
   private QuestionDefinition createYesNoQuestionWithOptions(
