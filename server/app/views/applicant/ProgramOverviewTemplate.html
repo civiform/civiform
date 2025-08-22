@@ -11,6 +11,9 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
+        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+      ></div>
+      <div
         th:replace="~{applicant/TitleAndDescriptionFragment ::
           titleAndDescriptionFragment(
           #{heading.programOverview(${programName})},
@@ -76,5 +79,8 @@
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
@@ -131,5 +131,8 @@
     </div>
 
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

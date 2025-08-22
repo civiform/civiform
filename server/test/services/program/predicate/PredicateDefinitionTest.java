@@ -20,4 +20,19 @@ public class PredicateDefinitionTest {
     assertThat(predicate.toDisplayString("My Block", ImmutableList.of()))
         .isEqualTo("My Block is hidden if city is equal to \"Phoenix\"");
   }
+
+  @Test
+  public void toFormattedDisplayString() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Phoenix"))),
+            PredicateAction.HIDE_BLOCK);
+
+    assertThat(predicate.toDisplayFormattedHtml("My Block", ImmutableList.of()).toString())
+        .isEqualTo(
+            "My Block is <strong>hidden</strong> if city is equal to"
+                + " <strong>&quot;Phoenix&quot;</strong>");
+  }
 }

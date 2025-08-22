@@ -66,10 +66,10 @@ public final class ErrorComponent {
                                                 .with(button)
                                                 .condWith(
                                                     statusCode.isPresent(),
-                                                    p(messages.at(
+                                                    p(
+                                                        messages.at(
                                                             MessageKey.ERROR_STATUS_CODE
                                                                 .getKeyName(),
-                                                            statusCode.orElse("")))
-                                                        .withClass("text-base")))))));
+                                                            statusCode.orElse("")))))))));
   }
 }

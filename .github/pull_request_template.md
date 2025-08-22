@@ -12,9 +12,9 @@ Remove this section if the title of the pull request can be used as the default 
 
 Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)
 
-- [ ] Added the correct label: < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
+- [ ] Added the correct label (see [docs](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-appropriate-labels) for more info): < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers)
-- [ ] Added an additional reviewer from outside your organization as FYI (if the primary reviewer is in the same organization as you)
+- [ ] Added an additional reviewer from `civiform/eng-admin` as FYI (if the primary reviewer is not an admin and this PR includes functionality changes)
 - [ ] Removed the release notes section if the title is sufficient for the release notes description, or put more details in that section.
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
@@ -52,6 +52,7 @@ Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-
 - [ ] Manually tested at 200% size
 - [ ] Manually evaluated tab order
 - [ ] Manually tested with a screen reader if the feature is applicant-facing. See [screen reader testing](https://github.com/civiform/civiform/wiki/Testing#screen-reader-testing)
+- [ ] Manually tested with a right-to-left language
 
 #### New Features
 

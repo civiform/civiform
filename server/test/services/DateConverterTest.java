@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
@@ -56,6 +57,53 @@ public class DateConverterTest {
   public void parseIso8601DateToEndOfLocalDateInstant_DateTimeParseExceptionIsGenerated() {
     String inputDate = "abcd";
     assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToEndOfLocalDateInstant(inputDate))
+        .isInstanceOf(DateTimeParseException.class);
+  }
+
+  @Test
+  public void parseIso8601DateToLocalDateTimeInstant_dateOnly_isSuccessful() {
+    String dateOnly = "2025-05-26";
+    Instant result = dateConverterUTC.parseIso8601DateToLocalDateTimeInstant(dateOnly);
+
+    // When no time is provided, it should be set to start of day
+    Instant expected = LocalDate.of(2025, 5, 26).atStartOfDay(ZoneId.of("UTC")).toInstant();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void parseIso8601DateToLocalDateTimeInstant_dateTime_isSuccessful() {
+    String dateTime = "2025-05-26T11:00:00";
+    Instant result = dateConverterUTC.parseIso8601DateToLocalDateTimeInstant(dateTime);
+
+    Instant expected = LocalDateTime.of(2025, 5, 26, 11, 0, 0).atZone(ZoneId.of("UTC")).toInstant();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void parseIso8601DateToLocalDateTimeInstant_dateTimeTimezone_isSuccessful() {
+    // Date uses UTC timezone
+    String dateTime = "2025-05-26T02:00:00.00Z";
+
+    // When the string uses the same local timezone than the local one, the parsed time will use
+    // such timezone.
+    Instant resultUTC = dateConverterUTC.parseIso8601DateToLocalDateTimeInstant(dateTime);
+    Instant expectedUTC =
+        LocalDateTime.of(2025, 5, 26, 2, 0, 0).atZone(ZoneId.of("UTC")).toInstant();
+    assertThat(resultUTC).isEqualTo(expectedUTC);
+
+    // When the string uses a different timezone than the local one, the parsed time should use the
+    // timezone given.
+    Instant resultPT = dateConverterPT.parseIso8601DateToLocalDateTimeInstant(dateTime);
+    Instant expectedPT =
+        LocalDateTime.of(2025, 5, 26, 2, 0, 0).atZone(ZoneId.of("UTC")).toInstant();
+    assertThat(resultPT).isEqualTo(expectedPT);
+  }
+
+  @Test
+  public void parseIso8601DateToLocalDateTimeInstant_DateTimeParseExceptionIsGenerated() {
+    String inputDate = "abcd";
+    assertThatThrownBy(() -> dateConverterUTC.parseIso8601DateToLocalDateTimeInstant(inputDate))
         .isInstanceOf(DateTimeParseException.class);
   }
 

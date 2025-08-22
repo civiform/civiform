@@ -13,11 +13,13 @@ If LOCAL_OUTPUT does not equal "true", the following variables must be set:
     TARGET_PATH: the relative path within TARGET_REPO to write the file to.
 """
 
+import base64
 import dataclasses
 import env_var_docs.errors_formatter
 import env_var_docs.parser
 import github
 import os
+import requests
 import sys
 import typing
 # Needed for <3.10
@@ -92,9 +94,21 @@ def main():
 
     gh = github.Github(config.access_token)
     repo = gh.get_repo(config.repo)
+    branch = repo.get_branch("main")
+    head_oid = branch.commit.sha
+    commit_message = ""
 
     # If file exists, update it, if not, create it.
     path = f"{config.repo_path}/{config.version}.md"
+    commit_message = None
+    updates = [
+        {
+            "path":
+                path,
+            "contents":
+                base64.b64encode(markdown.encode("utf-8")).decode("utf-8")
+        }
+    ]
     try:
         file = repo.get_contents(path)
         if isinstance(file, List):
@@ -103,23 +117,9 @@ def main():
         if file.decoded_content.decode() == markdown:
             print(f"{path} already exists and does not need to be updated.")
             return
-
-        res = repo.update_file(
-            path,
-            f"Updates {config.version} server environment variable documentation",
-            markdown, file.sha)
-        print(
-            f"https://github.com/{config.repo}/blob/main/{path} updated in commit {res['commit']}"
-        )
+        commit_message = f"Updates {config.version} server environment variable documentation"
     except github.UnknownObjectException:
-        res = repo.create_file(
-            path,
-            f"Adds {config.version} server environment variable documentation",
-            markdown,
-            branch="main")
-        print(
-            f"https://github.com/{config.repo}/blob/main/{path} created in commit {res['commit']}"
-        )
+        commit_message = f"Adds {config.version} server environment variable documentation"
 
         # Update SUMMARY.md with a link to the new file. First, get all versioned docs files in the repo.
         docs_paths = []
@@ -128,17 +128,62 @@ def main():
             if f.name != "README.md":
                 docs_paths.append(f.path)
 
+        docs_paths.append(path)
         summary_file = repo.get_contents("docs/SUMMARY.md")
         new_contents = new_summary(
             summary_file.decoded_content.decode(), docs_paths)
 
-        res = repo.update_file(
-            summary_file.path,
-            f"Adds {config.version} server environment variable documentation link to SUMMARY",
-            new_contents, summary_file.sha)
-        print(
-            f"https://github.com/{config.repo}/blob/main/docs/SUMMARY.md updated in commit {res['commit']}"
-        )
+        updates.append(
+            {
+                "path":
+                    "docs/SUMMARY.md",
+                "contents":
+                    base64.b64encode(new_contents.encode("utf-8")
+                                    ).decode("utf-8")
+            })
+    # GraphQL mutation that will create a signed commit automatically
+    mutation = """
+    mutation($input: CreateCommitOnBranchInput!) {
+        createCommitOnBranch(input: $input) {
+            commit {
+                oid
+                commitUrl
+            }
+        }
+    }
+    """
+    variables = {
+        "input":
+            {
+                "branch":
+                    {
+                        "repositoryNameWithOwner": config.repo,
+                        "branchName": "main"
+                    },
+                "expectedHeadOid": head_oid,
+                "message": {
+                    "headline": commit_message,
+                    "body": ""
+                },
+                "fileChanges": {
+                    "additions": updates
+                }
+            }
+    }
+
+    url = "https://api.github.com/graphql"
+    headers = {
+        "Authorization": f"Bearer {config.access_token}",
+        "Accept": "application/vnd.github.v4+json"
+    }
+    payload = {"query": mutation, "variables": variables}
+    resp = requests.post(url, json=payload, headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+    if "errors" in data:
+        raise RuntimeError(data["errors"])
+    commit = data["data"]["createCommitOnBranch"]["commit"]
+    print(f"{commit['commitUrl']} in commit {commit['oid']}")
 
 
 def generate_markdown(
@@ -210,6 +255,15 @@ def removeprefix(text, prefix):
     return text[len(prefix):] if text.startswith(prefix) else text
 
 
+def version_key(path: str):
+    # Expected input is a path to an env-var-docs markdown, e.g.
+    # docs/it-manual/sre-playbook/server-environment-variables/v2.40.0.md
+    filename = path.rsplit("/", 1)[-1]
+    ver = filename.lstrip("v").rstrip(".md")
+    parts = ver.split(".")
+    return tuple(int(p) for p in parts)
+
+
 def new_summary(current_summary: str, docs_paths: List[str]) -> str:
     """In SUMMARY.md we have a '[CiviForm server environment variables]' list
     item that has sublist items for each versioned environment variable
@@ -218,7 +272,7 @@ def new_summary(current_summary: str, docs_paths: List[str]) -> str:
     """
 
     def format_docs_links(indent_level: int, docs_paths: List[str]) -> str:
-        docs_paths.sort()
+        docs_paths.sort(key=version_key)
         out = ""
         for p in docs_paths:
             indent = " " * indent_level

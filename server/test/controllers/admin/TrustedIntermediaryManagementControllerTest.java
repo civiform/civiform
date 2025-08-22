@@ -153,7 +153,7 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
     assertThat(
             accountRepository.listTrustedIntermediaryGroups().stream()
                 .map(g -> g.id)
-                .filter(id -> id == group.id))
+                .filter(id -> id.equals(group.id)))
         .isEmpty();
   }
 

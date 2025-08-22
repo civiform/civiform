@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -1629,6 +1627,28 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getActiveOrDraftProgramDefinitionAsync_getsDraftProgram() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getActiveOrDraftProgramDefinitionAsync_getsActiveProgram() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
+
     ProgramDefinition found = ps.getDraftFullProgramDefinition(programDefinition.slug());
 
     assertThat(found.id()).isEqualTo(programDefinition.id());
@@ -1656,6 +1676,25 @@ public class ProgramServiceTest extends ResetPostgres {
     var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
 
     throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void getActiveProgramId_success() {
+    ProgramDefinition activeProgram =
+        ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    CompletionStage<Long> result = ps.getActiveProgramId(activeProgram.slug());
+
+    assertThat(result.toCompletableFuture().join()).isEqualTo(activeProgram.id());
+  }
+
+  @Test
+  public void getActiveProgramId_error_programNotFound() {
+    CompletionStage<Long> result = ps.getActiveProgramId("nonexistent-program");
+
+    assertThatThrownBy(() -> result.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(java.lang.RuntimeException.class)
+        .hasMessageContaining("Program not found for slug: nonexistent-program");
   }
 
   @Test
@@ -2473,9 +2512,13 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (eligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(eligibilityMsg);
   }
 
   @Test
@@ -2493,14 +2536,21 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (firstEligibilityMsg);
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (secondEligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    BlockDefinition blockWithSetEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(firstEligibilityMsg);
+
+    ProgramDefinition programAfterEligibilityMessageUpdate =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageUpdate.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(secondEligibilityMsg);
   }
 
   @Test
@@ -3174,8 +3224,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(programId)))
                     .build())
             .build();
-    ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+    ObjectMapper mapper = instanceOf(ObjectMapper.class);
 
     // Directly update the table with DB.sqlUpdate and execute. We can't save it through
     // the ebean model because the preupdate method will correct block ordering, and we

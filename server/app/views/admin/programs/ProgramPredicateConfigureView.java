@@ -184,42 +184,36 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     final Optional<PredicateDefinition> existingPredicate;
 
     switch (type) {
-      case ELIGIBILITY:
-        {
-          typeDisplayName = "eligibility";
-          existingPredicate =
-              forceNew
-                  ? Optional.empty()
-                  : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      case VISIBILITY:
-        {
-          typeDisplayName = "visibility";
-          existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      default:
-        {
-          throw new IllegalArgumentException(
-              String.format("Unknown predicate view type: %s", type));
-        }
+      case ELIGIBILITY -> {
+        typeDisplayName = "eligibility";
+        existingPredicate =
+            forceNew
+                ? Optional.empty()
+                : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      case VISIBILITY -> {
+        typeDisplayName = "visibility";
+        existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      default -> {
+        throw new IllegalArgumentException(String.format("Unknown predicate view type: %s", type));
+      }
     }
 
     DivTag content =

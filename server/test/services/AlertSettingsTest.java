@@ -24,18 +24,18 @@ public class AlertSettingsTest extends ResetPostgres {
   @Test
   public void getTitleAriaLabel_success() {
     String ariaLabel = AlertSettings.getTitleAriaLabel(messages, AlertType.SUCCESS, "title");
-    assertEquals(ariaLabel, "Success: title");
+    assertEquals("Success: title", ariaLabel);
   }
 
   @Test
   public void getTitleAriaLabel_info() {
     String ariaLabel = AlertSettings.getTitleAriaLabel(messages, AlertType.INFO, "title");
-    assertEquals(ariaLabel, "For your information: title");
+    assertEquals("For your information: title", ariaLabel);
   }
 
   @Test
   public void getTitleAriaLabel_emergency() {
     String ariaLabel = AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, "title");
-    assertEquals(ariaLabel, "title");
+    assertEquals("title", ariaLabel);
   }
 }

@@ -67,6 +67,8 @@ toast.errorMessageOutline=Error: {0}
 button.close=Isara
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Pagsusuri
+# Button text that will go back to the previous page.
+button.goBack=Bumalik
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 # Aria-label for the primary navigation
@@ -211,6 +213,10 @@ button.startSurvey=Simulan ang survey
 button.viewAndApply=Tingnan at mag-apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Tingnan at mag-apply sa {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Tingnan sa bagong tab
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Tingnan ang {0} sa bagong tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +235,15 @@ content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga pr
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 # Main home page heading
 heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Mag-apply para sa mga programa ng pamahalaan online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
 content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Tuklasin ang mga serbisyo kung saan posibleng kwalipikado ka. Ginagamit ulit ng CiviForm ang iyong impormasyon para matulungan kang mas mabilis na makuha ang mga ito.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # The label for the program filter checkboxes
@@ -288,6 +298,10 @@ label.submitted=Naisumite
 label.submittedOn=Naisumite noong {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} noong {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Magbubukas ito ng ibang website
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Para pumunta sa website ng programa kung saan makakakuha ka ng higit pang detalye at makakapag-apply ka, i-click ang Magpatuloy
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +659,8 @@ alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
 alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Nagsimula o nagsumite ka ng application para sa lahat ng programang available sa panahong ito.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
 
@@ -739,6 +755,17 @@ validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (na) taon
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Pagkatapos dapat ng petsa ngayong araw ang petsang ito
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Pagkatapos dapat ng {0} ang petsang ito
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Dapat mauna ang petsang ito kaysa sa petsa ngayong araw
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
+validation.currentDateRequired=Ilagay ang petsa ngayon
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -876,6 +903,15 @@ validation.numberNonInteger=Dapat ay naglalaman lamang ng mga numero.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga character.
 validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Oo
+option.no=Hindi
+option.notSure=Hindi sigurado
+option.maybe=Siguro
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1024,3 +1060,6 @@ session.extended.success=Na-extend na ang session
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Hindi na-extend ang session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

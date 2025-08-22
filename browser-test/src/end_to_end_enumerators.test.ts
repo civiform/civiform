@@ -2,20 +2,21 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
 } from './support'
 import {Page} from 'playwright'
 
 test.describe('End to end enumerator test', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   const programName = 'Ete enumerator program'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('Admin page', () => {
     test('Updates enumerator elements in preview', async ({

@@ -67,6 +67,8 @@ toast.errorMessageOutline=發生錯誤: {0}
 button.close=關閉
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=檢查
+# Button text that will go back to the previous page.
+button.goBack=返回
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
 # Aria-label for the primary navigation
@@ -211,6 +213,10 @@ button.startSurvey=開始填寫問卷調查
 button.viewAndApply=查看及申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=查看及申請「{0}」
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=在新分頁中查看
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=在新分頁中查看「{0}」
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +235,15 @@ content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
 heading.homepage=在這裡申請政府協助
+# Main home page heading, updated to be more generic
+heading.homepage.v2=線上申請政府計畫
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
 content.homepageIntro=如要取得食物、交通運輸、兒童照護、公用事業和其他領域的相關協助，請在下方點按任一選項。請注意，您一次只能申請一項計畫。
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=瀏覽您可能符合資格的服務。CiviForm 會重複使用您的資訊，協助您快速找到這類服務。
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
@@ -288,6 +298,10 @@ label.submitted=已提交
 label.submittedOn=已於 {0}提交
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn=已於 {1}{0}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=這會開啟其他網站
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=如要前往計畫的網站，以便查看更多資訊及完成申請程序，請點選「繼續」
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +659,8 @@ alert.submitted=您已提交「{0}」的申請書
 alert.createAccount=如果想在之後存取申請書，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=只要在帳戶中儲存相關資訊，就能查看申請書狀態，還可以快速申請其他計畫。
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=您已開始申請或已申請過目前適用的所有計畫。
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=登入現有帳戶
 
@@ -739,6 +755,17 @@ validation.invalidDateFormat=日期的格式不正確，請重新輸入
 validation.dateBeyondAllowablePast=請輸入過去 {0} 年內的日期
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=請輸入未來 {0} 年內的日期
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=必須輸入今天以後的日期
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=必須輸入 {0}以後的日期
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=必須輸入今天以前的日期
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=必須輸入 {0}以前的日期
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
+validation.currentDateRequired=請輸入今天的日期
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
@@ -876,6 +903,15 @@ validation.numberNonInteger=數字必須為正整數，而且只含 0 到 9 的�
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=長度不可超過 {0} 個字元。
 validation.textTooShort=長度不可少於 {0} 個字元。
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=是
+option.no=否
+option.notSure=不確定
+option.maybe=或許
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1024,3 +1060,6 @@ session.extended.success=已成功延長工作階段
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=無法延長工作階段
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

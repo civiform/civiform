@@ -3,14 +3,10 @@ import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {
   ProgramCategories,
   ProgramHeaderButton,
-  ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
@@ -240,14 +236,11 @@ test.describe('admin program view page', () => {
     await loginAsAdmin(page)
 
     const programName = 'External Program'
-    await adminPrograms.addProgram(
+    await adminPrograms.addExternalProgram(
       programName,
-      /* description= */ '',
       /* shortDescription= */ 'short program description',
       /* externalLink= */ 'https://usa.gov',
       /* visibility= */ ProgramVisibility.PUBLIC,
-      /* adminDescription= */ 'admin description',
-      /* programType= */ ProgramType.EXTERNAL,
     )
 
     // On draft mode, external programs should not have preview and download

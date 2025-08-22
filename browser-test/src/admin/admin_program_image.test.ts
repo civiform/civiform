@@ -1,17 +1,18 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   dismissToast,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('Admin can manage program image', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
+
   test('views a program without an image', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 

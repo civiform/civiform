@@ -56,6 +56,7 @@ public enum MessageKey {
   ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
+  ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_CATEGORIES("ariaLabel.categories"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
@@ -135,7 +136,8 @@ public enum MessageKey {
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
-  BUTTON_VIEW_IN_NEW_WINDOW("button.viewInNewWindow"),
+  BUTTON_VIEW_IN_NEW_TAB("button.viewInNewTab"),
+  BUTTON_VIEW_IN_NEW_TAB_SR("button.viewInNewTabSr"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
@@ -209,6 +211,12 @@ public enum MessageKey {
   DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),
   DATE_VALIDATION_DOB_NOT_IN_PAST("validation.dobNotInPast"),
   DATE_VALIDATION_IMPOSSIBLE_DOB("validation.impossibleDob"),
+  DATE_VALIDATION_FUTURE_DATE_REQUIRED("validation.futureDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_PAST("validation.dateTooFarInPast"),
+  DATE_VALIDATION_PAST_DATE_REQUIRED("validation.pastDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE("validation.dateTooFarInFuture"),
+  DATE_VALIDATION_DATE_NOT_IN_RANGE("validation.dateNotInRange"),
+  DATE_VALIDATION_CURRENT_DATE_REQUIRED("validation.currentDateRequired"),
   DAY_LABEL("label.day"),
   DIALOG_DELETE_CONFIRMATION("dialog.deleteConfirmation"),
   DOB_EXAMPLE("label.dobExample"),
@@ -353,6 +361,10 @@ public enum MessageKey {
   OPTION_MEMORABLE_DATE_OCTOBER("option.memorableDate.October"),
   OPTION_MEMORABLE_DATE_NOVEMBER("option.memorableDate.November"),
   OPTION_MEMORABLE_DATE_DECEMBER("option.memorableDate.December"),
+  OPTION_YES("option.yes"),
+  OPTION_NO("option.no"),
+  OPTION_NOT_SURE("option.notSure"),
+  OPTION_MAYBE("option.maybe"),
   PHONE_NUMBER_LABEL("label.phoneNum"),
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
@@ -446,7 +458,10 @@ public enum MessageKey {
   SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
-  SESSION_EXTENDED_ERROR("session.extended.error");
+  SESSION_EXTENDED_ERROR("session.extended.error"),
+
+  // Untranslated string for translation infrastructure testing.
+  TRANSLATION_UNTRANSLATED("translation.untranslated");
 
   private final String keyName;
 

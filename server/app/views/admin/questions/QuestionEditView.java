@@ -16,6 +16,8 @@ import static j2html.TagCreator.strong;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.geojson.routes;
+import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
@@ -23,15 +25,20 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import models.QuestionDisplayMode;
 import models.QuestionTag;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
+import repository.GeoJsonDataRepository;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -68,11 +75,20 @@ public final class QuestionEditView extends BaseHtmlView {
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
   private final QuestionPreview questionPreview;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final TemplateEngine templateEngine;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
+
+  private enum FormMode {
+    CREATE,
+    EDIT,
+    VIEW
+  }
 
   @Inject
   public QuestionEditView(
@@ -81,7 +97,10 @@ public final class QuestionEditView extends BaseHtmlView {
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
       QuestionPreview questionPreview,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      GeoJsonDataRepository geoJsonDataRepository) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
@@ -89,6 +108,9 @@ public final class QuestionEditView extends BaseHtmlView {
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionPreview = checkNotNull(questionPreview);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /** Render a fresh New Question Form. */
@@ -126,7 +148,7 @@ public final class QuestionEditView extends BaseHtmlView {
     DivTag formContent =
         buildQuestionContainer(title)
             .with(
-                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
+                buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -182,7 +204,11 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title)
             .with(
                 buildEditQuestionForm(
-                        id, questionForm, maybeEnumerationQuestionDefinition, unsetUniversalModal)
+                        id,
+                        questionForm,
+                        maybeEnumerationQuestionDefinition,
+                        unsetUniversalModal,
+                        request)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -206,10 +232,11 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("View %s question", questionType.toString().toLowerCase(Locale.ROOT));
 
     SelectWithLabel enumeratorOption =
-        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition, FormMode.VIEW);
     DivTag formContent =
         buildQuestionContainer(title)
-            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
+            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
     return renderWithPreview(
         request, formContent, questionType, title, /* modal= */ Optional.empty());
@@ -246,14 +273,18 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private FormTag buildSubmittableQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
-    return buildQuestionForm(questionForm, enumeratorOptions, /* submittable= */ true, forCreate);
+      QuestionForm questionForm,
+      SelectWithLabel enumeratorOptions,
+      boolean forCreate,
+      Request request) {
+    return buildQuestionForm(
+        questionForm, enumeratorOptions, /* submittable= */ true, forCreate, request);
   }
 
   private FormTag buildReadOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
+      QuestionForm questionForm, SelectWithLabel enumeratorOptions, Request request) {
     return buildQuestionForm(
-        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
+        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false, request);
   }
 
   private DivTag buildQuestionContainer(String title) {
@@ -294,7 +325,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private FormTag buildNewQuestionForm(
       QuestionForm questionForm,
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Request request) {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
@@ -302,7 +334,7 @@ public final class QuestionEditView extends BaseHtmlView {
     if (Strings.isNullOrEmpty(cancelUrl)) {
       cancelUrl = controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     }
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -324,10 +356,12 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Modal unsetUniversalModal) {
+      Modal unsetUniversalModal,
+      Request request) {
     SelectWithLabel enumeratorOption =
-        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition, FormMode.EDIT);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
     formTag.withAction(
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())
@@ -372,7 +406,8 @@ public final class QuestionEditView extends BaseHtmlView {
       QuestionForm questionForm,
       SelectWithLabel enumeratorOptions,
       boolean submittable,
-      boolean forCreate) {
+      boolean forCreate,
+      Request request) {
     QuestionType questionType = questionForm.getQuestionType();
     FormTag formTag =
         form()
@@ -441,6 +476,21 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
+    if (questionType.equals(QuestionType.MAP)) {
+      formTag.with(
+          FieldWithLabel.input()
+              .setFieldName("geoJsonEndpoint")
+              .setLabelText("GeoJSON Endpoint")
+              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .setRequired(true)
+              // GeoJSON endpoint can only be added upon question creation
+              .setReadOnly(!forCreate)
+              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
+              .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-trigger", "change delay:1s")
+              .getInputTag());
+    }
+
     formTag.with(
         FieldWithLabel.textArea()
             .setFieldName("questionDescription")
@@ -451,7 +501,8 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<DivTag> questionConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
+    Optional<DivTag> questionConfig =
+        getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
@@ -466,6 +517,10 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
 
+    if (settingsManifest.getApiBridgeEnabled(request)) {
+      questionSettingsContentBuilder.add(buildDisplayModeFields(questionForm, submittable));
+    }
+
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -474,6 +529,41 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private Optional<DivTag> getQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
+    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
+      Set<String> possibleKeys =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .join()
+              .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+              .orElse(new HashSet<>());
+
+      return QuestionConfig.buildQuestionConfigUsingThymeleaf(
+          request,
+          new MapQuestionSettingsPartialView(
+              templateEngine, playThymeleafContextFactory, settingsManifest),
+          getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
+    }
+    return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+  }
+
+  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
+      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        possibleKeys);
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
@@ -548,24 +638,21 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-not-universal-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
                               "cf-pai-tag-set-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-tag-set-not-universal-alert",
@@ -623,6 +710,39 @@ public final class QuestionEditView extends BaseHtmlView {
             span("."));
   }
 
+  /** Generates a radio button list with the {@link QuestionDisplayMode} options. */
+  private DomContent buildDisplayModeFields(QuestionForm questionForm, boolean submittable) {
+    QuestionDisplayMode displayMode = questionForm.getDisplayMode();
+
+    return fieldset()
+        .with(
+            legend("Display Mode")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(span("This controls whether or not the question is visible to Applicants.")),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Shown to Applicants", QuestionDisplayMode.VISIBLE.getLabel()))
+                .setValue(QuestionDisplayMode.VISIBLE.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.VISIBLE)
+                .getRadioTag(),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Not shown to Applicants", QuestionDisplayMode.HIDDEN.getLabel()))
+                .setValue(QuestionDisplayMode.HIDDEN.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.HIDDEN)
+                .getRadioTag());
+  }
+
   /**
    * Generate a {@link SelectWithLabel} enumerator selector with all the available enumerator
    * question definitions.
@@ -649,7 +769,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .build();
     return enumeratorOptions(
         options,
-        questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
+        questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING),
+        FormMode.CREATE);
   }
 
   /**
@@ -657,7 +778,7 @@ public final class QuestionEditView extends BaseHtmlView {
    * question definition if available, or with just the no-enumerator option.
    */
   private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition, FormMode formMode) {
     String enumeratorName =
         maybeEnumerationQuestionDefinition
             .map(QuestionDefinition::getName)
@@ -672,17 +793,19 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setLabel(enumeratorName)
                 .setValue(enumeratorId)
                 .build()),
-        enumeratorId);
+        enumeratorId,
+        formMode);
   }
 
   private SelectWithLabel enumeratorOptions(
-      ImmutableList<SelectWithLabel.OptionValue> options, String selected) {
+      ImmutableList<SelectWithLabel.OptionValue> options, String selected, FormMode formMode) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
+        .setReadOnly(formMode.equals(FormMode.EDIT))
         .setRequired(true);
   }
 

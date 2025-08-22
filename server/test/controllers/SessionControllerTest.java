@@ -2,7 +2,10 @@ package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
@@ -20,7 +23,6 @@ public class SessionControllerTest {
   private SessionController controller;
   private ProfileUtils profileUtils;
   private CiviFormProfileData mockProfileData;
-  private CiviFormProfile mockProfile;
   private SettingsManifest mockSettingsManifest;
   private Clock clock;
 
@@ -29,7 +31,7 @@ public class SessionControllerTest {
     profileUtils = mock(ProfileUtils.class);
     mockSettingsManifest = mock(SettingsManifest.class);
     clock = mock(Clock.class);
-    mockProfile = mock(CiviFormProfile.class);
+    CiviFormProfile mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
 
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);

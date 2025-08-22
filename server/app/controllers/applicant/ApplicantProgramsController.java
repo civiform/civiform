@@ -30,6 +30,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
@@ -56,6 +57,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
   private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
+  private final MonitoringMetricCounters metricCounters;
 
   @Inject
   public ApplicantProgramsController(
@@ -70,7 +72,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       NorthStarProgramIndexView northStarProgramIndexView,
-      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial) {
+      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial,
+      MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -82,6 +85,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
     this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
+    this.metricCounters = checkNotNull(metricCounters);
   }
 
   @Secure
@@ -224,65 +228,105 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> editWithApplicantId(
-      Request request, long applicantId, long programId) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/applicants/:applicantId/programs/:programParam/edit", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
-    // Determine first incomplete block, then redirect to other edit.
-    return checkApplicantAuthorization(request, applicantId)
-        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
-        .thenApplyAsync(
-            roApplicantService -> {
-              Optional<Block> blockMaybe = roApplicantService.getFirstIncompleteOrStaticBlock();
-              return blockMaybe.flatMap(
-                  block ->
-                      Optional.of(
-                          found(
-                              applicantRoutes.blockEdit(
-                                  profile,
-                                  applicantId,
-                                  programId,
-                                  block.getId(),
-                                  /* questionName= */ Optional.empty()))));
-            },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            resultMaybe -> {
-              if (resultMaybe.isEmpty()) {
-                return supplyAsync(
-                    () -> redirect(applicantRoutes.review(profile, applicantId, programId)));
-              }
-              return supplyAsync(resultMaybe::get);
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  // If the applicant id in the URL does not correspond to the current user, start
-                  // from scratch. This could happen if a user bookmarks a URL.
-                  return redirectToHome();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return badRequest(cause.toString());
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+              // Determine first incomplete block, then redirect to other edit.
+              return checkApplicantAuthorization(request, applicantId)
+                  .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+                  .thenComposeAsync(
+                      v ->
+                          applicantService.getReadOnlyApplicantProgramService(
+                              applicantId, programId))
+                  .thenApplyAsync(
+                      roApplicantService -> {
+                        Optional<Block> blockMaybe =
+                            roApplicantService.getFirstIncompleteOrStaticBlock();
+                        return blockMaybe.flatMap(
+                            block ->
+                                Optional.of(
+                                    found(
+                                        applicantRoutes.blockEdit(
+                                            profile,
+                                            applicantId,
+                                            programId,
+                                            block.getId(),
+                                            /* questionName= */ Optional.empty()))));
+                      },
+                      classLoaderExecutionContext.current())
+                  .thenComposeAsync(
+                      resultMaybe -> {
+                        if (resultMaybe.isEmpty()) {
+                          return supplyAsync(
+                              () ->
+                                  redirect(
+                                      applicantRoutes.review(profile, applicantId, programId)));
+                        }
+                        return supplyAsync(resultMaybe::get);
+                      },
+                      classLoaderExecutionContext.current())
+                  .exceptionally(
+                      ex -> {
+                        if (ex instanceof CompletionException) {
+                          Throwable cause = ex.getCause();
+                          if (cause instanceof SecurityException) {
+                            // If the applicant id in the URL does not correspond to the current
+                            // user, start
+                            // from scratch. This could happen if a user bookmarks a URL.
+                            return redirectToHome();
+                          }
+                          if (cause instanceof ProgramNotFoundException) {
+                            return badRequest(cause.toString());
+                          }
+                          throw new RuntimeException(cause);
+                        }
+                        throw new RuntimeException(ex);
+                      });
             });
   }
 
   @Secure
-  public CompletionStage<Result> edit(Request request, long programId) {
+  public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled and it comes from the URL call
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/edit", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editWithApplicantId(request, applicantId.orElseThrow(), programId);
+
+    Long applicantIdValue = applicantId.get();
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
+        .thenCompose(
+            programId ->
+                editWithApplicantId(
+                    request, applicantIdValue, programId.toString(), /* isFromUrlCall= */ false));
   }
 
   @Secure

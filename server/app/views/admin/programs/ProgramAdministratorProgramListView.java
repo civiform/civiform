@@ -18,6 +18,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -71,15 +72,21 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   private ProgramCardFactory.ProgramCardData buildCardData(
       ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
+    ImmutableList.Builder<ButtonTag> actionsBuilder = ImmutableList.builder();
+
+    ProgramType programType = activeProgram.programType();
+    if (programType.equals(ProgramType.DEFAULT)
+        || programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+      actionsBuilder.add(renderShareLink(activeProgram));
+      actionsBuilder.add(renderViewApplicationsLink(activeProgram));
+    }
+
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
                 ProgramCardData.ProgramRow.builder()
                     .setProgram(activeProgram)
-                    .setRowActions(
-                        ImmutableList.of(
-                            renderShareLink(activeProgram),
-                            renderViewApplicationsLink(activeProgram)))
+                    .setRowActions(actionsBuilder.build())
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
         .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())

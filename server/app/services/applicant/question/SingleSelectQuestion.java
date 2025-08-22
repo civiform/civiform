@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
@@ -35,8 +36,37 @@ public final class SingleSelectQuestion extends AbstractQuestion {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // Only one selection is possible - there is no admin-configured validation.
-    return ImmutableMap.of();
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateInput());
+  }
+
+  /** Validates that a present value represents one of the Question options. */
+  private ImmutableSet<ValidationErrorMessage> validateInput() {
+    // Check if the value is answered at all.
+    // A missing value is a valid value, the required-property checker will
+    // separately determine if it is otherwise allowed to be missing.
+    boolean hasValue = applicantQuestion.getApplicantData().hasPath(getSelectionPath());
+    if (!hasValue) {
+      return ImmutableSet.of();
+    }
+
+    // Get the value as the type we desire, this ignores non-long values.
+    Optional<Long> optionalSelectedValue = getSelectedOptionId();
+    if (optionalSelectedValue.isEmpty()) {
+      // The value exists but is not a Long as required.
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+    }
+
+    Long selectedValue = optionalSelectedValue.get();
+
+    // Validate the long is in the set of allowed Question options.
+    boolean validSelection =
+        getQuestionDefinition().getOptions().stream().anyMatch(o -> selectedValue.equals(o.id()));
+
+    if (!validSelection) {
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+    }
+
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {

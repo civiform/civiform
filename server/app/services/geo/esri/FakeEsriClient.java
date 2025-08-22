@@ -31,12 +31,13 @@ public final class FakeEsriClient extends EsriClient {
   private JsonNode serviceAreaNoFeatures;
   private JsonNode serviceAreaNotInArea;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   public FakeEsriClient(
-      Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
-    super(clock, esriServiceAreaValidationConfig);
+      Clock clock,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      ObjectMapper mapper) {
+    super(clock, esriServiceAreaValidationConfig, mapper);
   }
 
   /**
@@ -64,8 +65,7 @@ public final class FakeEsriClient extends EsriClient {
     FileInputStream inputStream;
 
     switch (address) {
-      case "Address In Area":
-      case "Legit Address":
+      case "Address In Area", "Legit Address" -> {
         if (addressCandidates != null) {
           optionalResponse = mapJsonNodeToResponse(addressCandidates);
           break;
@@ -76,10 +76,10 @@ public final class FakeEsriClient extends EsriClient {
           addressCandidates = Json.parse(inputStream);
           optionalResponse = mapJsonNodeToResponse(addressCandidates);
         } catch (FileNotFoundException e) {
-          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found", e);
         }
-        break;
-      case "Bogus Address":
+      }
+      case "Bogus Address" -> {
         if (noAddressCandidates != null) {
           optionalResponse = mapJsonNodeToResponse(noAddressCandidates);
           break;
@@ -90,15 +90,14 @@ public final class FakeEsriClient extends EsriClient {
           noAddressCandidates = Json.parse(inputStream);
           optionalResponse = mapJsonNodeToResponse(noAddressCandidates);
         } catch (FileNotFoundException e) {
-          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found", e);
         }
-        break;
-      case "Error Address":
+      }
+      case "Error Address" -> {
         // Return Optional.empty() as we would if
         // we get errors from the Esri service
-        break;
-      default:
-        throw new InvalidFakeAddressException(address);
+      }
+      default -> throw new InvalidFakeAddressException(address);
     }
 
     return CompletableFuture.completedFuture(optionalResponse);

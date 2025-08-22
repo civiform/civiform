@@ -46,6 +46,7 @@ export enum FormField {
   NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
+  PROGRAM_EXTERNAL_LINK,
 }
 
 export enum ProgramType {
@@ -87,6 +88,14 @@ export enum ProgramLifecycle {
   ACTIVE = 'Active',
 }
 
+export enum ProgramAction {
+  EDIT = 'Edit',
+  PUBLISH = 'Publish',
+  SHARE = 'Share link',
+  VIEW = 'View',
+  VIEW_APPLICATIONS = 'Applications',
+}
+
 export enum ProgramExtraAction {
   VIEW_APPLICATIONS = 'Applications',
   EDIT = 'Edit',
@@ -120,7 +129,7 @@ export interface BlockSpec {
   questions?: QuestionSpec[]
 }
 
-function slugify(value: string): string {
+export function slugify(value: string): string {
   return value
     .toLowerCase()
     .replace(/ /g, '-')
@@ -205,7 +214,73 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates a program with given name.
+   * Creates a pre-screener with the given parameters
+   *
+   * @param {boolean} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addPreScreenerNS(
+    programName: string,
+    shortDescription: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required on North Star. Disabled
+    // fields must have an empty or undefined value, since disabled elements
+    // are readonly and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description =*/ '',
+      shortDescription,
+      /* externalLink= */ '',
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.PRE_SCREENER,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates an external program with the given parameters
+   *
+   * @param {string} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {string} externalLink - Link to the external program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addExternalProgram(
+    programName: string,
+    shortDescription: string,
+    externalLink: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required. Disabled fields must not
+    // have an empty or undefined value, since disabled elements are readonly
+    // and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description= */ '',
+      shortDescription,
+      externalLink,
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.EXTERNAL,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates a program with given name. Optional fields check for value
+   * existence before adding it to the form. Disabled fields must not receive a
+   * value, since disabled elements are readonly and cannot be edited
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
    * to the database and then the admin will be redirected to the next page in the
@@ -232,7 +307,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
-    eligibility = Eligibility.IS_GATING,
+    eligibility = undefined,
     submitNewProgram = true,
     applicationSteps = [{title: 'title', description: 'description'}],
   ) {
@@ -240,38 +315,63 @@ export class AdminPrograms {
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    // program name must be in url-compatible form so we slugify it
-    await this.page.fill('#program-name-input', slugify(programName))
+    // program slug must be in url-compatible form so we slugify the program name
+    await this.page.fill('#program-slug', slugify(programName))
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
-    await this.page.fill('#program-display-description-textarea', description)
-
     await this.page.fill(
       '#program-display-short-description-textarea',
       shortDescription,
     )
-    await this.page.fill('#program-external-link-input', externalLink)
-    await this.page.fill(
-      '#program-confirmation-message-textarea',
-      confirmationMessage,
-    )
+
+    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+    // When enabled, form has program type options. Otherwise, form has a
+    // pre-screener checkbox.
+    // IMPORTANT: Select the program type first since some of the next fields
+    // are disabled based on the program type.
+    const hasProgramTypeOptions = await this.page
+      .getByTestId('program-type-options')
+      .isVisible()
+    if (hasProgramTypeOptions) {
+      await this.selectProgramType(programType)
+    } else if (programType === ProgramType.PRE_SCREENER) {
+      await this.clickPreScreenerFormToggle()
+    }
+
+    if (eligibility) {
+      await this.chooseEligibility(eligibility)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.chooseEligibility(eligibility)
+    // This method adds an external link by default. The external link field is
+    // disabled for default programs and pre-screeners in North Star. Therefore,
+    // tests will fail if we try to add default external link to a disabled
+    // field.
+    // TODO(#10630): Ideally, this method should not have a default value for
+    // the external link (or any field, for that matter) but that would require
+    // updating lots of tests. Thus, for now we will fix this by only adding the
+    // external link if its field is enabled. We can fix this when we clean up
+    // the tests for North Star, since there will be less tests to migrate.
+    const externalLinkEnabled = await this.page
+      .getByRole('textbox', {name: 'Link to program website'})
+      .isEnabled()
+    if (externalLinkEnabled) {
+      await this.page.fill('#program-external-link-input', externalLink)
+    }
 
-    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
-    // When enabled, form has program type options. Otherwise, form has a
-    // pre-screener checkbox.
-    const externalProgramsFeatureEnabled =
-      await this.getProgramTypeOption(programType).isVisible()
-    if (externalProgramsFeatureEnabled) {
-      await this.selectProgramType(programType)
-    } else if (programType === ProgramType.PRE_SCREENER) {
-      await this.clickPreScreenerFormToggle()
+    if (description.length > 0) {
+      await this.page.fill('#program-display-description-textarea', description)
+    }
+
+    if (confirmationMessage.length) {
+      await this.page.fill(
+        '#program-confirmation-message-textarea',
+        confirmationMessage,
+      )
     }
 
     if (programType === ProgramType.DEFAULT) {
@@ -311,9 +411,17 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeDisabled()
+          expect(await stepTitle.getAttribute('readonly')).not.toBeNull()
           await expect(stepDescription).toBeDisabled()
+          expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isHidden()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeHidden()
+            await expect(descriptionRequiredIndicator).toBeHidden()
           }
         }
         break
@@ -322,12 +430,16 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeDisabled()
+        expect(
+          await confirmationMessage.getAttribute('readonly'),
+        ).not.toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        expect(await longDescription.getAttribute('readonly')).not.toBeNull()
         break
       }
 
@@ -361,6 +473,17 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeDisabled()
+        expect(await externalLink.getAttribute('readonly')).not.toBeNull()
+        const requiredIndicator = this.getRequiredIndicatorFor(
+          'program-external-link-input',
+        )
+        await expect(requiredIndicator).toBeHidden()
+        break
+      }
+
       default:
         throw new Error(
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
@@ -369,14 +492,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether the given form field ais enabled.
+   * Verifies whether the given form field is enabled.
    *
    * @param formField - The specific form field type to verify (from FormField enum)
+   * @param programType - Optional program type to specify context (from ProgramType enum).
+   *                      Not all form fields require a program type for verification.
    *
    * @throws Will throw an error if the elements' states don't match the expected enabled state
    * @throws Will throw an error if an invalid or unsupported form field type is provided
    */
-  async expectFormFieldEnabled(formField: FormField) {
+  async expectFormFieldEnabled(
+    formField: FormField,
+    programType?: ProgramType,
+  ) {
     switch (formField) {
       case FormField.APPLICATION_STEPS: {
         for (let i = 0; i < 5; i++) {
@@ -388,9 +516,17 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeEnabled()
+          expect(await stepTitle.getAttribute('readonly')).toBeNull()
           await expect(stepDescription).toBeEnabled()
+          expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isVisible()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeVisible()
+            await expect(descriptionRequiredIndicator).toBeVisible()
           }
         }
         break
@@ -399,12 +535,14 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeEnabled()
+        expect(await confirmationMessage.getAttribute('readonly')).toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        expect(await longDescription.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -435,6 +573,26 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeEnabled()
+        expect(await externalLink.getAttribute('readonly')).toBeNull()
+        // In pre - North Star, the external link field is optional for
+        // 'default' and 'pre-screeners'. In North Star, the external link field
+        // is disabled for 'default' and 'pre-screeners' and required for
+        // 'external programs'. Therefore, required indicator is dependent on
+        // program type. This condition can be removed once North Star is fully
+        // launched, since the required indicator will always be present if the
+        // field is enabled.
+        if (programType && programType === ProgramType.EXTERNAL) {
+          const requiredIndicator = this.getRequiredIndicatorFor(
+            'program-external-link-input',
+          )
+          await expect(requiredIndicator).toBeVisible()
+        }
+        break
+      }
+
       default:
         throw new Error(
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
@@ -460,6 +618,76 @@ export class AdminPrograms {
   async expectProgramTypeEnabled(programType: ProgramType) {
     const programTypeOption = this.getProgramTypeOption(programType)
     await expect(programTypeOption).toBeEnabled()
+  }
+
+  /**
+   * Verifies a program card has the given actions visible
+   *
+   * @param programName - Name of the program
+   * @param lifecycle - Lifecycle of the program
+   * @param actions - Actions that should be visible on the card
+   * @param extraActions - Extra actions that should be visible on the extra
+   * actions dropdown
+   */
+  async expectProgramActionsVisible(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+    actions: ProgramAction[],
+    extraActions: ProgramExtraAction[],
+  ) {
+    for (const action of actions) {
+      const actionButton = this.getProgramAction(programName, lifecycle, action)
+      await expect(actionButton).toBeVisible()
+    }
+
+    if (extraActions.length === 0) {
+      return
+    }
+
+    await this.getProgramExtraActionsButton(programName, lifecycle).click()
+    for (const action of extraActions) {
+      const actionButton = this.getProgramExtraAction(
+        programName,
+        lifecycle,
+        action,
+      )
+      await expect(actionButton).toBeVisible()
+    }
+  }
+
+  /**
+   * Verifies a program card has the given actions hidden
+   *
+   * @param programName - Name of the program
+   * @param lifecycle - Lifecycle of the program
+   * @param actions - Actions that should be hidden on the card
+   * @param extraActions - Extra actions that should be hidden on the extra
+   * actions dropdown
+   */
+  async expectProgramActionsHidden(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+    actions: ProgramAction[],
+    extraActions: ProgramExtraAction[],
+  ) {
+    for (const action of actions) {
+      const actionButton = this.getProgramAction(programName, lifecycle, action)
+      await expect(actionButton).toBeHidden()
+    }
+
+    if (extraActions.length === 0) {
+      return
+    }
+
+    await this.getProgramExtraActionsButton(programName, lifecycle).click()
+    for (const action of extraActions) {
+      const actionButton = this.getProgramExtraAction(
+        programName,
+        lifecycle,
+        action,
+      )
+      await expect(actionButton).toBeHidden()
+    }
   }
 
   /**
@@ -577,31 +805,31 @@ export class AdminPrograms {
     return this.questionCardSelectorInProgramView(questionName) + ' ' + selector
   }
 
-  programCardSelector(programName: string, lifecycle: string) {
-    return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
-  }
-
-  withinProgramCardSelector(
+  /**
+   * Selects a button in the extra rows dropdown for a program
+   *
+   * @param programName - Name of the program
+   * @param lifecycle - Lifecycle of the program
+   * @param extraRow - Extra row to select
+   */
+  async selectProgramExtraAction(
     programName: string,
-    lifecycle: string,
-    selector: string,
+    lifecycle: ProgramLifecycle,
+    extraRow: ProgramExtraAction,
   ) {
-    return this.programCardSelector(programName, lifecycle) + ' ' + selector
+    await this.getProgramExtraActionsButton(programName, lifecycle).click()
+    await this.getProgramExtraAction(programName, lifecycle, extraRow).click()
   }
 
   async gotoDraftProgramManageStatusesPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.DRAFT,
+      ProgramExtraAction.MANAGE_APPLICATIONS,
     )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        ':text("Manage application statuses")',
-      ),
-    )
+
     await waitForPageJsLoad(this.page)
     const adminProgramStatuses = new AdminProgramStatuses(this.page)
     await adminProgramStatuses.expectProgramManageStatusesPage(programName)
@@ -610,15 +838,10 @@ export class AdminPrograms {
   async gotoDraftProgramManageTranslationsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        ':text("Manage Translations")',
-      ),
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.DRAFT,
+      ProgramExtraAction.MANAGE_TRANSLATIONS,
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramManageTranslationsPage(programName)
@@ -632,38 +855,40 @@ export class AdminPrograms {
     await this.expectProgramImagePage()
   }
 
+  /**
+   * Opens the manage program page by clicking on a program's card extra action.
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        ':text("Manage program admins")',
-      ),
+
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.DRAFT,
+      ProgramExtraAction.MANAGE_ADMINS,
     )
     await waitForPageJsLoad(this.page)
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToExportProgramPage(programName: string, lifecycle: string) {
+  /**
+   * Opens the export program page by clicking on a program's card extra action.
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
+  async goToExportProgramPage(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+  ) {
     await this.gotoAdminProgramsPage()
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        lifecycle,
-        '.cf-with-dropdown',
-      ),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        lifecycle,
-        ':text("Export program")',
-      ),
+    await this.selectProgramExtraAction(
+      programName,
+      lifecycle,
+      ProgramExtraAction.EXPORT,
     )
     await waitForPageJsLoad(this.page)
   }
@@ -711,46 +936,54 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Opens the export program page by clicking on a program's card action or
+   * extra action (depending on the program lifecycle)
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoEditDraftProgramPage(
     programName: string,
     isProgramDisabled: boolean = false,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
     await this.gotoAdminProgramsPage(isProgramDisabled)
 
-    if (createNewDraft) {
+    if (lifecycle === ProgramLifecycle.ACTIVE) {
       await this.expectActiveProgram(programName)
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Active',
-          '.cf-with-dropdown',
-        ),
-      )
-      await this.page.click(
-        this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
+      await this.selectProgramExtraAction(
+        programName,
+        lifecycle,
+        ProgramExtraAction.EDIT,
       )
     } else {
       await this.expectDraftProgram(programName)
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Draft',
-          'button :text("Edit")',
-        ),
-      )
+      await this.getProgramAction(
+        programName,
+        lifecycle,
+        ProgramAction.EDIT,
+      ).click()
     }
 
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
 
+  /**
+   * Opens the view program page by clicking on a program's card action
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoViewActiveProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
-    )
+    await this.getProgramAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramAction.VIEW,
+    ).click()
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockReadOnlyPage(programName)
   }
@@ -799,28 +1032,32 @@ export class AdminPrograms {
 
   async goToProgramDescriptionPage(
     programName: string,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
-    await this.gotoEditDraftProgramPage(programName, false, createNewDraft)
+    await this.gotoEditDraftProgramPage(
+      programName,
+      /* isProgramDisabled= */ false,
+      lifecycle,
+    )
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
   }
 
   async expectDraftProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Draft')),
+      this.getProgramCard(programName, ProgramLifecycle.DRAFT),
     ).toBeVisible()
   }
 
   async expectDoesNotHaveDraftProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Draft')),
+      this.getProgramCard(programName, ProgramLifecycle.DRAFT),
     ).toBeHidden()
   }
 
   async expectActiveProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Active')),
+      this.getProgramCard(programName, ProgramLifecycle.ACTIVE),
     ).toBeVisible()
   }
 
@@ -854,7 +1091,10 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      "as a Program Admin because they haven't previously logged into" +
+        ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
+        " they've been added, they will need refresh their browser see the programs" +
+        " they've been assigned to.",
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -889,15 +1129,6 @@ export class AdminPrograms {
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
-    // Compare string case insensitively because style may not have been computed.
-    expect(
-      (await this.page.innerText('[for=block-name-input]')).toUpperCase(),
-    ).toEqual('SCREEN NAME')
-    expect(
-      (
-        await this.page.innerText('[for=block-description-textarea]')
-      ).toUpperCase(),
-    ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
@@ -1056,9 +1287,11 @@ export class AdminPrograms {
 
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
+    await this.page
+      .locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
@@ -1254,15 +1487,10 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage(isProgramDisabled)
     await this.expectActiveProgram(programName)
 
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Active',
-        '.cf-with-dropdown',
-      ),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramExtraAction.EDIT,
     )
     await waitForPageJsLoad(this.page)
 
@@ -1274,18 +1502,23 @@ export class AdminPrograms {
     await this.expectDraftProgram(programName)
   }
 
+  /**
+   * Opens the applications page by clicking on a program's card action
+   * Admin must be a Program admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async viewApplications(programName: string) {
     // Navigate back to the main page for the program admin.
     await this.page.goto(BASE_URL)
     await waitForPageJsLoad(this.page)
 
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'ACTIVE',
-        'button :text("Applications")',
-      ),
-    )
+    await this.expectActiveProgram(programName)
+    await this.getProgramAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramAction.VIEW_APPLICATIONS,
+    ).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1337,20 +1570,14 @@ export class AdminPrograms {
     }
 
     if (clickFilterButton) {
-      await Promise.all([
-        this.page.waitForNavigation(),
-        await this.page.click('button:has-text("Filter")'),
-      ])
+      await this.page.click('button:has-text("Filter")')
     }
 
     await waitForPageJsLoad(this.page)
   }
 
   async clearFilterProgramApplications() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('a:has-text("Clear")'),
-    ])
+    await this.page.click('a:has-text("Clear")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -1400,6 +1627,10 @@ export class AdminPrograms {
     return this.page.locator(this.statusSelector()).inputValue()
   }
 
+  async expectStatusSelection(status: string) {
+    await expect(this.page.locator(this.statusSelector())).toHaveValue(status)
+  }
+
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
@@ -1408,14 +1639,11 @@ export class AdminPrograms {
     return waitForAnyModalLocator(this.page)
   }
   /**
-   * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
-   * containing the modal has been refreshed.
+   * Clicks the confirm button in the status update confirmation dialog
    */
   async confirmStatusUpdateModal(modal: Locator) {
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await confirmButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1461,10 +1689,8 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
-    // Confirming should cause the page to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await saveButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1473,8 +1699,9 @@ export class AdminPrograms {
   }
 
   async expectNoteUpdatedToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain('Application note updated')
+    await expect(this.page.locator('#toast-container')).toContainText(
+      'Application note updated',
+    )
   }
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
@@ -1629,9 +1856,19 @@ export class AdminPrograms {
     })
   }
 
+  getExternalLinkField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Link to program website',
+    })
+  }
+
+  getRequiredIndicatorFor(labelId: string): Locator {
+    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+  }
+
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
-      name: 'Long program description (optional)',
+      name: 'Long program description',
     })
   }
 
@@ -1649,23 +1886,43 @@ export class AdminPrograms {
         'A custom message that will be shown on the confirmation page ' +
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
-        'highlight other programs to apply for. (optional)',
+        'highlight other programs to apply for.',
+    })
+  }
+
+  getProgramCard(programName: string, lifecycle: string): Locator {
+    return this.page
+      .locator('div.cf-admin-program-card')
+      .filter({has: this.page.getByText(programName, {exact: true})})
+      .filter({has: this.page.getByText(lifecycle)})
+  }
+
+  getProgramAction(
+    programName: string,
+    lifecycle: string,
+    action: ProgramAction,
+  ) {
+    const programCard = this.getProgramCard(programName, lifecycle)
+    return programCard.getByRole('button', {
+      name: action,
     })
   }
 
   getProgramExtraActionsButton(
     programName: string,
     lifecycle: ProgramLifecycle,
-  ): string {
-    return this.withinProgramCardSelector(
-      programName,
-      lifecycle,
-      '.cf-with-dropdown',
-    )
+  ): Locator {
+    const programCard = this.getProgramCard(programName, lifecycle)
+    return programCard.locator('.cf-with-dropdown')
   }
 
-  getProgramExtraAction(action: ProgramExtraAction): Locator {
-    return this.page.getByRole('button', {
+  getProgramExtraAction(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+    action: ProgramExtraAction,
+  ): Locator {
+    const programCard = this.getProgramCard(programName, lifecycle)
+    return programCard.getByRole('button', {
       name: action,
     })
   }

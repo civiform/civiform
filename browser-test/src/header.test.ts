@@ -6,9 +6,14 @@ import {
   logout,
   validateScreenshot,
   validateAccessibility,
+  disableFeatureFlag,
 } from './support'
 
 test.describe('Header', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   /**
    * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
    */

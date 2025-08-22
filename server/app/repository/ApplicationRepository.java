@@ -170,7 +170,7 @@ public final class ApplicationRepository {
               .setSubmitTimeToNow();
           tiSubmitterEmail.ifPresent(application::setSubmitterEmail);
           application.save();
-
+          applicant.getAccount().save();
           return application;
         });
   }
@@ -237,10 +237,10 @@ public final class ApplicationRepository {
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static final class ApplicationArguments {
-    public ProgramModel program;
-    public ApplicantModel applicant;
+    ProgramModel program;
+    ApplicantModel applicant;
 
-    public ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
+    ApplicationArguments(ProgramModel program, ApplicantModel applicant) {
       this.program = program;
       this.applicant = applicant;
     }
@@ -267,6 +267,7 @@ public final class ApplicationRepository {
               existingDraft.orElseGet(
                   () -> new ApplicationModel(applicant, program, LifecycleStage.DRAFT));
           application.save();
+          applicant.getAccount().save();
           return application;
         });
   }
@@ -338,6 +339,30 @@ public final class ApplicationRepository {
                 .findSet()
                 .stream()
                 .collect(ImmutableSet.toImmutableSet()),
+        dbExecutionContext.current());
+  }
+
+  /**
+   * Get the program ID for the most recent application matching the specified applicant, program
+   * slug, and lifecycle stages.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(
+      long applicantId, String programSlug, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () ->
+            Optional.ofNullable(
+                database
+                    .find(ApplicationModel.class)
+                    .select("program.id")
+                    .where()
+                    .eq("applicant.id", applicantId)
+                    .isIn("lifecycle_stage", stages)
+                    .eq("program.slug", programSlug)
+                    .orderBy("id desc")
+                    .setMaxRows(1)
+                    .setLabel("ApplicationModel.findLatestProgramId")
+                    .setProfileLocation(queryProfileLocationBuilder.create("getLatestProgramId"))
+                    .findSingleAttribute()),
         dbExecutionContext.current());
   }
 

@@ -292,12 +292,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   @Test
   public void sampleEnumeratorQuestions_nestedEnumerator() {
     SampleDataContext sampleDataContext = new SampleDataContext();
-    @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> enumEntries =
-        questionJsonSamplerFactory
-            .create(QuestionType.ENUMERATOR)
-            .getSampleJsonEntries(
-                ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), sampleDataContext);
+    questionJsonSamplerFactory
+        .create(QuestionType.ENUMERATOR)
+        .getSampleJsonEntries(
+            ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), sampleDataContext);
     EnumeratorQuestionDefinition nestedEnumeratorQuestionDefinition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -309,12 +307,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 .build(),
             LocalizedStrings.withDefaultValue("household member income source"));
 
-    @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> nestedEnumEntries =
-        questionJsonSamplerFactory
-            .create(QuestionType.ENUMERATOR)
-            .getSampleJsonEntries(
-                nestedEnumeratorQuestionDefinition.withPopulatedTestId(), sampleDataContext);
+    questionJsonSamplerFactory
+        .create(QuestionType.ENUMERATOR)
+        .getSampleJsonEntries(
+            nestedEnumeratorQuestionDefinition.withPopulatedTestId(), sampleDataContext);
 
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> repeatedEntityQuestion =

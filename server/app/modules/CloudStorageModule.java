@@ -50,26 +50,25 @@ public class CloudStorageModule extends AbstractModule {
     }
 
     switch (storageServiceName) {
-      case S3:
-      case AWS_S3:
+      case S3, AWS_S3 -> {
         bind(AbstractS3StorageUtils.class).to(AwsStorageUtils.class);
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
         bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
         bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
-        break;
-      case GCP_S3:
+      }
+      case GCP_S3 -> {
         bind(AbstractS3StorageUtils.class).to(GcpStorageUtils.class);
         bind(ApplicantStorageClient.class).to(GcpApplicantStorage.class);
         bind(PublicStorageClient.class).to(GcpPublicStorage.class);
         bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
         bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
-        break;
-      case AZURE_BLOB:
+      }
+      case AZURE_BLOB -> {
         bind(ApplicantStorageClient.class).to(AzureApplicantStorage.class);
         bind(PublicStorageClient.class).to(AzurePublicStorage.class);
         bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
-        break;
+      }
     }
 
     install(

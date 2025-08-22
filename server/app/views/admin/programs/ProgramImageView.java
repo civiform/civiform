@@ -36,7 +36,6 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -230,11 +229,8 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
-            AlertComponent.renderSlimAlert(
-                AlertType.INFO,
-                "Note: Image description is required before uploading an image.",
-                /* hidden= */ false,
-                "mb-2"))
+            AlertComponent.renderSlimInfoAlert(
+                "Note: Image description is required before uploading an image.", "mb-2"))
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
@@ -361,7 +357,6 @@ public final class ProgramImageView extends BaseHtmlView {
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile,
             zoneId,

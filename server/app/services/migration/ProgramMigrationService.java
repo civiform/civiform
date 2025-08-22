@@ -18,6 +18,7 @@ import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +35,9 @@ import org.slf4j.LoggerFactory;
 import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
+import repository.TransactionManager;
 import repository.VersionRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -67,6 +70,7 @@ public final class ProgramMigrationService {
   private final QuestionRepository questionRepository;
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ProgramMigrationService(
@@ -75,7 +79,8 @@ public final class ProgramMigrationService {
       ProgramRepository programRepository,
       QuestionRepository questionRepository,
       QuestionService questionService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      TransactionManager transactionManager) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
         checkNotNull(objectMapper)
@@ -87,6 +92,7 @@ public final class ProgramMigrationService {
     this.questionRepository = checkNotNull(questionRepository);
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
+    this.transactionManager = checkNotNull(transactionManager);
   }
 
   /**
@@ -152,6 +158,76 @@ public final class ProgramMigrationService {
     } catch (RuntimeException | JsonProcessingException e) {
       return ErrorAnd.error(
           ImmutableSet.of(String.format("JSON is incorrectly formatted: %s", e.getMessage())));
+    }
+  }
+
+  /**
+   * Validates questions before they are rendered to the admin.
+   *
+   * @param program The program definition being validated.
+   * @param questions The questions to validate.
+   * @param existingAdminNames The existing admin names of questions in the Question Bank.
+   * @return A set of validation errors from all validation checks.
+   */
+  public ImmutableSet<CiviFormError> validateQuestions(
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> existingAdminNames) {
+
+    return ImmutableSet.<CiviFormError>builder()
+        .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
+        .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
+        .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
+        .addAll(
+            QuestionValidationUtils.validateRepeatedQuestions(
+                program, questions, existingAdminNames))
+        .build();
+  }
+
+  /**
+   * Question keys are derived from Question Admin IDs in {@link QuestionDefinition} with {@code
+   * adminId().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_")}. Question keys in the imported
+   * JSON must be unique from one another AND if a question key exists in the DB, the question name
+   * must be exactly similar to that in the DB.
+   *
+   * @throws RuntimeException if there are any issues with the uniqueness of question keys
+   */
+  public void validateQuestionKeyUniqueness(ImmutableList<QuestionDefinition> questions) {
+    Map<String, ImmutableList<String>> questionKeysToNames = new HashMap<>();
+    for (QuestionDefinition question : questions) {
+      Optional<QuestionModel> conflictingQ = questionRepository.findConflictingQuestion(question);
+      if (conflictingQ.isPresent()
+          && !conflictingQ.get().getQuestionDefinition().getName().equals(question.getName())) {
+        throw new RuntimeException(
+            String.format(
+                "Question key %s (Admin ID \"%s\" with non-letter characters removed and spaces"
+                    + " transformed to underscores) is already in use by question %s. Please change"
+                    + " the Admin ID so it either matches the existing one, or compiles to a"
+                    + " different question key.",
+                question.getQuestionNameKey(),
+                question.getName(),
+                conflictingQ.get().getQuestionDefinition().getName()));
+      }
+      questionKeysToNames.merge(
+          question.getQuestionNameKey(),
+          ImmutableList.of(question.getName()),
+          (ImmutableList<String> a, ImmutableList<String> b) -> {
+            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            builder.addAll(a);
+            builder.addAll(b);
+            return builder.build();
+          });
+    }
+    ImmutableList<ImmutableList<String>> duplicateKeys =
+        questionKeysToNames.values().stream()
+            .filter(names -> names.size() > 1)
+            .collect(ImmutableList.toImmutableList());
+    if (!duplicateKeys.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Question keys (Admin IDs with non-letter characters removed and spaces transformed"
+                  + " to underscores) must be unique. Duplicate question keys found: %s",
+              duplicateKeys));
     }
   }
 
@@ -325,51 +401,80 @@ public final class ProgramMigrationService {
    * @param questionDefinitions the {@link QuestionDefinition}s associated with the program
    * @param duplicateHandlingOptions the {@link DuplicateQuestionHandlingOption} for each question
    *     adminName
-   * @param withDuplicates whether to allow duplicate question names
-   * @param duplicateHandlingEnabled whether to allow admin-specified duplicate handling
    * @return either the saved {@link ProgramModel} or a single error message
    */
   public ErrorAnd<ProgramModel, String> saveImportedProgram(
       ProgramDefinition programDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions,
       ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
-          duplicateHandlingOptions,
-      boolean withDuplicates,
-      boolean duplicateHandlingEnabled) {
-    ProgramDefinition updatedProgram = programDefinition;
-    // Get the overwritten admin names
+          duplicateHandlingOptions) {
     ImmutableList<String> overwrittenQuestions =
         Utils.getQuestionNamesForDuplicateHandling(
             duplicateHandlingOptions,
             ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    ImmutableList<String> duplicatedQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
+    ImmutableList<String> reusedQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
 
+    // Using a transaction batch could improve performance. Ebeans batching consistently
+    // misbehaves in this instance, since there are many nested transactions. So we do not enable
+    // batching.
+    return transactionManager.execute(
+        () ->
+            doSaveProgram(
+                programDefinition,
+                questionDefinitions,
+                overwrittenQuestions,
+                duplicatedQuestions,
+                reusedQuestions));
+  }
+
+  private ErrorAnd<ProgramModel, String> doSaveProgram(
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ImmutableList<String> overwrittenQuestions,
+      ImmutableList<String> duplicatedQuestions,
+      ImmutableList<String> reusedQuestions) {
+    ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
-      if (duplicateHandlingEnabled) {
-        if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
-          return ErrorAnd.error(
-              ImmutableSet.of(
-                  "Overwriting question definitions is only supported when there are no"
-                      + " existing drafts. Please publish all drafts and try again."));
-        }
-        // When admins can select how to handle duplicate questions, we do not show admins a
-        // de-duped/suffixed admin name before saving the imported program. We must calculate that
-        // name at this point.
-        questionDefinitions =
-            ImmutableList.copyOf(
-                overwriteDuplicateNames(
-                        questionDefinitions,
-                        Utils.getQuestionNamesForDuplicateHandling(
-                            duplicateHandlingOptions,
-                            ProgramMigrationWrapper.DuplicateQuestionHandlingOption
-                                .CREATE_DUPLICATE))
-                    .values());
+      if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
+        return ErrorAnd.error(
+            ImmutableSet.of(
+                "Overwriting question definitions is only supported when there are no"
+                    + " existing drafts. Please publish all drafts and try again."));
       }
+
+      validateEnumeratorAndRepeatedQuestions(
+          questionDefinitions, overwrittenQuestions, duplicatedQuestions, reusedQuestions);
+      // When admins can select how to handle duplicate questions, we do not show admins a
+      // de-duped/suffixed admin name before saving the imported program. We must calculate that
+      // name at this point.
+      questionDefinitions =
+          ImmutableList.copyOf(
+              overwriteDuplicateNames(questionDefinitions, duplicatedQuestions).values());
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
           questionDefinitions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
+      // Get the questions that will be reused
+      ImmutableList<QuestionDefinition> reusedQuestionDefinitions =
+          questionDefinitions.stream()
+              .filter(q -> reusedQuestions.contains(q.getName()))
+              .collect(ImmutableList.toImmutableList());
+      // Need IDs of currently saved Qs
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-          updateEnumeratorIdsAndSaveAllQuestions(questionDefinitions, questionsOnJsonById);
+          updateEnumeratorIdsAndSaveQuestions(
+              // Only save questions that are not reused from the question bank
+              questionDefinitions.stream()
+                  .filter(q -> !reusedQuestions.contains(q.getName()))
+                  .collect(ImmutableList.toImmutableList()),
+              reusedQuestionDefinitions,
+              questionsOnJsonById);
 
       ImmutableList<BlockDefinition> updatedBlockDefinitions =
           Utils.updateBlockDefinitions(programDefinition, questionsOnJsonById, updatedQuestionsMap);
@@ -382,12 +487,45 @@ public final class ProgramMigrationService {
         programRepository.insertProgramSync(
             new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-    addProgramsToDraft(overwrittenQuestions, withDuplicates, duplicateHandlingEnabled);
+    addProgramsToDraft(overwrittenQuestions);
     // TODO(#8613) migrate application statuses for the program
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         updatedProgram.adminName(), new StatusDefinitions());
 
     return ErrorAnd.of(savedProgram);
+  }
+
+  @VisibleForTesting
+  void validateEnumeratorAndRepeatedQuestions(
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> overwrittenQuestions,
+      ImmutableList<String> duplicatedQuestions,
+      ImmutableList<String> reusedQuestions) {
+    ImmutableMap<Long, ImmutableList<QuestionDefinition>> repeatedQsByEnumeratorId =
+        ImmutableMap.copyOf(
+            questions.stream()
+                .filter(QuestionDefinition::isRepeated)
+                .collect(
+                    Collectors.groupingBy(
+                        question -> question.getEnumeratorId().get(),
+                        ImmutableList.toImmutableList())));
+    // Ensure that if an enumerator is duplicated its repeated questions are not overwritten/reused
+    for (QuestionDefinition question : questions) {
+      if (question.isEnumerator() && duplicatedQuestions.contains(question.getName())) {
+        ImmutableList<QuestionDefinition> repeatedQs =
+            repeatedQsByEnumeratorId.get(question.getId());
+        for (QuestionDefinition repeatedQuestion : repeatedQs) {
+          if (overwrittenQuestions.contains(repeatedQuestion.getName())
+              || reusedQuestions.contains(repeatedQuestion.getName())) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Cannot overwrite/reuse repeated question %s because enumerator %s is"
+                        + " duplicated",
+                    repeatedQuestion.getName(), question.getName()));
+          }
+        }
+      }
+    }
   }
 
   private boolean draftIsPopulated() {
@@ -399,32 +537,47 @@ public final class ProgramMigrationService {
   }
 
   /**
-   * Save all questions and then update enumerator child questions with the correct ids of their
-   * newly saved parent questions.
+   * Save the specified questions and then update enumerator child questions with the correct ids of
+   * their newly saved/reused parent questions.
+   *
+   * @param questionsToWrite questions that should be written to the repository, either because they
+   *     have a new adminName or updated configuration
+   * @param questionsToReuseFromBank full question definitions that are being reused from the bank
+   * @param questionsOnJsonById a map of question IDs to the question definitions from the JSON
+   * @return a map of question names to the fully updated question definitions
    */
   @VisibleForTesting
-  ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
-      ImmutableList<QuestionDefinition> questionDefinitions,
+  ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveQuestions(
+      ImmutableList<QuestionDefinition> questionsToWrite,
+      ImmutableList<QuestionDefinition> questionsToReuseFromBank,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
     // Save all the questions
-    ImmutableList<QuestionModel> newlySavedQuestions =
-        questionRepository.bulkCreateQuestions(questionDefinitions);
+    ImmutableMap<String, QuestionDefinition> newlySavedQuestions =
+        questionRepository.bulkCreateQuestions(questionsToWrite);
 
-    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
-        newlySavedQuestions.stream()
-            .map(question -> question.getQuestionDefinition())
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    // Get the question IDs of the questions we are reusing from the question bank
+    ImmutableMap<String, QuestionDefinition> reusedQuestions =
+        questionRepository.getExistingQuestions(
+            questionsToReuseFromBank.stream()
+                .map(QuestionDefinition::getName)
+                .collect(ImmutableSet.toImmutableSet()));
+
+    // Store all relevant questions in one map of name -> definition
+    ImmutableMap<String, QuestionDefinition> allQuestionsByName =
+        ImmutableMap.<String, QuestionDefinition>builder()
+            .putAll(reusedQuestions)
+            .putAll(newlySavedQuestions)
+            .build();
 
     ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
-        newlySavedQuestions.stream()
+        newlySavedQuestions.values().stream()
             .map(
                 question -> {
-                  QuestionDefinition qd = question.getQuestionDefinition();
-                  if (qd.getEnumeratorId().isPresent()) {
+                  if (question.getEnumeratorId().isPresent()) {
                     // The child question was saved with the incorrect enumerator id so we need to
                     // update it
-                    Long oldEnumeratorId = qd.getEnumeratorId().get();
+                    Long oldEnumeratorId = question.getEnumeratorId().get();
                     // Use the old enumerator id to get the admin name of the parent question off
                     // the old question map
                     String parentQuestionAdminName =
@@ -432,64 +585,42 @@ public final class ProgramMigrationService {
                     // Use the admin name to get the updated id for the parent question off the new
                     // question map
                     Long newlySavedParentQuestionId =
-                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
+                        allQuestionsByName.get(parentQuestionAdminName).getId();
                     // Update the child question with the correct id and save the question
-                    qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
-                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
+                    question =
+                        questionRepository.updateEnumeratorId(question, newlySavedParentQuestionId);
+                    question =
+                        questionRepository.createOrUpdateDraft(question).getQuestionDefinition();
                   }
-                  return qd;
+                  return question;
                 })
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-
-    return fullyUpdatedQuestions;
+    return ImmutableMap.<String, QuestionDefinition>builder()
+        .putAll(reusedQuestions)
+        .putAll(fullyUpdatedQuestions)
+        .build();
   }
 
-  /**
-   * Adds programs to the draft version. Notably, we put all programs in the draft if the
-   * duplicate-handling UI is not used and we have no-duplicates enabled. And if the
-   * duplicate-handling UI is used, we put only the relevant programs in the draft.
-   */
+  /** Adds only the relevant programs to the draft version. */
   @VisibleForTesting
-  void addProgramsToDraft(
-      ImmutableList<String> overwrittenAdminNames,
-      boolean withDuplicates,
-      boolean duplicateHandlingEnabled) {
-    if (duplicateHandlingEnabled) {
-      // If the admin has elected to overwrite some question definition(s), then we put only the
-      // programs that use that question(s) into the new draft.
-      ActiveAndDraftQuestions allQuestions =
-          questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions();
-      ImmutableList<ProgramDefinition> referencingPrograms =
-          overwrittenAdminNames.stream()
-              .map(name -> allQuestions.getReferencingPrograms(name))
-              .flatMap(references -> references.activeReferences().stream())
-              .distinct()
-              .collect(ImmutableList.toImmutableList());
-      for (ProgramDefinition referencingProgram : referencingPrograms) {
-        logger.info(
-            "Creating draft for program {} (ID: {}) since it references the overwritten"
-                + " question(s)",
-            referencingProgram.adminName(),
-            referencingProgram.id());
-        programRepository.createOrUpdateDraft(referencingProgram);
-      }
-    } else if (withDuplicates) {
-      // If the admin is not overwriting any question definitions, we don't need to put any programs
-      // into the draft.
-      return;
-    } else {
-      ImmutableList<Long> programsInDraft =
-          versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
-              .map(p -> p.id)
-              .collect(ImmutableList.toImmutableList());
-      versionRepository
-          .getProgramsForVersion(versionRepository.getActiveVersion())
-          .forEach(
-              program -> {
-                if (!programsInDraft.contains(program.id)) {
-                  programRepository.createOrUpdateDraft(program);
-                }
-              });
+  void addProgramsToDraft(ImmutableList<String> overwrittenAdminNames) {
+    // If the admin has elected to overwrite some question definition(s), then we put only the
+    // programs that use that question(s) into the new draft.
+    ActiveAndDraftQuestions allQuestions =
+        questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions();
+    ImmutableList<ProgramDefinition> referencingPrograms =
+        overwrittenAdminNames.stream()
+            .map(name -> allQuestions.getReferencingPrograms(name))
+            .flatMap(references -> references.activeReferences().stream())
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+    for (ProgramDefinition referencingProgram : referencingPrograms) {
+      logger.info(
+          "Creating draft for program {} (ID: {}) since it references the overwritten"
+              + " question(s)",
+          referencingProgram.adminName(),
+          referencingProgram.id());
+      programRepository.createOrUpdateDraft(referencingProgram);
     }
   }
 }

@@ -8,6 +8,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  selectApplicantLanguageNorthstar,
 } from '../../support'
 
 test.describe(
@@ -67,6 +68,23 @@ test.describe(
         )
 
         await validateAccessibility(page)
+      })
+
+      test('renders correctly right to left', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await selectApplicantLanguageNorthstar(page, 'ar')
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-options-right-to-left',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
       })
     })
 

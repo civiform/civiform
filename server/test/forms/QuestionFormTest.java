@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.UUID;
+import models.QuestionDisplayMode;
 import org.junit.Test;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -58,6 +59,12 @@ public class QuestionFormTest {
   public void getConcurrencyToken_generatesUUIDWhenUnset() {
     TestQuestionForm form = new TestQuestionForm();
     assertThat(form.getConcurrencyToken()).isNotNull();
+  }
+
+  @Test
+  public void getDisplayMode_defaultsToVisible() {
+    TestQuestionForm form = new TestQuestionForm();
+    assertThat(form.getDisplayMode()).isEqualTo(QuestionDisplayMode.VISIBLE);
   }
 
   @Test

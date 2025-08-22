@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.libs.typedmap.TypedKey;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
@@ -46,12 +47,16 @@ public final class SettingsService {
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
+  private final Environment environment;
 
   @Inject
   public SettingsService(
-      SettingsGroupRepository settingsGroupRepository, SettingsManifest settingsManifest) {
+      SettingsGroupRepository settingsGroupRepository,
+      SettingsManifest settingsManifest,
+      Environment environment) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.environment = checkNotNull(environment);
   }
 
   /**
@@ -114,6 +119,12 @@ public final class SettingsService {
 
     var newSettingsGroup = new SettingsGroupModel(newSettings, papertrail);
     newSettingsGroup.save();
+    // The SettingsCacheMaintainer will eventually clear the cache in all server instances. In
+    // tests, we want to clear the cache synchronously to ensure assertions on the new settings
+    // pass.
+    if (environment.isTest()) {
+      settingsGroupRepository.clearCurrentSettingsCache();
+    }
 
     return SettingsGroupUpdateResult.success();
   }
@@ -159,56 +170,46 @@ public final class SettingsService {
               }
 
               switch (settingDescription.settingType()) {
-                case BOOLEAN:
-                  {
-                    if (!BOOLEAN_VALUES.contains(newValue)) {
-                      throw new BadRequestException(
-                          String.format("Invalid boolean value: %s", newValue));
-                    }
-                    break;
+                case BOOLEAN -> {
+                  if (!BOOLEAN_VALUES.contains(newValue)) {
+                    throw new BadRequestException(
+                        String.format("Invalid boolean value: %s", newValue));
                   }
-
-                case ENUM:
-                  validateEnum(settingDescription, newValue);
-                  break;
-
-                case INT:
+                }
+                case ENUM -> validateEnum(settingDescription, newValue);
+                case INT -> {
                   if (!StringUtils.isNumeric(newValue)) {
                     throw new BadRequestException(String.format("Invalid int value: %s", newValue));
                   }
-                  break;
+                }
 
                   // LIST_OF_STRINGS included here for completeness since errorprone will produce a
                   // warning if a case statement isn't exhaustive.
-                case LIST_OF_STRINGS:
-                  break;
+                case LIST_OF_STRINGS -> {}
+                case STRING -> {
+                  Optional<SettingsGroupUpdateResult.UpdateError> error =
+                      validateString(settingDescription, newValue);
 
-                case STRING:
-                  {
-                    Optional<SettingsGroupUpdateResult.UpdateError> error =
-                        validateString(settingDescription, newValue);
-
-                    if (error.isPresent()) {
-                      validationErrors.put(settingDescription.variableName(), error.get());
-                    } else {
-                      if (settingDescription.variableName().equals("THEME_COLOR_PRIMARY")
-                          || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
-                        // Only allow admins to set theme colors that have a contrast ratio of 4.5:1
-                        // with white, for accessibility reasons.
-                        if (!newValue.isEmpty() && !ColorUtil.contrastsWithWhite(newValue)) {
-                          validationErrors.put(
-                              settingDescription.variableName(),
-                              SettingsGroupUpdateResult.UpdateError.create(
-                                  newValue,
-                                  "This color doesn't have enough contrast to be legible with white"
-                                      + " text. To meet accessibility requirements, choose a color"
-                                      + " with more contrast to white text here:"
-                                      + " https://webaim.org/resources/contrastchecker/."));
-                        }
-                      }
-                    }
+                  if (error.isPresent()) {
+                    validationErrors.put(settingDescription.variableName(), error.get());
                     break;
                   }
+                  if (settingDescription.variableName().equals("THEME_COLOR_PRIMARY")
+                      || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
+                    // Only allow admins to set theme colors that have a contrast ratio of 4.5:1
+                    // with white, for accessibility reasons.
+                    if (!newValue.isEmpty() && !ColorUtil.contrastsWithWhite(newValue)) {
+                      validationErrors.put(
+                          settingDescription.variableName(),
+                          SettingsGroupUpdateResult.UpdateError.create(
+                              newValue,
+                              "This color doesn't have enough contrast to be legible with white"
+                                  + " text. To meet accessibility requirements, choose a color"
+                                  + " with more contrast to white text here:"
+                                  + " https://webaim.org/resources/contrastchecker/."));
+                    }
+                  }
+                }
               }
             });
 
@@ -286,6 +287,12 @@ public final class SettingsService {
 
     var group = new SettingsGroupModel(settings, "system");
     group.save();
+    // The SettingsCacheMaintainer will eventually clear the cache in all server instances. In
+    // tests, we want to clear the cache synchronously to ensure assertions on the new settings
+    // pass.
+    if (environment.isTest()) {
+      settingsGroupRepository.clearCurrentSettingsCache();
+    }
 
     logger.info("Migrated {} settings from config to database.", settings.size());
 

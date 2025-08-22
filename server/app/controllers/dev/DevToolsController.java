@@ -2,6 +2,7 @@ package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import actions.DemoModeDisabledAction;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
@@ -23,9 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.TransactionManager;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
@@ -36,6 +40,7 @@ import services.settings.SettingsService;
 import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
+@With(DemoModeDisabledAction.class)
 public class DevToolsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
@@ -53,6 +58,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi versionsByProgramCache;
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
+  private final FormFactory formFactory;
 
   @Inject
   public DevToolsController(
@@ -63,6 +69,7 @@ public class DevToolsController extends Controller {
       SettingsService settingsService,
       SettingsManifest settingsManifest,
       Clock clock,
+      FormFactory formFactory,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -81,6 +88,7 @@ public class DevToolsController extends Controller {
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
     this.clock = checkNotNull(clock);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   /**
@@ -130,6 +138,13 @@ public class DevToolsController extends Controller {
     return seedProgramsInternal() ? ok() : internalServerError();
   }
 
+  public Result seedApplicationsHeadless(Request request) {
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+    String programSlug = formData.get("programSlug");
+    int count = Integer.parseInt(formData.get("count"));
+    return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
+  }
+
   private boolean seedProgramsInternal() {
     try {
       // TODO: Check whether test program already exists to prevent error.
@@ -142,6 +157,16 @@ public class DevToolsController extends Controller {
       return true;
     } catch (RuntimeException ex) {
       logger.error("Failed to seed programs.", ex);
+      return false;
+    }
+  }
+
+  private boolean seedApplicationsInternal(String programSlug, int count) {
+    try {
+      devDatabaseSeedTask.seedApplications(programSlug, count);
+      return true;
+    } catch (RuntimeException ex) {
+      logger.error("Failed to seed applications for program: {}", programSlug, ex);
       return false;
     }
   }

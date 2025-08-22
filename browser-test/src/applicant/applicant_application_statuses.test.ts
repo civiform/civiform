@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -7,7 +8,6 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -16,7 +16,8 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

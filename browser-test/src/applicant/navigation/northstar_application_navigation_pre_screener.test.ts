@@ -7,11 +7,12 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
-import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
+import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
@@ -36,14 +37,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.editProgramBlock(
@@ -181,6 +178,37 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await page.click('text="Apply to programs"')
       await applicantQuestions.expectLoginModal()
+    })
+
+    test('renders upsell page right to left correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
+
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+      await selectApplicantLanguageNorthstar(page, 'ar')
+      await validateAccessibility(page)
+
+      await validateScreenshot(
+        page.locator('main'),
+        'north-star-pre-screener-upsell-right-to-left',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     test('shows pre-screener form as submitted after completion', async ({

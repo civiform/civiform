@@ -11,6 +11,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
   private String entityType;
   private OptionalInt minEntities;
   private OptionalInt maxEntities;
+  public static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
 
   public EnumeratorQuestionForm() {
     super();
@@ -40,7 +41,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
   }
 
   public OptionalInt getMaxEntities() {
-    return maxEntities;
+    return maxEntities.isPresent() ? maxEntities : OptionalInt.of(MAX_ENUM_ENTITIES_ALLOWED);
   }
 
   public void setMinEntities(String minEntitiesAsString) {
@@ -53,7 +54,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
   public void setMaxEntities(String maxEntitiesAsString) {
     this.maxEntities =
         maxEntitiesAsString.isEmpty()
-            ? OptionalInt.empty()
+            ? OptionalInt.of(MAX_ENUM_ENTITIES_ALLOWED)
             : OptionalInt.of(Integer.parseInt(maxEntitiesAsString));
   }
 

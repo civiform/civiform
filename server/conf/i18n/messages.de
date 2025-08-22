@@ -67,6 +67,8 @@ toast.errorMessageOutline=Error: {0}
 button.close=Close
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Review
+# Button text that will go back to the previous page.
+button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
 # Aria-label for the primary navigation
@@ -211,6 +213,10 @@ button.startSurvey=Umfrage starten
 button.viewAndApply=Ansehen und beantragen
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=View and apply to {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continue to application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +235,15 @@ content.findProgramsDescription=CiviForm helps you find programs you may be elig
 content.saveTimeServices=Save time applying for programs and services
 # Main home page heading
 heading.homepage=Hier Gesundheits- und Sozialhilfeprogramme beantragen
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Apply for government programs online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 # Main home page intro text
 content.homepageIntro=Klicken Sie auf eine der Optionen unten, um zum Beispiel Unterstützung bezüglich Lebensmitteln, Mobilität/Verkehrsmitteln, Kinderbetreuung und Energieversorgung zu erhalten. Sie können jeweils nur Unterstützung für eine Option beantragen.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
 # The label for the program filter buttons
 label.programFilters=Program filters
 # The label for the program filter checkboxes
@@ -288,6 +298,10 @@ label.submitted=Submitted
 label.submittedOn=Eingereicht am {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} on {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=This will open a different website
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +659,8 @@ alert.submitted=Sie haben Ihren Antrag für „{0}“ gesendet.
 alert.createAccount=Erstellen Sie ein Konto, um später auf Ihren Antrag zugreifen zu können.
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Wenn Sie Ihre Daten in einem Konto speichern, können Sie den Status Ihres Antrags prüfen und schnell andere Programme beantragen.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Bei einem bestehenden Konto anmelden
 
@@ -739,6 +755,17 @@ validation.invalidDateFormat=Please enter a date in the correct format
 validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Date must be after today''s date
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Date must be after {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Date must be before today''s date
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Date must be before {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Date must be between {0} and {1}
+validation.currentDateRequired=Please enter today''s date
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
@@ -876,6 +903,15 @@ validation.numberNonInteger=Number must be a positive whole number and can only 
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1024,3 +1060,6 @@ session.extended.success=Session successfully extended
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

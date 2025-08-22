@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isHermeticTestEnvironment,
   loginAsAdmin,
@@ -14,8 +15,9 @@ import {
 
 test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
+
   test('add a hide predicate', async ({
     page,
     adminQuestions,
@@ -26,7 +28,8 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
+    const hideQuestionName = 'hide-predicate-q'
+    await adminQuestions.addTextQuestion({questionName: hideQuestionName})
     await adminQuestions.addTextQuestion({
       questionName: 'hide-other-q',
       description: 'desc',
@@ -38,13 +41,19 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'hide-predicate-q'}],
+      questions: [{name: hideQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
       description: 'screen with predicate',
       questions: [{name: 'hide-other-q'}],
     })
+
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -56,7 +65,7 @@ test.describe('create and edit predicates', () => {
     await validateToastMessage(page, 'Please select a question')
 
     await adminPredicates.addPredicates({
-      questionName: 'hide-predicate-q',
+      questionName: hideQuestionName,
       action: 'hidden if',
       scalar: 'text',
       operator: 'is equal to',
@@ -66,6 +75,41 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-expanded',
+    )
+
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      hideQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = hideQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    await validateScreenshot(
+      page.locator('#' + hideQuestionName + '-visibility-accordion'),
+      'question-card-with-hide-predicate-collapsed',
+    )
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
+    await validateScreenshot(page, 'question-card-with-hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -122,8 +166,9 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
+    const showQuestionName = 'show-predicate-q'
     await adminQuestions.addTextQuestion({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       description: 'desc',
       questionText: 'text [markdown](example.com) *question*',
       helpText: '**bolded**',
@@ -140,7 +185,7 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'show-predicate-q'}],
+      questions: [{name: showQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
@@ -148,13 +193,19 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'show-other-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
+
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
       programName,
       'Screen 2',
     )
     await adminPredicates.addPredicates({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       action: 'shown if',
       scalar: 'text',
       operator: 'is equal to',
@@ -164,6 +215,41 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-expanded',
+    )
+
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      showQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = showQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    await validateScreenshot(
+      page.locator('#' + showQuestionName + '-visibility-accordion'),
+      'question-card-with-show-predicate-collapsed',
+    )
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
+    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -241,6 +327,12 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'eligibility-predicate-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    expect(await page.innerText('#eligibility-predicate')).toContain(
+      'This screen does not have any eligibility conditions',
+    )
+
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
@@ -273,7 +365,10 @@ test.describe('create and edit predicates', () => {
       value: '',
     })
     await adminPredicates.expectPredicateErrorToast('form fields')
-    await validateScreenshot(page, 'predicate-error')
+    await validateScreenshot(
+      page.locator('#toast-container'),
+      'predicate-error',
+    )
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
@@ -303,12 +398,20 @@ test.describe('create and edit predicates', () => {
     await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
-      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
+      'Applicant is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
     await page.click(`a:has-text("Back")`)
     await validateScreenshot(page, 'block-settings-page')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    await adminPredicates.expandPredicateDisplay('eligibility')
+    await validateScreenshot(
+      page.locator('#eligibility-predicate'),
+      'block-eligibility-predicate',
+    )
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -388,12 +491,13 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('name suffix is not visible to be selected as a value', async () => {
-      await page.click(`.cf-scalar-select`)
-
-      await page.getByText('first name').isVisible()
-      await page.getByText('middle name').isVisible()
-      await page.getByText('last name').isVisible()
-      await page.getByText('name suffix').isHidden()
+      const dropdown = page.locator('.cf-scalar-select').getByRole('combobox')
+      await expect(dropdown.locator('option')).toHaveText([
+        '', // This accounts for the hidden, empty placeholder option
+        'first name',
+        'middle name',
+        'last name',
+      ])
     })
   })
 
@@ -438,8 +542,8 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await page.getByLabel('Eligibility message').isVisible()
-      await page.getByText('Markdown is supported').isVisible()
+      await expect(page.getByLabel('Eligibility message')).toBeVisible()
+      await expect(page.getByText('Markdown is supported')).toBeVisible()
     })
 
     await test.step('Eligibility message field gets updated', async () => {
@@ -656,12 +760,14 @@ test.describe('create and edit predicates', () => {
       },
     )
 
-    let predicateDisplay = await page.innerText('.cf-display-predicate')
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      'Applicant is eligible if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -690,7 +796,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'eligibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -754,7 +860,9 @@ test.describe('create and edit predicates', () => {
       page,
       'visibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      'Screen 2 is hidden if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -783,7 +891,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'visibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
@@ -1459,7 +1567,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-greater-than-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-greater-than-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 
@@ -1516,7 +1627,10 @@ test.describe('create and edit predicates', () => {
       expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
-      await validateScreenshot(page, 'predicate-age-between-edit')
+      await validateScreenshot(
+        page.locator('.predicate-config-form'),
+        'predicate-age-between-edit',
+      )
       await adminPredicates.clickSaveConditionButton()
     })
 

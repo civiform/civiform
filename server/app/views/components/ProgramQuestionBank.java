@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
-import services.AlertType;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
@@ -34,6 +33,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ViewUtils;
 import views.style.AdminStyles;
@@ -51,6 +51,7 @@ public final class ProgramQuestionBank {
 
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final SettingsManifest settingsManifest;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -64,9 +65,11 @@ public final class ProgramQuestionBank {
 
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
-      ProgramBlockValidationFactory programBlockValidationFactory) {
+      ProgramBlockValidationFactory programBlockValidationFactory,
+      SettingsManifest settingsManifest) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public DivTag getContainer(Visibility questionBankVisibility) {
@@ -149,7 +152,8 @@ public final class ProgramQuestionBank {
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false)))));
+                                    /* isPrimaryButton= */ false,
+                                    settingsManifest)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
@@ -173,11 +177,9 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd))));
     }
     contentDiv.with(

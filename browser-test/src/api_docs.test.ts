@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page, seeding}) => {
@@ -35,7 +36,9 @@ test.describe('Viewing API docs', () => {
       await adminPrograms.publishAllDrafts()
     })
 
-    await page.getByRole('link', {name: 'API docs'}).click()
+    await page.getByRole('button', {name: 'API'}).click()
+    await page.getByRole('link', {name: 'Documentation'}).click()
+
     await waitForPageJsLoad(page)
 
     await test.step('Verify default comprehensive sample program', async () => {
@@ -79,7 +82,11 @@ test.describe('Viewing API docs', () => {
 
     const freshPage =
       await test.step('Log out and clear cookies before accessing API docs', async () => {
-        const apiDocsUrl = await page.getByText('API docs').getAttribute('href')
+        await page.getByRole('button', {name: 'API'}).click()
+
+        const apiDocsUrl = await page
+          .getByRole('link', {name: 'Documentation'})
+          .getAttribute('href')
 
         await logout(page)
         await context.clearCookies()
@@ -121,7 +128,9 @@ test.describe('Viewing API docs', () => {
     await page.goto('/')
     await loginAsAdmin(page)
 
-    await page.getByRole('link', {name: 'API docs'}).click()
+    await page.getByRole('button', {name: 'API'}).click()
+    await page.getByRole('link', {name: 'Documentation'}).click()
+
     await waitForPageJsLoad(page)
 
     await test.step('Select a different program and verify minimal sample program', async () => {
@@ -151,10 +160,11 @@ test.describe('Viewing API docs', () => {
   }) => {
     await page.goto('/')
     await loginAsAdmin(page)
-
     await adminPrograms.publishAllDrafts()
 
-    await page.getByRole('link', {name: 'API docs'}).click()
+    await page.getByRole('button', {name: 'API'}).click()
+    await page.getByRole('link', {name: 'Documentation'}).click()
+
     await waitForPageJsLoad(page)
 
     await test.step('Select a different program and verify minimal sample program', async () => {
@@ -183,7 +193,8 @@ test.describe('Viewing API docs', () => {
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()
 
-    await page.getByRole('link', {name: 'API docs'}).click()
+    await page.getByRole('button', {name: 'API'}).click()
+    await page.getByRole('link', {name: 'Documentation'}).click()
 
     await waitForPageJsLoad(page)
 
@@ -194,5 +205,30 @@ test.describe('Viewing API docs', () => {
       page.locator('.cf-accordion'),
       'api-docs-page-accordion-open',
     )
+  })
+
+  test('External programs are not shown in program options', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await adminPrograms.addExternalProgram(
+      'External Program Name',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+
+    await page.getByRole('button', {name: 'API'}).click()
+    await page.getByRole('link', {name: 'Documentation'}).click()
+
+    await waitForPageJsLoad(page)
+
+    await expect(
+      page.getByRole('combobox', {name: 'Program'}),
+    ).not.toContainText('external-program-name')
   })
 })

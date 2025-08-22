@@ -71,11 +71,11 @@ export class AdminPredicates {
   }
 
   async clickAddConditionButton() {
-    await this.page.click('button:has-text("Add condition")')
+    await this.page.getByRole('button', {name: 'Add condition'}).click()
   }
 
   async clickSaveConditionButton() {
-    await this.page.click('button:visible:has-text("Save condition")')
+    await this.page.getByRole('button', {name: 'Save condition'}).click()
   }
 
   async expectPredicateErrorToast(type: string) {
@@ -200,6 +200,12 @@ export class AdminPredicates {
   async expectPredicateDisplayTextContains(condition: string) {
     expect(await this.page.innerText('.cf-display-predicate')).toContain(
       condition,
+    )
+  }
+
+  async expandPredicateDisplay(predicateType: 'visibility' | 'eligibility') {
+    await this.page.click(
+      `button:has-text("This screen has ${predicateType} ")`,
     )
   }
 }

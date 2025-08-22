@@ -67,6 +67,8 @@ toast.errorMessageOutline=Ошибка: {0}.
 button.close=Закрыть
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Проверить ответы
+# Button text that will go back to the previous page.
+button.goBack=Назад
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
 # Aria-label for the primary navigation
@@ -211,6 +213,10 @@ button.startSurvey=Пройти опрос
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Узнать больше и подать заявку на участие в программе "{0}"
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Открыть в новой вкладке
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Открыть "{0}" в новой вкладке
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +235,15 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
 heading.homepage=Подайте заявку на государственную поддержку
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Подавайте онлайн-заявки на участие в государственных программах
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
 content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Узнайте, какие услуги могут быть вам доступны. Вам не нужно каждый раз вводить свои данные.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # The label for the program filter checkboxes
@@ -288,6 +298,10 @@ label.submitted=Заявка подана
 label.submittedOn=Заявка подана {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Страница откроется на другом сайте
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Чтобы перейти на сайт программы, где вы сможете узнать о ней больше и подать заявку, нажмите "Продолжить".
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +659,8 @@ alert.submitted=Вы отправили заявку на участие в пр
 alert.createAccount=Чтобы вернуться к заявке позже, создайте аккаунт
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Сохранив информацию в аккаунте, вы сможете проверять статус заявки и быстро подавать новые.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Вы создали или подали заявки на участие во всех программах, доступных в настоящее время.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Войти с существующим аккаунтом
 
@@ -739,6 +755,17 @@ validation.invalidDateFormat=Укажите дату в правильном ф�
 validation.dateBeyondAllowablePast=Допустимый период – последние {0} лет.
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Дата должна быть позже текущей.
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Дата должна быть позже {0}.
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Дата должна быть раньше текущей.
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Дата должна быть раньше {0}.
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Дата должна быть между {0} и {1}.
+validation.currentDateRequired=Введите сегодняшнюю дату.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -876,6 +903,15 @@ validation.numberNonInteger=Укажите положительное целое
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Максимально допустимое число символов: {0}.
 validation.textTooShort=Минимально допустимое число символов: {0}.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Да
+option.no=Нет
+option.notSure=Затрудняюсь ответить
+option.maybe=Возможно
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1024,3 +1060,6 @@ session.extended.success=Сеанс продлен.
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

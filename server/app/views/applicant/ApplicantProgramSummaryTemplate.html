@@ -1,5 +1,8 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}" data-testid="programSummary">
+<html
+  th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'"
+  data-testid="programSummary"
+>
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
@@ -86,5 +89,8 @@
       ></th:block>
     </div>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

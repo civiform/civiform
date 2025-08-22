@@ -14,6 +14,7 @@ type QuestionOption = {
 
 type QuestionParams = {
   questionName: string
+  optionTextToExclude?: string[]
   minNum?: number | null
   maxNum?: number | null
   maxFiles?: number | null
@@ -28,6 +29,27 @@ type QuestionParams = {
   universal?: boolean
   primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
   markdown?: boolean
+  minDateType?: string | null
+  maxDateType?: string | null
+  minDateDay?: number | null
+  minDateMonth?: number | null
+  minDateYear?: number | null
+  maxDateDay?: number | null
+  maxDateMonth?: number | null
+  maxDateYear?: number | null
+  // Map question parameters
+  geoJsonEndpoint?: string
+  maxLocationSelections?: string | null
+  locationNameKey?: string | null
+  locationAddressKey?: string | null
+  locationDetailsUrlKey?: string | null
+  filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  displayMode?: QuestionDisplayMode | null
+}
+
+export enum QuestionDisplayMode {
+  VISIBLE = 'Visible',
+  HIDDEN = 'Hidden',
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -44,7 +66,8 @@ export enum PrimaryApplicantInfoAlertType {
   TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
 }
 
-export enum QuestionType {
+// New question types are only supported in North Star
+export enum QuestionTypeLegacy {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
   CURRENCY = 'currency',
@@ -59,7 +82,23 @@ export enum QuestionType {
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
-/* eslint-enable */
+
+export enum QuestionType {
+  ADDRESS = 'address',
+  CHECKBOX = 'checkbox',
+  CURRENCY = 'currency',
+  DATE = 'date',
+  DROPDOWN = 'dropdown',
+  EMAIL = 'email',
+  ID = 'id',
+  MAP = 'map',
+  NAME = 'name',
+  NUMBER = 'number',
+  RADIO = 'radio',
+  TEXT = 'text',
+  ENUMERATOR = 'enumerator',
+  FILE_UPLOAD = 'file-upload',
+}
 
 export class AdminQuestions {
   public page!: Page
@@ -174,6 +213,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    displayMode = null,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Question text")', questionText ?? '')
@@ -195,6 +235,10 @@ export class AdminQuestions {
     if (universal) {
       await this.clickUniversalToggle()
     }
+
+    if (displayMode != null) {
+      await this.selectDisplayMode(displayMode)
+    }
   }
 
   async selectExportOption(exportOption: string) {
@@ -205,6 +249,14 @@ export class AdminQuestions {
     await this.page
       .getByRole('radio', {name: exportOption, exact: true})
       .check()
+  }
+
+  async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
+    if (displayMode == null) {
+      throw new Error('A non-empty displayMode option must be provided')
+    }
+
+    await this.page.getByRole('radio', {name: displayMode}).check()
   }
 
   async updateQuestionText(updateText: string) {
@@ -525,7 +577,10 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText)
   }
 
-  async addQuestionForType(type: QuestionType, questionName: string) {
+  async addQuestionForType(
+    type: QuestionType | QuestionTypeLegacy,
+    questionName: string,
+  ) {
     switch (type) {
       case QuestionType.ADDRESS:
         await this.addAddressQuestion({
@@ -550,6 +605,9 @@ export class AdminQuestions {
         break
       case QuestionType.DATE:
         await this.addDateQuestion({questionName})
+        break
+      case QuestionType.MAP:
+        await this.addMapQuestion({questionName})
         break
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
@@ -701,6 +759,14 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     primaryApplicantInfo = false,
+    minDateType = null,
+    maxDateType = null,
+    minDateDay = null,
+    minDateMonth = null,
+    minDateYear = null,
+    maxDateDay = null,
+    maxDateMonth = null,
+    maxDateYear = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -724,10 +790,123 @@ export class AdminQuestions {
       )
     }
 
+    if (minDateType != null) {
+      await this.page.selectOption('#min-date-type', {value: minDateType})
+    }
+    if (maxDateType != null) {
+      await this.page.selectOption('#max-date-type', {value: maxDateType})
+    }
+    if (minDateDay != null) {
+      await this.page.fill('#min-custom-date-day', String(minDateDay))
+    }
+    if (minDateMonth != null) {
+      await this.page.selectOption('#min-custom-date-month', {
+        value: String(minDateMonth),
+      })
+    }
+    if (minDateYear != null) {
+      await this.page.fill('#min-custom-date-year', String(minDateYear))
+    }
+    if (maxDateDay != null) {
+      await this.page.fill('#max-custom-date-day', String(maxDateDay))
+    }
+    if (maxDateMonth != null) {
+      await this.page.fill('#max-custom-date-month', String(maxDateMonth))
+    }
+    if (maxDateYear != null) {
+      await this.page.fill('#max-custom-date-year', String(maxDateYear))
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async addMapQuestion({
+    questionName,
+    description = 'map description',
+    questionText = 'map question text',
+    helpText = 'map question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    geoJsonEndpoint = 'http://mock-web-services:8000/geojson/data',
+    maxLocationSelections = '1',
+    locationNameKey = null,
+    locationAddressKey = null,
+    locationDetailsUrlKey = null,
+    filters = null,
+  }: QuestionParams) {
+    await this.gotoAdminQuestionsPage()
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-map-question')
+    await waitForPageJsLoad(this.page)
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    // Fill in GeoJSON endpoint and trigger change event
+    const geoJsonInput = this.page.getByLabel('GeoJSON endpoint')
+    const htmxResponsePromise = this.page.waitForResponse(
+      '**/admin/geoJson/hx/getData',
+    )
+    await geoJsonInput.fill(geoJsonEndpoint)
+    await geoJsonInput.dispatchEvent('change')
+    await htmxResponsePromise
+
+    // Set max location selections
+    if (maxLocationSelections != null) {
+      await this.page
+        .getByLabel('Maximum location selections')
+        .fill(maxLocationSelections)
+    }
+
+    // Configure location settings if provided
+    if (locationNameKey != null) {
+      await this.page
+        .getByLabel('Location name')
+        .selectOption({value: locationNameKey})
+    }
+    if (locationAddressKey != null) {
+      await this.page
+        .getByLabel('Location address')
+        .selectOption({value: locationAddressKey})
+    }
+    if (locationDetailsUrlKey != null) {
+      await this.page
+        .getByLabel('Location details URL')
+        .selectOption({value: locationDetailsUrlKey})
+    }
+
+    // Configure filters if provided
+    if (filters != null) {
+      for (let i = 0; i < filters.length && i < 3; i++) {
+        const filter = filters[i]
+        if (filter.key != null) {
+          await this.page
+            .locator('select[name^="filters["]')
+            .nth(i)
+            .selectOption({value: filter.key})
+        }
+        if (filter.displayName != null) {
+          await this.page
+            .locator('input[name*="displayName"]')
+            .nth(i)
+            .fill(filter.displayName)
+        }
+      }
+    }
+
+    await this.clickSubmitButtonAndNavigate('Create')
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
@@ -1206,6 +1385,69 @@ export class AdminQuestions {
     }
   }
 
+  async addYesNoQuestion({
+    questionName,
+    optionTextToExclude = [],
+    description = 'yes/no description',
+    questionText = 'yes/no question text',
+    helpText = 'yes/no question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
+  }: QuestionParams) {
+    await this.createYesNoQuestion({
+      questionName,
+      optionTextToExclude,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
+  }
+
+  async createYesNoQuestion(
+    {
+      questionName,
+      optionTextToExclude = [],
+      description = 'yes/no description',
+      questionText = 'yes/no question text',
+      helpText = 'yes/no question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-yes_no-question')
+    await waitForPageJsLoad(this.page)
+
+    for (let i = 0; i < optionTextToExclude.length; i++) {
+      await this.page.getByText(optionTextToExclude[i]).click()
+    }
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
+  }
+
   async addTextQuestion({
     questionName,
     description = 'text description',
@@ -1217,6 +1459,7 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     markdown = false,
+    displayMode = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1232,6 +1475,7 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
       universal,
+      displayMode,
     })
 
     if (minNum != null) {
@@ -1491,5 +1735,13 @@ export class AdminQuestions {
   /** Clicks on the questions sorting dropdown and selects the specified sortOption. The sortOption should match the value of the desired option. */
   async sortQuestions(sortOption: string) {
     return this.page.locator('#question-bank-sort').selectOption(sortOption)
+  }
+
+  async expectDisplayModeCheck(displayMode: QuestionDisplayMode) {
+    const selectedOption = this.page
+      .getByRole('group', {name: 'Display Mode'})
+      .getByRole('radio', {name: displayMode})
+
+    await expect(selectedOption).toBeChecked()
   }
 }
