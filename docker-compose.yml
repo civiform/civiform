@@ -1,3 +1,7 @@
+networks:
+  default:
+    driver: bridge
+
 # Use postgres/example user/password credentials
 services:
   localstack:
@@ -7,12 +11,6 @@ services:
       - '4566'
     environment:
       - SERVICES=s3,ses
-    links:
-      # Once a file is uploaded to localstack, localstack redirects back to CiviForm.
-      # It does this by mapping any 'localhost' domain to the 'civiform' domain (see
-      # localstack/localstack.nginx.conf). So, we need the localstack service to be
-      # aware of the civiform service to do that redirect correctly.
-      - 'civiform:civiform-service'
     networks:
       default:
         aliases:
@@ -29,6 +27,8 @@ services:
     profiles: ['azure', 'emulator']
     expose:
       - '10000'
+    networks:
+    - default
 
   # The dev oidc server needs to be visible to the Civiform server and web browsers
   # on the same host:port. Developers need to add a localhost IP alias for this
@@ -42,9 +42,13 @@ services:
     environment:
       # Use an explicit port to not conflict with other test instances.
       - OIDC_PORT=3390
+    networks:
+    - default
 
   mock-web-services:
     image: civiform-mock-web-services
+    networks:
+    - default
 
   db:
     image: postgres:16.10@sha256:66a5efb5677ffac1037774a0e141fd3a4c035c9c0c0e624c9cc980dfa10f45e5
@@ -55,13 +59,11 @@ services:
       POSTGRES_PASSWORD: example
     volumes:
       - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
+    networks:
+    - default
 
   civiform:
     image: civiform-dev
-    links:
-      - 'db:database'
-      - 'dev-oidc'
-      - 'mock-web-services'
     expose:
       - '9000'
       - '8457'
@@ -129,3 +131,5 @@ services:
       - FAVICON_URL
       - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
     entrypoint: /bin/bash
+    networks:
+    - default
