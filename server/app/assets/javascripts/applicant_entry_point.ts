@@ -8,6 +8,7 @@ import * as languageSelector from './language_selector'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
+import * as map from './map'
 import * as modal from './modal'
 import * as northStarModal from './north_star_modal'
 import * as fileUpload from './file_upload'
@@ -17,6 +18,7 @@ import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
 import * as htmx from './htmx'
+import {SessionTimeoutHandler} from './session'
 
 declare global {
   interface Window {
@@ -34,6 +36,7 @@ window.addEventListener('load', () => {
   enumerator.init()
   radio.init()
   toast.init()
+  map.init()
   modal.init()
   northStarModal.init()
   fileUpload.init()
@@ -43,4 +46,5 @@ window.addEventListener('load', () => {
   // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()
   trustedIntermediary.init()
+  SessionTimeoutHandler.init()
 })

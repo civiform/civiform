@@ -1,11 +1,18 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}" data-testid="programSummary">
+<html
+  th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'"
+  data-testid="programSummary"
+>
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main id="main-content" tabindex="-1">
+      <div
+        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+      ></div>
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
       ></div>
@@ -39,7 +46,7 @@
               th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
             ></div>
 
-            <ol class="application-summary usa-list usa-list--unstyled">
+            <ol class="application-summary usa-list--unstyled">
               <li class="" th:each="blockSummary: ${blockSummaries}">
                 <div
                   th:replace="~{applicant/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"
@@ -82,5 +89,8 @@
       ></th:block>
     </div>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

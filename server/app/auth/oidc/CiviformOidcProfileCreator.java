@@ -37,7 +37,7 @@ import services.settings.SettingsManifest;
  * implementations of the two abstract methods.
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
+  private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
@@ -107,7 +107,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
-              LOGGER.debug("Found no existing profile in session cookie.");
+              logger.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
     return mergeCiviFormProfile(civiformProfile, oidcProfile, context);
@@ -158,7 +158,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               account -> {
                 String sessionId = civiformProfile.getProfileData().getSessionId();
                 if (!account.getActiveSession(sessionId).isPresent()) {
-                  LOGGER.warn(
+                  logger.warn(
                       "Session not in account's active sessions for role {}, and OIDC profile {}",
                       roles,
                       oidcProfile.getClass().getName());
@@ -179,18 +179,17 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
 
     if (oidcProfile.isEmpty()) {
-      LOGGER.warn("Didn't get a valid profile back from OIDC.");
+      logger.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
-    if (!(oidcProfile.get() instanceof OidcProfile)) {
-      LOGGER.warn(
-          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
+    if (!(oidcProfile.get() instanceof OidcProfile profile)) {
+      logger.warn(
+          "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
     }
 
-    OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());
@@ -223,14 +222,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .toCompletableFuture()
             .join();
     if (applicantOpt.isPresent()) {
-      LOGGER.debug("Found user using authority ID: {}", authorityId);
+      logger.debug("Found user using authority ID: {}", authorityId);
       return applicantOpt;
     }
 
     // For pre-existing deployments before April 2022, users will exist without an
     // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    LOGGER.debug("Looking up user using email {}", userEmail);
+    logger.debug("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
         .get()
         .lookupApplicantByEmail(userEmail)
@@ -243,16 +242,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   private boolean enhancedLogoutEnabled() {
-    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
-    // 17).
-    switch (identityProviderType()) {
-      case ADMIN_IDENTITY_PROVIDER:
-        return settingsManifest.getAdminOidcEnhancedLogoutEnabled();
-      case APPLICANT_IDENTITY_PROVIDER:
-        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
-      default:
-        throw new NotImplementedException(
-            "Identity provider type not handled: " + identityProviderType());
-    }
+    return switch (identityProviderType()) {
+      case ADMIN_IDENTITY_PROVIDER -> settingsManifest.getAdminOidcEnhancedLogoutEnabled();
+      case APPLICANT_IDENTITY_PROVIDER -> settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
+      default ->
+          throw new NotImplementedException(
+              "Identity provider type not handled: " + identityProviderType());
+    };
   }
 }

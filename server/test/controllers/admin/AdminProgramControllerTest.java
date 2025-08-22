@@ -28,6 +28,7 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.QuestionService;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
@@ -108,6 +109,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void create_showsNewProgramInList() {
     RequestBuilder requestBuilder =
@@ -135,7 +140,42 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller.create(requestBuilder.build());
 
-    Result programDashboardResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboardResult = controller.index(request);
+    assertThat(contentAsString(programDashboardResult)).contains("External program name");
+    assertThat(contentAsString(programDashboardResult)).contains("External program description");
+  }
+
+  @Test
+  public void create_northStar_showsNewProgramInListWithShortDescription() {
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminName",
+                    "internal-program-name",
+                    "adminDescription",
+                    "Internal program description",
+                    "localizedDisplayName",
+                    "External program name",
+                    "localizedDisplayDescription",
+                    "External program description",
+                    "localizedShortDescription",
+                    "External short program description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    controller.create(requestBuilder.build());
+
+    Request request = fakeRequestBuilder().build();
+    Result programDashboardResult = controller.index(request);
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
     assertThat(contentAsString(programDashboardResult))
         .contains("External short program description");
@@ -182,6 +222,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
                 .url());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void create_returnsNewProgramWithAcls() {
     RequestBuilder requestBuilder =
@@ -220,7 +264,54 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
+    assertThat(contentAsString(programDashboard)).contains("External program name with acls");
+    assertThat(contentAsString(programDashboard))
+        .contains("External program description with acls");
+  }
+
+  @Test
+  public void create_northStar_returnsNewProgramWithAcls() {
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminName",
+                    "internal-program-with-acls",
+                    "adminDescription",
+                    "Internal program description with acls",
+                    "localizedDisplayName",
+                    "External program name with acls",
+                    "localizedDisplayDescription",
+                    "External program description with acls",
+                    "localizedShortDescription",
+                    "External short program description with acls",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.SELECT_TI.getValue(),
+                    "tiGroups[]",
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    Optional<ProgramModel> newProgram =
+        versionRepository.getProgramByNameForVersion(
+            "internal-program-with-acls", versionRepository.getDraftVersionOrCreate());
+    assertThat(newProgram).isPresent();
+    assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
+        .containsExactly(1L);
+
+    Request request = fakeRequestBuilder().build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
         .contains("External short program description with acls");
@@ -308,6 +399,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
@@ -349,7 +444,57 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
+    assertThat(contentAsString(programDashboard)).contains("Existing One");
+    assertThat(contentAsString(programDashboard)).contains("External program name");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
+  }
+
+  @Test
+  public void create_northStar_includesNewAndExistingProgramsInList() {
+    ProgramBuilder.newActiveProgram("Existing One").build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminName",
+                    "internal-program-name",
+                    "adminDescription",
+                    "Internal program description",
+                    "localizedDisplayName",
+                    "External program name",
+                    "localizedDisplayDescription",
+                    "External program description",
+                    "localizedShortDescription",
+                    "External short program description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
+                .url());
+
+    Request request = fakeRequestBuilder().build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External short program description");
@@ -374,8 +519,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External short program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -409,8 +554,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External short program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -424,6 +569,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("confirm-common-intake-change");
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     RequestBuilder requestBuilder =
@@ -442,8 +591,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External short program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -466,7 +615,57 @@ public class AdminProgramControllerTest extends ResetPostgres {
             routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
                 .url());
 
-    Result programDashboard = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result programDashboard = controller.index(request);
+    assertThat(contentAsString(programDashboard)).contains("External program name");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
+  }
+
+  @Test
+  public void create_northStar_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminName",
+                    "internal-program-name",
+                    "adminDescription",
+                    "Internal program description",
+                    "localizedDisplayName",
+                    "External program name",
+                    "localizedDisplayDescription",
+                    "External program description",
+                    "localizedShortDescription",
+                    "External short program description",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
+                    "confirmedChangeCommonIntakeForm",
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
+                .url());
+
+    Request request = fakeRequestBuilder().build();
+    Result programDashboard = controller.index(request);
     assertThat(contentAsString(programDashboard)).contains("External program name");
     assertThat(contentAsString(programDashboard)).contains("External short program description");
   }
@@ -491,8 +690,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External short program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "true",
                     "tiGroups[]",
@@ -634,6 +833,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void update_overwritesExistingProgram() throws Exception {
     ProgramModel program =
@@ -643,19 +846,19 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "New external short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "tiGroups[]",
                     "1",
                     "applicationSteps[0][title]",
@@ -664,12 +867,49 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "step one description"));
     controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Result indexResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result indexResult = controller.index(request);
+    assertThat(contentAsString(indexResult))
+        .contains("Create new program", "New program name", "New program description");
+    assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
+  }
+
+  @Test
+  public void update_northStar_overwritesExistingProgram() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "New program slug",
+                    "localizedDisplayName",
+                    "New program name",
+                    "localizedDisplayDescription",
+                    "New program description",
+                    "localizedShortDescription",
+                    "New external short program description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
+                    "tiGroups[]",
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+    controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+
+    Request request = fakeRequestBuilder().build();
+    Result indexResult = controller.index(request);
     assertThat(contentAsString(indexResult))
         .contains(
-            "Create new program",
-            "New external program name",
-            "New external short program description");
+            "Create new program", "New program name", "New external short program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
@@ -692,8 +932,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
+                    "programTypeValue",
+                    ProgramType.DEFAULT.getValue(),
                     "tiGroups[]",
                     "1",
                     "applicationSteps[0][title]",
@@ -728,8 +968,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
+                    "programTypeValue",
+                    ProgramType.DEFAULT.getValue(),
                     "tiGroups[]",
                     "1",
                     "applicationSteps[0][title]",
@@ -766,8 +1006,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
+                    "programTypeValue",
+                    ProgramType.DEFAULT.getValue(),
                     "tiGroups[]",
                     "1",
                     "applicationSteps[0][title]",
@@ -798,19 +1038,19 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
                     "",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
-                    "External short program description",
+                    "New short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -837,19 +1077,19 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
-                    "External short program description",
+                    "Short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -874,19 +1114,19 @@ public class AdminProgramControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
-                    "New external program name",
+                    "New program name",
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
                     "New short program description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "false",
                     "applicationSteps[0][title]",
@@ -909,9 +1149,13 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
     Result redirectResult = controller.index(fakeRequest());
-    assertThat(contentAsString(redirectResult)).contains("New external program name");
+    assertThat(contentAsString(redirectResult)).contains("New program name");
   }
 
+  /**
+   * @deprecated todo: Remove the test after NORTH_STAR_APPLICANT_UI is fully enabled
+   */
+  @Deprecated
   @Test
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
     ProgramModel program =
@@ -919,25 +1163,25 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";
-    String newProgramShortDescription = "External program short description";
+    String newProgramDescription = "New program description";
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
-                    "New internal program description",
+                    "New program slug",
                     "localizedDisplayName",
                     newProgramName,
                     "localizedDisplayDescription",
-                    "New external program description",
+                    "New program description",
                     "localizedShortDescription",
-                    newProgramShortDescription,
+                    "External program short description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
                     "confirmedChangeCommonIntakeForm",
                     "true",
                     "applicationSteps[0][title]",
@@ -956,7 +1200,60 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(fakeRequest());
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    Result redirectResult = controller.index(request);
+    assertThat(contentAsString(redirectResult)).contains(newProgramName);
+    assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
+  }
+
+  @Test
+  public void update_northStar_allowsChangingCommonIntakeAfterConfirming() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description", "old short description")
+            .build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+
+    String newProgramName = "External program name";
+    String newProgramShortDescription = "External program short description";
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminDescription",
+                    "New program slug",
+                    "localizedDisplayName",
+                    newProgramName,
+                    "localizedDisplayDescription",
+                    "New program description",
+                    "localizedShortDescription",
+                    newProgramShortDescription,
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "programTypeValue",
+                    ProgramType.COMMON_INTAKE_FORM.getValue(),
+                    "confirmedChangeCommonIntakeForm",
+                    "true",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    Result result =
+        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<ProgramModel> newProgram =
+        versionRepository.getProgramByNameForVersion(
+            "Existing One", versionRepository.getDraftVersionOrCreate());
+    assertThat(newProgram).isPresent();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
+
+    Request request = fakeRequestBuilder().build();
+    Result redirectResult = controller.index(request);
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramShortDescription);
   }

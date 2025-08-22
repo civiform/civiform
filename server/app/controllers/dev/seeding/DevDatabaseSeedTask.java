@@ -37,9 +37,13 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +89,7 @@ import services.statuses.StatusService;
  */
 public final class DevDatabaseSeedTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
 
   private final QuestionService questionService;
@@ -134,7 +138,7 @@ public final class DevDatabaseSeedTask {
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : sampleQuestionDefinitions) {
       if (existingSampleQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
+        logger.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingSampleQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
@@ -155,13 +159,13 @@ public final class DevDatabaseSeedTask {
       String errorMessages =
           result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
 
-      LOGGER.error(
+      logger.error(
           String.format(
               "Unable to create sample question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Sample sample question \"{}\"", questionDefinition.getName());
+      logger.info("Sample sample question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -399,7 +403,7 @@ public final class DevDatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: {}", e);
+      logger.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);
@@ -420,6 +424,43 @@ public final class DevDatabaseSeedTask {
       if (transaction.isActive()) {
         transaction.end();
       }
+    }
+  }
+
+  /** Seed the specified program with {@code count} number of empty applications. */
+  public void seedApplications(String programSlug, int count) {
+    try {
+      // Find the program by slug
+      long programId = programService.getActiveProgramId(programSlug).toCompletableFuture().join();
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+
+      for (int i = 0; i < count; i++) {
+        inSerializableTransaction(
+            () -> {
+              // Create a new guest applicant for each application
+              ApplicantModel applicant = new ApplicantModel();
+              applicant.save();
+
+              // Create guest account
+              AccountModel account = new AccountModel();
+              account.save();
+
+              applicant.setAccount(account);
+              applicant.save();
+
+              account.setApplicants(ImmutableList.of(applicant));
+              account.save();
+
+              // Create the application
+              ApplicationModel.create(
+                  applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+            },
+            1);
+      }
+      logger.info("Created {} applications for program \"{}\"", count, programSlug);
+    } catch (ProgramNotFoundException e) {
+      logger.error("Program not found: {}", programSlug, e);
+      throw new RuntimeException("Program not found: " + programSlug, e);
     }
   }
 

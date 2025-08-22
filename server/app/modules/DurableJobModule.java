@@ -3,6 +3,7 @@ package modules;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -17,9 +18,7 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
-import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
-import durablejobs.jobs.CopyFileKeyForMultipleFileUpload;
+import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -39,20 +38,22 @@ import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
  * recurring, their {@link JobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(DurableJobModule.class);
 
   @Override
   protected void configure() {
     // Binding the scheduler class as an eager singleton runs the constructor
     // at server start time.
-    LOGGER.trace("Module Started");
+    logger.trace("Module Started");
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
@@ -73,16 +74,16 @@ public final class DurableJobModule extends AbstractModule {
         ApplicationEvolutions applicationEvolutions,
         ActorSystem actorSystem,
         Config config,
-        ExecutionContext executionContext,
+        ExecutionContext scalaExecutionContext,
         RecurringDurableJobRunner recurringDurableJobRunner,
         RecurringJobScheduler recurringJobScheduler,
         StartupDurableJobRunner startupDurableJobRunner,
         StartupJobScheduler startupJobScheduler) {
-      LOGGER.trace("DurableJobRunnerScheduler - Started");
+      logger.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
-        LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+        logger.trace("DurableJobRunnerScheduler - Task Start");
 
         // Run startup jobs. These jobs must complete before the application can start serving
         // pages.
@@ -102,10 +103,10 @@ public final class DurableJobModule extends AbstractModule {
                   recurringJobScheduler.scheduleJobs();
                   recurringDurableJobRunner.runJobs();
                 },
-                executionContext);
-        LOGGER.trace("DurableJobRunnerScheduler - Task End");
+                scalaExecutionContext);
+        logger.trace("DurableJobRunnerScheduler - Task End");
       } else {
-        LOGGER.trace("Evolutions Not Ready");
+        logger.trace("Evolutions Not Ready");
       }
     }
   }
@@ -114,6 +115,8 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
+      ApplicantService applicantService,
+      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -150,24 +153,24 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
+    durableJobRegistry.register(
+        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
+        JobType.RECURRING,
+        persistedDurableJob ->
+            new CalculateEligibilityDeterminationJob(
+                applicantService, programService, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
     return durableJobRegistry;
   }
 
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository, Environment environment) {
+      CategoryRepository categoryRepository,
+      Environment environment,
+      Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
 
     // TODO(#8833): Remove job from registry once all category translations are in.
     durableJobRegistry.registerStartupJob(
@@ -175,12 +178,7 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ON_EACH_STARTUP,
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
-                categoryRepository, environment, persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new CopyFileKeyForMultipleFileUpload(persistedDurableJob));
+                categoryRepository, environment, persistedDurableJob, mapperProvider.get()));
 
     return durableJobRegistry;
   }

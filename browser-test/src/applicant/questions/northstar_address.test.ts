@@ -79,7 +79,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       await test.step('Validate error state', async () => {
-        await expectQuestionHasErrors(page, 0)
+        await expectQuestionHasGroupErrors(page, 0)
 
         await validateScreenshot(
           page.getByTestId('questionRoot'),
@@ -111,8 +111,42 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
       })
 
-      const error = page.locator('.cf-address-zip-error')
-      await expect(error).toBeVisible()
+      await test.step('Confirm aria-invalid applies only to the invalid field', async () => {
+        const addressStreet1 = page.getByRole('textbox', {name: 'Address'})
+        const addressStreet2 = page.getByRole('textbox', {
+          name: 'Apartment, suite, etc. (',
+        })
+        const addressCity = page.getByRole('textbox', {name: 'City'})
+        const addressState = page.getByLabel('State *')
+        const addressZip = page.getByRole('textbox', {name: 'ZIP Code'})
+        await expect(addressStreet1).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressStreet2).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressCity).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressState).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressZip).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      await test.step('Confirm address zip error is visible', async () => {
+        const error = page.locator('.cf-address-zip-error')
+        await expect(error).toBeVisible()
+        await validateAccessibility(page)
+      })
+    })
+
+    test('with partially complete address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Partially fill out form', async () => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.answerAddressQuestion('', '', '', '', '43568')
+        await applicantQuestions.clickContinue()
+      })
+
+      await expectQuestionHasFieldErrorsForAllExceptZip(page, 0)
       await validateAccessibility(page)
     })
   })
@@ -199,7 +233,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       })
 
       // Expect first question has errors since it's not answered
-      await expectQuestionHasErrors(page, 0)
+      await expectQuestionHasGroupErrors(page, 0)
 
       // Expect second question does NOT have errors since it has a valid answer
       await expectQuestionHasNoErrors(page, 1)
@@ -242,7 +276,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await expectQuestionHasNoErrors(page, 0)
 
       // Second question has errors because it is not answered
-      await expectQuestionHasErrors(page, 1)
+      await expectQuestionHasGroupErrors(page, 1)
     })
 
     test('has no accessibility violations', async ({
@@ -374,7 +408,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await expectQuestionHasNoErrors(page, 0)
 
       // Second (required) question has errors since it's not answered
-      await expectQuestionHasErrors(page, 1)
+      await expectQuestionHasGroupErrors(page, 1)
     })
   })
 
@@ -399,8 +433,35 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
 
   // index: The index of the question of this type on the page. For example, on a page with 2 address
   // questions, the top question is index 0. The second question is index 1.
-  async function expectQuestionHasErrors(page: Page, index = 0) {
+  async function expectQuestionHasGroupErrors(page: Page, index = 0) {
     const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    await expect(
+      questionRoot.getByText('Error: This question is required.'),
+    ).toBeVisible()
+
+    // When all fields are missing, individual field errors should not be shown.
+    await expect(
+      questionRoot.getByText(
+        'Error: Please enter valid street name and number.',
+      ),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter city.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter state.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter valid 5-digit ZIP code.'),
+    ).toBeHidden()
+  }
+
+  async function expectQuestionHasFieldErrorsForAllExceptZip(
+    page: Page,
+    index = 0,
+  ) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    // When only some fields are missing, individual field errors should not be shown.
     await expect(
       questionRoot.getByText(
         'Error: Please enter valid street name and number.',
@@ -412,9 +473,14 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
     await expect(
       questionRoot.getByText('Error: Please enter state.'),
     ).toBeVisible()
+    // There is a red border on the left because of cf-question-field-with-error
+    await expect(questionRoot.locator('.cf-address-street-1')).toHaveClass(
+      'cf-address-street-1 cf-applicant-question-field cf-question-field-with-error',
+    )
+    // The input box has a red border because of usa-input--error
     await expect(
-      questionRoot.getByText('Error: Please enter valid 5-digit ZIP code.'),
-    ).toBeVisible()
+      questionRoot.locator('.cf-address-street-1 input'),
+    ).toHaveClass('usa-input cf-input-large usa-input--error')
   }
 
   // index: The index of the question of this type on the page. For example, on a page with 2 address

@@ -165,7 +165,7 @@ public class ProgramModel extends BaseModel {
   }
 
   public ProgramModel(ProgramDefinition definition) {
-    this(definition, Optional.empty());
+    this(definition, /* version= */ Optional.empty());
   }
 
   public ProgramModel(ProgramDefinition definition, VersionModel version) {

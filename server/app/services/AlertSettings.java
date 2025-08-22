@@ -2,6 +2,7 @@ package services;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import play.i18n.Messages;
 import views.components.TextFormatter;
 
 /**
@@ -14,6 +15,7 @@ import views.components.TextFormatter;
  * @param alertType {@link AlertType}
  * @param additionalText Additional text to be displayed as a list
  * @param customText Customized text added by the admin, if any
+ * @param ariaLabel Optional help text for screen readers
  * @param isSlim Determines whether the alert should have slim layout
  */
 public record AlertSettings(
@@ -24,10 +26,12 @@ public record AlertSettings(
     AlertType alertType,
     ImmutableList<String> additionalText,
     Optional<String> customText,
+    Optional<String> ariaLabel,
     Boolean isSlim) {
 
   public static AlertSettings empty() {
-    return new AlertSettings(false, Optional.empty(), "", AlertType.NONE);
+    return new AlertSettings(
+        /* show= */ false, /* title= */ Optional.empty(), /* text= */ "", AlertType.NONE);
   }
 
   public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {
@@ -49,6 +53,7 @@ public record AlertSettings(
         alertType,
         additionalText,
         /* customText= */ Optional.empty(),
+        /* ariaLabel= */ Optional.empty(),
         isSlim);
   }
 
@@ -59,6 +64,7 @@ public record AlertSettings(
       AlertType alertType,
       ImmutableList<String> additionalText,
       Optional<String> customText,
+      Optional<String> ariaLabel,
       Boolean isSlim) {
     this(
         show,
@@ -68,12 +74,26 @@ public record AlertSettings(
         alertType,
         additionalText,
         customText,
+        ariaLabel,
         isSlim);
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */
-  public String getFormattedAlertText(String text) {
+  public String getFormattedAlertText(String text, String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
-        text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+        text,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
+  }
+
+  public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {
+    return switch (alertType) {
+      case SUCCESS ->
+          messages.at(MessageKey.HEADING_SUCCESS_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      case INFO ->
+          messages.at(MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      default -> titleText;
+    };
   }
 }

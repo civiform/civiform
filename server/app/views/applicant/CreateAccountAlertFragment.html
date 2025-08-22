@@ -5,7 +5,11 @@
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body">
-    <h2 class="usa-alert__heading" th:text="#{alert.createAccount}"></h2>
+    <h2
+      class="usa-alert__heading"
+      th:text="#{alert.createAccount}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
+    ></h2>
 
     <p class="usa-alert__text" th:text="#{alert.createAccountDescription}"></p>
 
@@ -15,6 +19,7 @@
       <div class="grid-col-auto">
         <a
           class="usa-button usa-button--inverse"
+          role="button"
           th:text="${createAccountLinkText}"
           id="create-account"
           th:href="${createAccountLink}"
@@ -27,6 +32,7 @@
     <p>
       <a
         class="usa-link"
+        role="button"
         href="javascript:void(0);"
         th:text="${loginLinkText}"
         th:href="${loginLink}"

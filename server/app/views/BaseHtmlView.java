@@ -137,7 +137,7 @@ public abstract class BaseHtmlView {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
-  private static String getCsrfToken(Http.Request request) {
+  public static String getCsrfToken(Http.Request request) {
     return CSRF.getToken(request.asScala()).value();
   }
 
@@ -339,7 +339,11 @@ public abstract class BaseHtmlView {
   }
 
   private static void addToastMessagesOnError(HtmlBundle htmlBundle, Http.Flash flash) {
-    addToastMessagesOnError(htmlBundle, flash, Optional.empty(), Optional.empty());
+    addToastMessagesOnError(
+        htmlBundle,
+        flash,
+        /* maybeLoggerClazz= */ Optional.empty(),
+        /* maybeErrorToastId= */ Optional.empty());
   }
 
   protected static void addToastMessagesOnError(

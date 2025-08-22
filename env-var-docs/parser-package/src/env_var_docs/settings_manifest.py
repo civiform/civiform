@@ -4,26 +4,27 @@ Generates a settings manifest in Java for use in the CiviForm server based
 on the contents of env_var_docs.json
 """
 
-import typing
-import string
-import os
-import sys
 import dataclasses
-import env_var_docs.errors_formatter
-from jinja2 import Environment, PackageLoader, select_autoescape
-from env_var_docs.parser import Variable, Mode, Node, Group, NodeParseError, visit
+import os
+import string
+import sys
+import typing
 from io import StringIO
-# Needed for <3.10
-from typing import Union
+
 # Needed for <3.9
-from typing import Dict, List, Tuple
+# Needed for <3.10
+from typing import Dict, List, Tuple, Union
+
+import env_var_docs.errors_formatter
+from env_var_docs.parser import Group, Mode, Node, NodeParseError, Variable, visit
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 
 @dataclasses.dataclass
 class ParsedGroup:
     group_name: str
     group_description: str
-    sub_groups: List['ParsedGroup'] = dataclasses.field(default_factory=list)
+    sub_groups: List["ParsedGroup"] = dataclasses.field(default_factory=list)
     variables: Dict[str, Variable] = dataclasses.field(default_factory=dict)
 
 
@@ -48,7 +49,7 @@ def make_config() -> Config:
     if not os.path.isfile(docs):
         error_exit(f"'{docs}' does not point to a file")
 
-    local = (os.environ.get("LOCAL_OUTPUT", "false") == "true")
+    local = os.environ.get("LOCAL_OUTPUT", "false") == "true"
 
     return Config(docs, local)
 
@@ -74,11 +75,11 @@ def main():
 def render_sections(root_group: ParsedGroup) -> str:
     out = StringIO()
 
-    out.write("ImmutableMap.of(")
+    out.write("ImmutableMap.<String, SettingsSection>builder()")
 
-    groups = ", ".join(
+    groups = "".join(
         [
-            f'"{group.group_name}", {render_group(group)}'
+            f'.put("{group.group_name}", {render_group(group)})'
             for group in root_group.sub_groups
         ])
     if groups:
@@ -88,9 +89,9 @@ def render_sections(root_group: ParsedGroup) -> str:
         group_for_top_level_vars = ParsedGroup(
             "Miscellaneous", "Top level vars", [], root_group.variables)
         out.write(
-            f', "Miscellaneous", {render_group(group_for_top_level_vars)}')
+            f'.put("Miscellaneous", {render_group(group_for_top_level_vars)})')
 
-    out.write(")")
+    out.write(".build()")
 
     return out.getvalue()
 
@@ -186,8 +187,7 @@ class GetterMethodSpec:
 
 
 def generate_manifest(
-        docs_file: typing.TextIO
-) -> Tuple[Union[str, None], List[NodeParseError]]:
+    docs_file: typing.TextIO,) -> Tuple[Union[str, None], List[NodeParseError]]:
     root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
     docs: Dict[str, Union[ParsedGroup, Variable]] = {"file": root_group}
     getter_method_specs: List[GetterMethodSpec] = []
@@ -199,7 +199,7 @@ def generate_manifest(
             group = ParsedGroup(node.name, node.details.group_description)
             parent = typing.cast(ParsedGroup, docs[node.json_path])
             parent.sub_groups.append(group)
-            docs[f'{node.json_path}.{node.name}'] = group
+            docs[f"{node.json_path}.{node.name}"] = group
         else:
             parent = typing.cast(ParsedGroup, docs[node.json_path])
             getter_method_specs.append(
@@ -219,10 +219,14 @@ def generate_manifest(
 
     template = env.get_template("SettingsManifest.java.jinja")
 
-    return template.render(
-        sections=sections,
-        getter_method_specs=getter_method_specs,
-        writeable_mode=Mode.ADMIN_WRITEABLE), []
+    return (
+        template.render(
+            sections=sections,
+            getter_method_specs=getter_method_specs,
+            writeable_mode=Mode.ADMIN_WRITEABLE,
+        ),
+        [],
+    )
 
 
 if __name__ == "__main__":

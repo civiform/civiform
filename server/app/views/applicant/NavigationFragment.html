@@ -10,19 +10,31 @@
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
-      <div class="usa-navbar">
+      <div class="usa-navbar width-full">
         <a
           href="/"
           class="usa-logo display-flex flex-align-center text-ink text-no-underline"
           id="header-return-home"
         >
-          <img
-            th:src="${smallLogoUrl}"
-            class="width-8 padding-right-2 cf-header-logo"
-            th:attr="alt=${civicEntityFullName + ' Logo'}"
-          />
+          <div class="padding-top-2 padding-bottom-2">
+            <img
+              th:src="${smallLogoUrl}"
+              class="height-8 cf-header-logo"
+              th:attr="alt=${civicEntityFullName + ' Logo'}"
+            />
+          </div>
           <em class="usa-logo__text">
-            <span th:text="${civicEntityShortName}"></span>
+            <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name on destop (when the logo appears) */-->
+            <span
+              class="cf-gov-name desktop:display-none"
+              th:if="${hideCivicEntityName}"
+              th:text="${civicEntityShortName}"
+            ></span>
+            <!--/* This span is added only if the flag to hide the government name is disabled */-->
+            <span
+              th:if="${!hideCivicEntityName}"
+              th:text="${civicEntityShortName}"
+            ></span>
             <span>CiviForm</span>
           </em>
         </a>
@@ -49,14 +61,15 @@
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
-            <button
-              th:if="${showDebugTools}"
-              th:replace="~{this :: showDebugTools}"
-            ></button>
+            <div th:if="${showDebugTools}">
+              <button th:replace="~{this :: showDebugTools}"></button>
+            </div>
             <div>
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
-            <button th:replace="~{this :: languageSelector}"></button>
+            <th:block th:if="${enabledLanguages.size() > 1}">
+              <button th:replace="~{this :: languageSelector}"></button>
+            </th:block>
           </div>
         </div>
       </nav>
@@ -64,6 +77,11 @@
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
   <div th:replace="~{this :: tiAlert}"></div>
+  <th:block th:if="${sessionTimeoutEnabled}">
+    <th:div
+      th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"
+    ></th:div>
+  </th:block>
 </th:block>
 
 <section
@@ -76,10 +94,7 @@
     <header class="usa-banner__header">
       <div class="usa-banner__inner">
         <div class="grid-col-fill tablet:grid-col-auto">
-          <p
-            class="usa-banner__header-text"
-            th:text="#{banner.northStarTitle}"
-          ></p>
+          <p class="usa-banner__header-text" th:text="#{banner.title}"></p>
           <p class="usa-banner__header-action" th:text="#{banner.link}"></p>
         </div>
         <button
@@ -172,6 +187,10 @@
     <div class="usa-alert">
       <div class="usa-alert__body">
         <p
+          class="usa-sr-only"
+          th:utext="#{heading.informationAriaLabelPrefix('')}"
+        ></p>
+        <p
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
         ></p>
@@ -179,7 +198,6 @@
     </div>
   </div>
 </section>
-
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
@@ -191,6 +209,7 @@
           <span
             class="usa-alert__text"
             th:text="#{banner.viewApplication(${applicantDisplayName})}"
+            th:aria-label="#{heading.informationAriaLabelPrefix(#{banner.viewApplication(${applicantDisplayName})})}"
           ></span>
           <a
             th:href="${tiDashboardHref}"
@@ -206,8 +225,7 @@
 
 <div th:fragment="showDebugTools">
   <a
-    type="button"
-    class="usa-button usa-button--outline margin-right-0"
+    class="usa-button usa-button--outline margin-right-0 margin-left-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -229,18 +247,19 @@
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <a
-      type="button"
-      class="usa-button usa-button--outline margin-right-0"
+      role="button"
+      class="usa-button usa-button--outline margin-right-0 margin-left-0"
       th:text="#{button.login}"
       id="login-button"
+      data-testid="login-button"
       th:href="${loginLink}"
     ></a>
   </th:block>
 
   <th:block th:if="${!isGuest}">
     <a
-      type="button"
-      class="usa-button usa-button--outline margin-right-0"
+      role="button"
+      class="usa-button usa-button--outline margin-right-0 margin-left-0"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -251,22 +270,40 @@
 <div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
-    <input hidden th:value="${requestUri}" name="redirectLink" />
+    <input hidden th:value="${redirectUri}" name="redirectLink" />
 
-    <select
-      name="locale"
-      th:aria-label="#{label.languageSr}"
-      class="usa-button margin-right-0"
-      id="select-language"
-    >
-      <option th:text="#{button.languages}"></option>
-      <option
-        class="usa-language__submenu-item"
-        th:each="language: ${enabledLanguages}"
-        th:value="${language.key.code()}"
-        th:text="${language.value}"
-      ></option>
-    </select>
+    <ul class="usa-language__primary usa-accordion">
+      <li class="usa-language__primary-item">
+        <button
+          id="select-language-menu"
+          type="button"
+          class="usa-button usa-language__link"
+          role="button"
+          aria-expanded="false"
+          aria-controls="select-language"
+          th:text="#{button.languages}"
+        ></button>
+        <ul
+          th:aria-label="#{label.languageSr}"
+          id="select-language"
+          class="usa-language__submenu"
+          hidden="true"
+        >
+          <li
+            th:each="language: ${enabledLanguages}"
+            class="usa-language__submenu-item"
+          >
+            <button
+              th:id="|select-language-${language.key.code()}|"
+              name="locale"
+              type="submit"
+              th:value="${language.key.code()}"
+              th:text="${language.value}"
+            ></button>
+          </li>
+        </ul>
+      </li>
+    </ul>
   </form>
 </div>
 
@@ -288,6 +325,7 @@
               class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content"
             >
               <a
+                role="button"
                 class="usa-footer__primary-link"
                 th:href="${adminLoginUrl}"
                 th:text="#{link.adminLogin}"
@@ -303,10 +341,14 @@
             <div
               class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto"
             >
-              <div
-                class="usa-footer__contact-info expanding-div"
-                th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
-              ></div>
+              <a
+                th:href="@{mailto:{to}(to=${supportEmail})}"
+                class="usa-footer__contact-info usa-link"
+                rel="noopener noreferrer"
+                target="_blank"
+                th:text="#{footer.technicalSupport.v2(${supportEmail})}"
+                data-testid="supportEmail"
+              ></a>
             </div>
           </div>
         </address>
@@ -342,11 +384,19 @@
   ></div>
 </footer>
 
-<a
-  th:fragment="technicalSupportLink"
-  class="usa-link"
-  href="mailto:civiform-dev@exygy.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  >civiform-dev@exygy.com</a
+<section
+  th:fragment="adminPreviewBackButton(goBackToAdminUrl)"
+  class="grid-container section"
+  th:if="${userIsAdmin}"
 >
+  <div class="grid-row">
+    <div class="tablet:grid-col-8 usa-prose">
+      <a th:href="${goBackToAdminUrl}">
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
+        ></svg>
+        Back to admin view
+      </a>
+    </div>
+  </div>
+</section>

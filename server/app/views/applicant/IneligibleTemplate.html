@@ -1,11 +1,12 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main id="main-content" tabindex="-1">
       <div
         th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
       ></div>
@@ -17,55 +18,59 @@
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
 
-      <div class="grid-container section">
+      <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
-            <div
-              th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
-            ></div>
+            <section class="section-external">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
+              ></div>
+            </section>
 
-            <div class="section-spacing"></div>
-
-            <section class="usa-prose">
+            <section class="section-internal usa-prose">
               <h2 th:text="#{heading.eligibilityCriteria}"></h2>
-
-              <!-- <div class="content-spacing"></div> -->
 
               <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
               <p
-                th:utext="#{content.eligibilityCriteria.v2(${programLinkHtml})}"
+                th:aria-label="#{link.programDetailsSr(${programName})}"
+                th:utext="#{content.eligibilityCriteria.v3(${programLinkHtml})}"
               ></p>
               <p th:text="#{content.changeAnswersForEligibility.v2}"></p>
             </section>
 
-            <div class="section-spacing"></div>
+            <section class="section-internal">
+              <ul class="usa-button-group">
+                <li class="usa-button-group__item">
+                  <a
+                    class="usa-button usa-button--outline"
+                    role="button"
+                    id="another-program"
+                    th:text="#{link.applyToAnotherProgram}"
+                    th:href="${applyHref}"
+                  >
+                  </a>
+                </li>
+                <li class="usa-button-group__item">
+                  <a
+                    class="usa-button"
+                    role="button"
+                    id="go-back"
+                    th:text="#{button.editMyResponses}"
+                    th:href="${goBackHref}"
+                  >
+                  </a>
+                </li>
+              </ul>
+            </section>
 
-            <ul class="usa-button-group">
-              <li class="usa-button-group__item">
-                <a
-                  class="usa-button usa-button--outline"
-                  role="button"
-                  id="another-program"
-                  th:text="#{link.applyToAnotherProgram}"
-                  th:href="${applyHref}"
-                >
-                </a>
-              </li>
-              <li class="usa-button-group__item">
-                <a
-                  class="usa-button"
-                  role="button"
-                  id="go-back"
-                  th:text="#{button.editMyResponses}"
-                  th:href="${goBackHref}"
-                >
-                </a>
-              </li>
-            </ul>
+            <div class="page-spacing"></div>
           </div>
         </div>
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

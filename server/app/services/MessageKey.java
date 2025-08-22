@@ -56,7 +56,9 @@ public enum MessageKey {
   ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
+  ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
+  ARIA_LABEL_CATEGORIES("ariaLabel.categories"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -71,7 +73,6 @@ public enum MessageKey {
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
-  BANNER_NORTH_STAR_TITLE("banner.northStarTitle"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
@@ -88,7 +89,7 @@ public enum MessageKey {
   BUTTON_CLOSE("button.close"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
-  BUTTON_CONTINUE_COMMON_INTAKE_SR("button.continueCommonIntakeSr"),
+  BUTTON_CONTINUE_PRE_SCREENER_SR("button.continuePreScreenerSr"),
   BUTTON_CONTINUE_EDITING("button.continueEditing"),
   BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT("button.continueWithoutAnAccount"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
@@ -97,8 +98,9 @@ public enum MessageKey {
   BUTTON_DOWNLOAD_PDF("button.downloadPdf"),
   BUTTON_EDIT("button.edit"),
   BUTTON_EDIT_SR("button.editSr"),
-  BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),
+  BUTTON_EDIT_PRE_SCREENER_SR("button.editPreScreenerSr"),
   BUTTON_EXIT_APPLICATION("button.exitApplication"),
+  BUTTON_GO_BACK("button.goBack"),
   BUTTON_GO_BACK_AND_EDIT("button.goBackAndEdit"),
   BUTTON_LANGUAGES("button.languages"), // North Star only
   BUTTON_LOGIN("button.login"),
@@ -119,12 +121,14 @@ public enum MessageKey {
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
   BUTTON_SELECT("button.select"),
+  BUTTON_SIGNIN("button.signIn"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
+  BUTTON_START_SURVEY("button.startSurvey"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
-  BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
+  BUTTON_START_HERE_PRE_SCREENER_SR("button.startHerePreScreenerSr"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_SUBMIT_APPLICATION("button.submitApplication"), // North Star only
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
@@ -132,6 +136,8 @@ public enum MessageKey {
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
+  BUTTON_VIEW_IN_NEW_TAB("button.viewInNewTab"),
+  BUTTON_VIEW_IN_NEW_TAB_SR("button.viewInNewTabSr"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
@@ -149,22 +155,25 @@ public enum MessageKey {
   CONTENT_CONFIRMED("content.confirmed"),
   CONTENT_DOES_NOT_QUALIFY("content.doesNotQualify"),
   CONTENT_DISABLED_PROGRAM_INFO("content.disabledProgramInfo"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION("content.commonIntakeConfirmation"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION_V2("content.commonIntakeConfirmation.v2"), // North Star only
-  CONTENT_COMMON_INTAKE_CONFIRMATION_TI("content.commonIntakeConfirmationTi"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION_TI_V2(
-      "content.commonIntakeConfirmationTi.v2"), // North Star only
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS("content.commonIntakeNoMatchingPrograms"),
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
-      "content.commonIntakeNoMatchingProgramsNextStep"),
+  CONTENT_PRE_SCREENER_CONFIRMATION("content.preScreenerConfirmation"),
+  CONTENT_PRE_SCREENER_CONFIRMATION_V2("content.preScreenerConfirmation.v2"), // North Star only
+  CONTENT_PRE_SCREENER_CONFIRMATION_TI("content.preScreenerConfirmationTi"),
+  CONTENT_PRE_SCREENER_CONFIRMATION_TI_V2(
+      "content.preScreenerConfirmationTi.v2"), // North Star only
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS("content.preScreenerNoMatchingPrograms"),
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_TI("content.preScreenerNoMatchingProgramsTi"),
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_NEXT_STEP(
+      "content.preScreenerNoMatchingProgramsNextStep"),
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
+  CONTENT_ELIGIBILITY_CRITERIA_V3("content.eligibilityCriteria.v3"), // North Star only
+  CONTENT_EXTERNAL_PROGRAM_MODAL("content.externalProgramModal"),
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
   CONTENT_HOMEPAGE_INTRO("content.homepageIntro"), // North Star only
+  CONTENT_HOMEPAGE_INTRO_V2("content.homepageIntro.v2"), // North Star only
   CONTENT_LAST_APPLICATION_DATE("content.lastApplicationDate"),
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
@@ -182,6 +191,7 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  CONTENT_SIGNIN_MODAL("content.signInModal"), // North Star only
   CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
@@ -197,8 +207,16 @@ public enum MessageKey {
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST("validation.dateBeyondAllowablePast"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),
   DATE_VALIDATION_DOB_NOT_IN_PAST("validation.dobNotInPast"),
   DATE_VALIDATION_IMPOSSIBLE_DOB("validation.impossibleDob"),
+  DATE_VALIDATION_FUTURE_DATE_REQUIRED("validation.futureDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_PAST("validation.dateTooFarInPast"),
+  DATE_VALIDATION_PAST_DATE_REQUIRED("validation.pastDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE("validation.dateTooFarInFuture"),
+  DATE_VALIDATION_DATE_NOT_IN_RANGE("validation.dateNotInRange"),
+  DATE_VALIDATION_CURRENT_DATE_REQUIRED("validation.currentDateRequired"),
   DAY_LABEL("label.day"),
   DIALOG_DELETE_CONFIRMATION("dialog.deleteConfirmation"),
   DOB_EXAMPLE("label.dobExample"),
@@ -233,6 +251,7 @@ public enum MessageKey {
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
+  FOOTER_TECHNICAL_SUPPORT_V2("footer.technicalSupport.v2"), // North Star only
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),
@@ -245,10 +264,13 @@ public enum MessageKey {
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
+  HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
+  HEADING_HOMEPAGE_V2("heading.homepage.v2"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
+  HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
@@ -281,7 +303,12 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
+  LINK_REMOVE_FILE_SR("link.removeFileSr"), // North Star only
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
+  LINK_SKIP_TO_MAIN_CONTENT("link.skipToMainContent"), // North Star only
+  LINK_HOME("link.home"), // North Star only
+  LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
+  // Only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
@@ -292,6 +319,14 @@ public enum MessageKey {
   MODAL_ERROR_SAVING_REVIEW_CONTENT("modal.errorSaving.review.content"),
   MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON("modal.errorSaving.review.noSaveButton"),
   MODAL_ERROR_SAVING_REVIEW_TITLE("modal.errorSaving.review.title"),
+  MODAL_ERROR_SAVING_TITLE("modal.errorSaving.title"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_PREVIOUS("modal.errorSaving.content.previous"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW(
+      "modal.errorSaving.continueButton.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS(
+      "modal.errorSaving.continueButton.previous"), // North Star only
+  MODAL_ERROR_SAVING_FIX_BUTTON("modal.errorSaving.fixButton"), // North Star only
   MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
   MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
@@ -326,6 +361,10 @@ public enum MessageKey {
   OPTION_MEMORABLE_DATE_OCTOBER("option.memorableDate.October"),
   OPTION_MEMORABLE_DATE_NOVEMBER("option.memorableDate.November"),
   OPTION_MEMORABLE_DATE_DECEMBER("option.memorableDate.December"),
+  OPTION_YES("option.yes"),
+  OPTION_NO("option.no"),
+  OPTION_NOT_SURE("option.notSure"),
+  OPTION_MAYBE("option.maybe"),
   PHONE_NUMBER_LABEL("label.phoneNum"),
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
@@ -358,19 +397,20 @@ public enum MessageKey {
   TITLE_ALL_CLIENTS("title.allClients"),
   TITLE_ALL_PROGRAMS_SECTION("title.allProgramsSection"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
-  TITLE_COMMON_INTAKE_CONFIRMATION("title.commonIntakeConfirmation"),
-  TITLE_COMMON_INTAKE_CONFIRMATION_TI("title.commonIntakeConfirmationTi"),
+  TITLE_PRE_SCREENER_CONFIRMATION("title.preScreenerConfirmation"),
+  TITLE_PRE_SCREENER_CONFIRMATION_TI("title.preScreenerConfirmationTi"),
   TITLE_CREATE_CLIENT("title.createClient"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_AVAILABLE_PROGRAMS_SECTION("title.availableProgramsSection"), // North Star only
   TITLE_BENEFITS_FINDER_SECTION_V2("title.benefitsFinderSection.v2"),
-  TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
+  TITLE_PRE_SCREENER_SUMMARY("title.preScreenerSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_DISPLAY_ALL_CLIENTS("title.displayingAllClients"),
   TITLE_DISPLAY_MULTI_CLIENTS("title.displayingMultiClients"),
   TITLE_DISPLAY_ONE_CLIENT("title.displayingOneClient"),
   TITLE_EDIT_CLIENT("title.editClient"),
+  TITLE_EXTERNAL_PROGRAM_MODAL("title.externalProgramModal"),
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_GET_STARTED("title.getStarted"),
   TITLE_INELIGIBLE("title.ineligible"),
@@ -390,6 +430,7 @@ public enum MessageKey {
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
   TITLE_RECOMMENDED_PROGRAMS_SECTION_V2("title.recommendedSection.v2"),
+  TITLE_SIGNIN_MODAL("title.signInModal"), // North Star only
   TITLE_STATUS("title.status"),
   TITLE_TI_ACCOUNT_SETTINGS("title.tiAccountSettings"),
   TITLE_TI_DASHBOARD("title.tiDashboard"),
@@ -408,7 +449,19 @@ public enum MessageKey {
   UNNAMED_USER("label.unnamedUser"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
-  YEAR_LABEL("label.year");
+  YEAR_LABEL("label.year"),
+
+  // Session timeout related messages
+  SESSION_INACTIVITY_WARNING_TITLE("session.inactivity.warning.title"),
+  SESSION_INACTIVITY_WARNING_MESSAGE("session.inactivity.warning.message"),
+  SESSION_LENGTH_WARNING_TITLE("session.length.warning.title"),
+  SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
+  SESSION_EXTEND_BUTTON("session.extend.button"),
+  SESSION_EXTENDED_SUCCESS("session.extended.success"),
+  SESSION_EXTENDED_ERROR("session.extended.error"),
+
+  // Untranslated string for translation infrastructure testing.
+  TRANSLATION_UNTRANSLATED("translation.untranslated");
 
   private final String keyName;
 

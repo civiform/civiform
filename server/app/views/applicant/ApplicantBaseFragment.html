@@ -4,18 +4,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="civiform-build-tag" th:content="${civiformImageTag}" />
   <meta th:if="${addNoIndexMetaTag}" name="robots" content="noindex" />
+  <link th:if="${favicon}" rel="icon" th:href="${favicon}" />
+  <meta name="htmx-config" th:content='|{"inlineStyleNonce":"${cspNonce}"}|' />
   <!--/* Best practice: add ❤️ every time you touch this file :) */-->
-  <meta name="thanks" content="Thank you Bion ❤️❤️❤️" />
+  <meta
+    name="thanks"
+    content="Thank you Bion ❤️❤️❤️❤️❤️❤️, Sijia ⭐️❤️❤️❤️⭐️, Austin ❤️❤️❤️❤️❤️"
+  />
 
   <title th:text="${pageTitle}"></title>
 
-  <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
-  <link th:href="${northStarStylesheet}" type="text/css" rel="stylesheet" />
+  <link
+    th:href="${tailwindStylesheet}"
+    type="text/css"
+    rel="stylesheet"
+    th:nonce="${cspNonce}"
+  />
+  <link
+    th:href="${northStarStylesheet}"
+    type="text/css"
+    rel="stylesheet"
+    th:nonce="${cspNonce}"
+  />
   <script
     th:nonce="${cspNonce}"
     th:src="${uswdsJsInit}"
     type="text/javascript"
   ></script>
+
+  <style th:inline="css" th:nonce="${cspNonce}">
+    :root {
+      --primary: [(${themeColorPrimary})];
+      --primary-dark: [(${themeColorPrimaryDark})];
+    }
+  </style>
 </head>
 
 <th:block th:fragment="pageFooterScripts">
@@ -29,6 +51,13 @@
     th:src="${uswdsJsBundle}"
     type="text/javascript"
   ></script>
+  <link
+    th:if="${mapQuestionEnabled}"
+    th:href="${mapLibreGLStylesheet}"
+    type="text/css"
+    rel="stylesheet"
+    th:nonce="${cspNonce}"
+  />
 </th:block>
 
 <div th:fragment="requiredFieldsExplanation">
@@ -36,6 +65,7 @@
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style */-->
   <p
+    aria-hidden="true"
     th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
     class="font-sans-xs"
   ></p>
@@ -90,3 +120,11 @@
 >
   <path th:attr="d=${icon.path}"></path>
 </svg>
+
+<th:block th:fragment="skipNav">
+  <a
+    class="usa-skipnav"
+    href="#main-content"
+    th:text="#{link.skipToMainContent}"
+  ></a>
+</th:block>

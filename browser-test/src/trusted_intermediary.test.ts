@@ -10,9 +10,14 @@ import {
   logout,
   AdminQuestions,
   selectApplicantLanguage,
+  disableFeatureFlag,
 } from './support'
 
 test.describe('Trusted intermediaries', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,
@@ -300,10 +305,11 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
+
     await page.click('text=Back to client list')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h4:has-text("Search")')
+    await tiDashboard.expectSearchHeadingToBeVisible()
   })
 
   test('expect cancel button should not update client information', async ({
@@ -328,13 +334,13 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
     // update client dob
     await page.fill('#date-of-birth-input', '2022-10-13')
 
     await page.click('text=Cancel')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h4:has-text("Search")')
+    await tiDashboard.expectSearchHeadingToBeVisible()
     // dob should not be updated
     await tiDashboard.expectDashboardContainClient(client)
   })
@@ -358,7 +364,7 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
     await page.fill('#date-of-birth-input', '2027-12-20')
     await page.click('text="Save"')
 
@@ -1184,22 +1190,23 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
         await applicantQuestions.clickContinue()
-        expect(await page.locator('input[type=date]').inputValue()).toEqual(
-          '2001-01-01',
-        )
-        expect(
-          await page.locator('.cf-name-first').locator('input').inputValue(),
-        ).toEqual('first')
-        expect(
-          await page.locator('.cf-name-middle').locator('input').inputValue(),
-        ).toEqual('middle')
-        expect(
-          await page.locator('.cf-name-last').locator('input').inputValue(),
-        ).toEqual('last')
-        expect(
-          await page.locator('.cf-phone-number').locator('input').inputValue(),
-        ).toEqual('(917) 867-5309')
-        expect(await page.locator('input[type=email]').inputValue()).toEqual(
+
+        await expect(
+          page.getByRole('textbox', {name: 'Date of birth'}),
+        ).toHaveValue('2001-01-01')
+        await expect(
+          page.getByRole('textbox', {name: 'First name'}),
+        ).toHaveValue('first')
+        await expect(
+          page.getByRole('textbox', {name: 'Middle name'}),
+        ).toHaveValue('middle')
+        await expect(
+          page.getByRole('textbox', {name: 'Last name'}),
+        ).toHaveValue('last')
+        await expect(
+          page.getByRole('textbox', {name: 'Phone number'}),
+        ).toHaveValue('(917) 867-5309')
+        await expect(page.getByRole('textbox', {name: 'Email'})).toHaveValue(
           'test@email.com',
         )
         await validateScreenshot(page, 'pai-program-application')

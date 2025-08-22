@@ -1,5 +1,6 @@
 import {expect, test} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -10,6 +11,10 @@ import {
 } from '../../support'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
     const dateQuestionText = 'date question text'
@@ -139,15 +144,14 @@ test.describe('Applicant navigation flow', () => {
       expect(cardHtml).toContain('https://external.com')
 
       // Verify markdown was parsed correctly
-      // h1 set in markdown should be changed to h2
-      expect(cardHtml).toContain('<h2>Program description</h2>')
+      expect(cardHtml).toContain('<p>Program description</p>')
       // lists are formatted correctly
       expect(cardHtml).toContain(
         '<ul class="list-disc mx-8"><li>Thing 1</li><li>Thing 2</li></ul>',
       )
       // text links are formatted correctly with an icon
       expect(cardHtml).toContain(
-        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">website<svg',
+        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">website<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab" role="img">',
       )
 
       // there shouldn't be any external Links

@@ -1,6 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -8,7 +8,13 @@ import {
   validateScreenshot,
 } from './support'
 
+// These tests were migrated to North Star as part of northstar_program_overview.test.ts.
+// In North Star, the deep link goes to the program overview page, without the create account modal.
 test.describe('navigating to a deep link', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -136,7 +142,6 @@ test.describe('navigating to a deep link', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await test.step(`log in as admin and publish a disabled program`, async () => {
       await loginAsAdmin(page)
 

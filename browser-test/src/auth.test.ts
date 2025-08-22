@@ -8,11 +8,15 @@ import {
   loginAsAdmin,
   validateAccessibility,
   validateToastMessage,
-  seedProgramsAndCategories,
+  disableFeatureFlag,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
 test.describe('Applicant auth', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
     await validateScreenshot(page, 'logged-in')
@@ -42,8 +46,9 @@ test.describe('Applicant auth', () => {
     page,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

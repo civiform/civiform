@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.awt.ComponentOrientation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +27,7 @@ public final class LanguageUtils {
   private final Langs langs;
   private final SettingsManifest settingsManifest;
   private final MessagesApi messagesApi;
-  private static final Logger LOGGER = LoggerFactory.getLogger(LanguageUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(LanguageUtils.class);
 
   @Inject
   public LanguageUtils(
@@ -75,7 +76,7 @@ public final class LanguageUtils {
                 allLanguages.stream().map(Lang::code).collect(Collectors.toSet())));
 
     if (!unconfiguredLanguages.isEmpty()) {
-      LOGGER.warn(
+      logger.warn(
           "Settings for CIVIFORM_APPLICANT_ENABLED_LANGUAGES contains one or more languages not"
               + " support by the system in CIVIFORM_SUPPORTED_LANGUAGES. Unsupported language"
               + " codes: {}.",
@@ -102,6 +103,11 @@ public final class LanguageUtils {
             .findFirst();
 
     return preferredLanguage.orElse(Lang.defaultLang());
+  }
+
+  public static boolean shouldDisplayRtl(Lang preferredLanguage) {
+    return ComponentOrientation.getOrientation(preferredLanguage.locale())
+        == ComponentOrientation.RIGHT_TO_LEFT;
   }
 
   /**

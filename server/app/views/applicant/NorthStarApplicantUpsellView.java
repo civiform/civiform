@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -18,6 +19,7 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.components.TextFormatter;
 
 public class NorthStarApplicantUpsellView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
@@ -64,8 +66,19 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         params
             .messages()
             .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
+
+    String ariaLabel =
+        AlertSettings.getTitleAriaLabel(params.messages(), AlertType.SUCCESS, alertTitle);
     AlertSettings successAlertSettings =
-        new AlertSettings(/* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS);
+        new AlertSettings(
+            /* show= */ true,
+            Optional.of(alertTitle),
+            "",
+            AlertType.SUCCESS,
+            ImmutableList.of(),
+            Optional.empty(),
+            Optional.of(ariaLabel),
+            /* isSlim= */ false);
     context.setVariable("successAlertSettings", successAlertSettings);
 
     String applicantName =
@@ -75,8 +88,16 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     context.setVariable("dateSubmitted", params.dateSubmitted());
 
     Locale locale = params.messages().lang().toLocale();
-    String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
-    context.setVariable("customConfirmationMessage", customConfirmationMessage);
+    String customConfirmationMessageHtml =
+        TextFormatter.formatTextToSanitizedHTML(
+            params.customConfirmationMessage().getOrDefault(locale),
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            params
+                .messages()
+                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                .toLowerCase(Locale.ROOT));
+    context.setVariable("customConfirmationMessageHtml", customConfirmationMessageHtml);
 
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
@@ -107,7 +128,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
                   Optional.of(params.profile()),
                   Optional.of(params.applicantId()),
                   params.applicantPersonalInfo(),
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
     context.setVariable("cardsSection", cardsSection);
     context.setVariable(

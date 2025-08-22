@@ -5,9 +5,9 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   logout,
-  seedProgramsAndCategories,
   waitForPageJsLoad,
 } from './support'
+import {ProgramCategories} from './support/admin_programs'
 
 test.describe(
   'Trusted intermediaries with North Star specific changes',
@@ -50,12 +50,13 @@ test.describe(
       })
     })
 
-    test('with program filters enabled, categorizes programs correctly for Trusted Intermediaries', async ({
+    test('categorizes programs correctly for Trusted Intermediaries', async ({
       page,
       adminPrograms,
       adminQuestions,
       tiDashboard,
       applicantQuestions,
+      seeding,
     }) => {
       const primaryProgramName = 'Application index primary program'
       const otherProgramName = 'Application index other program'
@@ -96,32 +97,24 @@ test.describe(
         await adminPrograms.publishAllDrafts()
         await logout(page)
       })
-      await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 
-      await test.step('go to program edit form and add categories to primary program', async () => {
+      await test.step('add categories to primary and other program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           primaryProgramName,
+          [ProgramCategories.EDUCATION, ProgramCategories.HEALTHCARE],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-        await adminPrograms.submitProgramDetailsEdits()
-      })
-
-      await test.step('add different categories to other program', async () => {
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           otherProgramName,
+          [ProgramCategories.GENERAL, ProgramCategories.UTILITIES],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('General').check()
-        await page.getByText('Utilities').check()
-        await adminPrograms.submitProgramDetailsEdits()
       })
 
       await test.step('publish programs with categories', async () => {
@@ -151,7 +144,7 @@ test.describe(
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
@@ -168,7 +161,7 @@ test.describe(
       })
 
       await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with in-progress application', async () => {
-        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
+        await applicantQuestions.filterProgramsAndExpectInCorrectSections(
           {
             filterCategory: 'General',
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
@@ -196,7 +189,7 @@ test.describe(
         await applicantQuestions.expectConfirmationPage(true)
         await applicantQuestions.clickBackToHomepageButton()
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
@@ -212,7 +205,7 @@ test.describe(
         )
       })
       await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
-        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
+        await applicantQuestions.filterProgramsAndExpectInCorrectSections(
           {
             filterCategory: 'General',
             expectedProgramsInMyApplicationsSection: [primaryProgramName],

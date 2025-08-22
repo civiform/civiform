@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import forms.EnumeratorQuestionForm;
 import java.util.Optional;
 import models.ApplicantModel;
 import modules.ThymeleafModule;
@@ -64,7 +65,11 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
       throw new RuntimeException(e);
     }
     ProgramQuestionDefinition pqd =
-        ProgramQuestionDefinition.create(questionDefinition, Optional.empty(), true, false);
+        ProgramQuestionDefinition.create(
+            questionDefinition,
+            /* programDefinitionId= */ Optional.empty(),
+            /* optional= */ true,
+            /* addressCorrectionEnabled= */ false);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantModel(), new ApplicantData(), Optional.empty());
     context.setVariable("question", applicantQuestion);
@@ -72,6 +77,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);
     context.setVariable("questionRendererParams", rendererParams);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }

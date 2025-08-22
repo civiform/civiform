@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,7 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
+  public static final String LAST_ACTIVITY_TIME = "lastActivityTime";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
   // to be honored and in-progress applications are not lost.
@@ -40,9 +42,10 @@ public class CiviFormProfileData extends CommonProfile {
     addAttribute(SESSION_ID, UUID.randomUUID().toString());
   }
 
-  public CiviFormProfileData(Long accountId) {
+  public CiviFormProfileData(Long accountId, Clock clock) {
     this();
     this.setId(accountId.toString());
+    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
@@ -68,6 +71,20 @@ public class CiviFormProfileData extends CommonProfile {
   /** Returns the session ID for this profile. */
   public String getSessionId() {
     return getAttributeAsString(SESSION_ID);
+  }
+
+  public void updateLastActivityTime(Clock clock) {
+    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
+  }
+
+  /**
+   * Returns the timestamp of the last activity for this session. For backward compatibility with
+   * existing sessions created before session timeout feature, returns current time if the attribute
+   * is not present. This effectively gives legacy sessions a fresh activity timestamp when the
+   * timeout feature is first enabled.
+   */
+  public long getLastActivityTime(Clock clock) {
+    return (Long) getAttributes().getOrDefault(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**

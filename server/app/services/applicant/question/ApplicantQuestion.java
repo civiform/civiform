@@ -149,20 +149,24 @@ public final class ApplicantQuestion {
   }
 
   /** Sanitized HTML for the question text that processes Markdown. */
-  public String getFormattedQuestionText() {
+  public String getFormattedQuestionText(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
-        /* addRequiredIndicator= */ !isOptional());
+        /* addRequiredIndicator= */ !isOptional(),
+        ariaLabelForNewTabs);
   }
 
   /**
    * Sanitized HTML for the question text that processes Markdown, but in a context where we don't
    * want to show required asterisks.
    */
-  public String getFormattedQuestionTextWithoutRequiredAsterisk() {
+  public String getFormattedQuestionTextWithoutRequiredAsterisk(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
-        getQuestionText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+        getQuestionText(),
+        /* preserveEmptyLines= */ true,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   /**
@@ -185,9 +189,12 @@ public final class ApplicantQuestion {
   }
 
   /** Sanitized HTML for the question help text that processes Markdown. */
-  public String getFormattedQuestionHelpText() {
+  public String getFormattedQuestionHelpText(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
-        getQuestionHelpText(), /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+        getQuestionHelpText(),
+        /* preserveEmptyLines= */ true,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   /**
@@ -285,6 +292,10 @@ public final class ApplicantQuestion {
     return new IdQuestion(this);
   }
 
+  public MapQuestion createMapQuestion() {
+    return new MapQuestion(this);
+  }
+
   public MultiSelectQuestion createMultiSelectQuestion() {
     return new MultiSelectQuestion(this);
   }
@@ -318,45 +329,29 @@ public final class ApplicantQuestion {
   }
 
   public AbstractQuestion getQuestion() {
-    switch (getType()) {
-      case ADDRESS:
-        return createAddressQuestion();
-      case CHECKBOX:
-        return createMultiSelectQuestion();
-      case CURRENCY:
-        return createCurrencyQuestion();
-      case DATE:
-        return createDateQuestion();
-      case EMAIL:
-        return createEmailQuestion();
-      case FILEUPLOAD:
-        return createFileUploadQuestion();
-      case ID:
-        return createIdQuestion();
-      case NAME:
-        return createNameQuestion();
-      case NUMBER:
-        return createNumberQuestion();
-      case DROPDOWN: // fallthrough to RADIO_BUTTON
-      case RADIO_BUTTON:
-        return createSingleSelectQuestion();
-      case ENUMERATOR:
-        return createEnumeratorQuestion();
-      case TEXT:
-        return createTextQuestion();
-      case STATIC:
-        return createStaticContentQuestion();
-      case PHONE:
-        return createPhoneQuestion();
-      case NULL_QUESTION:
-        throw new IllegalStateException(
-            String.format(
-                "Question type %s should not be rendered. Question ID: %s. Active program question"
-                    + " definition is possibly pointing to an old question ID",
-                getType(), getQuestionDefinition().getId()));
-      default:
-        throw new RuntimeException("Unrecognized question type: " + getType());
-    }
+    return switch (getType()) {
+      case ADDRESS -> createAddressQuestion();
+      case CHECKBOX -> createMultiSelectQuestion();
+      case CURRENCY -> createCurrencyQuestion();
+      case DATE -> createDateQuestion();
+      case EMAIL -> createEmailQuestion();
+      case FILEUPLOAD -> createFileUploadQuestion();
+      case ID -> createIdQuestion();
+      case MAP -> createMapQuestion();
+      case NAME -> createNameQuestion();
+      case NUMBER -> createNumberQuestion(); // fallthrough to RADIO_BUTTON
+      case DROPDOWN, RADIO_BUTTON, YES_NO -> createSingleSelectQuestion();
+      case ENUMERATOR -> createEnumeratorQuestion();
+      case TEXT -> createTextQuestion();
+      case STATIC -> createStaticContentQuestion();
+      case PHONE -> createPhoneQuestion();
+      case NULL_QUESTION ->
+          throw new IllegalStateException(
+              String.format(
+                  "Question type %s should not be rendered. Question ID: %s. Active program"
+                      + " question definition is possibly pointing to an old question ID",
+                  getType(), getQuestionDefinition().getId()));
+    };
   }
 
   @Override
@@ -370,8 +365,7 @@ public final class ApplicantQuestion {
 
   @Override
   public boolean equals(@Nullable Object object) {
-    if (object instanceof ApplicantQuestion) {
-      ApplicantQuestion that = (ApplicantQuestion) object;
+    if (object instanceof ApplicantQuestion that) {
       return this.getQuestionDefinition().equals(that.getQuestionDefinition())
           && this.applicantData.equals(that.applicantData);
     }

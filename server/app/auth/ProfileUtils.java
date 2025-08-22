@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKeyModel;
 import org.pac4j.core.context.WebContext;
@@ -91,16 +92,18 @@ public class ProfileUtils {
   }
 
   /** Return true if the account referenced by the profile exists. */
-  public boolean validCiviFormProfile(CiviFormProfile profile) {
-    try {
-      profile.getAccount().join();
-      return true;
-    } catch (CompletionException e) {
-      if (e.getCause() instanceof AccountNonexistentException) {
-        return false;
-      }
-      throw new RuntimeException(e);
-    }
+  public CompletionStage<Boolean> validCiviFormProfile(CiviFormProfile profile) {
+    return profile
+        .getAccount()
+        .thenApply(account -> true)
+        .exceptionally(
+            ex -> {
+              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+              if (cause instanceof AccountNonexistentException) {
+                return false;
+              }
+              throw new CompletionException(cause);
+            });
   }
 
   /** Retrieves the applicant id from the user profile, if present. */

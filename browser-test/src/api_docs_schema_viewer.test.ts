@@ -1,22 +1,21 @@
 import {test, expect} from './support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  seedProgramsAndCategories,
-  waitForPageJsLoad,
-} from './support'
+import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
   const program1 = 'comprehensive-sample-program'
   const program2 = 'minimal-sample-program'
 
-  test.beforeEach(async ({page}) => {
-    await seedProgramsAndCategories(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedProgramsAndCategories()
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
-  // TODO will re-enable after getting the swagger-ui files working in prod build
-  test.skip('Views OpenApi Schema', async ({page, adminPrograms}) => {
+  test.use({
+    bypassCSP: true,
+  })
+
+  test('Views OpenApi Schema', async ({page, adminPrograms}) => {
     await test.step('Login as admin and publish drafts', async () => {
       await page.goto('/')
       await loginAsAdmin(page)
@@ -55,6 +54,22 @@ test.describe('Viewing API docs', () => {
         .selectOption('swagger-v2')
       await waitForPageJsLoad(page)
       await expect(page.getByRole('heading', {name: program2})).toBeAttached()
+    })
+
+    await test.step('Add external program does not show in program options', async () => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+      await adminPrograms.addExternalProgram(
+        'External Program Name',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+      await page.goto('/docs/api/schemas')
+      await waitForPageJsLoad(page)
+
+      await expect(
+        page.getByRole('combobox', {name: 'Program'}),
+      ).not.toContainText('external-program-name')
     })
   })
 })

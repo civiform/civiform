@@ -7,6 +7,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
@@ -15,10 +16,12 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
+import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -32,13 +35,18 @@ import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
+import play.mvc.Http.Request;
+import play.routing.Router;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
@@ -80,9 +88,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final LanguageUtils languageUtils;
   private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
-  private final DebugContent debugContent;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
+  private final MessagesApi messagesApi;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ApplicantLayout(
@@ -93,21 +102,30 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      DebugContent debugContent,
       AssetsFinder assetsFinder,
-      PageNotProductionBanner pageNotProductionBanner) {
+      PageNotProductionBanner pageNotProductionBanner,
+      MessagesApi messagesApi,
+      ApplicantRoutes applicantRoutes) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.debugContent = debugContent;
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
+    // Add the session timeout modals to the bundle if the profile is present
+    Optional<CiviFormProfile> profile =
+        profileUtils.optionalCurrentUserProfile(bundle.getRequest());
+    if (profile.isPresent()) {
+      addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
+    }
+
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
@@ -175,10 +193,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withClasses("flex", "flex-col")
             .with(
                 div()
-                    .condWith(
-                        getSettingsManifest().getShowCiviformImageTagOnLandingPage(request),
-                        debugContent.civiformVersionDiv()),
-                div()
                     .with(
                         span(
                                 text(
@@ -236,11 +250,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         .with(
                             a("DevTools")
                                 .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                .withClasses(ApplicantStyles.LINK)
-                                .withStyle("cursor:pointer")))
+                                .withClasses(
+                                    StyleUtils.joinStyles(ApplicantStyles.LINK, "cursor-pointer"))))
                 .with(
                     div(
-                            getLanguageForm(request, messages, applicantId),
+                            getLanguageForm(request, messages, profile, applicantId),
                             authDisplaySection(applicantPersonalInfo, profile, messages))
                         .withClasses(
                             "flex",
@@ -256,7 +270,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag<?> getLanguageForm(
-      Http.Request request, Messages messages, Optional<Long> applicantId) {
+      Http.Request request,
+      Messages messages,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
     String updateLanguageAction =
@@ -270,7 +287,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-    InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+    InputTag redirectInput =
+        input()
+            .isHidden()
+            .withValue(getUpdateLanguageRedirectUri(request, profile, applicantId))
+            .withName("redirectLink");
     String preferredLanguage = languageUtils.getPreferredLanguage(request).code();
     SelectTag languageDropdown =
         languageSelector
@@ -286,6 +307,48 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(languageDropdown)
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     return languageFormDiv;
+  }
+
+  /**
+   * Calculate the redirect location after the language is changed. If the current request is a
+   * POST, the redirect is be mapped to the associated GET uri.
+   */
+  private String getUpdateLanguageRedirectUri(
+      Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
+    // Default to the current request if it is not a POST or a redirect can't be constructed.
+    if (!request.method().equals("POST")
+        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      return request.uri();
+    }
+    RouteExtractor routeExtractor = new RouteExtractor(request);
+    if (!routeExtractor.containsKey("programId")) {
+      return request.uri();
+    }
+
+    long programId = routeExtractor.getParamLongValue("programId");
+    // If the language was changed during /submit, redirect to /review
+    if (request.path().contains("submit")) {
+      String submitRedirectUri =
+          applicantId.isPresent() && profile.isPresent()
+              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.review(programId).url();
+      return submitRedirectUri;
+    }
+    // If the language was changed during a block update, redirect to /block/edit or /block/review
+    if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
+      boolean inReview =
+          routeExtractor.containsKey("inReview")
+              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              profile.get(),
+              applicantId.get(),
+              programId,
+              routeExtractor.getParamStringValue("blockId"),
+              inReview)
+          .url();
+    }
+    return request.uri();
   }
 
   private ATag branding(Http.Request request) {
@@ -310,7 +373,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .with(
                     p(
-                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        iff(
+                            !settingsManifest.getHideCivicEntityNameInHeader(request),
+                            b(settingsManifest.getWhitelabelCivicEntityShortName(request).get())),
                         span(text(" CiviForm")))));
   }
 
@@ -472,24 +537,46 @@ public class ApplicantLayout extends BaseHtmlLayout {
       int totalBlockCount,
       boolean forSummary,
       Messages messages) {
-    int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
-    DivTag progressInner =
-        div()
-            .withClasses(
-                BaseStyles.BG_CIVIFORM_BLUE,
+    int progressStepCount = forSummary ? blockIndex : blockIndex + 1;
+    int totalStepCount = forSummary ? totalBlockCount : totalBlockCount + 1;
+    ArrayList<String> progressClassesList =
+        new ArrayList<String>(
+            Arrays.asList(
                 "transition-all",
                 "duration-300",
                 "h-full",
-                "block",
-                "absolute",
                 "left-0",
                 "top-0",
-                "w-1",
-                "rounded-full")
-            .withStyle("width:" + percentComplete + "%");
+                "w-auto",
+                "flex-grow"));
+
+    // List of divs representing number of progress steps. Used to render correct progress
+    // percentage on progress bar.
+    ArrayList<DivTag> innerProgressBars = new ArrayList<DivTag>();
+    // Render a set of divs with blue civiform background
+    for (int i = 0; i < progressStepCount; i++) {
+      ArrayList<String> innerProgressBarClasses = new ArrayList<>(progressClassesList);
+      innerProgressBarClasses.add(BaseStyles.BG_CIVIFORM_BLUE);
+      if (i == 0) {
+        innerProgressBarClasses.add("rounded-l-full");
+      }
+      if (i == progressStepCount - 1) {
+        innerProgressBarClasses.add("rounded-r-full");
+      }
+
+      DivTag progressInner =
+          div().withClasses(innerProgressBarClasses.stream().toArray(String[]::new));
+      innerProgressBars.add(progressInner);
+    }
+    // Render second set of divs with no background color set
+    for (int i = progressStepCount; i < totalStepCount; i++) {
+      DivTag progressInner = div().withClasses(progressClassesList.stream().toArray(String[]::new));
+      innerProgressBars.add(progressInner);
+    }
     DivTag progressIndicator =
-        div(progressInner)
+        div()
+            .with(innerProgressBars)
             .withId("progress-indicator")
             .withClasses(
                 "border",
@@ -498,6 +585,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 "font-semibold",
                 "bg-white",
                 "relative",
+                "flex",
+                "justify-stretch",
                 "h-4",
                 "mt-4");
 
@@ -519,34 +608,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 span(blockNumberText).withClasses("text-gray-500", "text-base", "text-right"));
 
     return div().with(programTitleContainer).with(progressIndicator);
-  }
-
-  /**
-   * Returns whole number out of 100 representing the completion percent of this program.
-   *
-   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean,
-   * Messages)} about why there's a difference between the percent complete for summary views, and
-   * for non-summary views.
-   */
-  private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
-    if (totalBlockCount == 0) {
-      return 100;
-    }
-    if (blockIndex == -1) {
-      return 0;
-    }
-
-    // While in progress, add one to blockIndex for 1-based indexing, so that when applicant is on
-    // first block, we show
-    // some amount of progress; and add one to totalBlockCount so that when applicant is on the last
-    // block, we show that they're
-    // still in progress.
-    // For summary views, we don't need to do any of the tricks, so we just use the actual total
-    // block count and block index.
-    double numerator = forSummary ? blockIndex : blockIndex + 1;
-    double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
-
-    return (int) (numerator / denominator * 100.0);
   }
 
   protected Optional<DivTag> maybeRenderBackToAdminViewButton(

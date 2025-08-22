@@ -15,6 +15,7 @@ import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.CategoryModel;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -25,6 +26,7 @@ import play.Mode;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
+import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
@@ -133,15 +135,15 @@ public class ResourceCreator {
   }
 
   public ProgramModel insertActiveDisabledProgram(String name) {
-    return ProgramBuilder.newDisabledActiveProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.DISABLED).build();
   }
 
   public ProgramModel insertActiveTiOnlyProgram(String name) {
-    return ProgramBuilder.newActiveTiOnlyProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.TI_ONLY).build();
   }
 
   public ProgramModel insertActiveHiddenInIndexProgram(String name) {
-    return ProgramBuilder.newActiveHiddenInIndexProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.HIDDEN_IN_INDEX).build();
   }
 
   public ProgramModel insertActiveProgram(Locale locale, String name) {
@@ -152,16 +154,16 @@ public class ResourceCreator {
     return ProgramBuilder.newActiveCommonIntakeForm(name).build();
   }
 
+  public ProgramModel insertActiveExternalProgram(String name) {
+    return ProgramBuilder.newActiveProgram().withProgramType(ProgramType.EXTERNAL).build();
+  }
+
   public ProgramModel insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
   public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
     return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
-  }
-
-  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
-    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
   public ApplicationModel insertApplication(

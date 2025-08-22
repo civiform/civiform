@@ -22,6 +22,7 @@ services:
     ports:
       - 9000:9000
       - 8457:8457
+      - 50000:50000
 
   civiform-shell:
     image: civiform-dev
@@ -47,7 +48,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.7
+    image: postgres:16.10@sha256:66a5efb5677ffac1037774a0e141fd3a4c035c9c0c0e624c9cc980dfa10f45e5
     stdin_open: true
     tty: true
     volumes:
@@ -58,7 +59,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4:9.0
+    image: dpage/pgadmin4:9.6@sha256:2c7d73e13bd6c30b1d53e4c25d0d6d81adbd0799c4f4d6a09efc5d68fca5d16d
     restart: always
     depends_on:
       - db
@@ -76,7 +77,7 @@ services:
 
   prometheus:
     profiles: ['monitoring']
-    image: prom/prometheus
+    image: prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
     restart: unless-stopped
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -84,7 +85,7 @@ services:
 
   grafana:  
     profiles: ['monitoring']
-    image: grafana/grafana
+    image: grafana/grafana@sha256:38e62c46a4a0f8b6124ad318f42c65ad6ac7644ab1f7d90a582d847ced28180c
     depends_on:
       - prometheus
     restart: unless-stopped

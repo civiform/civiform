@@ -13,7 +13,7 @@ import services.program.predicate.PredicateExpressionNode;
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
 public final class PredicateEvaluator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PredicateEvaluator.class);
+  private static final Logger logger = LoggerFactory.getLogger(PredicateEvaluator.class);
 
   private final ApplicantData applicantData;
   private final JsonPathPredicateGenerator predicateGenerator;
@@ -30,18 +30,13 @@ public final class PredicateEvaluator {
    * to create this evaluator.
    */
   public boolean evaluate(PredicateExpressionNode node) {
-    switch (node.getType()) {
-      case LEAF_OPERATION:
-        return evaluateLeafNode(node.getLeafOperationNode());
-      case LEAF_ADDRESS_SERVICE_AREA:
-        return evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
-      case AND:
-        return evaluateAndNode(node.getAndNode());
-      case OR:
-        return evaluateOrNode(node.getOrNode());
-      default:
-        return false;
-    }
+    return switch (node.getType()) {
+      case LEAF_OPERATION -> evaluateLeafNode(node.getLeafOperationNode());
+      case LEAF_ADDRESS_SERVICE_AREA ->
+          evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
+      case AND -> evaluateAndNode(node.getAndNode());
+      case OR -> evaluateOrNode(node.getOrNode());
+    };
   }
 
   /**
@@ -54,7 +49,7 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
-      LOGGER.error(
+      logger.error(
           "InvalidPredicateException when evaluating LeafOperationExpressionNode {}: {}",
           node,
           e.getMessage());
@@ -72,7 +67,7 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafAddressServiceAreaNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
-      LOGGER.error(
+      logger.error(
           "InvalidPredicateException when evaluating LeafAddressServiceAreaExpressionNode {}: {}",
           node,
           e.getMessage());

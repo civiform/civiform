@@ -98,18 +98,29 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
@@ -180,6 +191,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string
@@ -284,18 +299,29 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
@@ -513,6 +539,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string
@@ -823,18 +853,29 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted on or after the provided date.\\
+          \\ Uses the CiviForm instance's local timezone when no timezone is provided,\\
+          \\ and the beginning of the day when no time is provided."
         schema:
           type: string
       - name: toDate
         in: query
-        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date, in the CiviForm\\
-          \\ instance's local time."
+        description: "An ISO-8601 formatted date-time with zone id (i.e. YYYY-MM-DDTThh:mm:ssZ).\\
+          \\ Limits results to applications submitted before the provided date. Uses\\
+          \\ the CiviForm instance's local timezone when no timezone is provided, and\\
+          \\ the beginning of the day when no time is provided."
         schema:
           type: string
+      - name: revisionState
+        in: query
+        description: "The revision state of applications to include in results. When\\
+          \\ omitted, applications of all revision states are returned."
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - OBSOLETE
       - name: pageSize
         in: query
         description: "A positive integer. Limits the number of results per page. If\\
@@ -909,6 +950,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string

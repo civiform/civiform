@@ -9,15 +9,12 @@ import {
   validateScreenshot,
 } from '../support'
 
-/** Tests for the address correction view and navigation to and from that view. */
-test.describe('address correction', () => {
-  const multiBlockMultiAddressProgram =
-    'Address correction multi-block, multi-address program'
-  const singleBlockMultiAddressProgram =
-    'Address correction single-block, multi-address program'
+/**
+ * Tests for the address correction view and navigation to and from that view.
+ */
+test.describe('address correction single-block, single-address program', () => {
   const singleBlockSingleAddressProgram =
     'Address correction single-block, single-address program'
-  const optionalAddressProgram = 'Address correction optional address program'
 
   const addressWithCorrectionQuestionId = 'address-with-correction-q'
   const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
@@ -27,6 +24,7 @@ test.describe('address correction', () => {
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     await test.step('Create all questions', async () => {
@@ -44,56 +42,6 @@ test.describe('address correction', () => {
         questionName: textQuestionId,
         questionText: 'text',
       })
-    })
-
-    await test.step('Create multi-block, multi-address program', async () => {
-      await adminPrograms.addProgram(multiBlockMultiAddressProgram)
-
-      await adminPrograms.editProgramBlockWithOptional(
-        multiBlockMultiAddressProgram,
-        'first block',
-        [addressWithCorrectionQuestionId],
-        addressWithoutCorrectionQuestionId,
-      )
-
-      await adminPrograms.addProgramBlock(
-        multiBlockMultiAddressProgram,
-        'second block',
-        [textQuestionId],
-      )
-
-      await adminPrograms.goToBlockInProgram(
-        multiBlockMultiAddressProgram,
-        'Screen 1',
-      )
-      await adminPrograms.clickAddressCorrectionToggleByName(
-        addressWithCorrectionQuestionId,
-      )
-
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(multiBlockMultiAddressProgram)
-    })
-
-    await test.step('Create single-block, multi-address program', async () => {
-      await adminPrograms.addProgram(singleBlockMultiAddressProgram)
-
-      await adminPrograms.editProgramBlockWithOptional(
-        singleBlockMultiAddressProgram,
-        'first block',
-        [addressWithCorrectionQuestionId],
-        addressWithoutCorrectionQuestionId,
-      )
-
-      await adminPrograms.goToBlockInProgram(
-        singleBlockMultiAddressProgram,
-        'Screen 1',
-      )
-      await adminPrograms.clickAddressCorrectionToggleByName(
-        addressWithCorrectionQuestionId,
-      )
-
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(singleBlockMultiAddressProgram)
     })
 
     await test.step('Create single-block, single-address program', async () => {
@@ -117,105 +65,10 @@ test.describe('address correction', () => {
       await adminPrograms.publishProgram(singleBlockSingleAddressProgram)
     })
 
-    await test.step('Create optional address program', async () => {
-      await adminPrograms.addProgram(optionalAddressProgram)
-
-      await adminPrograms.editProgramBlockWithOptional(
-        optionalAddressProgram,
-        'first block',
-        [],
-        addressWithCorrectionQuestionId,
-      )
-
-      await adminPrograms.goToBlockInProgram(optionalAddressProgram, 'Screen 1')
-      await adminPrograms.clickAddressCorrectionToggleByName(
-        addressWithCorrectionQuestionId,
-      )
-
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(optionalAddressProgram)
-    })
-
     await logout(page)
   })
 
   if (isLocalDevEnvironment()) {
-    test('can correct address multi-block, multi-address program', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
-
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        'Legit Address',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage(true)
-      await applicantQuestions.clickConfirmAddress()
-      await applicantQuestions.answerTextQuestion('Some text')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        addressWithCorrectionText,
-        'Address In Area',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
-
-    test('can correct address single-block, multi-address program', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
-
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        'Legit Address',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage(true)
-
-      await applicantQuestions.selectAddressSuggestion(
-        'Address With No Service Area Features',
-      )
-      await applicantQuestions.clickConfirmAddress()
-
-      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-        addressWithCorrectionText,
-        'Address With No Service Area Features',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
-
     test('can correct address single-block, single-address program', async ({
       page,
       applicantQuestions,
@@ -237,7 +90,7 @@ test.describe('address correction', () => {
       // once since they are all the same
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-with-suggestions',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -248,20 +101,6 @@ test.describe('address correction', () => {
         addressWithCorrectionText,
         'Address In Area',
       )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
-
-    test('skips address correction if optional address question is not answered', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await applicantQuestions.applyProgram(optionalAddressProgram)
-
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectReviewPage()
-
       await applicantQuestions.clickSubmit()
       await logout(page)
     })
@@ -286,7 +125,7 @@ test.describe('address correction', () => {
 
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-no-suggestions',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -320,7 +159,7 @@ test.describe('address correction', () => {
 
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-esri-service-error',
         /* fullPage= */ true,
         // Since this page is currently the same as the no-suggestions page,
@@ -412,58 +251,105 @@ test.describe('address correction', () => {
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
     })
 
-    test('can correct address single-block, single-address program', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
+    if (isLocalDevEnvironment()) {
+      test('can correct address single-block, single-address program', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(
+            singleBlockSingleAddressProgram,
+            /* northStarEnabled= */ true,
+          )
 
-        await applicantQuestions.expectTitle(
-          page,
-          'Address correction single-block, single-address program — 1 of 2',
-        )
+          await applicantQuestions.expectTitle(
+            page,
+            'Address correction single-block, single-address program — 1 of 2',
+          )
 
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-        await applicantQuestions.clickContinue()
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickContinue()
+        })
+
+        await test.step('Validate address correction page shown', async () => {
+          await applicantQuestions.expectVerifyAddressPage(true)
+
+          await validateScreenshot(
+            page.locator('main'),
+            'north-star-verify-address-with-suggestions',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+          await validateAccessibility(page)
+        })
+
+        await test.step('Confirm user can confirm address and submit', async () => {
+          await applicantQuestions.clickConfirmAddress()
+
+          await applicantQuestions.clickEdit()
+          await applicantQuestions.checkAddressQuestionValue(
+            'Address In Area',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.clickSubmitApplication()
+        })
       })
 
-      await test.step('Validate address correction page shown', async () => {
-        await applicantQuestions.expectVerifyAddressPage(true)
+      test('go back and edit does not save address selection', async ({
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(
+            singleBlockSingleAddressProgram,
+            /* northStarEnabled= */ true,
+          )
 
-        await validateScreenshot(
-          page,
-          'north-star-verify-address-with-suggestions',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-        await validateAccessibility(page)
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickContinue()
+        })
+
+        await test.step('Validate address correction page shown', async () => {
+          await applicantQuestions.expectVerifyAddressPage(true)
+        })
+
+        await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
+
+          await applicantQuestions.clickGoBackAndEdit()
+
+          await applicantQuestions.validateQuestionIsOnPage(
+            addressWithCorrectionText,
+          )
+
+          // Verify the original address (not the suggested address) is filled in on the block page
+          await applicantQuestions.checkAddressQuestionValue(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+        })
       })
-
-      await test.step('Confirm user can confirm address and submit', async () => {
-        await applicantQuestions.clickConfirmAddress()
-
-        await applicantQuestions.clickEdit()
-        await applicantQuestions.checkAddressQuestionValue(
-          'Address In Area',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.clickSubmitApplication()
-      })
-    })
+    }
 
     test('prompts user to edit if no suggestions are returned', async ({
       page,
@@ -490,7 +376,7 @@ test.describe('address correction', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateScreenshot(
-          page,
+          page.locator('main'),
           'north-star-verify-address-no-suggestions',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
@@ -504,51 +390,6 @@ test.describe('address correction', () => {
       })
     })
 
-    test('go back and edit does not save address selection', async ({
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step('Validate address correction page shown', async () => {
-        await applicantQuestions.expectVerifyAddressPage(true)
-      })
-
-      await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
-        await applicantQuestions.selectAddressSuggestion(
-          'Address With No Service Area Features',
-        )
-
-        await applicantQuestions.clickGoBackAndEdit()
-
-        await applicantQuestions.validateQuestionIsOnPage(
-          addressWithCorrectionText,
-        )
-
-        // Verify the original address (not the suggested address) is filled in on the block page
-        await applicantQuestions.checkAddressQuestionValue(
-          'Legit Address',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-      })
-    })
-
     test('validate accessibility', async ({page}) => {
       await validateAccessibility(page)
     })
@@ -556,6 +397,284 @@ test.describe('address correction', () => {
 })
 
 if (isLocalDevEnvironment()) {
+  /**
+   * Tests for the address correction view and navigation to and from that view.
+   */
+  test.describe('address correction optional address program', () => {
+    const optionalAddressProgram = 'Address correction optional address program'
+
+    const addressWithCorrectionQuestionId = 'address-with-correction-q'
+    const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
+    const textQuestionId = 'text-q'
+
+    const addressWithCorrectionText = 'With Correction'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+      await test.step('Create all questions', async () => {
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithCorrectionQuestionId,
+          questionText: addressWithCorrectionText,
+        })
+
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithoutCorrectionQuestionId,
+          questionText: 'Without Correction',
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: textQuestionId,
+          questionText: 'text',
+        })
+      })
+
+      await test.step('Create optional address program', async () => {
+        await adminPrograms.addProgram(optionalAddressProgram)
+
+        await adminPrograms.editProgramBlockWithOptional(
+          optionalAddressProgram,
+          'first block',
+          [],
+          addressWithCorrectionQuestionId,
+        )
+
+        await adminPrograms.goToBlockInProgram(
+          optionalAddressProgram,
+          'Screen 1',
+        )
+        await adminPrograms.clickAddressCorrectionToggleByName(
+          addressWithCorrectionQuestionId,
+        )
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(optionalAddressProgram)
+      })
+
+      await logout(page)
+    })
+
+    test('skips address correction if optional address question is not answered', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(optionalAddressProgram)
+
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectReviewPage()
+
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+  })
+
+  /**
+   * Tests for the address correction view and navigation to and from that view.
+   */
+  test.describe('address correction multi-block, multi-address program', () => {
+    const multiBlockMultiAddressProgram =
+      'Address correction multi-block, multi-address program'
+
+    const addressWithCorrectionQuestionId = 'address-with-correction-q'
+    const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
+    const textQuestionId = 'text-q'
+
+    const addressWithCorrectionText = 'With Correction'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+      await test.step('Create all questions', async () => {
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithCorrectionQuestionId,
+          questionText: addressWithCorrectionText,
+        })
+
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithoutCorrectionQuestionId,
+          questionText: 'Without Correction',
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: textQuestionId,
+          questionText: 'text',
+        })
+      })
+
+      await test.step('Create multi-block, multi-address program', async () => {
+        await adminPrograms.addProgram(multiBlockMultiAddressProgram)
+
+        await adminPrograms.editProgramBlockWithOptional(
+          multiBlockMultiAddressProgram,
+          'first block',
+          [addressWithCorrectionQuestionId],
+          addressWithoutCorrectionQuestionId,
+        )
+
+        await adminPrograms.addProgramBlock(
+          multiBlockMultiAddressProgram,
+          'second block',
+          [textQuestionId],
+        )
+
+        await adminPrograms.goToBlockInProgram(
+          multiBlockMultiAddressProgram,
+          'Screen 1',
+        )
+        await adminPrograms.clickAddressCorrectionToggleByName(
+          addressWithCorrectionQuestionId,
+        )
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(multiBlockMultiAddressProgram)
+      })
+
+      await logout(page)
+    })
+
+    test('can correct address multi-block, multi-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '500 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        0,
+      )
+      await applicantQuestions.answerAddressQuestion(
+        'Legit Address',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        1,
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage(true)
+      await applicantQuestions.clickConfirmAddress()
+      await applicantQuestions.answerTextQuestion('Some text')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        addressWithCorrectionText,
+        'Address In Area',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+  })
+
+  /**
+   * Tests for the address correction view and navigation to and from that view.
+   */
+  test.describe('address correction single-block, multi-address program', () => {
+    const singleBlockMultiAddressProgram =
+      'Address correction single-block, multi-address program'
+
+    const addressWithCorrectionQuestionId = 'address-with-correction-q'
+    const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
+    const textQuestionId = 'text-q'
+
+    const addressWithCorrectionText = 'With Correction'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+      await test.step('Create all questions', async () => {
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithCorrectionQuestionId,
+          questionText: addressWithCorrectionText,
+        })
+
+        await adminQuestions.addAddressQuestion({
+          questionName: addressWithoutCorrectionQuestionId,
+          questionText: 'Without Correction',
+        })
+
+        await adminQuestions.addTextQuestion({
+          questionName: textQuestionId,
+          questionText: 'text',
+        })
+      })
+
+      await test.step('Create single-block, multi-address program', async () => {
+        await adminPrograms.addProgram(singleBlockMultiAddressProgram)
+
+        await adminPrograms.editProgramBlockWithOptional(
+          singleBlockMultiAddressProgram,
+          'first block',
+          [addressWithCorrectionQuestionId],
+          addressWithoutCorrectionQuestionId,
+        )
+
+        await adminPrograms.goToBlockInProgram(
+          singleBlockMultiAddressProgram,
+          'Screen 1',
+        )
+        await adminPrograms.clickAddressCorrectionToggleByName(
+          addressWithCorrectionQuestionId,
+        )
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(singleBlockMultiAddressProgram)
+      })
+
+      await logout(page)
+    })
+
+    test('can correct address single-block, multi-address program', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
+
+      await applicantQuestions.answerAddressQuestion(
+        '500 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        0,
+      )
+      await applicantQuestions.answerAddressQuestion(
+        'Legit Address',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+        1,
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage(true)
+
+      await applicantQuestions.selectAddressSuggestion(
+        'Address With No Service Area Features',
+      )
+      await applicantQuestions.clickConfirmAddress()
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        addressWithCorrectionText,
+        'Address With No Service Area Features',
+      )
+      await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+  })
+
   /**
    * Tests for the buttons on a block with an address question and on the address correction screen.
    */
@@ -567,6 +686,7 @@ if (isLocalDevEnvironment()) {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
       // Create a program with 3 blocks:

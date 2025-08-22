@@ -275,7 +275,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
         serviceAreaUpdateResolver.getServiceAreaUpdate(block, updates);
     Optional<ServiceAreaUpdate> maybeServiceAreaUpdate =
         serviceAreaUpdateFuture.toCompletableFuture().join();
-    assertThat(maybeServiceAreaUpdate.isEmpty()).isTrue();
+    assertThat(maybeServiceAreaUpdate.get().value().isEmpty()).isTrue();
   }
 
   @Test

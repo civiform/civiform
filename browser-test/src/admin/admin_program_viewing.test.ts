@@ -1,10 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  seedProgramsAndCategories,
-  validateScreenshot,
-} from '../support'
+  ProgramCategories,
+  ProgramHeaderButton,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
@@ -23,16 +23,14 @@ test.describe('admin program view page', () => {
   test('view program details shows program categories', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
     const programName = 'Active Program'
-    await enableFeatureFlag(page, 'program_filtering_enabled')
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+    await seeding.seedProgramsAndCategories()
 
     await test.step('login as admin', async () => {
+      await page.goto('/')
       await loginAsAdmin(page)
     })
 
@@ -47,12 +45,11 @@ test.describe('admin program view page', () => {
     })
 
     await test.step('add two categories', async () => {
-      await page.getByRole('button', {name: 'Edit program'}).click()
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ true,
+      )
     })
 
     await test.step('expect to see the two categories on details page', async () => {
@@ -231,5 +228,42 @@ test.describe('admin program view page', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
 
     await validateScreenshot(page, 'view-program-start-editing')
+  })
+
+  test('view external program', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await loginAsAdmin(page)
+
+    const programName = 'External Program'
+    await adminPrograms.addExternalProgram(
+      programName,
+      /* shortDescription= */ 'short program description',
+      /* externalLink= */ 'https://usa.gov',
+      /* visibility= */ ProgramVisibility.PUBLIC,
+    )
+
+    // On draft mode, external programs should not have preview and download
+    // header buttons or the block panel.
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
+
+    // On active mode, external programs should not have preview and download
+    // header buttons or the block panel
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
   })
 })

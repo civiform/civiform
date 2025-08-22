@@ -1,18 +1,29 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main id="main-content" tabindex="-1">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
+      <div
+        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+      ></div>
 
+      <div
+        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+          ${applicationParams.programTitle()},
+          ${homeUrl},
+          ${programOverviewUrl})}"
+      ></div>
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
+
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
@@ -54,7 +65,7 @@
                   th:replace="~{questiontypes/QuestionFragment :: applicant-question(
                     ${question},
                     ${questionRendererParams.get(question.getQuestionDefinition().getId())},
-                    ${stateAbbreviations})}"
+                    ${stateAbbreviations},${enumMaxEntityCount})}"
                 ></div>
               </div>
 
@@ -92,5 +103,8 @@
     <div th:replace="~{applicant/ModalFragment:: blockValidation}"></div>
 
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

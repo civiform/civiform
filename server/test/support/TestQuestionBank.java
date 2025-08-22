@@ -21,6 +21,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -85,12 +86,14 @@ public class TestQuestionBank {
         .put(QuestionType.ENUMERATOR, enumeratorApplicantHouseholdMembers())
         .put(QuestionType.FILEUPLOAD, fileUploadApplicantFile())
         .put(QuestionType.ID, idApplicantId())
+        .put(QuestionType.MAP, mapQuestion())
         .put(QuestionType.NAME, nameApplicantName())
         .put(QuestionType.NUMBER, numberApplicantJugglingNumber())
         .put(QuestionType.PHONE, phoneApplicantPhone())
         .put(QuestionType.RADIO_BUTTON, radioApplicantFavoriteSeason())
         .put(QuestionType.STATIC, staticContent())
         .put(QuestionType.TEXT, textApplicantFavoriteColor())
+        .put(QuestionType.YES_NO, doesApplicantHaveDogYesNo())
         .build();
   }
 
@@ -234,6 +237,11 @@ public class TestQuestionBank {
         QuestionEnum.ID_REPEATED_HOUSEHOLD_MEMBER_ID, this::idRepeatedHouseholdMemberId);
   }
 
+  /** Returns a sample MAP question. */
+  public QuestionModel mapQuestion() {
+    return questionCache.computeIfAbsent(QuestionEnum.MAP, this::mapQuestion);
+  }
+
   /** Returns a sample NAME question. */
   public QuestionModel nameApplicantName() {
     return questionCache.computeIfAbsent(QuestionEnum.NAME_APPLICANT_NAME, this::nameApplicantName);
@@ -294,6 +302,10 @@ public class TestQuestionBank {
   public QuestionModel radioApplicantFavoriteSeason() {
     return questionCache.computeIfAbsent(
         QuestionEnum.RADIO_APPLICANT_FAVORITE_SEASON, this::radioApplicantFavoriteSeason);
+  }
+
+  public QuestionModel doesApplicantHaveDogYesNo() {
+    return questionCache.computeIfAbsent(QuestionEnum.YES_NO, this::doesApplicantHaveDogYesNo);
   }
 
   /**
@@ -644,6 +656,19 @@ public class TestQuestionBank {
   }
 
   // Name
+  private QuestionModel mapQuestion(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new MapQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("map question")
+                .setDescription("select locations")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "selection locations"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
+    return maybeSave(definition);
+  }
+
+  // Name
   private QuestionModel nameApplicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -844,6 +869,24 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Yes/No question
+  private QuestionModel doesApplicantHaveDogYesNo(QuestionEnum ignore) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant has a dog")
+            .setDescription("Applicant's dog status")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Do you have a dog?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "yes", LocalizedStrings.of(Locale.US, "Yes")),
+            QuestionOption.create(2L, 2L, "no", LocalizedStrings.of(Locale.US, "No")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(config, questionOptions, MultiOptionQuestionType.YES_NO);
+    return maybeSave(definition);
+  }
+
   private QuestionModel maybeSave(QuestionDefinition questionDefinition) {
     return maybeSave(questionDefinition, LifecycleStage.ACTIVE);
   }
@@ -904,6 +947,7 @@ public class TestQuestionBank {
     FILE_UPLOAD_REPEATED_HOUSEHOLD_MEMBER_FILE,
     ID_APPLICANT_ID,
     ID_REPEATED_HOUSEHOLD_MEMBER_ID,
+    MAP,
     NAME_APPLICANT_NAME,
     NAME_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_NAME,
     NULL_QUESTION,
@@ -916,6 +960,7 @@ public class TestQuestionBank {
     RADIO_REPEATED_HOUSEHOLD_MEMBER_FAVORITE_PRECIPITATION,
     STATIC_CONTENT,
     TEXT_APPLICANT_FAVORITE_COLOR,
-    TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE
+    TEXT_REPEATED_APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
+    YES_NO
   }
 }

@@ -73,19 +73,19 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     String localizedProgramName = programDefinition.localizedName().getOrDefault(preferredLocale);
     context.setVariable("programName", localizedProgramName);
 
-    String localizedProgramDescription = getProgramDescription(programDefinition, preferredLocale);
+    String localizedProgramDescription =
+        getProgramDescription(programDefinition, preferredLocale, messages);
     context.setVariable("programDescription", localizedProgramDescription);
 
     ImmutableMap<String, String> applicationStepsMap =
-        getStepsMap(programDefinition, preferredLocale);
+        getStepsMap(programDefinition, preferredLocale, messages);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
     // The program data will be empty if the applicant has started or submitted an application
     // for the program.  We only want to show the eligibility alert for unstarted programs.
     boolean showEligibilityAlert =
         optionalProgramData.isPresent()
-            ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
-            : false;
+            && ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get());
 
     if (showEligibilityAlert) {
       boolean isTrustedIntermediary = profile.isTrustedIntermediary();
@@ -106,12 +106,13 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
     context.setVariable("actionUrl", actionUrl);
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
   }
 
   private String getProgramDescription(
-      ProgramDefinition programDefinition, Locale preferredLocale) {
+      ProgramDefinition programDefinition, Locale preferredLocale, Messages messages) {
     String localizedProgramDescription =
         programDefinition.localizedDescription().getOrDefault(preferredLocale);
 
@@ -119,7 +120,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       return TextFormatter.formatTextToSanitizedHTML(
           localizedProgramDescription,
           /* preserveEmptyLines= */ true,
-          /* addRequiredIndicator= */ false);
+          /* addRequiredIndicator= */ false,
+          messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()));
     }
 
     return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
@@ -127,8 +129,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
 
   private AlertSettings createEligibilityAlertSettings(
       Messages messages, boolean isTrustedIntermediary, boolean isEligible) {
-    String alertText;
-    AlertType alertType;
+    final String alertText;
+    final AlertType alertType;
 
     if (isEligible) {
       alertText =
@@ -144,19 +146,17 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       alertType = AlertType.WARNING;
     }
 
-    AlertSettings eligibilityAlertSettings =
-        new AlertSettings(
-            /* show= */ true,
-            Optional.empty(),
-            alertText,
-            alertType,
-            ImmutableList.of(),
-            /* isSlim= */ true);
-    return eligibilityAlertSettings;
+    return new AlertSettings(
+        /* show= */ true,
+        /* title= */ Optional.empty(),
+        alertText,
+        alertType,
+        ImmutableList.of(),
+        /* isSlim= */ true);
   }
 
   private ImmutableMap<String, String> getStepsMap(
-      ProgramDefinition programDefinition, Locale preferredLocale) {
+      ProgramDefinition programDefinition, Locale preferredLocale, Messages messages) {
     ImmutableMap.Builder<String, String> applicationStepsBuilder = ImmutableMap.builder();
     programDefinition
         .applicationSteps()
@@ -167,9 +167,16 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
                   TextFormatter.formatTextToSanitizedHTML(
                       step.getDescription().getOrDefault(preferredLocale),
                       /* preserveEmptyLines= */ true,
-                      /* addRequiredIndicator= */ false));
+                      /* addRequiredIndicator= */ false,
+                      messages
+                          .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                          .toLowerCase(Locale.ROOT)));
             });
-    ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
-    return applicationStepsMap;
+    return applicationStepsBuilder.build();
+  }
+
+  private String getGoBackToAdminUrl(ProgramDefinition programDefinition) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(programDefinition.id())
+        .url();
   }
 }

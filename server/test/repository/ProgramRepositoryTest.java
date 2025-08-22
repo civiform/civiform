@@ -17,6 +17,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
@@ -34,6 +35,7 @@ import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
@@ -138,8 +140,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .anyMatch(block -> block.hasNullQuestion()));
+            program.getProgramDefinition().blockDefinitions().stream()
+                .anyMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isEmpty();
   }
 
@@ -158,8 +161,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .noneMatch(block -> block.hasNullQuestion()));
+            program.getProgramDefinition().blockDefinitions().stream()
+                .noneMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isNotEmpty();
   }
 
@@ -199,6 +203,38 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(programDefFromCache).isEmpty();
+  }
+
+  @Test
+  public void getSlug_programExists_findsSlug_fromDb() throws Exception {
+    ProgramModel program = resourceCreator.insertActiveProgram("Test Program");
+    String expectSlug = "test-program";
+
+    String foundSlug = repo.getSlug(program.id);
+
+    assertThat(foundSlug).isEqualTo(expectSlug);
+  }
+
+  @Test
+  public void getSlug_programExists_findsSlug_fromCache() throws Exception {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("Test Program");
+    String cachedName = "A different program name";
+    String expectSlug = "a-different-program-name";
+    var modifiedProgram =
+        program.getProgramDefinition().toBuilder().setAdminName(cachedName).build();
+    repo.setFullProgramDefinitionCache(modifiedProgram.id(), modifiedProgram);
+
+    String foundSlug = repo.getSlug(program.id);
+
+    assertThat(foundSlug).isEqualTo(expectSlug);
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> repo.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -318,6 +354,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getAllNonExternalProgramNames() {
+    resourceCreator.insertActiveExternalProgram("external program name");
+    resourceCreator.insertActiveProgram("default program name");
+
+    ImmutableSet<String> result = repo.getAllNonExternalProgramNames();
+
+    assertThat(result).isEqualTo(ImmutableSet.of("default program name"));
+  }
+
+  @Test
   public void getVersionsForProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
@@ -370,6 +416,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -397,6 +445,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("One"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -413,6 +463,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("Last"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -429,6 +481,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(emailTwo))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -445,6 +499,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("1234"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -461,6 +517,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("(1.23)- 456"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(
@@ -582,6 +640,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of(""))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(
             ImmutableSet.of(
@@ -598,6 +658,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of(SECOND_STATUS.statusText()))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of(secondStatusApplication.id));
 
@@ -609,6 +671,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     .setApplicationStatus(
                         Optional.of(SubmittedApplicationFilter.NO_STATUS_FILTERS_OPTION_UUID))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of(noStatusApplication.id, backToNoStatusApplication.id));
 
@@ -619,8 +683,60 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 SubmittedApplicationFilter.builder()
                     .setApplicationStatus(Optional.of("some-random-status"))
                     .setSubmitTimeFilter(TimeFilter.EMPTY)
+                    .setLifecycleStages(
+                        ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                     .build()))
         .isEqualTo(ImmutableSet.of());
+  }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_filterByLifecycleStage() {
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("applicant@example.com"));
+    ApplicationModel obsoleteApplication =
+        resourceCreator.insertApplication(applicant, program, LifecycleStage.OBSOLETE);
+    ApplicationModel activeApplication =
+        resourceCreator.insertActiveApplication(applicant, program);
+
+    // Test filtering for a specific stage. Should return only the active application
+    PaginationResult<ApplicationModel> result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE))
+                .build());
+    assertThat(
+            result.getPageContents().stream().map(a -> a.id).collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(activeApplication.id);
+
+    // Test filtering for multiple stages. Should return the active and obsolete applications
+    result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+                .build());
+
+    assertThat(
+            result.getPageContents().stream().map(a -> a.id).collect(ImmutableSet.toImmutableSet()))
+        .containsExactly(activeApplication.id, obsoleteApplication.id);
+
+    // Test filtering for a specific stage with no matches. Should return no results
+    result =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.builder()
+                .setSubmitTimeFilter(TimeFilter.EMPTY)
+                .setLifecycleStages(ImmutableList.of(LifecycleStage.DRAFT))
+                .build());
+    assertThat(result.getPageContents()).isEmpty();
   }
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
@@ -706,6 +822,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                         .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
                         .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
                         .build())
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
@@ -779,6 +897,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
+    @SuppressWarnings("unused")
     ApplicationModel applicationOne =
         resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
@@ -823,7 +942,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             new SubmitTimeSequentialAccessPaginationSpec(
                 /* pageSize= */ 2,
                 /* currentSubmitTime= */ paginationResult.getPageContents().get(1).getSubmitTime(),
-                /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+                /* currentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
     // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
@@ -840,6 +959,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
+    @SuppressWarnings("unused")
     ApplicationModel applicationOne =
         resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
@@ -850,8 +970,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
     ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    @SuppressWarnings("unused")
     ApplicationModel applicationTwo =
         resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    @SuppressWarnings("unused")
     ApplicationModel applicationThree =
         resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
@@ -872,7 +994,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             new RowIdSequentialAccessPaginationSpec(
-                /* pageSize= */ 2, /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+                /* pageSize= */ 2,
+                /* currentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
     // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
@@ -973,10 +1096,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsDifferentProgramIdWhichIsTheLatest() {
     ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-1");
     ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -987,10 +1107,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsSameProgramIdWhichIsTheLatest() {
     ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -1000,12 +1116,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getMostRecentActiveProgramVersion_returnsEmptyWhenIdDoesNotExist() {
-    ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
-
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(-1);
 
     assertThat(latestId.isEmpty()).isTrue();
@@ -1014,9 +1124,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsEmptyWhenNoActiveProgramExists() {
     ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -1028,7 +1135,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
 
     boolean existsOne =
-        repo.checkProgramAdminNameExists("program-name-1"); // same admin name as saved program
+        repo.checkProgramAdminNameExists(programModel1.getProgramDefinition().adminName());
     boolean existsTwo = repo.checkProgramAdminNameExists("another-admin-name");
 
     assertThat(existsOne).isTrue();

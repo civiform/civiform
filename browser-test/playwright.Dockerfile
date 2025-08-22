@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1
-FROM ubuntu:24.04
+# syntax=docker/dockerfile:1@sha256:38387523653efa0039f8e1c89bb74a30504e76ee9f565e25c9a09841f9427b05
+FROM ubuntu:24.04@sha256:7c06e91f61fa88c08cc74f7e1b7c69ae24910d745357e0dfe1d2c0322aaf20f9
 
 RUN apt-get update -y && \
     apt-get install -y ca-certificates curl gnupg && \

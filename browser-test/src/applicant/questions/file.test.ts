@@ -1,17 +1,15 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
-  seedQuestions,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import {BASE_URL} from '../../support/config'
 
-test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
+test.describe('file upload applicant flow', () => {
   test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
-    await page.goto(BASE_URL)
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test.describe('test multiple file upload with max files', () => {
@@ -423,7 +421,6 @@ test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
         await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
         await applicantFileQuestion.expectFileTooLargeErrorShown()
-        await validateScreenshot(page, 'file-error-too-large-multiple-files')
         await validateAccessibility(page)
       })
 

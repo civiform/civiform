@@ -245,6 +245,10 @@ export default class PreviewController {
     if (text.length > 0) {
       const contentElement = formatTextHtml(text)
       contentElement.classList.add('pr-16')
+      const paragraph = contentElement.querySelector('p')
+      if (paragraph) {
+        paragraph.classList.add('break-words', 'break-all', 'whitespace-normal')
+      }
 
       const contentParent = document.querySelector(
         PreviewController.QUESTION_TEXT_SELECTOR,

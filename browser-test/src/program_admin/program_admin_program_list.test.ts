@@ -1,6 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -9,6 +9,10 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program admin program list', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('shows all the programs that are active', async ({
     page,
     adminPrograms,
@@ -35,8 +39,6 @@ test.describe('Program admin program list', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-
     await test.step('log in as a CiviForm admin and publish multiple programs', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(

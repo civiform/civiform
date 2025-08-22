@@ -1,17 +1,27 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
-  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-import {QuestionType} from './support/admin_questions'
+import {QuestionTypeLegacy} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
-  test('sample question seeding works', async ({page, adminQuestions}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+    await disableFeatureFlag(page, 'date_validation_enabled')
+  })
+
+  test('sample question seeding works', async ({
+    page,
+    adminQuestions,
+    seeding,
+  }) => {
+    await seeding.seedQuestions()
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
@@ -24,7 +34,7 @@ test.describe('normal question lifecycle', () => {
 
   // Run create-update-publish test for each question type individually to keep
   // test duration reasonable.
-  for (const type of Object.values(QuestionType)) {
+  for (const type of Object.values(QuestionTypeLegacy)) {
     test(`${type} question: create, update, publish, create a new version, and update`, async ({
       page,
       adminQuestions,
@@ -39,7 +49,7 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.addQuestionForType(type, questionName)
       const repeatedQuestion = 'qlc-repeated-number'
-      const isEnumerator = type === QuestionType.ENUMERATOR
+      const isEnumerator = type === QuestionTypeLegacy.ENUMERATOR
       if (isEnumerator) {
         // Add to the front of the list because creating a new version of the enumerator question will
         // automatically create a new version of the repeated question. This is important for
@@ -57,6 +67,21 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await validateScreenshot(page, `${type}-edit-page`)
+      if (type === QuestionTypeLegacy.DATE) {
+        await enableFeatureFlag(page, 'date_validation_enabled')
+        await adminQuestions.gotoQuestionEditPage(questionName)
+        await validateScreenshot(
+          page,
+          `${type}-edit-page-with-date-validation-enabled`,
+        )
+
+        await page.selectOption('#min-date-type', {value: 'CUSTOM'})
+        await page.selectOption('#max-date-type', {value: 'CUSTOM'})
+        await validateScreenshot(
+          page.locator('#question-settings'),
+          `${type}-edit-page-with-custom-date-pickers`,
+        )
+      }
       await adminQuestions.updateQuestion(questionName)
 
       const programName = `program-for-${type}-question-lifecycle`
@@ -446,20 +471,12 @@ test.describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    // Directly switching to the best practice method fails
-    // because of a locator stict mode violation. That is it
-    // returns multiple elements.
-    //
-    // Recommended prefer-web-first-assertions fix:
-    // await expect(page.locator(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeChecked()
-    expect(
-      await page.isChecked(
-        adminQuestions.selectorForExportOption(
-          AdminQuestions.EXPORT_VALUE_OPTION,
-        ),
-      ),
-    ).toBeTruthy()
+    await expect(
+      page.getByRole('radio', {
+        name: AdminQuestions.EXPORT_VALUE_OPTION,
+        exact: true,
+      }),
+    ).toBeChecked()
   })
 
   test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async ({
@@ -542,13 +559,57 @@ test.describe('normal question lifecycle', () => {
       'label:has-text("Administrative identifier")',
       'My Test Question14-0',
     )
-    expect(await page.locator('#question-name-preview').innerText()).toContain(
+
+    await expect(page.locator('#question-name-preview')).toContainText(
       'Visible in the API as:',
     )
-
-    // Wait for debounce
-    await page.waitForTimeout(300) // ms
-
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
+  })
+
+  test('enumerator dropdown shows correct options', async ({
+    page,
+    adminQuestions,
+  }) => {
+    const enumeratorOne = 'enumerator-q-one'
+    const enumeratorTwo = 'enumerator-q-two'
+    const textQuestion = 'text-q'
+
+    await test.step('create enumerator parent questions', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorOne})
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorTwo})
+    })
+
+    await test.step('confirm enumerator options show up', async () => {
+      await page.click('#create-question-button')
+      await page.click('#create-text-question')
+      await waitForPageJsLoad(page)
+      await page.getByLabel('Question enumerator').selectOption(enumeratorOne)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await page.getByLabel('Question enumerator').selectOption(enumeratorTwo)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+    })
+
+    await test.step('add text question with parent enumerator selected', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestion,
+        questionText: '$this',
+        enumeratorName: enumeratorOne,
+      })
+    })
+
+    await test.step('edit text question and confirm correct enumerator option is selected and readonly', async () => {
+      await adminQuestions.gotoQuestionEditPage(textQuestion)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+        'readonly',
+      )
+    })
   })
 })

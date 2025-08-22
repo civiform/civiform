@@ -7,9 +7,14 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Radio button question for applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single radio button question with north star flag disabled', () => {
     const programName = 'Test program for single radio button'
 

@@ -73,7 +73,8 @@ export class ModalController {
   constructor() {
     const modalContainer = document.querySelector('#modal-container')
     if (modalContainer == null) {
-      throw new Error('Modal Container display not found!')
+      console.info('Legacy modal container not initialized.')
+      return
     }
 
     const modals = Array.from(
@@ -103,4 +104,17 @@ export class ModalController {
 
 export function init() {
   new ModalController()
+}
+
+/**
+ * Hides the specified modal by adding the 'is-hidden' class.
+ * Updates visibility tracking flags when hiding a modal.
+ *
+ * @param modalType Type of modal to hide
+ */
+export function hideUswdsModal(modalType: string) {
+  const modal = document.getElementById(`${modalType}-modal`)
+  if (modal) {
+    modal.classList.add('is-hidden')
+  }
 }

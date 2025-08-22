@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -39,6 +40,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
@@ -71,12 +73,16 @@ public final class AdminQuestionController extends CiviFormController {
    * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> index(Request request) {
+  public CompletionStage<Result> index(Request request, Optional<String> filter) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
+                ok(
+                    listView.render(
+                        readOnlyService.getActiveAndDraftQuestions(),
+                        filter.map(TextFormatter::sanitizeHtml),
+                        request)),
             classLoaderExecutionContext.current());
   }
 
@@ -127,7 +133,6 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
-
     try {
       return ok(
           editView.renderNewQuestionForm(
@@ -178,7 +183,7 @@ public final class AdminQuestionController extends CiviFormController {
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     String redirectUrl =
         questionForm.getRedirectUrl().isEmpty()
-            ? routes.AdminQuestionController.index().url()
+            ? routes.AdminQuestionController.index(Optional.empty()).url()
             : questionForm.getRedirectUrl();
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
@@ -191,7 +196,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to restore question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for archiving a question so it will not be carried over to a new version. */
@@ -202,7 +207,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to archive question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for discarding a draft for a question. */
@@ -213,7 +218,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to discard draft question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /**
@@ -240,15 +245,21 @@ public final class AdminQuestionController extends CiviFormController {
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
+                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()))
+                    .flashing(request.flash().data());
               }
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
+                Optional<ToastMessage> message =
+                    request
+                        .flash()
+                        .get(FlashKey.CONCURRENT_UPDATE)
+                        .map(m -> ToastMessage.errorNonLocalized(m));
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
+                        request, questionDefinition, maybeEnumerationQuestion, message));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -294,6 +305,14 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
+    } catch (ConcurrentUpdateException e) {
+      // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
+      // made changes.
+      return redirect(routes.AdminQuestionController.edit(id))
+          .flashing(
+              FlashKey.CONCURRENT_UPDATE,
+              "The question was updated by another user while the edit page was open in your"
+                  + " browser. Please try your edits again.");
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
@@ -313,7 +332,8 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(
+        redirect(routes.AdminQuestionController.index(Optional.empty())), successMessage);
   }
 
   private Result withSuccessMessage(Result result, String message) {
@@ -422,6 +442,7 @@ public final class AdminQuestionController extends CiviFormController {
         newOptionsListBuilder.add(
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else if (maybeExistingOptionWithSameId.isPresent()) {
         // If there's an existing option with the same ID but different text, then use it
@@ -431,6 +452,7 @@ public final class AdminQuestionController extends CiviFormController {
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
                 .setOptionText(updatedQuestionOptionText)
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else {
         // If there wasn't an option with the same ID, treat it as a new

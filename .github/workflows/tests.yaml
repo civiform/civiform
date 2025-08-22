@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: Build test container
         env:
@@ -27,11 +27,17 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: bin/build-dev-oidc
+
+      - name: Build mock-web-services
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/build-mock-web-services
+
       - name: Run tests
         run: bin/run-test-ci
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -45,9 +51,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: Build test container
         env:
@@ -95,10 +101,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: Build test app container
         env:
@@ -160,7 +166,7 @@ jobs:
       # We want this for aws and azure so we have access to what happened in failed tests.
       - name: Upload image diff outputs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: image diff output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
@@ -170,7 +176,7 @@ jobs:
       # attempt to update the same images
       - name: Upload updated snapshots
         if: ${{ matrix.cloud == 'aws' && failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: updated snapshots output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
@@ -180,7 +186,7 @@ jobs:
       # have access to what happened in failed tests.
       - name: Upload test videos on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: tests videos (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
@@ -196,9 +202,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: Build prod container
         env:
@@ -217,4 +223,3 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
-

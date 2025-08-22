@@ -164,6 +164,7 @@ async function loginAsTestUserAwsStaging(
   isTi: boolean,
 ) {
   await Promise.all([
+    // eslint-disable-next-line playwright/no-networkidle
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
   ])
@@ -172,6 +173,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
     page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
+      // eslint-disable-next-line playwright/no-networkidle
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
@@ -240,20 +242,16 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
-export const dropTables = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#clear')
-}
+export const selectApplicantLanguageNorthstar = async (
+  page: Page,
+  languageCode: string,
+) => {
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language-menu')
 
-export const seedQuestions = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-questions')
-}
+    await page.click(`#select-language-${languageCode}`)
 
-export const seedProgramsAndCategories = async (page: Page) => {
-  await test.step('Seed programs', async () => {
-    await page.goto('/dev/seed')
-    await page.click('#sample-programs')
+    await waitForPageJsLoad(page)
   })
 }
 
@@ -415,7 +413,7 @@ export const normalizeElements = async (page: Frame | Page) => {
         text
           .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
           .replace(/\d{4}-\d{2}-\d{2}/, '2030-01-01')
-          .replace(/\b(\d{1,2}\/\d{1,2}\/\d{2})$/, '1/1/30')
+          .replace(/\b(\d{1,2}\/\d{1,2}\/\d{2})\b/, '1/1/30')
           .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
           .replace(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/, 'January 1, 2030'),
       '.cf-application-id': (text) => text.replace(/\d+/, '1234'),

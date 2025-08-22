@@ -25,12 +25,14 @@ public final class ApiKeyRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("ApiKeyRepository");
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final TransactionManager transactionManager;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
-  public ApiKeyRepository(DatabaseExecutionContext executionContext) {
+  public ApiKeyRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.transactionManager = new TransactionManager();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /**
@@ -104,19 +106,23 @@ public final class ApiKeyRepository {
 
   /** Increment an API key's call count and set its last call IP address to the one provided. */
   public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
-    ApiKeyModel apiKey =
-        database
-            .find(ApiKeyModel.class)
-            .where()
-            .eq("key_id", apiKeyId)
-            .setLabel("ApiKeyModel.findById")
-            .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
-            .findOne();
+    transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApiKeyModel> apiKey =
+              database
+                  .find(ApiKeyModel.class)
+                  .where()
+                  .eq("key_id", apiKeyId)
+                  .setLabel("ApiKeyModel.findById")
+                  .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
+                  .findOneOrEmpty();
 
-    apiKey.incrementCallCount();
-    apiKey.setLastCallIpAddress(remoteAddress);
+          if (apiKey.isEmpty()) {
+            throw new IllegalArgumentException("API key %s not found".formatted(apiKeyId));
+          }
 
-    apiKey.save();
+          apiKey.get().incrementCallCount().setLastCallIpAddress(remoteAddress).save();
+        });
   }
 
   /** Insert a new {@link ApiKeyModel} record asynchronously. */
@@ -126,35 +132,33 @@ public final class ApiKeyRepository {
           database.insert(apiKey);
           return apiKey;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   /** Find an ApiKey record by database primary ID asynchronously. */
   public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(long id) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(
-                database
-                    .find(ApiKeyModel.class)
-                    .setId(id)
-                    .setLabel("ApiKeyModel.findById")
-                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
-                    .findOne()),
-        executionContext);
+            database
+                .find(ApiKeyModel.class)
+                .setId(id)
+                .setLabel("ApiKeyModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                .findOneOrEmpty(),
+        dbExecutionContext);
   }
 
   /** Find an ApiKey record by the key's string ID asynchronously. */
   public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(
-                database
-                    .find(ApiKeyModel.class)
-                    .where()
-                    .eq("key_id", keyId)
-                    .setLabel("ApiKeyModel.findById")
-                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
-                    .findOne()),
-        executionContext);
+            database
+                .find(ApiKeyModel.class)
+                .where()
+                .eq("key_id", keyId)
+                .setLabel("ApiKeyModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                .findOneOrEmpty(),
+        dbExecutionContext);
   }
 }

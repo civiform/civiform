@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   db:
-    image: postgres:16.7
+    image: postgres:16.10@sha256:66a5efb5677ffac1037774a0e141fd3a4c035c9c0c0e624c9cc980dfa10f45e5
     restart: always
     expose:
       - '5432'
@@ -11,12 +11,15 @@ services:
       - ../init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   dev-oidc:
-    image: civiform/oidc-provider
+    image: civiform-oidc-provider
     restart: always
     expose:
       - 3390
     environment:
       - OIDC_PORT=3390
+
+  mock-web-services:
+    image: civiform-mock-web-services
 
   civiform:
     image: civiform-dev
@@ -24,6 +27,7 @@ services:
     links:
       - 'db:database'
       - 'dev-oidc'
+      - 'mock-web-services'
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
     entrypoint: /bin/bash
@@ -36,6 +40,7 @@ services:
       - AWS_ACCESS_KEY_ID=testAccessKey
       - AWS_SECRET_ACCESS_KEY=testSecretKey
       - AWS_SESSION_TOKEN=testSession
+      - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration

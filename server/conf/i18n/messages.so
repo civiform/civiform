@@ -25,6 +25,8 @@ footer.returnToTop=Kor ku noqo
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Wixii taageero farsamo ah: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=Wixii taageero farsamo ah: Iimeyl {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Marti
@@ -36,6 +38,10 @@ label.languageSr=Dooro luqad
 header.menu=Liis
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Dhammee kullanka
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=Wargelintaada: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Guul: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Kullankaagii wuu dhammaaday.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -61,6 +67,8 @@ toast.errorMessageOutline=Khalad: {0}
 button.close=Xidh
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Dib u eeg
+# Button text that will go back to the previous page.
+button.goBack=Dib u noqo
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
@@ -69,6 +77,8 @@ label.primaryNavigation=Hagitaanka aasasiga ah
 label.agencyIdentifier=Aqooonsiga hay'adda,
 # Aria-label for guest session alert
 label.guestSessionAlert=Digniinta warbixineed ee fadhi martiyeedka
+# Link to skip to the main content of the page
+link.skipToMainContent=U bood nuxurka muhiimka ah
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -82,6 +92,8 @@ content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 button.createAnAccount=Samee koonto
 # The text on the button an applicant clicks to log in to their session.
 button.login=Halkan ka gal
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Gal
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Akoon ma lihid?
 # The text between creating a new account, and becoming a guest
@@ -123,7 +135,7 @@ button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Dib u eeg oo ka bax
+button.reviewAndExit=Dib u eeg oo gudbi
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Ka bood
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -144,8 +156,14 @@ link.allDone=Waan dhameeyay
 link.applyToAnotherProgram=Codso barnaamij kale
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Bogga Kowaad
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Codsiga {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Ka saar faylka
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Ka saar faylka {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aadna bilawdo inaad dib u eegto?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -160,6 +178,18 @@ modal.errorSaving.review.noSaveButton=Sii wad inaad dib u eegto bogga adigoon ka
 modal.errorSaving.previous.noSaveButton=Sii wad su'aalahii hore adigoon kaydin
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Joog oo hagaaji jawaabahaaga
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Qaar ka mid ah jawaabaha ku yaala boggan waxay u baahan yihiin in wax laga beddelo
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=Boggan codsigaaga ah waxa uu leeyahay khaladaad ama meelaha qaar ayaa laga tagay iyadoon la buuxinin. Haddii aad ku sii socoto bogga dib u eegista, mid ka mid ah macluumaadka boggan la soo galiyay lama kaydin doono ilaa khaladaadka laga saxo.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=Boggan codsigaaga ah waxa uu leeyahay khaladaad ama meelaha qaar ayaa laga tagay iyadoon la buuxinin. Haddii aad ku sii socoto boggii hore, mid ka mid ah macluumaadka boggan la soo galiyay lama kaydin doono ilaa khaladaadka laga saxo
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Gal bogga dib u eegista adiga oo aan waxba kaydin
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Gal boggii hore adiga oo aan waxba kaydin
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Halkan joog oo hagaaji jawaabahaaga
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -177,18 +207,24 @@ button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
 button.continueSr=U sii wad codsiga ila {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Halkan ka bilow.
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Biloow xog-uruurin
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Eeg oo codso
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Eeg oo codso {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Ku eeg daaqad cusub
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Ku eeg {0} daaqad cusub
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
+button.startHerePreScreenerSr=Ka bilow halkan addoo buuxinaya {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
+button.editPreScreenerSr=Wax ka beddel macluumaadka la gudbiyay {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Sii wad buuxinta {0}
+button.continuePreScreenerSr=Sii wad buuxinta {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=La gudbiyay {0}
 # Text for applicants to understand the section is for finding programs
@@ -198,14 +234,24 @@ content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
 # Main home page heading
-heading.homepage=Codso barnaamijyada isku hal meel ah
+heading.homepage=Halkan ka codso caawimaada dawladda
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Ku codso barnaamijyada dawladda hab onlayn ah
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # Main home page intro text
-content.homepageIntro=U hel caawino daryeelka ubadka, cuntada, gaadiidka, adeegyada guriga iyo waxyaabo kale oo badan.
+content.homepageIntro=Si aad u hesho caawimo xagga cuntada, gaadiidka, daryeelka ilmaha, adeegyada guriga iyo waxyaabo kale oo badan, guji mid ka mid ah xulashooyinkan hoose. Waxaad codsan kartaa hal barnaamij markiiba.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Sahami adeegyada aad u qalmi karto. CiviForm waxay dib u isticmaashaa macluumaadkaaga si ay kaaga caawiso inaad si dhakhso leh u hesho.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
+# The label for the program filter checkboxes
+label.programFilters.v2=Maxaad rabtaa in lagaa caawiyo?
+# The button to apply program filters
+button.applySelections=Ku dabaq xulashooyinka
+# The button to clear program filter selections
+button.clearSelections=Tirtir xulashooyinka
 # Link text to read more about a program.
 link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
@@ -233,7 +279,7 @@ title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Adeegyada iyo barnaamijyada la heli karo
+title.availableProgramsSection=Barnaamijyada iyo adeegyada
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Barnaamijyo ku salaysan xulushooyinkaaga({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -252,6 +298,10 @@ label.submitted=La gudbiyay
 label.submittedOn=La gudbiyay {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} markay tahay {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Tani waxay furi doontaa websayd kale
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Si aad u aado websaydka barnaamijka halkaas oo aad ka heli karto tafaasiil dheeri ah oo aad codsato, guji Sii wad(Continue)
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -424,7 +474,7 @@ ariaLabel.answer=Jawaab {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Faa'iidooyinka hore u baadhaha oo kooban
+title.preScreenerSummary=Faa'iidooyinka hore u baadhaha oo kooban
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Aan bilowno.
 title.programSummary=Soo koobida barnaamijka codsiga
@@ -460,6 +510,7 @@ heading.eligibilityCriteria=Wax badan oo ku saabsan shuruudaha u qalmitaanka
 content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Si aad wax badan oo ku saabsan sharciyada u qalmitaanka barnaamijkan u ogaato ama aad si toos ah ula xiriirto kooxda barnaamijka, fadlan eeg {0}.
+content.eligibilityCriteria.v3=Si aad wax badan uga ogaato shuruudaha u-qalmitaanka barnaamijkan mise aad si toos ah ula xiriirto kooxda barnaamijka, fadlan eeg {0} (waxay ku furmaysaa bog cusub).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -534,6 +585,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cus
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Waxay u badan tahay inaad u qalanto barnaamijkan iyadoo lagu saleynayo jawaabaha aad ku bixisay codsi kale.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Waxaa laga yabaa inaadan u qalmin barnaamijkan iyadoo lagu salaynayo jawaabaha aad ku bixisay codsi kale
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Macmiilkaaga waxay u badan tahay inuu u qalmo barnaamijkan iyadoo lagu salaynayo jawaabaha uu ku bixiyay codsi kale.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Macmiilkaaga waxaa laga yabaa inuusan u qalmin barnaamijkan iyadoo lagu salaynayo jawaabaha uu ku bixiyay codsi kale.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -545,6 +602,10 @@ title.applicationConfirmation=AXaqiijinta codsiga
 content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Akoon samee ama gal oo sign in garee
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Ku gal akoon
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Waxaad hubin kartaa heerka codsiga, wax ka beddeli kartaa, oo aad si degdeg ah u codsan kartaa barnaamijyada kale markaad sameysato akoon.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
@@ -554,23 +615,23 @@ content.generalLoginModalPrompt=Adigu akoon kuma aanad soo galin. Akoon la'aanti
 content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
-title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
+title.preScreenerConfirmation=Barnaamijyada aad u qalmi karaysid
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
+content.preScreenerConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Iyada oo lagu saleynayo jawaabahaaga, waxaa laga yaabaa inaad u qalanto barnaamijyada soo socda:
+content.preScreenerConfirmation.v2=Iyada oo lagu saleynayo jawaabahaaga, waxaa laga yaabaa inaad u qalanto barnaamijyada soo socda:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
+content.preScreenerConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Iyada oo lagu saleynayo jawaabahaaga, macmiilkaagu waxaa laga yaabaa inuu u qalmo barnaamijyada soo socda:
+content.preScreenerConfirmationTi.v2=Iyada oo lagu saleynayo jawaabahaaga, macmiilkaagu waxaa laga yaabaa inuu u qalmo barnaamijyada soo socda:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.preScreenerNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.preScreenerNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
+content.preScreenerNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
@@ -579,7 +640,7 @@ button.downloadPdf=Soo.deji.PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Codso barnaamijyada
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Macluumaadka soo gudbintaada
+heading.yourSubmissionInformation=Faahfaahinta codsigaaga
 # Text above the name of the person who submitted this application
 heading.applicantName=Yaa soo gudbiyay arjigan
 # Text above the confirmation number of the application
@@ -595,11 +656,13 @@ heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Waxaad gudbisay arjigaagii {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Samee akoon si aad u kaydsato macluumaadka arjigaaga
+alert.createAccount=Si aad u gasho codsigaga hadhow, samee akoon
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Isticmaal akoon si aad dib ugu soo gasho si aad u hubiso heerka arjigaaga oo aad u badbaadsato wakhtiga aad ku codsan lahayd barnaamijyada kale.
+alert.createAccountDescription=Waxaad hubin kartaa heerka codsigaaga oo aad si dhakhso ah u codsan kartaa barnaamijyada kale marka aad akoon ku kaydiso macluumaadkaaga.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Waxaad bilowday mise gudbisay codsi ku aadan dhammaan barnaamijyada la heli karo xilligan.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Ku gal akoon hore u jiray
+content.loginToExistingAccount=Ku gal akoon horay u sii jiray
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +751,21 @@ validation.phoneMustBeLocalToCountry=Telefoonka aad bixisay wadana malaha
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Fadlan taariikhda ugu qor qaabka saxda ah
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Fadlan geli taariikh ku jirta {0} sano ee la soo dhaafay
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Fadlan geli taariikh ku jirta {0} sano ee soo socda
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Taariikhdu waa inay noqotaa taariikh ka dambaysa tan maanta
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Taariikhdu waa inay noqotaa ka dib {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Taariikhdu waa inay noqotaa taariikh ka horaysa tan maanta
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Taariikhdu waa inay noqotaa ka hor {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Taariikhdu waa inay u dhaxaysaa {0} iyo {1}
+validation.currentDateRequired=Fadlan gali taariikhda maanta
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Janaayo
 # A month option when selecting a specific date from a dropdown menu.
@@ -827,6 +905,15 @@ validation.textTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
 validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Haa
+option.no=Maya
+option.notSure=Ma hubi
+option.maybe=Laga yaabaa
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -881,8 +968,6 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 #------------------------------------------------------------------------------#
 
 banner.title=Tani waa websaydka rasmiga ah ee dowladda.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Mareegaha rasmiga ah ee dawladda Mareykanka
 banner.link=Halkan waxaa ah sida aad u garanayso
 banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.
@@ -902,7 +987,7 @@ banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Waxaad u codsanaysaa sidii qof marti ah. Markaad dhammayso codsiga, {0} si aad u ilaaliso xogtaada.
+banner.guestBannerText=Kadib markaad codsato, {0} si aad u ilaaliso xogtaada.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=dhammee kulankaaga
 
@@ -947,3 +1032,34 @@ category.tag.transportation=Gaadiidka
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Adeegyada lagama maarmaanka ah
+
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Qaybaha
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La'aanta ku'aadan Kulanka
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la'aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Digniinta ku'aadan Dhererka Kulanka
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhererka kulanka. Fadlan kaydi shaqadaada oo dib u soo gal haddii loo baahdo.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Mudo dheerayso Kulanka
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

@@ -37,6 +37,7 @@ import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -87,6 +88,7 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -118,6 +120,7 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -125,7 +128,6 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -161,10 +163,10 @@ public final class ApplicantService {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
-    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -429,32 +431,67 @@ public final class ApplicantService {
    */
   public CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
-    if (submitterProfile.isTrustedIntermediary()) {
-      return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(
-              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
-          .thenComposeAsync(
-              tiAccount ->
-                  submitApplication(
-                      applicantId,
-                      programId,
-                      // /* tiSubmitterEmail= */
-                      // If the TI is submitting for themselves, don't set the tiSubmitterEmail. See
-                      // #5325 for more.
-                      tiAccount.ownedApplicantIds().contains(applicantId)
-                          ? Optional.empty()
-                          : Optional.of(tiAccount.getEmailAddress()),
-                      request),
-              classLoaderExecutionContext.current());
-    }
+    try {
+      ProgramDefinition pd = programService.getFullProgramDefinition(programId);
+      if (submitterProfile.isTrustedIntermediary()) {
+        return getReadOnlyApplicantProgramService(applicantId, programId)
+            .thenCompose(
+                ro ->
+                    validateApplicationForSubmission(ro, programId)
+                        .thenComposeAsync(
+                            v -> submitterProfile.getAccount(),
+                            classLoaderExecutionContext.current())
+                        .thenComposeAsync(
+                            tiAccount -> {
+                              EligibilityDetermination eligibilityDetermination =
+                                  calculateEligibilityDetermination(pd, ro);
+                              return submitApplication(
+                                  applicantId,
+                                  programId,
+                                  // /* tiSubmitterEmail= */
+                                  // If the TI is submitting for themselves, don't set the
+                                  // tiSubmitterEmail. See #5325 for more.
+                                  tiAccount.ownedApplicantIds().contains(applicantId)
+                                      ? Optional.empty()
+                                      : Optional.of(tiAccount.getEmailAddress()),
+                                  eligibilityDetermination,
+                                  request);
+                            },
+                            classLoaderExecutionContext.current()));
+      }
 
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-        .thenCompose(
-            v ->
-                submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(
+              ro ->
+                  validateApplicationForSubmission(ro, programId)
+                      .thenCompose(
+                          v -> {
+                            EligibilityDetermination eligibilityDetermination =
+                                calculateEligibilityDetermination(pd, ro);
+                            return submitApplication(
+                                applicantId,
+                                programId,
+                                /* tiSubmitterEmail= */ Optional.empty(),
+                                eligibilityDetermination,
+                                request);
+                          }));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Could not find program.", e);
+    }
+  }
+
+  public EligibilityDetermination calculateEligibilityDetermination(
+      ProgramDefinition programDefinition,
+      ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
+    if (programDefinition.hasEligibilityEnabled()) {
+      if (readOnlyApplicantProgramService.isApplicationNotEligible()) {
+        return EligibilityDetermination.INELIGIBLE;
+      } else {
+        return EligibilityDetermination.ELIGIBLE;
+      }
+    } else {
+      return EligibilityDetermination.NO_ELIGIBILITY_CRITERIA;
+    }
   }
 
   /**
@@ -512,7 +549,7 @@ public final class ApplicantService {
                             .forEach(
                                 tag -> {
                                   switch (tag) {
-                                    case APPLICANT_NAME:
+                                    case APPLICANT_NAME -> {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
@@ -531,28 +568,23 @@ public final class ApplicantService {
                                           applicantData
                                               .readString(path.join(Scalar.NAME_SUFFIX))
                                               .orElse(""));
-                                      break;
-                                    case APPLICANT_EMAIL:
-                                      applicant.setEmailAddress(
-                                          applicantData
-                                              .readString(path.join(Scalar.EMAIL))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_PHONE:
-                                      // Country code is set automatically by setPhoneNumber
-                                      applicant.setPhoneNumber(
-                                          applicantData
-                                              .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_DOB:
-                                      applicant.setDateOfBirth(
-                                          applicantData
-                                              .readDate(path.join(Scalar.DATE))
-                                              .orElse(null));
-                                      break;
-                                    default:
-                                      break;
+                                    }
+                                    case APPLICANT_EMAIL ->
+                                        applicant.setEmailAddress(
+                                            applicantData
+                                                .readString(path.join(Scalar.EMAIL))
+                                                .orElse(""));
+                                    case APPLICANT_PHONE ->
+                                        // Country code is set automatically by setPhoneNumber
+                                        applicant.setPhoneNumber(
+                                            applicantData
+                                                .readString(path.join(Scalar.PHONE_NUMBER))
+                                                .orElse(""));
+                                    case APPLICANT_DOB ->
+                                        applicant.setDateOfBirth(
+                                            applicantData
+                                                .readDate(path.join(Scalar.DATE))
+                                                .orElse(null));
                                   }
                                 });
                       });
@@ -564,10 +596,14 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      Request request) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
@@ -590,7 +626,6 @@ public final class ApplicantService {
               applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
-
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
@@ -664,16 +699,12 @@ public final class ApplicantService {
 
   public Optional<ImmutableSet<String>> getApplicantEmails(
       ApplicantPersonalInfo applicantPersonalInfo) {
-    switch (applicantPersonalInfo.getType()) {
-      case LOGGED_IN:
-        return applicantPersonalInfo.loggedIn().email();
-      case TI_PARTIALLY_CREATED:
-        return applicantPersonalInfo.tiPartiallyCreated().email();
-      case GUEST:
-        return applicantPersonalInfo.guest().email();
-      default:
-        return Optional.empty();
-    }
+    return switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN -> applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED -> applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST -> applicantPersonalInfo.guest().email();
+      default -> Optional.empty();
+    };
   }
 
   /**
@@ -1051,7 +1082,6 @@ public final class ApplicantService {
    * Get all active programs that are publicly visible, as if it was a brand new guest account, but
    * without requiring the account to be created yet.
    *
-   * @param request - The request object from loading the page
    * @return - CompletionStage of the relevant programs
    */
   public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
@@ -1078,7 +1108,7 @@ public final class ApplicantService {
    * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
-   *     <p>Does not include the Common Intake Form.
+   *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
    *     auth.CiviFormProfile)}.
    */
@@ -1125,6 +1155,15 @@ public final class ApplicantService {
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
+  }
+
+  /**
+   * Returns the program ID from the applicant's latest active or draft application for the
+   * specified program slug if one exists, or empty otherwise.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(String programSlug, long applicantId) {
+    return applicationRepository.getLatestProgramId(
+        applicantId, programSlug, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
   }
 
   private ApplicationPrograms relevantProgramsForApplicantInternal(
@@ -1177,16 +1216,15 @@ public final class ApplicantService {
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<ApplicationModel> maybeDraftApp =
-              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.DRAFT, /* defaultValue= */ Optional.empty());
           Optional<ApplicationModel> maybeSubmittedApp =
-              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, /* defaultValue= */ Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             ApplicationModel draftApp = maybeDraftApp.get();
             ProgramDefinition programDefinition =
-                getProgramDefinitionForDraftApplication(
-                    allPrograms, draftApp.getProgram().id, request);
+                getProgramDefinitionForDraftApplication(allPrograms, draftApp.getProgram().id);
 
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder(programDefinition)
@@ -1198,7 +1236,7 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
             if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+              relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());
             }
@@ -1276,9 +1314,13 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(applicant, program));
           }
 
-          if (program.isCommonIntakeForm()) {
-            relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-          } else {
+          ProgramType programType = program.programType();
+          if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+            relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
+          } else if (programType.equals(ProgramType.DEFAULT)
+              || (programType.equals(ProgramType.EXTERNAL)
+                  && settingsManifest.getExternalProgramCardsEnabled(request)
+                  && settingsManifest.getNorthStarApplicantUi(request))) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
@@ -1295,29 +1337,27 @@ public final class ApplicantService {
    * programId.
    */
   private ProgramDefinition getProgramDefinitionForDraftApplication(
-      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+      ImmutableList<ProgramDefinition> programList, long programId) {
 
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      // Check if the draft application is using the latest version of the program. If it
-      // is not, load the latest version of the program instead since we want to base this
-      // list off of current programs.
-      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+    // Check if the draft application is using the latest version of the program. If it
+    // is not, load the latest version of the program instead since we want to base this
+    // list off of current programs.
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
-      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
-        Optional<ProgramDefinition> programDefinitionOptional =
-            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+    if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+      Optional<ProgramDefinition> programDefinitionOptional =
+          programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
 
-        if (programDefinitionOptional.isPresent()) {
-          return programDefinitionOptional.get();
-        }
+      if (programDefinitionOptional.isPresent()) {
+        return programDefinitionOptional.get();
+      }
 
-        try {
-          // Didn't find it in the list we already had, so go fetch it
-          return programService.getFullProgramDefinition(latestProgramId.get());
-        } catch (ProgramNotFoundException e) {
-          throw new RuntimeException(
-              String.format("Can't find program id: %s", latestProgramId.get()), e);
-        }
+      try {
+        // Didn't find it in the list we already had, so go fetch it
+        return programService.getFullProgramDefinition(latestProgramId.get());
+      } catch (ProgramNotFoundException e) {
+        throw new RuntimeException(
+            String.format("Can't find program id: %s", latestProgramId.get()), e);
       }
     }
 
@@ -1622,64 +1662,55 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
-          case PHONE_NUMBER:
+          case PHONE_NUMBER -> {
             try {
               applicantData.putPhoneNumber(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case CURRENCY_CENTS:
+          }
+          case CURRENCY_CENTS -> {
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DATE:
+          }
+          case DATE -> {
             try {
               applicantData.putDate(currentPath, update.value());
             } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case LIST_OF_STRINGS:
-          case STRING:
-            applicantData.putString(currentPath, update.value());
-            break;
-          case LONG:
+          }
+          case LIST_OF_STRINGS, STRING -> applicantData.putString(currentPath, update.value());
+          case LONG -> {
             try {
               applicantData.putLong(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DOUBLE:
+          }
+          case DOUBLE -> {
             try {
               applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case SERVICE_AREA:
+          }
+          case SERVICE_AREA -> {
             // service areas get updated below
-            break;
-          default:
-            throw new UnsupportedScalarTypeException(type);
+          }
+          default -> throw new UnsupportedScalarTypeException(type);
         }
       }
     }
 
-    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
-      applicantData.putServiceAreaInclusionEntities(
-          serviceAreaUpdate
-              .get()
-              .path()
-              .parentPath()
-              .join(Scalar.SERVICE_AREAS.name())
-              .asArrayElement(),
-          serviceAreaUpdate.get().value());
-    }
+    serviceAreaUpdate.ifPresent(
+        areaUpdate ->
+            applicantData.putServiceAreaInclusionEntities(
+                areaUpdate.path().parentPath().join(Scalar.SERVICE_AREAS.name()).asArrayElement(),
+                areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
@@ -1711,10 +1742,10 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicationPrograms {
     /**
-     * Common Intake Form, if it exists and hasn't been submitted, is populated here and not in
+     * Pre-Screener Form, if it exists and hasn't been submitted, is populated here and not in
      * inProgress or unapplied, regardless of its application status.
      */
-    public abstract Optional<ApplicantProgramData> commonIntakeForm();
+    public abstract Optional<ApplicantProgramData> preScreenerForm();
 
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
@@ -1740,7 +1771,7 @@ public final class ApplicantService {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setCommonIntakeForm(ApplicantProgramData value);
+      abstract Builder setPreScreenerForm(ApplicantProgramData value);
 
       abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
 
@@ -1756,8 +1787,8 @@ public final class ApplicantService {
       ImmutableList.Builder<ApplicantProgramData> allPrograms =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      if (commonIntakeForm().isPresent()) {
-        allPrograms.add(commonIntakeForm().get());
+      if (preScreenerForm().isPresent()) {
+        allPrograms.add(preScreenerForm().get());
       }
       allPrograms.addAll(inProgress());
       allPrograms.addAll(submitted());
@@ -1766,17 +1797,17 @@ public final class ApplicantService {
     }
 
     /**
-     * Returns all programs that are in progress, including the Common Intake Form, which usually is
+     * Returns all programs that are in progress, including the Pre-Screener Form, which usually is
      * not included in the inProgress list.
      */
-    public ImmutableList<ApplicantProgramData> inProgressIncludingCommonIntake() {
+    public ImmutableList<ApplicantProgramData> inProgressIncludingPreScreener() {
       ImmutableList.Builder<ApplicantProgramData> inProgress =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      commonIntakeForm()
+      preScreenerForm()
           .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
           .filter(stage -> stage.equals(LifecycleStage.DRAFT))
-          .ifPresent(programData -> inProgress.add(commonIntakeForm().get()));
+          .ifPresent(programData -> inProgress.add(preScreenerForm().get()));
 
       inProgress.addAll(inProgress());
       return inProgress.build();

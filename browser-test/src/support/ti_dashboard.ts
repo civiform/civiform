@@ -81,7 +81,8 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
+
     await this.page.fill('#email-input', newEmail)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
@@ -98,7 +99,8 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
+
     await this.page.fill('#phone-number-input', phone)
     await this.page.fill('#ti-note-input', tiNote)
     await this.page.click('text="Save"')
@@ -112,7 +114,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
 
     // The success alert should not be present before the form is submitted
     await this.expectSuccessAlertNotPresent()
@@ -134,7 +136,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
     expect(await this.page.textContent('html')).toContain(client.notes)
   }
 
@@ -175,14 +177,14 @@ export class TIDashboard {
   }
 
   async expectClientContainsProgramNames(programs: string[]) {
-    const cardContainer = this.page.locator('#card_applications')
-    const programsText = await cardContainer.innerText()
-    expect(programsText).toBe(programs.join(', '))
+    await expect(this.page.locator('#card_applications')).toHaveText(
+      programs.join(', '),
+    )
   }
 
   async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {
     await this.page.fill('label:has-text("Day")', dobDay)
-    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.selectOption('#date-of-birth-month', dobMonth)
     await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
@@ -195,7 +197,7 @@ export class TIDashboard {
   ) {
     await this.page.fill('label:has-text("Search by name(s)")', name)
     await this.page.fill('label:has-text("Day")', dobDay)
-    await this.page.selectOption('#date_of_birth_month', dobMonth)
+    await this.page.selectOption('#date-of-birth-month', dobMonth)
     await this.page.fill('label:has-text("Year")', dobYear)
     await this.page.click('button:text("Search")')
   }
@@ -205,6 +207,16 @@ export class TIDashboard {
       .locator('.usa-card__container a:text("View applications")')
       .click()
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectEditHeadingToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'Edit Client'}),
+    ).toBeVisible()
+  }
+
+  async expectSearchHeadingToBeVisible() {
+    await expect(this.page.getByRole('heading', {name: 'Search'})).toBeVisible()
   }
 
   async expectSuccessToast(successToastMessage: string) {
@@ -262,17 +274,17 @@ export class TIDashboard {
   ) {
     if (missingMonth) {
       expect(
-        this.page.locator('#date_of_birth_month .usa-input--error'),
+        this.page.locator('#date-of-birth-month .usa-input--error'),
       ).not.toBeNull()
     }
     if (missingDay) {
       expect(
-        this.page.locator('#date_of_birth_day .usa-input--error'),
+        this.page.locator('#date-of-birth-day .usa-input--error'),
       ).not.toBeNull()
     }
     if (missingYear) {
       expect(
-        this.page.locator('#date_of_birth_year .usa-input--error'),
+        this.page.locator('#date-of-birth-year .usa-input--error'),
       ).not.toBeNull()
     }
   }

@@ -42,7 +42,6 @@ import services.settings.SettingsManifest;
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
-  private final ObjectMapper mapper = new ObjectMapper();
 
   private static final Counter ESRI_REQUEST_C0UNT =
       Counter.build()
@@ -77,15 +76,16 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   private final Optional<Integer> ESRI_WELLKNOWN_ID_OVERRIDE;
   private final Optional<String> ESRI_ARCGIS_API_TOKEN;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RealEsriClient.class);
+  private static final Logger logger = LoggerFactory.getLogger(RealEsriClient.class);
 
   @Inject
   public RealEsriClient(
       SettingsManifest settingsManifest,
       Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      WSClient ws) {
-    super(clock, esriServiceAreaValidationConfig);
+      WSClient ws,
+      ObjectMapper mapper) {
+    super(clock, esriServiceAreaValidationConfig, mapper);
     checkNotNull(settingsManifest);
     this.ws = checkNotNull(ws);
 
@@ -114,7 +114,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     }
 
     if (urls.stream().anyMatch(url -> isArcGisOnlineService(url) && esriArcgisApiToken.isEmpty())) {
-      LOGGER.error(
+      logger.error(
           "ArcGis Online requires an api token, but one was not configured. ArcGis Online will not"
               + " be used for address correction.");
     }
@@ -132,7 +132,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     responsePromise.handle(
         (result, error) -> {
           if (error != null || result.getStatus() != 200) {
-            LOGGER.error(
+            logger.error(
                 "Esri API error: {}", error != null ? error.toString() : result.getStatusText());
             if (retries > 0) {
               return tryRequest(request, retryCount.decrementAndGet());
@@ -205,14 +205,14 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
                       mapper.readValue(
                           wsResponse.asJson().toString(), FindAddressCandidatesResponse.class);
                 } catch (JsonProcessingException e) {
-                  LOGGER.error("Unable to parse JSON from wsResponse", e);
+                  logger.error("Unable to parse JSON from wsResponse", e);
                   return processAddressSuggestionUrlsSequentially(
                       addressJson, nextSetOfUrls, Optional.empty());
                 }
 
                 // Check if an error result object was sent from the service.
                 if (response.error().isPresent()) {
-                  LOGGER.error(response.error().get().errorMessage());
+                  logger.error(response.error().get().errorMessage());
                   return processAddressSuggestionUrlsSequentially(
                       addressJson, nextSetOfUrls, Optional.empty());
                 }

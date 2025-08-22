@@ -1,6 +1,6 @@
 <!--/* TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. */-->
 <div
-  th:fragment="enumerator(question)"
+  th:fragment="enumerator(question,enumMaxEntityCount)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
@@ -9,6 +9,7 @@
   class="cf-question-enumerator cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
@@ -21,7 +22,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <div
@@ -58,7 +59,7 @@
         th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
         id="enumerator-field-add-button"
         th:attr="data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
-                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : ''}"
+                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
         type="button"
         class="usa-button usa-button--outline margin-top-105"
       ></button>

@@ -3,11 +3,14 @@
     <!-- Horizontal separator line -->
     <div class="border-top border-base-lighter content"></div>
 
-    <div class="usa-prose container">
+    <div
+      class="usa-prose container"
+      th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+    >
       <!-- TODO(#5510): Add indicator for optional questions -->
       <span
         class="grid-col-6 left-align zero-margin mobile-truncate-3"
-        th:utext="${answerData.questionHtml()}"
+        th:utext="${answerData.questionHtml(ariaLabelForNewTabs)}"
       ></span>
       <div th:replace="~{this :: multilineAnswer(${answerData})}"></div>
     </div>
@@ -15,10 +18,7 @@
 </th:block>
 
 <th:block th:fragment="multilineAnswer(answerData)">
-  <ol
-    id="summary-multiline-list"
-    class="grid-col-6 right-align usa-list usa-list--unstyled"
-  >
+  <ol id="summary-multiline-list" class="grid-col-6 usa-list--unstyled">
     <li
       th:each="answerLine, status : ${answerData.multilineAnswerText()}"
       class="usa-prose"

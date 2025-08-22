@@ -91,34 +91,18 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setCondOnStorageKey("session_just_ended")
             .setDuration(5000));
 
-    // TODO(#7610): When the program filtering flag is removed, we can remove this conditional
-    // statement.
-    if (settingsManifest.getProgramFilteringEnabled(request)) {
-      bundle.addMainContent(
-          topContent(request, messages, personalInfo),
-          mainContentWithProgramFiltersEnabled(
-              request,
-              messages,
-              personalInfo,
-              applicationPrograms,
-              selectedCategoriesFromParams,
-              applicantId,
-              messages.lang().toLocale(),
-              bundle,
-              profile));
-    } else {
-      bundle.addMainContent(
-          topContent(request, messages, personalInfo),
-          mainContent(
-              request,
-              messages,
-              personalInfo,
-              applicationPrograms,
-              applicantId,
-              messages.lang().toLocale(),
-              bundle,
-              profile));
-    }
+    bundle.addMainContent(
+        topContent(request, messages, personalInfo),
+        mainContent(
+            request,
+            messages,
+            personalInfo,
+            applicationPrograms,
+            selectedCategoriesFromParams,
+            applicantId,
+            messages.lang().toLocale(),
+            bundle,
+            profile));
 
     return layout.renderWithNav(
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
@@ -225,104 +209,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
-      Optional<Long> applicantId,
-      Locale preferredLocale,
-      HtmlBundle bundle,
-      Optional<CiviFormProfile> profile) {
-    DivTag content =
-        div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
-
-    // The different program card containers should have the same styling, by using the program
-    // count of the larger set of programs
-    String cardContainerStyles =
-        programCardViewRenderer.programCardsContainerStyles(
-            Math.max(
-                Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
-                relevantPrograms.inProgress().size()));
-
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
-      content.with(
-          findServicesSection(
-              request,
-              messages,
-              personalInfo,
-              relevantPrograms,
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              bundle,
-              profile),
-          div().withClass("mb-12"),
-          programSectionTitle(
-              messages.at(
-                  MessageKey.TITLE_ALL_PROGRAMS_SECTION.getKeyName(),
-                  relevantPrograms.inProgress().size()
-                      + relevantPrograms.submitted().size()
-                      + relevantPrograms.unapplied().size())));
-    } else {
-      content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
-    }
-
-    if (!relevantPrograms.inProgress().isEmpty()) {
-      content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.inProgress(),
-              MessageKey.BUTTON_CONTINUE,
-              MessageKey.BUTTON_CONTINUE_SR,
-              bundle,
-              profile,
-              /* isMyApplicationsSection= */ false));
-    }
-    if (!relevantPrograms.submitted().isEmpty()) {
-      content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.submitted(),
-              MessageKey.BUTTON_EDIT,
-              MessageKey.BUTTON_EDIT_SR,
-              bundle,
-              profile,
-              /* isMyApplicationsSection= */ false));
-    }
-    if (!relevantPrograms.unapplied().isEmpty()) {
-      content.with(
-          programCardViewRenderer.programCardsSection(
-              request,
-              messages,
-              personalInfo,
-              Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
-              cardContainerStyles,
-              applicantId,
-              preferredLocale,
-              relevantPrograms.unapplied(),
-              MessageKey.BUTTON_APPLY,
-              MessageKey.BUTTON_APPLY_SR,
-              bundle,
-              profile,
-              /* isMyApplicationsSection= */ false));
-    }
-
-    return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
-  }
-
-  private DivTag mainContentWithProgramFiltersEnabled(
-      Http.Request request,
-      Messages messages,
-      ApplicantPersonalInfo personalInfo,
-      ApplicantService.ApplicationPrograms relevantPrograms,
       ImmutableList<String> selectedCategoriesFromParams,
       Optional<Long> applicantId,
       Locale preferredLocale,
@@ -396,7 +282,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     // The category buttons
-    if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
+    if (!relevantCategories.isEmpty()) {
       content.with(
           renderCategoryFilterChips(
               profile, applicantId, relevantCategories, selectedCategoriesFromParams, messages));
@@ -496,7 +382,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       DivTag content,
       String cardContainerStyles) {
     // Intake form
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.preScreenerForm().isPresent()) {
       content.with(
           findServicesSection(
               request,
@@ -541,28 +427,26 @@ public final class ProgramIndexView extends BaseHtmlView {
       HtmlBundle bundle,
       Optional<CiviFormProfile> profile) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
-        relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
+        relevantPrograms.preScreenerForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
+    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_PRE_SCREENER_SR;
     if (commonIntakeFormApplicationStatus.isPresent()) {
       switch (commonIntakeFormApplicationStatus.get()) {
-        case ACTIVE:
+        case ACTIVE -> {
           buttonText = MessageKey.BUTTON_EDIT;
-          buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
-          break;
-        case DRAFT:
+          buttonScreenReaderText = MessageKey.BUTTON_EDIT_PRE_SCREENER_SR;
+        }
+        case DRAFT -> {
           buttonText = MessageKey.BUTTON_CONTINUE;
-          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
-          break;
-        default:
+          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_PRE_SCREENER_SR;
+        }
+        default -> {
           // Leave button text as is.
+        }
       }
     }
 
-    String titleMessage =
-        settingsManifest.getProgramFilteringEnabled(request)
-            ? messages.at(MessageKey.TITLE_BENEFITS_FINDER_SECTION_V2.getKeyName())
-            : messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName());
+    String titleMessage = messages.at(MessageKey.TITLE_BENEFITS_FINDER_SECTION_V2.getKeyName());
 
     return div()
         .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
@@ -576,7 +460,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
-                ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+                ImmutableList.of(relevantPrograms.preScreenerForm().get()),
                 buttonText,
                 buttonScreenReaderText,
                 bundle,

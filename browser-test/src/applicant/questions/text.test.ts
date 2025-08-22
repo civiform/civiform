@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -7,6 +8,10 @@ import {
 } from '../../support'
 
 test.describe('Text question for applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single text question', () => {
     const programName = 'Test program for single text q'
 

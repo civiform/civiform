@@ -3,13 +3,9 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -37,13 +33,10 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
 import play.inject.BindingKey;
-import play.mvc.Http.Request;
-import repository.ApplicationStatusesRepository;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -64,7 +57,6 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -76,10 +68,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
-  private SettingsManifest mockSettingsManifest;
   private CategoryRepository categoryRepository;
-  private final Request request = fakeRequest();
-  private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before
   public void setProgramServiceImpl() {
@@ -88,7 +77,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
-    applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Before
@@ -98,8 +86,6 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
     categoryRepository = instanceOf(CategoryRepository.class);
   }
 
@@ -173,7 +159,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
@@ -185,7 +170,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDisabledActiveProgram("program2")
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED)
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()
@@ -261,7 +246,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
-    assertThat(result.getResult().id()).isNotNull();
+    assertThat(result.getResult()).isNotNull();
+    assertThat(result.getResult().id()).isPositive();
   }
 
   @Test
@@ -908,11 +894,11 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_returnsErrorWhenNoSteps() {
+  public void checkApplicationStepErrors_defaultProgram_returnsErrorWhenNoSteps() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
     ImmutableSet<CiviFormError> errors =
-        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
 
     assertThat(errors.size()).isEqualTo(1);
     assertThat(
@@ -922,7 +908,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_returnsErrorWhenMissingTitleOrDescription() {
+  public void
+      checkApplicationStepErrors_defaultProgram_returnsErrorWhenMissingTitleOrDescription() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps =
         ImmutableList.of(
@@ -930,12 +917,35 @@ public class ProgramServiceTest extends ResetPostgres {
             new ApplicationStep("title two", ""),
             new ApplicationStep("", "description three"));
     ImmutableSet<CiviFormError> errors =
-        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
 
     assertThat(errors.size()).isEqualTo(2);
     assertThat(errors.contains(CiviFormError.of("Application step 2 is missing a description")))
         .isTrue();
     assertThat(errors.contains(CiviFormError.of("Application step 3 is missing a title"))).isTrue();
+  }
+
+  @Test
+  public void checkApplicationStepErrors_externalProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(ProgramType.EXTERNAL, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkApplicationStepErrors_commonIntakeProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(
+                ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
   }
 
   @Test
@@ -956,7 +966,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     /* eligibilityIsGating= */ true,
                     ProgramType.DEFAULT,
                     ImmutableList.of(),
-                    /* categories= */ ImmutableList.of(),
+                    /* categoryIds= */ ImmutableList.of(),
                     ImmutableList.of(new ApplicationStep("title", "description"))))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
@@ -982,7 +992,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1023,7 +1033,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 /* eligibilityIsGating= */ true,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
-                /* categories= */ ImmutableList.of(),
+                /* categoryIds= */ ImmutableList.of(),
                 ImmutableList.of(new ApplicationStep("title", "description")))
             .getResult();
 
@@ -1051,7 +1061,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isFalse();
@@ -1081,7 +1091,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     // check that the confirmation screen message saved
@@ -1106,7 +1116,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
     assertThat(secondProgramUpdate.localizedConfirmationMessage())
@@ -1130,7 +1140,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
     assertThat(thirdProgramUpdate.localizedConfirmationMessage())
@@ -1175,7 +1185,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1224,7 +1234,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1265,7 +1275,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1312,7 +1322,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1361,7 +1371,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
@@ -1415,7 +1425,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* eligibilityIsGating= */ true,
             ProgramType.DEFAULT,
             ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(
                 new ApplicationStep("new step one title", "step one description"),
                 new ApplicationStep("step two title", "new step two description"),
@@ -1617,6 +1627,28 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getActiveOrDraftProgramDefinitionAsync_getsDraftProgram() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getActiveOrDraftProgramDefinitionAsync_getsActiveProgram() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
+
     ProgramDefinition found = ps.getDraftFullProgramDefinition(programDefinition.slug());
 
     assertThat(found.id()).isEqualTo(programDefinition.id());
@@ -1629,6 +1661,40 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> ps.getDraftFullProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
         .hasMessageContaining("Program draft not found for slug: non-existent-program");
+  }
+
+  @Test
+  public void getSlug() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+    String foundSlug = ps.getSlug(programDefinition.id());
+
+    assertThat(foundSlug).isEqualTo(programDefinition.slug());
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void getActiveProgramId_success() {
+    ProgramDefinition activeProgram =
+        ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    CompletionStage<Long> result = ps.getActiveProgramId(activeProgram.slug());
+
+    assertThat(result.toCompletableFuture().join()).isEqualTo(activeProgram.id());
+  }
+
+  @Test
+  public void getActiveProgramId_error_programNotFound() {
+    CompletionStage<Long> result = ps.getActiveProgramId("nonexistent-program");
+
+    assertThatThrownBy(() -> result.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(java.lang.RuntimeException.class)
+        .hasMessageContaining("Program not found for slug: nonexistent-program");
   }
 
   @Test
@@ -2443,10 +2509,16 @@ public class ProgramServiceTest extends ResetPostgres {
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
     ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage().equals(eligibilityMsg));
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(eligibilityMsg);
   }
 
   @Test
@@ -2461,14 +2533,24 @@ public class ProgramServiceTest extends ResetPostgres {
         Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
 
     ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage().equals(firstEligibilityMsg));
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage().equals(secondEligibilityMsg));
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    BlockDefinition blockWithSetEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(firstEligibilityMsg);
+
+    ProgramDefinition programAfterEligibilityMessageUpdate =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageUpdate.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(secondEligibilityMsg);
   }
 
   @Test
@@ -3142,8 +3224,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(programId)))
                     .build())
             .build();
-    ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+    ObjectMapper mapper = instanceOf(ObjectMapper.class);
 
     // Directly update the table with DB.sqlUpdate and execute. We can't save it through
     // the ebean model because the preupdate method will correct block ordering, and we
@@ -3345,7 +3426,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void anyDisabledPrograms_checks_disabledProgramExist() {
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
     // When there are no programs, there are no disabled programs.
     assertThat(ps.anyDisabledPrograms()).isFalse();
 
@@ -3360,7 +3440,7 @@ public class ProgramServiceTest extends ResetPostgres {
     // Adding disabled programs changes the result.
     ProgramBuilder.newDisabledDraftProgram("program1").buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
-    ProgramBuilder.newDisabledActiveProgram("program2").buildDefinition();
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED).buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
 
     // Adding an active program doesn't change the result.

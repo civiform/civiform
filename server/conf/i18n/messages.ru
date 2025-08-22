@@ -25,6 +25,8 @@ footer.returnToTop=Вернуться к началу страницы
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Служба технической поддержки: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=Чтобы обратиться в службу технической поддержки, используйте адрес {0}.
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Гость
@@ -36,6 +38,10 @@ label.languageSr=Выбрать язык
 header.menu=Меню
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Завершить сеанс
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=Для справки: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Готово: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Сеанс завершен.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -61,6 +67,8 @@ toast.errorMessageOutline=Ошибка: {0}.
 button.close=Закрыть
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Проверить ответы
+# Button text that will go back to the previous page.
+button.goBack=Назад
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
 # Aria-label for the primary navigation
@@ -69,6 +77,8 @@ label.primaryNavigation=Основное меню навигации
 label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
+# Link to skip to the main content of the page
+link.skipToMainContent=Перейти к основному контенту
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -82,6 +92,8 @@ content.loginPrompt=Войдите в свой аккаунт, зарегист�
 button.createAnAccount=Создать аккаунт
 # The text on the button an applicant clicks to log in to their session.
 button.login=Войти
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Войти
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Нет аккаунта?
 # The text between creating a new account, and becoming a guest
@@ -123,7 +135,7 @@ button.previousScreen=Перейти к предыдущему экрану
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Назад
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Проверить и закрыть форму заявки
+button.reviewAndExit=Проверить и подать заявку
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Пропустить
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -144,8 +156,14 @@ link.allDone=Завершить сеанс
 link.applyToAnotherProgram=Подать заявку на участие в другой программе
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Создать аккаунт или войти
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Главная
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Заявка: "{0}"
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Удалить файл
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Удалить файл "{0}"
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=На этой странице заполнены не все поля. Вы все равно хотите покинуть ее и проверить свои ответы?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -160,6 +178,18 @@ modal.errorSaving.review.noSaveButton=Не сохранять и перейти 
 modal.errorSaving.previous.noSaveButton=Не сохранять и перейти на предыдущую страницу формы
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Остаться и исправить
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Исправьте ошибки в ответах на этой странице
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=На этой странице есть ошибки в ответах или незаполненные поля. Если вы перейдете к проверке заявки, введенная здесь информация будет потеряна. Чтобы ответы сохранились, исправьте ошибки.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=На этой странице есть ошибки в ответах или незаполненные поля. Если вы вернетесь к предыдущему экрану, введенная здесь информация будет потеряна. Чтобы ответы сохранились, исправьте ошибки.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Не сохранять и перейти к проверке
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Не сохранять и вернуться
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Исправить ошибки на этой странице
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -177,18 +207,24 @@ button.editSr=Изменить отправленную заявку на уча
 button.continueSr=Продолжить заполнять заявку на участие в программе "{0}"
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Начать
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Пройти опрос
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Узнать больше и подать заявку на участие в программе "{0}"
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Открыть в новой вкладке
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Открыть "{0}" в новой вкладке
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Заполнить форму "{0}"
+button.startHerePreScreenerSr=Заполнить форму "{0}"
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=Изменить сведения, указанные в форме "{0}"
+button.editPreScreenerSr=Изменить сведения, указанные в форме "{0}"
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Продолжить заполнять форму "{0}"
+button.continuePreScreenerSr=Продолжить заполнять форму "{0}"
 # Text describing the date the application was last submitted.
 content.submittedDate=Вы отправили заявку {0}
 # Text for applicants to understand the section is for finding programs
@@ -198,14 +234,24 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
-heading.homepage=Подавайте заявки на участие в программах поддержки
+heading.homepage=Подайте заявку на государственную поддержку
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Подавайте онлайн-заявки на участие в государственных программах
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
-content.homepageIntro=Получайте помощь с оплатой расходов на уход за детьми, питание, транспорт, коммунальные услуги и многое другое.
+content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Узнайте, какие услуги могут быть вам доступны. Вам не нужно каждый раз вводить свои данные.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
+# The label for the program filter checkboxes
+label.programFilters.v2=С чем вам нужна помощь?
+# The button to apply program filters
+button.applySelections=Применить фильтры
+# The button to clear program filter selections
+button.clearSelections=Удалить фильтры
 # Link text to read more about a program.
 link.programDetails=Сведения о программе
 # The same text, read for screen readers.
@@ -233,7 +279,7 @@ title.otherProgramsSection.v2=Другие программы и услуги ({
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Программы и услуги ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Доступные программы и услуги
+title.availableProgramsSection=Программы и услуги
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Программы по фильтрам ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -252,6 +298,10 @@ label.submitted=Заявка подана
 label.submittedOn=Заявка подана {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Страница откроется на другом сайте
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Чтобы перейти на сайт программы, где вы сможете узнать о ней больше и подать заявку, нажмите "Продолжить".
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -424,7 +474,7 @@ ariaLabel.answer=Ответить на вопрос "{0}"
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Изменить ответ на вопрос "{0}"
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Сводные данные об этой форме
+title.preScreenerSummary=Сводные данные об этой форме
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Давайте начнем
 title.programSummary=Сводные данные о заявке на участие в программе
@@ -460,6 +510,7 @@ heading.eligibilityCriteria=Подробнее о критериях допус�
 content.eligibilityCriteria=Чтобы ознакомиться с требованиями, перейдите на страницу {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0}.
+content.eligibilityCriteria.v3=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0} (откроется в новой вкладке).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Вы можете вернуться на предыдущую страницу, чтобы изменить предоставленные сведения, или подать заявку на участие в другой программе.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -534,6 +585,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=В форме заявки 
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Судя по ответам в другой заявке, вы подходите под требования этой программы.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Судя по ответам в другой заявке, эта программа может вам не подходить.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Судя по ответам в другой заявке, эта программа может подходить вашему клиенту.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Судя по ответам в другой заявке, эта программа может не подходить вашему клиенту.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -545,6 +602,10 @@ title.applicationConfirmation=Подтверждение заявки
 content.confirmed=Благодарим вас! Мы получили вашу заявку на участие в программе "{0}"  и присвоили ей идентификатор {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Зарегистрируйтесь или войдите в аккаунт
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Войдите в аккаунт
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Создав аккаунт, вы сможете проверять статус заявки, изменять ее и быстро подавать новые.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Чтобы вся указанная вами информация сохранилась и вы могли в любое время использовать ее для подачи будущих заявок, войдите в ваш аккаунт, зарегистрированный в сервисе "{0}". Если у вас нет аккаунта, вы можете создать его на странице входа.
@@ -554,23 +615,23 @@ content.generalLoginModalPrompt=Вы не вошли в аккаунт. Без �
 content.initialLoginModalPrompt=Прежде чем продолжить, войдите в свой аккаунт, зарегистрированный в сервисе "{0}". Тогда вам не придется повторно вводить свою информацию при подаче нескольких заявок. Вы также сможете изменять заполненные заявки и проверять их статус. Если у вас нет аккаунта, вы можете его создать.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Продолжить без входа в аккаунт
-title.commonIntakeConfirmation=Программы, которые могут быть вам доступны
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Программы, которые могут быть доступны вашему клиенту
+title.preScreenerConfirmation=Программы, которые могут быть вам доступны
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Программы, которые могут быть доступны вашему клиенту
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Возможно, вы соответствуете критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
+content.preScreenerConfirmation=Возможно, вы соответствуете критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=На основе ваших ответов мы подобрали программы, которые могут быть вам доступны:
+content.preScreenerConfirmation.v2=На основе ваших ответов мы подобрали программы, которые могут быть вам доступны:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Возможно, ваш клиент соответствует критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
+content.preScreenerConfirmationTi=Возможно, ваш клиент соответствует критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=На основе ваших ответов мы подобрали программы, которые могут быть доступны вашему клиенту:
+content.preScreenerConfirmationTi.v2=На основе ваших ответов мы подобрали программы, которые могут быть доступны вашему клиенту:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть вам доступны. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
+content.preScreenerNoMatchingPrograms=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть вам доступны. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть доступны вашему клиенту. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
+content.preScreenerNoMatchingProgramsTi=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть доступны вашему клиенту. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Вы также можете вернуться на предыдущую страницу и изменить свои ответы.
+content.preScreenerNoMatchingProgramsNextStep=Вы также можете вернуться на предыдущую страницу и изменить свои ответы.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Другие программы, которые могут быть вам интересны
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
@@ -579,7 +640,7 @@ button.downloadPdf=Скачать в формате PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Зарегистрироваться в программах
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Сведения о поданной вами заявке
+heading.yourSubmissionInformation=Данные вашей заявки
 # Text above the name of the person who submitted this application
 heading.applicantName=Отправитель заявки
 # Text above the confirmation number of the application
@@ -595,11 +656,13 @@ heading.nextSteps=Что мне нужно делать дальше?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Вы отправили заявку на участие в программе "{0}"
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Создайте аккаунт, чтобы сохранить сведения о заявке и свои данные
+alert.createAccount=Чтобы вернуться к заявке позже, создайте аккаунт
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Зарегистрировавшись, вы сможете проверять статус отправленной заявки и быстрее заполнять формы для участия в других программах.
+alert.createAccountDescription=Сохранив информацию в аккаунте, вы сможете проверять статус заявки и быстро подавать новые.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Вы создали или подали заявки на участие во всех программах, доступных в настоящее время.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Войти в существующий аккаунт
+content.loginToExistingAccount=Войти с существующим аккаунтом
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +751,21 @@ validation.phoneMustBeLocalToCountry=Указанный номер телефо�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Укажите дату в правильном формате.
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Допустимый период – последние {0} лет.
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Дата должна быть позже текущей.
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Дата должна быть позже {0}.
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Дата должна быть раньше текущей.
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Дата должна быть раньше {0}.
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Дата должна быть между {0} и {1}.
+validation.currentDateRequired=Введите сегодняшнюю дату.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -827,6 +905,15 @@ validation.textTooLong=Максимально допустимое число с
 validation.textTooShort=Минимально допустимое число символов: {0}.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Да
+option.no=Нет
+option.notSure=Затрудняюсь ответить
+option.maybe=Возможно
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -881,8 +968,6 @@ email.tiApplicationUpdateBody=Статус заявки, отправленно�
 #------------------------------------------------------------------------------#
 
 banner.title=Официальный правительственный сайт.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Официальный сайт правительства США.
 banner.link=Вот как это проверить
 banner.govWebsiteSectionHeader=Официальные сайты используют домен ".gov"
 banner.govWebsiteSectionContent=Адреса сайтов, заканчивающиеся на ".gov", принадлежат правительственным организациям США.
@@ -902,7 +987,7 @@ banner.notForProductionBannerLine2=Чтобы подать заявку на у�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Вы подаете заявку в качестве гостя. После того как вы ее отправите, {0}, чтобы защитить свои данные.
+banner.guestBannerText=После подачи заявки {0}, чтобы защитить данные.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=завершите сеанс
 
@@ -947,3 +1032,34 @@ category.tag.transportation=Транспорт
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Коммунальные услуги
+
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Категории
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Вы слишком долго были неактивны
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Сеанс скоро закончится. Хотите его продлить?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Слишком долгий сеанс
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Сеанс скоро закончится. Сохраните изменения и, если нужно, заново войдите в аккаунт.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Продлить сеанс
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Сеанс продлен.
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Не удалось продлить сеанс.
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

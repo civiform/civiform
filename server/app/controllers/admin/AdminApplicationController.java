@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -56,19 +57,16 @@ import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
-import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
-  private static final int PAGE_SIZE = 10;
   private static final int PAGE_SIZE_BULK_STATUS = 100;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
@@ -76,7 +74,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final ApplicantService applicantService;
   private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
-  private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ProgramService programService;
   private final CsvExporterService exporterService;
@@ -86,7 +83,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
   private final StatusService statusService;
-  private final SettingsManifest settingsManifest;
   private final ProgramApplicationTableView tableView;
 
   public enum RelativeTimeOfDay {
@@ -105,7 +101,6 @@ public final class AdminApplicationController extends CiviFormController {
       FormFactory formFactory,
       JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
-      ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
@@ -114,12 +109,10 @@ public final class AdminApplicationController extends CiviFormController {
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
       StatusService statusService,
-      SettingsManifest settingsManifest,
       ProgramApplicationTableView tableView) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
-    this.applicationListView = checkNotNull(applicationListView);
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
@@ -130,7 +123,6 @@ public final class AdminApplicationController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.tableView = checkNotNull(tableView);
   }
 
@@ -168,6 +160,7 @@ public final class AdminApplicationController extends CiviFormController {
                           parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                       .build())
               .setApplicationStatus(applicationStatus)
+              .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
               .build();
     }
 
@@ -209,6 +202,8 @@ public final class AdminApplicationController extends CiviFormController {
                             parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                         .build())
                 .setApplicationStatus(applicationStatus)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build();
       }
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
@@ -237,14 +232,11 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                switch (relativeTimeOfDay) {
-                  case START:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                  case END:
-                    return dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
-                  default:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                }
+                return switch (relativeTimeOfDay) {
+                  case START -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                  case END -> dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
+                  default -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                };
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -491,6 +483,7 @@ public final class AdminApplicationController extends CiviFormController {
                         parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                     .build())
             .setApplicationStatus(applicationStatus)
+            .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
             .build();
 
     final ProgramDefinition program;
@@ -505,46 +498,20 @@ public final class AdminApplicationController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
-      var paginationSpec =
-          new PageNumberPaginationSpec(
-              PAGE_SIZE_BULK_STATUS,
-              page.orElse(1),
-              PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
-      PaginationResult<ApplicationModel> applications =
-          programService.getSubmittedProgramApplicationsAllVersions(
-              programId, paginationSpec, filters);
-      return ok(
-          tableView.render(
-              request,
-              profile,
-              program,
-              activeStatusDefinitions,
-              getAllApplicationStatusesForProgram(program.id()),
-              paginationSpec,
-              applications,
-              RenderFilterParams.builder()
-                  .setSearch(search)
-                  .setFromDate(fromDate)
-                  .setUntilDate(untilDate)
-                  .setSelectedApplicationStatus(applicationStatus)
-                  .build(),
-              showDownloadModal,
-              message));
-    }
     var paginationSpec =
         new PageNumberPaginationSpec(
-            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
+            PAGE_SIZE_BULK_STATUS,
+            page.orElse(1),
+            PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);
     return ok(
-        applicationListView.render(
+        tableView.render(
             request,
             profile,
             program,
-            activeStatusDefinitions.getDefaultStatus(),
+            activeStatusDefinitions,
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
@@ -554,8 +521,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .setUntilDate(untilDate)
                 .setSelectedApplicationStatus(applicationStatus)
                 .build(),
-            selectedApplicationUri,
-            showDownloadModal));
+            showDownloadModal,
+            message));
   }
 
   /**

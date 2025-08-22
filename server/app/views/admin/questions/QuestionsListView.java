@@ -32,7 +32,6 @@ import models.DisplayMode;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
@@ -77,11 +76,23 @@ public final class QuestionsListView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
-    this.settingsManifest = settingsManifest;
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  /** Renders a page with a list view of all questions. */
-  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+  /**
+   * Renders a page with an (optionally filtered) list view of all questions.
+   *
+   * @param activeAndDraftQuestions a list of all active and draft questions, including the programs
+   *     that use them.
+   * @param filter an optional filter with which to render the question bank. This filter will
+   *     pre-populate the search bar, and can be overriden by the user at any point.
+   * @param request the HTTP request
+   * @return the rendered page
+   */
+  public Content render(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Optional<String> filter,
+      Http.Request request) {
     String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
@@ -92,18 +103,21 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
+                    .withClasses("content-div", "space-x-4")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url(),
-                            /* isPrimaryButton= */ true)),
+                            controllers.admin.routes.AdminQuestionController.index(Optional.empty())
+                                .url(),
+                            /* isPrimaryButton= */ true,
+                            settingsManifest)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
                         QuestionSortOption.ADMIN_NAME,
-                        QuestionSortOption.NUM_PROGRAMS)))
+                        QuestionSortOption.NUM_PROGRAMS),
+                    filter))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
@@ -122,7 +136,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // and has a draft.
     return div(String.format(
             "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses("float-right", "text-base", "px-4", "my-2");
+        .withClasses("question-summary");
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
@@ -154,8 +168,7 @@ public final class QuestionsListView extends BaseHtmlView {
                       .setReferencingPrograms(
                           createReferencingPrograms(
                               referencingPrograms.activeReferences(),
-                              referencingPrograms.draftReferences(),
-                              request))
+                              referencingPrograms.draftReferences()))
                       .build();
                 })
             .sorted(
@@ -201,11 +214,9 @@ public final class QuestionsListView extends BaseHtmlView {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using Universal questions in your program for all personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(universalQuestionContent));
     }
     questionContent.with(
@@ -266,8 +277,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(
-            latestDefinition.getName(), cardData.referencingPrograms(), request);
+        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -305,12 +315,7 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
-                "w-full",
-                "my-4",
-                "pl-6",
-                "border-gray-300",
-                "rounded-lg",
-                "border",
+                "question-bank-element",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
                 getDisplayQuestion(cardData).isUniversal(),
@@ -358,14 +363,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(
-                "py-7",
-                "flex",
-                "flex-row",
-                "items-center",
-                StyleUtils.hover("bg-gray-100"),
-                "cursor-pointer",
-                isSecondRow ? "border-t" : "")
+            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
             .with(badge)
             .with(div().withClasses("flex-grow"))
             .with(
@@ -383,20 +381,30 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
+            .withClasses("question-bank-info-cell")
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
-                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
+                    .withClasses(
+                        ReferenceClasses.ADMIN_QUESTION_TITLE,
+                        "pl-4",
+                        "text-xl",
+                        "break-words",
+                        "max-w-full"));
     String questionDescriptionString =
         definition.getQuestionHelpText().isEmpty()
             ? ""
             : definition.getQuestionHelpText().getDefault();
     DivTag questionDescription =
-        div(div().with(TextFormatter.formatText(questionDescriptionString)).withClasses("pl-10"));
+        div(
+            div()
+                .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
+                .withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));
@@ -407,12 +415,10 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName,
-      GroupedReferencingPrograms groupedReferencingPrograms,
-      Http.Request request) {
+      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
-            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty(), request);
+            questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
 
     DivTag tag =
         div()
@@ -422,32 +428,30 @@ public final class QuestionsListView extends BaseHtmlView {
                 StyleUtils.responsiveXLarge("ml-10"),
                 "py-7",
                 "w-1/4");
-    if (groupedReferencingPrograms.isEmpty(
-        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
+    if (groupedReferencingPrograms.isEmpty()) {
       tag.with(p("Used in 0 programs."));
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Used in", numPrograms, "program")));
       }
+
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
-        } else {
-          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
-        }
+        tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
       }
+
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
       }
-      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()
-          && settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
         tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
     }
+
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(
           a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
@@ -490,13 +494,10 @@ public final class QuestionsListView extends BaseHtmlView {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
-    boolean isEmpty(boolean includeDisabledPrograms) {
+    boolean isEmpty() {
       boolean usedAndAddedAndRemovedProgramsIsEmpty =
           usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
-      if (includeDisabledPrograms) {
-        return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
-      }
-      return usedAndAddedAndRemovedProgramsIsEmpty;
+      return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
     }
 
     int getTotalNumReferencingPrograms() {
@@ -518,9 +519,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private GroupedReferencingPrograms createReferencingPrograms(
-      Collection<ProgramDefinition> activePrograms,
-      Collection<ProgramDefinition> draftPrograms,
-      Http.Request request) {
+      Collection<ProgramDefinition> activePrograms, Collection<ProgramDefinition> draftPrograms) {
     ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
@@ -540,9 +539,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
-    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-      addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
-    }
+    addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> disabledSet =
         Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
@@ -578,10 +575,8 @@ public final class QuestionsListView extends BaseHtmlView {
   private Optional<Modal> makeReferencingProgramsModal(
       String questionName,
       GroupedReferencingPrograms referencingPrograms,
-      Optional<DomContent> modalHeader,
-      Http.Request request) {
-    if (referencingPrograms.isEmpty(
-        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
+      Optional<DomContent> modalHeader) {
+    if (referencingPrograms.isEmpty()) {
       return Optional.empty();
     }
 
@@ -782,8 +777,8 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
-      case PENDING_DELETION:
+    return switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION -> {
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
@@ -792,8 +787,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
-        return Pair.of(unarchiveButton, Optional.empty());
-      case DELETABLE:
+        yield Pair.of(unarchiveButton, Optional.empty());
+      }
+      case DELETABLE -> {
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
         ButtonTag archiveButton =
@@ -802,8 +798,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
-        return Pair.of(archiveButton, Optional.empty());
-      default:
+        yield Pair.of(archiveButton, Optional.empty());
+      }
+      case NOT_ACTIVE, NOT_DELETABLE -> {
         DivTag modalHeader =
             div()
                 .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
@@ -816,13 +813,14 @@ public final class QuestionsListView extends BaseHtmlView {
         GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
-                definition.getName(), referencingPrograms, Optional.of(modalHeader), request);
+                definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
-        return Pair.of(cantArchiveButton, maybeModal);
-    }
+        yield Pair.of(cantArchiveButton, maybeModal);
+      }
+    };
   }
 }

@@ -26,7 +26,8 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public enum MultiOptionQuestionType {
     CHECKBOX,
     DROPDOWN,
-    RADIO_BUTTON
+    RADIO_BUTTON,
+    YES_NO
   }
 
   private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
@@ -66,15 +67,12 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    switch (multiOptionQuestionType) {
-      case CHECKBOX:
-        return QuestionType.CHECKBOX;
-      case DROPDOWN:
-        return QuestionType.DROPDOWN;
-      case RADIO_BUTTON:
-        return QuestionType.RADIO_BUTTON;
-    }
-    throw new IllegalStateException("Not a valid MultiOptionQuestionType.");
+    return switch (multiOptionQuestionType) {
+      case CHECKBOX -> QuestionType.CHECKBOX;
+      case DROPDOWN -> QuestionType.DROPDOWN;
+      case RADIO_BUTTON -> QuestionType.RADIO_BUTTON;
+      case YES_NO -> QuestionType.YES_NO;
+    };
   }
 
   @Override

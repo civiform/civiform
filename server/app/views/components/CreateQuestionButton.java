@@ -10,6 +10,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /**
@@ -19,7 +20,9 @@ public final class CreateQuestionButton {
 
   /** Renders the "Create new question" button with a dropdown for each question type. */
   public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl, boolean isPrimaryButton) {
+      String questionCreateRedirectUrl,
+      boolean isPrimaryButton,
+      SettingsManifest settingsManifest) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -31,6 +34,7 @@ public final class CreateQuestionButton {
     DivTag dropdown =
         div()
             .withId(dropdownId)
+            .withData("testId", dropdownId)
             .withClasses(
                 "z-50",
                 "border",
@@ -51,6 +55,12 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
+      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
+        continue;
+      }
+      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled()) {
+        continue;
+      }
 
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
@@ -67,7 +77,7 @@ public final class CreateQuestionButton {
                   "text-gray-600",
                   StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
-                  Icons.questionTypeSvg(type)
+                  Icons.questionTypeSvgWithId(type)
                       .withClasses("inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm"));
       dropdown.with(linkTag);

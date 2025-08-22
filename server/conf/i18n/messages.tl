@@ -25,6 +25,8 @@ footer.returnToTop=Bumalik sa itaas
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Para sa technical support: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=Para sa technical support: Mag-email sa {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
@@ -36,6 +38,10 @@ label.languageSr=Pumili ng wika
 header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Tapusin ang session
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=Para sa iyong impormasyon: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Tagumpay: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Natapos na ang iyong session.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -61,6 +67,8 @@ toast.errorMessageOutline=Error: {0}
 button.close=Isara
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Pagsusuri
+# Button text that will go back to the previous page.
+button.goBack=Bumalik
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 # Aria-label for the primary navigation
@@ -69,6 +77,8 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+# Link to skip to the main content of the page
+link.skipToMainContent=Lumaktaw sa pangunahing content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -82,6 +92,8 @@ content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod n
 button.createAnAccount=Gumawa ng account
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Mag-sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Walang account?
 # The text between creating a new account, and becoming a guest
@@ -123,7 +135,7 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Suriin at umalis
+button.reviewAndExit=Suriin at isumite
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -144,8 +156,14 @@ link.allDone=Ako ay tapos na
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application para sa {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Alisin ang file
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Alisin ang file na {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -160,6 +178,18 @@ modal.errorSaving.review.noSaveButton=Magpatuloy sa page ng pagsusuri nang hindi
 modal.errorSaving.previous.noSaveButton=Magpatuloy sa nakaraang mga tanong nang hindi nagse-save
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Manatili at ayusin ang iyong mga sagot
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Kailangang ayusin ang ilang sagot sa page na ito
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa page ng pagsusuri, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa nakaraang page, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Pumunta sa page ng pagsusuri nang hindi nagse-save
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Pumunta sa nakaraang page nang hindi nagse-save
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Manatili rito at ayusin ang iyong mga sagot
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -177,18 +207,24 @@ button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
 button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Magsimula rito
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Simulan ang survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Tingnan at mag-apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Tingnan at mag-apply sa {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Tingnan sa bagong tab
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Tingnan ang {0} sa bagong tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
+button.startHerePreScreenerSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
+button.editPreScreenerSr=I-edit ang isinumiteng impormasyon para sa {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
+button.continuePreScreenerSr=Ipagpatuloy ang pagsasagot ng {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
@@ -198,14 +234,24 @@ content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga pr
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 # Main home page heading
-heading.homepage=Mag-apply sa mga programa sa iisang lugar
+heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Mag-apply para sa mga programa ng pamahalaan online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
-content.homepageIntro=Humingi ng tulong sa pag-aalaga ng bata, pagkain, transportasyon, mga utility, at higit pa.
+content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Tuklasin ang mga serbisyo kung saan posibleng kwalipikado ka. Ginagamit ulit ng CiviForm ang iyong impormasyon para matulungan kang mas mabilis na makuha ang mga ito.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
+# The label for the program filter checkboxes
+label.programFilters.v2=Sa aling bagay mo gustong makakuha ng tulong?
+# The button to apply program filters
+button.applySelections=I-apply ang mga napili
+# The button to clear program filter selections
+button.clearSelections=I-clear ang mga napili
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
@@ -233,7 +279,7 @@ title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Mga available na programa at serbisyo
+title.availableProgramsSection=Mga programa at serbisyo
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -252,6 +298,10 @@ label.submitted=Naisumite
 label.submittedOn=Naisumite noong {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} noong {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Magbubukas ito ng ibang website
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Para pumunta sa website ng programa kung saan makakakuha ka ng higit pang detalye at makakapag-apply ka, i-click ang Magpatuloy
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -424,7 +474,7 @@ ariaLabel.answer=Sagot {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
+title.preScreenerSummary=Buod ng pre-screener para sa mga benepisyo
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Magsimula na tayo
 title.programSummary=Buod ng application para sa programa
@@ -460,6 +510,7 @@ heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwal
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
+content.eligibilityCriteria.v3=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o para direktang makipag-ugnayan sa team ng programa, basahin ang {0} (bubukas sa bagong tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -534,6 +585,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Malamang na kwalipikado ka sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Posibleng hindi ka maging kwalipikado para sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Malamang na kwalipikado ang kliyente mo sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Posibleng hindi maging kwalipikado ang kliyente mo para sa programang ito batay sa mga sagot sa ibang pag-apply.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -545,6 +602,10 @@ title.applicationConfirmation=Pagkumpirma ng aplikasyon
 content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natanggap na, at ang ID ng application ninyo ay {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Gumawa ng account o magsign-in
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Mag-sign in gamit ang account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Magagawa mong tingnan ang status ng isang aplikasyon, gumawa ng mga pagbabago rito, at mabilis na mag-apply sa ibang programa kapag gumawa ka ng account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
@@ -554,23 +615,23 @@ content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo 
 content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
+title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipikado
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
+content.preScreenerConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
+content.preScreenerConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.preScreenerNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.preScreenerNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+content.preScreenerNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
@@ -579,7 +640,7 @@ button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Impormasyon ng iyong pagsusumite
+heading.yourSubmissionInformation=Ang mga detalye ng iyong aplikasyon
 # Text above the name of the person who submitted this application
 heading.applicantName=Sino ang nagsumite ng aplikasyong ito
 # Text above the confirmation number of the application
@@ -595,11 +656,13 @@ heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Gumawa ng account para i-save ang impormasyon ng iyong aplikasyon
+alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Gumamit ng account para mag-log in ulit para tingnan ang status ng iyong aplikasyon at makatipid ng oras sa pag-apply sa iba pang programa.
+alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Nagsimula o nagsumite ka ng application para sa lahat ng programang available sa panahong ito.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Mag-log in sa kasalukuyang account
+content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +751,21 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (na) taon
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Pagkatapos dapat ng petsa ngayong araw ang petsang ito
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Pagkatapos dapat ng {0} ang petsang ito
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Dapat mauna ang petsang ito kaysa sa petsa ngayong araw
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
+validation.currentDateRequired=Ilagay ang petsa ngayon
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -827,6 +905,15 @@ validation.textTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga charac
 validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Oo
+option.no=Hindi
+option.notSure=Hindi sigurado
+option.maybe=Siguro
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -881,8 +968,6 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Opisyal na website ng pamahalaan ng United States
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
@@ -902,7 +987,7 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
+banner.guestBannerText=Pagkatapos mong mag-apply, {0} para protektahan ang iyong data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
 
@@ -947,3 +1032,34 @@ category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
+
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Mga Kategorya
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Babala sa Kawalan ng Aktibidad ng Session
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Mag-e-expire ang iyong session dahil sa kawalan ng aktibidad. Gusto mo bang i-extend ang iyong session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Babala sa Tagal ng Session
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Malapit nang mag-expire ang iyong session dahil sa tagal. I-save ang iyong gawa at mag-log in ulit kung kailangan.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=I-extend ang Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Na-extend na ang session
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Hindi na-extend ang session
+
+# Untranslated string for translation infrastructure testing.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.

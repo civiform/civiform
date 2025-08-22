@@ -18,9 +18,11 @@ import * as adminSettingsView from './admin_settings_view'
 import * as adminValidation from './admin_validation'
 import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
+import * as map from './map'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
 import PreviewController, * as preview from './preview'
+import {SessionTimeoutHandler} from './session'
 import * as enumerator from './enumerator'
 import * as phoneNumber from './phone'
 import * as adminQuestionEdit from './admin_question_edit'
@@ -67,9 +69,11 @@ function initializeEverything(): void {
   trustedIntermediaryController.init()
   fileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
+  SessionTimeoutHandler.init()
 }
 
 function afterSettle(): void {
   PreviewController.updateListeners()
+  map.init()
   enumerator.updateListeners()
 }

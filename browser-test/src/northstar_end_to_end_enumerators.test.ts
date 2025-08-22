@@ -89,8 +89,8 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       await applicantQuestions.addEnumeratorAnswer('Bugs')
-
-      await page.locator('.cf-question-header').getByText('Bugs').isVisible()
+      const enumInput = page.getByRole('textbox', {name: 'Entity name #1'})
+      await expect(enumInput).toHaveValue('Bugs')
     })
 
     test('has no accessibility violations', async ({
@@ -398,6 +398,39 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
           page.locator('#enumerator-field-add-button'),
         ).toBeDisabled()
       })
+    })
+
+    test('Applicant cannot enter more than 50 entities for enums without max count', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      // Fill in name question
+      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+      await applicantQuestions.clickContinue()
+
+      // Put in two things in the enumerator question
+      await applicantQuestions.addEnumeratorAnswer('Bugs')
+      await applicantQuestions.addEnumeratorAnswer('Daffy')
+      await applicantQuestions.clickContinue()
+
+      // REPEATED ENTITY
+      // Answer name
+      await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
+      await applicantQuestions.clickContinue()
+
+      // Put 50 things in the nested enumerator for enum one
+      for (let i = 1; i <= 50; i++) {
+        await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
+      }
+
+      await expect(page.locator('#enumerator-field-add-button')).toBeDisabled()
+
+      await logout(page)
     })
 
     test('Applicant can navigate to previous blocks', async ({

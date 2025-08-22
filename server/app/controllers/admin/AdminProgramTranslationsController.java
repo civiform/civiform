@@ -13,7 +13,9 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.FormFactory;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -128,6 +130,11 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  // Adding our custom large body parser. The introduction of the eligibility message
+  // translations has resulted in the occasional exception if the program has a large
+  // number of them. This is a band-aid to allow them to be saved right now, the
+  // ultimate solution is to redesign this form
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result update(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftProgramDefinition(programName);

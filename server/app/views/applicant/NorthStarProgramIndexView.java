@@ -18,6 +18,8 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -79,19 +81,19 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (isUnstartedCommonIntakeForm(applicationPrograms.commonIntakeForm())) {
+    if (isUnstartedCommonIntakeForm(applicationPrograms.preScreenerForm())) {
       intakeSection =
           Optional.of(
               getCommonIntakeFormSection(
                   messages,
                   request,
-                  applicationPrograms.commonIntakeForm().get(),
+                  applicationPrograms.preScreenerForm().get(),
                   profile,
                   applicantId,
                   personalInfo));
     }
 
-    if (!applicationPrograms.inProgressIncludingCommonIntake().isEmpty()
+    if (!applicationPrograms.inProgressIncludingPreScreener().isEmpty()
         || !applicationPrograms.submitted().isEmpty()) {
       myApplicationsSection =
           Optional.of(
@@ -101,7 +103,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
-                          applicationPrograms.inProgressIncludingCommonIntake().stream(),
+                          applicationPrograms.inProgressIncludingPreScreener().stream(),
                           applicationPrograms.submitted().stream())
                       .collect(ImmutableList.toImmutableList()),
                   /* preferredLocale= */ messages.lang().toLocale(),
@@ -127,13 +129,20 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
 
-    // Used with hx-select to reload the Programs and services section and clear filters
-    String refreshUrl =
-        applicantId.isPresent() && profile.isPresent()
-            ? applicantRoutes.index(profile.get(), applicantId.get()).url()
-            : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
-                    ImmutableList.of())
-                .url();
+    AlertSettings noProgramsAlertSettings =
+        new AlertSettings(
+            /* show= */ true,
+            Optional.empty(),
+            messages.at(MessageKey.ALERT_NO_PROGRAMS_AVAILABLE.getKeyName()),
+            AlertType.INFO,
+            /* additionalText= */ ImmutableList.of(),
+            /* customText= */ Optional.empty(),
+            /* ariaLabel= */ Optional.of(
+                messages.at(
+                    MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(),
+                    messages.at(MessageKey.ALERT_NO_PROGRAMS_AVAILABLE.getKeyName()))),
+            /* isSlim= */ true);
+    context.setVariable("noProgramsAlertSettings", noProgramsAlertSettings);
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);
@@ -148,7 +157,6 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
-    context.setVariable("refreshUrl", refreshUrl);
     context.setVariable("applicantId", applicantId);
 
     // Toasts
@@ -169,7 +177,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         request,
         messages,
         Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
-        MessageKey.BUTTON_START_HERE,
+        MessageKey.BUTTON_START_SURVEY,
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,

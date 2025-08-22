@@ -1,7 +1,16 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 
-test.describe('File upload question preview', () => {
+test.describe('File upload question preview - prenorthstar', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test('File upload preview', async ({page, adminQuestions}) => {
     const fileUploadQuestionName = 'File Upload Question'
 
@@ -18,6 +27,32 @@ test.describe('File upload question preview', () => {
       await validateScreenshot(
         page.locator('#sample-question'),
         'file-question-preview',
+      )
+    })
+  })
+})
+
+test.describe('File upload question preview', {tag: ['@northstar']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
+  test('File upload preview', async ({page, adminQuestions}) => {
+    const fileUploadQuestionName = 'File Upload Question'
+
+    await loginAsAdmin(page)
+    await test.step('Create question', async () => {
+      await adminQuestions.addFileUploadQuestion({
+        questionName: fileUploadQuestionName,
+      })
+    })
+
+    await test.step('Expect preview renders properly', async () => {
+      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
+
+      await validateScreenshot(
+        page.locator('#sample-question'),
+        'file-question-preview-ns',
       )
     })
   })
@@ -55,9 +90,6 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
     await test.step('Expect preview renders properly', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
-
-      // The address question needs extra time to render
-      await page.waitForSelector('[data-load-question="true"]')
 
       await validateScreenshot(
         page.locator('#question-fragment'),

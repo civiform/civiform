@@ -3,6 +3,7 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
+import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.FakeAdminClient;
 import com.google.common.collect.ImmutableList;
@@ -17,6 +18,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import play.routing.Router;
 import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
@@ -34,6 +36,8 @@ public abstract class NorthStarBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected static final String THEME_PRIMARY_HEX = "#005ea2";
+  protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
   protected NorthStarBaseView(
       TemplateEngine templateEngine,
@@ -61,19 +65,24 @@ public abstract class NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
+    context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
     context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
+    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled());
+    context.setVariable("mapLibreGLStylesheet", assetsFinder.path("dist/maplibregl.min.css"));
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
     context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
+    context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());
     context.setVariable(
         "smallLogoUrl",
         settingsManifest
             .getCivicEntitySmallLogoUrl()
             .orElse(assetsFinder.path("Images/civiform-staging.png")));
+    context.setVariable(
+        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
     context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable(
@@ -82,12 +91,19 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
+    boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
+    context.setVariable("userIsAdmin", userIsAdmin);
+    context.setVariable("goBackIcon", Icons.ARROW_LEFT);
+    context.setVariable("launchIcon", Icons.LAUNCH);
 
     // Language selector params
-    context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
+    Lang preferredLanguage = languageUtils.getPreferredLanguage(request);
+    context.setVariable("preferredLanguage", preferredLanguage);
+    context.setVariable("shouldDisplayRtl", LanguageUtils.shouldDisplayRtl(preferredLanguage));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
-    context.setVariable("requestUri", request.uri());
+    context.setVariable("redirectUri", getUpdateLanguageRedirectUri(request, profile, applicantId));
 
     // Add auth parameters.
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
@@ -100,16 +116,34 @@ public abstract class NorthStarBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
+
+    // Set branding theme colors.
+    context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
+    context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
+    if (settingsManifest.getCustomThemeColorsEnabled(request)) {
+      settingsManifest
+          .getThemeColorPrimary(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
+      settingsManifest
+          .getThemeColorPrimaryDark(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(
+              colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
+    }
+
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the guest alert in the header.
     context.setVariable(
         "endSessionLinkHtml",
-        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+        "<a id=\"logout-button\" class=\"usa-link\" role=\"button\" href=\""
             + logoutLink
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
             + "</a>");
+    context.setVariable(
+        "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
@@ -122,6 +156,11 @@ public abstract class NorthStarBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
+    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled(request);
+    context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
+    if (sessionTimeoutEnabled) {
+      context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
+    }
 
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
@@ -150,10 +189,6 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
-
-    // Other options
-    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
-    context.setVariable("isApplicationExportable", isApplicationExportable);
 
     return context;
   }
@@ -202,6 +237,48 @@ public abstract class NorthStarBaseView {
             .url();
   }
 
+  /**
+   * Calculate the redirect location after the language is changed. If the current request is a
+   * POST, the redirect is be mapped to the associated GET uri.
+   */
+  private String getUpdateLanguageRedirectUri(
+      Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
+    // Default to the current request if it is not a POST or a redirect can't be constructed.
+    if (!request.method().equals("POST")
+        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      return request.uri();
+    }
+    RouteExtractor routeExtractor = new RouteExtractor(request);
+    if (!routeExtractor.containsKey("programId")) {
+      return request.uri();
+    }
+
+    long programId = routeExtractor.getParamLongValue("programId");
+    // If the language was changed during /submit, redirect to /review
+    if (request.path().contains("submit")) {
+      String submitRedirectUri =
+          applicantId.isPresent() && profile.isPresent()
+              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.review(programId).url();
+      return submitRedirectUri;
+    }
+    // If the language was changed during a block update, redirect to /block/edit or /block/review
+    if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
+      boolean inReview =
+          routeExtractor.containsKey("inReview")
+              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              profile.get(),
+              applicantId.get(),
+              programId,
+              routeExtractor.getParamStringValue("blockId"),
+              inReview)
+          .url();
+    }
+    return request.uri();
+  }
+
   private void maybeSetUpNotProductionBanner(
       ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
     if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
@@ -223,16 +300,17 @@ public abstract class NorthStarBaseView {
       String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
       unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
     }
-
+    String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
     AlertSettings notProductionAlertSettings =
         new AlertSettings(
             true,
-            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            Optional.of(alertTitle),
             unescapedDescription.orElse(""),
             unescapedDescription.isPresent(),
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
+            Optional.of(AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

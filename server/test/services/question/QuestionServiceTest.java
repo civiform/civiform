@@ -14,6 +14,7 @@ import models.LifecycleStage;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import repository.GeoJsonDataRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.TransactionManager;
@@ -79,7 +80,8 @@ public class QuestionServiceTest extends ResetPostgres {
   @Test
   public void create_handlesSerializationFailure() throws Exception {
     TransactionManager mockTransactionManager = mock(TransactionManager.class);
-    when(mockTransactionManager.executeInTransaction(any(), any()))
+    GeoJsonDataRepository geoJsonDataRepository = mock(GeoJsonDataRepository.class);
+    when(mockTransactionManager.execute(any(), any()))
         .then(
             invocation -> {
               Supplier<ErrorAnd<QuestionDefinition, CiviFormError>> onSerializationFailure =
@@ -89,7 +91,10 @@ public class QuestionServiceTest extends ResetPostgres {
 
     QuestionService questionServiceWithFailingTransactionManager =
         new QuestionService(
-            instanceOf(QuestionRepository.class), () -> versionRepository, mockTransactionManager);
+            instanceOf(QuestionRepository.class),
+            () -> versionRepository,
+            mockTransactionManager,
+            geoJsonDataRepository);
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionServiceWithFailingTransactionManager.create(questionDefinition);

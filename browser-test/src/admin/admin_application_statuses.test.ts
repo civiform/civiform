@@ -13,6 +13,7 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
+  disableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -20,6 +21,10 @@ test.describe('view program statuses', () => {
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
@@ -99,7 +104,7 @@ test.describe('view program statuses', () => {
       expect(await adminPrograms.isPaginationVisibleForApplicationTable()).toBe(
         true,
       )
-      expect(page.locator('.usa-pagination__button:has-text("2")'))
+
       await validateScreenshot(page, 'application-table-pagination')
     })
   })
@@ -145,9 +150,10 @@ test.describe('view program statuses', () => {
     })
 
     test.describe('when a status is changed, a confirmation dialog is shown', () => {
-      test('renders', async ({page, adminPrograms}) => {
-        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
-        await validateScreenshot(page, 'change-status-modal')
+      test('renders', async ({adminPrograms}) => {
+        const statusModal =
+          await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        await validateScreenshot(statusModal, 'change-status-modal')
       })
 
       test('when rejecting, the selected status is not changed', async ({
@@ -258,10 +264,11 @@ test.describe('view program statuses', () => {
             : []
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-          const notifyCheckbox = await modal.$('input[type=checkbox]')
-          expect(notifyCheckbox).not.toBeNull()
-          await notifyCheckbox!.uncheck()
-          expect(await notifyCheckbox!.isChecked()).toBe(false)
+
+          const notifyCheckbox = modal.getByRole('checkbox', {name: 'Notify'})
+          await notifyCheckbox.uncheck()
+          await expect(notifyCheckbox).not.toBeChecked()
+
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
@@ -284,9 +291,11 @@ test.describe('view program statuses', () => {
             : []
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-          const notifyCheckbox = await modal.$('input[type=checkbox]')
-          expect(notifyCheckbox).not.toBeNull()
-          expect(await notifyCheckbox!.isChecked()).toBe(true)
+
+          await expect(
+            modal.getByRole('checkbox', {name: 'Notify'}),
+          ).toBeChecked()
+
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
@@ -351,6 +360,7 @@ test.describe('view program statuses', () => {
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
+
     test('allow notes to be exported', async ({page, adminPrograms}) => {
       await adminPrograms.editNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
@@ -675,6 +685,12 @@ test.describe('view program statuses', () => {
         .innerText()
       expect(applicationText).toContain('Guest')
       expect(applicationText).toContain(favoriteColorAnswer)
+
+      await test.step('allow status last modified time to be exported', async () => {
+        await page.getByRole('link', {name: 'Back'}).click()
+        const csvContent = await adminPrograms.getCsv(false)
+        expect(csvContent).toContain('Status Last Modified Time')
+      })
     })
   })
 
@@ -826,9 +842,10 @@ test.describe('view program statuses', () => {
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
 
-        const notifyCheckbox = await modal.$('input[type=checkbox]')
-        expect(notifyCheckbox).not.toBeNull()
-        expect(await notifyCheckbox!.isChecked()).toBe(true)
+        await expect(
+          modal.getByRole('checkbox', {name: 'Notify'}),
+        ).toBeChecked()
+
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )

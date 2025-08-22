@@ -9,6 +9,21 @@ type ProgramStatusTranslationParams = {
   statusEmail?: string
 }
 
+/**
+ * List of fields in the program translation form. This list is not exhaustive,
+ * as fields are added when needed by a test.
+ */
+export enum FormField {
+  PROGRAM_NAME = 'Program name',
+  PROGRAM_DESCRIPTION = 'Program description',
+  CONFIRMATION_MESSAGE = 'Custom confirmation screen message',
+  SHORT_DESCRIPTION = 'Short program description',
+  APPLICATION_STEP_ONE_TITLE = 'Application step 1 title',
+  APPLICATION_STEP_ONE_DESCRIPTION = 'Application step 1 description',
+  SCREEN_NAME = 'Screen name',
+  SCREEN_DESCRIPTION = 'Screen description',
+}
+
 export class AdminTranslations {
   public page!: Page
 
@@ -117,10 +132,10 @@ export class AdminTranslations {
     await expect(programNameValue).toHaveValue(expectProgramName)
 
     if (programType === 'default' || !northStar) {
-      const programDescriptionValue = this.page.getByLabel(
-        'Program description',
-        {exact: true},
-      )
+      const programDescriptionValue = this.page.getByRole('textbox', {
+        name: 'Program description',
+        exact: true,
+      })
       await expect(programDescriptionValue).toHaveValue(
         expectProgramDescription,
       )
@@ -149,23 +164,19 @@ export class AdminTranslations {
     }
   }
 
+  async expectFormFieldVisible(formField: FormField) {
+    await expect(
+      this.page.getByRole('textbox', {name: formField, exact: true}),
+    ).toBeVisible()
+  }
+
+  async expectFormFieldHidden(formField: FormField) {
+    await expect(this.page.locator(`:has-text("${formField}: ")`)).toBeHidden()
+  }
+
   async expectNoProgramStatusTranslations() {
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
-      false,
-    )
-  }
-
-  async expectNoApplicationSteps() {
-    await expect(this.page.getByLabel('Application step 1 title')).toBeHidden()
     await expect(
-      this.page.getByLabel('Application step 1 description'),
-    ).toBeHidden()
-  }
-
-  async expectNoLongDescription() {
-    await expect(
-      this.page.getByLabel('Program description', {exact: true}),
+      this.page.locator(':has-text("Application status: ")'),
     ).toBeHidden()
   }
 
@@ -196,14 +207,12 @@ export class AdminTranslations {
     configuredStatusText: string
     expectStatusText: string
   }) {
-    const statusTextValue = await this.page.inputValue(
-      this.statusNameFieldSelector(configuredStatusText),
-    )
-    expect(statusTextValue).toEqual(expectStatusText)
-    const isStatusEmailVisible = await this.page.isVisible(
-      this.statusEmailFieldSelector(configuredStatusText),
-    )
-    expect(isStatusEmailVisible).toBe(false)
+    await expect(
+      this.page.locator(this.statusNameFieldSelector(configuredStatusText)),
+    ).toHaveValue(expectStatusText)
+    await expect(
+      this.page.locator(this.statusEmailFieldSelector(configuredStatusText)),
+    ).toBeHidden()
   }
 
   /**

@@ -10,7 +10,6 @@ export class ApplicantFileQuestion {
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
   private questionErrorLocator = '.cf-question-error-message'
-  private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
 
   private page!: Page
 
@@ -19,47 +18,43 @@ export class ApplicantFileQuestion {
   }
 
   async expectQuestionErrorShown() {
-    const error = this.page.locator(this.questionErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect(this.page.locator(this.questionErrorLocator)).toBeVisible()
   }
 
   async expectQuestionErrorHidden() {
-    const error = this.page.locator(this.questionErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
   }
 
   async expectFileSelectionErrorShown() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect(
+      this.page.locator(this.fileSelectionErrorLocator),
+    ).toBeVisible()
   }
 
   async expectFileSelectionErrorHidden() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
   }
 
   async expectNorthStarNoFileSelectedErrorShown() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect(
+      this.page.locator(this.fileSelectionErrorLocator),
+    ).toBeVisible()
   }
 
   async expectNorthStarNoFileSelectedErrorHidden() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
   }
 
   async expectFileTooLargeErrorShown() {
-    const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeVisible()
   }
 
   async expectFileTooLargeErrorHidden() {
-    const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
   }
 
   async expectFileNameDisplayed(fileName: string) {
-    expect(await this.page.innerHTML('body')).toContain(fileName)
+    await expect(this.page.locator('body')).toContainText(fileName)
   }
 
   async expectFileNameCount(fileName: string, count: number) {
@@ -72,11 +67,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(1)
+    await expect(this.page.locator(this.skipButtonLocator)).toBeVisible()
   }
 
   async expectNoSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(0)
+    await expect(this.page.locator(this.skipButtonLocator)).toBeHidden()
   }
 
   async expectFileInputEnabled() {
@@ -96,24 +91,20 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
-      1,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toBeVisible()
   }
 
   async expectNoContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
-      0,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toBeHidden()
   }
 
   // In North Star, the Continue button has form="cf-fileupload-continue-form".
   async expectHasContinueForm() {
-    expect(await this.page.locator(this.continueFormLocator).count()).toEqual(1)
+    await expect(this.page.locator(this.continueFormLocator)).toBeAttached()
   }
 
   async expectNoContinueForm() {
-    expect(await this.page.locator(this.continueFormLocator).count()).toEqual(0)
+    await expect(this.page.locator(this.continueFormLocator)).not.toBeAttached()
   }
 
   async clickContinue() {
@@ -121,11 +112,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(1)
+    await expect(this.page.locator(this.deleteButtonLocator)).toBeVisible()
   }
 
   async expectNoDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(0)
+    await expect(this.page.locator(this.deleteButtonLocator)).toBeHidden()
   }
 
   async clickDelete() {

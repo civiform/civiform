@@ -8,6 +8,7 @@ import {
   validateAccessibility,
   loginAsTrustedIntermediary,
   ClientInformation,
+  selectApplicantLanguageNorthstar,
 } from '../support'
 
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
@@ -145,7 +146,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
     await test.step('Add an eligibility message with special character for markdown', async () => {
       const eligibilityMsg =
@@ -216,6 +216,8 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(page.getByText('Apply to another program')).toBeVisible()
       await expect(page.getByText('Edit my responses')).toBeVisible()
+      const href = await page.getByText('program details').getAttribute('href')
+      expect(href).toContain('/pet-assistance-program')
 
       await page.click('#header-return-home')
       await tiDashboard.clickOnViewApplications()
@@ -226,7 +228,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // All questions have been answered
-      await applicantQuestions.expectReviewPage(/* northStarEnabled */ true)
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
 
       // Edit the block (there is only one block)
       await applicantQuestions.clickEdit()
@@ -242,6 +244,151 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectConfirmationPage(
         /* northStarEnabled= */ true,
       )
+    })
+  })
+
+  test('Applicant ineligible page renders right to left', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+
+      await test.step('Setup: set language to Arabic', async () => {
+        await selectApplicantLanguageNorthstar(page, 'ar')
+      })
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await page.click('text="متابعة"')
+    })
+
+    await validateScreenshot(
+      page,
+      'northstar-ineligible-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+
+    await validateAccessibility(page)
+  })
+
+  test('Changing language on ineligible page after block edit redirects to block edit', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: start application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to French', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect first block edit', async () => {
+      await applicantQuestions.validateQuestionIsOnPage(questionText)
+      expect(page.url().split('/').pop()).toEqual('edit?isFromUrlCall=false')
+    })
+  })
+
+  test('Changing language on ineligible page after block review redirects to block review', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: start application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Go back to the review page and re-submit first block', async () => {
+      await applicantQuestions.clickEditMyResponses()
+      // Review and submit first question
+      await applicantQuestions.clickEdit()
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page again', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to French', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect block review page', async () => {
+      await applicantQuestions.validateQuestionIsOnPage(questionText)
+      expect(page.url().split('/').pop()).toEqual('review?isFromUrlCall=false')
+    })
+  })
+
+  test('Changing language on ineligible page after application submit redirects to review', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Go back to the review page and submit', async () => {
+      await applicantQuestions.clickEditMyResponses()
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await test.step('Expect ineligible page again', async () => {
+      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await expect(page.getByText(questionText)).toBeVisible()
+    })
+
+    await test.step('Setup: set language to French', async () => {
+      await selectApplicantLanguageNorthstar(page, 'fr')
+    })
+
+    await test.step('Expect review page', async () => {
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
   })
 })

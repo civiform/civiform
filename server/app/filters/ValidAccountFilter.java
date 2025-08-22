@@ -4,27 +4,43 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
+import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.util.ByteString;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
+import play.mvc.Result;
 import play.mvc.Results;
+import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
  * when the account is deleted from the database which almost will never happen in prod database.
  */
 public class ValidAccountFilter extends EssentialFilter {
+
   private final ProfileUtils profileUtils;
-  private final Config config;
+  private final Provider<SettingsManifest> settingsManifest;
+  private final Materializer materializer;
+  private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
-  public ValidAccountFilter(ProfileUtils profileUtils, Config config) {
+  public ValidAccountFilter(
+      ProfileUtils profileUtils,
+      Provider<SettingsManifest> settingsManifest,
+      Materializer materializer,
+      Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
-    this.config = checkNotNull(config);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.materializer = checkNotNull(materializer);
+    this.databaseExecutionContext = databaseExecutionContext;
   }
 
   @Override
@@ -32,33 +48,59 @@ public class ValidAccountFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
-            // The cookie is present but the profile or session is not valid, redirect to logout and
-            // clear the cookie.
-            if (!allowedEndpoint(request)) {
-              return Accumulator.done(
-                  Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-            }
+
+          if (profile.isEmpty() || allowedEndpoint(request)) {
+            return next.apply(request);
           }
 
-          return next.apply(request);
+          CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
+              shouldLogoutUser(profile.get())
+                  .thenApply(
+                      shouldLogout -> {
+                        if (shouldLogout) {
+                          return Accumulator.done(
+                              Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+                        } else {
+                          return next.apply(request);
+                        }
+                      });
+
+          return Accumulator.flatten(futureAccumulator, materializer);
         });
   }
 
-  private boolean shouldLogoutUser(CiviFormProfile profile) {
-    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
+  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
+
+    return profileUtils
+        .validCiviFormProfile(profile)
+        .thenComposeAsync(
+            profileValid -> {
+              if (!profileValid) {
+                return CompletableFuture.completedFuture(false);
+              }
+              return isValidSession(profile);
+            },
+            databaseExecutionContext.get())
+        .thenComposeAsync(
+            isValidProfileAndSession -> {
+              if (!isValidProfileAndSession) {
+                // Log out if either profile or session was invalid
+                return CompletableFuture.completedFuture(true);
+              }
+              return CompletableFuture.completedFuture(false);
+            },
+            databaseExecutionContext.get());
   }
 
-  private boolean isValidSession(CiviFormProfile profile) {
-    if (config.getBoolean("session_replay_protection_enabled")) {
+  private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
+    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
       return profile
           .getAccount()
           .thenApply(
               account ->
-                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent())
-          .join();
+                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent());
     }
-    return true;
+    return CompletableFuture.completedFuture(true);
   }
 
   /**

@@ -6,19 +6,26 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import forms.EnumeratorQuestionForm;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
+import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import repository.GeoJsonDataRepository;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.geojson.FeatureCollection;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 import views.NorthStarBaseView;
@@ -37,6 +44,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final GeoJsonDataRepository mapDataRepository;
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
@@ -47,7 +55,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      GeoJsonDataRepository mapDataRepository) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -57,9 +66,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         languageUtils,
         deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
+    this.mapDataRepository = mapDataRepository;
   }
 
-  public String render(Request request, ApplicationBaseViewParams applicationParams) {
+  public String render(
+      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -77,6 +88,9 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("homeUrl", index(applicationParams));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
 
     // Progress bar
     ProgressBar progressBar =
@@ -132,8 +146,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
+      context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+      context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
     }
   }
@@ -142,12 +158,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private void setErrorContextForFormModal(
       ThymeleafModule.PlayThymeleafContext context,
       String formAction,
-      String title,
       String content,
       String buttonText,
       String redirectTo) {
     context.setVariable("errorModalFormAction", formAction);
-    context.setVariable("errorModalTitle", title);
     context.setVariable("errorModalContent", content);
     context.setVariable("errorModalButtonText", buttonText);
     context.setVariable("errorModalDataRedirectTo", redirectTo);
@@ -159,9 +173,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
         previousWithoutSaving(applicationParams));
   }
 
@@ -171,9 +184,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
         reviewWithoutSaving(applicationParams));
   }
 
@@ -221,6 +233,21 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .url();
   }
 
+  private String index(ApplicationBaseViewParams params) {
+    // index() does the TI evaluation.
+    return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
+  }
+
+  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+    if (params.profile().isTrustedIntermediary()) {
+      return params
+          .applicantRoutes()
+          .show(params.profile(), params.applicantId(), programSlug)
+          .url();
+    }
+    return params.applicantRoutes().show(programSlug).url();
+  }
+
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
     return ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
         params.applicantId(), params.programId(), params.block().getId());
@@ -248,6 +275,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                                   params.errorDisplayMode(),
                                   params.block().hasErrors(),
                                   ordinalErrorCount.get()));
+                  if (question.getType().equals(QuestionType.MAP)) {
+                    paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
+                  }
+
                   if (params.block().isFileUpload()) {
                     StorageUploadRequest signedRequest =
                         params
@@ -258,6 +289,32 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                   }
                   return paramsBuilder.build();
                 }));
+  }
+
+  private FeatureCollection getQuestionGeoJsonData(ApplicantQuestion question) {
+    String geoJsonEndpoint =
+        ((MapValidationPredicates) question.getQuestionDefinition().getValidationPredicates())
+            .geoJsonEndpoint();
+
+    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+        mapDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join();
+
+    if (maybeExistingGeoJsonDataRow.isEmpty()) {
+      // TODO(#11078): Failure state for missing GeoJSON data
+      throw new IllegalStateException(
+          String.format(
+              "No GeoJSON data found for %s question.",
+              question.getQuestionDefinition().getName()));
+    }
+
+    return maybeExistingGeoJsonDataRow.get().getGeoJson();
+  }
+
+  private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(params.programId()).url();
   }
 
   // One field at most should be autofocused on the page. If there are errors, it

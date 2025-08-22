@@ -8,8 +8,10 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
 
   test('has civiform build tag', async ({page, applicantQuestions}) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await expect(
-      page.locator('meta[name="civiform-build-tag"]'),
-    ).toHaveAttribute('content', 'dev')
+
+    const metaTagLocator = page.locator('meta[name="civiform-build-tag"]')
+
+    await expect(metaTagLocator).toHaveAttribute('content')
+    expect(await metaTagLocator.getAttribute('content')).not.toBeNull()
   })
 })

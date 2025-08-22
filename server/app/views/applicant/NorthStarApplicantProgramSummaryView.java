@@ -57,10 +57,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     // Create a string such as "Program appplication summary - Pet Assistance Program"
     String summarySubstring =
         params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
-            ? params.messages().at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
+            ? params.messages().at(MessageKey.TITLE_PRE_SCREENER_SUMMARY.getKeyName())
             : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(params));
 
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
@@ -160,6 +161,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
   private String getSubmitUrl(Params params) {
     return applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
+  }
+
+  private String getGoBackToAdminUrl(Params params) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(params.programId()).url();
   }
 
   @AutoValue

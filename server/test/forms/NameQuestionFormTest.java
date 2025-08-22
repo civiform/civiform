@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.NameQuestionDefinition;
@@ -13,11 +14,13 @@ import services.question.types.QuestionDefinitionConfig;
 public class NameQuestionFormTest {
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     NameQuestionForm form = new NameQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     NameQuestionDefinition expected =
@@ -27,6 +30,7 @@ public class NameQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -43,6 +47,7 @@ public class NameQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(UUID.randomUUID())
                 .build());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);

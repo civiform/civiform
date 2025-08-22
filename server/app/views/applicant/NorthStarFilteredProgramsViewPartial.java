@@ -81,19 +81,23 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
             .filter(programData -> !filteredPrograms.contains(programData))
             .collect(ImmutableList.toImmutableList());
 
-    ProgramCardsSectionParamsFactory.ProgramSectionParams recommendedSection =
-        programCardsSectionParamsFactory.getSection(
-            request,
-            messages,
-            Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION_V2),
-            MessageKey.BUTTON_VIEW_AND_APPLY,
-            filteredPrograms,
-            /* preferredLocale= */ messages.lang().toLocale(),
-            profile,
-            applicantId,
-            personalInfo,
-            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
-
+    Optional<ProgramCardsSectionParamsFactory.ProgramSectionParams> recommendedSection =
+        Optional.empty();
+    if (!filteredPrograms.isEmpty()) {
+      recommendedSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  request,
+                  messages,
+                  Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION_V2),
+                  MessageKey.BUTTON_VIEW_AND_APPLY,
+                  filteredPrograms,
+                  /* preferredLocale= */ messages.lang().toLocale(),
+                  profile,
+                  applicantId,
+                  personalInfo,
+                  ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED));
+    }
     Optional<ProgramCardsSectionParamsFactory.ProgramSectionParams> otherProgramsSection =
         Optional.empty();
 
@@ -103,14 +107,18 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION_V2),
+                  recommendedSection.isEmpty()
+                      ? Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2)
+                      : Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION_V2),
                   MessageKey.BUTTON_VIEW_AND_APPLY,
                   otherPrograms,
                   /* preferredLocale= */ messages.lang().toLocale(),
                   profile,
                   applicantId,
                   personalInfo,
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  filteredPrograms.isEmpty()
+                      ? ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED
+                      : ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
 
     context.setVariable("recommendedSection", recommendedSection);

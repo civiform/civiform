@@ -120,9 +120,19 @@ public final class ProgramService {
     return programRepository.getAllProgramNames();
   }
 
-  /** Get the slugs for all programs. */
-  public ImmutableSet<String> getAllProgramSlugs() {
-    return getAllProgramNames().stream()
+  /** Get the names for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramNames() {
+    return programRepository.getAllNonExternalProgramNames();
+  }
+
+  /** Get the slug of {@code} programId. */
+  public String getSlug(long programId) throws ProgramNotFoundException {
+    return programRepository.getSlug(programId);
+  }
+
+  /** Get the slugs for all programs excluding external programs. */
+  public ImmutableSet<String> getAllNonExternalProgramSlugs() {
+    return getAllNonExternalProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
         .sorted()
         .collect(ImmutableSet.toImmutableSet());
@@ -131,6 +141,11 @@ public final class ProgramService {
   /** Get the names for active programs. */
   public ImmutableSet<String> getActiveProgramNames() {
     return versionRepository.getProgramNamesForVersion(versionRepository.getActiveVersion());
+  }
+
+  /** Get the ID of the active program corresponding to the program slug */
+  public CompletionStage<Long> getActiveProgramId(String programSlug) {
+    return programRepository.getActiveProgramFromSlug(programSlug).thenApply(program -> program.id);
   }
 
   /** Get the data object about the programs that are in the active or draft version. */
@@ -271,6 +286,21 @@ public final class ProgramService {
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
+  }
+
+  /**
+   * Get the definition of a given program. Gets the active or draft version for the slug (looks for
+   * draft first; gets active if draft doesn't exist).
+   *
+   * @param programSlug the slug of the program to retrieve
+   * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
+   *     ProgramDraftNotFoundException} is thrown if a draft is not available.
+   */
+  public CompletionStage<ProgramDefinition> getActiveOrDraftFullProgramDefinitionAsync(
+      String programSlug) {
+    return programRepository
+        .getDraftOrActiveProgramFromSlug(programSlug)
+        .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
   }
 
   /**
@@ -770,9 +800,7 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
-    if (!programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-      checkApplicationStepErrors(errorsBuilder, applicationSteps);
-    }
+    checkApplicationStepErrors(programType, errorsBuilder, applicationSteps);
 
     return errorsBuilder.build();
   }
@@ -794,30 +822,33 @@ public final class ProgramService {
   }
 
   /**
-   * Check for validation errors on application steps. An error will be shown if: - no application
-   * step is filled in - any application step is partially filled in (missing title or description)
+   * Adds validation errors on application steps for default programs.
    *
-   * <p>Prescreener programs do not require application steps so validation is not checked for those
-   * programs.
-   *
+   * @param programType the type of the program
    * @param errorsBuilder set of program validation errors
    * @param applicationSteps the {@link Locale} to update
    */
   ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
+    // Common intake and external programs don't have application steps.
+    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
+      return errorsBuilder;
+    }
 
+    // Default programs must have at least one application step.
     if (applicationSteps.size() == 0) {
       return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
     }
 
+    // Each application step must have a title and description.
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       String title = step.getTitle().getDefault();
       String description = step.getDescription().getDefault();
       boolean haveTitle = !title.isBlank();
       boolean haveDescription = !description.isBlank();
-      // steps must have title AND description
       if (haveTitle && !haveDescription) {
         errorsBuilder.add(
             CiviFormError.of(
@@ -1166,7 +1197,8 @@ public final class ProgramService {
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
-          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
+          ProgramBlockAdditionResult.of(
+              programDefinition, /* maybeAddedBlockDefinition= */ Optional.empty()));
     }
     BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
     ProgramModel program =

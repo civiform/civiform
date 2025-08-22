@@ -49,7 +49,7 @@ import services.question.types.QuestionType;
  */
 public final class DatabaseSeedTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
 
   public static final QuestionDefinition CANONICAL_NAME_QUESTION =
@@ -62,6 +62,8 @@ public final class DatabaseSeedTask {
                   ImmutableMap.of(
                       Lang.forCode("am").toLocale(),
                       "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                      Lang.forCode("ar").toLocale(),
+                      "الرجاء إدخال اسمك الأول والأخير",
                       Lang.forCode("ko").toLocale(),
                       "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
                       Lang.forCode("so").toLocale(),
@@ -86,8 +88,11 @@ public final class DatabaseSeedTask {
           .setDescription("Applicant's date of birth")
           .setQuestionText(
               LocalizedStrings.of(
-                  Lang.forCode("en-US").toLocale(),
-                  "Please enter your date of birth in the format mm/dd/yyyy"))
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Please enter your date of birth in the format mm/dd/yyyy",
+                      Lang.forCode("ar").toLocale(),
+                      "الرجاء إدخال تاريخ ميلادك بالتنسيق mm/dd/yyyy")))
           .unsafeBuild();
 
   private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
@@ -156,13 +161,13 @@ public final class DatabaseSeedTask {
       String errorMessages =
           result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
 
-      LOGGER.error(
+      logger.error(
           String.format(
               "Unable to create canonical question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
+      logger.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -184,7 +189,7 @@ public final class DatabaseSeedTask {
             });
       } catch (RuntimeException e) {
         // We don't want to prevent startup if seeding fails.
-        LOGGER.error("Failed to seed program categories.", e);
+        logger.error("Failed to seed program categories.", e);
       }
     }
   }
@@ -197,7 +202,7 @@ public final class DatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: {}", e);
+      logger.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

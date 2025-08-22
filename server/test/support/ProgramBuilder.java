@@ -28,14 +28,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.statuses.StatusDefinitions;
 
-/**
- * The ProgramBuilder can only be used by tests that have a database available because the programs
- * it builds are versioned with the version table, and are persisted in the database.
- *
- * <p>If any tests need to use the ProgramBuilder without a database, new `public static
- * ProgramBuilder newProgram` methods can be added to create programs that are not versioned, and do
- * not get persisted to the database.
- */
+/** Use a ProgramBuilder to create a ProgramModel for testing. */
 public class ProgramBuilder {
 
   private static final BlockDefinition EMPTY_FIRST_BLOCK =
@@ -52,14 +45,47 @@ public class ProgramBuilder {
   long programDefinitionId;
   ProgramDefinition.Builder builder;
   AtomicInteger numBlocks = new AtomicInteger(0);
+  // Whether this {@link ProgramBuilder} has been & should be persisted to the database.
+  boolean persisted = true;
 
   private ProgramBuilder(long programDefinitionId, ProgramDefinition.Builder builder) {
     this.programDefinitionId = programDefinitionId;
     this.builder = builder;
   }
 
+  private ProgramBuilder(
+      long programDefinitionId, ProgramDefinition.Builder builder, boolean persisted) {
+    this.programDefinitionId = programDefinitionId;
+    this.builder = builder;
+    this.persisted = persisted;
+  }
+
   public static void setInjector(Injector i) {
     injector = i;
+  }
+
+  /**
+   * Creates {@link ProgramBuilder} with no versionining or DB persistence. Default values are used
+   * for many lower-touch fields.
+   */
+  public static ProgramBuilder newProgram(String name, Long id) {
+    String description = name + " description";
+
+    ProgramDefinition.Builder builder =
+        ProgramDefinition.builder()
+            .setId(id)
+            .setAdminName(name)
+            .setAdminDescription(description)
+            .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
+            .setExternalLink("https://www.google.com")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of());
+    return new ProgramBuilder(id, builder, /* persisted= */ false);
   }
 
   /**
@@ -170,41 +196,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and disabled.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with
+   * {@link DisplayMode} and a blank description.
    */
-  public static ProgramBuilder newDisabledActiveProgram(String name) {
+  public static ProgramBuilder newActiveProgram(String name, DisplayMode displayMode) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
-        DisplayMode.DISABLED,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and hidden in index.
-   */
-  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.HIDDEN_IN_INDEX,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and visible only to Trusted Intermediaries.
-   */
-  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.TI_ONLY,
+        displayMode,
         ProgramType.DEFAULT);
   }
 
@@ -257,7 +257,7 @@ public class ProgramBuilder {
             /* defaultDisplayName */ displayName,
             /* defaultDisplayDescription */ description,
             /* defaultShortDescription */ "short description",
-            /* defaultConfirmationMessage */ "",
+            /* defaultConfirmationMessage */ "thanks for filling",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
             /* notificationPreferences */ ImmutableList.of(),
@@ -405,13 +405,14 @@ public class ProgramBuilder {
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
-
     ProgramModel program = programDefinition.toProgram();
-    program.update();
-    ApplicationStatusesRepository appStatusRepo =
-        injector.instanceOf(ApplicationStatusesRepository.class);
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), new StatusDefinitions());
+    if (persisted) {
+      program.update();
+      ApplicationStatusesRepository appStatusRepo =
+          injector.instanceOf(ApplicationStatusesRepository.class);
+      appStatusRepo.createOrUpdateStatusDefinitions(
+          programDefinition.adminName(), new StatusDefinitions());
+    }
     return program;
   }
 

@@ -88,13 +88,10 @@ public final class ProgramBlockValidation {
   }
 
   private boolean isSingleBlockQuestion(QuestionDefinition question) {
-    switch (question.getQuestionType()) {
-      case ENUMERATOR:
-      case FILEUPLOAD:
-        return true;
-      default:
-        return false;
-    }
+    return switch (question.getQuestionType()) {
+      case ENUMERATOR, FILEUPLOAD -> true;
+      default -> false;
+    };
   }
 
   /**

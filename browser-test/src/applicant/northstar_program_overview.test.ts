@@ -1,14 +1,16 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  ClientInformation,
   enableFeatureFlag,
   loginAsAdmin,
-  logout,
   loginAsTrustedIntermediary,
-  ClientInformation,
   loginAsTestUser,
-  validateScreenshot,
+  logout,
   validateAccessibility,
+  validateScreenshot,
+  selectApplicantLanguageNorthstar,
 } from '../support'
+import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   const programName = 'test'
@@ -43,10 +45,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         programName,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .getByRole('textbox', {name: 'Long program description'})
         .fill(
           'This is the _program long description_ with markdown\n' +
             '[This is a link](https://www.example.com)\n' +
@@ -61,7 +63,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         )
 
       await page
-        .getByRole('textbox', {name: 'Step 1 description *'})
+        .getByRole('textbox', {name: 'Step 1 description'})
         .fill(
           'This is the _application step_ with markdown\n' +
             'Autodetected link: https://www.example.com\n' +
@@ -129,10 +131,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         programName,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .getByRole('textbox', {name: 'Long program description'})
         .fill('')
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
@@ -239,13 +241,9 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         secondProgram,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
-      await page
-        .getByRole('radio', {
-          name: "Allow residents to submit applications even if they don't meet eligibility requirements",
-        })
-        .click()
+      await adminPrograms.chooseEligibility(Eligibility.IS_NOT_GATING)
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
       await logout(page)
@@ -281,7 +279,6 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     const disabledProgramName = 'dis'
 
     await test.step('create a new disabled program', async () => {
@@ -306,7 +303,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
-          name: 'Apply to programs in one place',
+          name: 'Apply for government programs online',
         }),
       ).toBeVisible()
     })
@@ -349,7 +346,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await expect(
       page.getByRole('heading', {
-        name: 'Apply to programs in one place',
+        name: 'Apply for government programs online',
       }),
     ).toBeAttached()
   })
@@ -372,7 +369,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await test.step('verify "logged in as" and logout button are visible', async () => {
       await expect(page.getByText('Logged in as')).toBeVisible()
-      await expect(page.getByRole('link', {name: 'Logout'})).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Logout'})).toBeVisible()
     })
 
     const stepsAndAlertsLocator = page.getByTestId('steps-and-alerts')
@@ -398,24 +395,38 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   }) => {
     await page.goto(`/programs/${programName}`)
 
-    await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
 
     await test.step('verify the create account alert is visible', async () => {
       await expect(
-        page.getByRole('link', {name: 'Start application with an account'}),
+        page.getByRole('button', {name: 'Start application with an account'}),
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
-          name: 'Create an account to save your application information',
+          name: 'To access your application later, create an account',
         }),
       ).toBeVisible()
     })
 
     await test.step('click "Start application as a guest" and verify that it goes to the application', async () => {
       await page
-        .getByRole('link', {name: 'Start application as a guest'})
+        .getByRole('button', {name: 'Start application as a guest'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
+  })
+
+  test('renders right to left', async ({page}) => {
+    await page.goto(`/programs/${programName}`)
+    await selectApplicantLanguageNorthstar(page, 'ar')
+
+    await validateAccessibility(page)
+
+    await validateScreenshot(
+      page.locator('main'),
+      'program-overview-right-to-left',
+      /* fullPage= */ true,
+      /* mobileScreenshot= */ true,
+    )
   })
 })

@@ -7,10 +7,15 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Number question for applicant flow', () => {
   const numberInputError = 'div.cf-question-number-error'
+
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('single number question', () => {
     const programName = 'Test program for single number'
@@ -137,14 +142,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickNext()
 
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError)).toBeVisible()
-      expect(await page.isHidden(numberInputError)).toEqual(false)
+      await expect(page.locator(numberInputError).nth(0)).toBeVisible()
     })
 
     test('with second invalid does not submit', async ({
@@ -156,14 +154,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickNext()
 
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
-      expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
+      await expect(page.locator(numberInputError).nth(1)).toBeVisible()
     })
 
     test('has no accessiblity violations', async ({

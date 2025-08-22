@@ -79,7 +79,8 @@ See the radio-option below as an example.
  * Remove top margin because other surrounding elements add this margin.
  */
 .usa-legend,
-.cf-question-date .usa-memorable-date .usa-form-group {
+.cf-question-date .usa-memorable-date .usa-form-group,
+.cf-question-config .usa-memorable-date .usa-form-group {
   margin-top: 0;
 }
 
@@ -125,17 +126,16 @@ h1.usa-step-indicator__heading {
   line-height: inherit;
 }
 
-.cf-program-card-image {
-  height: 162px;
-  align-self: stretch;
-}
-
 /**
  * USWDS color utils are turned off, so we use the USWDS color manually.
  * See #7951 for detils
  */
 .cf-footer-help-links a {
   @include u-text('base-darkest');
+}
+
+.text-ink {
+  @include u-text('ink');
 }
 
 /**
@@ -160,4 +160,104 @@ h1.usa-step-indicator__heading {
   .cf-footer-technical-suppport {
     @include u-padding-x(6);
   }
+}
+
+// The following styles support an HTMX request "loading" spinner on buttons.
+@keyframes spinner {
+  0% {
+    transform: translate3d(-50%, -50%, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) rotate(360deg);
+  }
+}
+
+// We allow any button with the `htmx-request` class to show a spinner.
+button.usa-button.htmx-request {
+  opacity: 1;
+  position: relative;
+  transition: opacity linear 0.1s;
+  // Make text transparent, so the spinner can show.
+  color: rgba(0, 0, 0, 0);
+
+  &::before {
+    animation: 1.3s linear infinite spinner;
+    // Same as .usa-button (#005ea2), but 1/8 lighter
+    border: solid 3px #2073bc;
+    border-bottom-color: white;
+    border-radius: 50%;
+    content: '';
+    height: 25px;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    transform-origin: center;
+    width: 25px;
+    will-change: transform;
+  }
+  // Sometimes, we may also disable the button when the request is pending.
+  // In this case, we should remove default disabled-button styling.
+  &:disabled {
+    box-shadow: inset 0 0 0 2px #005ea2;
+    &:hover {
+      // Make text transparent, so the spinner can show.
+      color: rgba(0, 0, 0, 0);
+      background-color: #005ea2;
+    }
+  }
+}
+
+// Different colors for outlined buttons
+button.usa-button.usa-button--outline.htmx-request,
+button.usa-button.usa-button--unstyled.htmx-request {
+  &::before {
+    // Same as .usa-button--outline (#005ea2), but 7/8 lighter
+    border: solid 3px rgba(0, 94, 162, 0.125);
+    border-bottom-color: #005ea2;
+  }
+  &:disabled:hover {
+    background-color: transparent;
+  }
+}
+
+// Removing padding around the admin header nav items
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
+  padding: 0 1rem;
+}
+
+// Removing padding around the admin header nav items settings icon
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
+  padding: 0;
+}
+
+// This keeps the main content visible at reasonable smaller widths so
+// that the admin header does not cover anything. The entire admin site
+// starts to fall apart under 800px. At extreme min widths overlapping
+// may still occur.
+@media (screen and max-width: 800px) {
+  .admin-responsive-main-padding {
+    @include u-padding-top(4);
+  }
+}
+
+// Set the background color to match tailwind bg-gray-900
+// for non-tailwind pages
+.usa-banner.cf-admin-heading-background-color {
+  background-color: rgb(17 24 39);
+}
+
+// Having to override this way due to specificity issues
+.usa-banner__inner.margin-left-0 {
+  margin-left: 0;
+}
+
+// Gradient used in the admin background. USWDS does not have
+// built in gradient utility classes like Tailwind does.
+.body-background-gradient {
+  /* gray-100 -> white -> gray-100 */
+  background-image: linear-gradient(to right, #f3f4f6, #ffffff, #f3f4f6);
 }

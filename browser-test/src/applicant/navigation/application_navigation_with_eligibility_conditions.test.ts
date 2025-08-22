@@ -1,7 +1,7 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
-  enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -11,6 +11,10 @@ import {
 import {Eligibility} from '../../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('navigation with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
@@ -364,7 +368,6 @@ test.describe('Applicant navigation flow', () => {
       adminPrograms,
     }) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
       await test.step('Add eligibility message with markdown', async () => {
         const eligibilityMsg =

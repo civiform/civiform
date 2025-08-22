@@ -47,16 +47,18 @@ public final class AccountRepository {
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final TransactionManager transactionManager;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
   private final SessionLifecycle sessionLifecycle;
 
   @Inject
   public AccountRepository(
-      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
+      DatabaseExecutionContext dbExecutionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.transactionManager = new TransactionManager();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
 
@@ -77,7 +79,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("listApplicants"))
                 .findSet(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicant(long id) {
@@ -89,7 +91,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findById")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicant"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
@@ -132,7 +134,7 @@ public final class AccountRepository {
                 .setLabel("AccountModel.findByEmail")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailAsync"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   /**
@@ -142,21 +144,27 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    Optional<ApplicantModel> applicantOpt =
-        account.getApplicants().stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
-    return applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+    return transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApplicantModel> applicantOpt =
+              account.getApplicants().stream()
+                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+          return applicantOpt.orElseGet(
+              () -> new ApplicantModel().setAccount(account).saveAndReturn());
+        });
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
       String authorityId) {
     return supplyAsync(
         () -> lookupAccountByAuthorityId(authorityId).map(this::getOrCreateApplicant),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
-        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), executionContext);
+        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant),
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> insertApplicant(ApplicantModel applicant) {
@@ -165,7 +173,7 @@ public final class AccountRepository {
           database.insert(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> updateApplicant(ApplicantModel applicant) {
@@ -174,7 +182,7 @@ public final class AccountRepository {
           database.update(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public void updateTiClient(
@@ -232,12 +240,14 @@ public final class AccountRepository {
   public CompletionStage<ApplicantModel> mergeApplicants(
       ApplicantModel left, ApplicantModel right, AccountModel account) {
     return supplyAsync(
-        () -> {
-          left.setAccount(account).save();
-          right.setAccount(account).save();
-          return mergeApplicants(left, right).saveAndReturn();
-        },
-        executionContext);
+        () ->
+            transactionManager.execute(
+                () -> {
+                  left.setAccount(account).save();
+                  right.setAccount(account).save();
+                  return mergeApplicants(left, right).saveAndReturn();
+                }),
+        dbExecutionContext);
   }
 
   /** Merge the applicant data from older applicant into the newer applicant. */
@@ -270,11 +280,14 @@ public final class AccountRepository {
   }
 
   public void deleteTrustedIntermediaryGroup(long id) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    database.delete(tiGroup.get());
+    transactionManager.executeWithRetry(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          database.delete(tiGroup.get());
+        });
   }
 
   public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(long id) {
@@ -292,26 +305,29 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
-    AccountModel account =
-        accountMaybe.orElseGet(
-            () -> {
-              AccountModel a = new AccountModel();
-              a.setEmailAddress(emailAddress);
-              a.save();
-              return a;
-            });
+    transactionManager.execute(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+          AccountModel account =
+              accountMaybe.orElseGet(
+                  () -> {
+                    AccountModel a = new AccountModel();
+                    a.setEmailAddress(emailAddress);
+                    a.save();
+                    return a;
+                  });
 
-    if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
-      throw new NotEligibleToBecomeTiError();
-    }
+          if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+            throw new NotEligibleToBecomeTiError();
+          }
 
-    account.setMemberOfGroup(tiGroup.get());
-    account.save();
+          account.setMemberOfGroup(tiGroup.get());
+          account.save();
+        });
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
@@ -358,25 +374,27 @@ public final class AccountRepository {
   public Long createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
-    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
-      if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
+    String formEmail = form.getEmailAddress();
+    if (!Strings.isNullOrEmpty(formEmail)) {
+      if (lookupAccountByEmail(formEmail).isPresent()) {
         throw new EmailAddressExistsException();
       }
-      newAccount.setEmailAddress(form.getEmailAddress());
+      newAccount.setEmailAddress(formEmail);
     }
-    newAccount.setManagedByGroup(tiGroup);
-    newAccount.setTiNote(form.getTiNote());
-    newAccount.save();
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(newAccount);
+    newAccount.setManagedByGroup(tiGroup).setTiNote(form.getTiNote()).save();
+
+    ApplicantModel applicant =
+        new ApplicantModel()
+            .setAccount(newAccount)
+            .setDateOfBirth(form.getDob())
+            .setEmailAddress(formEmail)
+            .setPhoneNumber(form.getPhoneNumber());
+
     applicant.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
         Optional.ofNullable(form.getNameSuffix()));
-    applicant.setDateOfBirth(form.getDob());
-    applicant.setEmailAddress(form.getEmailAddress());
-    applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
     return applicant.id;
   }
@@ -399,18 +417,19 @@ public final class AccountRepository {
       return Optional.of(
           CiviFormError.of(
               String.format(
-                  "Cannot add %s as a Program Admin because they do not have an admin account."
-                      + " Have the user log in as admin on the home page, then they can be added"
-                      + " as a Program Admin.",
+                  "Cannot add %s as a Program Admin because they haven't previously logged into"
+                      + " CiviForm. Have the user log in, then add them as a Program Admin. After"
+                      + " they've been added, they will need refresh their browser see the programs"
+                      + " they've been assigned to.",
                   accountEmail)));
-    } else {
-      maybeAccount.ifPresent(
-          account -> {
-            account.addAdministeredProgram(program);
-            account.save();
-          });
-      return Optional.empty();
     }
+
+    maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
+    return Optional.empty();
   }
 
   /**

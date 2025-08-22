@@ -8,6 +8,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  selectApplicantLanguageNorthstar,
 } from '../../support'
 
 test.describe(
@@ -67,6 +68,23 @@ test.describe(
         )
 
         await validateAccessibility(page)
+      })
+
+      test('renders correctly right to left', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await selectApplicantLanguageNorthstar(page, 'ar')
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-options-right-to-left',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
       })
     })
 
@@ -187,8 +205,10 @@ test.describe(
           '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
         ])
         await validateScreenshot(
-          page,
+          page.getByTestId('questionRoot'),
           'radio-button-options-with-markdown-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
         )
       })
 
@@ -215,7 +235,12 @@ test.describe(
           },
           /* clickSubmit= */ false,
         )
-        await validateScreenshot(page, 'radio-options-long-text-preview')
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-options-long-text-preview',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
         await adminQuestions.clickSubmitButtonAndNavigate('Create')
         await adminPrograms.addAndPublishProgramWithQuestions(
           ['long-option-test'],
@@ -227,7 +252,12 @@ test.describe(
           longTextProgramName,
           /* northStarEnabled= */ true,
         )
-        await validateScreenshot(page, 'radio-options-long-text-applicant')
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-options-long-text-applicant',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
       })
     })
 

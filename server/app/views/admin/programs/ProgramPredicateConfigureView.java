@@ -184,42 +184,36 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     final Optional<PredicateDefinition> existingPredicate;
 
     switch (type) {
-      case ELIGIBILITY:
-        {
-          typeDisplayName = "eligibility";
-          existingPredicate =
-              forceNew
-                  ? Optional.empty()
-                  : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      case VISIBILITY:
-        {
-          typeDisplayName = "visibility";
-          existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      default:
-        {
-          throw new IllegalArgumentException(
-              String.format("Unknown predicate view type: %s", type));
-        }
+      case ELIGIBILITY -> {
+        typeDisplayName = "eligibility";
+        existingPredicate =
+            forceNew
+                ? Optional.empty()
+                : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      case VISIBILITY -> {
+        typeDisplayName = "visibility";
+        existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      default -> {
+        throw new IllegalArgumentException(String.format("Unknown predicate view type: %s", type));
+      }
     }
 
     DivTag content =
@@ -374,25 +368,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   private static ImmutableList<PredicateExpressionNode> getExistingAndNodes(
       PredicateDefinition existingPredicate) {
     PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
-    switch (format) {
-      case SINGLE_QUESTION:
-        {
-          return ImmutableList.of(
+    return switch (format) {
+      case SINGLE_QUESTION ->
+          ImmutableList.of(
               PredicateExpressionNode.create(
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
-        }
-
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return existingPredicate.rootNode().getOrNode().children();
-        }
-
-      default:
-        {
+      case OR_OF_SINGLE_LAYER_ANDS -> existingPredicate.rootNode().getOrNode().children();
+      default ->
           throw new IllegalArgumentException(
               String.format("Unrecognized predicate format: %s", format));
-        }
-    }
+    };
   }
 
   private static ImmutableMap<Long, LeafExpressionNode> getOneRowOfLeafNodes(
@@ -420,7 +405,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       container.with(
           div(
                   div()
-                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                      .with(TextFormatter.formatTextForAdmins(qd.getQuestionText().getDefault()))
                       .withClasses(
                           BaseStyles.INPUT,
                           "text-gray-500",
@@ -494,11 +479,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .with(
                     div()
                         .with(
-                            TextFormatter.formatText(
+                            TextFormatter.formatTextForAdmins(
                                 questionDefinition.getQuestionText().getDefault()))
                         .withClasses("font-bold"),
                     div()
-                        .with(TextFormatter.formatText(questionHelpText))
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));

@@ -36,7 +36,6 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -71,7 +70,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String PAGE_TITLE = "Image upload";
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProgramImageView.class);
+  private static final Logger logger = LoggerFactory.getLogger(ProgramImageView.class);
 
   private final AdminLayout layout;
   private final String baseUrl;
@@ -157,7 +156,7 @@ public final class ProgramImageView extends BaseHtmlView {
             northStarProgramCardPreviewController.cardPreview(request, programDefinition.id());
         cardPreview = div(rawHtml(content));
       } catch (InterruptedException | ExecutionException e) {
-        LOGGER.error("Error generating card preview: " + e.getLocalizedMessage());
+        logger.error("Error generating card preview: " + e.getLocalizedMessage());
         cardPreview = div(text("Error generating card preview")).withClass("text-center");
       }
       formsAndCurrentCardContainer.with(cardPreview);
@@ -180,23 +179,18 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private ATag createBackButton(
       ProgramDefinition programDefinition, ProgramEditStatus programEditStatus) {
-    String backTarget;
-    switch (programEditStatus) {
-      case EDIT:
-        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
-        break;
-      case CREATION:
-      case CREATION_EDIT:
-        // By the time we're in the image view, the program has been created so the new status is
-        // CREATION_EDIT.
-        backTarget =
-            routes.AdminProgramController.edit(
-                    programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
-                .url();
-        break;
-      default:
-        throw new IllegalStateException("All cases should be handled above");
-    }
+    String backTarget =
+        switch (programEditStatus) {
+          case EDIT -> routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+          case CREATION, CREATION_EDIT ->
+              // By the time we're in the image view, the program has been created so the new status
+              // is
+              // CREATION_EDIT.
+              routes.AdminProgramController.edit(
+                      programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
+                  .url();
+          default -> throw new IllegalStateException("All cases should be handled above");
+        };
 
     return new LinkElement()
         .setHref(backTarget)
@@ -235,11 +229,8 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
-            AlertComponent.renderSlimAlert(
-                AlertType.INFO,
-                "Note: Image description is required before uploading an image.",
-                /* hidden= */ false,
-                "mb-2"))
+            AlertComponent.renderSlimInfoAlert(
+                "Note: Image description is required before uploading an image.", "mb-2"))
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
@@ -366,7 +357,6 @@ public final class ProgramImageView extends BaseHtmlView {
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile,
             zoneId,

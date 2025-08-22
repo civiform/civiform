@@ -14,6 +14,7 @@ import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.title;
+import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -32,6 +33,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.components.Icons;
+import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -50,6 +52,7 @@ public class BaseHtmlLayout {
   private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
   private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
   private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
+  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
   private final AssetsFinder assetsFinder;
@@ -107,6 +110,11 @@ public class BaseHtmlLayout {
     bundle.addMetadata(
         meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
     bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
+    bundle.addMetadata(
+        meta()
+            .withName("htmx-config")
+            .withContent(
+                "{\"inlineStyleNonce\":\"" + CspUtil.getNonce(bundle.getRequest()) + "\"}"));
     if (addNoindexMetaTag) {
       bundle.addMetadata(meta().withName("robots").withContent("noindex"));
     }
@@ -126,6 +134,9 @@ public class BaseHtmlLayout {
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
+    if (settingsManifest.getMapQuestionEnabled()) {
+      bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+    }
 
     // Add Google analytics scripts.
     measurementId
@@ -135,7 +146,6 @@ public class BaseHtmlLayout {
     // Add the favicon link
     bundle.setFavicon(settingsManifest.getFaviconUrl().get());
     bundle.setJsBundle(getJsBundle());
-
     return bundle;
   }
 
@@ -151,8 +161,18 @@ public class BaseHtmlLayout {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
     // Best practice: add ❤️ every time you touch this file :)
-    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️"));
+    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️❤️"));
     return bundle.render();
+  }
+
+  protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
+    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+        && bundle.getRequest() instanceof Http.Request) {
+      // Add the session timeout modals to the bundle
+      Http.Request request = (Http.Request) bundle.getRequest();
+      String csrfToken = getCsrfToken(request);
+      bundle.addUswdsModals(SessionTimeoutModals.render(messages, csrfToken));
+    }
   }
 
   protected String getTitleSuffix() {
@@ -171,16 +191,16 @@ public class BaseHtmlLayout {
             .isAsync()
             .withType("text/javascript");
     String googleAnalyticsCode =
-        "window.dataLayer = window.dataLayer || [];"
-            + "\nfunction gtag() {"
-            + "\n\tdataLayer.push(arguments);"
-            + "\n}"
-            + "\ngtag('js', new Date());"
-            + "\ngtag('config', '%s');";
-    ScriptTag rawScript =
-        script()
-            .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .withType("text/javascript");
+        String.format(
+            """
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '%s');""",
+            trackingTag);
+    ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 
