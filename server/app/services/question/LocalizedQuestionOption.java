@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Locale;
 import java.util.Optional;
 import services.MessageKey;
+import services.question.types.YesNoQuestionConstants;
 import views.components.TextFormatter;
 
 /**
@@ -48,10 +49,10 @@ public abstract class LocalizedQuestionOption {
   /** Returns the message key for yes/no question options. Only applicable to yes/no questions. */
   public String getYesNoOptionMessageKey() {
     return switch (adminName()) {
-      case "yes" -> MessageKey.OPTION_YES.getKeyName();
-      case "no" -> MessageKey.OPTION_NO.getKeyName();
-      case "not-sure" -> MessageKey.OPTION_NOT_SURE.getKeyName();
-      case "maybe" -> MessageKey.OPTION_MAYBE.getKeyName();
+      case YesNoQuestionConstants.YES_ADMIN_NAME -> MessageKey.OPTION_YES.getKeyName();
+      case YesNoQuestionConstants.NO_ADMIN_NAME -> MessageKey.OPTION_NO.getKeyName();
+      case YesNoQuestionConstants.NOT_SURE_ADMIN_NAME -> MessageKey.OPTION_NOT_SURE.getKeyName();
+      case YesNoQuestionConstants.MAYBE_ADMIN_NAME -> MessageKey.OPTION_MAYBE.getKeyName();
       default -> "";
     };
   }
