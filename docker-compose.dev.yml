@@ -35,7 +35,6 @@ services:
   localstack:
     ports:
       - 4566:4566
-
   azurite:
     ports:
       - 10000:10000
@@ -94,8 +93,6 @@ services:
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
       - grafana-data:/var/lib/grafana
-    links:
-      - prometheus
 
 volumes:
   db-data:
