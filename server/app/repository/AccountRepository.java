@@ -267,7 +267,9 @@ public final class AccountRepository {
       older = applicant2;
     }
     // The newer applicant is always preferred when more than one applicant
-    // matches an account; merge the older one into it.
+    // matches an account; merge the older one into it, preferring data in the
+    //  newer one.
+
     newer.getApplicantData().mergeFrom(older.getApplicantData());
     return newer;
   }
