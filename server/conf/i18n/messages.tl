@@ -1024,6 +1024,9 @@ category.tag.housing=Pabahay
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Militar
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Pagsasanay
 
@@ -1032,6 +1035,9 @@ category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Beterano
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Mga Kategorya
@@ -1062,4 +1068,4 @@ session.extended.success=Na-extend na ang session
 session.extended.error=Hindi na-extend ang session
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+translation.untranslated=Mananatiling hindi naka-translate ang string na ito para sa mga eksperimento sa imprastraktura ng pag-translate.
