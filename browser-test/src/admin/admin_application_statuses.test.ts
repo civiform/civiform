@@ -13,7 +13,7 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
-  disableFeatureFlag,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -23,7 +23,7 @@ test.describe('view program statuses', () => {
   const emailBody = 'Some email content'
 
   test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'program_filtering_enabled')
   })
 
   test.describe('without program statuses', () => {
@@ -1009,6 +1009,18 @@ test.describe('view program statuses', () => {
       await loginAsTestUser(page)
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    await test.step('submit an application as a TI and verify Submitted by column is present', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+
+      const row = await page.$('table tbody tr:last-child')
+      const submittedByElement = await row.$('td:nth-child(5)')
+      await expect(submittedByElement).toHaveText('Test User Name')
+
       await logout(page)
     })
   }
