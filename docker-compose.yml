@@ -27,6 +27,8 @@ services:
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37
     profiles: ['azure', 'emulator']
+    # TODO: remove the command section below once the next version of Azurite is released https://github.com/Azure/Azurite/issues/2562
+    command: ["azurite", "--skipApiVersionCheck"]
     expose:
       - '10000'
 
