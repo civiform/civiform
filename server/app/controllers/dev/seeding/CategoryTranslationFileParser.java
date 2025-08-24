@@ -102,6 +102,12 @@ public final class CategoryTranslationFileParser {
       }
     }
 
+    return createCategoryModels(categoryTranslations, configuredLanguages);
+  }
+
+  private List<CategoryModel> createCategoryModels(
+      Map<String, Map<String, String>> categoryTranslations,
+      ImmutableSet<String> configuredLanguages) {
     // Find categories that exist in ALL configured languages and create models
     ImmutableList.Builder<CategoryModel> categoryModels = ImmutableList.builder();
 
