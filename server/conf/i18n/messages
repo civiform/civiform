@@ -923,6 +923,8 @@ map.applyFiltersButtonText=Apply filters
 map.locationLinkText=See more details
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Displaying {0} of {1} locations
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No locations have been selected.
 # Text for map question reset filters button
@@ -933,6 +935,8 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Selected locations
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Please select at most {0} locations.
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

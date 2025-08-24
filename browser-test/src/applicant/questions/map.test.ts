@@ -170,9 +170,13 @@ if (isLocalDevEnvironment()) {
           await applyButton.click()
 
           // Verify location has changed
-          const locationCount = page.getByText(/\d+.*location/i)
+          const locationCount = page.getByText(
+            /Displaying \d+ of \d+ locations/i,
+          )
           if (await locationCount.isVisible()) {
-            await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
+            await expect(locationCount).toHaveText(
+              'Displaying 2 of 5 locations',
+            )
           }
         })
 

@@ -1,0 +1,78 @@
+<div th:fragment="map-question-preview(question, geoJson, cspNonce)">
+  <!-- Scrollable container with location checkboxes -->
+  <div
+    class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0 overflow-y-auto cf-locations-column border-2px border-gray-30 padding-1 radius-md"
+  >
+    <div
+      th:if="${questionRendererParams.geoJson().isPresent()}"
+      class="cf-locations-list"
+      data-testid="locations-list"
+      th:data-map-id="${mapId}"
+      role="group"
+      aria-label="Location selection"
+    >
+      <div
+        th:with="totalLocations=${questionRendererParams.geoJson().get().features().size()}"
+        class="text-ink margin-bottom-1 cf-location-count"
+        th:data-map-id="${mapId}"
+        th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
+      ></div>
+      <div
+        th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
+        th:with="locationId='location-' + ${iterator.index},
+                     locationName=${feature.properties().get(mapQuestion.getNameValue())},
+                     locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
+                     locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                     featureId=${feature.id}"
+        th:data-feature-id="${featureId}"
+        class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
+      >
+        <input
+          class="usa-checkbox__input cf-location-checkbox-input"
+          th:id="${locationId}"
+          th:value="${locationName}"
+          th:name="${mapQuestion.getSelectionPathAsArray()}"
+          th:checked="${mapQuestion.locationIsSelected(locationName)}"
+          type="checkbox"
+        />
+        <label
+          class="usa-checkbox__label cf-location-checkbox-label"
+          th:for="${locationId}"
+        >
+          <div
+            class="text-bold cf-location-checkbox-name"
+            th:text="${locationName}"
+          ></div>
+          <div
+            class="cf-location-checkbox-address"
+            th:if="${locationAddress}"
+            th:text="${locationAddress}"
+          ></div>
+          <a
+            th:if="${locationUrl}"
+            th:href="${locationUrl}"
+            class="usa-link usa-link--external cf-location-checkbox-link"
+            target="_blank"
+            th:text="#{map.locationLinkText}"
+          ></a>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map question preview container -->
+  <div class="grid-col-12 desktop:grid-col-6">
+    <!-- TODO(#11150): Add map question preview functionality -->
+    <div th:id="preview" class="cf-map-container width-full"></div>
+  </div>
+  <script th:inline="javascript" th:nonce="${cspNonce}">
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.maps = window.app.data.maps || {}
+
+    id = 'preview'
+    window.app.data.maps[id] = {
+      geoJson: /*[[${model.geoJson}]]*/ {},
+    }
+  </script>
+</div>

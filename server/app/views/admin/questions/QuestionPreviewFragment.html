@@ -5,10 +5,17 @@
     ></div>
   </th:block>
 
-  <div
-    th:if="${question.getType().getLabel() != 'File Upload'}"
-    th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
-  ></div>
+  <!--  <th:block th:if="${question.getType().getLabel() == 'Map'}">-->
+  <!--    <div-->
+  <!--      th:replace="~{questiontypes/MapQuestionPreviewFragment :: map-question-preview(question, geoJson, cspNonce)}"-->
+  <!--    ></div>-->
+  <!--  </th:block>-->
+
+  <th:block th:if="${question.getType().getLabel() != 'File Upload'}">
+    <div
+      th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
+    ></div>
+  </th:block>
   <div
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>

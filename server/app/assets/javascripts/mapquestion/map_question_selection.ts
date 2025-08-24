@@ -10,9 +10,11 @@ import {
   queryLocationCheckboxes,
   DATA_FEATURE_ID_ATTR,
   CF_LOCATION_CHECKBOX_INPUT,
+  CF_SELECTED_LOCATION_MESSAGE,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
+  updateSelectedLocations(mapId)
   const locationCheckboxes = queryLocationCheckboxes(mapId)
 
   locationCheckboxes.forEach((locationCheckbox) => {
@@ -86,6 +88,35 @@ const updateSelectedLocations = (mapId: string): void => {
         }
       }
     })
+  }
+  updateSelectionCountForMap(mapId)
+}
+
+const updateSelectionCountForMap = (mapId: string): void => {
+  let count = 0
+  const selectedLocationsListContainer = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATIONS_LIST,
+  ) as HTMLElement | null
+
+  if (selectedLocationsListContainer == null) {
+    return
+  }
+
+  if (selectedLocationsListContainer?.classList.contains('display-none')) {
+    count = 0
+  } else {
+    count =
+      selectedLocationsListContainer.querySelectorAll(`.usa-checkbox`).length
+  }
+
+  const countText = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATION_MESSAGE,
+  ) as HTMLElement | null
+
+  if (countText) {
+    countText.textContent = `${count} of ${window.app.data.maxLocationSelections} maximum locations selected.`
   }
 }
 

@@ -174,7 +174,7 @@ const addPopupsToMap = (
 
     const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
 
-    const popup = new Popup({closeButton: false}).setLngLat(coordinates)
+    const popup = new Popup().setLngLat(coordinates)
 
     const originalId: string = properties.originalId as string
     const popupContent = createPopupContent(
