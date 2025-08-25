@@ -61,7 +61,6 @@ jobs:
         version:
           [
             'formatter',
-            'localstack',
             'browser_test',
             'oidc',
             'mock-web-services',
@@ -71,11 +70,6 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
-            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
-          - version: localstack
-            image: 'civiform/civiform-localstack:latest'
-            script: 'bin/build-localstack-env'
-            file_pattern: 'localstack/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
