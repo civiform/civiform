@@ -11,13 +11,14 @@ import services.program.ProgramDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.YesNoQuestionConstants;
 
 /** Utility class to validate questions during the program import flow. */
 final class QuestionValidationUtils {
 
   // The allowed options for YES_NO questions
   private static final ImmutableSet<String> ALLOWED_YES_NO_OPTIONS =
-      ImmutableSet.of("yes", "no", "maybe", "not-sure");
+      YesNoQuestionConstants.VALID_YES_NO_OPTIONS;
 
   /**
    * Validates attributes of the question, including admin name, help text, and question options.
@@ -91,7 +92,7 @@ final class QuestionValidationUtils {
                             yesNoQuestion.getName(), optionName)));
 
     Stream<CiviFormError> missingRequiredErrors =
-        Stream.of("yes", "no")
+        YesNoQuestionConstants.REQUIRED_YES_NO_OPTIONS.stream()
             .filter(requiredOption -> !optionAdminNames.contains(requiredOption))
             .map(
                 missingOption ->
