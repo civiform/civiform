@@ -60,7 +60,7 @@ WHERE
       try {
         database.sqlUpdate(sqlUpdate).execute();
         logger.debug("Updated Accounts table with last_activity_time.");
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         logger.error(e.getMessage(), e);
         errorCount++;
       }
