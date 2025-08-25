@@ -62,6 +62,16 @@ public class ResourceCreator {
     return apiKey;
   }
 
+  public void setLastActivityTimeToNull(AccountModel account) {
+    database
+        .update(AccountModel.class)
+        .setNull("last_activity_time")
+        .where()
+        .eq("id", account.id)
+        .update();
+    account.save();
+  }
+
   public void truncateTables() {
     Models.truncate(database);
   }
