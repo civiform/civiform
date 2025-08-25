@@ -203,6 +203,257 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors.iterator().next().message()).contains(REPEATED_NAME_QUESTION.getName());
   }
 
+  @Test
+  public void validateYesNoQuestions_allValidOptions_noErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "valid-yes-no-question", ImmutableList.of("yes", "no", "maybe", "not-sure"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateYesNoQuestions_minimalValidOptions_noErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions("minimal-yes-no-question", ImmutableList.of("yes", "no"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateYesNoQuestions_invalidOption_returnsError() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "invalid-yes-no-question", ImmutableList.of("yes", "no", "absolutely"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .contains(
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. "
+                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_multipleInvalidOptions_returnsAllErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "invalid-yes-no-question", ImmutableList.of("yes", "absolutely", "definitely-not"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(3);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'absolutely'. Only"
+                + " 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'definitely-not'."
+                + " Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'invalid-yes-no-question' is missing required 'no' option.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_mixedQuestionTypes_onlyValidatesYesNo() {
+    QuestionDefinition textQuestion = createQuestion("text-question", 1L);
+    QuestionDefinition dropdownQuestion =
+        createDropdownQuestionWithOptions(
+            "dropdown-question", ImmutableList.of("custom-option-1", "custom-option-2"));
+    QuestionDefinition validYesNoQuestion =
+        createYesNoQuestionWithOptions("valid-yes-no-question", ImmutableList.of("yes", "no"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(
+            ImmutableList.of(textQuestion, dropdownQuestion, validYesNoQuestion));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateYesNoQuestions_mixedValidAndInvalidYesNo_returnsInvalidError() {
+    QuestionDefinition validYesNoQuestion =
+        createYesNoQuestionWithOptions("valid-yes-no-question", ImmutableList.of("yes", "no"));
+    QuestionDefinition invalidYesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "invalid-yes-no-question", ImmutableList.of("yes", "no", "perhaps"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(
+            ImmutableList.of(validYesNoQuestion, invalidYesNoQuestion));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .contains(
+            "YES_NO question 'invalid-yes-no-question' contains invalid option 'perhaps'. "
+                + "Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_emptyQuestionList_noErrors() {
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateYesNoQuestions_noYesNoQuestions_noErrors() {
+    QuestionDefinition textQuestion = createQuestion("text-question", 1L);
+    QuestionDefinition dropdownQuestion =
+        createDropdownQuestionWithOptions(
+            "dropdown-question", ImmutableList.of("option-1", "option-2"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(
+            ImmutableList.of(textQuestion, dropdownQuestion));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateYesNoQuestions_caseExactMatch_validatesCorrectly() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions("case-sensitive-question", ImmutableList.of("Yes", "No"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(4);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "YES_NO question 'case-sensitive-question' contains invalid option 'Yes'. Only 'yes',"
+                + " 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'case-sensitive-question' contains invalid option 'No'. Only 'yes',"
+                + " 'no', 'maybe', and 'not-sure' options are allowed.",
+            "YES_NO question 'case-sensitive-question' is missing required 'yes' option.",
+            "YES_NO question 'case-sensitive-question' is missing required 'no' option.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_missingYesOption_returnsError() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions("missing-yes-question", ImmutableList.of("no", "maybe"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains("YES_NO question 'missing-yes-question' is missing required 'yes' option.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_missingNoOption_returnsError() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions("missing-no-question", ImmutableList.of("yes", "not-sure"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains("YES_NO question 'missing-no-question' is missing required 'no' option.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_missingBothRequiredOptions_returnsBothErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "missing-both-required-question", ImmutableList.of("maybe", "not-sure"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(2);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "YES_NO question 'missing-both-required-question' is missing required 'yes' option.",
+            "YES_NO question 'missing-both-required-question' is missing required 'no' option.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_hasRequiredOptionsAndInvalidOnes_returnsOnlyInvalidErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "valid-required-invalid-extra-question",
+            ImmutableList.of("yes", "no", "invalid-option"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "YES_NO question 'valid-required-invalid-extra-question' contains invalid option"
+                + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
+                + " allowed.");
+  }
+
+  @Test
+  public void validateYesNoQuestions_missingRequiredAndHasInvalid_returnsAllErrors() {
+    QuestionDefinition yesNoQuestion =
+        createYesNoQuestionWithOptions(
+            "missing-and-invalid-question", ImmutableList.of("yes", "invalid-option"));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
+
+    assertThat(errors).hasSize(2);
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "YES_NO question 'missing-and-invalid-question' contains invalid option"
+                + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
+                + " allowed.",
+            "YES_NO question 'missing-and-invalid-question' is missing required 'no' option.");
+  }
+
+  // Helper methods for YES/NO question
+  private QuestionDefinition createYesNoQuestionWithOptions(
+      String name, ImmutableList<String> optionNames) {
+    return createMultiOptionQuestionWithOptions(name, QuestionType.YES_NO, optionNames);
+  }
+
+  private QuestionDefinition createDropdownQuestionWithOptions(
+      String name, ImmutableList<String> optionNames) {
+    return createMultiOptionQuestionWithOptions(name, QuestionType.DROPDOWN, optionNames);
+  }
+
+  private QuestionDefinition createMultiOptionQuestionWithOptions(
+      String name, QuestionType type, ImmutableList<String> optionNames) {
+    ImmutableList.Builder<QuestionOption> optionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < optionNames.size(); i++) {
+      optionsBuilder.add(
+          QuestionOption.create(
+              (long) i, optionNames.get(i), LocalizedStrings.of(Locale.US, optionNames.get(i))));
+    }
+
+    MultiOptionQuestionType multiOptionType =
+        switch (type) {
+          case YES_NO -> MultiOptionQuestionType.YES_NO;
+          case DROPDOWN -> MultiOptionQuestionType.DROPDOWN;
+          case RADIO_BUTTON -> MultiOptionQuestionType.RADIO_BUTTON;
+          case CHECKBOX -> MultiOptionQuestionType.CHECKBOX;
+          default -> throw new IllegalArgumentException("Unsupported multi-option type: " + type);
+        };
+
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setDescription("Test " + type.name() + " question")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Select an option"))
+            .build();
+
+    return new MultiOptionQuestionDefinition(config, optionsBuilder.build(), multiOptionType);
+  }
+
   // Helper methods to create test questions
   private static QuestionDefinition createQuestion(String name, Long id) {
     return createQuestionWithEnumerator(name, id, Optional.empty());

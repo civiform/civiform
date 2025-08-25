@@ -129,7 +129,7 @@ export interface BlockSpec {
   questions?: QuestionSpec[]
 }
 
-function slugify(value: string): string {
+export function slugify(value: string): string {
   return value
     .toLowerCase()
     .replace(/ /g, '-')
@@ -1627,6 +1627,10 @@ export class AdminPrograms {
     return this.page.locator(this.statusSelector()).inputValue()
   }
 
+  async expectStatusSelection(status: string) {
+    await expect(this.page.locator(this.statusSelector())).toHaveValue(status)
+  }
+
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
@@ -1695,8 +1699,9 @@ export class AdminPrograms {
   }
 
   async expectNoteUpdatedToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain('Application note updated')
+    await expect(this.page.locator('#toast-container')).toContainText(
+      'Application note updated',
+    )
   }
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
