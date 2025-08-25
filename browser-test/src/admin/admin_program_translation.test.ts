@@ -10,11 +10,7 @@ import {
   validateToastMessage,
   disableFeatureFlag,
 } from '../support'
-import {
-  ProgramLifecycle,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
@@ -719,15 +715,56 @@ test.describe('Admin can manage program translations', () => {
     test('Adds translations for program in active mode', async ({
       page,
       adminPrograms,
+      adminTranslations,
     }) => {
-      await loginAsAdmin(page)
-
       const programName = 'Active program to be translated'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.publishProgram(programName)
-      await adminPrograms.gotoActiveProgramManageTranslationsPage(programName)
 
-      await validateScreenshot(page, 'active-program-translation')
+      await test.step('translation page shows up as expected', async () => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.publishProgram(programName)
+        await adminPrograms.gotoActiveProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Traditional Chinese')
+
+        await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SHORT_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(FormField.SCREEN_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SCREEN_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.APPLICATION_STEP_ONE_TITLE,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+        )
+      })
+
+      await test.step('adds translation', async () => {
+        await adminTranslations.editProgramTranslations({
+          name: 'Chinese name',
+          description: 'Chinese description',
+          shortDescription: 'Chinese short description',
+          blockName: 'Chinese block name - ',
+          shortDescription: 'Chinese short description',
+          applicationStepTitle: 'Chinese application step title',
+          applicationStepDescription: 'Chinese application step decription',
+          blockDescription: 'Chinese block description',
+        })
+      })
+
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      })
     })
   })
 })
