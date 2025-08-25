@@ -14,7 +14,7 @@ fi
 
 if [[ $(docker ps --all --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
   echo "Removing containers and associated volumes for ${PROJECT}"
-  docker rm --force --volumes $(docker ps --all --quiet --filter=name="${PROJECT}") >/dev/null
+  docker container rm --force --volumes $(docker ps --all --quiet --filter=name="${PROJECT}") >/dev/null
 fi
 
 if [[ $(docker volume list --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
