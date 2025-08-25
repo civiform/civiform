@@ -27,6 +27,11 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
+      groupName: "awssdk",
+      matchPackageNames: ["software.amazon.awssdk:{/,}**"],
+      prHeader: "(link in testing, see https://github.com/civiform/civiform/issues/11338#issuecomment-3221792359 for notes) Release Notes: https://github.com/aws/aws-sdk-java-v2/compare/{{currentVersion}}...{{newVersion}}"
+    },
+    {
       matchPackageNames: ["github/codeql-action"],
       prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
     },
