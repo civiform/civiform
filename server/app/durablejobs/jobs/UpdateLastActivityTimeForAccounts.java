@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import durablejobs.DurableJob;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,30 +30,47 @@ public class UpdateLastActivityTimeForAccounts extends DurableJob {
   @Override
   public void run() {
     logger.debug("Starting job to calculate last activity time for accounts");
-    database
-        .sqlUpdate(
-            "UPDATE accounts\n"
-                + "SET last_activity_time = subquery.last_activity_time\n"
-                + "FROM (\n"
-                + "    SELECT\n"
-                + "        t1.account_id,\n"
-                + "        GREATEST(\n"
-                + "            COALESCE(MAX(t1.when_created), '1900-01-01 00:00:00'),\n"
-                + "            COALESCE(MAX(t2.create_time), '1900-01-01 00:00:00'),\n"
-                + "            COALESCE(MAX(t2.submit_time), '1900-01-01 00:00:00'),\n"
-                + "            COALESCE(MAX(t2.status_last_modified_time), '1900-01-01 00:00:00')\n"
-                + "        ) AS last_activity_time\n"
-                + "    FROM\n"
-                + "        applicants AS t1\n"
-                + "    LEFT JOIN\n"
-                + "        applications AS t2 ON t1.id = t2.applicant_id\n"
-                + "    GROUP BY\n"
-                + "        t1.account_id\n"
-                + ") AS subquery\n"
-                + "WHERE\n"
-                + "    accounts.id = subquery.account_id\n"
-                + "    AND accounts.last_activity_time IS NULL;")
-        .execute();
-    logger.debug("Ending job to calculate last activity time for accounts");
+
+    try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      int errorCount = 0;
+      String sqlUpdate =
+          """
+UPDATE accounts
+SET last_activity_time = subquery.last_activity_time
+FROM (
+    SELECT
+        t1.account_id,
+        GREATEST(
+            COALESCE(MAX(t1.when_created), '1900-01-01 00:00:00'),
+            COALESCE(MAX(t2.create_time), '1900-01-01 00:00:00'),
+            COALESCE(MAX(t2.submit_time), '1900-01-01 00:00:00'),
+            COALESCE(MAX(t2.status_last_modified_time), '1900-01-01 00:00:00')
+        ) AS last_activity_time
+    FROM
+        applicants AS t1
+    LEFT JOIN
+        applications AS t2 ON t1.id = t2.applicant_id
+    GROUP BY
+        t1.account_id
+) AS subquery
+WHERE
+    accounts.id = subquery.account_id
+    AND accounts.last_activity_time IS NULL;
+""";
+      try {
+        database.sqlUpdate(sqlUpdate).execute();
+
+        logger.debug("Updated Accounts table with last_activity_time.");
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+        errorCount++;
+      }
+      if (errorCount == 0) {
+        logger.debug("JOB SUCCESSFULLY EXECUTED");
+        jobTransaction.commit();
+      } else {
+        jobTransaction.rollback();
+      }
+    }
   }
 }
