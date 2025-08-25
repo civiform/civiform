@@ -29,7 +29,7 @@
     {
       groupName: "awssdk",
       matchPackageNames: ["software.amazon.awssdk:{/,}**"],
-      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/compare/{{displayFrom}}...{{displayTo}}"
+      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/compare/{{currentValue}}...{{newValue}}"
     },
     {
       matchPackageNames: ["github/codeql-action"],
