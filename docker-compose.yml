@@ -9,6 +9,8 @@ services:
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
+    ports:
+      - 4566:4566
     environment:
       - SERVICES=s3,ses
     networks:
