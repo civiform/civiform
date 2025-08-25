@@ -296,6 +296,8 @@ export class ApplicantQuestions {
     programName: string,
     northStarEnabled = false,
     showProgramOverviewPage = true,
+    translatedOverviewTitle?: string,
+    translatedLinkText?: string,
   ) {
     await this.clickApplyProgramButton(programName)
 
@@ -306,6 +308,8 @@ export class ApplicantQuestions {
       if (showProgramOverviewPage) {
         await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
+          translatedOverviewTitle,
+          translatedLinkText,
         )
       }
     } else {
