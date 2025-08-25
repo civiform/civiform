@@ -197,9 +197,9 @@ public class ResourceCreator {
   }
 
   public ImmutableList<CategoryModel> insertCategoriesFromParser() {
-    CategoryTranslationFileParser parser =
-        new CategoryTranslationFileParser(new Environment(Mode.PROD));
-    List<CategoryModel> parsedCategories = parser.createCategoryModelList();
+    CategoryTranslationFileParser parser = injector.instanceOf(CategoryTranslationFileParser.class);
+    List<CategoryModel> parsedCategories =
+        parser.createCategoryModelList(new Environment(Mode.PROD));
     ImmutableList.Builder<CategoryModel> savedCategoriesBuilder =
         ImmutableList.<CategoryModel>builder();
 
