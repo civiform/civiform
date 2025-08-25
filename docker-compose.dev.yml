@@ -85,7 +85,7 @@ services:
 
   grafana:  
     profiles: ['monitoring']
-    image: grafana/grafana@sha256:38e62c46a4a0f8b6124ad318f42c65ad6ac7644ab1f7d90a582d847ced28180c
+    image: grafana/grafana@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
     depends_on:
       - prometheus
     restart: unless-stopped
