@@ -18,10 +18,15 @@ import models.ApplicationStep;
 import models.ProgramModel;
 import models.ProgramTab;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.ApplicationStatusesRepository;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -40,8 +45,11 @@ import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
 public final class AdminProgramController extends CiviFormController {
+  private static final Logger logger = LoggerFactory.getLogger(AdminProgramController.class);
 
+  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
+  private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
@@ -51,7 +59,9 @@ public final class AdminProgramController extends CiviFormController {
 
   @Inject
   public AdminProgramController(
+      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
+      ProgramRepository programRepository,
       QuestionService questionService,
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
@@ -61,7 +71,9 @@ public final class AdminProgramController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker) {
     super(profileUtils, versionRepository);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
+    this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
@@ -314,6 +326,34 @@ public final class AdminProgramController extends CiviFormController {
         ImmutableList.copyOf(programData.getCategories()),
         ImmutableList.copyOf(applicationSteps));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
+  }
+
+  /** Duplicates a program */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result duplicateProgram(Request request, long programId) {
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String name = form.get("program-name");
+    logger.warn("Name: {}", name);
+    try {
+      ProgramDefinition existingProgram = programService.getFullProgramDefinition(programId);
+
+      ProgramModel insertedProgram =
+          programRepository.insertProgramSync(
+              existingProgram.toBuilder().setAdminName(name).build().toProgram());
+      programRepository.createOrUpdateDraft(insertedProgram);
+
+      applicationStatusesRepository.createOrUpdateStatusDefinitions(
+          name,
+          applicationStatusesRepository.lookupActiveStatusDefinitions(existingProgram.adminName()));
+
+    } catch (Exception e) {
+      logger.warn("Caught exception: {}", e);
+    }
+    return getIndexAfterDuplicateAsRedirect();
+  }
+
+  private Result getIndexAfterDuplicateAsRedirect() {
+    return redirect(routes.AdminProgramController.index().url());
   }
 
   /** Returns where admins should be taken to after saving program detail edits. */
