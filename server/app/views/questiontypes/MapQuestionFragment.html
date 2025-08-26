@@ -29,7 +29,6 @@
       <div
         th:if="${questionRendererParams.geoJson().isPresent()}"
         class="cf-locations-list"
-        data-testid="locations-list"
         th:data-map-id="${mapId}"
         role="group"
         aria-label="Location selection"
@@ -72,7 +71,7 @@
               th:text="${locationAddress}"
             ></div>
             <a
-              th:if="${locationUrl}"
+              th:if="${locationUrl && locationUrl != ''}"
               th:href="${locationUrl}"
               class="usa-link usa-link--external text-primary cf-location-checkbox-link"
               target="_blank"
@@ -86,7 +85,11 @@
     <!-- Map container -->
     <div class="grid-col-12 desktop:grid-col-6">
       <!-- TODO(#11150): Add map question preview functionality -->
-      <div th:id="${mapId}" class="cf-map-container width-full"></div>
+      <div
+        th:id="${mapId}"
+        class="cf-map-container width-full"
+        data-testid="map-container"
+      ></div>
     </div>
   </div>
   <!-- Hidden template for popups -->

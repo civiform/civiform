@@ -10,6 +10,8 @@ import {
 } from '../../support'
 import {Page} from 'playwright'
 
+const EXPECTED_LOCATION_COUNT = 5
+
 // map question tests rely on mock web services so they will only work in local dev environments
 if (isLocalDevEnvironment()) {
   test.describe('map applicant flow', () => {
@@ -44,45 +46,35 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        await test.step('Verify map container is visible', async () => {
-          const mapContainer = page.locator('[id^="cf-map-"]')
-          await expect(mapContainer).toBeVisible()
-        })
-
         await test.step('Wait for map to load and verify canvas', async () => {
-          await page.waitForSelector('.maplibregl-canvas', {timeout: 10000})
-          const mapCanvas = page.locator('.maplibregl-canvas')
-          await expect(mapCanvas).toBeVisible()
+          const mapContainer = page.getByTestId('map-container')
+          await expect(mapContainer).toBeVisible()
+
+          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+          await expect(mapCanvas).toBeVisible({timeout: 10000})
         })
 
-        await test.step('Verify checkboxes are initially unchecked', async () => {
+        await test.step('Verify location checkboxes count and initial state', async () => {
           const checkboxes = page.getByRole('checkbox')
-          const checkboxCount = await checkboxes.count()
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
 
-          if (checkboxCount > 0) {
-            const firstCheckbox = checkboxes.first()
-            await expect(firstCheckbox).not.toBeChecked()
+          for (const checkbox of await checkboxes.all()) {
+            await expect(checkbox).not.toBeChecked()
           }
         })
 
         await test.step('Verify locations list container exists', async () => {
-          const locationsList = page.getByTestId('locations-list')
+          const locationsList = page.getByRole('group', {
+            name: 'Location selection',
+          })
           await expect(locationsList).toBeVisible()
         })
 
-        await test.step('Verify location checkboxes are present', async () => {
-          const locationCheckboxes = page.getByRole('checkbox')
-          const checkboxCount = await locationCheckboxes.count()
-          expect(checkboxCount).toBeGreaterThan(0)
-        })
-
         await test.step('Verify location count is displayed', async () => {
-          const locationCount = page.locator('.cf-location-count')
-
-          if (await locationCount.isVisible()) {
-            const countText = locationCount
-            await expect(countText).toHaveText('Displaying 5 of 5 locations')
-          }
+          const locationCount = page.getByText(
+            `Displaying ${EXPECTED_LOCATION_COUNT} of ${EXPECTED_LOCATION_COUNT} locations`,
+          )
+          await expect(locationCount).toBeVisible()
         })
       })
     })
@@ -123,11 +115,16 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Verify both maps are present', async () => {
-          const mapContainers = page.locator('[id^="cf-map-"]')
+          const mapContainers = page.getByTestId('map-container')
           await expect(mapContainers).toHaveCount(2)
+
+          const mapCanvases = page.getByRole('region', {name: 'Map'})
+          await expect(mapCanvases).toHaveCount(2)
         })
 
-        const locationsLists = page.getByTestId('locations-list')
+        const locationsLists = page.getByRole('group', {
+          name: 'Location selection',
+        })
         await test.step('Verify both maps have location lists', async () => {
           await expect(locationsLists).toHaveCount(2)
         })

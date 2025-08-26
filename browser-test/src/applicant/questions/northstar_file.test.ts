@@ -228,9 +228,9 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      expect(
-        page.getByLabel('Drag file here').getAttribute('aria-required'),
-      ).toBeTruthy()
+      await expect(page.getByLabel('Drag file here')).toHaveAttribute(
+        'aria-required',
+      )
       await validateAccessibility(page)
     })
 
