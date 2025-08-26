@@ -1025,7 +1025,7 @@ category.tag.housing=الإسكان
 category.tag.internet=الإنترنت
 
 # A tag used to filter the list of programs down to those that are related to the military.
-category.tag.military=Military
+category.tag.military=السلك العسكري
 
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=التدريب
@@ -1037,7 +1037,7 @@ category.tag.transportation=النقل
 category.tag.utilities=شركات الطاقة
 
 # A tag used to filter the list of programs down to those that are related to military veterans.
-category.tag.veteran=Veteran
+category.tag.veteran=المحاربين القدامى
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=الفئات
