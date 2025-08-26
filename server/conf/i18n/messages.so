@@ -1068,4 +1068,4 @@ session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
 session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=Qoraalkan wuxuu ahaan doonnaa mid aan la turjumin si loogu tijaabiyo aaladaha turjumaadda.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.
