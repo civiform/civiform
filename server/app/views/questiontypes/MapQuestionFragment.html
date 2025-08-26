@@ -120,7 +120,7 @@
               th:text="${locationAddress}"
             ></div>
             <a
-              th:if="${locationUrl}"
+              th:if="${locationUrl != ''}"
               th:href="${locationUrl}"
               class="usa-link usa-link--external cf-location-checkbox-link"
               target="_blank"
