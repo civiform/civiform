@@ -36,15 +36,20 @@ import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.TransactionManager;
 import repository.VersionRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
@@ -63,6 +68,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String QUESTION_2_NAME = "questionTwo";
   private static final String QUESTION_3_NAME = "questionThree";
   private static final String QUESTION_4_NAME = "questionFour";
+  private static final String VALID_YES_NO_NAME = "validYesNoQuestion";
+  private static final String INVALID_YES_NO_NAME = "invalidYesNoQuestion";
+  private static final String DROPDOWN_QUESTION_NAME = "dropdownQuestion";
+
   private static final QuestionDefinition QUESTION_1 = createTextQuestion(QUESTION_1_NAME, 1L);
   private static final QuestionDefinition QUESTION_2 = createTextQuestion(QUESTION_2_NAME, 2L);
   private static final QuestionDefinition QUESTION_3 =
@@ -71,11 +80,22 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
       createQuestion("enumerator", 4L, QuestionType.ENUMERATOR);
   private static final QuestionDefinition REPEATED =
       createTextQuestionWithEnumerator("repeated", 5L, Optional.of(4L));
+  private static final QuestionDefinition VALID_YES_NO_QUESTION =
+      createYesNoQuestion(
+          VALID_YES_NO_NAME, 6L, ImmutableList.of("yes", "no", "maybe", "not-sure"));
+  private static final QuestionDefinition INVALID_YES_NO_QUESTION =
+      createYesNoQuestion(INVALID_YES_NO_NAME, 7L, ImmutableList.of("yes", "no", "absolutely"));
+  private static final QuestionDefinition MINIMAL_VALID_YES_NO_QUESTION =
+      createYesNoQuestion("minimalValidYesNo", 8L, ImmutableList.of("yes", "no"));
+  private static final QuestionDefinition DROPDOWN_QUESTION =
+      createDropdownQuestion(DROPDOWN_QUESTION_NAME, 9L, ImmutableList.of("option1", "option2"));
+
   private static final ImmutableList<QuestionDefinition> QUESTIONS_1_2 =
       ImmutableList.of(QUESTION_1, QUESTION_2);
   private static final String PROGRAM_NAME_1 = "Program 1";
   private static final String PROGRAM_NAME_2 = "Program 2";
   private static final Long PROGRAM_ID_1 = 1000L;
+
   private final ProgramMigrationService service =
       new ProgramMigrationService(
           instanceOf(ApplicationStatusesRepository.class),
@@ -801,6 +821,110 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
                 REPEATED.getName(), ENUMERATOR.getName()));
   }
 
+  @Test
+  public void validateQuestions_validYesNoQuestion_noErrors() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(VALID_YES_NO_QUESTION)
+            .buildDefinition();
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            programDefinition, ImmutableList.of(VALID_YES_NO_QUESTION), ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateQuestions_invalidYesNoQuestion_returnsError() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(INVALID_YES_NO_QUESTION)
+            .buildDefinition();
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            programDefinition, ImmutableList.of(INVALID_YES_NO_QUESTION), ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .contains(
+            "YES_NO question '" + INVALID_YES_NO_NAME + "' contains invalid option 'absolutely'");
+    assertThat(errors.iterator().next().message())
+        .contains("Only 'yes', 'no', 'maybe', and 'not-sure' options are allowed.");
+  }
+
+  @Test
+  public void validateQuestions_mixedQuestionsWithInvalidYesNo_returnsYesNoError() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(QUESTION_1)
+            .withRequiredQuestionDefinition(INVALID_YES_NO_QUESTION)
+            .buildDefinition();
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            programDefinition,
+            ImmutableList.of(QUESTION_1, INVALID_YES_NO_QUESTION),
+            ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .contains(
+            "YES_NO question '" + INVALID_YES_NO_NAME + "' contains invalid option 'absolutely'");
+  }
+
+  @Test
+  public void validateQuestions_withoutYesNoQuestions_noErrors() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(QUESTION_1)
+            .withRequiredQuestionDefinition(DROPDOWN_QUESTION)
+            .buildDefinition();
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            programDefinition, ImmutableList.of(QUESTION_1, DROPDOWN_QUESTION), ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void saveImportedProgram_validYesNoQuestion_succeeds() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(MINIMAL_VALID_YES_NO_QUESTION)
+            .buildDefinition();
+
+    ErrorAnd<ProgramModel, String> result =
+        service.saveImportedProgram(
+            programDefinition, ImmutableList.of(MINIMAL_VALID_YES_NO_QUESTION), ImmutableMap.of());
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+  }
+
+  @Test
+  public void saveImportedProgram_nonYesNoQuestionWithCustomOptions_succeeds() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("Test Block")
+            .withRequiredQuestionDefinition(DROPDOWN_QUESTION)
+            .buildDefinition();
+
+    ErrorAnd<ProgramModel, String> result =
+        service.saveImportedProgram(
+            programDefinition, ImmutableList.of(DROPDOWN_QUESTION), ImmutableMap.of());
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+  }
+
   // Helper methods to create test questions
   private static QuestionDefinition createTextQuestion(String name, Long id) {
     return createTextQuestionWithEnumerator(name, id, Optional.empty());
@@ -834,5 +958,45 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         .setDescription(name)
         .setEnumeratorId(enumeratorId)
         .build();
+  }
+
+  // Helper methods for YES/NO questions
+  private static QuestionDefinition createYesNoQuestion(
+      String name, Long id, ImmutableList<String> optionNames) {
+    return createMultiOptionQuestion(name, id, MultiOptionQuestionType.YES_NO, optionNames);
+  }
+
+  private static QuestionDefinition createDropdownQuestion(
+      String name, Long id, ImmutableList<String> optionNames) {
+    return createMultiOptionQuestion(name, id, MultiOptionQuestionType.DROPDOWN, optionNames);
+  }
+
+  private static QuestionDefinition createMultiOptionQuestion(
+      String name,
+      Long id,
+      MultiOptionQuestionType multiOptionType,
+      ImmutableList<String> optionNames) {
+    ImmutableList.Builder<QuestionOption> optionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < optionNames.size(); i++) {
+      optionsBuilder.add(
+          QuestionOption.create(
+              (long) i, optionNames.get(i), LocalizedStrings.of(Locale.US, optionNames.get(i))));
+    }
+
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setDescription("Test " + multiOptionType.name() + " question")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Select an option"))
+            .build();
+
+    MultiOptionQuestionDefinition question =
+        new MultiOptionQuestionDefinition(config, optionsBuilder.build(), multiOptionType);
+    // Set the ID using the same pattern as existing createQuestionWithEnumerator method
+    try {
+      return new QuestionDefinitionBuilder(question).setId(id).build();
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

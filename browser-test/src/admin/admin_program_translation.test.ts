@@ -1,11 +1,9 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   loginAsTestUser,
   selectApplicantLanguage,
-  selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateToastMessage,
   disableFeatureFlag,
@@ -767,4 +765,5 @@ test.describe('Admin can manage program translations', () => {
       })
     })
   })
+
 })

@@ -103,7 +103,10 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
 
       // Take screenshot of questions being published and active.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-only-active`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-only-active`,
+      )
 
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
@@ -111,7 +114,10 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
 
       // Take screenshot of question being in draft state.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-active-and-draft`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-active-and-draft`,
+      )
 
       await adminPrograms.publishProgram(programName)
 

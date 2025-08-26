@@ -131,7 +131,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
     })
 
     test('shows placeholder option', async ({adminPrograms}) => {
-      expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      await adminPrograms.expectStatusSelection('Choose an option:')
     })
 
     test('renders', async ({page}) => {
@@ -158,7 +158,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       }) => {
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(page)
-        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        await adminPrograms.expectStatusSelection('Choose an option:')
       })
 
       test('when confirmed, the page is shown a success toast', async ({
@@ -170,7 +170,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
           `Status Change: Unset -> ${noEmailStatusName}`,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+        await adminPrograms.expectStatusSelection(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
       })
 
@@ -206,7 +206,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+          await adminPrograms.expectStatusSelection(noEmailStatusName)
         })
 
         const modal =
@@ -225,7 +225,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+          await adminPrograms.expectStatusSelection(noEmailStatusName)
         })
 
         await page.getByRole('link', {name: 'Back'}).click()
@@ -266,7 +266,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
           await expect(notifyCheckbox).not.toBeChecked()
 
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectStatusSelection(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
@@ -294,7 +294,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
 
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectStatusSelection(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
@@ -473,7 +473,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
         `Status Change: ${waitingStatus} -> ${approvedStatus}`,
       )
       await adminPrograms.confirmStatusUpdateModal(modal)
-      expect(await adminPrograms.getStatusOption()).toBe(approvedStatus)
+      await adminPrograms.expectStatusSelection(approvedStatus)
       await adminPrograms.expectUpdateStatusToast()
 
       await page.getByRole('link', {name: 'Back'}).click()
@@ -849,7 +849,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
           ' of this change at ' + guestEmail,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectStatusSelection(emailStatusName)
         await adminPrograms.expectUpdateStatusToast()
       })
       await test.step('verify status update email was sent to applicant', async () => {
