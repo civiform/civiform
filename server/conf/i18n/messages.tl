@@ -1068,4 +1068,4 @@ session.extended.success=Na-extend na ang session
 session.extended.error=Hindi na-extend ang session
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=Mananatiling hindi naka-translate ang string na ito para sa mga eksperimento sa imprastraktura ng pag-translate.
+translation.untranslated=This string remains untranslated for translation infrastructure experiments.
