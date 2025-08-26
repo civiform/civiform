@@ -2,6 +2,7 @@ package support;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -84,7 +85,8 @@ public class ProgramBuilder {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of());
+            .setApplicationSteps(ImmutableList.of())
+            .setBridgeDefinitions(ImmutableMap.of());
     return new ProgramBuilder(id, builder, /* persisted= */ false);
   }
 

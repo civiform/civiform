@@ -7,6 +7,7 @@ import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import models.ApplicationStep;
 import models.DisplayMode;
@@ -79,6 +80,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setBlockDefinitions(blockDefinitions)
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }

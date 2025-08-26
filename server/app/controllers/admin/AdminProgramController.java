@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -133,6 +134,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
             applicationSteps,
+            ImmutableMap.of(),
             programData.getProgramType());
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));

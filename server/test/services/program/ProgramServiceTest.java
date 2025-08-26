@@ -629,6 +629,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -657,6 +658,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -681,6 +683,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(validCategoryId),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -700,6 +703,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -723,6 +727,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -744,6 +749,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -762,6 +768,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -829,6 +836,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
@@ -848,6 +856,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -869,6 +878,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.copyOf(tiGroups),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -888,6 +898,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
+            ImmutableMap.of(),
             ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(result).isEmpty();

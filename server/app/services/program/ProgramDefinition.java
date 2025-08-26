@@ -11,6 +11,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -157,6 +159,9 @@ public abstract class ProgramDefinition {
    */
   @JsonProperty("applicationSteps")
   public abstract ImmutableList<ApplicationStep> applicationSteps();
+
+  @JsonProperty("bridgeDefinitions")
+  public abstract ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -858,6 +863,10 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("applicationSteps")
     public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
+
+    @JsonProperty("bridgeDefinitions")
+    public abstract Builder setBridgeDefinitions(
+        ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 
