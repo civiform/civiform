@@ -36,7 +36,7 @@ public final class GeoJsonDataRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("getGeoJsonData"))
                 .where()
                 .eq("endpoint", endpoint)
-                .orderBy("createTime desc")
+                .orderBy("confirmTime desc")
                 .setMaxRows(1)
                 .findOneOrEmpty(),
         dbExecutionContext);
