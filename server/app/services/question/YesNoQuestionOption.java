@@ -1,4 +1,4 @@
-package services.question.types;
+package services.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;

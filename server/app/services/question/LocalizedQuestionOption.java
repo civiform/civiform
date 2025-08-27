@@ -4,7 +4,6 @@ import com.google.auto.value.AutoValue;
 import java.util.Locale;
 import java.util.Optional;
 import services.MessageKey;
-import services.question.types.YesNoQuestionOption;
 import views.components.TextFormatter;
 
 /**

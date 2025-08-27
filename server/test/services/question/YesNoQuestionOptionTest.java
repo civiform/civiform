@@ -1,4 +1,4 @@
-package services.question.types;
+package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

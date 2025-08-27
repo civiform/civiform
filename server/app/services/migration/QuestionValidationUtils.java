@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.question.YesNoQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.YesNoQuestionOption;
 
 /** Utility class to validate questions during the program import flow. */
 final class QuestionValidationUtils {
