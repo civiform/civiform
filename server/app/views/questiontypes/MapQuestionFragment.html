@@ -9,35 +9,104 @@
               firstPathWithError=${mapQuestion.getFirstPathWithError()},
              hasGroupErrors=${mapQuestion.getValidationErrors().get(question.getContextualizedPath())},"
   th:id="${questionId}"
-  class="cf-question-map"
+  class="cf-question-map padding-1"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
-  <form class="usa-form">
-    <div th:each="filter, i : ${mapQuestion.getFilters()}">
-      <label
-        class="usa-label"
-        th:for="'filter' + ${i.index + 1}"
-        th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
-      ></label>
-      <select
-        class="usa-select"
-        th:name="'filter' + ${i.index + 1}"
-        th:id="'filter' + ${i.index + 1}"
+  <div class="grid-row grid-gap padding-1">
+    <!-- Scrollable container with location checkboxes -->
+    <div
+      class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0 overflow-y-auto cf-locations-column border-2px border-gray-30 padding-1 radius-md"
+    >
+      <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
+      <input
+        type="checkbox"
+        class="hidden"
+        value=""
+        th:name="${mapQuestion.getSelectionPathAsArray()}"
+        checked
+      />
+      <div
+        th:if="${questionRendererParams.geoJson().isPresent()}"
+        class="cf-locations-list"
+        th:data-map-id="${mapId}"
+        role="group"
+        aria-label="Location selection"
       >
-        <option value>- Select -</option>
-        <option
-          th:if="${questionRendererParams.geoJson().isPresent()}"
-          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
-          th:value="${option}"
-          th:text="${option}"
-        ></option>
-      </select>
+        <div
+          th:with="totalLocations=${questionRendererParams.geoJson().get().features().size()}"
+          class="text-ink margin-bottom-1 cf-location-count"
+          th:data-map-id="${mapId}"
+          th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
+        ></div>
+        <div
+          th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
+          th:with="locationId='location-' + ${iterator.index},
+                     locationName=${feature.properties().get(mapQuestion.getNameValue())},
+                     locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
+                     locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                     featureId=${feature.id}"
+          th:data-feature-id="${featureId}"
+          class="usa-checkbox cf-location-checkbox"
+        >
+          <input
+            class="usa-checkbox__input cf-location-checkbox-input"
+            th:id="${locationId}"
+            th:value="${locationName}"
+            th:name="${mapQuestion.getSelectionPathAsArray()}"
+            th:checked="${mapQuestion.locationIsSelected(locationName)}"
+            type="checkbox"
+          />
+          <label
+            class="usa-checkbox__label cf-location-checkbox-label"
+            th:for="${locationId}"
+          >
+            <div
+              class="text-bold cf-location-checkbox-name"
+              th:text="${locationName}"
+            ></div>
+            <div
+              class="text-base-dark margin-top-05 cf-location-checkbox-address"
+              th:if="${locationAddress}"
+              th:text="${locationAddress}"
+            ></div>
+            <a
+              th:if="${locationUrl && locationUrl != ''}"
+              th:href="${locationUrl}"
+              class="usa-link usa-link--external text-primary cf-location-checkbox-link"
+              target="_blank"
+              th:text="#{map.locationLinkText}"
+            ></a>
+          </label>
+        </div>
+      </div>
     </div>
-  </form>
-  <!-- TODO(#11003): Build out applicant view of map question -->
-  <!-- TODO(#11150): Add map question preview functionality -->
-  <div th:id="${mapId}" class="square-mobile"></div>
+
+    <!-- Map container -->
+    <div class="grid-col-12 desktop:grid-col-6">
+      <!-- TODO(#11150): Add map question preview functionality -->
+      <div
+        th:id="${mapId}"
+        class="cf-map-container width-full"
+        data-testid="map-container"
+      ></div>
+    </div>
+  </div>
+  <!-- Hidden template for popups -->
+  <template class="cf-popup-content-template" th:data-map-id="${mapId}">
+    <div
+      id="cf-popup-content-location-name"
+      class="text-bold font-serif-sm padding-bottom-2"
+    ></div>
+    <div id="cf-popup-content-location-address" class="font-sans-sm"></div>
+    <a
+      id="cf-popup-content-location-link"
+      class="font-sans-sm usa-link usa-link--external"
+      target="_blank"
+      th:text="#{map.locationLinkText}"
+    ></a>
+  </template>
+
   <script
     th:if="${questionRendererParams.geoJson().isPresent()}"
     th:inline="javascript"
@@ -48,7 +117,13 @@
     window.app.data.maps = window.app.data.maps || {}
 
     id = /*[[${mapId}]]*/ 'id'
-    window.app.data.maps[id] =
-      /*[[${questionRendererParams.geoJson().get()}]]*/ {}
+    window.app.data.maps[id] = {
+      geoJson: /*[[${questionRendererParams.geoJson().get()}]]*/ {},
+      settings: {
+        nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
+        addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
+        detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
+      },
+    }
   </script>
 </div>
