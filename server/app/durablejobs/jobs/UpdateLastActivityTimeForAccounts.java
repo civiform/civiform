@@ -39,22 +39,24 @@ UPDATE accounts
 SET last_activity_time = subquery.last_activity_time
 FROM (
     SELECT
-        t1.account_id,
+        t.id,
         GREATEST(
-            COALESCE(MAX(t1.when_created), '1900-01-01 00:00:00'),
-            COALESCE(MAX(t2.create_time), '1900-01-01 00:00:00'),
-            COALESCE(MAX(t2.submit_time), '1900-01-01 00:00:00'),
-            COALESCE(MAX(t2.status_last_modified_time), '1900-01-01 00:00:00')
+            COALESCE(MAX(t1.when_created), '1900-01-01 00:00:00'::timestamp),
+            COALESCE(MAX(t2.create_time), '1900-01-01 00:00:00'::timestamp),
+            COALESCE(MAX(t2.submit_time), '1900-01-01 00:00:00'::timestamp),
+            COALESCE(MAX(t2.status_last_modified_time), '1900-01-01 00:00:00'::timestamp)
         ) AS last_activity_time
     FROM
-        applicants AS t1
+        accounts AS t
     LEFT JOIN
-        applications AS t2 ON t1.id = t2.applicant_id
+    	applicants AS t1 ON t.id=t1.account_id
+      LEFT JOIN
+         applications AS t2 ON t1.id = t2.applicant_id
     GROUP BY
-        t1.account_id
+        t.id
 ) AS subquery
 WHERE
-    accounts.id = subquery.account_id
+    accounts.id = subquery.id
     AND accounts.last_activity_time IS NULL;
 """;
       try {

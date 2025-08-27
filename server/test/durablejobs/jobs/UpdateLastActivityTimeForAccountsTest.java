@@ -28,8 +28,9 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
       throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     var timeBeforeUpdate = applicant.getAccount().getLastActivityTime();
-    resourceCreator.setLastActivityTimeToNull(applicant.getAccount());
+    resourceCreator.setLastActivityTimeToNull();
     TimeUnit.MILLISECONDS.sleep(5);
+    System.out.println("cleanup -  " + applicant.getAccount().getLastActivityTime());
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
     job.run();
@@ -44,17 +45,23 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
   public void run_LastActivityTimeForAccounts_Populates_With_ApplicationSubmitTime()
       throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    AccountModel account = applicant.getAccount();
     ProgramModel program = resourceCreator.insertActiveProgram("FreshBucks");
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
-    resourceCreator.setLastActivityTimeToNull(applicant.getAccount());
+    application.setSubmitTimeToNow();
+
+    TimeUnit.MILLISECONDS.sleep(5);
     var applicationSubmitTime = application.getSubmitTime();
+    System.out.println("submit time " + applicationSubmitTime);
+    System.out.println("getLastActivityTime1 " + account.getLastActivityTime());
 
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
     job.run();
 
     // verify
-    var timeAfterJob = applicant.getAccount().getLastActivityTime();
+    account.refresh();
+    var timeAfterJob = account.getLastActivityTime();
     assertThat(applicationSubmitTime).isEqualTo(timeAfterJob);
   }
 
@@ -63,7 +70,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
       throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     var ApplicantCreateTime = applicant.getWhenCreated();
-    resourceCreator.setLastActivityTimeToNull(applicant.getAccount());
+    resourceCreator.setLastActivityTimeToNull();
     TimeUnit.MILLISECONDS.sleep(5);
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
@@ -81,14 +88,16 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("FreshBucks");
     ApplicationModel application =
         resourceCreator.insertApplication(applicant, program, LifecycleStage.DRAFT);
-    resourceCreator.setLastActivityTimeToNull(applicant.getAccount());
     var applicationCreateTime = application.getCreateTime();
 
+    resourceCreator.setLastActivityTimeToNull();
+    TimeUnit.MILLISECONDS.sleep(5);
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
     job.run();
 
     // verify
+    applicant.refresh();
     var timeAfterJob = applicant.getAccount().getLastActivityTime();
     assertThat(applicationCreateTime).isEqualTo(timeAfterJob);
   }
@@ -97,7 +106,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
   public void run_LastActivityTimeForAccounts_Populates_WithNoApplicant()
       throws InterruptedException {
     AccountModel account = resourceCreator.insertAccount();
-    resourceCreator.setLastActivityTimeToNull(account);
+    resourceCreator.setLastActivityTimeToNull();
     TimeUnit.MILLISECONDS.sleep(5);
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
