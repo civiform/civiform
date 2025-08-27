@@ -1,6 +1,5 @@
 package auth;
 
-import auth.controllers.MissingOptionalException;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
@@ -36,13 +35,13 @@ public final class CiviFormProfileMerger {
       Optional<CiviFormProfile> existingGuestProfile,
       T authProviderProfile,
       BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
-    final Optional<CiviFormProfile> applicantProfile;
-    applicantProfile =
+    // Merge the applicant, if it exists, with the guest profile.
+    Optional<CiviFormProfile> applicantProfile =
         applicantInDatabase
             .map(
                 applicantModel ->
                     mergeApplicantAndGuestProfile(applicantModel, existingGuestProfile))
-            .orElse(existingGuestProfile);
+            .or(() -> existingGuestProfile);
 
     // Merge authProviderProfile into the partially merged profile to finish.
     // Merge function will create a new CiviFormProfile if it doesn't exist,
@@ -50,24 +49,22 @@ public final class CiviFormProfileMerger {
     return Optional.of(mergeFunction.apply(applicantProfile, authProviderProfile));
   }
 
-  private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
-      ApplicantModel applicantInDatabase, Optional<CiviFormProfile> guestProfile) {
-    if (guestProfile.isEmpty()
-        || guestProfile.get().getApplicant().join().getApplications().isEmpty()) {
+  private CiviFormProfile mergeApplicantAndGuestProfile(
+      ApplicantModel applicantInDatabase, Optional<CiviFormProfile> optionalGuestProfile) {
+    final CiviFormProfile guestProfile;
+    if (optionalGuestProfile.isEmpty()
+        || optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty()) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
       // with no applications). This will be the most common.
-      guestProfile = Optional.of(profileFactory.wrap(applicantInDatabase));
+      guestProfile = profileFactory.wrap(applicantInDatabase);
     } else {
       // Merge the two applicants and prefer the newer one.
-      guestProfile =
-          Optional.of(mergeApplicantAndGuestProfile(applicantInDatabase, guestProfile.get()));
+      guestProfile = mergeApplicantAndGuestProfile(applicantInDatabase, optionalGuestProfile.get());
     }
     // Ideally, the applicant id would already be populated in `guestProfile`. However, there
     // could be profiles in user sessions that were created before we started populating this
     // info.
-    guestProfile
-        .orElseThrow(() -> new MissingOptionalException(CiviFormProfile.class))
-        .storeApplicantIdInProfile(applicantInDatabase.id);
+    guestProfile.storeApplicantIdInProfile(applicantInDatabase.id);
     return guestProfile;
   }
 
