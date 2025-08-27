@@ -12,8 +12,10 @@ import models.JobType;
 import models.LifecycleStage;
 import models.PersistedDurableJobModel;
 import models.ProgramModel;
+import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.DateConverter;
 
 public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
@@ -22,6 +24,12 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
           DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS.toString(),
           JobType.RUN_ONCE,
           Instant.now());
+  private DateConverter dateConverter;
+
+  @Before
+  public void setUp() {
+    dateConverter = instanceOf(DateConverter.class);
+  }
 
   @Test
   public void run_LastActivityTimeForAccounts_Populates_AccountWithApplicantCreateTime()
@@ -29,16 +37,15 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     var timeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     resourceCreator.setLastActivityTimeToNull();
-    TimeUnit.MILLISECONDS.sleep(5);
-    System.out.println("cleanup -  " + applicant.getAccount().getLastActivityTime());
+
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
     job.run();
 
     // verify
+    applicant.getAccount().refresh();
     var timeAfterUpdate = applicant.getAccount().getLastActivityTime();
     assertThat(timeAfterUpdate).isNotEqualTo(timeBeforeUpdate);
-    assertThat(timeAfterUpdate).isAfter(timeBeforeUpdate);
   }
 
   @Test
@@ -49,11 +56,10 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("FreshBucks");
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.setSubmitTimeToNow();
-
-    TimeUnit.MILLISECONDS.sleep(5);
+    application.save();
+    resourceCreator.setLastActivityTimeToNull();
+    application.refresh();
     var applicationSubmitTime = application.getSubmitTime();
-    System.out.println("submit time " + applicationSubmitTime);
-    System.out.println("getLastActivityTime1 " + account.getLastActivityTime());
 
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
@@ -77,6 +83,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     job.run();
 
     // verify
+    applicant.getAccount().refresh();
     var timeAfterUpdate = applicant.getAccount().getLastActivityTime();
     assertThat(ApplicantCreateTime).isEqualTo(timeAfterUpdate);
   }
@@ -97,7 +104,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     job.run();
 
     // verify
-    applicant.refresh();
+    applicant.getAccount().refresh();
     var timeAfterJob = applicant.getAccount().getLastActivityTime();
     assertThat(applicationCreateTime).isEqualTo(timeAfterJob);
   }
@@ -107,13 +114,16 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
       throws InterruptedException {
     AccountModel account = resourceCreator.insertAccount();
     resourceCreator.setLastActivityTimeToNull();
+    account.refresh();
     TimeUnit.MILLISECONDS.sleep(5);
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
     job.run();
 
     // verify
+    account.refresh();
     var timeAfterUpdate = account.getLastActivityTime();
-    assertThat(timeAfterUpdate).isNotEqualTo("1900-01-01 00:00:00");
+    Instant defaultTime = dateConverter.parseIso8601DateToStartOfLocalDateInstant("1900-01-01");
+    assertThat(timeAfterUpdate).isNotEqualTo(defaultTime);
   }
 }

@@ -64,10 +64,7 @@ public class ResourceCreator {
 
   public void setLastActivityTimeToNull() {
     database.sqlUpdate("UPDATE accounts SET last_activity_time=NULL;").execute();
-    AccountModel a =
-        database.find(AccountModel.class).where().isNull("last_activity_time").findOne();
-    System.out.println(
-        "                       %%%%%%%%+           %%%% " + a.getLastActivityTime());
+    database.refresh(AccountModel.class);
   }
 
   public void truncateTables() {

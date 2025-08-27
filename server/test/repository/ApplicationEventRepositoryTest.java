@@ -91,7 +91,6 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
     Instant activitytimeBeforeUpdate = applicant1.getAccount().getLastActivityTime();
-    System.out.println("activitytimeBeforeUpdate " + activitytimeBeforeUpdate);
     ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
     ApplicationEventDetails initialStatus =
         ApplicationEventDetails.builder()
