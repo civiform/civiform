@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   loginAsTestUser,
@@ -10,11 +11,11 @@ import {
 } from '../support'
 import {
   ProgramAction,
-  ProgramCategories,
   ProgramExtraAction,
   ProgramLifecycle,
-  ProgramType, 
-  ProgramVisibility} from '../support/admin_programs'
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
@@ -583,11 +584,14 @@ test.describe('Admin can manage program translations', () => {
         )
         await adminPrograms.expectDraftProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
-        
+
         await validateScreenshot(page, 'program-translation-for-testing')
-        const programCard = await adminPrograms.getProgramCard(programName, 'Active')
-        await programCard.locator('.cf-with-dropdown').click()
-        //await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+
+        await adminPrograms
+          .getProgramCard(programName, 'Active')
+          .locator('.cf-with-dropdown')
+          .click()
+        // await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       })
     })
   })
