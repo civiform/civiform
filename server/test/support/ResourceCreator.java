@@ -62,6 +62,10 @@ public class ResourceCreator {
     return apiKey;
   }
 
+  public void setLastActivityTimeToNull() {
+    database.sqlUpdate("UPDATE accounts SET last_activity_time=NULL;").execute();
+  }
+
   public void truncateTables() {
     Models.truncate(database);
   }
