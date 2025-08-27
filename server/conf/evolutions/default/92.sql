@@ -1,3 +1,4 @@
+--Add bridge definitions for program level api bridge configuration
 # --- !Ups
 ALTER TABLE IF EXISTS programs
 ADD COLUMN IF NOT EXISTS bridge_definitions jsonb NOT NULL DEFAULT '{}';

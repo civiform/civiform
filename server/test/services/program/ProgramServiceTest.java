@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -954,6 +956,75 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         ps.checkApplicationStepErrors(
                 ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_defaultProgram_returnsErrorWhenIncomplete() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions =
+        ImmutableMap.of(
+            "/invalid_name_1",
+            new ApiBridgeDefinition(
+                ImmutableList.of(new ApiBridgeDefinitionItem("", null, "")),
+                ImmutableList.of(new ApiBridgeDefinitionItem("", null, ""))));
+
+    ImmutableList<String> errors =
+        ps
+            .checkBridgeDefinitionErrors(ProgramType.DEFAULT, errorsBuilder, bridgeDefinitions)
+            .build()
+            .stream()
+            .map(x -> x.message())
+            .collect(ImmutableList.toImmutableList());
+
+    assertThat(errors.size()).isEqualTo(7);
+    assertThat(errors)
+        .contains("Bridge definition admin name '/invalid_name_1' does not have a valid format");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field question"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field question"
+                + " scalar");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field external"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field question"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field question"
+                + " scalar");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field external"
+                + " name");
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_defaultProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions = ImmutableMap.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkBridgeDefinitionErrors(ProgramType.DEFAULT, errorsBuilder, bridgeDefinitions)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_externalProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions = ImmutableMap.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkBridgeDefinitionErrors(ProgramType.EXTERNAL, errorsBuilder, bridgeDefinitions)
             .build();
 
     assertThat(errors.size()).isEqualTo(0);
