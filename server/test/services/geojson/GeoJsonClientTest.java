@@ -43,30 +43,30 @@ public class GeoJsonClientTest extends WithApplication {
   }
 
   @Test
-  public void fetchGeoJson_invalidEndpoint() {
+  public void fetchAndSaveGeoJson_invalidEndpoint() {
     RuntimeException e =
         assertThrows(
             CompletionException.class,
-            () -> geoJsonClient.fetchGeoJson("test").toCompletableFuture().join());
+            () -> geoJsonClient.fetchAndSaveGeoJson("test").toCompletableFuture().join());
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);
     assertEquals("Invalid GeoJSON endpoint", e.getCause().getMessage());
   }
 
   @Test
-  public void fetchGeoJson_apiErrorResponse() {
+  public void fetchAndSaveGeoJson_apiErrorResponse() {
     when(wsResponse.getStatus()).thenReturn(403);
 
     RuntimeException e =
         assertThrows(
             CompletionException.class,
-            () -> geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join());
+            () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
 
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);
     assertEquals("Failed to fetch GeoJSON", e.getCause().getMessage());
   }
 
   @Test
-  public void fetchGeoJson_emptyResponseBody() {
+  public void fetchAndSaveGeoJson_emptyResponseBody() {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn("");
 
@@ -74,7 +74,7 @@ public class GeoJsonClientTest extends WithApplication {
         assertThrows(
             CompletionException.class,
             () -> {
-              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
+              geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
             });
 
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);
@@ -83,7 +83,7 @@ public class GeoJsonClientTest extends WithApplication {
 
   @Test
   @Parameters(method = "invalidGeoJsons")
-  public void fetchGeoJson_invalidGeoJSON(String testGeoJson) {
+  public void fetchGeoJson_invalidAndInsertGeoJSON(String testGeoJson) {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn(testGeoJson);
 
@@ -91,7 +91,7 @@ public class GeoJsonClientTest extends WithApplication {
         assertThrows(
             CompletionException.class,
             () -> {
-              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
+              geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
             });
 
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);

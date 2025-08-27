@@ -40,7 +40,7 @@ public final class GeoJsonApiController {
     String geoJsonEndpoint = formData.get("geoJsonEndpoint");
 
     return geoJsonClient
-        .fetchGeoJson(geoJsonEndpoint)
+        .fetchAndSaveGeoJson(geoJsonEndpoint)
         .thenApplyAsync(
             geoJsonResponse ->
                 ok(mapQuestionSettingsPartialView.render(

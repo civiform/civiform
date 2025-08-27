@@ -3,7 +3,6 @@ package durablejobs.jobs;
 import durablejobs.DurableJob;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.Transaction;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ public class MapRefreshJob extends DurableJob {
   private static final Logger logger = LoggerFactory.getLogger(MapRefreshJob.class);
 
   private final PersistedDurableJobModel persistedDurableJobModel;
-  private final Database database;
   private final GeoJsonDataRepository geoJsonDataRepository;
   private final GeoJsonClient geoJsonClient;
 
@@ -24,7 +22,6 @@ public class MapRefreshJob extends DurableJob {
       GeoJsonClient geoJsonClient) {
     this.persistedDurableJobModel = persistedDurableJobModel;
     this.geoJsonDataRepository = geoJsonDataRepository;
-    this.database = DB.getDefault();
     this.geoJsonClient = geoJsonClient;
   }
 
@@ -36,15 +33,11 @@ public class MapRefreshJob extends DurableJob {
   @Override
   public void run() {
     logger.info("Starting job to refresh map data.");
-    try (Transaction jobTransaction = database.beginTransaction()) {
-      try {
-        geoJsonDataRepository.refreshGeoJson(geoJsonClient);
-        logger.info("Finished refreshing map data.");
-        jobTransaction.commit();
-      } catch (RuntimeException e) {
-        logger.error("Failed to refresh map data: {}", e.getMessage(), e);
-        jobTransaction.rollback();
-      }
+    try {
+      geoJsonDataRepository.refreshGeoJson(geoJsonClient);
+      logger.info("Finished refreshing map data.");
+    } catch (RuntimeException e) {
+      logger.error("Failed to refresh map data: {}", e.getMessage(), e);
     }
   }
 }

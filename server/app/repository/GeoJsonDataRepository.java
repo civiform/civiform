@@ -72,17 +72,20 @@ public final class GeoJsonDataRepository {
   }
 
   public void refreshGeoJson(GeoJsonClient geoJsonClient) {
-    database
-        .find(GeoJsonDataModel.class)
-        .setLabel("GeoJsonDataModel.getDistinctEndpoints")
-        .setProfileLocation(queryProfileLocationBuilder.create("refreshGeoJson"))
-        .select("endpoint")
-        .setDistinct(true)
-        .findList()
-        .forEach(
-            geoJsonData -> {
-              String endpoint = geoJsonData.getEndpoint();
-              geoJsonClient.fetchGeoJson(endpoint).toCompletableFuture().join();
-            });
+    transactionManager.execute(
+        () -> {
+          database
+              .find(GeoJsonDataModel.class)
+              .setLabel("GeoJsonDataModel.getDistinctEndpoints")
+              .setProfileLocation(queryProfileLocationBuilder.create("refreshGeoJson"))
+              .select("endpoint")
+              .setDistinct(true)
+              .findList()
+              .forEach(
+                  geoJsonData -> {
+                    String endpoint = geoJsonData.getEndpoint();
+                    geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
+                  });
+        });
   }
 }
