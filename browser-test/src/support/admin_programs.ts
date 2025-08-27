@@ -1905,7 +1905,7 @@ export class AdminPrograms {
     return this.page
       .locator('div.cf-admin-program-card')
       .filter({has: this.page.getByText(programName, {exact: true})})
-      .filter({has: this.page.getByText(lifecycle)})
+      .filter({has: this.page.getByText(lifecycle, {exact: true})})
   }
 
   getProgramAction(
