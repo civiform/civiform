@@ -97,15 +97,10 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private String getSettingValue(Locale locale, MapSettingType settingType) {
-    Optional<LocalizedQuestionSetting> localizedQuestionSetting =
-        getSettings(locale).stream()
-            .filter(setting -> setting.settingType() == settingType)
-            .findFirst();
-
-    if (localizedQuestionSetting.isPresent()) {
-      return localizedQuestionSetting.get().settingValue();
-    }
-
-    return "";
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingType() == settingType)
+        .findFirst()
+        .map(LocalizedQuestionSetting::settingValue)
+        .orElse("");
   }
 }

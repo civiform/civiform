@@ -181,8 +181,7 @@ public final class Block {
   }
 
   public boolean hasMapQuestion() {
-    return getQuestions().stream()
-        .anyMatch(question -> question.getType().getLabel().equals("Map"));
+    return getQuestions().stream().anyMatch(question -> question.getType() == QuestionType.MAP);
   }
 
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
