@@ -913,6 +913,15 @@ option.no=Hindi
 option.notSure=Hindi sigurado
 option.maybe=Siguro
 
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Link text for location details URLs
+map.locationLinkText=See more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
@@ -1068,4 +1077,4 @@ session.extended.success=Na-extend na ang session
 session.extended.error=Hindi na-extend ang session
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+translation.untranslated=Mananatiling hindi naka-translate ang string na ito para sa mga eksperimento sa imprastraktura ng pag-translate.
