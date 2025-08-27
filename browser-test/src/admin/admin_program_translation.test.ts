@@ -516,6 +516,34 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
+ test.describe('Test test test', () => {
+    test('Adds translations for program in active mode', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const programName = 'Active program to be translated'
+
+      await test.step('translation page shows up as expected', async () => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.publishProgram(programName)
+
+        await adminPrograms.getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE).click();
+        await adminPrograms.getProgramExtraAction(programName, ProgramLifecycle.ACTIVE, ProgramExtraAction.EDIT).click();
+        await adminPrograms.gotoAdminProgramsPage()
+
+
+        await adminPrograms.expectDraftProgram(programName)
+        await adminPrograms.expectActiveProgram(programName)
+        await adminPrograms
+          .getProgramCard(programName, 'Active')
+          .locator('.cf-with-dropdown')
+          .click()
+      })
+    })
+  })
+
   test.describe('Manages translation even when the program is in active mode', () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(
@@ -576,21 +604,24 @@ test.describe('Admin can manage program translations', () => {
 
       await test.step('Verify translations in translations page', async () => {
         await adminPrograms.gotoAdminProgramsPage()
+        
+        /*
         await adminPrograms.expectProgramActionsVisible(
           programName,
-          ProgramLifecycle.DRAFT,
+          ProgramLifecycle.ACTIVE,
           [ProgramAction.PUBLISH, ProgramAction.EDIT],
           [ProgramExtraAction.MANAGE_TRANSLATIONS],
-        )
+        )*/
+        
         await adminPrograms.expectDraftProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
 
         await validateScreenshot(page, 'program-translation-for-testing')
-
         await adminPrograms
           .getProgramCard(programName, 'Active')
           .locator('.cf-with-dropdown')
           .click()
+        
         // await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       })
     })

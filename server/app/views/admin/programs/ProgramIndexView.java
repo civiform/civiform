@@ -527,8 +527,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       ImmutableList.Builder<ButtonTag> activeRowActions = ImmutableList.builder();
       ImmutableList.Builder<ButtonTag> activeRowExtraActions = ImmutableList.builder();
+
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       maybeRenderShareLink(activeProgram.get()).ifPresent(activeRowActions::add);
+      
       maybeRenderViewApplicationsLink(activeProgram.get(), profile, request)
           .ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
