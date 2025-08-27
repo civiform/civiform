@@ -1,8 +1,6 @@
 package durablejobs.jobs;
 
 import durablejobs.DurableJob;
-import io.ebean.DB;
-import io.ebean.Database;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
