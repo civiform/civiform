@@ -806,6 +806,12 @@
         "mode": "HIDDEN",
         "description": "The number of server threads available for the durable job runner. More than a single thread will the server execute multiple jobs in parallel. Default value is 1.",
         "type": "int"
+      },
+      "DURABLE_JOBS_MAP_REFRESH": {
+        "mode": "HIDDEN",
+        "description": "A boolean specifying whether or not to refresh map data for the CiviForm instance.",
+        "type": "bool",
+        "required": false
       }
     }
   },
