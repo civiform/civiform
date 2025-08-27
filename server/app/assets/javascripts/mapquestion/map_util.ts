@@ -17,8 +17,6 @@ export const CF_POPUP_CONTENT_TEMPLATE = 'cf-popup-content-template'
 export const CF_POPUP_CONTENT_LOCATION_NAME = 'cf-popup-content-location-name'
 export const CF_POPUP_CONTENT_LOCATION_ADDRESS =
   'cf-popup-content-location-address'
-export const CF_POPUP_CONTENT_LOCATION_LINK_CONTAINER =
-  'cf-popup-content-location-link-container'
 export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
 
 // MAP DEFAULTS

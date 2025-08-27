@@ -51,23 +51,23 @@ if (isLocalDevEnvironment()) {
           await expect(mapContainer).toBeVisible()
 
           const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
-          await expect(mapCanvas).toBeVisible({timeout: 10000})
+          await expect(mapCanvas).toBeVisible()
+        })
+
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        await test.step('Verify locations list container exists', async () => {
+          await expect(locationsList).toBeVisible()
         })
 
         await test.step('Verify location checkboxes count and initial state', async () => {
-          const checkboxes = page.getByRole('checkbox')
+          const checkboxes = locationsList.getByRole('checkbox')
           await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
 
           for (const checkbox of await checkboxes.all()) {
             await expect(checkbox).not.toBeChecked()
           }
-        })
-
-        await test.step('Verify locations list container exists', async () => {
-          const locationsList = page.getByRole('group', {
-            name: 'Location selection',
-          })
-          await expect(locationsList).toBeVisible()
         })
 
         await test.step('Verify location count is displayed', async () => {

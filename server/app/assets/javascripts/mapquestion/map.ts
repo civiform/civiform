@@ -7,7 +7,6 @@ import {
   CF_POPUP_CONTENT_TEMPLATE,
   CF_POPUP_CONTENT_LOCATION_NAME,
   CF_POPUP_CONTENT_LOCATION_ADDRESS,
-  CF_POPUP_CONTENT_LOCATION_LINK_CONTAINER,
   CF_POPUP_CONTENT_LOCATION_LINK,
   LOCATIONS_SOURCE,
   LOCATIONS_LAYER,
@@ -72,7 +71,7 @@ const addLocationsToMap = (
 }
 
 const createPopupContent = (
-  popupContentTemplate: Node,
+  templateContent: HTMLCollection,
   settings: MapSettings,
   properties: GeoJsonProperties,
 ): Node | null => {
@@ -81,55 +80,39 @@ const createPopupContent = (
   const address: string = properties[settings.addressGeoJsonKey] as string
   const detailsUrl: string = properties[settings.detailsUrlGeoJsonKey] as string
 
-  const popupContent = popupContentTemplate.cloneNode(true) as HTMLElement
-  popupContent.classList.remove('hidden', CF_POPUP_CONTENT_TEMPLATE)
-
-  if (name) {
-    const nameElement =
-      (popupContent.querySelector(
-        `.${CF_POPUP_CONTENT_LOCATION_NAME}`,
-      ) as HTMLElement) || null
-    if (nameElement) {
-      nameElement.textContent = name
-      nameElement.classList.remove('hidden')
-    }
-  }
-
-  if (address) {
-    const addressElement =
-      (popupContent.querySelector(
-        `.${CF_POPUP_CONTENT_LOCATION_ADDRESS}`,
-      ) as HTMLElement) || null
-    if (addressElement) {
-      addressElement.textContent = address
-      addressElement.classList.remove('hidden')
-    }
-  }
-
-  if (detailsUrl) {
-    const detailsLinkElementContainer =
-      (popupContent.querySelector(
-        `.${CF_POPUP_CONTENT_LOCATION_LINK_CONTAINER}`,
-      ) as HTMLElement) || null
-    const detailsLinkElement =
-      (popupContent.querySelector(
-        `.${CF_POPUP_CONTENT_LOCATION_LINK}`,
-      ) as HTMLAnchorElement) || null
-    if (detailsLinkElementContainer && detailsLinkElement) {
-      try {
-        new URL(detailsUrl) // Validate URL format
-        detailsLinkElement.href = detailsUrl
-        detailsLinkElementContainer.classList.remove('hidden')
-      } catch {
-        console.warn('Invalid URL format, skipping link:', detailsUrl)
-      }
-    }
-  }
-
   if (!name && !address && !detailsUrl) {
     return null
   }
 
+  const popupContent = document.createElement('div')
+  if (name) {
+    const nameElement = templateContent
+      .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
+      ?.cloneNode(true) as HTMLElement
+    nameElement.textContent = name
+    popupContent.appendChild(nameElement)
+  }
+
+  if (address) {
+    const addressElement = templateContent
+      .namedItem(CF_POPUP_CONTENT_LOCATION_ADDRESS)
+      ?.cloneNode(true) as HTMLElement
+    addressElement.textContent = address
+    popupContent.appendChild(addressElement)
+  }
+
+  if (detailsUrl) {
+    try {
+      new URL(detailsUrl) // Validate URL format
+      const linkElement = templateContent
+        .namedItem(CF_POPUP_CONTENT_LOCATION_LINK)
+        ?.cloneNode(true) as HTMLAnchorElement
+      linkElement.href = detailsUrl
+      popupContent.appendChild(linkElement)
+    } catch {
+      console.warn('Invalid URL format, skipping link:', detailsUrl)
+    }
+  }
   return popupContent
 }
 
@@ -158,14 +141,14 @@ const addPopupsToMap = (
     const popupContentTemplate = mapQuerySelector(
       mapId,
       CF_POPUP_CONTENT_TEMPLATE,
-    )
+    ) as HTMLTemplateElement
     if (!popupContentTemplate) {
       console.warn(`Map popup template not found for map: ${mapId}`)
       return null
     }
 
     const popupContent = createPopupContent(
-      popupContentTemplate,
+      popupContentTemplate.content.children,
       settings,
       properties,
     )

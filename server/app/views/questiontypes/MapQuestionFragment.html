@@ -93,19 +93,19 @@
     </div>
   </div>
   <!-- Hidden template for popups -->
-  <div class="hidden cf-popup-content-template" th:data-map-id="${mapId}">
+  <template class="cf-popup-content-template" th:data-map-id="${mapId}">
     <div
-      class="hidden text-bold font-serif-sm padding-bottom-2 cf-popup-content-location-name"
+      id="cf-popup-content-location-name"
+      class="text-bold font-serif-sm padding-bottom-2"
     ></div>
-    <div class="hidden font-sans-sm cf-popup-content-location-address"></div>
-    <div class="hidden cf-popup-content-location-link-container">
-      <a
-        class="hidden font-sans-sm usa-link usa-link--external cf-popup-content-location-link"
-        target="_blank"
-        th:text="#{map.locationLinkText}"
-      ></a>
-    </div>
-  </div>
+    <div id="cf-popup-content-location-address" class="font-sans-sm"></div>
+    <a
+      id="cf-popup-content-location-link"
+      class="font-sans-sm usa-link usa-link--external"
+      target="_blank"
+      th:text="#{map.locationLinkText}"
+    ></a>
+  </template>
 
   <script
     th:if="${questionRendererParams.geoJson().isPresent()}"
