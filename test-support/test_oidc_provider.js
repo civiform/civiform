@@ -105,7 +105,7 @@ const configuration = {
           claims.user_displayname = email;
         } else {
           claims.email = email;
-          claims.name = email;
+          claims.name = `${email}_first ${email}_last`;
           claims.picture = 'https://www.gravatar.com/avatar/00000000000000000000000000000000.png';
         }
 
