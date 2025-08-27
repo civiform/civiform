@@ -64,6 +64,7 @@ public class OpenApi3SchemaGeneratorTest {
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =
@@ -265,6 +266,7 @@ components:
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =
@@ -819,6 +821,7 @@ components:
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =

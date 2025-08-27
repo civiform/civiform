@@ -599,7 +599,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -676,7 +677,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -763,7 +765,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : {
+                 "admin-name-1": {
+                     "inputFields" : [ {
+                         "questionName": "q-name-1",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }],
+                     "outputFields" : [ {
+                         "questionName": "q-name-2",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }]
+                 }
+             }
           },
           "questions" : [ {
               "type" : "name",
@@ -945,7 +961,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             },
             "questions" : [ {
               "type" : "name",
@@ -1291,7 +1308,8 @@ public class AdminImportControllerTest extends ResetPostgres {
            },
              "isRequired" : true
            }
-         }]
+         }],
+         "bridgeDefinitions" : { }
         },
         "questions" : [ {
           "type" : "id",
@@ -1479,7 +1497,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
           },
           "questions" : [{
               "type" : "date",
@@ -1667,7 +1686,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
         },
         "questions" : [ {
           "type" : "name",
