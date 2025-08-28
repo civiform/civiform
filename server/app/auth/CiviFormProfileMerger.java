@@ -70,13 +70,15 @@ public final class CiviFormProfileMerger {
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
       ApplicantModel applicantInDatabase, CiviFormProfile sessionGuestProfile) {
-    // Merge guest applicant data into already existing account in database
+    // Merge guest applicant data with already existing account in database.
+    // TODO(#11304#issuecomment-3233634460): this merges the older account
+    // into the newer which is likely incorrect.
     ApplicantModel guestApplicant = sessionGuestProfile.getApplicant().join();
     AccountModel existingAccount = applicantInDatabase.getAccount();
     ApplicantModel mergedApplicant =
         applicantRepositoryProvider
             .get()
-            .mergeApplicants(guestApplicant, applicantInDatabase, existingAccount)
+            .mergeApplicantsOlderIntoNewer(guestApplicant, applicantInDatabase, existingAccount)
             .toCompletableFuture()
             .join();
     return profileFactory.wrap(mergedApplicant);

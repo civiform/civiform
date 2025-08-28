@@ -241,7 +241,7 @@ public final class AccountRepository {
    *
    * @return The updated newer applicant.
    */
-  public CompletionStage<ApplicantModel> mergeApplicants(
+  public CompletionStage<ApplicantModel> mergeApplicantsOlderIntoNewer(
       ApplicantModel applicant1, ApplicantModel applicant2, AccountModel account) {
     return supplyAsync(
         () ->
@@ -249,7 +249,7 @@ public final class AccountRepository {
                 () -> {
                   applicant1.setAccount(account).save();
                   applicant2.setAccount(account).save();
-                  return mergeApplicants(applicant1, applicant2).saveAndReturn();
+                  return mergeApplicantsOlderIntoNewer(applicant1, applicant2).saveAndReturn();
                 }),
         dbExecutionContext);
   }
@@ -259,7 +259,8 @@ public final class AccountRepository {
    *
    * @return The updated newer applicant.
    */
-  private ApplicantModel mergeApplicants(ApplicantModel applicant1, ApplicantModel applicant2) {
+  private ApplicantModel mergeApplicantsOlderIntoNewer(
+      ApplicantModel applicant1, ApplicantModel applicant2) {
     ApplicantModel older = applicant1;
     ApplicantModel newer = applicant2;
     if (applicant1.getWhenCreated().isAfter(applicant2.getWhenCreated())) {
