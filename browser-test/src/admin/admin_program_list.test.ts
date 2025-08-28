@@ -334,7 +334,7 @@ test.describe('Program list page.', () => {
 
         await adminPrograms.expectProgramActionsVisible(
           programName,
-          ProgramLifecycle.DRAFT,
+          ProgramLifecycle.ACTIVE,
           [ProgramAction.VIEW],
           [ProgramExtraAction.EDIT],
         )
