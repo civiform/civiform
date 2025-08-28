@@ -13,6 +13,7 @@ import {
   waitForPageJsLoad,
   AdminSettings,
 } from '.'
+import {BridgeDiscoveryPage} from '../page/admin/api_bridge/bridge_discovery_page'
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramMigration} from './admin_program_migration'
 import {ApplicantProgramList} from './applicant_program_list'
@@ -20,6 +21,7 @@ import {ApplicantProgramOverview} from './applicant_program_overview'
 import {Seeding} from './seeding'
 
 type CiviformFixtures = {
+  bridgeDiscoveryPage: BridgeDiscoveryPage
   adminApiKeys: AdminApiKeys
   adminPrograms: AdminPrograms
   adminQuestions: AdminQuestions
@@ -39,6 +41,10 @@ type CiviformFixtures = {
 }
 
 export const test = base.extend<CiviformFixtures>({
+  bridgeDiscoveryPage: async ({page}, use) => {
+    await use(new BridgeDiscoveryPage(page))
+  },
+
   adminApiKeys: async ({page, request}, use) => {
     await use(new AdminApiKeys(page, request))
   },
