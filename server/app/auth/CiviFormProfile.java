@@ -49,7 +49,10 @@ public class CiviFormProfile {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
-  /** Get the oldest {@link ApplicantModel} associated with the profile. */
+  /**
+   * Get the {@link ApplicantModel} for the Applicant ID stored in the profileData or fallback to
+   * the oldest Applicant associated with the profile.
+   */
   public CompletableFuture<ApplicantModel> getApplicant() {
     if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       long applicantId =
@@ -66,15 +69,16 @@ public class CiviFormProfile {
 
     // If the applicant id has not yet been stored in the profile, then get it from the account,
     // which requires an extra db fetch.
+    // TODO(#11304#issuecomment-3233634460): Selecting the oldest account is likely incorrect.
     return this.getAccount()
         .thenApplyAsync(
             (account) ->
-                getApplicantForAccount(account)
+                getOldestApplicantForAccount(account)
                     .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
             classLoaderExecutionContext.current());
   }
 
-  private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
+  private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
     // Accounts (should) correspond to a single applicant, but they don't in particular for guests
     // merged into logged in accounts.
     // TODO(#11304#issuecomment-3233634460): Selecting the oldest account is likely incorrect.
@@ -334,7 +338,7 @@ public class CiviFormProfile {
    */
   void storeApplicantIdInProfile(AccountModel account) {
     Long applicantId =
-        getApplicantForAccount(account)
+        getOldestApplicantForAccount(account)
             .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))
             .id;
     storeApplicantIdInProfile(applicantId);
