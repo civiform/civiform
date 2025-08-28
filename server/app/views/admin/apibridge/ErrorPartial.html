@@ -1,0 +1,24 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apibridge.ErrorPartialViewModel"*/-->
+
+<div
+  id="errors"
+  hx-swap-oob="true"
+  class="usa-alert usa-alert--error width-tablet"
+  aria-live="polite"
+  aria-label="Error status"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <h2 class="usa-alert__heading">Error status</h2>
+    <div class="usa-alert__text">
+      <ul class="usa-list">
+        <li
+          class="usa-checklist__item"
+          th:each="error: ${model.errors()}"
+          th:text="${error}"
+        ></li>
+      </ul>
+    </div>
+  </div>
+</div>
