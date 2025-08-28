@@ -308,13 +308,13 @@ test.describe('Program list page.', () => {
     )
   })
 
-  test.describe('Test', () => {
-    test('Adds translations for program in active mode', async ({
+  test.describe('Test test test', () => {
+    test('Program actions show up as expected', async ({
       page,
       adminPrograms,
     }) => {
       const programName = 'program name'
-      await test.step('program actions show up as expected', async () => {
+      await test.step('test', async () => {
         await loginAsAdmin(page)
 
         await adminPrograms.addProgram(programName)
