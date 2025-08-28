@@ -308,6 +308,40 @@ test.describe('Program list page.', () => {
     )
   })
 
+  test.describe('Test', () => {
+    test('Adds translations for program in active mode', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const programName = 'program name'
+      await test.step('program actions show up as expected', async () => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.publishProgram(programName)
+
+        await adminPrograms
+          .getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE)
+          .click()
+        await adminPrograms
+          .getProgramExtraAction(
+            programName,
+            ProgramLifecycle.ACTIVE,
+            ProgramExtraAction.EDIT,
+          )
+          .click()
+        await adminPrograms.gotoAdminProgramsPage()
+
+        await adminPrograms.expectProgramActionsVisible(
+          programName,
+          ProgramLifecycle.DRAFT,
+          [ProgramAction.VIEW],
+          [ProgramExtraAction.EDIT],
+        )
+      })
+    })
+  })
+
   test('external program does not show information about universal questions', async ({
     page,
     adminPrograms,
