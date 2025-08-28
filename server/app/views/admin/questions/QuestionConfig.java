@@ -588,6 +588,12 @@ public final class QuestionConfig {
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
 
+    // Check if this is a required option (YES or NO)
+    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
+    boolean isRequiredOption =
+        YesNoQuestionOption.YES.getAdminName().equals(adminName)
+            || YesNoQuestionOption.NO.getAdminName().equals(adminName);
+
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
             && existingOption.get().displayInAnswerOptions().get();
@@ -603,20 +609,26 @@ public final class QuestionConfig {
             .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
             .attr("aria-label", ariaLabel)
             .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
+
+    // Build the checkbox input
+    InputTag checkboxInput =
+        input()
+            .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withType("checkbox")
+            .withName("displayedOptionIds[]")
+            .withValue(Long.toString(existingOption.get().id()))
+            .withClasses("usa-checkbox__input");
+
+    // Apply disabled and checked for required options
+    if (isRequiredOption) {
+      checkboxInput.attr("checked", "checked").attr("disabled", "disabled");
+    } else {
+      checkboxInput.withCondChecked(isChecked);
+    }
+
     DivTag checkboxWithLabels =
         div()
-            .with(
-                // Checkbox for selecting whether to display the option to the applicant.
-                // Value is set to the ID because falsy checkbox values get discarded on form
-                // submission.
-                input()
-                    .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
-                    .withType("checkbox")
-                    .withName("displayedOptionIds[]")
-                    .withValue(Long.toString(existingOption.get().id()))
-                    .withCondChecked(isChecked)
-                    .withClasses("usa-checkbox__input"),
-                labels)
+            .with(checkboxInput, labels)
             .withClasses(
                 "usa-checkbox",
                 "flex-align-center",
@@ -627,10 +639,26 @@ public final class QuestionConfig {
                 "items-center",
                 "padding-1",
                 "margin-1");
-    return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(
-            optionIdsHiddenInput, optionAdminNameHidden, optionTextHiddenInput, checkboxWithLabels);
+
+    DivTag container =
+        div()
+            .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+            .with(
+                optionIdsHiddenInput,
+                optionAdminNameHidden,
+                optionTextHiddenInput,
+                checkboxWithLabels);
+
+    // Add extra hidden input for required options to ensure value is submitted
+    if (isRequiredOption) {
+      container.with(
+          input()
+              .withType("hidden")
+              .withName("displayedOptionIds[]")
+              .withValue(Long.toString(existingOption.get().id())));
+    }
+
+    return container;
   }
 
   /**
