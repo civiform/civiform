@@ -49,7 +49,7 @@ public class CiviFormProfile {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
-  /** Get the latest {@link ApplicantModel} associated with the profile. */
+  /** Get the oldest {@link ApplicantModel} associated with the profile. */
   public CompletableFuture<ApplicantModel> getApplicant() {
     if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       long applicantId =
@@ -75,7 +75,9 @@ public class CiviFormProfile {
   }
 
   private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
-    // Accounts (should) correspond to a single applicant.
+    // Accounts (should) correspond to a single applicant, but they don't in particular for guests
+    // merged into logged in accounts.
+    // TODO(#11304#issuecomment-3233634460): Selecting the oldest account is likely incorrect.
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 

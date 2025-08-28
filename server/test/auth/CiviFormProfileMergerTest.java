@@ -68,7 +68,7 @@ public class CiviFormProfileMergerTest {
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
     when(profileFactory.wrap(any(ApplicantModel.class))).thenReturn(civiFormProfile);
     when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
-    when(repository.mergeApplicants(applicant, applicant, account))
+    when(repository.mergeApplicantsOlderIntoNewer(applicant, applicant, account))
         .thenReturn(completedFuture(applicant));
   }
 
@@ -151,7 +151,7 @@ public class CiviFormProfileMergerTest {
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
-    verify(repository).mergeApplicants(eq(applicant), eq(applicant), eq(account));
+    verify(repository).mergeApplicantsOlderIntoNewer(eq(applicant), eq(applicant), eq(account));
     assertThat(merged).hasValue(userProfile);
   }
 }
