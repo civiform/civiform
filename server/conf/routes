@@ -157,6 +157,11 @@ GET     /admin/reporting/:programSlug                                          c
 GET     /admin/reporting/:programSlug/download                                 controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName                                 controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
+# Admin api bridge
+GET     /admin/api-bridge/discovery                                            controllers.admin.apibridge.DiscoveryController.discovery(request: Request)
+POST    /admin/api-bridge/hx/discovery                                         controllers.admin.apibridge.DiscoveryController.hxDiscoveryPopulate(request: Request)
+POST    /admin/api-bridge/hx/add                                               controllers.admin.apibridge.DiscoveryController.hxAdd(request: Request)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey                                        controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey                              controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
