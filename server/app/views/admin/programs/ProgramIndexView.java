@@ -530,16 +530,16 @@ public final class ProgramIndexView extends BaseHtmlView {
 
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       maybeRenderShareLink(activeProgram.get()).ifPresent(activeRowActions::add);
-      
+
       maybeRenderViewApplicationsLink(activeProgram.get(), profile, request)
           .ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
-        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
-          maybeRenderManageTranslationsLink(activeProgram.get())
-              .ifPresent(activeRowExtraActions::add);
-        }
+      }
+      if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+        maybeRenderManageTranslationsLink(activeProgram.get())
+            .ifPresent(activeRowExtraActions::add);
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);

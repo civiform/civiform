@@ -516,7 +516,7 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
- test.describe('Test test test', () => {
+  test.describe('Test test test', () => {
     test('Adds translations for program in active mode', async ({
       page,
       adminPrograms,
@@ -529,17 +529,24 @@ test.describe('Admin can manage program translations', () => {
         await adminPrograms.addProgram(programName)
         await adminPrograms.publishProgram(programName)
 
-        await adminPrograms.getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE).click();
-        await adminPrograms.getProgramExtraAction(programName, ProgramLifecycle.ACTIVE, ProgramExtraAction.EDIT).click();
+        await adminPrograms
+          .getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE)
+          .click()
+        await adminPrograms
+          .getProgramExtraAction(
+            programName,
+            ProgramLifecycle.ACTIVE,
+            ProgramExtraAction.EDIT,
+          )
+          .click()
         await adminPrograms.gotoAdminProgramsPage()
 
-
-        await adminPrograms.expectDraftProgram(programName)
-        await adminPrograms.expectActiveProgram(programName)
-        await adminPrograms
-          .getProgramCard(programName, 'Active')
-          .locator('.cf-with-dropdown')
-          .click()
+        await adminPrograms.expectProgramActionsVisible(
+          programName,
+          ProgramLifecycle.DRAFT,
+          [ProgramAction.VIEW],
+          [ProgramExtraAction.EDIT],
+        )
       })
     })
   })
@@ -604,7 +611,7 @@ test.describe('Admin can manage program translations', () => {
 
       await test.step('Verify translations in translations page', async () => {
         await adminPrograms.gotoAdminProgramsPage()
-        
+
         /*
         await adminPrograms.expectProgramActionsVisible(
           programName,
@@ -612,7 +619,7 @@ test.describe('Admin can manage program translations', () => {
           [ProgramAction.PUBLISH, ProgramAction.EDIT],
           [ProgramExtraAction.MANAGE_TRANSLATIONS],
         )*/
-        
+
         await adminPrograms.expectDraftProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
 
@@ -621,7 +628,7 @@ test.describe('Admin can manage program translations', () => {
           .getProgramCard(programName, 'Active')
           .locator('.cf-with-dropdown')
           .click()
-        
+
         // await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       })
     })
