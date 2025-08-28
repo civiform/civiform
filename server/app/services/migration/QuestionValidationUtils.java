@@ -8,16 +8,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.question.YesNoQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Utility class to validate questions during the program import flow. */
 final class QuestionValidationUtils {
-
-  // The allowed options for YES_NO questions
-  private static final ImmutableSet<String> ALLOWED_YES_NO_OPTIONS =
-      ImmutableSet.of("yes", "no", "maybe", "not-sure");
 
   /**
    * Validates attributes of the question, including admin name, help text, and question options.
@@ -81,7 +78,7 @@ final class QuestionValidationUtils {
 
     Stream<CiviFormError> invalidOptionErrors =
         optionAdminNames.stream()
-            .filter(optionName -> !ALLOWED_YES_NO_OPTIONS.contains(optionName))
+            .filter(optionName -> !YesNoQuestionOption.getAllAdminNames().contains(optionName))
             .map(
                 optionName ->
                     CiviFormError.of(
@@ -91,7 +88,7 @@ final class QuestionValidationUtils {
                             yesNoQuestion.getName(), optionName)));
 
     Stream<CiviFormError> missingRequiredErrors =
-        Stream.of("yes", "no")
+        YesNoQuestionOption.getRequiredAdminNames().stream()
             .filter(requiredOption -> !optionAdminNames.contains(requiredOption))
             .map(
                 missingOption ->

@@ -187,6 +187,11 @@ public class QuestionConfigTest {
     assertThat(result).contains("no");
     assertThat(result).contains("not-sure");
     assertThat(result).contains("maybe");
+
+    assertThat(result).contains("\"optionIds[]\" value=\"1\"");
+    assertThat(result).contains("\"optionIds[]\" value=\"0\"");
+    assertThat(result).contains("\"optionIds[]\" value=\"2\"");
+    assertThat(result).contains("\"optionIds[]\" value=\"3\"");
   }
 
   @Test
