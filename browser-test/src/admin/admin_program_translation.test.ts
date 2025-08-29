@@ -10,7 +10,6 @@ import {
   disableFeatureFlag,
 } from '../support'
 import {
-  ProgramAction,
   ProgramExtraAction,
   ProgramLifecycle,
   ProgramType,
@@ -516,41 +515,6 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
-  test.describe('Test test test', () => {
-    test('Adds translations for program in active mode', async ({
-      page,
-      adminPrograms,
-    }) => {
-      const programName = 'Active program to be translated'
-
-      await test.step('translation page shows up as expected', async () => {
-        await loginAsAdmin(page)
-
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.publishProgram(programName)
-
-        await adminPrograms
-          .getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE)
-          .click()
-        await adminPrograms
-          .getProgramExtraAction(
-            programName,
-            ProgramLifecycle.ACTIVE,
-            ProgramExtraAction.EDIT,
-          )
-          .click()
-        await adminPrograms.gotoAdminProgramsPage()
-
-        await adminPrograms.expectProgramActionsVisible(
-          programName,
-          ProgramLifecycle.DRAFT,
-          [ProgramAction.VIEW],
-          [ProgramExtraAction.EDIT],
-        )
-      })
-    })
-  })
-
   test.describe('Manages translation even when the program is in active mode', () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(
@@ -565,6 +529,14 @@ test.describe('Admin can manage program translations', () => {
       adminTranslations,
     }) => {
       const programName = 'Active program to be translated'
+      const translatedProgramName = 'Chinese name'
+      const translatedDescription = 'Chinese description'
+      const translatedShortDescription = 'Chinese short description'
+      const translatedBlockName = 'Chinese block name'
+      const translatedBlockDescription = 'Chinese block description'
+      const translatedApplicationStepTitle = 'Chinese application step title'
+      const translatedApplicationStepDescription =
+        'Chinese application step decription'
 
       await test.step('translation page shows up as expected', async () => {
         await loginAsAdmin(page)
@@ -598,38 +570,43 @@ test.describe('Admin can manage program translations', () => {
 
       await test.step('adds translation', async () => {
         await adminTranslations.editProgramTranslations({
-          name: 'Chinese name',
-          description: 'Chinese description',
-          shortDescription: 'Chinese short description',
-          blockName: 'Chinese block name - ',
-          shortDescription: 'Chinese short description',
-          applicationStepTitle: 'Chinese application step title',
-          applicationStepDescription: 'Chinese application step decription',
-          blockDescription: 'Chinese block description',
+          name: translatedProgramName,
+          description: translatedDescription,
+          shortDescription: translatedShortDescription,
+          blockName: translatedBlockName,
+          blockDescription: translatedBlockDescription,
+          applicationStepTitle: translatedApplicationStepTitle,
+          applicationStepDescription: translatedApplicationStepDescription,
         })
       })
 
-      await test.step('Verify translations in translations page', async () => {
+      await test.step('Verify that translation is not available for active mode when there is a draft already', async () => {
         await adminPrograms.gotoAdminProgramsPage()
-
-        /*
-        await adminPrograms.expectProgramActionsVisible(
-          programName,
-          ProgramLifecycle.ACTIVE,
-          [ProgramAction.PUBLISH, ProgramAction.EDIT],
-          [ProgramExtraAction.MANAGE_TRANSLATIONS],
-        )*/
-
         await adminPrograms.expectDraftProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
+        await adminPrograms.expectProgramActionsHidden(
+          programName,
+          ProgramLifecycle.ACTIVE,
+          [],
+          [ProgramExtraAction.MANAGE_TRANSLATIONS],
+        )
+      })
 
-        await validateScreenshot(page, 'program-translation-for-testing')
-        await adminPrograms
-          .getProgramCard(programName, 'Active')
-          .locator('.cf-with-dropdown')
-          .click()
-
-        // await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Traditional Chinese')
+        await adminTranslations.expectBlockTranslations(
+          translatedBlockName,
+          translatedBlockDescription,
+        )
+        await adminTranslations.expectProgramTranslation({
+          expectProgramName: translatedProgramName,
+          expectProgramDescription: translatedDescription,
+          expectProgramShortDescription: translatedShortDescription,
+          expectApplicationStepTitle: translatedApplicationStepTitle,
+          expectApplicationStepDescription:
+            translatedApplicationStepDescription,
+        })
       })
     })
   })

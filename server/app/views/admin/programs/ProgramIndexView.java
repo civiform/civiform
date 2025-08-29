@@ -536,10 +536,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
-      }
-      if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
-        maybeRenderManageTranslationsLink(activeProgram.get())
-            .ifPresent(activeRowExtraActions::add);
+
+        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+          maybeRenderManageTranslationsLink(activeProgram.get())
+              .ifPresent(activeRowExtraActions::add);
+        }
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
