@@ -913,6 +913,15 @@ option.no=No
 option.notSure=Not sure
 option.maybe=Maybe
 
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Link text for location details URLs
+map.locationLinkText=See more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
@@ -1024,6 +1033,9 @@ category.tag.housing=Housing
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Military
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Training
 
@@ -1032,6 +1044,9 @@ category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veteran
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Categories

@@ -913,6 +913,15 @@ option.no=አይ
 option.notSure=እርግጠኛ አይደለሁም
 option.maybe=ምናልባት
 
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Link text for location details URLs
+map.locationLinkText=See more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
@@ -1024,6 +1033,9 @@ category.tag.housing=ቤት
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=በይነመረብ
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=ወታደራዊ
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=ሥልጠና
 
@@ -1032,6 +1044,9 @@ category.tag.transportation=መጓጓዣ
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=መገልገያዎች
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=ጡረተኛ ወታደር
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ምድቦች
