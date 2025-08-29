@@ -17,6 +17,7 @@ import services.Path;
 import services.apibridge.ApiBridgeServiceDto.JsonSchemaDataType;
 import services.applicant.ApplicantData;
 import services.applicant.Currency;
+import services.question.YesNoQuestionOption;
 import services.question.types.ScalarType;
 
 /** Handles mapping {@link ApplicantData} to a format that can be sent to the Api Bridge. */
@@ -45,16 +46,8 @@ public final class RequestPayloadMapper extends AbstractPayloadMapper {
               new TypePair(JsonSchemaDataType.BOOLEAN, ScalarType.STRING),
               (applicantData, path) ->
                   applicantData
-                      .readString(path)
-                      .flatMap(
-                          x ->
-                              switch (x) {
-                                  // TODO: GWEN Replace 1/0 once the yesno question has a way to
-                                  // reference them
-                                case "1" -> Optional.of(true);
-                                case "0" -> Optional.of(false);
-                                default -> Optional.<Boolean>empty();
-                              }));
+                      .readLong(path)
+                      .flatMap(x -> YesNoQuestionOption.fromId(x).toOptionalBoolean()));
 
   @Inject
   public RequestPayloadMapper(ObjectMapper mapper) {

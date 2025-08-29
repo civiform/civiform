@@ -2,6 +2,7 @@ package services.question;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
+import java.util.Optional;
 
 /** Enum for YES/NO question options with their IDs and admin names. */
 public enum YesNoQuestionOption {
@@ -44,5 +45,50 @@ public enum YesNoQuestionOption {
         .filter(option -> option.getAdminName().equals(adminName))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Unknown admin name: " + adminName));
+  }
+
+  /** Finds an option by its admin name. */
+  public static YesNoQuestionOption fromId(long id) {
+    return Arrays.stream(values())
+        .filter(option -> option.getId() == id)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Unknown id: %d".formatted(id)));
+  }
+
+  /**
+   * Convert to optional boolean.
+   *
+   * <p>
+   *
+   * <ul>
+   *   <li>{@link YesNoQuestionOption#YES} is true
+   *   <li>{@link YesNoQuestionOption#NO} is false
+   *   <li>Other values are empty optional
+   * </ul>
+   */
+  public Optional<Boolean> toOptionalBoolean() {
+    return switch (this) {
+      case YES -> Optional.of(true);
+      case NO -> Optional.of(false);
+      default -> Optional.empty();
+    };
+  }
+
+  /**
+   * Convert from a boolean.
+   *
+   * <p>
+   *
+   * <ul>
+   *   <li>True is {@link YesNoQuestionOption#YES}
+   *   <li>False is {@link YesNoQuestionOption#NO}
+   * </ul>
+   */
+  public static YesNoQuestionOption fromBoolean(Boolean value) {
+    if (value == true) {
+      return YES;
+    }
+
+    return NO;
   }
 }

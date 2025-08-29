@@ -16,6 +16,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.Currency;
 import services.applicant.question.Scalar;
+import services.question.YesNoQuestionOption;
 
 @RunWith(JUnitParamsRunner.class)
 public class ResponsePayloadMapperTest {
@@ -199,16 +200,15 @@ public class ResponsePayloadMapperTest {
 
   private Object[] validBooleanValues() {
     return new Object[] {
-      // TODO: GWEN Replace 1/0 once the yesno question has a way to reference them
-      new Object[] {"booleanExample", Scalar.SELECTION, true, "1"},
-      new Object[] {"booleanExample", Scalar.SELECTION, false, "0"},
+      new Object[] {"booleanExample", Scalar.SELECTION, true, YesNoQuestionOption.YES},
+      new Object[] {"booleanExample", Scalar.SELECTION, false, YesNoQuestionOption.NO},
     };
   }
 
   @Test
   @Parameters(method = "validBooleanValues")
   public void map_boolean_successfully(
-      String propertyName, Scalar scalar, Boolean value, String expected) {
+      String propertyName, Scalar scalar, Boolean value, YesNoQuestionOption expected) {
     var outputFields =
         ImmutableList.of(new ApiBridgeDefinitionItem("questionname", scalar, propertyName));
     var payload = ImmutableMap.<String, Object>of(propertyName, value);
@@ -217,9 +217,9 @@ public class ResponsePayloadMapperTest {
         responsePayloadMapper.map(new ApplicantData(), schema, payload, outputFields);
 
     assertThat(newApplicantData).isNotNull();
-    assertThat(newApplicantData.readString(Path.create("applicant.questionname").join(scalar)))
+    assertThat(newApplicantData.readLong(Path.create("applicant.questionname").join(scalar)))
         .get()
-        .isEqualTo(expected);
+        .isEqualTo(expected.getId());
   }
 
   private Object[] notSupportedValues() {

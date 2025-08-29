@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import org.junit.Test;
 
 public class YesNoQuestionOptionTest {
@@ -54,5 +55,34 @@ public class YesNoQuestionOptionTest {
     assertThatThrownBy(() -> YesNoQuestionOption.fromAdminName("invalid"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Unknown admin name: invalid");
+  }
+
+  @Test
+  public void testFromId_validIds() {
+    assertThat(YesNoQuestionOption.fromId(1)).isEqualTo(YesNoQuestionOption.YES);
+    assertThat(YesNoQuestionOption.fromId(0)).isEqualTo(YesNoQuestionOption.NO);
+    assertThat(YesNoQuestionOption.fromId(2)).isEqualTo(YesNoQuestionOption.NOT_SURE);
+    assertThat(YesNoQuestionOption.fromId(3)).isEqualTo(YesNoQuestionOption.MAYBE);
+  }
+
+  @Test
+  public void testFromId_invalidId_throwsException() {
+    assertThatThrownBy(() -> YesNoQuestionOption.fromId(-1))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Unknown id: -1");
+  }
+
+  @Test
+  public void testFromBoolean() {
+    assertThat(YesNoQuestionOption.fromBoolean(true)).isEqualTo(YesNoQuestionOption.YES);
+    assertThat(YesNoQuestionOption.fromBoolean(false)).isEqualTo(YesNoQuestionOption.NO);
+  }
+
+  @Test
+  public void testToOptionalBoolean() {
+    assertThat(YesNoQuestionOption.YES.toOptionalBoolean()).isEqualTo(Optional.of(true));
+    assertThat(YesNoQuestionOption.NO.toOptionalBoolean()).isEqualTo(Optional.of(false));
+    assertThat(YesNoQuestionOption.NOT_SURE.toOptionalBoolean()).isEqualTo(Optional.empty());
+    assertThat(YesNoQuestionOption.MAYBE.toOptionalBoolean()).isEqualTo(Optional.empty());
   }
 }
