@@ -2,6 +2,7 @@ package support;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Random;
 import models.ApplicationStep;
 import models.DisplayMode;
@@ -73,6 +74,7 @@ public class TestProgramUtility {
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
                         ImmutableList.of(new ApplicationStep("title", "description")))
+                    .setBridgeDefinitions(ImmutableMap.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))

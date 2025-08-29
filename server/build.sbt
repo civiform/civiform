@@ -43,15 +43,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.32.29",
-      "software.amazon.awssdk" % "ses" % "2.32.29",
+      "software.amazon.awssdk" % "s3" % "2.32.30",
+      "software.amazon.awssdk" % "ses" % "2.32.30",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.16.2",
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.50.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.51.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",

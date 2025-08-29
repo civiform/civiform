@@ -180,6 +180,10 @@ public final class Block {
     return questionsMemo.get();
   }
 
+  public boolean hasMapQuestion() {
+    return getQuestions().stream().anyMatch(question -> question.getType() == QuestionType.MAP);
+  }
+
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
     return getQuestions().stream()
         .filter(question -> question.getQuestionDefinition().getId() == id)

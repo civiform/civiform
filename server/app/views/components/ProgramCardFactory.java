@@ -169,6 +169,11 @@ public final class ProgramCardFactory {
             StyleUtils.responsiveXLarge("ml-8"));
 
     return div()
+        // This is used to provide the uniqueness needed for Playwright to locate
+        // the correct element for testing. In the future this should be accounted
+        // for in a way that allows for web first assertions ideally via accessibility
+        // name, but that is a larger change than can be accommodated.
+        .withData("lifecycle-stage", isActive ? "active" : "draft")
         .withClasses(
             "py-7",
             "flex",

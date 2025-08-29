@@ -143,6 +143,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     return programDef;
   }
@@ -412,6 +413,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     MessagesApi messagesApiMock = getMessagesApiMock();

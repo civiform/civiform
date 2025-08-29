@@ -1905,7 +1905,11 @@ export class AdminPrograms {
     return this.page
       .locator('div.cf-admin-program-card')
       .filter({has: this.page.getByText(programName, {exact: true})})
-      .filter({has: this.page.getByText(lifecycle)})
+      .filter({
+        has: this.page.locator(
+          `[data-lifecycle-stage=${lifecycle.toLowerCase()}]`,
+        ),
+      })
   }
 
   getProgramAction(
@@ -1924,7 +1928,9 @@ export class AdminPrograms {
     lifecycle: ProgramLifecycle,
   ): Locator {
     const programCard = this.getProgramCard(programName, lifecycle)
-    return programCard.locator('.cf-with-dropdown')
+    return programCard
+      .locator(`[data-lifecycle-stage=${lifecycle.toLowerCase()}]`)
+      .locator('.cf-with-dropdown')
   }
 
   getProgramExtraAction(

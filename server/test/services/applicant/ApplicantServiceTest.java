@@ -3505,6 +3505,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
                         ImmutableList.of(new ApplicationStep("title", "description")))
+                    .setBridgeDefinitions(ImmutableMap.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3588,6 +3589,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
                         ImmutableList.of(new ApplicationStep("title", "description")))
+                    .setBridgeDefinitions(ImmutableMap.of())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
