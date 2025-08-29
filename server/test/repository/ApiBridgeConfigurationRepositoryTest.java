@@ -40,6 +40,27 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void findByHostUrl_succeeds() {
+    repo.insert(
+            createBridgeConfigurationModel()
+                .setAdminName("admin-name-1")
+                .setHostUrl("dontDontThis"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-2").setUrlPath("urlPath2"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-3").setUrlPath("urlPath3"))
+        .toCompletableFuture()
+        .join();
+
+    var model = repo.findByHostUrl("hostUrl").toCompletableFuture().join();
+    assertThat(model).hasSize(2);
+  }
+
+  @Test
   public void insert_persists() {
     ApiBridgeConfigurationModel model =
         repo.insert(createBridgeConfigurationModel()).toCompletableFuture().join();

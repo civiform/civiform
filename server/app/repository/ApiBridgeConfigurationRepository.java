@@ -44,6 +44,22 @@ public final class ApiBridgeConfigurationRepository {
         dbExecutionContext);
   }
 
+  /** Returns all {@link ApiBridgeConfigurationModel} records matching the hostUrl */
+  public CompletionStage<ImmutableList<ApiBridgeConfigurationModel>> findByHostUrl(String hostUrl) {
+    return supplyAsync(
+        () ->
+            database
+                .find(ApiBridgeConfigurationModel.class)
+                .where()
+                .eq("hostUrl", hostUrl)
+                .setLabel("ApiBridgeConfigurationRepository.findByHostUrl")
+                .setProfileLocation(queryProfileLocationBuilder.create("findByHostUrl"))
+                .findList()
+                .stream()
+                .collect(ImmutableList.toImmutableList()),
+        dbExecutionContext);
+  }
+
   /** Returns an {@link ApiBridgeConfigurationModel} record or empty optional asynchronously. */
   public CompletionStage<Optional<ApiBridgeConfigurationModel>>
       findByHostUrlAndUrlPathAndCompatibilityLevel(

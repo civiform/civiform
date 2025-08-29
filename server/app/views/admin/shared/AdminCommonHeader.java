@@ -6,7 +6,8 @@ import views.admin.AdminLayout;
 
 /** This record contains values used by the {@code admin/shared/AdminCommonHeader.html} file. */
 @Builder
-public record AdminCommonHeader(AdminLayout.NavPage activeNavPage, Boolean isOnlyProgramAdmin) {
+public record AdminCommonHeader(
+    AdminLayout.NavPage activeNavPage, Boolean isOnlyProgramAdmin, Boolean isApiBridgeEnabled) {
 
   public String programsUrl() {
     if (isOnlyProgramAdmin()) {
@@ -60,6 +61,14 @@ public record AdminCommonHeader(AdminLayout.NavPage activeNavPage, Boolean isOnl
     return true;
   }
 
+  public String apiBridgeDiscoveryUrl() {
+    return controllers.admin.apibridge.routes.DiscoveryController.discovery().url();
+  }
+
+  public Boolean showApiBridgeDiscoveryUrl() {
+    return isApiBridgeEnabled && !isOnlyProgramAdmin();
+  }
+
   public String settingsUrl() {
     return controllers.admin.routes.AdminSettingsController.index().url();
   }
@@ -73,7 +82,7 @@ public record AdminCommonHeader(AdminLayout.NavPage activeNavPage, Boolean isOnl
   }
 
   public Boolean showApi() {
-    return showApiKeysUrl() || showApiDocsUrl();
+    return showApiKeysUrl() || showApiDocsUrl() || showApiBridgeDiscoveryUrl();
   }
 
   public Boolean isApiPage() {

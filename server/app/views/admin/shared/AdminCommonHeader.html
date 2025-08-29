@@ -199,6 +199,15 @@
                       ><span>Documentation</span></a
                     >
                   </li>
+                  <li
+                    class="usa-nav__submenu-item"
+                    th:if="${adminCommonHeader.showApiBridgeDiscoveryUrl()}"
+                    th:classappend="${adminCommonHeader.activeNavPage().name() == 'API_BRIDGE_DISCOVERY'} ? 'text-bold' : ''"
+                  >
+                    <a th:href="${adminCommonHeader.apiBridgeDiscoveryUrl()}"
+                      ><span>Bridge Discovery</span></a
+                    >
+                  </li>
                 </ul>
               </li>
               <li
@@ -208,6 +217,7 @@
                 <a
                   th:href="${adminCommonHeader.settingsUrl()}"
                   class="cf-admin-heading-nav-item-settings-icon"
+                  aria-label="Settings Link"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
