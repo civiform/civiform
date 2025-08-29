@@ -136,8 +136,6 @@ public class AdminProgramTranslationsController extends CiviFormController {
       throw new BadRequestException(
           String.format("No draft or active found for program: \"%s\"", programName));
     }
-    // TODO: Write a test for when the program's translation is updated, it won't be avail to
-    // applicants till it's published.
   }
 
   /**
