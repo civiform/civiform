@@ -92,6 +92,23 @@
       ></div>
     </div>
   </div>
+  <!-- Selected locations section -->
+  <div class="margin-top-3">
+    <h3 class="usa-prose-h3" th:text="#{map.selectedLocationsHeading}"></h3>
+    <div
+      class="cf-selected-locations-container"
+      data-testid="selected-locations-list"
+      th:data-map-id="${mapId}"
+    >
+      <!-- Selected locations will be dynamically populated here -->
+    </div>
+  </div>
+  <!-- Template for when there are no selections -->
+  <template
+    class="text-base-dark cf-no-selections-message"
+    th:data-map-id="${mapId}"
+    th:text="#{map.noSelectionsMessage}"
+  ></template>
   <!-- Hidden template for popups -->
   <template class="cf-popup-content-template" th:data-map-id="${mapId}">
     <div

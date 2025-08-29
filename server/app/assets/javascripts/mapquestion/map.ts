@@ -16,6 +16,7 @@ import {
   DEFAULT_MAP_MARKER_STYLE,
   DEFAULT_MAP_STYLE,
 } from './map_util'
+import {initLocationSelection} from './map_question_selection'
 
 export const init = (): void => {
   const mapDataObject = window.app?.data?.maps || {}
@@ -23,6 +24,7 @@ export const init = (): void => {
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
       renderMap(mapId, mapData as MapData)
+      initLocationSelection(mapId)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }

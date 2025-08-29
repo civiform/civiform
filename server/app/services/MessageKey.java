@@ -311,6 +311,8 @@ public enum MessageKey {
   // Only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
+  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

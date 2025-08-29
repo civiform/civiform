@@ -19,6 +19,11 @@ export const CF_POPUP_CONTENT_LOCATION_ADDRESS =
   'cf-popup-content-location-address'
 export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
 
+export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
+export const CF_LOCATION_CHECKBOX = 'cf-location-checkbox'
+export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
+export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
+
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
 export const LOCATIONS_LAYER = 'locations-layer'
