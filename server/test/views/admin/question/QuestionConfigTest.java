@@ -246,4 +246,36 @@ public class QuestionConfigTest {
     assertThat(result).containsPattern("<option value=\"2\" selected>");
     assertThat(result).containsPattern("input[^>]*id=\"max-custom-date-year\"[^>]*value=\"2025\"");
   }
+
+  @Test
+  public void yesNoForm_yesAndNoCheckboxesAreDisabled() {
+    YesNoQuestionForm form = new YesNoQuestionForm();
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    // Verify YES and NO checkboxes are disabled and checked
+    assertThat(result).containsPattern("id=\"yes\"[^>]*disabled=\"disabled\"");
+    assertThat(result).containsPattern("id=\"no\"[^>]*disabled=\"disabled\"");
+    assertThat(result).containsPattern("id=\"yes\"[^>]*checked=\"checked\"");
+    assertThat(result).containsPattern("id=\"no\"[^>]*checked=\"checked\"");
+
+    // Verify NOT-SURE and MAYBE checkboxes are NOT disabled
+    assertThat(result).doesNotContain("id=\"not-sure\"[^>]*disabled");
+    assertThat(result).doesNotContain("id=\"maybe\"[^>]*disabled");
+
+    // Verify hidden inputs exist for YES and NO to ensure values are submitted
+    // Should have 2 inputs with name="displayedOptionIds[]" and value="1" (one checkbox, one
+    // hidden)
+    Pattern yesPattern = Pattern.compile("name=\"displayedOptionIds\\[\\]\"[^>]*value=\"1\"");
+    Matcher yesMatcher = yesPattern.matcher(result);
+    assertThat(yesMatcher.results().count()).isEqualTo(2);
+
+    // Should have 2 inputs with name="displayedOptionIds[]" and value="0" (one checkbox, one
+    // hidden)
+    Pattern noPattern = Pattern.compile("name=\"displayedOptionIds\\[\\]\"[^>]*value=\"0\"");
+    Matcher noMatcher = noPattern.matcher(result);
+    assertThat(noMatcher.results().count()).isEqualTo(2);
+  }
 }
