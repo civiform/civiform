@@ -561,7 +561,6 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
-    // Check if this is a required option (YES or NO)
     String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
 
     // Hidden inputs allow Play's form binding to submit the input value, while we show static text
@@ -599,11 +598,13 @@ public final class QuestionConfig {
     LabelTag label =
         label()
             .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
-            .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withFor(adminName)
             .attr("aria-label", ariaLabel)
             .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
 
-    // Build the checkbox input
+    // Checkbox for selecting whether to display the option to the applicant.
+    // Value is set to the ID because falsy checkbox values get discarded on form
+    // submission.
     InputTag checkboxInput =
         input()
             .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
@@ -621,9 +622,6 @@ public final class QuestionConfig {
 
     DivTag checkboxWithLabels =
         div()
-            // Checkbox for selecting whether to display the option to the applicant.
-            // Value is set to the ID because falsy checkbox values get discarded on form
-            // submission.
             .with(checkboxInput, label)
             .withClasses(
                 "usa-checkbox",
