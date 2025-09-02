@@ -913,6 +913,15 @@ option.no=아니요
 option.notSure=잘 모르겠음
 option.maybe=확실하지 않음
 
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Link text for location details URLs
+map.locationLinkText=See more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
@@ -1024,6 +1033,9 @@ category.tag.housing=주택
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=인터넷
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=병역
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=교육
 
@@ -1032,6 +1044,9 @@ category.tag.transportation=교통
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=유틸리티
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=군필
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=카테고리
@@ -1062,4 +1077,4 @@ session.extended.success=세션이 연장되었습니다
 session.extended.error=세션을 연장할 수 없습니다
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+translation.untranslated=이 문자열은 번역 인프라 실험을 위해 번역되지 않은 상태로 유지됩니다.

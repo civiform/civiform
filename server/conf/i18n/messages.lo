@@ -913,6 +913,15 @@ option.no=ບໍ່
 option.notSure=ບໍ່ແນ່ໃຈ
 option.maybe=ອາດຈະ
 
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Link text for location details URLs
+map.locationLinkText=See more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
@@ -1024,6 +1033,9 @@ category.tag.housing=ທີ່ຢູ່ອາໄສ
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=ອິນເຕີເນັດ
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=ທະຫານ
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=ການຝຶກອົບຮົມ
 
@@ -1032,6 +1044,9 @@ category.tag.transportation=ການຂົນສົ່ງ
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=ສາທາລະນູປະໂພກ
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=ທະຫານຜ່ານເສິກ
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ໝວດໝູ່
@@ -1062,4 +1077,4 @@ session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດ�
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
 
 # Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.

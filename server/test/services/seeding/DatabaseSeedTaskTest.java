@@ -80,7 +80,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
     ImmutableList<String> supportedLanguages =
         ImmutableList.of("am", "en-US", "es-US", "ko", "lo", "so", "tl", "vi", "zh-TW");
 
-    assertThat(allCategories.size()).isEqualTo(12);
+    assertThat(allCategories.size()).isEqualTo(14);
     allCategories.forEach(
         category -> {
           assertThat(category.getLocalizedName().getDefault()).isNotEmpty();
@@ -99,10 +99,10 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   @Test
   public void seedProgramCategories_whenCategoriesAlreadySeeded_doesNothing() {
     databaseSeedTask.run();
-    assertThat(categoryRepository.listCategories().size()).isEqualTo(12);
+    assertThat(categoryRepository.listCategories().size()).isEqualTo(14);
 
     databaseSeedTask.run(); // Run again to ensure categories aren't re-added.
-    assertThat(categoryRepository.listCategories().size()).isEqualTo(12);
+    assertThat(categoryRepository.listCategories().size()).isEqualTo(14);
   }
 
   private Set<QuestionModel> getAllQuestions() {
