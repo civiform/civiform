@@ -206,7 +206,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case PHONE -> phoneJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC -> emptyJsonSampler;
+        case STATIC, MAP -> emptyJsonSampler;
         case TEXT -> textJsonSampler;
 
         default ->
