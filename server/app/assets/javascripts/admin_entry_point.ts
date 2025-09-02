@@ -20,6 +20,7 @@ import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
 import * as map from './mapquestion/map'
 import * as modal from './modal'
+import * as northStarModal from './north_star_modal'
 import * as questionBank from './questionBank'
 import PreviewController, * as preview from './preview'
 import {SessionTimeoutHandler} from './session'
@@ -59,6 +60,7 @@ function initializeEverything(): void {
   apiDocs.init()
   devIcons.init()
   modal.init()
+  northStarModal.init()
   questionBank.init()
   preview.init()
   enumerator.init()

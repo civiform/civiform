@@ -261,3 +261,27 @@ button.usa-button.usa-button--unstyled.htmx-request {
   /* gray-100 -> white -> gray-100 */
   background-image: linear-gradient(to right, #f3f4f6, #ffffff, #f3f4f6);
 }
+
+// Adds support for the fixed table-layout property
+.table-layout-fixed {
+  table-layout: fixed;
+}
+
+// Adjust the nav to behave like a tab strip
+.cf-tab-strip {
+  @include u-border-bottom(1px, 'solid', 'base-light');
+  @include u-margin-y(1.5);
+
+  .usa-nav-container {
+    @include u-margin-left(0);
+    @include u-padding-left(0);
+
+    .usa-nav {
+      @include u-padding-left(0);
+      @include u-padding-top(0);
+      @include u-padding-bottom(0.5);
+      @include u-display('flex');
+      justify-content: flex-start;
+    }
+  }
+}
