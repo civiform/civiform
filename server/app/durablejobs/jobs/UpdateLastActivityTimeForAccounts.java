@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class UpdateLastActivityTimeForAccounts extends DurableJob {
   private static final Logger logger =
-    LoggerFactory.getLogger(UpdateLastActivityTimeForAccounts.class);
+      LoggerFactory.getLogger(UpdateLastActivityTimeForAccounts.class);
   private final Database database;
   private final PersistedDurableJobModel persistedDurableJobModel;
 
@@ -33,7 +33,7 @@ public class UpdateLastActivityTimeForAccounts extends DurableJob {
 
     try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       String sqlUpdate =
-        """
+          """
 UPDATE accounts
 SET last_activity_time = subquery.last_activity_time
 FROM (

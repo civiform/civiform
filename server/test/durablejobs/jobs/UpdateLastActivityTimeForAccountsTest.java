@@ -23,10 +23,10 @@ import services.application.ApplicationEventDetails;
 public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   PersistedDurableJobModel jobModel =
-    new PersistedDurableJobModel(
-      DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS.toString(),
-      JobType.RUN_ONCE,
-      Instant.now());
+      new PersistedDurableJobModel(
+          DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS.toString(),
+          JobType.RUN_ONCE,
+          Instant.now());
   private DateConverter dateConverter;
   private ApplicationEventRepository repo;
 
@@ -38,7 +38,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesAccountWithApplicantCreateTime()
-    throws InterruptedException {
+      throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     var timeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     resourceCreator.setLastActivityTimeToNull();
@@ -55,7 +55,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesWithApplicationSubmitTime()
-    throws InterruptedException {
+      throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     AccountModel account = applicant.getAccount();
     ProgramModel program = resourceCreator.insertActiveProgram("FreshBucks");
@@ -78,7 +78,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesWithApplicantCreateTime()
-    throws InterruptedException {
+      throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     var ApplicantCreateTime = applicant.getWhenCreated();
     resourceCreator.setLastActivityTimeToNull();
@@ -95,11 +95,11 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesWithApplicationCreateTime()
-    throws InterruptedException {
+      throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ProgramModel program = resourceCreator.insertActiveProgram("FreshBucks");
     ApplicationModel application =
-      resourceCreator.insertApplication(applicant, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(applicant, program, LifecycleStage.DRAFT);
     var applicationCreateTime = application.getCreateTime();
 
     resourceCreator.setLastActivityTimeToNull();
@@ -116,7 +116,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesWithNoApplicant()
-    throws InterruptedException {
+      throws InterruptedException {
     AccountModel account = resourceCreator.insertAccount();
     resourceCreator.setLastActivityTimeToNull();
     account.refresh();
@@ -134,7 +134,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   @Test
   public void run_LastActivityTimeForAccounts_populatesWithLastStatusModifiedTime()
-    throws InterruptedException {
+      throws InterruptedException {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
@@ -143,14 +143,14 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     TimeUnit.MILLISECONDS.sleep(5);
 
     repo.insertStatusEvent(
-        application,
-        Optional.empty(),
-        ApplicationEventDetails.StatusEvent.builder()
-          .setStatusText("Status")
-          .setEmailSent(false)
-          .build())
-      .toCompletableFuture()
-      .join();
+            application,
+            Optional.empty(),
+            ApplicationEventDetails.StatusEvent.builder()
+                .setStatusText("Status")
+                .setEmailSent(false)
+                .build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
     resourceCreator.setLastActivityTimeToNull();
     TimeUnit.MILLISECONDS.sleep(5);
