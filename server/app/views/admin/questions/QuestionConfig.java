@@ -561,13 +561,13 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    // Check if this is a required option (YES or NO)
+    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
+
     // Hidden inputs allow Play's form binding to submit the input value, while we show static text
     // to the admin.
     InputTag optionAdminNameHidden =
-        input()
-            .withName("optionAdminNames[]")
-            .withValue(existingOption.map(LocalizedQuestionOption::adminName).get())
-            .withClasses("display-none");
+        input().withName("optionAdminNames[]").withValue(adminName).withClasses("display-none");
     InputTag optionIdsHiddenInput =
         input()
             .withName("optionIds[]")
@@ -579,20 +579,13 @@ public final class QuestionConfig {
             .withValue(existingOption.map(LocalizedQuestionOption::optionText).get())
             .withClasses("display-none");
 
-    DivTag adminNameDiv =
-        div(
-            strong("Admin ID: "),
-            text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+    DivTag adminNameDiv = div(strong("Admin ID: "), text(adminName));
     DivTag optionTextDiv =
         div(
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
 
-    // Check if this is a required option (YES or NO)
-    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
-    boolean isRequiredOption =
-        YesNoQuestionOption.YES.getAdminName().equals(adminName)
-            || YesNoQuestionOption.NO.getAdminName().equals(adminName);
+    boolean isRequiredOption = YesNoQuestionOption.getRequiredAdminNames().contains(adminName);
 
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
@@ -603,7 +596,7 @@ public final class QuestionConfig {
             "Admin ID: %s. Option text: %s.",
             existingOption.map(LocalizedQuestionOption::adminName).get(),
             existingOption.map(LocalizedQuestionOption::optionText).get());
-    LabelTag labels =
+    LabelTag label =
         label()
             .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
             .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
@@ -628,7 +621,10 @@ public final class QuestionConfig {
 
     DivTag checkboxWithLabels =
         div()
-            .with(checkboxInput, labels)
+            // Checkbox for selecting whether to display the option to the applicant.
+            // Value is set to the ID because falsy checkbox values get discarded on form
+            // submission.
+            .with(checkboxInput, label)
             .withClasses(
                 "usa-checkbox",
                 "flex-align-center",
