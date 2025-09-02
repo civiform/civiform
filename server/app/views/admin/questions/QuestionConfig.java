@@ -561,13 +561,12 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
+
     // Hidden inputs allow Play's form binding to submit the input value, while we show static text
     // to the admin.
     InputTag optionAdminNameHidden =
-        input()
-            .withName("optionAdminNames[]")
-            .withValue(existingOption.map(LocalizedQuestionOption::adminName).get())
-            .withClasses("display-none");
+        input().withName("optionAdminNames[]").withValue(adminName).withClasses("display-none");
     InputTag optionIdsHiddenInput =
         input()
             .withName("optionIds[]")
@@ -579,14 +578,13 @@ public final class QuestionConfig {
             .withValue(existingOption.map(LocalizedQuestionOption::optionText).get())
             .withClasses("display-none");
 
-    DivTag adminNameDiv =
-        div(
-            strong("Admin ID: "),
-            text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+    DivTag adminNameDiv = div(strong("Admin ID: "), text(adminName));
     DivTag optionTextDiv =
         div(
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+
+    boolean isRequiredOption = YesNoQuestionOption.getRequiredAdminNames().contains(adminName);
 
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
@@ -597,26 +595,34 @@ public final class QuestionConfig {
             "Admin ID: %s. Option text: %s.",
             existingOption.map(LocalizedQuestionOption::adminName).get(),
             existingOption.map(LocalizedQuestionOption::optionText).get());
-    LabelTag labels =
+    LabelTag label =
         label()
             .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
-            .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withFor(adminName)
             .attr("aria-label", ariaLabel)
             .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
+
+    // Checkbox for selecting whether to display the option to the applicant.
+    // Value is set to the ID because falsy checkbox values get discarded on form
+    // submission.
+    InputTag checkboxInput =
+        input()
+            .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withType("checkbox")
+            .withName("displayedOptionIds[]")
+            .withValue(Long.toString(existingOption.get().id()))
+            .withClasses("usa-checkbox__input");
+
+    // Apply disabled and checked for required options
+    if (isRequiredOption) {
+      checkboxInput.attr("checked", "checked").attr("disabled", "disabled");
+    } else {
+      checkboxInput.withCondChecked(isChecked);
+    }
+
     DivTag checkboxWithLabels =
         div()
-            .with(
-                // Checkbox for selecting whether to display the option to the applicant.
-                // Value is set to the ID because falsy checkbox values get discarded on form
-                // submission.
-                input()
-                    .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
-                    .withType("checkbox")
-                    .withName("displayedOptionIds[]")
-                    .withValue(Long.toString(existingOption.get().id()))
-                    .withCondChecked(isChecked)
-                    .withClasses("usa-checkbox__input"),
-                labels)
+            .with(checkboxInput, label)
             .withClasses(
                 "usa-checkbox",
                 "flex-align-center",
@@ -627,10 +633,26 @@ public final class QuestionConfig {
                 "items-center",
                 "padding-1",
                 "margin-1");
-    return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(
-            optionIdsHiddenInput, optionAdminNameHidden, optionTextHiddenInput, checkboxWithLabels);
+
+    DivTag container =
+        div()
+            .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+            .with(
+                optionIdsHiddenInput,
+                optionAdminNameHidden,
+                optionTextHiddenInput,
+                checkboxWithLabels);
+
+    // Add extra hidden input for required options to ensure value is submitted
+    if (isRequiredOption) {
+      container.with(
+          input()
+              .withType("hidden")
+              .withName("displayedOptionIds[]")
+              .withValue(Long.toString(existingOption.get().id())));
+    }
+
+    return container;
   }
 
   /**
