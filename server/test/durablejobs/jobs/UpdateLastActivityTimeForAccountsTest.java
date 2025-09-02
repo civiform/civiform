@@ -190,6 +190,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     application.refresh();
     TimeUnit.MILLISECONDS.sleep(5);
     applicant.getAccount().refresh();
+    var timeBeforeJobRun = applicant.getAccount().getLastActivityTime();
 
     // run job
     UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
@@ -198,7 +199,6 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     // verify
     applicant.getAccount().refresh();
     var timeAfterJobRun = applicant.getAccount().getLastActivityTime();
-    Instant statusLastModifiedTime = application.getStatusLastModifiedTime().get();
-    assertThat(timeAfterJobRun).isEqualTo(statusLastModifiedTime);
+    assertThat(timeAfterJobRun).isEqualTo(timeBeforeJobRun);
   }
 }
