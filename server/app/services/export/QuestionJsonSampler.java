@@ -206,8 +206,11 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case PHONE -> phoneJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC -> emptyJsonSampler;
+        case MAP, // Fallthrough intended until map question is implemented for the API.
+                STATIC ->
+            emptyJsonSampler;
         case TEXT -> textJsonSampler;
+        case YES_NO -> singleSelectJsonSampler;
 
         default ->
             throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
