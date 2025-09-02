@@ -15,10 +15,18 @@ import {
   DEFAULT_MAP_MARKER_TYPE,
   DEFAULT_MAP_MARKER_STYLE,
   DEFAULT_MAP_STYLE,
+  CF_POPUP_CONTENT_BUTTON,
+  CF_SELECTED_LOCATIONS_CONTAINER,
+  CF_LOCATIONS_LIST_CONTAINER,
+  DATA_FEATURE_ID_ATTR,
+  DATA_MAP_ID_ATTR,
 } from './map_util'
-import {initLocationSelection} from './map_question_selection'
+import {initLocationSelection, selectLocationsFromMap, updateSelectedLocations} from './map_question_selection'
 
 export const init = (): void => {
+  // Set up global event listeners for all map interactions
+  setupGlobalEventListeners()
+
   const mapDataObject = window.app?.data?.maps || {}
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
@@ -73,6 +81,7 @@ const addLocationsToMap = (
 }
 
 const createPopupContent = (
+  mapId: string,
   templateContent: HTMLCollection,
   settings: MapSettings,
   properties: GeoJsonProperties,
@@ -81,6 +90,11 @@ const createPopupContent = (
   const name: string = properties[settings.nameGeoJsonKey] as string
   const address: string = properties[settings.addressGeoJsonKey] as string
   const detailsUrl: string = properties[settings.detailsUrlGeoJsonKey] as string
+  const featureId: string = properties.originalId as string
+
+  if (!featureId) {
+    return null
+  }
 
   if (!name && !address && !detailsUrl) {
     return null
@@ -115,6 +129,14 @@ const createPopupContent = (
       console.warn('Invalid URL format, skipping link:', detailsUrl)
     }
   }
+
+  const buttonElement = templateContent.namedItem(CF_POPUP_CONTENT_BUTTON)?.cloneNode(true) as HTMLButtonElement
+  if (buttonElement) {
+    buttonElement.setAttribute('data-feature-id', featureId)
+    buttonElement.setAttribute(DATA_MAP_ID_ATTR, mapId)
+    popupContent.appendChild(buttonElement)
+  }
+
   return popupContent
 }
 
@@ -150,6 +172,7 @@ const addPopupsToMap = (
     }
 
     const popupContent = createPopupContent(
+      mapId,
       popupContentTemplate.content.children,
       settings,
       properties,
@@ -193,4 +216,45 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   })
 
   return map
+}
+
+const setupGlobalEventListeners = (): void => {
+  // Global click handler for map popup buttons
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLButtonElement) || null
+    if (!target) return
+    
+    if (target.name == CF_POPUP_CONTENT_BUTTON) {
+      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+      const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
+      if (featureId && mapId) {
+        selectLocationsFromMap(featureId, mapId)
+      }
+    }
+  })
+
+  // Global change handler for all location checkboxes
+  document.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement
+    if (target && target.type === 'checkbox') {
+      const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
+      if (!mapId) return // Not a map checkbox
+      
+      // If it's a selected checkbox being unchecked, uncheck the original
+      const selectedContainer = target.closest(`.${CF_SELECTED_LOCATIONS_CONTAINER}`)
+      if (!target.checked && selectedContainer && selectedContainer.getAttribute(DATA_MAP_ID_ATTR) === mapId) {
+        const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+        if (featureId) {
+          // Find original checkbox with matching feature ID in the same map
+          const locationsContainer = document.querySelector(`[${DATA_MAP_ID_ATTR}="${mapId}"].${CF_LOCATIONS_LIST_CONTAINER}`)
+          const originalCheckbox = locationsContainer?.querySelector(`[${DATA_FEATURE_ID_ATTR}="${featureId}"] input[type="checkbox"]`) as HTMLInputElement
+          if (originalCheckbox && originalCheckbox.type === 'checkbox') {
+            originalCheckbox.checked = false
+          }
+        }
+      }
+      
+      updateSelectedLocations(mapId)
+    }
+  })
 }
