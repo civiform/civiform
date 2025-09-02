@@ -133,8 +133,9 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
   }
 
   @Test
-  public void run_LastActivityTimeForAccounts_populatesWithLastStatusModifiedTime()
-      throws InterruptedException {
+  public void
+      run_LastActivityTimeForAccounts_populatesWithLatestActivityTimeWhenAllTimesArePresent()
+          throws InterruptedException {
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
@@ -165,5 +166,39 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     var timeAfterUpdate = applicant.getAccount().getLastActivityTime();
     Instant statusLastModifiedTime = application.getStatusLastModifiedTime().get();
     assertThat(timeAfterUpdate).isEqualTo(statusLastModifiedTime);
+  }
+
+  @Test
+  public void run_LastActivityTimeForAccounts_DoesnotUpdateWhenLastModifiedIsPresent()
+      throws InterruptedException {
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+    application.setSubmitTimeToNow();
+    application.refresh();
+    TimeUnit.MILLISECONDS.sleep(5);
+
+    repo.insertStatusEvent(
+            application,
+            Optional.empty(),
+            ApplicationEventDetails.StatusEvent.builder()
+                .setStatusText("Status")
+                .setEmailSent(false)
+                .build())
+        .toCompletableFuture()
+        .join();
+    application.refresh();
+    TimeUnit.MILLISECONDS.sleep(5);
+    applicant.getAccount().refresh();
+
+    // run job
+    UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
+    job.run();
+
+    // verify
+    applicant.getAccount().refresh();
+    var timeAfterJobRun = applicant.getAccount().getLastActivityTime();
+    Instant statusLastModifiedTime = application.getStatusLastModifiedTime().get();
+    assertThat(timeAfterJobRun).isEqualTo(statusLastModifiedTime);
   }
 }
