@@ -9,36 +9,9 @@ import {
   CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
-
 export const initLocationSelection = (mapId: string): void => {
-  const mapLocationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!mapLocationsContainer) return
-
-  const locationInputs = mapLocationsContainer.querySelectorAll(
-    `.${CF_LOCATION_CHECKBOX} input[type="checkbox"]`,
-  )
-
-
   // Initial update so the previously saved locations get displayed as selected
   updateSelectedLocations(mapId)
-}
-
-
-export const selectLocationsFromMap = (featureId: string, mapId: string): void => {
-  const locationsListContainer = mapQuerySelector(mapId, CF_LOCATIONS_LIST_CONTAINER) as HTMLElement | null
-  if (!locationsListContainer) return
-
-  const targetCheckbox = locationsListContainer.querySelector(`[${DATA_FEATURE_ID_ATTR}="${featureId}"]`)
-  if (targetCheckbox) {
-    const checkboxInputElement = targetCheckbox.querySelector(`.${CF_LOCATION_CHECKBOX_INPUT}`) as HTMLInputElement
-    if (checkboxInputElement) {
-      checkboxInputElement.checked = true
-      updateSelectedLocations(mapId)
-    }
-  }
 }
 
 export const updateSelectedLocations = (mapId: string): void => {
@@ -86,11 +59,11 @@ export const updateSelectedLocations = (mapId: string): void => {
         const originalId = input.id
         const selectedId = `selected-${originalId}`
         const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID_ATTR)
-        
+
         input.id = selectedId
         label.htmlFor = selectedId
         input.setAttribute(DATA_MAP_ID_ATTR, mapId)
-        
+
         if (featureId) {
           input.setAttribute(DATA_FEATURE_ID_ATTR, featureId)
         }
@@ -98,5 +71,29 @@ export const updateSelectedLocations = (mapId: string): void => {
 
       selectedLocationsContainer.appendChild(selectedLocation)
     })
+  }
+}
+
+export const selectLocationsFromMap = (
+  featureId: string,
+  mapId: string,
+): void => {
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  ) as HTMLElement | null
+  if (!locationsListContainer) return
+
+  const targetCheckbox = locationsListContainer.querySelector(
+    `[${DATA_FEATURE_ID_ATTR}="${featureId}"]`,
+  )
+  if (targetCheckbox) {
+    const checkboxInputElement = targetCheckbox.querySelector(
+      `.${CF_LOCATION_CHECKBOX_INPUT}`,
+    ) as HTMLInputElement
+    if (checkboxInputElement) {
+      checkboxInputElement.checked = true
+      updateSelectedLocations(mapId)
+    }
   }
 }

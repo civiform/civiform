@@ -134,7 +134,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-
         await test.step('Click on map to trigger popups', async () => {
           const mapContainer = page.getByTestId('map-container')
           const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
