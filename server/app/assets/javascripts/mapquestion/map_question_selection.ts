@@ -46,6 +46,7 @@ const updateSelectedLocations = (mapId: string): void => {
     mapId,
     CF_SELECTED_LOCATIONS_CONTAINER,
   ) as HTMLElement | null
+
   const noSelectionsTemplate = mapQuerySelector(
     mapId,
     CF_NO_SELECTIONS_MESSAGE,
