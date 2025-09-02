@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import org.apache.commons.lang3.function.TriConsumer;
@@ -15,6 +14,7 @@ import services.JsonUtils;
 import services.Path;
 import services.apibridge.ApiBridgeServiceDto.JsonSchemaDataType;
 import services.applicant.ApplicantData;
+import services.question.YesNoQuestionOption;
 import services.question.types.ScalarType;
 
 /** Handles mapping the response from the Api Bridge to {@link ApplicantData} */
@@ -40,9 +40,11 @@ public final class ResponsePayloadMapper extends AbstractPayloadMapper {
               new TypePair(JsonSchemaDataType.NUMBER, ScalarType.CURRENCY_CENTS),
               ApplicantData::putCurrencyDollars,
               new TypePair(JsonSchemaDataType.BOOLEAN, ScalarType.STRING),
-              // TODO: GWEN Replace 1/0 once the yesno question has a way to reference them
               (applicantData, path, value) ->
-                  applicantData.putString(path, Objects.equals(value, "true") ? "1" : "0"));
+                  applicantData.putLong(
+                      path,
+                      Long.toString(
+                          YesNoQuestionOption.fromBoolean(Boolean.parseBoolean(value)).getId())));
 
   @Inject
   public ResponsePayloadMapper(ObjectMapper mapper) {

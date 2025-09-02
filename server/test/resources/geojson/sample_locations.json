@@ -3,82 +3,82 @@
   "features": [
     {
       "type": "Feature",
-      "id": "sf-public-library",
+      "id": "seattle-central-library",
       "geometry": {
         "type": "Point",
-        "coordinates": [-122.4194, 37.7749]
+        "coordinates": [-122.3321, 47.6062]
       },
       "properties": {
-        "name": "San Francisco Public Library",
-        "address": "100 Larkin St, San Francisco, CA 94102",
+        "name": "Seattle Central Library",
+        "address": "1000 4th Ave, Seattle, WA 98104",
         "type": "library",
-        "hours": "Mon-Thu: 9am-8pm, Fri-Sat: 9am-6pm, Sun: 12pm-6pm",
-        "phone": "(415) 557-4400",
-        "website": "https://sfpl.org"
+        "hours": "Mon-Thu: 10am-8pm, Fri-Sat: 10am-6pm, Sun: 12pm-6pm",
+        "phone": "(206) 386-4636",
+        "website": "https://spl.org"
       }
     },
     {
       "type": "Feature",
-      "id": "chinatown-community-center",
+      "id": "international-district-community-center",
       "geometry": {
         "type": "Point",
-        "coordinates": [-122.4089, 37.7849]
+        "coordinates": [-122.3233, 47.5979]
       },
       "properties": {
-        "name": "Chinatown Community Center",
-        "address": "965 Clay St, San Francisco, CA 94108",
+        "name": "International District Community Center",
+        "address": "719 8th Ave S, Seattle, WA 98104",
         "type": "community_center",
         "hours": "Mon-Fri: 8am-6pm",
-        "phone": "(415) 392-0328",
-        "website": "https://chinatowncc.org"
+        "phone": "(206) 233-0042",
+        "website": "https://idcommunity.org"
       }
     },
     {
       "type": "Feature",
-      "id": "mission-district-health-center",
+      "id": "capitol-hill-health-center",
       "geometry": {
         "type": "Point",
-        "coordinates": [-122.4094, 37.7849]
+        "coordinates": [-122.3207, 47.6205]
       },
       "properties": {
-        "name": "Mission District Health Center",
-        "address": "240 Shotwell St, San Francisco, CA 94103",
+        "name": "Capitol Hill Health Center",
+        "address": "1200 12th Ave S, Seattle, WA 98144",
         "type": "health_center",
         "hours": "Mon-Fri: 7am-7pm, Sat: 8am-4pm",
-        "phone": "(415) 641-7000",
-        "website": "https://missionhealth.org"
+        "phone": "(206) 296-4600",
+        "website": "https://kingcounty.gov/depts/health"
       }
     },
     {
       "type": "Feature",
-      "id": "bayview-community-center",
+      "id": "ballard-community-center",
       "geometry": {
         "type": "Point",
-        "coordinates": [-122.3892, 37.7699]
+        "coordinates": [-122.3817, 47.6677]
       },
       "properties": {
-        "name": "Bayview Community Center",
-        "address": "1801 Oakdale Ave, San Francisco, CA 94124",
+        "name": "Ballard Community Center",
+        "address": "6020 28th Ave NW, Seattle, WA 98107",
         "type": "community_center",
         "hours": "Mon-Fri: 9am-9pm, Sat-Sun: 10am-6pm",
-        "phone": "(415) 671-2200",
-        "website": "https://bayviewcc.org"
+        "phone": "(206) 684-4093",
+        "website": "https://seattle.gov/parks"
       }
     },
     {
       "type": "Feature",
-      "id": "richmond-branch-library",
+      "id": "university-branch-library",
       "geometry": {
         "type": "Point",
-        "coordinates": [-122.4675, 37.7849]
+        "coordinates": [-122.315, 47.6606]
       },
       "properties": {
-        "name": "Richmond Branch Library",
-        "address": "351 9th Ave, San Francisco, CA 94118",
+        "name": "University Branch Library",
+        "address": "5009 Roosevelt Way NE, Seattle, WA 98105",
         "type": "library",
         "hours": "Tue-Wed: 10am-8pm, Thu-Fri: 12pm-6pm, Sat: 10am-6pm",
-        "phone": "(415) 355-5600",
-        "website": "https://sfpl.org/locations/richmond"
+        "phone": "(206) 684-4063",
+        "website": "https://spl.org/locations/university-branch"
       }
     }
   ]

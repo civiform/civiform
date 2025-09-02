@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.GeoJsonDataModel;
 import services.geojson.FeatureCollection;
+import services.geojson.GeoJsonClient;
 
 public final class GeoJsonDataRepository {
   private final Database database;
@@ -36,7 +37,7 @@ public final class GeoJsonDataRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("getGeoJsonData"))
                 .where()
                 .eq("endpoint", endpoint)
-                .orderBy("createTime desc")
+                .orderBy("confirmTime desc")
                 .setMaxRows(1)
                 .findOneOrEmpty(),
         dbExecutionContext);
@@ -68,5 +69,23 @@ public final class GeoJsonDataRepository {
     geoJsonData.setEndpoint(endpoint);
     geoJsonData.setConfirmTime(Instant.now());
     geoJsonData.save();
+  }
+
+  public void refreshGeoJson(GeoJsonClient geoJsonClient) {
+    transactionManager.execute(
+        () -> {
+          database
+              .find(GeoJsonDataModel.class)
+              .setLabel("GeoJsonDataModel.getDistinctEndpoints")
+              .setProfileLocation(queryProfileLocationBuilder.create("refreshGeoJson"))
+              .select("endpoint")
+              .setDistinct(true)
+              .findList()
+              .forEach(
+                  geoJsonData -> {
+                    String endpoint = geoJsonData.getEndpoint();
+                    geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
+                  });
+        });
   }
 }

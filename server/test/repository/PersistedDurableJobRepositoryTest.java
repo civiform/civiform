@@ -26,13 +26,35 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findScheduledJob_findsJobsAtATime() {
+  public void findScheduledRecurringJob_findsRecurringJobs() {
     Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
     var job = new PersistedDurableJobModel("fake-name", JobType.RECURRING, tomorrow);
 
-    assertThat(repo.findScheduledJob("fake-name", tomorrow)).isEmpty();
+    assertThat(repo.findScheduledRecurringJob("fake-name")).isEmpty();
     job.save();
-    assertThat(repo.findScheduledJob("fake-name", tomorrow)).contains(job);
+    assertThat(repo.findScheduledRecurringJob("fake-name")).contains(job);
+  }
+
+  @Test
+  public void findScheduledRecurringJob_ignoresJobsWithSuccessTime() {
+    Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
+    var successfulJob = new PersistedDurableJobModel("successful-job", JobType.RECURRING, tomorrow);
+    successfulJob.setSuccessTime(Instant.now());
+    successfulJob.save();
+
+    assertThat(repo.findScheduledRecurringJob("successful-job")).isEmpty();
+  }
+
+  @Test
+  public void findScheduledRecurringJob_ignoresJobsWithZeroRemainingAttempts() {
+    Instant tomorrow = Instant.now().plus(1, ChronoUnit.DAYS);
+    var failedJob = new PersistedDurableJobModel("failed-job", JobType.RECURRING, tomorrow);
+    failedJob.decrementRemainingAttempts();
+    failedJob.decrementRemainingAttempts();
+    failedJob.decrementRemainingAttempts(); // Now has 0 remaining attempts
+    failedJob.save();
+
+    assertThat(repo.findScheduledRecurringJob("failed-job")).isEmpty();
   }
 
   @Test
@@ -138,6 +160,27 @@ public class PersistedDurableJobRepositoryTest extends ResetPostgres {
     if (threadException.get().isPresent()) {
       throw threadException.get().get();
     }
+  }
+
+  @Test
+  public void getRecurringJobForExecution_handlesTimezone() {
+    Instant now = Instant.now();
+    var nowJob = new PersistedDurableJobModel("now-job", JobType.RECURRING, now);
+    nowJob.save();
+
+    Instant futureTime = now.plus(1, ChronoUnit.MINUTES);
+    var futureJob = new PersistedDurableJobModel("future-job", JobType.RECURRING, futureTime);
+    futureJob.save();
+
+    Optional<PersistedDurableJobModel> foundJob = repo.getRecurringJobForExecution();
+    assertThat(foundJob).isPresent();
+    assertThat(foundJob.get()).isEqualTo(nowJob);
+
+    nowJob.setSuccessTime(now);
+    nowJob.save();
+
+    Optional<PersistedDurableJobModel> noJob = repo.getRecurringJobForExecution();
+    assertThat(noJob).isEmpty();
   }
 
   @Test

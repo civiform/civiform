@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
 import javax.inject.Inject;
 import models.CategoryModel;
 
@@ -14,6 +12,9 @@ public final class CategoryRepository {
 
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("CategoryRepository");
+  private static final Comparator<CategoryModel> BY_DEFAULT_NAME =
+      Comparator.comparing(
+          CategoryModel::getDefaultName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
   private final Database database;
 
@@ -24,31 +25,28 @@ public final class CategoryRepository {
 
   /** Fetches a list of categories with the given IDs. */
   public ImmutableList<CategoryModel> findCategoriesByIds(ImmutableList<Long> ids) {
-    return ImmutableList.copyOf(
-        database
-            .find(CategoryModel.class)
-            .setLabel("CategoryModel.findByIds")
-            .setProfileLocation(queryProfileLocationBuilder.create("findCategoriesByIds"))
-            .where()
-            .idIn(ids)
-            .findList());
+    return database
+        .find(CategoryModel.class)
+        .setLabel("CategoryModel.findByIds")
+        .setProfileLocation(queryProfileLocationBuilder.create("findCategoriesByIds"))
+        .where()
+        .idIn(ids)
+        .findList()
+        .stream()
+        .sorted(BY_DEFAULT_NAME)
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Fetches a list of all categories. */
   public ImmutableList<CategoryModel> listCategories() {
-    List<CategoryModel> categories =
-        database
-            .find(CategoryModel.class)
-            .setLabel("CategoryModel.list")
-            .setProfileLocation(queryProfileLocationBuilder.create("listCategories"))
-            .findList();
-    Comparator<CategoryModel> comparator =
-        (c1, c2) ->
-            c1.getDefaultName()
-                .toLowerCase(Locale.getDefault())
-                .compareTo(c2.getDefaultName().toLowerCase(Locale.getDefault()));
-    categories.sort(comparator);
-    return ImmutableList.copyOf(categories);
+    return database
+        .find(CategoryModel.class)
+        .setLabel("CategoryModel.list")
+        .setProfileLocation(queryProfileLocationBuilder.create("listCategories"))
+        .findList()
+        .stream()
+        .sorted(BY_DEFAULT_NAME)
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**

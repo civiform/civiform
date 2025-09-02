@@ -932,6 +932,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
+  /** A boolean specifying whether or not to refresh map data for the CiviForm instance. */
+  public boolean getDurableJobsMapRefresh() {
+    return getBool("DURABLE_JOBS_MAP_REFRESH");
+  }
+
   /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
@@ -2143,6 +2148,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " parallel. Default value is 1.",
                           /* isRequired= */ false,
                           SettingType.INT,
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "DURABLE_JOBS_MAP_REFRESH",
+                          "A boolean specifying whether or not to refresh map data for the CiviForm"
+                              + " instance.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.HIDDEN))))
           .put(
               "Session Management",

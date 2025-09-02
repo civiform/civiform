@@ -6,6 +6,7 @@ import static services.LocalizedStrings.DEFAULT_LOCALE;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import models.AccountModel;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
@@ -401,6 +403,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
+            ImmutableMap.of(),
             programType);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -481,6 +484,7 @@ public final class ProgramService {
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups,
       ImmutableList<ApplicationStep> applicationSteps,
+      ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions,
       ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
@@ -493,6 +497,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
+            bridgeDefinitions,
             programType));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
@@ -622,6 +627,7 @@ public final class ProgramService {
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)
+            .setBridgeDefinitions(programDefinition.bridgeDefinitions())
             .build()
             .toProgram();
 
@@ -750,6 +756,7 @@ public final class ProgramService {
         categoryIds,
         tiGroups,
         applicationSteps,
+        ImmutableMap.of(),
         programType);
   }
 
@@ -771,6 +778,7 @@ public final class ProgramService {
       List<Long> categoryIds,
       List<Long> tiGroups,
       ImmutableList<ApplicationStep> applicationSteps,
+      ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions,
       ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
@@ -801,6 +809,7 @@ public final class ProgramService {
     }
 
     checkApplicationStepErrors(programType, errorsBuilder, applicationSteps);
+    checkBridgeDefinitionErrors(programType, errorsBuilder, bridgeDefinitions);
 
     return errorsBuilder.build();
   }
@@ -858,6 +867,95 @@ public final class ProgramService {
         errorsBuilder.add(
             CiviFormError.of(
                 String.format("Application step %s is missing a title", Integer.toString(i + 1))));
+      }
+    }
+
+    return errorsBuilder;
+  }
+
+  /**
+   * Adds validation errors on bridge definitions
+   *
+   * @param programType the type of the program
+   * @param errorsBuilder set of program validation errors
+   * @param bridgeDefinitions the bridgeDefinitions
+   */
+  ImmutableSet.Builder<CiviFormError> checkBridgeDefinitionErrors(
+      ProgramType programType,
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions) {
+    // External programs don't have bridge definitions.
+    if (programType == ProgramType.EXTERNAL) {
+      return errorsBuilder;
+    }
+
+    for (Map.Entry<String, ApiBridgeDefinition> entry : bridgeDefinitions.entrySet()) {
+      if (!entry.getKey().equals(MainModule.SLUGIFIER.slugify(entry.getKey()))) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Bridge definition admin name '%s' does not have a valid format",
+                    entry.getKey())));
+      }
+
+      var inputFields = entry.getValue().inputFields();
+
+      for (int i = 0; i < inputFields.size(); i++) {
+        if (inputFields.get(i).questionName().isBlank()) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing input field question name",
+                      entry.getKey(), i + 1)));
+        }
+
+        if (inputFields.get(i).questionScalar() == null) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing input field question"
+                          + " scalar",
+                      entry.getKey(), i + 1)));
+        }
+
+        if (inputFields.get(i).externalName().isBlank()) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing input field external name",
+                      entry.getKey(), i + 1)));
+        }
+      }
+
+      var outputFields = entry.getValue().outputFields();
+
+      for (int i = 0; i < outputFields.size(); i++) {
+        if (outputFields.get(i).questionName().isBlank()) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing output field question"
+                          + " name",
+                      entry.getKey(), i + 1)));
+        }
+
+        if (outputFields.get(i).questionScalar() == null) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing output field question"
+                          + " scalar",
+                      entry.getKey(), i + 1)));
+        }
+
+        if (outputFields.get(i).externalName().isBlank()) {
+          errorsBuilder.add(
+              CiviFormError.of(
+                  String.format(
+                      "Bridge definition for key '%s' at item %d missing output field external"
+                          + " name",
+                      entry.getKey(), i + 1)));
+        }
       }
     }
 

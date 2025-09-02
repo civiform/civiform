@@ -36,6 +36,7 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.YesNoQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
@@ -502,9 +503,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 0,
+                      /* id= */ YesNoQuestionOption.YES.getId(),
                       /* order= */ 0,
-                      /* adminName= */ "yes",
+                      /* adminName= */ YesNoQuestionOption.YES.getAdminName(),
                       /* optionText= */ "Yes",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -512,9 +513,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 1,
+                      /* id= */ YesNoQuestionOption.NO.getId(),
                       /* order= */ 1,
-                      /* adminName= */ "no",
+                      /* adminName= */ YesNoQuestionOption.NO.getAdminName(),
                       /* optionText= */ "No",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -522,9 +523,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 2,
+                      /* id= */ YesNoQuestionOption.NOT_SURE.getId(),
                       /* order= */ 2,
-                      /* adminName= */ "not-sure",
+                      /* adminName= */ YesNoQuestionOption.NOT_SURE.getAdminName(),
                       /* optionText= */ "Not sure",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -532,9 +533,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 3,
+                      /* id= */ YesNoQuestionOption.MAYBE.getId(),
                       /* order= */ 3,
-                      /* adminName= */ "maybe",
+                      /* adminName= */ YesNoQuestionOption.MAYBE.getAdminName(),
                       /* optionText= */ "Maybe",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));

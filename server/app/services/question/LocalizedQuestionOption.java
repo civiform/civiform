@@ -47,13 +47,17 @@ public abstract class LocalizedQuestionOption {
 
   /** Returns the message key for yes/no question options. Only applicable to yes/no questions. */
   public String getYesNoOptionMessageKey() {
-    return switch (adminName()) {
-      case "yes" -> MessageKey.OPTION_YES.getKeyName();
-      case "no" -> MessageKey.OPTION_NO.getKeyName();
-      case "not-sure" -> MessageKey.OPTION_NOT_SURE.getKeyName();
-      case "maybe" -> MessageKey.OPTION_MAYBE.getKeyName();
-      default -> "";
-    };
+    try {
+      YesNoQuestionOption option = YesNoQuestionOption.fromAdminName(adminName());
+      return switch (option) {
+        case YES -> MessageKey.OPTION_YES.getKeyName();
+        case NO -> MessageKey.OPTION_NO.getKeyName();
+        case NOT_SURE -> MessageKey.OPTION_NOT_SURE.getKeyName();
+        case MAYBE -> MessageKey.OPTION_MAYBE.getKeyName();
+      };
+    } catch (IllegalArgumentException e) {
+      return "";
+    }
   }
 
   /** The locale this option is localized to. */

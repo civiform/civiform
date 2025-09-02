@@ -28,7 +28,15 @@ public final class GeoJsonClient {
     this.objectMapper = checkNotNull(objectMapper);
   }
 
-  public CompletionStage<FeatureCollection> fetchGeoJson(String endpoint) {
+  /**
+   * Method to hit a GeoJSON endpoint and compare a successful response to previously saved data. If
+   * the data in the response is different from the stored data, insert a new row in the database;
+   * otherwise, update the confirm time of the previously saved data.
+   *
+   * @param endpoint external endpoint that returns GeoJSON data
+   * @return GeoJSON {@link FeatureCollection}
+   */
+  public CompletionStage<FeatureCollection> fetchAndSaveGeoJson(String endpoint) {
     if (endpoint == null || endpoint.isEmpty()) {
       logger.error("Missing GeoJSON endpoint");
       return CompletableFuture.failedFuture(

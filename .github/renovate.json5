@@ -27,6 +27,11 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
+      groupName: "awssdk",
+      matchPackageNames: ["software.amazon.awssdk:{/,}**"],
+      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"
+    },
+    {
       matchPackageNames: ["github/codeql-action"],
       prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
     },
@@ -57,6 +62,11 @@
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
     },
     {
+      groupName: "microsoft graph",
+      matchPackageNames: ["com.microsoft.graph:{/,}**"],
+      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
+    },
+    {
       groupName: "pac4j",
       matchPackageNames: ["org.pac4j:pac4j{/,}**"],
     },
@@ -67,6 +77,11 @@
         "@playwright/test{/,}**",
         "mcr.microsoft.com/playwright{/,}**",
       ],
+    },
+    {
+      groupName: "sass-embedded",
+      matchPackageNames: ["sass-emdedded"],
+      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md"
     },
     {
       matchPackageNames: ["docker/setup-buildx-action"],
