@@ -730,3 +730,8 @@ main {
   text-decoration: underline !important;
   color: color('blue-60v') !important;
 }
+
+// Map question filtering - hide filtered out locations
+.cf-location-hidden {
+  display: none !important;
+}
