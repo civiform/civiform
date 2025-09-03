@@ -17,6 +17,9 @@ for root, _, files in os.walk(snapshots_dir):
                 name = name[:-7]
             elif name.endswith('-medium'):
                 name = name[:-7]
+            # Skip snapshots from the question lifecycle test that use a placeholder in the name
+            elif name.endswith('edit-page'):
+                continue
             filenames.append(name)
 
 unusedSnapshots = []
