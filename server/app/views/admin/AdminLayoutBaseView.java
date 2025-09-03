@@ -45,7 +45,11 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
 
     context.setVariable(
         "adminCommonHeader",
-        new AdminCommonHeader(activeNavigationPage(), profile.isOnlyProgramAdmin()));
+        AdminCommonHeader.builder()
+            .activeNavPage(activeNavigationPage())
+            .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .build());
   }
 
   @Override
