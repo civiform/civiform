@@ -9,6 +9,10 @@ src_dir = "../src"
 # Get all .png filenames (without extension)
 filenames = []
 for root, _, files in os.walk(snapshots_dir):
+    # Skip any files in the northstar_question_lifecycle_test or question_lifecycle_test directories
+    if ("northstar_question_lifecycle_test"
+            in root) or ("question_lifecycle_test" in root):
+        continue
     for f in files:
         if f.lower().endswith(".png"):
             name = os.path.splitext(f)[0]
@@ -17,9 +21,6 @@ for root, _, files in os.walk(snapshots_dir):
                 name = name[:-7]
             elif name.endswith('-medium'):
                 name = name[:-7]
-            # Skip snapshots from the question lifecycle test that use a placeholder in the name
-            elif name.endswith('edit-page'):
-                continue
             filenames.append(name)
 
 unusedSnapshots = []
