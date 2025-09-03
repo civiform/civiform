@@ -656,7 +656,8 @@ public class CfJsonDocumentContext {
           }
         } else {
           try {
-            if (!this.read(path, Object.class).equals(entry.getValue())) {
+            Optional<Object> value = this.read(path, Object.class);
+            if (value.isEmpty() || !value.get().equals(entry.getValue())) {
               pathsRemoved.add(path);
             }
           } catch (JsonPathTypeMismatchException e) {
