@@ -17,14 +17,16 @@ import {
   DEFAULT_MAP_STYLE,
 } from './map_util'
 import {initLocationSelection} from './map_question_selection'
+import {initFilters} from './map_question_filters'
 
 export const init = (): void => {
   const mapDataObject = window.app?.data?.maps || {}
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
-      renderMap(mapId, mapData as MapData)
+      const mapElement = renderMap(mapId, mapData as MapData)
       initLocationSelection(mapId)
+      initFilters(mapId, mapElement, mapData as MapData)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }

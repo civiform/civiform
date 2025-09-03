@@ -7,22 +7,39 @@ export interface MapSettings {
   readonly detailsUrlGeoJsonKey: string
 }
 
+export interface MapMessages {
+  readonly locationsCount: string
+}
+
 export interface MapData {
   geoJson: FeatureCollection
   settings: MapSettings
+  messages: MapMessages
 }
 
-// CSS SELECTORS
+// DATA ATTRIBUTES
+export const DATA_MAP_ID = 'data-map-id'
+export const DATA_FEATURE_ID = 'data-feature-id'
+export const DATA_FILTER_KEY = 'data-filter-key'
+
+// POPUPS
 export const CF_POPUP_CONTENT_TEMPLATE = 'cf-popup-content-template'
 export const CF_POPUP_CONTENT_LOCATION_NAME = 'cf-popup-content-location-name'
 export const CF_POPUP_CONTENT_LOCATION_ADDRESS =
   'cf-popup-content-location-address'
 export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
 
+// LOCATIONS LIST
 export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
 export const CF_LOCATION_CHECKBOX = 'cf-location-checkbox'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
 export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
+
+// FILTERS
+export const CF_APPLY_FILTERS_BUTTON = 'cf-apply-filters-button'
+export const CF_RESET_FILTERS_BUTTON = 'cf-reset-filters-button'
+export const CF_LOCATION_COUNT = 'cf-location-count'
+export const CF_LOCATION_HIDDEN = 'cf-location-hidden'
 
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
@@ -52,5 +69,5 @@ export const mapQuerySelector = (
   mapId: string,
   className: string,
 ): Element | null => {
-  return document.querySelector(`[data-map-id="${mapId}"].${className}`)
+  return document.querySelector(`[${DATA_MAP_ID}="${mapId}"].${className}`)
 }
