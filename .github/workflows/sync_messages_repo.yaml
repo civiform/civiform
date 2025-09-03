@@ -69,7 +69,7 @@ jobs:
           # Get the latest commit hash from civiform repo for reference
           CIVIFORM_COMMIT=$(cd ../civiform && git rev-parse HEAD)
           
-          git commit -m "Sync i18n files from civiform@${CIVIFORM_COMMIT}
+          git commit -m "Sync i18n files from civiform/civiform@${CIVIFORM_COMMIT}
 
           Source commit: https://github.com/civiform/civiform/commit/${CIVIFORM_COMMIT}"
           
