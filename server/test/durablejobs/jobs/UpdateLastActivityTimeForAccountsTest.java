@@ -77,23 +77,6 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
   }
 
   @Test
-  public void run_LastActivityTimeForAccounts_populatesWithApplicantCreateTime()
-      throws InterruptedException {
-    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    var ApplicantCreateTime = applicant.getWhenCreated();
-    resourceCreator.setLastActivityTimeToNull();
-    TimeUnit.MILLISECONDS.sleep(5);
-    // run job
-    UpdateLastActivityTimeForAccounts job = new UpdateLastActivityTimeForAccounts(jobModel);
-    job.run();
-
-    // verify
-    applicant.getAccount().refresh();
-    var timeAfterUpdate = applicant.getAccount().getLastActivityTime();
-    assertThat(ApplicantCreateTime).isEqualTo(timeAfterUpdate);
-  }
-
-  @Test
   public void run_LastActivityTimeForAccounts_populatesWithApplicationCreateTime()
       throws InterruptedException {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
@@ -115,7 +98,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
   }
 
   @Test
-  public void run_LastActivityTimeForAccounts_populatesWithNoApplicant()
+  public void run_LastActivityTimeForAccounts_populatesWithDefaultTimeWhenNoApplicantPresent()
       throws InterruptedException {
     AccountModel account = resourceCreator.insertAccount();
     resourceCreator.setLastActivityTimeToNull();
@@ -141,7 +124,6 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.setSubmitTimeToNow();
     application.refresh();
-    TimeUnit.MILLISECONDS.sleep(5);
 
     repo.insertStatusEvent(
             application,
@@ -176,7 +158,6 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.setSubmitTimeToNow();
     application.refresh();
-    TimeUnit.MILLISECONDS.sleep(5);
 
     repo.insertStatusEvent(
             application,

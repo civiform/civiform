@@ -30,10 +30,9 @@ public class UpdateLastActivityTimeForAccounts extends DurableJob {
   @Override
   public void run() {
     logger.debug("Starting job to calculate last activity time for accounts");
-
-    try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
-      String sqlUpdate =
-          """
+    Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
+    String sqlUpdate =
+        """
 UPDATE accounts
 SET last_activity_time = subquery.last_activity_time
 FROM (
@@ -58,15 +57,13 @@ WHERE
   accounts.id = subquery.id
   AND accounts.last_activity_time IS NULL;
 """;
-      try {
-        database.sqlUpdate(sqlUpdate).execute();
-        logger.debug("Updated Accounts table with last_activity_time.");
-      } catch (RuntimeException e) {
-        logger.error(e.getMessage(), e);
-        jobTransaction.rollback();
-      }
-      logger.debug("JOB SUCCESSFULLY EXECUTED");
+    try (jobTransaction) {
+      database.sqlUpdate(sqlUpdate).execute();
       jobTransaction.commit();
+      logger.debug("JOB SUCCESSFULLY EXECUTED");
+    } catch (RuntimeException e) {
+      logger.error(e.getMessage(), e);
+      jobTransaction.rollback();
     }
   }
 }
