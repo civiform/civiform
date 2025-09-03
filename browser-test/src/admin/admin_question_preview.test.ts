@@ -1,10 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {
-  disableFeatureFlag,
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('File upload question preview', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {

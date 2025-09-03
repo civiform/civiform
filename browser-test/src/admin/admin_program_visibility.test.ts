@@ -2,7 +2,6 @@ import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   ClientInformation,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,

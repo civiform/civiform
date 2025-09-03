@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,

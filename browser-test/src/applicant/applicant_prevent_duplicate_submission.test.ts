@@ -33,7 +33,7 @@ test.describe('Prevent Duplicate Submission', () => {
       await logout(page)
     })
   })
- 
+
   test(
     'View Prevent Duplicate Submission modal in North Star',
     {tag: ['@northstar']},
