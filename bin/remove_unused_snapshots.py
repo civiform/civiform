@@ -3,13 +3,16 @@ import os
 import re
 
 # Paths
-snapshots_dir = "../image_snapshots"
-src_dir = "../src"
+snapshots_dir = "../browser-test/image_snapshots"
+src_dir = "../browser-test/src"
 
 # Get all .png filenames (without extension)
 filenames = []
 for root, _, files in os.walk(snapshots_dir):
-    # Skip any files in the northstar_question_lifecycle_test or question_lifecycle_test directories
+    # Skip any files in the northstar_question_lifecycle_test or
+    # question_lifecycle_test directories because their filenames
+    # use a replacement value and that makes it hard to find uses
+    # of those filenames in the test files.
     if ("northstar_question_lifecycle_test"
             in root) or ("question_lifecycle_test" in root):
         continue
@@ -18,9 +21,9 @@ for root, _, files in os.walk(snapshots_dir):
             name = os.path.splitext(f)[0]
             # Remove '-mobile' or '-medium' suffix if present
             if name.endswith('-mobile'):
-                name = name[:-7]
+                continue
             elif name.endswith('-medium'):
-                name = name[:-7]
+                continue
             filenames.append(name)
 
 unusedSnapshots = []
@@ -36,7 +39,7 @@ for name in filenames:
                 with open(file_path, "r", encoding="utf-8",
                           errors="ignore") as f:
                     content = f.read()
-                    if re.search(rf"\b{name}\b", content):
+                    if re.search(rf'\b{name}\b', content):
                         found = True
                         break
             except Exception:
@@ -49,6 +52,7 @@ deleted_files = []
 for root, _, files in os.walk(snapshots_dir):
     for f in files:
         name, ext = os.path.splitext(f)
+        name = name.replace('-mobile', '').replace('-medium', '')
         if ext.lower() == ".png" and name in unusedSnapshots:
             file_path = os.path.join(root, f)
             try:
