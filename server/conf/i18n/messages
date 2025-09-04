@@ -923,6 +923,8 @@ map.locationLinkText=See more details
 map.locationsCount=Displaying {0} of {1} locations
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No locations have been selected.
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
 

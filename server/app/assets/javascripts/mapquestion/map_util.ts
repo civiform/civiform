@@ -18,11 +18,15 @@ export const CF_POPUP_CONTENT_LOCATION_NAME = 'cf-popup-content-location-name'
 export const CF_POPUP_CONTENT_LOCATION_ADDRESS =
   'cf-popup-content-location-address'
 export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
+export const CF_POPUP_CONTENT_BUTTON = 'cf-select-location-button'
 
 export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
 export const CF_LOCATION_CHECKBOX = 'cf-location-checkbox'
+export const CF_LOCATION_CHECKBOX_INPUT = 'cf-location-checkbox-input'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
 export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
+export const DATA_FEATURE_ID_ATTR = 'data-feature-id'
+export const DATA_MAP_ID_ATTR = 'data-map-id'
 
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
