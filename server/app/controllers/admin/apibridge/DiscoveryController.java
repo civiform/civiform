@@ -242,7 +242,7 @@ public class DiscoveryController extends Controller {
             ex -> {
               log.error("Failed to add endpoint", ex);
               return createMessageView(
-                  request, AlertType.ERROR, "An error occurred tryping to add endpoint");
+                  request, AlertType.ERROR, "An error occurred trying to add endpoint");
             },
             classLoaderExecutionContext.current());
   }
