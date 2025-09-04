@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   loginAsTestUser,
@@ -8,7 +9,12 @@ import {
   validateToastMessage,
   disableFeatureFlag,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramExtraAction,
+  ProgramLifecycle,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
@@ -506,6 +512,102 @@ test.describe('Admin can manage program translations', () => {
         page,
         'ineligible-view-with-translated-eligibility-msg',
       )
+    })
+  })
+
+  test.describe('Manages translation even when the program is in active mode', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(
+        page,
+        'translation_management_improvement_enabled',
+      )
+    })
+
+    test('Adds translations for program in active mode', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      const programName = 'Active program to be translated'
+      const translatedProgramName = 'Chinese name'
+      const translatedDescription = 'Chinese description'
+      const translatedShortDescription = 'Chinese short description'
+      const translatedBlockName = 'Chinese block name'
+      const translatedBlockDescription = 'Chinese block description'
+      const translatedApplicationStepTitle = 'Chinese application step title'
+      const translatedApplicationStepDescription =
+        'Chinese application step decription'
+
+      await test.step('translation page shows up as expected', async () => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.publishProgram(programName)
+        await adminPrograms.gotoActiveProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Traditional Chinese')
+
+        await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.PROGRAM_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.CONFIRMATION_MESSAGE,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SHORT_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(FormField.SCREEN_NAME)
+        await adminTranslations.expectFormFieldVisible(
+          FormField.SCREEN_DESCRIPTION,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.APPLICATION_STEP_ONE_TITLE,
+        )
+        await adminTranslations.expectFormFieldVisible(
+          FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+        )
+      })
+
+      await test.step('adds translation', async () => {
+        await adminTranslations.editProgramTranslations({
+          name: translatedProgramName,
+          description: translatedDescription,
+          shortDescription: translatedShortDescription,
+          blockName: translatedBlockName,
+          blockDescription: translatedBlockDescription,
+          applicationStepTitle: translatedApplicationStepTitle,
+          applicationStepDescription: translatedApplicationStepDescription,
+        })
+      })
+
+      await test.step('Verify that translation is not available for active mode when there is a draft already', async () => {
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.expectDraftProgram(programName)
+        await adminPrograms.expectActiveProgram(programName)
+        await adminPrograms.expectProgramActionsHidden(
+          programName,
+          ProgramLifecycle.ACTIVE,
+          [],
+          [ProgramExtraAction.MANAGE_TRANSLATIONS],
+        )
+      })
+
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Traditional Chinese')
+        await adminTranslations.expectBlockTranslations(
+          translatedBlockName,
+          translatedBlockDescription,
+        )
+        await adminTranslations.expectProgramTranslation({
+          expectProgramName: translatedProgramName,
+          expectProgramDescription: translatedDescription,
+          expectProgramShortDescription: translatedShortDescription,
+          expectApplicationStepTitle: translatedApplicationStepTitle,
+          expectApplicationStepDescription:
+            translatedApplicationStepDescription,
+        })
+      })
     })
   })
 })

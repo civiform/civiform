@@ -847,6 +847,18 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async gotoActiveProgramManageTranslationsPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectActiveProgram(programName)
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramExtraAction.MANAGE_TRANSLATIONS,
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramManageTranslationsPage(programName)
+  }
+
   async goToProgramImagePage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
