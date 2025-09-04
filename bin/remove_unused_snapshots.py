@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 import os
 import re
+import subprocess
+
+try:
+    repo_root = subprocess.check_output(
+        ["git", "rev-parse", "--show-toplevel"], text=True).strip()
+    os.chdir(repo_root)
+except Exception:
+    print("Error: Could not change to git repository root")
+    exit(1)
 
 # Paths
-snapshots_dir = "../browser-test/image_snapshots"
-src_dir = "../browser-test/src"
+snapshots_dir = "./browser-test/image_snapshots"
+src_dir = "./browser-test/src"
 
 # Get all .png filenames (without extension)
 filenames = []
