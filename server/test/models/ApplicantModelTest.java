@@ -101,7 +101,7 @@ public class ApplicantModelTest extends ResetPostgres {
     data2.putString(subObjectFoo, "also_foo");
     // New value in new key, will be copied.
     data2.putString(subObjectBar, "bar");
-    // Values will be added to the existing ones, even duplicates.
+    // List values will be added to the existing ones, even duplicates.
     data2.putArray(listColor, Lists.newArrayList("red", "green"));
 
     List<Path> removedPaths = data1.mergeFrom(data2);
@@ -110,6 +110,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(removedPaths).contains(foo);
     // The new value was the same so it's not considered removed/dropped
     assertThat(removedPaths).doesNotContain(subObjectFoo);
+    // Assert the expected values are present.
     assertThat(data1.readString(foo)).hasValue("foo");
     assertThat(data1.readString(subObjectBar)).hasValue("bar");
     assertThat(data1.readStringList(listColor).orElse(ImmutableList.of()))
