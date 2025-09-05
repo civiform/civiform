@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.ApplicantModel;
 import play.i18n.Messages;
 import services.LocalizedStrings;
@@ -12,6 +13,7 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
 import services.question.QuestionOption;
+import services.question.YesNoQuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -86,13 +88,47 @@ public final class ApplicantQuestionRendererFactory {
             .setQuestionType(questionType);
 
     if (questionType.isMultiOptionType()) {
-      builder.setQuestionOptions(
-          ImmutableList.of(
-              QuestionOption.create(
-                  1L,
-                  1L,
-                  "sample option admin name",
-                  LocalizedStrings.of(Locale.US, "Sample question option"))));
+      if (questionType == QuestionType.YES_NO) {
+        ImmutableList<QuestionOption> yesNoOptions =
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.YES.getId())
+                    .setAdminName(YesNoQuestionOption.YES.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Yes"))
+                    .setDisplayOrder(OptionalLong.of(0L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NO.getId())
+                    .setAdminName(YesNoQuestionOption.NO.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "No"))
+                    .setDisplayOrder(OptionalLong.of(1L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NOT_SURE.getId())
+                    .setAdminName(YesNoQuestionOption.NOT_SURE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Not sure"))
+                    .setDisplayOrder(OptionalLong.of(2L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.MAYBE.getId())
+                    .setAdminName(YesNoQuestionOption.MAYBE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Maybe"))
+                    .setDisplayOrder(OptionalLong.of(3L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build());
+        builder.setQuestionOptions(yesNoOptions);
+      } else {
+        builder.setQuestionOptions(
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L,
+                    1L,
+                    "sample option admin name",
+                    LocalizedStrings.of(Locale.US, "Sample question option"))));
+      }
     }
 
     if (questionType.equals(QuestionType.ENUMERATOR)) {
