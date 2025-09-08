@@ -10,5 +10,7 @@ public enum SettingMode {
   // May be displayed to admins.
   ADMIN_READABLE,
   // May be displayed to and updated by admins.
-  ADMIN_WRITEABLE;
+  ADMIN_WRITEABLE,
+  // Not displayed to admins, but may be updated in browser tests.
+  DEVELOPMENT;
 }

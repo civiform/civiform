@@ -987,5 +987,15 @@
         "required": false
       }
     }
+  },
+  "Development": {
+    "group_description": "These are __NOT READY FOR PRODUCTION USE__. These configuration options are for managing features that are under development.",
+    "members": {
+      "TEST_FEATURE_ENABLED": {
+        "mode": "DEVELOPMENT",
+        "description": "Test description",
+        "type": "string"
+      }
+    }
   }
 }

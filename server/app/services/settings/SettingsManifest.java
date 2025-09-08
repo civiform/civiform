@@ -1120,6 +1120,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("API_BRIDGE_ENABLED", request);
   }
 
+  /** Test description */
+  public Optional<String> getTestFeatureEnabled() {
+    return getString("TEST_FEATURE_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2383,6 +2388,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
+          .put(
+              "Development",
+              SettingsSection.create(
+                  "Development",
+                  "These are __NOT READY FOR PRODUCTION USE__. These configuration options are for"
+                      + " managing features that are under development.",
+                  ImmutableList.of(),
+                  ImmutableList.of(
+                      SettingDescription.create(
+                          "TEST_FEATURE_ENABLED",
+                          "Test description",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.DEVELOPMENT))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
