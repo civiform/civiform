@@ -16,6 +16,9 @@ truth::declare_var_false is_keycloak
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
 
+# Check available disk space for docker.
+docker::check_disk_space
+
 #######################################
 # Process the script's commandline args.
 # Globals:
