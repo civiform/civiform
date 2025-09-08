@@ -918,13 +918,13 @@ option.maybe=或許
 #-------------------------------------------------------------#
 
 # Link text for location details URLs
-map.locationLinkText=See more details
+map.locationLinkText=查看更多詳細資料
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} of {1} locations
+map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
 # Message displayed when no locations have been selected yet
-map.noSelectionsMessage=No locations have been selected.
+map.noSelectionsMessage=尚未選取任何地點。
 # Heading for the section showing selected locations
-map.selectedLocationsHeading=Selected locations
+map.selectedLocationsHeading=選取的地點
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
