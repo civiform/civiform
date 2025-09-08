@@ -118,13 +118,11 @@ export default class PreviewController {
       const hasYesNoCheckboxes = questionSettings.querySelector(
         '[name="displayedOptionIds[]"]',
       )
-      const hasEditableOptions = questionSettings.querySelector(
-        '[name="options[]"]:not(.display-none)',
-      )
 
+      // YES/NO questions are the ONLY ones with displayedOptionIds[] checkboxes
       if (hasYesNoCheckboxes) {
         PreviewController.addYesNoCheckboxListeners()
-      } else if (hasEditableOptions) {
+      } else {
         PreviewController.addOptionObservers({
           questionSettings,
           questionPreviewContainer,
