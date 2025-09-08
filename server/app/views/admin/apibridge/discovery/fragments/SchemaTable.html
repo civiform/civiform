@@ -1,0 +1,23 @@
+<!--/*@thymesVar id="caption" type="java.lang.String"*/-->
+<!--/*@thymesVar id="schema" type="com.google.common.collect.ImmutableList<views.admin.apibridge.discovery.DiscoveryDetailsPartialViewModel.SchemaField>"*/-->
+<th:block th:fragment="displayTable(caption, schema)">
+  <table class="usa-table width-full table-layout-fixed">
+    <caption th:text="${caption}"></caption>
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Name</th>
+        <th scope="col">Type</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="schemafield: ${schema}">
+        <td th:text="${schemafield.title()}"></td>
+        <td th:text="${schemafield.name()}"></td>
+        <td th:text="${schemafield.type()}"></td>
+        <td th:text="${schemafield.description()}"></td>
+      </tr>
+    </tbody>
+  </table>
+</th:block>
