@@ -55,6 +55,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     API_KEYS,
     SETTINGS,
     API_DOCS,
+    API_BRIDGE_DISCOVERY
   }
 
   private final NavPage activeNavPage;
@@ -218,6 +219,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String apiDocsLink = controllers.docs.routes.ApiDocsController.index().url();
+    String apiBridgeDiscoveryLink =
+        controllers.admin.apibridge.routes.DiscoveryController.discovery().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
     String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
@@ -273,7 +276,13 @@ public final class AdminLayout extends BaseHtmlLayout {
                     .condWith(
                         getSettingsManifest().getApiGeneratedDocsEnabled(request),
                         createDropdownSubItem(
-                            "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
+                            "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage)))
+                    .condWith(
+                        getSettingsManifest().getApiBridgeEnabled(request),
+                        createDropdownSubItem(
+                            "Bridge Discovery",
+                            apiBridgeDiscoveryLink,
+                            NavPage.API_BRIDGE_DISCOVERY.equals(activeNavPage))));
 
     LiTag programAdminApiNavItemDropdown =
         createTopNavItemWithDropdown(

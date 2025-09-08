@@ -918,9 +918,13 @@ option.maybe=ምናልባት
 #-------------------------------------------------------------#
 
 # Link text for location details URLs
-map.locationLinkText=See more details
+map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} of {1} locations
+map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

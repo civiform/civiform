@@ -918,9 +918,13 @@ option.maybe=Возможно
 #-------------------------------------------------------------#
 
 # Link text for location details URLs
-map.locationLinkText=See more details
+map.locationLinkText=Подробнее…
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} of {1} locations
+map.locationsCount=Показано мест: {0} из {1}.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=Места не выбраны.
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Выбранные места
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #

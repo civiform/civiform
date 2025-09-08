@@ -918,9 +918,13 @@ option.maybe=Siguro
 #-------------------------------------------------------------#
 
 # Link text for location details URLs
-map.locationLinkText=See more details
+map.locationLinkText=Tingnan ang higit pang detalye
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} of {1} locations
+map.locationsCount=Ipinapakita ang {0} sa {1} (na) lokasyon
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=Walang piniling lokasyon.
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Mga piniling lokasyon
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
