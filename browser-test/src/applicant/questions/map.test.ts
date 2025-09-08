@@ -165,17 +165,13 @@ if (isLocalDevEnvironment()) {
 
         const filterSelects = page.getByRole('combobox')
         const applyButton = page.getByRole('button', {name: /apply.*filter/i})
-        const resetButton = page.getByRole('button', {name: /reset.*filter/i})
+        const resetButton = page.getByRole('button', {name: /reset*/i})
 
         await test.step('Check for filter dropdowns and buttons', async () => {
           await expect(filterSelects.first()).toBeVisible()
 
-          if (await applyButton.isVisible()) {
-            await expect(applyButton).toBeVisible()
-          }
-          if (await resetButton.isVisible()) {
-            await expect(resetButton).toBeVisible()
-          }
+          await expect(applyButton).toBeVisible()
+          await expect(resetButton).toBeVisible()
         })
 
         await test.step('Select a filter option', async () => {
@@ -190,11 +186,8 @@ if (isLocalDevEnvironment()) {
           const locationCount = page.getByText(
             /Displaying \d+ of \d+ locations/i,
           )
-          if (await locationCount.isVisible()) {
-            await expect(locationCount).toHaveText(
-              'Displaying 2 of 5 locations',
-            )
-          }
+          await locationCount.isVisible()
+          await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
         })
 
         await test.step('Reset filters', async () => {
