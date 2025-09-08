@@ -918,13 +918,13 @@ option.maybe=ອາດຈະ
 #-------------------------------------------------------------#
 
 # Link text for location details URLs
-map.locationLinkText=See more details
+map.locationLinkText=ເບິ່ງລາຍລະອຽດເພີ່ມເຕີມ
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} of {1} locations
+map.locationsCount=ກຳລັງສະແດງ {0} ຈາກທັງໝົດ {1} ສະຖານທີ່
 # Message displayed when no locations have been selected yet
-map.noSelectionsMessage=No locations have been selected.
+map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
 # Heading for the section showing selected locations
-map.selectedLocationsHeading=Selected locations
+map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
