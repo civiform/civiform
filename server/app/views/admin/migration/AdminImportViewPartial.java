@@ -66,7 +66,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   public DomContent renderErrorWithLineBreaks(String title, String errorMessage) {
     Iterable<String> errorLines = Splitter.on(". ").split(errorMessage);
 
-    DivTag errorDiv = div().withClasses("usa-alert", "usa-alert--error", "usa-alert--no-icon");
+    DivTag errorDiv =
+        div()
+            .withClasses("usa-alert", "usa-alert--error", "usa-alert--no-icon")
+            .attr("role", "alert");
 
     DivTag bodyDiv = div().withClass("usa-alert__body");
     if (title != null) {
