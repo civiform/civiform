@@ -923,6 +923,8 @@ map.locationLinkText=查看更多詳細資料
 map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=尚未選取任何地點。
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=選取的地點
 
