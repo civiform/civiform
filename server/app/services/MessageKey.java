@@ -459,6 +459,7 @@ public enum MessageKey {
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
   SESSION_EXTENDED_ERROR("session.extended.error"),
+  MAP_ADD_FILTER_BUTTON("map.addFilterButton"),
 
   // Untranslated string for translation infrastructure testing.
   TRANSLATION_UNTRANSLATED("translation.untranslated");
