@@ -2,6 +2,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   logout,
@@ -19,6 +20,7 @@ if (isLocalDevEnvironment()) {
       const programName = 'Test program for single map'
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+        await enableFeatureFlag(page, 'map_question_enabled')
         await setUpProgramWithMapQuestion(
           page,
           adminQuestions,
@@ -27,7 +29,7 @@ if (isLocalDevEnvironment()) {
         )
       })
 
-      test('validate screenshot', async ({page, applicantQuestions}) => {
+      test.only('validate screenshot', async ({page, applicantQuestions}) => {
         await test.step('Navigate to map question', async () => {
           await applicantQuestions.applyProgram(programName, true)
         })

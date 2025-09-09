@@ -136,7 +136,7 @@ public final class SettingsService {
     ImmutableMap.Builder<String, SettingsGroupUpdateResult.UpdateError> validationErrors =
         ImmutableMap.builder();
     ImmutableList<SettingDescription> settingDescriptions =
-        settingsManifest.getAllAdminWriteableSettingDescriptions();
+        settingsManifest.getAllAdminWriteableOrDevelopmentSettingDescriptions();
 
     var different = Maps.difference(newSettings, existingSettings);
 

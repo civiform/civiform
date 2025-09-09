@@ -2,6 +2,8 @@ package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.settings.SettingMode.ADMIN_WRITEABLE;
+import static services.settings.SettingMode.DEVELOPMENT;
+import static services.settings.SettingMode.HIDDEN;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.base.Splitter;
@@ -53,6 +55,16 @@ public abstract class AbstractSettingsManifest {
     return getSections().values().stream()
         .flatMap(section -> getSettingDescriptions(section).stream())
         .filter(settingDescription -> settingDescription.settingMode().equals(ADMIN_WRITEABLE))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  protected ImmutableList<SettingDescription> getAllAdminWriteableOrDevelopmentSettingDescriptions() {
+    return getSections().values().stream()
+        .flatMap(section -> getSettingDescriptions(section).stream())
+        .filter(
+            settingDescription ->
+                settingDescription.settingMode().equals(ADMIN_WRITEABLE)
+                    || settingDescription.settingMode().equals(DEVELOPMENT))
         .collect(ImmutableList.toImmutableList());
   }
 

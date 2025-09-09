@@ -2374,7 +2374,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.HIDDEN),
+                          SettingMode.DEVELOPMENT),
                       SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
