@@ -55,6 +55,7 @@
             th:value="${locationName}"
             th:name="${mapQuestion.getSelectionPathAsArray()}"
             th:checked="${mapQuestion.locationIsSelected(locationName)}"
+            th:data-map-id="${mapId}"
             type="checkbox"
           />
           <label
@@ -122,6 +123,13 @@
       target="_blank"
       th:text="#{map.locationLinkText}"
     ></a>
+    <button
+      type="button"
+      name="cf-select-location-button"
+      class="usa-button usa-button--secondary margin-top-1"
+      th:data-feature-id="${featureId}"
+      th:text="#{map.selectLocationButtonText}"
+    ></button>
   </template>
 
   <script

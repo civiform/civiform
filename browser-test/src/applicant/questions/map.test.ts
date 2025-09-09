@@ -125,6 +125,38 @@ if (isLocalDevEnvironment()) {
           await expect(locationCheckboxes.first()).not.toBeChecked()
         })
       })
+
+      test('select locations from map popups', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        await test.step('Click on map to trigger popups', async () => {
+          const mapContainer = page.getByTestId('map-container')
+          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+          await mapCanvas.click()
+        })
+
+        await test.step('Check for popup select buttons', async () => {
+          const selectButtons = page.getByRole('button', {
+            name: /select.*location/i,
+          })
+          const selectButtonsCount = await selectButtons.count()
+          expect(selectButtonsCount).toBe(1)
+          await selectButtons.first().click()
+
+          const selectedLocationsList = page.getByTestId(
+            'selected-locations-list',
+          )
+          const checkboxes = selectedLocationsList.getByRole('checkbox')
+          const checkboxCount = await checkboxes.count()
+          expect(checkboxCount).toBeGreaterThan(0)
+          await expect(checkboxes.first()).toBeChecked()
+        })
+      })
     })
 
     test.describe('multiple map questions', () => {
