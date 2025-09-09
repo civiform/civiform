@@ -242,35 +242,34 @@ const setupGlobalEventListeners = (): void => {
   // Global change handler for all location checkboxes
   document.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement
-    if (target && target.type === 'checkbox') {
-      const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
-      if (!mapId) return // Not a map checkbox
+    if (target == null || target.type !== 'checkbox') return
+    const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
+    if (!mapId) return // Not a map checkbox
 
-      // If it's a selected checkbox being unchecked, uncheck the original
-      const selectedContainer = target.closest(
-        `.${CF_SELECTED_LOCATIONS_CONTAINER}`,
-      )
-      if (
-        !target.checked &&
-        selectedContainer &&
-        selectedContainer.getAttribute(DATA_MAP_ID_ATTR) === mapId
-      ) {
-        const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
-        if (featureId) {
-          // Find original checkbox with matching feature ID in the same map
-          const locationsContainer = document.querySelector(
-            `[${DATA_MAP_ID_ATTR}="${mapId}"].${CF_LOCATIONS_LIST_CONTAINER}`,
-          )
-          const originalCheckbox = locationsContainer?.querySelector(
-            `[${DATA_FEATURE_ID_ATTR}="${featureId}"] input[type="checkbox"]`,
-          ) as HTMLInputElement
-          if (originalCheckbox && originalCheckbox.type === 'checkbox') {
-            originalCheckbox.checked = false
-          }
+    // If it's a selected checkbox being unchecked, uncheck the original
+    const selectedContainer = target.closest(
+      `.${CF_SELECTED_LOCATIONS_CONTAINER}`,
+    )
+    if (
+      !target.checked &&
+      selectedContainer &&
+      selectedContainer.getAttribute(DATA_MAP_ID_ATTR) === mapId
+    ) {
+      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+      if (featureId) {
+        // Find original checkbox with matching feature ID in the same map
+        const locationsContainer = document.querySelector(
+          `[${DATA_MAP_ID_ATTR}="${mapId}"].${CF_LOCATIONS_LIST_CONTAINER}`,
+        )
+        const originalCheckbox = locationsContainer?.querySelector(
+          `[${DATA_FEATURE_ID_ATTR}="${featureId}"] input[type="checkbox"]`,
+        ) as HTMLInputElement
+        if (originalCheckbox && originalCheckbox.type === 'checkbox') {
+          originalCheckbox.checked = false
         }
       }
-
-      updateSelectedLocations(mapId)
     }
+
+    updateSelectedLocations(mapId)
   })
 }

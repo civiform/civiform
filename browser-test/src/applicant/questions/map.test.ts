@@ -145,17 +145,16 @@ if (isLocalDevEnvironment()) {
             name: /select.*location/i,
           })
           const selectButtonsCount = await selectButtons.count()
-          if (selectButtonsCount > 0) {
-            await selectButtons.first().click()
+          expect(selectButtonsCount).toBe(1)
+          await selectButtons.first().click()
 
-            const selectedLocationsList = page.getByTestId(
-              'selected-locations-list',
-            )
-            const checkboxes = selectedLocationsList.getByRole('checkbox')
-            const checkboxCount = await checkboxes.count()
-            expect(checkboxCount).toBeGreaterThan(0)
-            await expect(checkboxes.first()).toBeChecked()
-          }
+          const selectedLocationsList = page.getByTestId(
+            'selected-locations-list',
+          )
+          const checkboxes = selectedLocationsList.getByRole('checkbox')
+          const checkboxCount = await checkboxes.count()
+          expect(checkboxCount).toBeGreaterThan(0)
+          await expect(checkboxes.first()).toBeChecked()
         })
       })
     })
