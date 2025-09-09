@@ -23,6 +23,7 @@ import services.applicant.question.EmailQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
@@ -146,6 +147,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     private final EmptyJsonSampler emptyJsonSampler;
     private final FileUploadJsonSampler fileUploadJsonSampler;
     private final IdJsonSampler idJsonSampler;
+    private final MapJsonSampler mapJsonSampler;
     private final MultiSelectJsonSampler multiSelectJsonSampler;
     private final NameJsonSampler nameJsonSampler;
     private final NumberJsonSampler numberJsonSampler;
@@ -163,6 +165,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         EmptyJsonSampler emptyJsonSampler,
         FileUploadJsonSampler fileUploadJsonSampler,
         IdJsonSampler idJsonSampler,
+        MapJsonSampler mapJsonSampler,
         MultiSelectJsonSampler multiSelectJsonSampler,
         NameJsonSampler nameJsonSampler,
         NumberJsonSampler numberJsonSampler,
@@ -177,6 +180,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
       this.emptyJsonSampler = checkNotNull(emptyJsonSampler);
       this.fileUploadJsonSampler = checkNotNull(fileUploadJsonSampler);
       this.idJsonSampler = checkNotNull(idJsonSampler);
+      this.mapJsonSampler = checkNotNull(mapJsonSampler);
       this.multiSelectJsonSampler = checkNotNull(multiSelectJsonSampler);
       this.nameJsonSampler = checkNotNull(nameJsonSampler);
       this.numberJsonSampler = checkNotNull(numberJsonSampler);
@@ -206,8 +210,10 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case PHONE -> phoneJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case MAP, // Fallthrough intended until map question is implemented for the API.
-                STATIC ->
+        case MAP -> mapJsonSampler;
+          // Static content questions are not included in API responses because they
+          // do not include an answer from the user.
+        case STATIC ->
             emptyJsonSampler;
         case TEXT -> textJsonSampler;
         case YES_NO -> singleSelectJsonSampler;
@@ -515,6 +521,42 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     @Override
     public QuestionJsonPresenter getJsonPresenter() {
       return multiSelectJsonPresenter;
+    }
+  }
+
+  class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
+    private final QuestionJsonPresenter mapJsonPresenter;
+
+    // Sample location IDs for map questions.
+    private static final ImmutableList<String> SAMPLE_LOCATION_IDS =
+        ImmutableList.of("feature_123", "feature_456");
+
+    @Inject
+    MapJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
+      this.mapJsonPresenter = questionJsonPresenterFactory.create(QuestionType.MAP);
+    }
+
+    @Override
+    public MapQuestion getQuestion(ApplicantQuestion applicantQuestion) {
+      return applicantQuestion.createMapQuestion();
+    }
+
+    @Override
+    public void addSampleData(
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      ApplicantData applicantData = sampleDataContext.getApplicantData();
+      Path selectionPath = applicantQuestion.getContextualizedPath().join(services.applicant.question.Scalar.SELECTIONS);
+
+      // Add sample location IDs as an array
+      for (int i = 0; i < SAMPLE_LOCATION_IDS.size(); i++) {
+        applicantData.putString(
+            selectionPath.atIndex(i), SAMPLE_LOCATION_IDS.get(i));
+      }
+    }
+
+    @Override
+    public QuestionJsonPresenter getJsonPresenter() {
+      return mapJsonPresenter;
     }
   }
 

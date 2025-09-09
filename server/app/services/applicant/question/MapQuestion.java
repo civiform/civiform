@@ -11,6 +11,7 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
 import services.question.types.MapQuestionDefinition;
+import services.geojson.FeatureCollection;
 
 // TODO(#11003): Build out map question.
 public final class MapQuestion extends AbstractQuestion {
@@ -42,8 +43,8 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   public String getAnswerString() {
-    Optional<ImmutableList<String>> selectedLocationNames = getSelectedLocationNames();
-    return selectedLocationNames.map(strings -> String.join(", ", strings)).orElse("-");
+    Optional<ImmutableList<String>> selectedLocationIds = getSelectedLocationIds();
+    return selectedLocationIds.map(strings -> String.join(", ", strings)).orElse("-");
   }
 
   @Override
@@ -99,13 +100,27 @@ public final class MapQuestion extends AbstractQuestion {
     return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
   }
 
-  public Optional<ImmutableList<String>> getSelectedLocationNames() {
+  public Optional<ImmutableList<String>> getSelectedLocationIds() {
     return applicantQuestion.getApplicantData().readStringList(getSelectionPath());
   }
 
-  public boolean locationIsSelected(String locationName) {
-    Optional<ImmutableList<String>> selectedNames = getSelectedLocationNames();
-    return selectedNames.isPresent() && selectedNames.get().contains(locationName);
+  public boolean locationIsSelected(String featureId) {
+    Optional<ImmutableList<String>> selectedItems = getSelectedLocationIds();
+    return selectedItems.isPresent() && selectedItems.get().contains(featureId);
+  }
+
+  public String getLocationNameById(String featureId, FeatureCollection geoJson) {
+    if (geoJson == null) {
+      return featureId; // Fallback to ID if no GeoJSON
+    }
+
+    String nameKey = getNameValue();
+
+    return geoJson.features().stream()
+        .filter(feature -> featureId.equals(feature.id()))
+        .findFirst()
+        .map(feature -> feature.properties().getOrDefault(nameKey, featureId))
+        .orElse(featureId); // Fallback to ID if not found
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {

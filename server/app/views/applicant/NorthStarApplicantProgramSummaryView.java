@@ -22,9 +22,12 @@ import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import repository.GeoJsonDataRepository;
 
 /** Renders a list of sections in the form with their status. */
 public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
+
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   @Inject
   NorthStarApplicantProgramSummaryView(
@@ -34,7 +37,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      GeoJsonDataRepository geoJsonDataRepository) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -43,6 +47,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
         settingsManifest,
         languageUtils,
         deploymentType);
+    this.geoJsonDataRepository = geoJsonDataRepository;
   }
 
   public String render(Request request, Params params) {
@@ -114,7 +119,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     ImmutableList<NorthStarAnswerData> northStarSummaryData =
         params.summaryData().stream()
-            .map(datum -> new NorthStarAnswerData(datum, params.applicantId()))
+            .map(datum -> new NorthStarAnswerData(datum, params.applicantId(), geoJsonDataRepository))
             .collect(ImmutableList.toImmutableList());
 
     ImmutableList<NorthStarBlockSummary> blockSummaries =

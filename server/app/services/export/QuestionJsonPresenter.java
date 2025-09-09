@@ -20,6 +20,7 @@ import services.applicant.question.EmailQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
@@ -104,6 +105,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     private final EnumeratorJsonPresenter enumeratorJsonPresenter;
     private final FileUploadJsonPresenter fileUploadJsonPresenter;
     private final IdJsonPresenter idJsonPresenter;
+    private final MapJsonPresenter mapJsonPresenter;
     private final MultiSelectJsonPresenter multiSelectJsonPresenter;
     private final NameJsonPresenter nameJsonPresenter;
     private final NumberJsonPresenter numberJsonPresenter;
@@ -121,6 +123,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
         EnumeratorJsonPresenter enumeratorJsonPresenter,
         FileUploadJsonPresenter fileUploadJsonPresenter,
         IdJsonPresenter idJsonPresenter,
+        MapJsonPresenter mapJsonPresenter,
         MultiSelectJsonPresenter multiSelectJsonPresenter,
         NameJsonPresenter nameJsonPresenter,
         NumberJsonPresenter numberJsonPresenter,
@@ -135,6 +138,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
       this.enumeratorJsonPresenter = checkNotNull(enumeratorJsonPresenter);
       this.fileUploadJsonPresenter = checkNotNull(fileUploadJsonPresenter);
       this.idJsonPresenter = checkNotNull(idJsonPresenter);
+      this.mapJsonPresenter = checkNotNull(mapJsonPresenter);
       this.multiSelectJsonPresenter = checkNotNull(multiSelectJsonPresenter);
       this.nameJsonPresenter = checkNotNull(nameJsonPresenter);
       this.numberJsonPresenter = checkNotNull(numberJsonPresenter);
@@ -154,6 +158,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
         case ENUMERATOR -> enumeratorJsonPresenter;
         case FILEUPLOAD -> fileUploadJsonPresenter;
         case ID -> idJsonPresenter;
+        case MAP -> mapJsonPresenter;
         case NAME -> nameJsonPresenter;
         case NUMBER -> numberJsonPresenter;
         case PHONE -> phoneJsonPresenter;
@@ -305,6 +310,18 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
       Path path = question.getIdPath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getIdValue());
+    }
+  }
+
+  class MapJsonPresenter implements QuestionJsonPresenter<MapQuestion> {
+    @Override
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MapQuestion question) {
+      Path path = question.getSelectionPath().asNestedEntitiesPath();
+
+      ImmutableList<String> selectedLocationIds =
+          question.getSelectedLocationIds().orElse(ImmutableList.of());
+
+      return ImmutableMap.of(path, Optional.of(selectedLocationIds));
     }
   }
 
