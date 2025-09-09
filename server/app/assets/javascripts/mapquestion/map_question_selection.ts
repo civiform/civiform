@@ -8,14 +8,23 @@ import {
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
   CF_LOCATION_CHECKBOX_INPUT,
+  CF_SELECTED_LOCATION_MESSAGE,
+  MapMessages,
+  localizeString,
 } from './map_util'
 
-export const initLocationSelection = (mapId: string): void => {
+export const initLocationSelection = (
+  mapId: string,
+  messages: MapMessages,
+): void => {
   // Initial update so the previously saved locations get displayed as selected
-  updateSelectedLocations(mapId)
+  updateSelectedLocations(mapId, messages)
 }
 
-export const updateSelectedLocations = (mapId: string): void => {
+export const updateSelectedLocations = (
+  mapId: string,
+  messages: MapMessages,
+): void => {
   const mapLocationsContainer = mapQuerySelector(
     mapId,
     CF_LOCATIONS_LIST_CONTAINER,
@@ -61,6 +70,8 @@ export const updateSelectedLocations = (mapId: string): void => {
         'input[type="checkbox"]',
       ) as HTMLInputElement
       const label = selectedLocation.querySelector('label') as HTMLLabelElement
+      // Remove the name so they don't get included in form submission
+      input.name = ''
 
       if (input && label) {
         const originalId = input.id
@@ -79,11 +90,42 @@ export const updateSelectedLocations = (mapId: string): void => {
       selectedLocationsContainer.appendChild(selectedLocation)
     })
   }
+  updateSelectionCountForMap(mapId, messages)
+}
+
+const updateSelectionCountForMap = (
+  mapId: string,
+  messages: MapMessages,
+): void => {
+  const selectedLocationsListContainer = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATIONS_CONTAINER,
+  ) as HTMLElement | null
+
+  if (selectedLocationsListContainer == null) {
+    return
+  }
+
+  const count =
+    selectedLocationsListContainer.querySelectorAll(`.usa-checkbox`).length
+
+  const countText = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATION_MESSAGE,
+  ) as HTMLElement | null
+
+  if (countText) {
+    countText.textContent = localizeString(messages.locationsSelectedCount, [
+      count.toString(),
+      window.app.data.maxLocationSelections.toString(),
+    ])
+  }
 }
 
 export const selectLocationsFromMap = (
   featureId: string,
   mapId: string,
+  messages: MapMessages,
 ): void => {
   const locationsListContainer = mapQuerySelector(
     mapId,
@@ -100,7 +142,7 @@ export const selectLocationsFromMap = (
     ) as HTMLInputElement
     if (checkboxInputElement) {
       checkboxInputElement.checked = true
-      updateSelectedLocations(mapId)
+      updateSelectedLocations(mapId, messages)
     }
   }
 }

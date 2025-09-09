@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -20,8 +21,23 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // TODO(#11002): Add map question validation.
-    return ImmutableMap.of();
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateSelections());
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateSelections() {
+    int numberOfSelections = getSelectedLocationNames().map(ImmutableList::size).orElse(0);
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+
+    if (getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()) {
+      int maxLocationSelections =
+          getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt();
+      if (numberOfSelections > maxLocationSelections) {
+        errors.add(
+            ValidationErrorMessage.create(
+                MessageKey.MAP_VALIDATION_TOO_MANY, maxLocationSelections));
+      }
+    }
+    return errors.build();
   }
 
   @Override
@@ -33,6 +49,10 @@ public final class MapQuestion extends AbstractQuestion {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getSelectionPath());
+  }
+
+  public MapQuestionDefinition getQuestionDefinition() {
+    return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public ImmutableList<LocalizedQuestionSetting> getFilters() {
@@ -86,10 +106,6 @@ public final class MapQuestion extends AbstractQuestion {
   public boolean locationIsSelected(String locationName) {
     Optional<ImmutableList<String>> selectedNames = getSelectedLocationNames();
     return selectedNames.isPresent() && selectedNames.get().contains(locationName);
-  }
-
-  private MapQuestionDefinition getQuestionDefinition() {
-    return (MapQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
