@@ -151,6 +151,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
+    /*
     return questionService
         .getReadOnlyQuestionService()
         .toCompletableFuture()
@@ -161,6 +162,33 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             () ->
                 new BadRequestException(
                     String.format("No draft found for question: \"%s\"", questionName)));
+    */
+
+    Optional<QuestionDefinition> draftQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionName);
+
+    if (draftQuestionMaybe.isPresent()) {
+      return draftQuestionMaybe.get();
+    }
+
+    // If no draft is found, return the active question
+    Optional<QuestionDefinition> activeQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getActiveQuestionDefinition(questionName);
+
+    return activeQuestionMaybe.orElseThrow(
+        () ->
+            new BadRequestException(
+                String.format("No draft or active found for question: \"%s\"", questionName)));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {

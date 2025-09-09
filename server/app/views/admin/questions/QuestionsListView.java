@@ -693,6 +693,10 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
+    if (isActive && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+      Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
+      maybeTranslationLink.ifPresent(extraActions::add);
+    }
     // Add Archive option only if current question is draft or it's active, but
     // there is no draft version of the question.
     if (isEditable) {
