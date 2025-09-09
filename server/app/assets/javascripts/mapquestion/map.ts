@@ -26,6 +26,7 @@ import {
   selectLocationsFromMap,
   updateSelectedLocations,
 } from './map_question_selection'
+import {initFilters} from './map_question_filters'
 
 export const init = (): void => {
   // Set up global event listeners for all map interactions
@@ -35,8 +36,9 @@ export const init = (): void => {
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
-      renderMap(mapId, mapData as MapData)
+      const mapElement = renderMap(mapId, mapData as MapData)
       initLocationSelection(mapId)
+      initFilters(mapId, mapElement, mapData as MapData)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }

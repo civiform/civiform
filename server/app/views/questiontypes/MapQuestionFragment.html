@@ -13,6 +13,64 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+  ></div>
+
+  <!--/* Display errors */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${mapQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+  ></div>
+
+  <!-- Filters -->
+  <fieldset class="grid-row grid-gap">
+    <legend
+      class="usa-legend text-bold"
+      th:text="#{map.filterLegendText}"
+    ></legend>
+    <div
+      th:each="filter, i : ${mapQuestion.getFilters()}"
+      class="grid-col flex-align-self-end"
+    >
+      <label
+        class="usa-label"
+        th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
+        th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
+      ></label>
+      <select
+        class="usa-select"
+        th:data-filter-key="${filter.settingValue()}"
+        th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
+        th:data-map-id="${mapId}"
+      >
+        <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+        <option
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
+          th:value="${option}"
+          th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
+        ></option>
+      </select>
+    </div>
+  </fieldset>
+
+  <!-- Apply filters buttons -->
+  <div class="margin-bottom-2">
+    <button
+      type="button"
+      class="usa-button cf-apply-filters-button"
+      th:data-map-id="${mapId}"
+      th:text="#{map.applyFiltersButtonText}"
+    ></button>
+    <button
+      type="button"
+      class="usa-button usa-button--outline cf-reset-filters-button"
+      th:data-map-id="${mapId}"
+      th:text="#{map.resetFiltersButtonText}"
+    ></button>
+  </div>
+
   <div class="grid-row grid-gap padding-1">
     <!-- Scrollable container with location checkboxes -->
     <div
@@ -148,6 +206,10 @@
         nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
         addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
+      },
+      messages: {
+        locationsCount:
+          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       },
     }
   </script>

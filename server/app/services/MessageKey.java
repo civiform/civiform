@@ -309,11 +309,15 @@ public enum MessageKey {
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
+  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
   MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
   MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
+  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

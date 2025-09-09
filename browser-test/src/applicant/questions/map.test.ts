@@ -157,6 +157,49 @@ if (isLocalDevEnvironment()) {
           await expect(checkboxes.first()).toBeChecked()
         })
       })
+
+      test('filter locations', async ({page, applicantQuestions}) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        const filterSelects = page.getByRole('combobox')
+        const applyButton = page.getByRole('button', {name: /apply.*filter/i})
+        const resetButton = page.getByRole('button', {name: /reset*/i})
+
+        await test.step('Check for filter dropdowns and buttons', async () => {
+          await expect(filterSelects.first()).toBeVisible()
+
+          await expect(applyButton).toBeVisible()
+          await expect(resetButton).toBeVisible()
+        })
+
+        await test.step('Select a filter option', async () => {
+          const firstFilter = filterSelects.first()
+          await firstFilter.selectOption({index: 1})
+        })
+
+        await test.step('Apply filters', async () => {
+          await applyButton.click()
+
+          // Verify location has changed
+          const locationCount = page.getByText(
+            /Displaying \d+ of \d+ locations/i,
+          )
+          await locationCount.isVisible()
+          await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
+        })
+
+        await test.step('Reset filters', async () => {
+          const resetButton = page.getByRole('button', {name: /reset*/i})
+          await resetButton.click()
+
+          // Verify first filter is reset to default option
+          const firstFilter = filterSelects.first()
+          const selectedValue = firstFilter
+          await expect(selectedValue).toHaveValue('')
+        })
+      })
     })
 
     test.describe('multiple map questions', () => {

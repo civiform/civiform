@@ -3,6 +3,7 @@ import {
   CF_LOCATION_CHECKBOX,
   CF_SELECTED_LOCATIONS_CONTAINER,
   CF_NO_SELECTIONS_MESSAGE,
+  CF_LOCATION_HIDDEN,
   mapQuerySelector,
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
@@ -24,9 +25,14 @@ export const updateSelectedLocations = (mapId: string): void => {
     return
   }
 
-  const selectedCheckboxes = mapLocationsContainer.querySelectorAll(
-    `.${CF_LOCATION_CHECKBOX}:has(input[type="checkbox"]:checked)`,
-  )
+  const selectedCheckboxes = Array.from(
+    mapLocationsContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`),
+  ).filter((checkbox) => {
+    const input = checkbox.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement
+    return input && input.checked
+  })
 
   const selectedLocationsContainer = mapQuerySelector(
     mapId,
@@ -49,6 +55,7 @@ export const updateSelectedLocations = (mapId: string): void => {
     selectedLocationsContainer.textContent = ''
     selectedCheckboxes.forEach((originalCheckbox) => {
       const selectedLocation = originalCheckbox.cloneNode(true) as HTMLElement
+      selectedLocation.classList.remove(CF_LOCATION_HIDDEN)
 
       const input = selectedLocation.querySelector(
         'input[type="checkbox"]',
