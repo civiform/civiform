@@ -317,6 +317,7 @@ public enum MessageKey {
   MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
   MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
+  MAP_RESET_FILTERS_BUTTON_TEXT_V2("map.resetFiltersButtonText.v2"), // North Star only
   MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
   MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
   MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
