@@ -919,6 +919,8 @@ option.maybe=Maybe
 
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
+# Legend text for the map filters section
+map.filterLegendText=Filters
 # Link text for location details URLs
 map.locationLinkText=See more details
 # Text showing the count of displayed locations, with placeholders for current count and total count

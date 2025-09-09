@@ -310,6 +310,7 @@ public enum MessageKey {
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
   MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only

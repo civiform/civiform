@@ -24,7 +24,8 @@
   ></div>
 
   <!-- Filters -->
-  <div class="grid-row grid-gap">
+  <fieldset class="grid-row grid-gap">
+    <legend class="usa-legend text-bold" th:text="#{map.filterLegendText}"></legend>
     <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col flex-align-self-end">
       <label
         class="usa-label"
@@ -46,7 +47,7 @@
         ></option>
       </select>
     </div>
-  </div>
+  </fieldset>
 
   <!-- Apply filters buttons -->
   <div class="margin-bottom-2">
