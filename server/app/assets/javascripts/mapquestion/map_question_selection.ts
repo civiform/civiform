@@ -26,9 +26,11 @@ export const updateSelectedLocations = (mapId: string): void => {
   }
 
   const selectedCheckboxes = Array.from(
-    mapLocationsContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
+    mapLocationsContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`),
   ).filter((checkbox) => {
-    const input = checkbox.querySelector('input[type="checkbox"]') as HTMLInputElement
+    const input = checkbox.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement
     return input && input.checked
   })
 

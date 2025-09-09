@@ -25,8 +25,14 @@
 
   <!-- Filters -->
   <fieldset class="grid-row grid-gap">
-    <legend class="usa-legend text-bold" th:text="#{map.filterLegendText}"></legend>
-    <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col flex-align-self-end">
+    <legend
+      class="usa-legend text-bold"
+      th:text="#{map.filterLegendText}"
+    ></legend>
+    <div
+      th:each="filter, i : ${mapQuestion.getFilters()}"
+      class="grid-col flex-align-self-end"
+    >
       <label
         class="usa-label"
         th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
@@ -202,7 +208,8 @@
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
       },
       messages: {
-        locationsCount: /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
+        locationsCount:
+          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       },
     }
   </script>
