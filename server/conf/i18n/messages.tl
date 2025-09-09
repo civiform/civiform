@@ -923,6 +923,8 @@ map.locationLinkText=Tingnan ang higit pang detalye
 map.locationsCount=Ipinapakita ang {0} sa {1} (na) lokasyon
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Walang piniling lokasyon.
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Mga piniling lokasyon
 
