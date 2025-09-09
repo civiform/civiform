@@ -923,6 +923,8 @@ map.locationLinkText=Подробнее…
 map.locationsCount=Показано мест: {0} из {1}.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Места не выбраны.
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Выбранные места
 
