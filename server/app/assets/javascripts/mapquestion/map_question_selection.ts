@@ -3,32 +3,19 @@ import {
   CF_LOCATION_CHECKBOX,
   CF_SELECTED_LOCATIONS_CONTAINER,
   CF_NO_SELECTIONS_MESSAGE,
+  CF_LOCATION_HIDDEN,
   mapQuerySelector,
+  DATA_FEATURE_ID_ATTR,
+  DATA_MAP_ID_ATTR,
+  CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
-  const mapLocationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!mapLocationsContainer) return
-
-  const locationInputs = mapLocationsContainer.querySelectorAll(
-    `.${CF_LOCATION_CHECKBOX} input[type="checkbox"]`,
-  )
-
-  locationInputs.forEach((input) => {
-    // Add event listener to each checkbox input to update selected locations on change event
-    input.addEventListener('change', () => {
-      updateSelectedLocations(mapId)
-    })
-  })
-
   // Initial update so the previously saved locations get displayed as selected
   updateSelectedLocations(mapId)
 }
 
-const updateSelectedLocations = (mapId: string): void => {
+export const updateSelectedLocations = (mapId: string): void => {
   const mapLocationsContainer = mapQuerySelector(
     mapId,
     CF_LOCATIONS_LIST_CONTAINER,
@@ -38,9 +25,14 @@ const updateSelectedLocations = (mapId: string): void => {
     return
   }
 
-  const selectedCheckboxes = mapLocationsContainer.querySelectorAll(
-    `.${CF_LOCATION_CHECKBOX}:has(input[type="checkbox"]:checked)`,
-  )
+  const selectedCheckboxes = Array.from(
+    mapLocationsContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`),
+  ).filter((checkbox) => {
+    const input = checkbox.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement
+    return input && input.checked
+  })
 
   const selectedLocationsContainer = mapQuerySelector(
     mapId,
@@ -63,6 +55,7 @@ const updateSelectedLocations = (mapId: string): void => {
     selectedLocationsContainer.textContent = ''
     selectedCheckboxes.forEach((originalCheckbox) => {
       const selectedLocation = originalCheckbox.cloneNode(true) as HTMLElement
+      selectedLocation.classList.remove(CF_LOCATION_HIDDEN)
 
       const input = selectedLocation.querySelector(
         'input[type="checkbox"]',
@@ -72,23 +65,42 @@ const updateSelectedLocations = (mapId: string): void => {
       if (input && label) {
         const originalId = input.id
         const selectedId = `selected-${originalId}`
+        const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID_ATTR)
+
         input.id = selectedId
         label.htmlFor = selectedId
+        input.setAttribute(DATA_MAP_ID_ATTR, mapId)
 
-        input.addEventListener('change', () => {
-          if (!input.checked) {
-            const originalInput = document.getElementById(
-              originalId,
-            ) as HTMLInputElement
-            if (originalInput) {
-              originalInput.checked = false
-              updateSelectedLocations(mapId)
-            }
-          }
-        })
+        if (featureId) {
+          input.setAttribute(DATA_FEATURE_ID_ATTR, featureId)
+        }
       }
 
       selectedLocationsContainer.appendChild(selectedLocation)
     })
+  }
+}
+
+export const selectLocationsFromMap = (
+  featureId: string,
+  mapId: string,
+): void => {
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  ) as HTMLElement | null
+  if (!locationsListContainer) return
+
+  const targetCheckbox = locationsListContainer.querySelector(
+    `[${DATA_FEATURE_ID_ATTR}="${featureId}"]`,
+  )
+  if (targetCheckbox) {
+    const checkboxInputElement = targetCheckbox.querySelector(
+      `.${CF_LOCATION_CHECKBOX_INPUT}`,
+    ) as HTMLInputElement
+    if (checkboxInputElement) {
+      checkboxInputElement.checked = true
+      updateSelectedLocations(mapId)
+    }
   }
 }

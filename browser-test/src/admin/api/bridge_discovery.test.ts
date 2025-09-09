@@ -1,12 +1,16 @@
 import {expect, test} from '../../support/civiform_fixtures'
 import {
   enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {MOCK_WEB_SERVICES_URL} from '../../support/config'
 
 test.describe('api bridge discovery', () => {
+  test.skip(!isLocalDevEnvironment(), 'Requires mock-web-services')
+
   test.beforeEach(async ({page, seeding}) => {
     await enableFeatureFlag(page, 'api_bridge_enabled')
     await seeding.seedProgramsAndCategories()
@@ -15,7 +19,7 @@ test.describe('api bridge discovery', () => {
   })
 
   test('export a program', async ({page, bridgeDiscoveryPage}) => {
-    const hostUrl = 'http://mock-web-services:8000/api-bridge'
+    const hostUrl = `${MOCK_WEB_SERVICES_URL}/api-bridge`
     const urlPath = '/bridge/success'
 
     await test.step('navigate to bridge page', async () => {
