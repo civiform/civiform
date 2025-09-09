@@ -13,6 +13,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
@@ -57,6 +58,32 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 /* text= */ errorMessage,
                 /* title= */ Optional.of(title),
                 /* hidden= */ false),
+            asRedirectElement(button("Try again"), routes.AdminImportController.index().url())
+                .withClasses("my-5", "usa-button", "usa-button--outline"));
+  }
+
+  /** Renders an error with properly formatted line breaks for multiple validation errors. */
+  public DomContent renderErrorWithLineBreaks(String title, String errorMessage) {
+    Iterable<String> errorLines = Splitter.on(". ").split(errorMessage);
+
+    DivTag errorDiv = div().withClasses("usa-alert", "usa-alert--error", "usa-alert--no-icon");
+
+    DivTag bodyDiv = div().withClass("usa-alert__body");
+    if (title != null) {
+      bodyDiv.with(h3(title).withClass("usa-alert__heading"));
+    }
+
+    // Add each error line as a separate paragraph
+    for (String line : errorLines) {
+      if (!line.trim().isEmpty()) {
+        bodyDiv.with(p("• " + line.trim()).withClass("usa-alert__text"));
+      }
+    }
+
+    return div()
+        .withId(PROGRAM_DATA_ID)
+        .with(
+            errorDiv.with(bodyDiv),
             asRedirectElement(button("Try again"), routes.AdminImportController.index().url())
                 .withClasses("my-5", "usa-button", "usa-button--outline"));
   }
