@@ -191,16 +191,13 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Reset filters', async () => {
-          const resetButton = page.getByRole('button', {name: /reset.*filter/i})
+          const resetButton = page.getByRole('button', {name: /reset*/i})
+          await resetButton.click()
 
-          if (await resetButton.isVisible()) {
-            await resetButton.click()
-
-            // Verify first filter is reset to default option
-            const firstFilter = filterSelects.first()
-            const selectedValue = firstFilter
-            await expect(selectedValue).toHaveValue('')
-          }
+          // Verify first filter is reset to default option
+          const firstFilter = filterSelects.first()
+          const selectedValue = firstFilter
+          await expect(selectedValue).toHaveValue('')
         })
       })
     })
