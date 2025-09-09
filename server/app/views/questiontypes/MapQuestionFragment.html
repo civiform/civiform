@@ -25,7 +25,7 @@
 
   <!-- Filters -->
   <div class="grid-row grid-gap">
-    <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col">
+    <div th:each="filter, i : ${mapQuestion.getFilters()}" class="grid-col flex-align-self-end">
       <label
         class="usa-label"
         th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
@@ -201,8 +201,7 @@
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
       },
       messages: {
-        locationsCount:
-          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
+        locationsCount: /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       },
     }
   </script>

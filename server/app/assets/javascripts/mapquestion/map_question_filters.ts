@@ -97,6 +97,9 @@ const updateLocationCountForMap = (mapId: string, mapData: MapData): void => {
   ) as HTMLElement | null
   if (countText) {
     const messageTemplate = mapData.messages.locationsCount
+    // Get the internalized string and replace {0} and {1} with the counts
+    // {0} is the visible count, {1} is the total count
+    // TODO: implement a more robust solution for string internationalization in typescript
     countText.textContent = messageTemplate
       .replace('{0}', visibleCount.toString())
       .replace('{1}', locationCheckboxes.length.toString())
