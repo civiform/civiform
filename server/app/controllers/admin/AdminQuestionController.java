@@ -1,7 +1,8 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
+import java.util.Collections;
+import play.mvc.Http;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -13,11 +14,13 @@ import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
+import org.thymeleaf.TemplateEngine;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
@@ -42,6 +45,8 @@ import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
+import views.admin.questions.MapQuestionSettingsFiltersPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 
 /** Controller for handling methods for admins managing questions. */
 public final class AdminQuestionController extends CiviFormController {
@@ -51,6 +56,8 @@ public final class AdminQuestionController extends CiviFormController {
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
+  private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
+
   @Inject
   public AdminQuestionController(
       ProfileUtils profileUtils,
@@ -59,13 +66,15 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
+    ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
   }
 
   /**
@@ -84,6 +93,22 @@ public final class AdminQuestionController extends CiviFormController {
                         filter.map(TextFormatter::sanitizeHtml),
                         request)),
             classLoaderExecutionContext.current());
+  }
+
+
+
+  public Result addMapFilter(Request request ) {
+
+    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
+    System.out.println(formData);
+    String body = request.body().asText();
+    System.out.println("Body as text: " + body);
+
+
+    return ok(mapQuestionSettingsFiltersPartialView.render(
+                request,
+                new MapQuestionSettingsFiltersPartialViewModel(Collections.emptySet())));
+
   }
 
   /**

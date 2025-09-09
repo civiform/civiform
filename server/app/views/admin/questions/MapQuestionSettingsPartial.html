@@ -52,32 +52,17 @@
   <div>Filters</div>
   <div>Select up to three filters to make available to applicants.</div>
   <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
-  <div th:each="filter, i : ${model.filters}">
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
-      >Key</label
-    >
-    <select
-      class="usa-select"
-      th:name="'filters[' + ${i.index} + '].key'"
-      th:id="'filters[' + ${i.index} + '].key'"
-    >
-      <option value>Select a key</option>
-      <option
-        th:each="key: ${model.possibleKeys}"
-        th:value="${key}"
-        th:text="${key}"
-        th:selected="${key == filter.key}"
-      ></option>
-    </select>
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
-      >Display Name</label
-    >
-    <input
-      class="usa-input"
-      th:id="'filters[' + ${i.index} + '].displayName'"
-      th:name="'filters[' + ${i.index} + '].displayName'"
-      th:value="${filter.displayName}"
-    />
+  <input type="hidden" name="users" th:value="${model.possibleKeys}" />
+  <div id="afterMe">
   </div>
+  <button
+    hx-post="/admin/addMapFilter"
+    hx-swap="beforeend"
+    hx-target="#afterMe"
+    id="add-map-filter-button"
+    type="button"
+    class="add-map-filter usa-button usa-button--outline"
+    th:text="#{map.addFilterButton}"
+  ></button>
   <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
 </div>
