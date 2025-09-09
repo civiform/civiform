@@ -2,7 +2,7 @@ interface Window {
   app: {
     data: {
       maxLocationSelections: number
-      messages: Object
+      messages: object
       maps: {
         [id: string]: object // Maps map IDs to GeoJSON objects
       }
