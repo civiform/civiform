@@ -923,6 +923,8 @@ map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 
