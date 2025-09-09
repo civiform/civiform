@@ -923,6 +923,8 @@ map.locationLinkText=ເບິ່ງລາຍລະອຽດເພີ່ມເ�
 map.locationsCount=ກຳລັງສະແດງ {0} ຈາກທັງໝົດ {1} ສະຖານທີ່
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
 
