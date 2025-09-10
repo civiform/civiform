@@ -1,26 +1,51 @@
-<div>
-  <label class="usa-label" for="test"
-  >Key</label
+<div class="display-flex align-items-end gap-2">
+  <div class="flex-1">
+    <label
+      class="usa-label"
+      th:for="'filters[' + ${model.currentIndex} + '].key'"
+      >Key</label
+    >
+    <select
+      class="usa-select"
+      th:name="'filters[' + ${model.currentIndex} + '].key'"
+      th:id="'filters[' + ${model.currentIndex} + '].key'"
+    >
+      <option value>Select a key</option>
+      <option
+        th:each="key : ${model.possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+      ></option>
+    </select>
+    <label
+      class="usa-label"
+      th:for="'filters[' + ${model.currentIndex} + '].displayName'"
+      >Display Name</label
+    >
+    <input
+      class="usa-input"
+      th:id="'filters[' + ${model.currentIndex} + '].displayName'"
+      th:name="'filters[' + ${model.currentIndex} + '].displayName'"
+    />
+  </div>
+  <div>
+    <button
+      type="button"
+      class="cf-map-question-filter-button usa-button usa-button--unstyled"
+      aria-label="Delete filter"
+      hx-post="/admin/deleteMapFilter"
+      hx-target="closest div[class*=display-flex]"
+      hx-swap="outerHTML"
+    >
+      <svg
+        class="usa-icon"
+        aria-hidden="true"
+        focusable="false"
+        role="img"
+        th:attr="viewBox=${deleteIcon.getViewBox()}"
       >
-  <select
-    class="usa-select"
-    name="test"
-    id="test"
-  >
-    <option value>Select a key</option>
-    <option
-      value="test"
-      text="test"
-      selected="true"
-    ></option>
-  </select>
-  <label class="usa-label" for="testInput"
-  >Display Name</label
-               >
-  <input
-    class="usa-input"
-    id="testInput"
-    name="testInput"
-    value="test"
-  />
+        <path th:attr="d=${deleteIcon.path}"></path>
+      </svg>
+    </button>
+  </div>
 </div>
