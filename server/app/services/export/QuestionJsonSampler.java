@@ -213,8 +213,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case MAP -> mapJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC ->
-            emptyJsonSampler;
+        case STATIC -> emptyJsonSampler;
         case TEXT -> textJsonSampler;
         case YES_NO -> singleSelectJsonSampler;
 
@@ -545,12 +544,14 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ApplicantData applicantData = sampleDataContext.getApplicantData();
-      Path selectionPath = applicantQuestion.getContextualizedPath().join(services.applicant.question.Scalar.SELECTIONS);
+      Path selectionPath =
+          applicantQuestion
+              .getContextualizedPath()
+              .join(services.applicant.question.Scalar.SELECTIONS);
 
       // Add sample location IDs as an array
       for (int i = 0; i < SAMPLE_LOCATION_IDS.size(); i++) {
-        applicantData.putString(
-            selectionPath.atIndex(i), SAMPLE_LOCATION_IDS.get(i));
+        applicantData.putString(selectionPath.atIndex(i), SAMPLE_LOCATION_IDS.get(i));
       }
     }
 

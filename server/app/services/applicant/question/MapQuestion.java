@@ -8,10 +8,10 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.geojson.FeatureCollection;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
 import services.question.types.MapQuestionDefinition;
-import services.geojson.FeatureCollection;
 
 // TODO(#11003): Build out map question.
 public final class MapQuestion extends AbstractQuestion {

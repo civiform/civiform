@@ -4,14 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import services.applicant.AnswerData;
-import services.question.types.QuestionType;
-import services.applicant.question.MapQuestion;
-import repository.GeoJsonDataRepository;
+import java.util.Optional;
 import models.GeoJsonDataModel;
+import repository.GeoJsonDataRepository;
+import services.applicant.AnswerData;
+import services.applicant.question.MapQuestion;
 import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition;
-import java.util.Optional;
+import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
@@ -20,7 +20,8 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   private final long applicantId;
   private final GeoJsonDataRepository geoJsonDataRepository;
 
-  public NorthStarAnswerData(AnswerData data, long applicantId, GeoJsonDataRepository geoJsonDataRepository) {
+  public NorthStarAnswerData(
+      AnswerData data, long applicantId, GeoJsonDataRepository geoJsonDataRepository) {
     this.answerData = checkNotNull(data);
     this.applicantId = applicantId;
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
@@ -46,8 +47,7 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     boolean isAnswered = answerData.isAnswered() || hasAnswerText;
     boolean isFileUploadQuestion =
         answerData.questionDefinition().getQuestionType() == QuestionType.FILEUPLOAD;
-    boolean isMapQuestion =
-        answerData.questionDefinition().getQuestionType() == QuestionType.MAP;
+    boolean isMapQuestion = answerData.questionDefinition().getQuestionType() == QuestionType.MAP;
     boolean hasFiles = !answerData.encodedFileKeys().isEmpty();
 
     if (isFileUploadQuestion && hasFiles) {
@@ -69,22 +69,25 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
    */
   private ImmutableList<String> getMapDisplayText() {
     MapQuestion mapQuestion = answerData.applicantQuestion().createMapQuestion();
-    ImmutableList<String> selectedIds = mapQuestion.getSelectedLocationIds().orElse(ImmutableList.of());
-    
+    ImmutableList<String> selectedIds =
+        mapQuestion.getSelectedLocationIds().orElse(ImmutableList.of());
+
     if (selectedIds.isEmpty()) {
       return ImmutableList.of("No locations selected");
     }
-    
+
     // Get GeoJSON data for this MAP question to convert IDs to names
     try {
-      MapQuestionDefinition mapQuestionDef = (MapQuestionDefinition) answerData.questionDefinition();
+      MapQuestionDefinition mapQuestionDef =
+          (MapQuestionDefinition) answerData.questionDefinition();
       String geoJsonEndpoint = mapQuestionDef.getMapValidationPredicates().geoJsonEndpoint();
-      
-      Optional<GeoJsonDataModel> geoJsonData = geoJsonDataRepository
-          .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
-          .toCompletableFuture()
-          .join();
-          
+
+      Optional<GeoJsonDataModel> geoJsonData =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+              .toCompletableFuture()
+              .join();
+
       if (geoJsonData.isPresent()) {
         FeatureCollection featureCollection = geoJsonData.get().getGeoJson();
         return selectedIds.stream()
@@ -95,7 +98,7 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
       // Fallback to IDs if anything goes wrong
       System.err.println("Failed to convert MAP question IDs to names: " + e.getMessage());
     }
-    
+
     // Fallback: show formatted IDs if GeoJSON lookup fails
     return selectedIds.stream()
         .map(id -> "Location: " + id.substring(0, Math.min(id.length(), 8)) + "...")
