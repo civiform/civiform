@@ -26,7 +26,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private ImmutableSet<ValidationErrorMessage> validateSelections() {
-    int numberOfSelections = getSelectedLocationNames().map(ImmutableList::size).orElse(0);
+    int numberOfSelections = getSelectedLocationIds().map(ImmutableList::size).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()) {
