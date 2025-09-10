@@ -524,10 +524,6 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
   class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
     private final QuestionJsonPresenter mapJsonPresenter;
 
-    // Sample location IDs for map questions.
-    private static final ImmutableList<String> SAMPLE_LOCATION_IDS =
-        ImmutableList.of("feature_123", "feature_456");
-
     @Inject
     MapJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
       this.mapJsonPresenter = questionJsonPresenterFactory.create(QuestionType.MAP);
@@ -542,15 +538,13 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ApplicantData applicantData = sampleDataContext.getApplicantData();
+      ImmutableList<String> sampleLocationIds = ImmutableList.of("feature_123", "feature_456");
 
-      // Add sample location IDs using the proper QuestionAnswerer method
-      for (int i = 0; i < SAMPLE_LOCATION_IDS.size(); i++) {
-        QuestionAnswerer.answerMapQuestion(
-            applicantData,
-            applicantQuestion.getContextualizedPath(),
-            i,
-            SAMPLE_LOCATION_IDS.get(i));
-      }
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 1, sampleLocationIds.get(1));
+
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 2, sampleLocationIds.get(2));
     }
 
     @Override

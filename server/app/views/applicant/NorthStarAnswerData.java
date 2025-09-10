@@ -78,9 +78,9 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
 
     // Get GeoJSON data for this MAP question to convert IDs to names
     try {
-      MapQuestionDefinition mapQuestionDef =
+      MapQuestionDefinition mapQuestionDefinition =
           (MapQuestionDefinition) answerData.questionDefinition();
-      String geoJsonEndpoint = mapQuestionDef.getMapValidationPredicates().geoJsonEndpoint();
+      String geoJsonEndpoint = mapQuestionDefinition.getMapValidationPredicates().geoJsonEndpoint();
 
       Optional<GeoJsonDataModel> geoJsonData =
           geoJsonDataRepository
