@@ -14,7 +14,7 @@ Please check off all items at their appropriate times during your rotation.
 
 Resources:
 
-- [Oncall Guide](https://github.com/civiform/civiform/wiki/On-Call-Guide)
+- [Oncall Guide](https://github.com/civiform/civiform/wiki/On-Call-Guide#on-call-responsibilities)
 - [Release Guide](https://github.com/civiform/civiform/wiki/Releasing)
 
 # Task list:
@@ -44,7 +44,7 @@ Resources:
   - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 1 day, fix it and merge it.
   - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Nick so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
   - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
-  - Review our [oncall docs](https://docs.civiform.us/governance-and-management/project-management/on-call-guide#dependency-updates) for more guidance and best practices for merging dependency updates.
+  - Review our [oncall docs](https://github.com/civiform/civiform/wiki/On-Call-Guide#dependency-updates) for more guidance and best practices for merging dependency updates.
   - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)
