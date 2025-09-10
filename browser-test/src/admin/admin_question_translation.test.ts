@@ -145,5 +145,13 @@ test.describe('Admin can manage question translations', () => {
         page.getByRole('textbox', {name: 'Question help text'}),
       ).toHaveText('help text different')
     })
+
+    await test.step('verify that admin cannot add translation to the question in active mode when existing a draft', async () => {
+      await adminQuestions.updateQuestion(questionName)
+      await validateScreenshot(
+        page.locator('.cf-admin-question-table-row'),
+        'drop-down-for-active-question-hidden',
+      )
+    })
   })
 })

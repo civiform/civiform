@@ -693,7 +693,9 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
-    if (isActive && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+    if (isActive
+        && isEditable
+        && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
       Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
       maybeTranslationLink.ifPresent(extraActions::add);
     }
