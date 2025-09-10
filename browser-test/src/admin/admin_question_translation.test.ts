@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Admin can manage question translations', () => {
   test('creates a question and adds translations', async ({
@@ -109,5 +109,41 @@ test.describe('Admin can manage question translations', () => {
     await expect(
       page.getByRole('textbox', {name: 'Question help text'}),
     ).toHaveText('')
+  })
+
+  test('admin can add translation when the question is in active mode', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminTranslations,
+  }) => {
+    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
+    await loginAsAdmin(page)
+    const questionName = 'name-translated'
+
+    await test.step('create a question in active mode', async () => {
+      await adminQuestions.addNameQuestion({questionName})
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishAllDrafts()
+      await adminQuestions.expectActiveQuestionExist(questionName)
+    })
+
+    await test.step('verify that admin can add translation for the question in active mode', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editQuestionTranslations(
+        'something different',
+        'help text different',
+      )
+
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await expect(
+        page.getByRole('textbox', {name: 'Question text'}),
+      ).toHaveText('something different')
+      await expect(
+        page.getByRole('textbox', {name: 'Question help text'}),
+      ).toHaveText('help text different')
+    })
   })
 })
