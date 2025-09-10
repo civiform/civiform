@@ -50,19 +50,71 @@
   </select>
 
   <div>Filters</div>
-  <div>Select up to three filters to make available to applicants.</div>
-  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
-  <input type="hidden" name="users" th:value="${model.possibleKeys}" />
-  <div id="afterMe">
+  <div>Select up to six filters to make available to applicants.</div>
+  <div id="filters">
+    <div
+      th:each="filter, i : ${model.filters}"
+      class="filter-input display-flex flex-justify"
+    >
+      <div>
+        <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
+          >Key</label
+        >
+        <select
+          class="usa-select"
+          th:name="'filters[' + ${i.index} + '].key'"
+          th:id="'filters[' + ${i.index} + '].key'"
+        >
+          <option value>Select a key</option>
+          <option
+            th:each="key: ${model.possibleKeys}"
+            th:value="${key}"
+            th:text="${key}"
+            th:selected="${key == filter.key}"
+          ></option>
+        </select>
+        <label
+          class="usa-label"
+          th:for="'filters[' + ${i.index} + '].displayName'"
+          >Display Name</label
+        >
+        <input
+          class="usa-input"
+          th:id="'filters[' + ${i.index} + '].displayName'"
+          th:name="'filters[' + ${i.index} + '].displayName'"
+          th:value="${filter.displayName}"
+        />
+      </div>
+      <button
+        type="button"
+        class="flex-align-self-end cf-map-question-filter-button usa-button usa-button--unstyled"
+        aria-label="Delete filter"
+        hx-post="/admin/deleteMapFilter"
+        hx-target="closest div[class*=filter-input]"
+        hx-swap="outerHTML"
+      >
+        <svg
+          class="usa-icon"
+          aria-hidden="true"
+          focusable="false"
+          role="img"
+          th:attr="viewBox=${deleteIcon.getViewBox()}"
+        >
+          <path th:attr="d=${deleteIcon.path}"></path>
+        </svg>
+      </button>
+    </div>
   </div>
+  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
+  <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
   <button
     hx-post="/admin/addMapFilter"
+    hx-include="closest form"
     hx-swap="beforeend"
-    hx-target="#afterMe"
+    hx-target="#filters"
     id="add-map-filter-button"
     type="button"
     class="add-map-filter usa-button usa-button--outline"
     th:text="#{map.addFilterButton}"
   ></button>
-  <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
 </div>

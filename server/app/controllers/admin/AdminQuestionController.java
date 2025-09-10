@@ -1,8 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.util.Collections;
-import play.mvc.Http;
+
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -16,11 +15,12 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
-import org.thymeleaf.TemplateEngine;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
@@ -41,12 +41,12 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.admin.questions.MapQuestionSettingsFiltersPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
-import views.admin.questions.MapQuestionSettingsFiltersPartialView;
-import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 
 /** Controller for handling methods for admins managing questions. */
 public final class AdminQuestionController extends CiviFormController {
@@ -67,7 +67,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
-    ClassLoaderExecutionContext classLoaderExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -95,20 +95,44 @@ public final class AdminQuestionController extends CiviFormController {
             classLoaderExecutionContext.current());
   }
 
-
-
-  public Result addMapFilter(Request request ) {
+  public Result addMapFilter(Request request) {
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
-    System.out.println(formData);
-    String body = request.body().asText();
-    System.out.println("Body as text: " + body);
+    String possibleKeysString = formData.get("possibleKeys");
+    Set<String> possibleKeysSet;
+    if (possibleKeysString != null && !possibleKeysString.isEmpty()) {
+      // Remove brackets and split by comma
+      String cleanString = possibleKeysString.replaceAll("[\\[\\]]", "").trim();
+      if (!cleanString.isEmpty()) {
+        possibleKeysSet =
+            Arrays.stream(cleanString.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+      } else {
+        possibleKeysSet = Set.of();
+      }
+    } else {
+      possibleKeysSet = Set.of();
+    }
 
+    // Count existing filters to determine the index for the new filter
+    int currentFilterIndex = 0;
+    for (String key : formData.keySet()) {
+      if (key.startsWith("filters[") && key.endsWith("].key")) {
+        currentFilterIndex++;
+      }
+    }
 
-    return ok(mapQuestionSettingsFiltersPartialView.render(
-                request,
-                new MapQuestionSettingsFiltersPartialViewModel(Collections.emptySet())));
+    return ok(
+        mapQuestionSettingsFiltersPartialView.render(
+            request,
+            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysSet, currentFilterIndex)));
+  }
 
+  public Result deleteMapFilter(Request request) {
+    // Return empty response - HTMX will remove the element from DOM
+    return ok("");
   }
 
   /**

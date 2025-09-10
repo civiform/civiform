@@ -555,6 +555,8 @@ public final class QuestionEditView extends BaseHtmlView {
   private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
       MapQuestionForm mapQuestionForm, ImmutableList<String> possibleKeys) {
 
+    System.out.println(mapQuestionForm.getFilters());
+
     return new MapQuestionSettingsPartialViewModel(
         mapQuestionForm.getMaxLocationSelections(),
         mapQuestionForm.getLocationName(),
