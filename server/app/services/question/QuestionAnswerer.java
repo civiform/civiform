@@ -116,6 +116,12 @@ public final class QuestionAnswerer {
         contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), value);
   }
 
+  public static void answerMapQuestion(
+      ApplicantData applicantData, Path contextualizedPath, int index, String locationId) {
+    applicantData.putString(
+        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), locationId);
+  }
+
   public static void answerNameQuestion(
       ApplicantData applicantData,
       Path contextualizedPath,
