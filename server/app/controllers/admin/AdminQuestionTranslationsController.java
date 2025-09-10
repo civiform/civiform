@@ -151,19 +151,6 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
-    /*
-    return questionService
-        .getReadOnlyQuestionService()
-        .toCompletableFuture()
-        .join()
-        .getActiveAndDraftQuestions()
-        .getDraftQuestionDefinition(questionName)
-        .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("No draft found for question: \"%s\"", questionName)));
-    */
-
     Optional<QuestionDefinition> draftQuestionMaybe =
         questionService
             .getReadOnlyQuestionService()
