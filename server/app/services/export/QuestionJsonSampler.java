@@ -541,10 +541,10 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
       ImmutableList<String> sampleLocationIds = ImmutableList.of("feature_123", "feature_456");
 
       QuestionAnswerer.answerMapQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), 1, sampleLocationIds.get(1));
+          applicantData, applicantQuestion.getContextualizedPath(), 0, sampleLocationIds.get(0));
 
       QuestionAnswerer.answerMapQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), 2, sampleLocationIds.get(2));
+          applicantData, applicantQuestion.getContextualizedPath(), 1, sampleLocationIds.get(1));
     }
 
     @Override
