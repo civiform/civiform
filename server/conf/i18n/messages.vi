@@ -917,14 +917,28 @@ option.maybe=Có thể
 # MAP QUESTION - text specific to map questions.              #
 #-------------------------------------------------------------#
 
+# Text for map question apply filters button
+map.applyFiltersButtonText=Apply filters
+# Legend text for the map filters section
+map.filterLegendText=Filters
 # Link text for location details URLs
-map.locationLinkText=Xem thêm chi tiết
+map.locationLinkText=View more details
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Đang hiển thị {0}/{1} địa điểm
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Chưa chọn địa điểm nào.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Clear filters
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Địa điểm đã chọn
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Select -
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Please select at most {0} locations.
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
