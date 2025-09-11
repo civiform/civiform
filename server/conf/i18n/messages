@@ -1084,6 +1084,7 @@ session.length.warning.title=Session Length Warning
 
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Extend Session
 
@@ -1095,6 +1096,3 @@ session.extended.error=Failed to extend session
 
 # Untranslated string for translation infrastructure testing.
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-# Add filters for admin map
-map.addFilterButton=Add Filter
