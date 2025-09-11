@@ -291,14 +291,20 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
-  public void mapQuestions_returnEmpty() {
+  public void samplesMapQuestion() {
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.MAP)
             .getSampleJsonEntries(MAP_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(entries).isEmpty();
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_map_question.question_type"),
+                Optional.of("MAP"),
+                Path.create("applicant.sample_map_question.selections"),
+                Optional.of(Arrays.asList("feature_123", "feature_456"))));
   }
 
   @Test
