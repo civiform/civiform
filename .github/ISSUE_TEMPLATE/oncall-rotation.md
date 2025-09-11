@@ -8,7 +8,7 @@ assignees: ''
 
 The Oncall is responsible for drafting and releasing a new version of CiviForm during their two week rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
 
-Rotations begin each Monday, with the release happening on Tuesday.
+Rotations begin every other Monday, with the draft release created on the first Tuesday and published the following Tuesday.
 
 Please check off all items at their appropriate times during your rotation.
 
