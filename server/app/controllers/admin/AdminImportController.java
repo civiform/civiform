@@ -212,7 +212,8 @@ public class AdminImportController extends CiviFormController {
       if (!questionErrors.isEmpty()) {
         return ok(
             adminImportViewPartial
-                .renderError("One or more question errors occured:", joinErrors(questionErrors))
+                .renderErrorWithLineBreaks(
+                    "One or more question errors occured:", joinErrors(questionErrors))
                 .render());
       }
 
