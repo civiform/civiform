@@ -28,7 +28,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private ImmutableSet<ValidationErrorMessage> validateSelections() {
-    int numberOfSelections = getSelectedLocationIds().size();
+    int numberOfSelections = getSelectedLocations().size();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()) {
@@ -115,10 +115,10 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private ImmutableList<Map<String, String>> getSelectedLocations() {
-    Optional<ImmutableList<String>> rawData =
+    Optional<ImmutableList<String>> selectedLocationsString =
         applicantQuestion.getApplicantData().readStringList(getSelectionPath());
 
-    return rawData
+    return selectedLocationsString
         .map(
             strings ->
                 strings.stream()
