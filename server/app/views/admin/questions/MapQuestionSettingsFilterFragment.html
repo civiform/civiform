@@ -1,0 +1,43 @@
+<th:block
+  th:fragment="filterInput(index, possibleKeys, selectedKey, displayNameValue)"
+>
+  <div class="display-flex flex-justify filter-input">
+    <div>
+      <label class="usa-label" th:for="'filters[' + ${index} + '].key'"
+        >Key</label
+      >
+      <select
+        class="usa-select"
+        th:name="'filters[' + ${index} + '].key'"
+        th:id="'filters[' + ${index} + '].key'"
+      >
+        <option value>Select a key</option>
+        <option
+          th:each="key : ${possibleKeys}"
+          th:value="${key}"
+          th:text="${key}"
+          th:selected="${selectedKey != null && key == selectedKey}"
+        ></option>
+      </select>
+      <label class="usa-label" th:for="'filters[' + ${index} + '].displayName'"
+        >Display Name</label
+      >
+      <input
+        class="usa-input"
+        th:id="'filters[' + ${index} + '].displayName'"
+        th:name="'filters[' + ${index} + '].displayName'"
+        th:value="${displayNameValue}"
+      />
+    </div>
+    <button
+      type="button"
+      class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
+      aria-label="Delete filter"
+      hx-post="/admin/deleteMapFilter"
+      th:hx-target="${'closest div[class*=filter-input]'}"
+      hx-swap="outerHTML"
+    >
+      <cf:icon type="icon-delete" />
+    </button>
+  </div>
+</th:block>

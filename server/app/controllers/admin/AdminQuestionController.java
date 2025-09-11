@@ -12,10 +12,10 @@ import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -96,24 +96,23 @@ public final class AdminQuestionController extends CiviFormController {
   }
 
   public Result addMapFilter(Request request) {
-
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     String possibleKeysString = formData.get("possibleKeys");
-    Set<String> possibleKeysSet;
+    List<String> possibleKeysList;
     if (possibleKeysString != null && !possibleKeysString.isEmpty()) {
       // Remove brackets and split by comma
       String cleanString = possibleKeysString.replaceAll("[\\[\\]]", "").trim();
       if (!cleanString.isEmpty()) {
-        possibleKeysSet =
+        possibleKeysList =
             Arrays.stream(cleanString.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
       } else {
-        possibleKeysSet = Set.of();
+        possibleKeysList = List.of();
       }
     } else {
-      possibleKeysSet = Set.of();
+      possibleKeysList = List.of();
     }
 
     // Count existing filters to determine the index for the new filter
@@ -127,7 +126,7 @@ public final class AdminQuestionController extends CiviFormController {
     return ok(
         mapQuestionSettingsFiltersPartialView.render(
             request,
-            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysSet, currentFilterIndex)));
+            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysList, currentFilterIndex)));
   }
 
   public Result deleteMapFilter(Request request) {

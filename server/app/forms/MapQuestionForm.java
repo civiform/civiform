@@ -1,6 +1,7 @@
 package forms;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -51,7 +52,7 @@ public class MapQuestionForm extends QuestionForm {
     }
 
     public static List<Setting> emptyFilters() {
-      return new java.util.ArrayList<>();
+      return new ArrayList<>();
     }
   }
 
@@ -149,7 +150,7 @@ public class MapQuestionForm extends QuestionForm {
                     setting.localizedSettingDisplayName().isPresent()
                         ? setting.localizedSettingDisplayName().get().getDefault()
                         : ""))
-        .collect(Collectors.toCollection(java.util.ArrayList::new));
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
