@@ -3,9 +3,11 @@
 >
   <div class="display-flex flex-justify filter-input">
     <div>
-      <label class="usa-label" th:for="'filters[' + ${index} + '].key'"
-             th:text="#{map.keyLabel}"></label
-      >
+      <label
+        class="usa-label"
+        th:for="'filters[' + ${index} + '].key'"
+        th:text="#{map.keyLabel}"
+      ></label>
       <select
         class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
@@ -19,9 +21,11 @@
           th:selected="${selectedKey != null && key == selectedKey}"
         ></option>
       </select>
-      <label class="usa-label" th:for="'filters[' + ${index} + '].displayName'"
-        th:text="#{map.displayNameLabel}"></label
-      >
+      <label
+        class="usa-label"
+        th:for="'filters[' + ${index} + '].displayName'"
+        th:text="#{map.displayNameLabel}"
+      ></label>
       <input
         class="usa-input"
         th:id="'filters[' + ${index} + '].displayName'"
