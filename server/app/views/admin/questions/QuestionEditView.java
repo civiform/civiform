@@ -25,10 +25,10 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import models.QuestionDisplayMode;
 import models.QuestionTag;
 import modules.ThymeleafModule;
@@ -537,13 +537,13 @@ public final class QuestionEditView extends BaseHtmlView {
       SettingsManifest settingsManifest,
       Request request) {
     if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      Set<String> possibleKeys =
+      List<String> possibleKeys =
           geoJsonDataRepository
               .getMostRecentGeoJsonDataRowForEndpoint(
                   ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .join()
               .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
-              .orElse(new HashSet<>());
+              .orElse(new ArrayList<>());
 
       return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
@@ -555,7 +555,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
-      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+      MapQuestionForm mapQuestionForm, List<String> possibleKeys) {
 
     return new MapQuestionSettingsPartialViewModel(
         mapQuestionForm.getMaxLocationSelections(),
