@@ -6,4 +6,4 @@ import views.admin.BaseViewModel;
 
 @Builder
 public record MapQuestionSettingsFiltersPartialViewModel(
-    List<String> possibleKeys, int currentIndex) implements BaseViewModel {}
+    List<String> possibleKeys, long currentIndex) implements BaseViewModel {}
