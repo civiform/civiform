@@ -3,8 +3,6 @@ package services.geojson;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,12 +34,10 @@ public record FeatureCollection(
    *
    * @return set of all possible property keys found across all features
    */
-  public List<String> getPossibleKeys() {
+  public Set<String> getPossibleKeys() {
     Set<String> keys = new HashSet<>();
     features().forEach(feature -> keys.addAll(feature.properties().keySet()));
-    List<String> sortedKeys = new ArrayList<>(keys);
-    Collections.sort(sortedKeys);
-    return sortedKeys;
+    return keys;
   }
 
   /**
