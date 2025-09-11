@@ -1,4 +1,8 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
+import {
+  YesNoOptionAdminId,
+  YesNoOptionValue,
+} from './admin_yes_no_question_option'
 import {assertNotNull, formatText, formatTextHtml} from './util'
 import * as DOMPurify from 'dompurify'
 
@@ -111,10 +115,19 @@ export default class PreviewController {
     )
 
     if (questionSettings && questionPreviewContainer) {
-      PreviewController.addOptionObservers({
-        questionSettings,
-        questionPreviewContainer,
-      })
+      const hasYesNoCheckboxes = questionSettings.querySelector(
+        '[name="displayedOptionIds[]"]',
+      )
+
+      // YES/NO questions are the ONLY ones with displayedOptionIds[] checkboxes
+      if (hasYesNoCheckboxes) {
+        PreviewController.addYesNoCheckboxListeners()
+      } else {
+        PreviewController.addOptionObservers({
+          questionSettings,
+          questionPreviewContainer,
+        })
+      }
     }
   }
 
@@ -181,6 +194,50 @@ export default class PreviewController {
       characterDataOldValue: true,
     })
     syncOptionsToPreview()
+  }
+
+  private static addYesNoCheckboxListeners() {
+    const notSureCheckbox = document.getElementById(
+      YesNoOptionAdminId.NOT_SURE,
+    ) as HTMLInputElement
+    const maybeCheckbox = document.getElementById(
+      YesNoOptionAdminId.MAYBE,
+    ) as HTMLInputElement
+
+    if (!notSureCheckbox || !maybeCheckbox) {
+      return
+    }
+
+    const toggleVisibility = () => {
+      const previewContainer = document.getElementById('sample-question')
+      if (!previewContainer) return
+
+      const options = previewContainer.querySelectorAll(
+        '.cf-multi-option-question-option',
+      )
+
+      options.forEach((option) => {
+        const radioInput = option.querySelector(
+          'input[type="radio"]',
+        ) as HTMLInputElement
+        if (!radioInput) return
+
+        if (radioInput.value === YesNoOptionValue.NOT_SURE) {
+          ;(option as HTMLElement).style.display = notSureCheckbox.checked
+            ? ''
+            : 'none'
+        } else if (radioInput.value === YesNoOptionValue.MAYBE) {
+          ;(option as HTMLElement).style.display = maybeCheckbox.checked
+            ? ''
+            : 'none'
+        }
+      })
+    }
+
+    notSureCheckbox.addEventListener('change', toggleVisibility)
+    maybeCheckbox.addEventListener('change', toggleVisibility)
+
+    toggleVisibility()
   }
 
   private static updateOptionsList({

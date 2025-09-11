@@ -1430,7 +1430,8 @@ export class AdminQuestions {
     await waitForPageJsLoad(this.page)
 
     for (let i = 0; i < optionTextToExclude.length; i++) {
-      await this.page.getByText(optionTextToExclude[i]).click()
+      const checkboxId = optionTextToExclude[i].toLowerCase().replace(/ /g, '-')
+      await this.page.click(`label[for="${checkboxId}"]`)
     }
 
     await this.fillInQuestionBasics({
