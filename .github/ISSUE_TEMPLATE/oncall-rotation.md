@@ -41,7 +41,7 @@ Resources:
 - [ ] Make some progress (< 2 days) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95) or a broken dependency update (see below)
 - [ ] Check for dependency updates
   - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
-  - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 1 day, fix it and merge it.
+  - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 2 days, fix it and merge it.
   - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Nick so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
   - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
   - Review our [oncall docs](https://github.com/civiform/civiform/wiki/On-Call-Guide#dependency-updates) for more guidance and best practices for merging dependency updates.
