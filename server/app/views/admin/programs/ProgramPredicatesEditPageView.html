@@ -1,0 +1,9 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramPredicatesEditPageViewModel"*/-->
+
+<th:block th:fragment="content">
+  <!--/* Program header */-->
+  <th:block
+    th:replace="admin/programs/ProgramHeaderFragment :: programHeader(${model.programHeader})"
+  ></th:block>
+</th:block>
