@@ -1425,33 +1425,43 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
+            .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                classLoaderExecutionContext.current())
+            .toCompletableFuture();
+
+    ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+        applicantProgramServiceCompletableFuture.join();
+
+    Optional<Block> optionalBlockBeforeUpdate =
+        readOnlyApplicantProgramService.getActiveBlock(blockId);
+
+    // Process the form data and make any necessary changes.
+    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+        applicantStage
             .thenComposeAsync(
                 v -> {
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
                   return applicantService.resetAddressCorrectionWhenAddressChanged(
-                      applicantId, programId, blockId, formData);
+                      programId, optionalBlockBeforeUpdate, blockId, formData);
                 },
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 formData ->
-                    applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
+                    applicantService.setPhoneCountryCode(
+                        programId, optionalBlockBeforeUpdate, blockId, formData),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 formData ->
-                    applicantService.cleanDateQuestions(applicantId, programId, blockId, formData),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                    applicantService.cleanDateQuestions(
+                        programId, optionalBlockBeforeUpdate, blockId, formData),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1468,10 +1478,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
-              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
-              Optional<Block> optionalBlockBeforeUpdate =
-                  readOnlyApplicantProgramService.getActiveBlock(blockId);
+
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
 
