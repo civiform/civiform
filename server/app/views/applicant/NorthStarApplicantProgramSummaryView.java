@@ -114,9 +114,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     ImmutableList<NorthStarAnswerData> northStarSummaryData =
         params.summaryData().stream()
-            .map(
-                datum ->
-                    new NorthStarAnswerData(datum, params.applicantId()))
+            .map(datum -> new NorthStarAnswerData(datum, params.applicantId()))
             .collect(ImmutableList.toImmutableList());
 
     ImmutableList<NorthStarBlockSummary> blockSummaries =

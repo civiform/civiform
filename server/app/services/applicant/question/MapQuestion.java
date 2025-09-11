@@ -11,7 +11,6 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.geojson.FeatureCollection;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
 import services.question.types.MapQuestionDefinition;
@@ -46,8 +45,8 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   public String getAnswerString() {
-    ImmutableList<String> selectedLocationIds = getSelectedLocationIds();
-    return selectedLocationIds.isEmpty() ? "-" : String.join(", ", selectedLocationIds);
+    ImmutableList<String> selectedLocationNames = getSelectedLocationNames();
+    return selectedLocationNames.isEmpty() ? "-" : String.join(", ", selectedLocationNames);
   }
 
   @Override

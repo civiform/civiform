@@ -4,9 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import repository.GeoJsonDataRepository;
 import services.applicant.AnswerData;
-import services.applicant.question.MapQuestion;
 import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
@@ -15,8 +13,7 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   private final AnswerData answerData;
   private final long applicantId;
 
-  public NorthStarAnswerData(
-      AnswerData data, long applicantId) {
+  public NorthStarAnswerData(AnswerData data, long applicantId) {
     this.answerData = checkNotNull(data);
     this.applicantId = applicantId;
   }
@@ -41,17 +38,12 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     boolean isAnswered = answerData.isAnswered() || hasAnswerText;
     boolean isFileUploadQuestion =
         answerData.questionDefinition().getQuestionType() == QuestionType.FILEUPLOAD;
-    boolean isMapQuestion = answerData.questionDefinition().getQuestionType() == QuestionType.MAP;
     boolean hasFiles = !answerData.encodedFileKeys().isEmpty();
 
     if (isFileUploadQuestion && hasFiles) {
       // TODO(#8985): Allow user to download files on this page
       return fileNames();
     } else if (isAnswered) {
-      if (isMapQuestion) {
-        return ((MapQuestion) answerData.applicantQuestion().getQuestion())
-            .getSelectedLocationNames();
-      }
       return ImmutableList.of(answerData.answerText());
     } else {
       return ImmutableList.of(defaultAnswerString);
