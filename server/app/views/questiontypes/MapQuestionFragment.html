@@ -110,7 +110,7 @@
           <input
             class="usa-checkbox__input cf-location-checkbox-input"
             th:id="${locationId}"
-            th:value="${locationName}"
+            th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
             th:name="${mapQuestion.getSelectionPathAsArray()}"
             th:checked="${mapQuestion.locationIsSelected(locationName)}"
             th:data-map-id="${mapId}"
