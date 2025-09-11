@@ -117,9 +117,11 @@ public final class QuestionAnswerer {
   }
 
   public static void answerMapQuestion(
-      ApplicantData applicantData, Path contextualizedPath, int index, String locationId) {
+      ApplicantData applicantData, Path contextualizedPath, int index, String locationId, String locationName) {
+    // Map questions expect JSON format with featureId and locationName fields
+    String locationJson = String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", locationId, locationName);
     applicantData.putString(
-        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), locationId);
+        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), locationJson);
   }
 
   public static void answerNameQuestion(

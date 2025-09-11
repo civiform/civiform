@@ -385,7 +385,7 @@ final class CsvColumnFactory {
             .setColumnType(columnType)
             .setHeader(formatHeader(q.getSelectionPath()))
             .setQuestionPath(q.getContextualizedPath())
-            .setAnswerExtractor(mq -> ((MapQuestion) mq).getAnswerString())
+            .setAnswerExtractor(mq -> String.valueOf(((MapQuestion) mq).getSelectedLocationIds()))
             .build());
   }
 

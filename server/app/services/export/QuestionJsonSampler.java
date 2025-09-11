@@ -538,13 +538,12 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ApplicantData applicantData = sampleDataContext.getApplicantData();
-      ImmutableList<String> sampleLocationIds = ImmutableList.of("feature_123", "feature_456");
 
       QuestionAnswerer.answerMapQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), 0, sampleLocationIds.get(0));
+          applicantData, applicantQuestion.getContextualizedPath(), 0, "feature_123", "Location 1");
 
       QuestionAnswerer.answerMapQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), 1, sampleLocationIds.get(1));
+          applicantData, applicantQuestion.getContextualizedPath(), 1, "feature_456", "Location 2");
     }
 
     @Override
