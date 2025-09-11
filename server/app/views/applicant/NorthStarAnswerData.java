@@ -53,9 +53,10 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     if (isFileUploadQuestion && hasFiles) {
       // TODO(#8985): Allow user to download files on this page
       return fileNames();
-    } else if (isMapQuestion && isAnswered) {
-      return getMapDisplayText();
     } else if (isAnswered) {
+      if (isMapQuestion) {
+        return getMapDisplayText();
+      }
       return ImmutableList.of(answerData.answerText());
     } else {
       return ImmutableList.of(defaultAnswerString);
@@ -65,45 +66,38 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   /**
    * Returns display text for MAP questions, converting IDs to names when possible.
    *
-   * @return A list of location display names
+   * @return A list of location display names or IDs if the display names aren't available
    */
   private ImmutableList<String> getMapDisplayText() {
-    MapQuestion mapQuestion = answerData.applicantQuestion().createMapQuestion();
+    MapQuestion mapQuestion = (MapQuestion) answerData.applicantQuestion().getQuestion();
     ImmutableList<String> selectedIds =
         mapQuestion.getSelectedLocationIds().orElse(ImmutableList.of());
 
     if (selectedIds.isEmpty()) {
-      return ImmutableList.of("No locations selected");
+      return ImmutableList.of(mapQuestion.getDefaultAnswerString());
     }
 
-    // Get GeoJSON data for this MAP question to convert IDs to names
-    try {
-      MapQuestionDefinition mapQuestionDefinition =
-          (MapQuestionDefinition) answerData.questionDefinition();
-      String geoJsonEndpoint = mapQuestionDefinition.getMapValidationPredicates().geoJsonEndpoint();
+    MapQuestionDefinition mapQuestionDefinition =
+        (MapQuestionDefinition) answerData.questionDefinition();
+    String geoJsonEndpoint = mapQuestionDefinition.getMapValidationPredicates().geoJsonEndpoint();
 
-      Optional<GeoJsonDataModel> geoJsonData =
-          geoJsonDataRepository
-              .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
-              .toCompletableFuture()
-              .join();
+    Optional<GeoJsonDataModel> geoJsonData =
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join();
 
-      if (geoJsonData.isPresent()) {
-        FeatureCollection featureCollection = geoJsonData.get().getGeoJson();
-        return selectedIds.stream()
-            .map(id -> mapQuestion.getLocationNameById(id, featureCollection))
-            .collect(ImmutableList.toImmutableList());
-      }
-    } catch (RuntimeException e) {
-      // Fallback to IDs if anything goes wrong
-      System.err.println("Failed to convert MAP question IDs to names: " + e.getMessage());
-    }
-
-    // Fallback: show formatted IDs if GeoJSON lookup fails
-    return selectedIds.stream()
-        .map(id -> "Location: " + id.substring(0, Math.min(id.length(), 8)) + "...")
+    if (geoJsonData.isPresent()) {
+      FeatureCollection featureCollection = geoJsonData.get().getGeoJson();
+      return selectedIds.stream()
+        .map(id -> mapQuestion.getLocationNameById(id, featureCollection))
         .collect(ImmutableList.toImmutableList());
-  }
+    } else {
+      // Display IDs if geoJsonData isn't available
+      return selectedIds;
+    }
+    }
+
 
   /**
    * Assumes this question is a file upload question.

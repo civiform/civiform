@@ -110,10 +110,6 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String getLocationNameById(String featureId, FeatureCollection geoJson) {
-    if (geoJson == null) {
-      return featureId; // Fallback to ID if no GeoJSON
-    }
-
     String nameKey = getNameValue();
 
     return geoJson.features().stream()

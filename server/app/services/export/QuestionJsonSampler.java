@@ -205,10 +205,10 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case ENUMERATOR -> enumeratorJsonSampler;
         case FILEUPLOAD -> fileUploadJsonSampler;
         case ID -> idJsonSampler;
+        case MAP -> mapJsonSampler;
         case NAME -> nameJsonSampler;
         case NUMBER -> numberJsonSampler;
         case PHONE -> phoneJsonSampler;
-        case MAP -> mapJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
         case STATIC -> emptyJsonSampler;
