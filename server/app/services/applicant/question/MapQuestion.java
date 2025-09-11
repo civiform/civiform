@@ -140,23 +140,13 @@ public final class MapQuestion extends AbstractQuestion {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public boolean locationIsSelected(String featureId) {
-    ImmutableList<String> selectedItems = getSelectedLocationIds();
-    return selectedItems.contains(featureId);
+  public boolean locationIsSelected(String locationName) {
+    ImmutableList<String> selectedNames = getSelectedLocationNames();
+    return selectedNames.contains(locationName);
   }
 
   public String createLocationJson(String featureId, String locationName) {
     return String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", featureId, locationName);
-  }
-
-  public String getLocationNameById(String featureId, FeatureCollection geoJson) {
-    String nameKey = getNameValue();
-
-    return geoJson.features().stream()
-        .filter(feature -> featureId.equals(feature.id()))
-        .findFirst()
-        .map(feature -> feature.properties().getOrDefault(nameKey, featureId))
-        .orElse(featureId); // Fallback to ID if not found
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
