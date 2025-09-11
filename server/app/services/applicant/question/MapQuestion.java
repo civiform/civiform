@@ -1,9 +1,12 @@
 package services.applicant.question;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
@@ -26,7 +29,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private ImmutableSet<ValidationErrorMessage> validateSelections() {
-    int numberOfSelections = getSelectedLocationIds().map(ImmutableList::size).orElse(0);
+    int numberOfSelections = getSelectedLocationIds().size();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()) {
@@ -43,8 +46,8 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   public String getAnswerString() {
-    Optional<ImmutableList<String>> selectedLocationIds = getSelectedLocationIds();
-    return selectedLocationIds.map(strings -> String.join(", ", strings)).orElse("-");
+    ImmutableList<String> selectedLocationIds = getSelectedLocationIds();
+    return selectedLocationIds.isEmpty() ? "-" : String.join(", ", selectedLocationIds);
   }
 
   @Override
@@ -100,13 +103,50 @@ public final class MapQuestion extends AbstractQuestion {
     return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
   }
 
-  public Optional<ImmutableList<String>> getSelectedLocationIds() {
-    return applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+  public ImmutableList<Map<String, String>> getSelectedLocations() {
+    Optional<ImmutableList<String>> rawData =
+        applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+
+    return rawData
+        .map(
+            strings ->
+                strings.stream()
+                    .map(this::parseLocationJson)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(ImmutableList.toImmutableList()))
+        .orElseGet(ImmutableList::of);
+  }
+
+  private Optional<Map<String, String>> parseLocationJson(String jsonString) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
+      return Optional.of(mapper.readValue(jsonString, typeRef));
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  public ImmutableList<String> getSelectedLocationIds() {
+    return getSelectedLocations().stream()
+        .map(location -> location.get("featureId"))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableList<String> getSelectedLocationNames() {
+    return getSelectedLocations().stream()
+        .map(location -> location.get("locationName"))
+        .collect(ImmutableList.toImmutableList());
   }
 
   public boolean locationIsSelected(String featureId) {
-    Optional<ImmutableList<String>> selectedItems = getSelectedLocationIds();
-    return selectedItems.isPresent() && selectedItems.get().contains(featureId);
+    ImmutableList<String> selectedItems = getSelectedLocationIds();
+    return selectedItems.contains(featureId);
+  }
+
+  public String createLocationJson(String featureId, String locationName) {
+    return String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", featureId, locationName);
   }
 
   public String getLocationNameById(String featureId, FeatureCollection geoJson) {

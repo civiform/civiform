@@ -318,8 +318,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MapQuestion question) {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
 
-      ImmutableList<String> selectedLocationIds =
-          question.getSelectedLocationIds().orElse(ImmutableList.of());
+      ImmutableList<String> selectedLocationIds = question.getSelectedLocationIds();
 
       return ImmutableMap.of(path, Optional.of(selectedLocationIds));
     }
