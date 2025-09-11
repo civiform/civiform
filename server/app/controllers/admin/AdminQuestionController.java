@@ -17,12 +17,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -98,40 +98,34 @@ public final class AdminQuestionController extends CiviFormController {
   public Result addMapFilter(Request request) {
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     String possibleKeysString = formData.get("possibleKeys");
-    List<String> possibleKeysList;
-    if (possibleKeysString != null && !possibleKeysString.isEmpty()) {
-      // Remove brackets and split by comma
-      String cleanString = possibleKeysString.replaceAll("[\\[\\]]", "").trim();
-      if (!cleanString.isEmpty()) {
-        possibleKeysList =
-            Arrays.stream(cleanString.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
-      } else {
-        possibleKeysList = List.of();
-      }
-    } else {
-      possibleKeysList = List.of();
-    }
 
     // Count existing filters to determine the index for the new filter
-    int currentFilterIndex = 0;
-    for (String key : formData.keySet()) {
-      if (key.startsWith("filters[") && key.endsWith("].key")) {
-        currentFilterIndex++;
-      }
-    }
+    long currentFilterIndex =
+        formData.keySet().stream()
+            .filter(key -> key.startsWith("filters[") && key.endsWith("].key"))
+            .count();
 
-    return ok(
-        mapQuestionSettingsFiltersPartialView.render(
+    List<String> possibleKeysList =
+        Optional.ofNullable(possibleKeysString)
+            .map(string -> string.replaceAll("[\\[\\]]", "").trim())
+            .filter(s -> !s.isEmpty())
+            .map(
+                cleanString ->
+                    Arrays.stream(cleanString.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList())
+            .orElse(List.of());
+
+    return ok(mapQuestionSettingsFiltersPartialView.render(
             request,
-            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysList, currentFilterIndex)));
+            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysList, currentFilterIndex)))
+        .as(Http.MimeTypes.HTML);
   }
 
   public Result deleteMapFilter(Request request) {
     // Return empty response - HTMX will remove the element from DOM
-    return ok("");
+    return ok("").as(Http.MimeTypes.HTML);
   }
 
   /**
