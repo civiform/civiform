@@ -102,6 +102,18 @@ public final class MapQuestion extends AbstractQuestion {
     return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
   }
 
+  public ImmutableList<String> getSelectedLocationNames() {
+    return getSelectedLocations().stream()
+      .map(location -> location.get("locationName"))
+      .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableList<String> getSelectedLocationIds() {
+    return getSelectedLocations().stream()
+      .map(location -> location.get("featureId"))
+      .collect(ImmutableList.toImmutableList());
+  }
+
   public ImmutableList<Map<String, String>> getSelectedLocations() {
     Optional<ImmutableList<String>> rawData =
         applicantQuestion.getApplicantData().readStringList(getSelectionPath());
@@ -125,18 +137,6 @@ public final class MapQuestion extends AbstractQuestion {
     } catch (Exception e) {
       return Optional.empty();
     }
-  }
-
-  public ImmutableList<String> getSelectedLocationIds() {
-    return getSelectedLocations().stream()
-        .map(location -> location.get("featureId"))
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  public ImmutableList<String> getSelectedLocationNames() {
-    return getSelectedLocations().stream()
-        .map(location -> location.get("locationName"))
-        .collect(ImmutableList.toImmutableList());
   }
 
   public boolean locationIsSelected(String locationName) {
