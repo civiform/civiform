@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import modules.ThymeleafModule;
@@ -10,6 +9,11 @@ import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 
+/**
+ * Page view for rendering ProgramPredicatesEditPageView.html. This page is used for editing
+ * predciates of a block in a program and replaces {@link ProgramPredicatesEditView} and {@link
+ * ProgramPredicateConfigureView}.
+ */
 public class ProgramPredicatesEditPageView
     extends AdminLayoutBaseView<ProgramPredicatesEditPageViewModel> {
   @Inject
@@ -31,15 +35,5 @@ public class ProgramPredicatesEditPageView
   @Override
   protected String pageTemplate() {
     return "admin/programs/ProgramPredicatesEditPageView.html";
-  }
-
-  @Override
-  protected ImmutableList<String> getPageStylesheets() {
-    return ImmutableList.of(assetsFinder.path("stylesheets/tailwind.css"));
-  }
-
-  @Override
-  protected ImmutableList<String> getPageBodyScripts() {
-    return ImmutableList.of();
   }
 }
