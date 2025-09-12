@@ -105,7 +105,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     return editPredicate(request, programId, blockDefinitionId, PredicateUseCase.ELIGIBILITY);
   }
 
-  public Result editPredicate(
+  private Result editPredicate(
       Request request, long programId, long blockDefinitionId, PredicateUseCase predicateUseCase) {
     requestChecker.throwIfProgramNotDraft(programId);
     try {

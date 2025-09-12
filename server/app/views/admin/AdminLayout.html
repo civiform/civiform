@@ -44,7 +44,7 @@
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body
-    class="display-flex minh-viewport body-background-gradient mt-5"
+    class="display-flex minh-viewport body-background-gradient margin-top-205"
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
@@ -52,7 +52,7 @@
 
     <!--/* Main */-->
     <main
-      class="bg-white border border-gray-200 mt-12 shadow-lg w-screen admin-responsive-main-padding px-2 max-w-screen-2xl mx-auto"
+      class="bg-white border margin-top-6 shadow-2 width-full admin-responsive-main-padding padding-x-1 maxw-widescreen margin-x-auto"
     >
       <th:block th:if="${!#strings.isEmpty(templateGlobals.pageTitle())}">
         <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
