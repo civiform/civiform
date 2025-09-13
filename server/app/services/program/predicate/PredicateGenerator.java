@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.math.DoubleMath;
+import com.typesafe.config.Config;
 import controllers.BadRequestException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import play.data.DynamicForm;
 import services.applicant.question.Scalar;
+import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.geo.esri.EsriServiceAreaValidationOption;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionNotFoundException;
@@ -67,7 +70,8 @@ public final class PredicateGenerator {
   public PredicateDefinition generatePredicateDefinition(
       ProgramDefinition programDefinition,
       DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
+      ReadOnlyQuestionService roQuestionService,
+      Config config)
       throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 
@@ -80,7 +84,7 @@ public final class PredicateGenerator {
     }
 
     Multimap<Integer, LeafExpressionNode> leafNodes =
-        getLeafNodes(programDefinition, predicateForm, roQuestionService);
+        getLeafNodes(programDefinition, predicateForm, roQuestionService, config);
 
     return switch (detectFormat(leafNodes)) {
       case OR_OF_SINGLE_LAYER_ANDS ->
@@ -124,7 +128,8 @@ public final class PredicateGenerator {
   private static Multimap<Integer, LeafExpressionNode> getLeafNodes(
       ProgramDefinition programDefinition,
       DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
+      ReadOnlyQuestionService roQuestionService,
+      Config config)
       throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
     Multimap<Integer, LeafExpressionNode> leafNodes = LinkedHashMultimap.create();
     HashSet<String> consumedKeys = new HashSet<>();
@@ -202,16 +207,22 @@ public final class PredicateGenerator {
         continue;
       }
 
-      LeafExpressionNode leafNode =
-          scalar.equals(Scalar.SERVICE_AREAS)
-              ? LeafAddressServiceAreaExpressionNode.create(
-                  questionId, predicateValue.value(), operator)
-              : LeafOperationExpressionNode.builder()
-                  .setQuestionId(questionId)
-                  .setScalar(scalar)
-                  .setOperator(operator)
-                  .setComparedValue(predicateValue)
-                  .build();
+      LeafExpressionNode leafNode;
+      if (scalar.equals(Scalar.SERVICE_AREAS)) {
+        EsriServiceAreaValidationConfig esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
+        EsriServiceAreaValidationOption option = esriServiceAreaValidationConfig.getImmutableMap().get(predicateValue.value());
+
+        // TODO Gwen: Handle NRE
+        leafNode = LeafAddressServiceAreaExpressionNode.create(
+          questionId, option.getId(), operator);
+      } else {
+        leafNode = LeafOperationExpressionNode.builder()
+          .setQuestionId(questionId)
+          .setScalar(scalar)
+          .setOperator(operator)
+          .setComparedValue(predicateValue)
+          .build();
+      }
 
       leafNodes.put(groupId, leafNode);
     }
