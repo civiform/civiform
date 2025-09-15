@@ -543,7 +543,7 @@ public final class QuestionEditView extends BaseHtmlView {
                   ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .join()
               .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
-              .orElse(new ArrayList<>());
+              .orElse(ImmutableList.of());
 
       return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
