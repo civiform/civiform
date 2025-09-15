@@ -14,5 +14,5 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "mypy==1.17.1",
-    "pytest-cov==6.2.1"
+    "pytest-cov==7.0.0"
 ]
