@@ -79,6 +79,8 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
+    context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
+
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 

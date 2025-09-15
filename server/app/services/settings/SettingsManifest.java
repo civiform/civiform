@@ -1120,6 +1120,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("API_BRIDGE_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
+   * logic capabilities for admin.
+   */
+  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2380,6 +2388,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "EXPANDED_FORM_LOGIC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
+                              + " editing UI and expanded logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

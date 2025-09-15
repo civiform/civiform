@@ -16,8 +16,12 @@ export class TIDashboard {
     this.page = page
   }
 
-  async gotoTIDashboardPage(page: Page) {
-    await page.click('text="View and add clients"')
+  async gotoTIDashboardPage(page: Page, fromApplicantHomepage?: boolean) {
+    if (fromApplicantHomepage) {
+      await page.getByRole('link', {name: 'Select a new client'}).click()
+    } else {
+      await page.click('text="View and add clients"')
+    }
   }
 
   async goToAccountSettingsPage(page: Page) {

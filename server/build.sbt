@@ -38,20 +38,20 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.25.1",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.25.1",
+      "org.commonmark" % "commonmark" % "0.26.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.26.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.33.2",
-      "software.amazon.awssdk" % "ses" % "2.33.2",
+      "software.amazon.awssdk" % "s3" % "2.33.9",
+      "software.amazon.awssdk" % "ses" % "2.33.9",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.16.2",
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.51.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.52.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
@@ -73,8 +73,8 @@ lazy val root = (project in file("."))
       "com.google.guava" % "guava-testlib" % "33.4.8-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
-      "jakarta.activation" % "jakarta.activation-api" % "2.1.3",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.4",
+      "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.5",
 
       // Security libraries
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.41.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.50.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.51.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.13",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.14",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -133,7 +133,7 @@ lazy val root = (project in file("."))
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.33",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "1.5.8",
+      "com.networknt" % "json-schema-validator" % "1.5.9",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"

@@ -725,6 +725,15 @@ main {
   max-height: 400px;
 }
 
+.maplibregl-popup-content {
+  padding: 0 !important;
+  width: 320px;
+}
+
+.maplibregl-popup-close-button {
+  color: color('blue-60v');
+}
+
 // Ensure MapLibre attribution links are underlined and styled consistently for accessibility
 .maplibregl-ctrl-attrib a {
   text-decoration: underline !important;
