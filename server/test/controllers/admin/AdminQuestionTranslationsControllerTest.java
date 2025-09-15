@@ -40,6 +40,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   private static final String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
 
   private VersionModel draftVersion;
+  private VersionModel activeVersion;
   private QuestionRepository questionRepository;
   private AdminQuestionTranslationsController controller;
 
@@ -50,6 +51,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     // Create a new draft version.
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     draftVersion = versionRepository.getDraftVersionOrCreate();
+    activeVersion = versionRepository.getActiveVersion();
   }
 
   @Test
@@ -89,7 +91,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   @Test
   public void edit_questionNotFound_returnsNotFound() {
     assertThatThrownBy(() -> controller.edit(fakeRequest(), "non-existent question name", "es-US"))
-        .hasMessage("No draft found for question: \"non-existent question name\"")
+        .hasMessage("No draft or active found for question: \"non-existent question name\"")
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -164,7 +166,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   public void update_questionNotFound_returnsNotFound() {
     assertThatThrownBy(
             () -> controller.update(fakeRequest(), "non-existent question name", "es-US"))
-        .hasMessage("No draft found for question: \"non-existent question name\"")
+        .hasMessage("No draft or active found for question: \"non-existent question name\"")
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -241,6 +243,20 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             "Question text cannot be blank");
   }
 
+  @Test
+  public void add_translation_activeQuestion() {
+    QuestionModel question = createActiveQuestionEnglishOnly();
+
+    Result result =
+        controller.edit(fakeRequest(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            String.format(
+                "Manage question translations: %s", question.getQuestionDefinition().getName()));
+  }
+
   private QuestionModel createDraftQuestionEnglishOnly() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
@@ -273,6 +289,21 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     QuestionModel question = new QuestionModel(definition);
     // Only draft questions are editable.
     question.addVersion(draftVersion);
+    question.save();
+    return question;
+  }
+
+  private QuestionModel createActiveQuestionEnglishOnly() {
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setDescription("name of applicant")
+                .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.addVersion(activeVersion);
     question.save();
     return question;
   }

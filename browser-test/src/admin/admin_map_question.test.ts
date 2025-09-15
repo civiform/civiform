@@ -54,7 +54,11 @@ test.describe('Create and edit map question', () => {
           ).toBeAttached()
         }
 
-        await expect(page.getByText('Filters', {exact: true})).toBeVisible()
+        await expect(
+          page
+            .getByTestId('question-settings')
+            .getByText('Filters', {exact: true}),
+        ).toBeVisible()
         await expect(
           page.getByText(
             'Select up to three filters to make available to applicants.',
