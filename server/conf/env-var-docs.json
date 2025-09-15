@@ -985,6 +985,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
         "type": "bool",
         "required": false
+      },
+      "EXPANDED_FORM_LOGIC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
+        "type": "bool",
+        "required": false
       }
     }
   }

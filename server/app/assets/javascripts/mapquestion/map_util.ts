@@ -9,12 +9,12 @@ export interface MapSettings {
 
 export interface MapMessages {
   readonly locationsCount: string
+  readonly locationsSelectedCount: string
 }
 
 export interface MapData {
   geoJson: FeatureCollection
   settings: MapSettings
-  messages: MapMessages
 }
 
 // DATA ATTRIBUTES
@@ -31,6 +31,7 @@ export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
 export const CF_POPUP_CONTENT_BUTTON = 'cf-select-location-button'
 
 // LOCATIONS LIST
+export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
 export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
 export const CF_LOCATION_CHECKBOX = 'cf-location-checkbox'
 export const CF_LOCATION_CHECKBOX_INPUT = 'cf-location-checkbox-input'
@@ -74,4 +75,15 @@ export const mapQuerySelector = (
   className: string,
 ): Element | null => {
   return document.querySelector(`[${DATA_MAP_ID}="${mapId}"].${className}`)
+}
+
+// Get the internalized string and replace parameters like {0}, {1}, etc.
+// TODO: implement a more robust solution for string internationalization in typescript
+export const localizeString = (message: string, params: string[]) => {
+  for (let i = 0; i < params.length; i++) {
+    const placeholder = `{${i}}`
+    message = message.replace(placeholder, params[i])
+  }
+
+  return message
 }

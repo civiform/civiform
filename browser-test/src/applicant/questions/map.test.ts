@@ -140,6 +140,12 @@ if (isLocalDevEnvironment()) {
           await mapCanvas.click()
         })
 
+        await test.step('Dismiss attribution control to avoid overlap', async () => {
+          // Close the MapLibre attribution control so it doesn't cover popups
+          const attributionButton = page.getByLabel('Toggle attribution')
+          await attributionButton.click()
+        })
+
         await test.step('Check for popup select buttons', async () => {
           const selectButtons = page.getByRole('button', {
             name: /select.*location/i,
@@ -164,8 +170,8 @@ if (isLocalDevEnvironment()) {
         })
 
         const filterSelects = page.getByRole('combobox')
-        const applyButton = page.getByRole('button', {name: /apply.*filter/i})
-        const resetButton = page.getByRole('button', {name: /reset*/i})
+        const applyButton = page.getByRole('button', {name: /apply.*filters/i})
+        const resetButton = page.getByRole('button', {name: /clear.*filters/i})
 
         await test.step('Check for filter dropdowns and buttons', async () => {
           await expect(filterSelects.first()).toBeVisible()
@@ -191,7 +197,9 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Reset filters', async () => {
-          const resetButton = page.getByRole('button', {name: /reset*/i})
+          const resetButton = page.getByRole('button', {
+            name: /clear.*filters/i,
+          })
           await resetButton.click()
 
           // Verify first filter is reset to default option

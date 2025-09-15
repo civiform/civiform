@@ -20,6 +20,7 @@ import {
   CF_LOCATIONS_LIST_CONTAINER,
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
+  MapMessages,
 } from './map_util'
 import {
   initLocationSelection,
@@ -29,16 +30,17 @@ import {
 import {initFilters} from './map_question_filters'
 
 export const init = (): void => {
-  // Set up global event listeners for all map interactions
-  setupGlobalEventListeners()
-
+  const mapMessages = window.app?.data?.messages as MapMessages
   const mapDataObject = window.app?.data?.maps || {}
+
+  // Set up global event listeners for all map interactions
+  setupGlobalEventListeners(mapMessages)
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
       const mapElement = renderMap(mapId, mapData as MapData)
-      initLocationSelection(mapId)
-      initFilters(mapId, mapElement, mapData as MapData)
+      initLocationSelection(mapId, mapMessages)
+      initFilters(mapId, mapElement, mapMessages, mapData as MapData)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }
@@ -107,6 +109,7 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
+  popupContent.classList.add('flex', 'flex-column', 'padding-4')
   if (name) {
     const nameElement = templateContent
       .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
@@ -168,7 +171,7 @@ const addPopupsToMap = (
 
     const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
 
-    const popup = new Popup({closeButton: false}).setLngLat(coordinates)
+    const popup = new Popup().setLngLat(coordinates)
 
     const popupContentTemplate = mapQuerySelector(
       mapId,
@@ -226,7 +229,7 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   return map
 }
 
-const setupGlobalEventListeners = (): void => {
+const setupGlobalEventListeners = (messages: MapMessages): void => {
   // Global click handler for map popup buttons
   document.addEventListener('click', (e) => {
     const target = (e.target as HTMLButtonElement) || null
@@ -236,7 +239,7 @@ const setupGlobalEventListeners = (): void => {
       const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
       const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
       if (featureId && mapId) {
-        selectLocationsFromMap(featureId, mapId)
+        selectLocationsFromMap(featureId, mapId, messages)
       }
     }
   })
@@ -272,6 +275,6 @@ const setupGlobalEventListeners = (): void => {
       }
     }
 
-    updateSelectedLocations(mapId)
+    updateSelectedLocations(mapId, messages)
   })
 }

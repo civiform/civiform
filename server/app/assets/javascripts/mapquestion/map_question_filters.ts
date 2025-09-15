@@ -17,11 +17,14 @@ import {
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
+  MapMessages,
+  localizeString,
 } from './map_util'
 
 export const initFilters = (
   mapId: string,
   mapElement: MapLibreMap,
+  messages: MapMessages,
   mapData: MapData,
 ): void => {
   const featureMap = new Map<string, Feature>()
@@ -33,7 +36,7 @@ export const initFilters = (
 
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap, mapData),
+    () => applyLocationFilters(mapId, mapElement, featureMap, messages),
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -44,7 +47,7 @@ export const initFilters = (
         if (!selectOptionElement) return
         selectOptionElement.value = ''
       })
-      applyLocationFilters(mapId, mapElement, featureMap, mapData, true)
+      applyLocationFilters(mapId, mapElement, featureMap, messages, true)
     },
   )
 }
@@ -53,7 +56,7 @@ const applyLocationFilters = (
   mapId: string,
   map: MapLibreMap,
   featureMap: Map<string, Feature>,
-  mapData: MapData,
+  messages: MapMessages,
   reset?: boolean,
 ): void => {
   const filters = reset ? {} : getFilters(mapId)
@@ -79,10 +82,13 @@ const applyLocationFilters = (
     }
   })
 
-  updateLocationCountForMap(mapId, mapData)
+  updateLocationCountForMap(mapId, messages)
 }
 
-const updateLocationCountForMap = (mapId: string, mapData: MapData): void => {
+const updateLocationCountForMap = (
+  mapId: string,
+  messages: MapMessages,
+): void => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
     const checkboxElement = (checkbox as HTMLElement) || null
@@ -96,13 +102,10 @@ const updateLocationCountForMap = (mapId: string, mapData: MapData): void => {
     CF_LOCATION_COUNT,
   ) as HTMLElement | null
   if (countText) {
-    const messageTemplate = mapData.messages.locationsCount
-    // Get the internalized string and replace {0} and {1} with the counts
-    // {0} is the visible count, {1} is the total count
-    // TODO: implement a more robust solution for string internationalization in typescript
-    countText.textContent = messageTemplate
-      .replace('{0}', visibleCount.toString())
-      .replace('{1}', locationCheckboxes.length.toString())
+    countText.textContent = localizeString(messages.locationsCount, [
+      visibleCount.toString(),
+      locationCheckboxes.length.toString(),
+    ])
   }
 }
 
