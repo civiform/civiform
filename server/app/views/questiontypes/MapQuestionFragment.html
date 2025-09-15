@@ -112,7 +112,7 @@
             th:id="${locationId}"
             th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
             th:name="${mapQuestion.getSelectionPathAsArray()}"
-            th:checked="${mapQuestion.locationIsSelected(locationName)}"
+            th:checked="${mapQuestion.locationIsSelected(featureId)}"
             th:data-map-id="${mapId}"
             type="checkbox"
           />

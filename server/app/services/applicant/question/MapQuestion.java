@@ -139,9 +139,9 @@ public final class MapQuestion extends AbstractQuestion {
     }
   }
 
-  public boolean locationIsSelected(String locationName) {
-    ImmutableList<String> selectedNames = getSelectedLocationNames();
-    return selectedNames.contains(locationName);
+  public boolean locationIsSelected(String locationId) {
+    ImmutableList<String> selectedIds = getSelectedLocationIds();
+    return selectedIds.contains(locationId);
   }
 
   public String createLocationJson(String featureId, String locationName) {
