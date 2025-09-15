@@ -36,7 +36,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await test.step('Click add button and verify we get entity row and delete button and preview values update', async () => {
         await page.click('button:text("Add Sample repeated entity type")')
         await page.fill('text=Repeated Entity Type', 'New entity type')
-        await validateScreenshot(page, 'northstar-enumerator-type-set')
+        await validateScreenshot(page, 'enumerator-type-set')
       })
 
       await test.step('Verify question preview has the default values.', async () => {

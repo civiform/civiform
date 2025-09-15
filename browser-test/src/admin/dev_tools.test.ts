@@ -25,7 +25,7 @@ test.describe('developer tools', {tag: ['@northstar']}, () => {
 
     await test.step('modal appears on click', async () => {
       await header.getByText('DevTools').click()
-      await validateScreenshot(page, 'northstar-dev-tools-modal')
+      await validateScreenshot(page, 'dev-tools-modal')
     })
   })
   test('not functional when disable demo mode logins is enabled', async ({

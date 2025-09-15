@@ -87,7 +87,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Validate screenshot', async () => {
       await validateScreenshot(
         page,
-        'upsell-north-star',
+        'upsell',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
@@ -167,7 +167,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page,
-        'upsell-north-star-login',
+        'upsell-login',
         /* fullPage= */ false,
         /* mobileScreenshot= */ true,
       )
@@ -200,7 +200,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await selectApplicantLanguageNorthstar(page, 'ar')
       await validateScreenshot(
         page,
-        'upsell-north-star-right-to-left-desktop',
+        'upsell-right-to-left-desktop',
         /* fullPage= */ true,
         /* mobileScreenshot= */ false,
         /* mask= */ [page.locator('.cf-bt-date')],
@@ -214,7 +214,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await page.setViewportSize({width: 360, height: 800})
       await validateScreenshot(
         page,
-        'upsell-north-star-right-to-left-mobile',
+        'upsell-right-to-left-mobile',
         /* fullPage= */ false,
         /* mobileScreenshot= */ false,
         /* mask= */ [page.locator('.cf-bt-date')],

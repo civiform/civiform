@@ -56,7 +56,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       await expect(locator.getByText('Submitted on 1/1/30')).toBeHidden()
       await expect(locator.getByText(approvedStatusName)).toBeVisible()
 
-      await validateScreenshot(locator, 'program-card-with-status-northstar')
+      await validateScreenshot(locator, 'program-card-with-status')
       await validateAccessibility(page)
     })
   })

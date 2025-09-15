@@ -79,7 +79,7 @@ test.describe(
           /* northStarEnabled= */ true,
         )
 
-        await validateScreenshot(page.locator('main'), 'checkbox-north-star')
+        await validateScreenshot(page.locator('main'), 'checkbox')
       })
 
       test('validate screenshot with errors', async ({

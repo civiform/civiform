@@ -87,7 +87,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     page,
     applicantQuestions,
   }) => {
-    await validateScreenshot(page, 'program-index-page-initial-load-northstar')
+    await validateScreenshot(page, 'program-index-page-initial-load')
     await applicantQuestions.expectTitle(page, 'Find programs')
   })
 
@@ -902,7 +902,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await validateScreenshot(page, 'program-index-page-initial-load-northstar')
+    await validateScreenshot(page, 'program-index-page-initial-load')
   })
 })
 
@@ -930,7 +930,7 @@ test.describe(
       await adminPrograms.publishAllDrafts()
       await logout(page)
 
-      await validateScreenshot(page, 'north-star-program-image-wide')
+      await validateScreenshot(page, 'program-image-wide')
       await validateAccessibility(page)
 
       await test.step('Fill out part of the program application', async () => {
