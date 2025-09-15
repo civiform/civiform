@@ -25,7 +25,6 @@ import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
-import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -199,11 +198,6 @@ public final class DurableJobModule extends AbstractModule {
                 persistedDurableJob,
                 mapperProvider.get(),
                 categoryTranslationFileParser));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS,
-        JobType.RUN_ONCE,
-        UpdateLastActivityTimeForAccounts::new);
 
     return durableJobRegistry;
   }
