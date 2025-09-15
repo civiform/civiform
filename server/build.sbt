@@ -133,7 +133,7 @@ lazy val root = (project in file("."))
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.33",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "1.5.8",
+      "com.networknt" % "json-schema-validator" % "1.5.9",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
