@@ -24,7 +24,7 @@ public class UpdateLastActivityTimeForAccountsTest extends ResetPostgres {
 
   PersistedDurableJobModel jobModel =
       new PersistedDurableJobModel(
-          DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS.toString(),
+          DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825.toString(),
           JobType.RUN_ONCE,
           Instant.now());
   private DateConverter dateConverter;
