@@ -587,16 +587,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of("Contains " + text + " universal questions ");
   }
 
-  String generateTranslationCompletionText(ProgramDefinition program) {
-    Optional<ImmutableList<String>> supportedLanguages = settingsManifest.getCiviformSupportedLanguages();
-    if (supportedLanguages.isEmpty()) {
-      return "Translation complete";
-    }
-    for (String language : supportedLanguages.get()) {
-    }
-    return "Translation complete";
-  }
-
   Optional<ButtonTag> maybeRenderShareLink(ProgramDefinition program) {
     if (program.programType().equals(ProgramType.EXTERNAL)) {
       return Optional.empty();
