@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,10 +37,10 @@ public record FeatureCollection(
    */
   public ImmutableList<String> getPossibleKeys() {
     return features().stream()
-      .flatMap(feature -> feature.properties().keySet().stream())
-      .distinct()
-      .sorted()
-      .collect(ImmutableList.toImmutableList());
+        .flatMap(feature -> feature.properties().keySet().stream())
+        .distinct()
+        .sorted()
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**

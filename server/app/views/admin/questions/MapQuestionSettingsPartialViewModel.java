@@ -18,7 +18,8 @@ public record MapQuestionSettingsPartialViewModel(
     implements BaseViewModel {
 
   /** Creates an empty MapQuestionSettingsPartialViewModel with default placeholders. */
-  public static MapQuestionSettingsPartialViewModel withEmptyDefaults(ImmutableList<String> possibleKeys) {
+  public static MapQuestionSettingsPartialViewModel withEmptyDefaults(
+      ImmutableList<String> possibleKeys) {
     return new MapQuestionSettingsPartialViewModel(
         OptionalInt.empty(),
         MapQuestionForm.Setting.emptySetting(),

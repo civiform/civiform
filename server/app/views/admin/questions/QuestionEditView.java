@@ -25,8 +25,6 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.QuestionDisplayMode;
@@ -537,7 +535,7 @@ public final class QuestionEditView extends BaseHtmlView {
       SettingsManifest settingsManifest,
       Request request) {
     if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      List<String> possibleKeys =
+      ImmutableList<String> possibleKeys =
           geoJsonDataRepository
               .getMostRecentGeoJsonDataRowForEndpoint(
                   ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
@@ -555,7 +553,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
-      MapQuestionForm mapQuestionForm, List<String> possibleKeys) {
+      MapQuestionForm mapQuestionForm, ImmutableList<String> possibleKeys) {
 
     return new MapQuestionSettingsPartialViewModel(
         mapQuestionForm.getMaxLocationSelections(),
