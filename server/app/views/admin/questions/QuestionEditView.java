@@ -246,7 +246,7 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    if (settingsManifest.getNorthStarApplicantUi()) {
       // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
       // fragments without using HTMX
       previewContent =

@@ -3,7 +3,6 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
@@ -277,7 +276,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
@@ -325,7 +324,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     LanguageUtils languageUtils =
         new LanguageUtils(
@@ -370,7 +369,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -419,7 +418,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);

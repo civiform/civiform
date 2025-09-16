@@ -67,7 +67,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             request,
             locale,
             formAction,
-            formFields(request, program, translationForm, activeStatusDefinitions));
+            formFields(program, translationForm, activeStatusDefinitions));
     form.withId("program-translation-form");
 
     String title =
@@ -96,7 +96,6 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
-      Http.Request request,
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
       StatusDefinitions currentStatusDefinitions) {
@@ -120,7 +119,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setHref(programDetailsLink)
                                 .setStyles("ml-2")
                                 .asAnchorText()),
-                    getApplicantVisibleProgramDetailFields(program, updateData, request)));
+                    getApplicantVisibleProgramDetailFields(program, updateData)));
 
     // Add Status Tracking messages.
     String programStatusesLink =
@@ -226,7 +225,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> getApplicantVisibleProgramDetailFields(
-      ProgramDefinition program, LocalizationUpdate updateData, Http.Request request) {
+      ProgramDefinition program, LocalizationUpdate updateData) {
     ImmutableList.Builder<DomContent> applicantVisibleDetails =
         ImmutableList.<DomContent>builder()
             .add(
@@ -241,7 +240,7 @@ public final class ProgramTranslationView extends TranslationFormView {
 
     // On north star, only default programs have a long description. Whereas when north star is off,
     // both default programs and common intake forms have long description.
-    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
     ProgramType programType = program.programType();
     boolean showLongDescription = northStarEnabled && programType.equals(ProgramType.DEFAULT);
     boolean showLongDescriptionNS =

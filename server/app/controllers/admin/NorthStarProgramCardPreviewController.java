@@ -48,7 +48,7 @@ public final class NorthStarProgramCardPreviewController extends CiviFormControl
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public String cardPreview(Http.Request request, long programId)
       throws InterruptedException, ExecutionException {
-    if (!settingsManifest.getNorthStarApplicantUi(request)) {
+    if (!settingsManifest.getNorthStarApplicantUi()) {
       return "";
     }
 

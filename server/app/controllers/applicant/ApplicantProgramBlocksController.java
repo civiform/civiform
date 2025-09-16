@@ -564,7 +564,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 applicantRoutes,
                                 profile);
 
-                        if (settingsManifest.getNorthStarApplicantUi(request)) {
+                        if (settingsManifest.getNorthStarApplicantUi()) {
                           final String programSlug;
                           try {
                             programSlug = programService.getSlug(programId);
@@ -704,7 +704,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
-                if (settingsManifest.getNorthStarApplicantUi(request)) {
+                if (settingsManifest.getNorthStarApplicantUi()) {
                   final String programSlug;
                   try {
                     programSlug = programService.getSlug(programId);
@@ -1620,7 +1620,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            if (settingsManifest.getNorthStarApplicantUi(request)) {
+            if (settingsManifest.getNorthStarApplicantUi()) {
               final String programSlug;
               try {
                 programSlug = programService.getSlug(programId);
@@ -1710,7 +1710,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    if (settingsManifest.getNorthStarApplicantUi()) {
       return supplyAsync(
           () -> {
             NorthStarApplicantIneligibleView.Params params =
@@ -1844,7 +1844,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
               applicantRoutes,
               profile);
-      if (settingsManifest.getNorthStarApplicantUi(request)) {
+      if (settingsManifest.getNorthStarApplicantUi()) {
         return CompletableFuture.completedFuture(
             ok(northStarAddressCorrectionBlockView.render(
                     request,
@@ -1900,7 +1900,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      if (settingsManifest.getNorthStarApplicantUi(request)) {
+      if (settingsManifest.getNorthStarApplicantUi()) {
         eligibilityAlertSettings =
             getNorthStarEligibilityAlertSettings(
                 roApplicantProgramService, request, programId, blockId);
@@ -1910,7 +1910,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 request,
                 profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                 !roApplicantProgramService.isApplicationNotEligible(),
-                settingsManifest.getNorthStarApplicantUi(request),
+                settingsManifest.getNorthStarApplicantUi(),
                 false,
                 programId,
                 roApplicantProgramService.getIneligibleQuestions());
@@ -2030,7 +2030,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
-            settingsManifest.getNorthStarApplicantUi(request),
+            settingsManifest.getNorthStarApplicantUi(),
             false,
             programId,
             roApplicantProgramService.getIneligibleQuestions());
