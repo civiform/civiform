@@ -118,11 +118,9 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         programName,
         /* northStarEnabled= */ true,
       )
-      await expect(page.getByLabel('Day')).toHaveAttribute('aria-required', )
-      await expect(
-        page.getByLabel('Month'),
-      ).toHaveAttribute('aria-required', )
-      await expect(page.getByLabel('Year')).toHaveAttribute('aria-required', )
+      await expect(page.getByLabel('Day')).toHaveAttribute('aria-required')
+      await expect(page.getByLabel('Month')).toHaveAttribute('aria-required')
+      await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
 
       await validateAccessibility(page)
     })

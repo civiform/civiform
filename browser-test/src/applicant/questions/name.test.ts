@@ -65,12 +65,12 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await expect(
-        page.getByLabel('First name'),
-      ).toHaveAttribute('aria-required', )
-      await expect(
-        page.getByLabel('Last name'),
-      ).toHaveAttribute('aria-required', )
+      await expect(page.getByLabel('First name')).toHaveAttribute(
+        'aria-required',
+      )
+      await expect(page.getByLabel('Last name')).toHaveAttribute(
+        'aria-required',
+      )
       await validateAccessibility(page)
     })
 
