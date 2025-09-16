@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - 'server/conf/i18n/**'
+  # Temporarily disable due to merge conflicts
   # schedule:
     # Run daily at 2 AM UTC
     # - cron: '0 2 * * *'
