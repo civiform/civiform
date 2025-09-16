@@ -39,7 +39,7 @@ test.describe(
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'email-north-star',
+            'email',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )
@@ -49,7 +49,7 @@ test.describe(
           await applicantQuestions.clickContinue()
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'email-errors-north-star',
+            'email-errors',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )

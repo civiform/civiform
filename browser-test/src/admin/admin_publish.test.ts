@@ -189,10 +189,7 @@ test.describe('publish all programs -- universal questions', () => {
           'program two (Publicly visible) - Contains 1 of 2 universal questions',
         )
 
-        await validateScreenshot(
-          page,
-          'publish-all-programs-modal-with-uq-northstar',
-        )
+        await validateScreenshot(page, 'publish-all-programs-modal-with-uq')
       })
 
       await test.step('Publish the programs', async () => {

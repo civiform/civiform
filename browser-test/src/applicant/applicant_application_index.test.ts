@@ -450,7 +450,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.locator('#programs-list'),
-          'north-star-homepage-programs-filtered',
+          'homepage-programs-filtered',
         )
       })
 
@@ -570,7 +570,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test('pre-screener form not present', async ({page}) => {
-    await validateScreenshot(page, 'ns-pre-screener-form-not-set')
+    await validateScreenshot(page, 'pre-screener-form-not-set')
     await validateAccessibility(page)
   })
 
@@ -601,7 +601,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     }) => {
       await validateScreenshot(
         page.getByLabel('Get Started'),
-        'ns-pre-screener-form',
+        'pre-screener-form',
       )
       await applicantQuestions.expectProgramsinCorrectSections(
         {
@@ -651,7 +651,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         page.locator('.cf-application-card', {
           has: page.getByText(preScreenerFormProgramName),
         }),
-        'ns-pre-screener-form-in-progress',
+        'pre-screener-form-in-progress',
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
@@ -689,7 +689,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
 
-      await validateScreenshot(page, 'ns-pre-screener-form-sections')
+      await validateScreenshot(page, 'pre-screener-form-sections')
       await applicantQuestions.expectProgramsNorthstar({
         wantNotStartedPrograms: [otherProgramName],
         wantInProgressOrSubmittedPrograms: [primaryProgramName],
@@ -743,7 +743,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
         secondQuestionText,
       )
-      await validateScreenshot(page, 'ns-question-shows-previously-answered')
+      await validateScreenshot(page, 'question-shows-previously-answered')
     })
 
     await test.step('Fill out second question and check that the original program shows previously answered', async () => {
@@ -778,10 +778,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.northStarValidatePreviouslyAnsweredText(
         firstQuestionText,
       )
-      await validateScreenshot(
-        page,
-        'ns-other-program-shows-previously-answered',
-      )
+      await validateScreenshot(page, 'other-program-shows-previously-answered')
     })
   })
 
@@ -962,7 +959,7 @@ test.describe(
       await adminPrograms.publishAllDrafts()
       await logout(page)
 
-      await validateScreenshot(page, 'ns-program-image-tall')
+      await validateScreenshot(page, 'program-image-tall')
     })
 
     test('shows program with image and status', async ({
@@ -1006,7 +1003,7 @@ test.describe(
       })
 
       // Verify program card shows both the Accepted status and image
-      await validateScreenshot(page, 'ns-program-image-with-status')
+      await validateScreenshot(page, 'program-image-with-status')
     })
 
     // This test puts programs with different specs in the different sections of the homepage
@@ -1164,7 +1161,7 @@ test.describe(
 
       await test.step('verify homepage', async () => {
         await loginAsTestUser(page)
-        await validateScreenshot(page, 'ns-program-image-all-types')
+        await validateScreenshot(page, 'program-image-all-types')
         // accessibility fails
         // await validateAccessibility(page)
       })

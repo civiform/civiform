@@ -39,7 +39,7 @@ test.describe(
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'dropdown-north-star',
+            'dropdown',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )
@@ -50,7 +50,7 @@ test.describe(
           await applicantQuestions.clickContinue()
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'dropdown-errors-north-star',
+            'dropdown-errors',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )

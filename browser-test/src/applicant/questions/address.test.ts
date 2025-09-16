@@ -41,7 +41,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'address-north-star',
+          'address',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -83,7 +83,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'address-errors-north-star',
+          'address-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

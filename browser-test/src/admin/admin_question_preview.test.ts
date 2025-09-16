@@ -21,7 +21,7 @@ test.describe('File upload question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#sample-question'),
-        'file-question-preview-ns',
+        'file-question-preview',
       )
     })
   })
@@ -62,7 +62,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-address-question',
+        'address-question',
       )
     })
   })
@@ -84,7 +84,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-checkbox-question',
+        'checkbox-question',
       )
     })
   })
@@ -101,7 +101,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-currency-question',
+        'currency-question',
       )
     })
   })
@@ -118,7 +118,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-date-question',
+        'date-question',
       )
     })
   })
@@ -140,7 +140,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-dropdown-question',
+        'dropdown-question',
       )
     })
   })
@@ -157,7 +157,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-email-question',
+        'email-question',
       )
     })
   })
@@ -175,7 +175,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-enumerator-question',
+        'enumerator-question',
       )
     })
   })
@@ -192,7 +192,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#sample-question'),
-        'north-star-file-question-preview',
+        'file-question-preview',
       )
     })
   })
@@ -209,7 +209,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-id-question',
+        'id-question',
       )
     })
   })
@@ -226,7 +226,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-name-question',
+        'name-question',
       )
     })
   })
@@ -243,7 +243,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-number-question',
+        'number-question',
       )
     })
   })
@@ -278,7 +278,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-radio-question',
+        'radio-question',
       )
     })
   })
@@ -295,7 +295,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-static-question',
+        'static-question',
       )
     })
   })
@@ -312,7 +312,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-phone-question',
+        'phone-question',
       )
     })
   })
@@ -329,7 +329,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-text-question',
+        'text-question',
       )
     })
   })

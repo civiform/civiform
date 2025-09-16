@@ -151,10 +151,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
         1,
         /* northStarEnabled= */ true,
       )
-      await validateScreenshot(
-        page,
-        'enumerator-indexes-after-removing-field-northstar',
-      )
+      await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
     })
 
     test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({

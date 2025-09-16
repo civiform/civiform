@@ -38,7 +38,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'date-north-star',
+          'date',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -48,7 +48,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'date-errors-north-star',
+          'date-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -65,7 +65,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickEdit()
         await validateScreenshot(
           page,
-          'date-filled-in-north-star',
+          'date-filled-in',
           /* fullPage= */ true,
           /* mobileScreenshot= */ false,
         )

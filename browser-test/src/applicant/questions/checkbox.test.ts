@@ -92,10 +92,7 @@ test.describe(
         )
         await applicantQuestions.clickContinue()
 
-        await validateScreenshot(
-          page.locator('main'),
-          'checkbox-errors-north-star',
-        )
+        await validateScreenshot(page.locator('main'), 'checkbox-errors')
       })
 
       test('with single checked box submits successfully', async ({
@@ -192,7 +189,7 @@ test.describe(
         ])
         await validateScreenshot(
           page.locator('main'),
-          'checkbox-options-with-markdown-north-star',
+          'checkbox-options-with-markdown',
         )
       })
 
@@ -223,7 +220,7 @@ test.describe(
           )
           await validateScreenshot(
             page.locator('main'),
-            'checkbox-options-long-text-preview-north-star',
+            'checkbox-options-long-text-preview',
           )
           await adminQuestions.clickSubmitButtonAndNavigate('Create')
           await adminPrograms.addAndPublishProgramWithQuestions(
@@ -239,7 +236,7 @@ test.describe(
         )
         await validateScreenshot(
           page.locator('main'),
-          'checkbox-options-long-text-applicant-north-star',
+          'checkbox-options-long-text-applicant',
         )
       })
     })

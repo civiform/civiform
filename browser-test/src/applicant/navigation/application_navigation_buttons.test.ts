@@ -227,7 +227,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await validateAccessibility(page)
         await validateScreenshot(
           page,
-          'northstar-error-on-previous-modal',
+          'error-on-previous-modal',
           /* fullPage= */ false,
         )
       })

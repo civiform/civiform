@@ -41,7 +41,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'text-north-star',
+          'text',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -51,7 +51,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'text-errors-north-star',
+          'text-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

@@ -63,7 +63,7 @@ test.describe(
 
         await validateScreenshot(
           page,
-          'upsell-north-star-pre-screener',
+          'upsell-pre-screener',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
@@ -166,7 +166,7 @@ test.describe(
 
       await validateScreenshot(
         page,
-        'upsell-north-star-pre-screener-login',
+        'upsell-pre-screener-login',
         /* fullPage= */ false,
       )
 
