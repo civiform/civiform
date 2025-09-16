@@ -87,6 +87,10 @@ public abstract class ProgramDefinition {
   @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
 
+  /** If the program is for logged in applicants only. */
+  @JsonProperty("loginOnly")
+  public abstract boolean loginOnly();
+
   /** The notification preferences for this program. */
   @JsonProperty("notificationPreferences")
   public abstract ImmutableList<ProgramNotificationPreference> notificationPreferences();
@@ -850,6 +854,9 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
+
+    @JsonProperty("loginOnly")
+    public abstract Builder setLoginOnly(boolean loginOnly);
 
     @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);

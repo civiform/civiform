@@ -59,6 +59,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   // Names of form fields.
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
+  private static final String LOGIN_ONLY_FIELD_NAME = "loginOnly";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
   private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
@@ -94,6 +95,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
+        program.getLoginOnly(),
         program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
@@ -118,6 +120,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(ProgramNotificationPreference::getValue)
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
+        program.loginOnly(),
         program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
@@ -147,6 +150,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
@@ -317,6 +321,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* label= */ "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+        // Login only program
+        fieldset(
+                legend("Login only applications").withClass("text-gray-600"),
+                buildUSWDSCheckboxOption(
+                    /* id= */ "login-only-aplications",
+                    /* name= */ LOGIN_ONLY_FIELD_NAME,
+                    /* value= */ String.valueOf(loginOnly),
+                    /* isChecked= */ loginOnly,
+                    /* isDisabled= */ false,
+                    /* label= */ "Is program available to only logged in applicants"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
         // Program long description
         FieldWithLabel.textArea()
@@ -387,7 +402,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
           }
         }
       }
-
       programTypeFieldset =
           fieldset(
                   legend("Program type")
