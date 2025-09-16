@@ -15,7 +15,6 @@ import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import forms.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.regex.Matcher;
@@ -72,7 +71,7 @@ public class QuestionConfigTest {
               .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
               .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
               .filters(ImmutableList.of())
-              .possibleKeys(List.of("name_key", "address_key", "url_key"))
+              .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
               .build();
       MapQuestionSettingsPartialView view =
           new MapQuestionSettingsPartialView(
