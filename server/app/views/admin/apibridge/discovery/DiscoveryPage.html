@@ -1,9 +1,7 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.apibridge.discovery.DiscoveryPageViewModel"*/-->
 <th:block th:fragment="content">
-  <th:block th:if="${!#strings.isEmpty(templateGlobals.pageTitle())}">
-    <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
-  </th:block>
+  <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
 
   <th:block
     th:insert="~{admin/apibridge/BridgeHeader :: tabStrip(${model.currentPage()})}"

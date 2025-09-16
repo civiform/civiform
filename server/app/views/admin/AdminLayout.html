@@ -44,7 +44,7 @@
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body
-    class="display-flex minh-viewport body-background-gradient margin-top-205"
+    class="display-flex minh-viewport body-background-gradient"
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
