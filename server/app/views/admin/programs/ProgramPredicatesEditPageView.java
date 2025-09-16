@@ -36,4 +36,9 @@ public class ProgramPredicatesEditPageView
   protected String pageTemplate() {
     return "admin/programs/ProgramPredicatesEditPageView.html";
   }
+
+  @Override
+  protected boolean isWidescreen() {
+    return true;
+  }
 }
