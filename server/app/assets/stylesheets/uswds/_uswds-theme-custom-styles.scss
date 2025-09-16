@@ -244,6 +244,24 @@ button.usa-button.usa-button--unstyled.htmx-request {
   }
 }
 
+.admin-normal-main {
+  @include u-padding-x(4);
+  @include u-padding-y(9);
+  @include u-maxw('widescreen');
+}
+
+.admin-widescreen-main {
+  @include u-padding-y(9);
+  @include u-margin-x(0);
+  @include u-maxw('full');
+}
+
+@media (screen and min-width: 1500px) {
+  .admin-widescreen-main {
+    @include u-margin-x(8);
+  }
+}
+
 // Set the background color to match tailwind bg-gray-900
 // for non-tailwind pages
 .usa-banner.cf-admin-heading-background-color {
