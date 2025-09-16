@@ -24,6 +24,8 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
+import java.util.Locale;
+import java.util.List;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -38,8 +40,11 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import services.program.ProgramNotFoundException;
+import models.ApplicationStep;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -586,17 +591,40 @@ public final class ProgramIndexView extends BaseHtmlView {
                 + countAllUniversalQuestions;
     return Optional.of("Contains " + text + " universal questions ");
   }
-
-  String generateTranslationCompletionText(ProgramDefinition program) {
-    Optional<ImmutableList<String>> supportedLanguages = settingsManifest.getCiviformSupportedLanguages();
-    if (supportedLanguages.isEmpty()) {
-      return "Translation complete";
+/* 
+  private boolean isTranslationComplete(ProgramDefinition program) {
+    Optional<List<String>> supportedLanguages =
+        settingsManifest.getCiviformSupportedLanguages().map(ImmutableList::copyOf);
+    if (supportedLanguages.isEmpty() || supportedLanguages.get().size() <= 1) {
+      return true;
     }
-    for (String language : supportedLanguages.get()) {
+    for (String lang : supportedLanguages.get()) {
+      Locale locale = Locale.forLanguageTag(lang);
+      if (program.localizedName().maybeGet(locale).isEmpty()
+          || program.localizedDescription().maybeGet(locale).isEmpty()) {
+        return false;
+      }
+      for (ApplicationStep step : program.applicationSteps()) {
+        if (step.getTitle().maybeGet(locale).isEmpty()
+            || step.getDescription().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+      }
+      try {
+        for (var status : programService.getFullProgramDefinition(program.id()).statusDefinitions()) {
+          if (status.localizedStatusText().maybeGet(locale).isEmpty()
+              || (status.localizedEmailBodyText().isPresent()
+                  && status.localizedEmailBodyText().get().maybeGet(locale).isEmpty())) {
+            return false;
+          }
+        }
+      } catch (ProgramNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
-    return "Translation complete";
+    return true;
   }
-
+*/
   Optional<ButtonTag> maybeRenderShareLink(ProgramDefinition program) {
     if (program.programType().equals(ProgramType.EXTERNAL)) {
       return Optional.empty();
