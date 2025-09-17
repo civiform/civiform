@@ -188,7 +188,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await enableFeatureFlag(page, 'login_dropdown_enabled')
     })
 
-    test.only('Dropdown exists with both login options', async ({page}) => {
+    test('Dropdown exists with both login options', async ({page}) => {
       await page.goto('/')
 
       await test.step('Check dropdown button is present', async () => {

@@ -524,8 +524,9 @@ main {
 }
 
 // Add white border to login dropdown options specifically
-#select-login {
-  @include u-border('05', 'white');
+.usa-language__submenu {
+  border-width: 0.05rem;
+  border-color: units(0);
 }
 
 [dir='rtl'] {
