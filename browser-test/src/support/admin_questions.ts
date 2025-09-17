@@ -890,7 +890,6 @@ export class AdminQuestions {
     if (filters != null) {
       for (let i = 0; i < filters.length; i++) {
         await this.page.getByRole('button', {name: 'Add filter'}).click()
-        await this.page.waitForResponse('**/admin/questions/maps/addFilter')
 
         const filter = filters[i]
         if (filter.key != null) {
