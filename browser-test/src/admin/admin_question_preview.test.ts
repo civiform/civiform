@@ -46,7 +46,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
     await test.step('Use screenshot to verify layout of entire page', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
 
-      await validateScreenshot(page, 'north-star-question-preview-page')
+      await validateScreenshot(page, 'question-preview-page')
     })
   })
 
