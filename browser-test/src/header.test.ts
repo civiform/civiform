@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -11,6 +12,8 @@ import {
 
 test.describe('Header', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await disableFeatureFlag(page, 'login_dropdown_enabled')
+
     // Since a guest account is not created until you start applying for something,
     // we have to make a program.
     await seeding.seedProgramsAndCategories()
@@ -177,6 +180,33 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       const govName = page.locator('.cf-gov-name')
       await expect(headerLogo).toBeHidden()
       await expect(govName).toBeVisible()
+    })
+  })
+
+  test.describe('Login dropdown', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'login_dropdown_enabled')
+    })
+
+    test.only('Dropdown exists with both login options', async ({page}) => {
+      await page.goto('/')
+
+      await test.step('Check dropdown button is present', async () => {
+        const loginDropdownButton = page.getByRole('button', {name: 'Login'})
+        await expect(loginDropdownButton).toBeVisible()
+      })
+
+      await test.step('Expand dropdown', async () => {
+        const loginDropdownButton = page.getByText('Log in', {exact: true})
+        await loginDropdownButton.click()
+        await validateScreenshot(page, 'login-dropdown-expanded')
+        await validateAccessibility(page)
+      })
+
+      await test.step('Check both login options are present', async () => {
+        await expect(page.getByText('Applicant log in')).toBeVisible()
+        await expect(page.getByText('Administrator log in')).toBeVisible()
+      })
     })
   })
 })
