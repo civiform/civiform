@@ -244,6 +244,24 @@ button.usa-button.usa-button--unstyled.htmx-request {
   }
 }
 
+.admin-normal-main {
+  @include u-padding-x(4);
+  @include u-padding-y(9);
+  @include u-maxw('widescreen');
+}
+
+.admin-widescreen-main {
+  @include u-padding-y(9);
+  @include u-margin-x(0);
+  @include u-maxw('full');
+}
+
+@media (screen and min-width: 1500px) {
+  .admin-widescreen-main {
+    @include u-margin-x(8);
+  }
+}
+
 // Set the background color to match tailwind bg-gray-900
 // for non-tailwind pages
 .usa-banner.cf-admin-heading-background-color {
@@ -284,4 +302,56 @@ button.usa-button.usa-button--unstyled.htmx-request {
       justify-content: flex-start;
     }
   }
+}
+
+.cf-legacy-program-header {
+  // Set background and text colors to match
+  // tailwind colors for admin program status
+  // pills in non-tailwind pages
+  .cf-background-green-light {
+    background-color: rgb(232, 245, 233);
+  }
+
+  .cf-background-purple-light {
+    background-color: rgb(243, 229, 245);
+  }
+
+  .cf-background-yellow-light {
+    background-color: rgb(255, 239, 201);
+  }
+
+  .cf-text-green {
+    color: rgb(27, 94, 32);
+  }
+
+  .cf-text-purple {
+    color: rgb(74, 20, 140);
+  }
+
+  .cf-text-yellow {
+    color: rgb(107, 75, 0);
+  }
+
+  p.cf-no-margin-padding,
+  .cf-no-margin-padding p {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  // -- start
+  // Backwards compatible step for migrating tailwind to keep some SVGs correctly
+  // sized. This is shared in admin and applicant sides so until we rewrite SVG
+  // support or migrate the admin we'll use the same settings from tailwind.
+  svg.legacy-program-svg {
+    &.w-auto {
+      width: auto;
+    }
+    &.h-5 {
+      height: 1.25rem;
+    }
+    &.h-4\.5 {
+      height: 18px;
+    }
+  }
+  // -- end
 }

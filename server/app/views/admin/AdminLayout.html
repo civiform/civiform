@@ -52,12 +52,9 @@
 
     <!--/* Main */-->
     <main
-      class="padding-x-4 padding-y-10 bg-white shadow-2 width-full maxw-widescreen margin-x-auto"
+      class="bg-white shadow-2 width-full margin-x-auto"
+      th:classappend="${layoutParams.isWidescreen() ? 'admin-widescreen-main': 'admin-normal-main'}"
     >
-      <h1
-        class="text-normal"
-        th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'Page Title Missing' : templateGlobals.pageTitle()}"
-      ></h1>
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: content}"
       ></th:block>
