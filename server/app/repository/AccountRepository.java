@@ -126,7 +126,8 @@ public final class AccountRepository {
         .where()
         .ieq("email_address", emailAddress)
         .setLabel("AccountModel.findByEmail")
-        .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailCaseInsensitive"))
+        .setProfileLocation(
+            queryProfileLocationBuilder.create("lookupAccountByEmailCaseInsensitive"))
         .findList();
   }
 

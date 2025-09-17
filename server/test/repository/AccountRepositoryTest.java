@@ -209,14 +209,16 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void lookupByEmailAddressCaseInsensitive_sameCasing() {
     new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
-    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId()).isEqualTo(AUTHORITY_ID);
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId())
+        .isEqualTo(AUTHORITY_ID);
   }
 
   @Test
   public void lookupByEmailAddressCaseInsensitive_differentCasing() {
     new AccountModel().setEmailAddress(EMAIL_WITH_CAPS).setAuthorityId(AUTHORITY_ID).save();
 
-    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId()).isEqualTo(AUTHORITY_ID);
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId())
+        .isEqualTo(AUTHORITY_ID);
   }
 
   @Test
