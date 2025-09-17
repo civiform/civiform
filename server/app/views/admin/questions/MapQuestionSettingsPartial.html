@@ -67,14 +67,14 @@
   <div id="filters">
     <div th:each="filter, i : ${model.filters}">
       <div
-        th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${filter.key}, ${filter.displayName})}"
+        th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
       ></div>
     </div>
   </div>
   <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
   <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
   <button
-    hx-post="/admin/addMapFilter"
+    th:hx-post="${model.hxAddMapQuestionFilterEndpoint}"
     hx-include="closest form"
     hx-swap="beforeend"
     hx-target="#filters"

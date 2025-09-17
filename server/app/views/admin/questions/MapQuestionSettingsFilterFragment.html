@@ -1,5 +1,5 @@
 <th:block
-  th:fragment="filterInput(index, possibleKeys, selectedKey, displayNameValue)"
+  th:fragment="filterInput(index, possibleKeys, hxDeleteMapFilterEndpoint, selectedKey, displayNameValue)"
 >
   <div
     class="display-flex flex-justify filter-input"
@@ -40,7 +40,7 @@
       type="button"
       class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
       aria-label="Delete filter"
-      hx-post="/admin/deleteMapFilter"
+      th:hx-post="${hxDeleteMapFilterEndpoint}"
       th:hx-target="${'closest div[class*=filter-input]'}"
       hx-swap="outerHTML"
     >

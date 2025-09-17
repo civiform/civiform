@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import com.google.common.collect.ImmutableList;
+import controllers.admin.routes;
 import forms.MapQuestionForm;
 import java.util.List;
 import java.util.OptionalInt;
@@ -27,5 +28,13 @@ public record MapQuestionSettingsPartialViewModel(
         MapQuestionForm.Setting.emptySetting(),
         MapQuestionForm.Setting.emptyFilters(),
         possibleKeys);
+  }
+
+  public String hxAddMapQuestionFilterEndpoint() {
+    return routes.AdminQuestionController.addMapQuestionFilter().url();
+  }
+
+  public String hxDeleteMapQuestionFilterEndpoint() {
+    return routes.AdminQuestionController.deleteMapQuestionFilter().url();
   }
 }

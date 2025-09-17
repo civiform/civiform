@@ -81,8 +81,6 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:question
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions                                                       controllers.admin.AdminQuestionController.index(request: Request, filter: java.util.Optional[String])
-POST     /admin/addMapFilter                                                    controllers.admin.AdminQuestionController.addMapFilter(request: Request)
-POST     /admin/deleteMapFilter                                                 controllers.admin.AdminQuestionController.deleteMapFilter(request: Request)
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new                                                   controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit                                              controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
@@ -92,6 +90,8 @@ POST    /admin/questions                                                       c
 POST    /admin/questions/:id/discard                                           controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore                                           controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive                                           controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
+POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
 # For rendering North Star question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)

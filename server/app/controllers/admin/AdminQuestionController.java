@@ -96,7 +96,7 @@ public final class AdminQuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result addMapFilter(Request request) {
+  public Result addMapQuestionFilter(Request request) {
     MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
 
     // Count existing filters to determine the index for the new filter
@@ -111,7 +111,7 @@ public final class AdminQuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result deleteMapFilter(Request request) {
+  public Result deleteMapQuestionFilter(Request request) {
     // Return empty response - HTMX will remove the element from DOM
     return ok("").as(Http.MimeTypes.HTML);
   }
