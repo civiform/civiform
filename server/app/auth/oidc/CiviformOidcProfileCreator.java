@@ -132,6 +132,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // If the civiformProfile is a trusted intermediary, bypass remaining merging because
     // we don't want to actually merge the guest profile into theirs.
     if (isTrustedIntermediary(civiformProfile)) {
+      if (enhancedLogoutEnabled()) {
+        handleEnhancedLogout(civiformProfile, oidcProfile, roles);
+      }
       // Setting the email here ensures the canonical email field is populated
       // regardless of what the identity provider uses. See comment on
       // CiviFormProfileData.setEmail() for more info.
@@ -150,6 +153,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     if (enhancedLogoutEnabled()) {
+      handleEnhancedLogout(civiformProfile, oidcProfile, roles);
+    }
+
+    return civiformProfile.getProfileData();
+  }
+
+  private void handleEnhancedLogout(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, ImmutableSet<Role> roles) {
       // Save the id_token from the returned OidcProfile in the account so that it can be
       // retrieved at logout time.
       civiformProfile
@@ -168,9 +179,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
                     .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
               })
           .join();
-    }
-
-    return civiformProfile.getProfileData();
   }
 
   @Override
