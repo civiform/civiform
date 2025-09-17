@@ -7,7 +7,7 @@ import {
 
 test.describe('Create and edit map question', () => {
   if (isLocalDevEnvironment()) {
-    test.only('Map question form', async ({page, adminQuestions}) => {
+    test('Map question form', async ({page, adminQuestions}) => {
       await test.step('Navigate to map question creation form', async () => {
         await loginAsAdmin(page)
         await adminQuestions.gotoAdminQuestionsPage()
