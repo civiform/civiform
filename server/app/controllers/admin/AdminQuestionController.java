@@ -8,13 +8,13 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.EnumeratorQuestionForm;
+import forms.MapFilterForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -95,27 +95,14 @@ public final class AdminQuestionController extends CiviFormController {
             classLoaderExecutionContext.current());
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result addMapFilter(Request request) {
-    Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
-    String possibleKeysString = formData.get("possibleKeys");
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
 
     // Count existing filters to determine the index for the new filter
-    long currentFilterIndex =
-        formData.keySet().stream()
-            .filter(key -> key.startsWith("filters[") && key.endsWith("].key"))
-            .count();
+    long currentFilterIndex = form.getFilters().size();
 
-    List<String> possibleKeysList =
-        Optional.ofNullable(possibleKeysString)
-            .map(string -> string.replaceAll("[\\[\\]]", "").trim())
-            .filter(s -> !s.isEmpty())
-            .map(
-                cleanString ->
-                    Arrays.stream(cleanString.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toList())
-            .orElse(List.of());
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
 
     return ok(mapQuestionSettingsFiltersPartialView.render(
             request,
@@ -123,6 +110,7 @@ public final class AdminQuestionController extends CiviFormController {
         .as(Http.MimeTypes.HTML);
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result deleteMapFilter(Request request) {
     // Return empty response - HTMX will remove the element from DOM
     return ok("").as(Http.MimeTypes.HTML);

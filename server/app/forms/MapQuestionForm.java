@@ -1,9 +1,11 @@
 package forms;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import services.LocalizedStrings;
@@ -23,7 +25,7 @@ public class MapQuestionForm extends QuestionForm {
   @Setter private Setting locationName;
   @Setter private Setting locationAddress;
   @Setter private Setting locationDetailsUrl;
-  @Setter private List<Setting> filters;
+  @Setter private ArrayList<Setting> filters;
 
   /**
    * Simple class for MAP question settings. Used for form processing and gets converted to {@link
@@ -50,7 +52,7 @@ public class MapQuestionForm extends QuestionForm {
     }
 
     public static List<Setting> emptyFilters() {
-      return List.of();
+      return new ArrayList<>();
     }
   }
 
@@ -112,7 +114,7 @@ public class MapQuestionForm extends QuestionForm {
     this.locationName = Setting.emptySetting();
     this.locationAddress = Setting.emptySetting();
     this.locationDetailsUrl = Setting.emptySetting();
-    this.filters = Setting.emptyFilters();
+    this.filters = new ArrayList<>(Setting.emptyFilters());
   }
 
   private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
@@ -123,7 +125,7 @@ public class MapQuestionForm extends QuestionForm {
     this.locationDetailsUrl =
         getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
 
-    this.filters = getFiltersFromQuestionSettings(settings);
+    this.filters = new ArrayList<>(getFiltersFromQuestionSettings(settings));
   }
 
   /** Converts {@link QuestionSetting} back to form {@link Setting} for editing. */
@@ -148,7 +150,7 @@ public class MapQuestionForm extends QuestionForm {
                     setting.localizedSettingDisplayName().isPresent()
                         ? setting.localizedSettingDisplayName().get().getDefault()
                         : ""))
-        .toList();
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /** Converts form {@link Setting} to persistent {@link QuestionSetting} for database storage. */
