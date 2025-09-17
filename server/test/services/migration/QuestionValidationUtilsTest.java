@@ -331,7 +331,6 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
   @Test
   public void validateYesNoQuestions_caseExactMatch_validatesCorrectly() {
-    // Test that validation is case-sensitive - "Yes" and "No" are not valid
     QuestionDefinition yesNoQuestion =
         createYesNoQuestionDefinition("case-sensitive-question", 1L, ImmutableList.of("Yes", "No"));
 

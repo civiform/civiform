@@ -70,7 +70,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String INVALID_YES_NO_NAME = "invalidYesNoQuestion";
   private static final String DROPDOWN_QUESTION_NAME = "dropdownQuestion";
 
-  // Use TestQuestionBank static methods for creating test question definitions
   private static final QuestionDefinition QUESTION_1 =
       createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
   private static final QuestionDefinition QUESTION_2 =

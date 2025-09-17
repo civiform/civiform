@@ -966,217 +966,24 @@ public class TestQuestionBank {
   }
 
   /**
-   * Creates a YES/NO question with custom options for testing. This method is primarily used for
-   * testing YES/NO validation logic.
-   *
-   * @param name the admin name of the question
-   * @param optionNames the option names (should be from: "yes", "no", "maybe", "not-sure")
-   * @return a QuestionModel with the specified YES/NO options
-   */
-  public QuestionModel createCustomYesNoQuestion(String name, ImmutableList<String> optionNames) {
-    return createCustomMultiOptionQuestion(
-        name,
-        "Test YES/NO question",
-        "Select an option",
-        MultiOptionQuestionType.YES_NO,
-        optionNames);
-  }
-
-  /**
-   * Creates a dropdown question with custom options for testing.
-   *
-   * @param name the admin name of the question
-   * @param optionNames the option names
-   * @return a QuestionModel with the specified dropdown options
-   */
-  public QuestionModel createCustomDropdownQuestion(
-      String name, ImmutableList<String> optionNames) {
-    return createCustomMultiOptionQuestion(
-        name,
-        "Test dropdown question",
-        "Select an option",
-        MultiOptionQuestionType.DROPDOWN,
-        optionNames);
-  }
-
-  /**
-   * Creates a checkbox question with custom options for testing.
-   *
-   * @param name the admin name of the question
-   * @param optionNames the option names
-   * @return a QuestionModel with the specified checkbox options
-   */
-  public QuestionModel createCustomCheckboxQuestion(
-      String name, ImmutableList<String> optionNames) {
-    return createCustomMultiOptionQuestion(
-        name,
-        "Test checkbox question",
-        "Select options",
-        MultiOptionQuestionType.CHECKBOX,
-        optionNames);
-  }
-
-  /**
-   * Creates a radio button question with custom options for testing.
-   *
-   * @param name the admin name of the question
-   * @param optionNames the option names
-   * @return a QuestionModel with the specified radio button options
-   */
-  public QuestionModel createCustomRadioQuestion(String name, ImmutableList<String> optionNames) {
-    return createCustomMultiOptionQuestion(
-        name,
-        "Test radio question",
-        "Select an option",
-        MultiOptionQuestionType.RADIO_BUTTON,
-        optionNames);
-  }
-
-  /**
-   * Creates a multi-option question with custom options for testing. This is the base method used
-   * by other custom multi-option question creators.
-   *
-   * @param name the admin name of the question
-   * @param description the description of the question
-   * @param questionText the question text to display
-   * @param multiOptionType the type of multi-option question
-   * @param optionNames the option names
-   * @return a QuestionModel with the specified options
-   */
-  public QuestionModel createCustomMultiOptionQuestion(
-      String name,
-      String description,
-      String questionText,
-      MultiOptionQuestionType multiOptionType,
-      ImmutableList<String> optionNames) {
-    ImmutableList.Builder<QuestionOption> optionsBuilder = ImmutableList.builder();
-    for (int i = 0; i < optionNames.size(); i++) {
-      optionsBuilder.add(
-          QuestionOption.create(
-              (long) i + 1,
-              (long) i + 1,
-              optionNames.get(i),
-              LocalizedStrings.of(Locale.US, optionNames.get(i))));
-    }
-
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription(description)
-            .setQuestionText(LocalizedStrings.of(Locale.US, questionText))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Test help text"))
-            .build();
-
-    QuestionDefinition definition =
-        new MultiOptionQuestionDefinition(config, optionsBuilder.build(), multiOptionType);
-    return maybeSave(definition);
-  }
-
-  /**
-   * Creates a text question with a specific name for testing.
-   *
-   * @param name the admin name of the question
-   * @return a QuestionModel text question
-   */
-  public QuestionModel createCustomTextQuestion(String name) {
-    return createCustomTextQuestion(name, Optional.empty());
-  }
-
-  /**
-   * Creates a text question with a specific name and optional enumerator for testing.
-   *
-   * @param name the admin name of the question
-   * @param enumeratorId optional enumerator ID for repeated questions
-   * @return a QuestionModel text question
-   */
-  public QuestionModel createCustomTextQuestion(String name, Optional<Long> enumeratorId) {
-    QuestionDefinitionConfig.Builder configBuilder =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("Test text question: " + name)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Enter text for " + name))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Test help text"));
-
-    if (enumeratorId.isPresent()) {
-      configBuilder.setEnumeratorId(enumeratorId);
-    }
-
-    QuestionDefinition definition = new TextQuestionDefinition(configBuilder.build());
-    return maybeSave(definition);
-  }
-
-  /**
-   * Creates an address question with a specific name for testing.
-   *
-   * @param name the admin name of the question
-   * @return a QuestionModel address question
-   */
-  public QuestionModel createCustomAddressQuestion(String name) {
-    return createCustomAddressQuestion(name, Optional.empty());
-  }
-
-  /**
-   * Creates an address question with a specific name and optional enumerator for testing.
-   *
-   * @param name the admin name of the question
-   * @param enumeratorId optional enumerator ID for repeated questions
-   * @return a QuestionModel address question
-   */
-  public QuestionModel createCustomAddressQuestion(String name, Optional<Long> enumeratorId) {
-    QuestionDefinitionConfig.Builder configBuilder =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("Test address question: " + name)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Enter address for " + name))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Test help text"));
-
-    if (enumeratorId.isPresent()) {
-      configBuilder.setEnumeratorId(enumeratorId);
-    }
-
-    QuestionDefinition definition = new AddressQuestionDefinition(configBuilder.build());
-    return maybeSave(definition);
-  }
-
-  /**
-   * Creates an enumerator question with a specific name for testing.
-   *
-   * @param name the admin name of the question
-   * @return a QuestionModel enumerator question
-   */
-  public QuestionModel createCustomEnumeratorQuestion(String name) {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("Test enumerator question: " + name)
-            .setQuestionText(LocalizedStrings.of(Locale.US, "List items for " + name))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Test help text"))
-            .build();
-
-    QuestionDefinition definition =
-        new EnumeratorQuestionDefinition(config, LocalizedStrings.of(Locale.US, "entity"));
-    return maybeSave(definition);
-  }
-
-  /**
    * Creates a question definition only (not saved) with specified parameters. This is useful for
    * tests that need QuestionDefinition objects with specific IDs.
    *
-   * @param name the admin name of the question
+   * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param type the question type
    * @param enumeratorId optional enumerator ID for repeated questions
    * @return a QuestionDefinition (not persisted)
    */
   public static QuestionDefinition createQuestionDefinition(
-      String name, Long id, QuestionType type, Optional<Long> enumeratorId) {
+      String adminName, Long id, QuestionType type, Optional<Long> enumeratorId) {
     try {
       return new QuestionDefinitionBuilder()
-          .setName(name)
+          .setName(adminName)
           .setId(id)
           .setQuestionType(type)
-          .setQuestionText(LocalizedStrings.withDefaultValue(name))
-          .setDescription(name)
+          .setQuestionText(LocalizedStrings.withDefaultValue(adminName))
+          .setDescription(adminName)
           .setEnumeratorId(enumeratorId)
           .build();
     } catch (UnsupportedQuestionTypeException e) {
@@ -1188,44 +995,44 @@ public class TestQuestionBank {
    * Creates a YES/NO question definition with specific ID and options. This is useful for tests
    * that need QuestionDefinition objects with specific IDs.
    *
-   * @param name the admin name of the question
+   * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param optionNames the option names
    * @return a QuestionDefinition (not persisted)
    */
   public static QuestionDefinition createYesNoQuestionDefinition(
-      String name, Long id, ImmutableList<String> optionNames) {
+      String adminName, Long id, ImmutableList<String> optionNames) {
     return createMultiOptionQuestionDefinition(
-        name, id, MultiOptionQuestionType.YES_NO, optionNames);
+        adminName, id, MultiOptionQuestionType.YES_NO, optionNames);
   }
 
   /**
    * Creates a dropdown question definition with specific ID and options. This is useful for tests
    * that need QuestionDefinition objects with specific IDs.
    *
-   * @param name the admin name of the question
+   * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param optionNames the option names
    * @return a QuestionDefinition (not persisted)
    */
   public static QuestionDefinition createDropdownQuestionDefinition(
-      String name, Long id, ImmutableList<String> optionNames) {
+      String adminName, Long id, ImmutableList<String> optionNames) {
     return createMultiOptionQuestionDefinition(
-        name, id, MultiOptionQuestionType.DROPDOWN, optionNames);
+        adminName, id, MultiOptionQuestionType.DROPDOWN, optionNames);
   }
 
   /**
    * Creates a multi-option question definition with specific ID and options. This is useful for
    * tests that need QuestionDefinition objects with specific IDs.
    *
-   * @param name the admin name of the question
+   * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param multiOptionType the type of multi-option question
    * @param optionNames the option names
    * @return a QuestionDefinition (not persisted)
    */
   private static QuestionDefinition createMultiOptionQuestionDefinition(
-      String name,
+      String adminName,
       Long id,
       MultiOptionQuestionType multiOptionType,
       ImmutableList<String> optionNames) {
@@ -1238,7 +1045,7 @@ public class TestQuestionBank {
 
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
-            .setName(name)
+            .setName(adminName)
             .setDescription("Test " + multiOptionType.name() + " question")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Select an option"))
             .build();
