@@ -1,36 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {
-  disableFeatureFlag,
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-} from '../support'
-
-test.describe('File upload question preview - prenorthstar', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
-  test('File upload preview', async ({page, adminQuestions}) => {
-    const fileUploadQuestionName = 'File Upload Question'
-
-    await loginAsAdmin(page)
-    await test.step('Create question', async () => {
-      await adminQuestions.addFileUploadQuestion({
-        questionName: fileUploadQuestionName,
-      })
-    })
-
-    await test.step('Expect preview renders properly', async () => {
-      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
-
-      await validateScreenshot(
-        page.locator('#sample-question'),
-        'file-question-preview',
-      )
-    })
-  })
-})
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('File upload question preview', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
