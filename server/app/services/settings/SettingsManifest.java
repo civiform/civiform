@@ -1133,6 +1133,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin
+   * login.
+   */
+  public boolean getLoginDropdownEnabled(RequestHeader request) {
+    return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2406,6 +2414,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "EXPANDED_FORM_LOGIC_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
                               + " editing UI and expanded logic capabilities for admin.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "LOGIN_DROPDOWN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
+                              + " applicant and admin login.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
