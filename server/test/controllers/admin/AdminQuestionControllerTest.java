@@ -208,21 +208,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_returnsPopulatedForm() {
-    QuestionModel question = testQuestionBank.nameApplicantName();
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
-    Result result = controller.edit(request, question.id).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
-    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
-  }
-
-  @Test
   public void northStar_edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
@@ -231,22 +216,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("what is your name?");
-  }
-
-  @Test
-  public void edit_repeatedQuestion_hasEnumeratorName() {
-    QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
-    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name question");
-    assertThat(contentAsString(result)).contains("applicant household members");
-    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
   }
 
   @Test
@@ -317,22 +286,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
     assertThat(contentAsString(result)).contains("has message");
-  }
-
-  @Test
-  public void newOne_returnsExpectedForm() {
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
-    Result result = controller.newOne(request, "text", "/some/redirect/url");
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text question");
-    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
-    assertThat(contentAsString(result)).contains("/some/redirect/url");
   }
 
   @Test
