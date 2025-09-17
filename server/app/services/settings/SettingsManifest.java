@@ -1047,8 +1047,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi(RequestHeader request) {
-    return getBool("NORTH_STAR_APPLICANT_UI", request);
+  public boolean getNorthStarApplicantUi() {
+    return getBool("NORTH_STAR_APPLICANT_UI");
   }
 
   /** Enable using custom theme colors on North Star applicant UI. */
@@ -2302,7 +2302,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " flows",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "Enable using custom theme colors on North Star applicant UI.",

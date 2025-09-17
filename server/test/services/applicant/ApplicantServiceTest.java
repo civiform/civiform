@@ -2527,30 +2527,6 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_externalProgram() {
-    ApplicantModel applicant = createTestApplicant();
-    ProgramBuilder.newActiveProgram(
-            "External Program", "External Program", "", DisplayMode.PUBLIC, ProgramType.EXTERNAL)
-        .build();
-
-    // External program is not included in 'unapplied' list when North Star is disabled, regardless
-    // of external program card feature being enabled
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true")
-            .build();
-    ApplicantService.ApplicationPrograms result =
-        subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
-            .toCompletableFuture()
-            .join();
-    // programDefinition is created during test set up.
-    assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programDefinition.id());
-  }
-
-  @Test
   public void unappliedAndPotentiallyEligible_returnsProgramsTheApplicantCanApplyTo() {
     ApplicantModel applicant = createTestApplicant();
     EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);

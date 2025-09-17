@@ -257,7 +257,7 @@ public final class ProgramSlugHandler {
               .findFirst();
     }
 
-    return settingsManifest.getNorthStarApplicantUi(request)
+    return settingsManifest.getNorthStarApplicantUi()
             && activeProgramDefinition.displayMode()
                 != DisplayMode.DISABLED // If the program is disabled,
         // redirect to review page because that will trigger the ProgramDisabledAction.
