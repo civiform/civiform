@@ -84,6 +84,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
         "layoutParams",
         LayoutParams.builder()
             .pageTemplate(pageTemplate())
+            .isWidescreen(isWidescreen())
             .civiformImageTag(settingsManifest.getCiviformImageTag().orElse("UNKNOWN"))
             .addNoIndexMetaTag(settingsManifest.getStagingAddNoindexMetaTag())
             .favicon(FAVICON_DATAURI)
@@ -223,5 +224,10 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    */
   protected ImmutableList<String> getPageBodyScripts() {
     return ImmutableList.of();
+  }
+
+  /** Returns true if a widescreen layout is requested. Defaults to false. */
+  protected boolean isWidescreen() {
+    return false;
   }
 }

@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -16,6 +17,7 @@ import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -36,7 +38,11 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
+import views.admin.programs.ProgramHeader;
 import views.admin.programs.ProgramPredicateConfigureView;
+import views.admin.programs.ProgramPredicatesEditPageView;
+import views.admin.programs.ProgramPredicatesEditPageViewModel;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.components.ToastMessage;
 import views.components.ToastMessage.ToastType;
@@ -49,30 +55,36 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final ProgramPredicatesEditView predicatesEditViewV2;
+  private final ProgramPredicatesEditView legacyPredicatesEditView;
+  private final ProgramPredicatesEditPageView predicatesEditPageView;
   private final ProgramPredicateConfigureView predicatesConfigureView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlockPredicatesController(
       PredicateGenerator predicateGenerator,
       ProgramService programService,
       QuestionService questionService,
-      ProgramPredicatesEditView predicatesEditViewV2,
+      ProgramPredicatesEditView legacyPredicatesEditView,
+      ProgramPredicatesEditPageView predicatesEditPageView,
       ProgramPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.predicatesEditViewV2 = checkNotNull(predicatesEditViewV2);
+    this.legacyPredicatesEditView = checkNotNull(legacyPredicatesEditView);
+    this.predicatesEditPageView = checkNotNull(predicatesEditPageView);
     this.predicatesConfigureView = checkNotNull(predicatesConfigureView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -81,26 +93,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editVisibility(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
-
-      return ok(
-          predicatesEditViewV2.render(
-              request,
-              programDefinition,
-              blockDefinition,
-              programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-                  blockDefinitionId),
-              PredicateUseCase.VISIBILITY));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(
-          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-    }
+    return editPredicate(request, programId, blockDefinitionId, PredicateUseCase.VISIBILITY);
   }
 
   /**
@@ -109,20 +102,35 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result editEligibility(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
+    return editPredicate(request, programId, blockDefinitionId, PredicateUseCase.ELIGIBILITY);
+  }
 
+  private Result editPredicate(
+      Request request, long programId, long blockDefinitionId, PredicateUseCase predicateUseCase) {
+    requestChecker.throwIfProgramNotDraft(programId);
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
+      if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+        ProgramHeader header = new ProgramHeader(programDefinition, DRAFT);
+        return ok(predicatesEditPageView.render(
+                request, new ProgramPredicatesEditPageViewModel(header)))
+            .as(Http.MimeTypes.HTML);
+      }
+
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+      ImmutableList<QuestionDefinition> predicateQuestions =
+          switch (predicateUseCase) {
+            case ELIGIBILITY ->
+                programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
+                    blockDefinitionId);
+            case VISIBILITY ->
+                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
+                    blockDefinitionId);
+          };
       return ok(
-          predicatesEditViewV2.render(
-              request,
-              programDefinition,
-              blockDefinition,
-              programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
-                  blockDefinitionId),
-              PredicateUseCase.ELIGIBILITY));
+          legacyPredicatesEditView.render(
+              request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
