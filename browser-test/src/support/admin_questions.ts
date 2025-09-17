@@ -872,23 +872,26 @@ export class AdminQuestions {
     // Configure location settings if provided
     if (locationNameKey != null) {
       await this.page
-        .getByLabel('Location name')
+        .getByLabel('Name key')
         .selectOption({value: locationNameKey})
     }
     if (locationAddressKey != null) {
       await this.page
-        .getByLabel('Location address')
+        .getByLabel('Address key')
         .selectOption({value: locationAddressKey})
     }
     if (locationDetailsUrlKey != null) {
       await this.page
-        .getByLabel('Location details URL')
+        .getByLabel('View more details URL key')
         .selectOption({value: locationDetailsUrlKey})
     }
 
     // Configure filters if provided
     if (filters != null) {
-      for (let i = 0; i < filters.length && i < 3; i++) {
+      for (let i = 0; i < filters.length; i++) {
+        await this.page.getByRole('button', {name: 'Add filter'}).click()
+        await this.page.waitForResponse('**/admin/questions/maps/addFilter')
+
         const filter = filters[i]
         if (filter.key != null) {
           await this.page
