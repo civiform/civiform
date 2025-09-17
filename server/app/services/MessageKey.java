@@ -77,6 +77,8 @@ public enum MessageKey {
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
+  BUTTON_ADMIN_LOGIN("button.adminLogin"), // North star only
+  BUTTON_APPLICANT_LOGIN("button.applicantLogin"), // North star only
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
   BUTTON_APPLY_SELECTIONS("button.applySelections"), // North Star only
