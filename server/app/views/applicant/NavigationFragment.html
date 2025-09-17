@@ -260,19 +260,15 @@
         <ul id="select-login" class="usa-language__submenu" hidden="true">
           <li class="usa-language__submenu-item">
             <a
-              role="button"
               th:text="#{button.applicantLogin}"
-              id="admin-login-button"
-              data-testid="login-button"
+              id="applicant-login-button"
               th:href="${loginLink}"
             ></a>
           </li>
           <li class="usa-language__submenu-item">
             <a
-              role="button"
               th:text="#{button.adminLogin}"
-              id="applicant-login-button"
-              data-testid="login-button"
+              id="admin-login-button"
               th:href="${adminLoginUrl}"
             ></a>
           </li>

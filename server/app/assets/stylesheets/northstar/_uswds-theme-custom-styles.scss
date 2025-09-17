@@ -523,6 +523,11 @@ main {
   }
 }
 
+// Add white border to login dropdown options specifically
+#select-login {
+  @include u-border('05', 'white');
+}
+
 [dir='rtl'] {
   .usa-button:not(.margin-left-0, .cf-apply-button) {
     margin-right: 0px;
