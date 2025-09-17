@@ -245,7 +245,84 @@
 </th:block>
 
 <th:block th:fragment="loginOrLogout">
-  <th:block th:if="${isGuest}">
+  <!--  <ul class="usa-language__primary usa-accordion">-->
+  <!--    <li class="usa-language__primary-item">-->
+  <!--      <button-->
+  <!--        id="select-language-menu"-->
+  <!--        type="button"-->
+  <!--        class="usa-button usa-language__link"-->
+  <!--        role="button"-->
+  <!--        aria-expanded="false"-->
+  <!--        aria-controls="select-language"-->
+  <!--        th:text="#{button.languages}"-->
+  <!--      ></button>-->
+  <!--      <ul-->
+  <!--        th:aria-label="#{label.languageSr}"-->
+  <!--        id="select-language"-->
+  <!--        class="usa-language__submenu"-->
+  <!--        hidden="true"-->
+  <!--      >-->
+  <!--        <li-->
+  <!--          th:each="language: ${enabledLanguages}"-->
+  <!--          class="usa-language__submenu-item"-->
+  <!--        >-->
+  <!--          <button-->
+  <!--            th:id="|select-language-${language.key.code()}|"-->
+  <!--            name="locale"-->
+  <!--            type="submit"-->
+  <!--            th:value="${language.key.code()}"-->
+  <!--            th:text="${language.value}"-->
+  <!--          ></button>-->
+  <!--        </li>-->
+  <!--      </ul>-->
+  <!--    </li>-->
+  <!--  </ul>-->
+
+  <th:block th:if="${isGuest && loginDropdownEnabled}">
+      <ul class="usa-language__primary usa-accordion">
+        <li class="usa-language__primary-item">
+          <button
+            id="select-login-menu"
+            type="button"
+            class="usa-button usa-language__link"
+            role="button"
+            aria-expanded="false"
+            aria-controls="select-login"
+            th:text="#{button.login}"
+          ></button>
+          <ul
+            id="select-login"
+            class="usa-language__submenu"
+            hidden="true"
+          >
+            <li
+              class="usa-language__submenu-item"
+            >
+              <a
+                role="button"
+                th:text="#{button.applicantLogin}"
+                id="admin-login-button"
+                data-testid="login-button"
+                th:href="${loginLink}"
+              ></a>
+            </li>
+            <li
+              class="usa-language__submenu-item"
+            >
+              <a
+                role="button"
+                th:text="#{button.adminLogin}"
+                id="applicant-login-button"
+                data-testid="login-button"
+                th:href="${adminLoginUrl}"
+              ></a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+  </th:block>
+
+  <th:block th:if="${isGuest && !loginDropdownEnabled}">
     <a
       role="button"
       class="usa-button usa-button--outline margin-right-0 margin-left-0"
