@@ -161,24 +161,24 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   private void handleEnhancedLogout(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile, ImmutableSet<Role> roles) {
-      // Save the id_token from the returned OidcProfile in the account so that it can be
-      // retrieved at logout time.
-      civiformProfile
-          .getAccount()
-          .thenAccept(
-              account -> {
-                String sessionId = civiformProfile.getProfileData().getSessionId();
-                if (!account.getActiveSession(sessionId).isPresent()) {
-                  logger.warn(
-                      "Session not in account's active sessions for role {}, and OIDC profile {}",
-                      roles,
-                      oidcProfile.getClass().getName());
-                }
-                accountRepositoryProvider
-                    .get()
-                    .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
-              })
-          .join();
+    // Save the id_token from the returned OidcProfile in the account so that it can be
+    // retrieved at logout time.
+    civiformProfile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              String sessionId = civiformProfile.getProfileData().getSessionId();
+              if (!account.getActiveSession(sessionId).isPresent()) {
+                logger.warn(
+                    "Session not in account's active sessions for role {}, and OIDC profile {}",
+                    roles,
+                    oidcProfile.getClass().getName());
+              }
+              accountRepositoryProvider
+                  .get()
+                  .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
+            })
+        .join();
   }
 
   @Override
