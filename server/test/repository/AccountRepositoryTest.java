@@ -334,7 +334,7 @@ public class AccountRepositoryTest extends ResetPostgres {
                             + " into CiviForm. Have the user log in, then add them as a Program"
                             + " Admin. After they've been added, they will need refresh their"
                             + " browser see the programs they've been assigned to.",
-                        EMAIL))));
+                        otherEmailCasing))));
   }
 
   @Test
