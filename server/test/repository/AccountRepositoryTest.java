@@ -310,6 +310,34 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void addAdministeredProgram_twoExistingAccountsWithDifferentCasing_returnsError() {
+    String otherEmailCasing = "email@Email.com";
+
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(EMAIL);
+    account.save();
+
+    AccountModel accountWithCaps = new AccountModel();
+    accountWithCaps.setEmailAddress(EMAIL_WITH_CAPS);
+    accountWithCaps.save();
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
+
+    Optional<CiviFormError> result = repo.addAdministeredProgram(otherEmailCasing, program);
+
+    assertThat(result)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "Cannot add %s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to.",
+                        EMAIL))));
+  }
+
+  @Test
   public void addAdministeredProgram_missingAccount_returnsError() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
