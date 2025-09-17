@@ -37,6 +37,7 @@ import support.ProgramBuilder;
 
 public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
+  public static final String EMAIL_WITH_CAPS = "Email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
 
@@ -205,6 +206,20 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void lookupByEmailAddressCaseInsensitive_sameCasing() {
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void lookupByEmailAddressCaseInsensitive_differentCasing() {
+    new AccountModel().setEmailAddress(EMAIL_WITH_CAPS).setAuthorityId(AUTHORITY_ID).save();
+
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
   public void lookupByEmailAddressAsync() {
     new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
@@ -273,6 +288,21 @@ public class AccountRepositoryTest extends ResetPostgres {
     Optional<CiviFormError> result = repo.addAdministeredProgram(EMAIL, program);
 
     assertThat(repo.lookupAccountByEmail(EMAIL).get().getAdministeredProgramNames())
+        .containsOnly(PROGRAM_NAME);
+    assertThat(result).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void addAdministeredProgram_existingAccountWithDifferentCasing_succeeds() {
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(EMAIL_WITH_CAPS);
+    account.save();
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
+
+    Optional<CiviFormError> result = repo.addAdministeredProgram(EMAIL, program);
+
+    assertThat(repo.lookupAccountByEmail(EMAIL_WITH_CAPS).get().getAdministeredProgramNames())
         .containsOnly(PROGRAM_NAME);
     assertThat(result).isEqualTo(Optional.empty());
   }
