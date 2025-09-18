@@ -68,10 +68,7 @@ test.describe('Prevent Duplicate Submission', () => {
           page.getByText('There are no changes to save for the ' + programName),
         ).toBeVisible()
 
-        await validateScreenshot(
-          page,
-          'north-star-prevent-duplicate-submission',
-        )
+        await validateScreenshot(page, 'prevent-duplicate-submission')
         await validateAccessibility(page)
       })
 

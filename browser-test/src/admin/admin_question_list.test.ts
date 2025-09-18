@@ -111,7 +111,7 @@ test.describe('Admin question list', {tag: ['@northstar']}, () => {
     })
 
     await adminQuestions.gotoAdminQuestionsPage()
-    await validateScreenshot(page, 'questions-list-markdown-rendering-ns')
+    await validateScreenshot(page, 'questions-list-markdown-rendering')
   })
 
   test('filters question list with search query', async ({
@@ -275,7 +275,7 @@ test.describe('Admin question list', {tag: ['@northstar']}, () => {
       expectModal: false,
     })
 
-    await validateScreenshot(page, 'questions-list-with-archived-questions-ns')
+    await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
 
   test('does not sort archived questions', async ({
@@ -369,12 +369,12 @@ test.describe('Admin question list', {tag: ['@northstar']}, () => {
     expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
     await adminQuestions.gotoQuestionEditPage(question2Name)
     expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
-    await validateScreenshot(page, 'question-edit-universal-set-ns')
+    await validateScreenshot(page, 'question-edit-universal-set')
     await adminQuestions.gotoQuestionEditPage(question3Name)
     expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
     await adminQuestions.gotoQuestionEditPage(question4Name)
     expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
-    await validateScreenshot(page, 'question-edit-universal-unset-ns')
+    await validateScreenshot(page, 'question-edit-universal-unset')
 
     // Ensure ordering is correct
     await adminQuestions.gotoAdminQuestionsPage()
@@ -386,7 +386,7 @@ test.describe('Admin question list', {tag: ['@northstar']}, () => {
       'universalTestQuestionFour\n',
       'universalTestQuestionThree\n',
     ])
-    await validateScreenshot(page, 'universal-questions-ns')
+    await validateScreenshot(page, 'universal-questions')
 
     // Update question1 and question 3 and ensure they now appears at the top of the list
     await adminQuestions.gotoQuestionEditPage(question1Name)
