@@ -526,7 +526,7 @@ main {
 // Add white border to login dropdown options specifically
 .usa-language__submenu {
   border-width: 0.05rem;
-  border-color: units(0);
+  border-color: color('white');
 }
 
 [dir='rtl'] {
