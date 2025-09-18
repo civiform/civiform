@@ -59,7 +59,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   // Names of form fields.
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
-  private static final String LOGIN_ONLY_FIELD_NAME = "loginOnly";
+  // private static final String LOGIN_ONLY_FIELD_NAME = "loginOnly";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
   private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
@@ -322,11 +322,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Login only program
+        //                FieldWithLabel.checkbox()
+        //            .setId("login-only-aplications")
+        //            .setFieldName("loginOnly")
+        //            .setValue(String.valueOf(loginOnly))
+        //            .setChecked(loginOnly)
+        //            .getCheckboxTag(),
         fieldset(
                 legend("Login only applications").withClass("text-gray-600"),
                 buildUSWDSCheckboxOption(
-                    /* id= */ "login-only-aplications",
-                    /* name= */ LOGIN_ONLY_FIELD_NAME,
+                    /* id= */ "login-only-applications",
+                    /* name= */ "loginOnly",
                     /* value= */ String.valueOf(loginOnly),
                     /* isChecked= */ loginOnly,
                     /* isDisabled= */ false,

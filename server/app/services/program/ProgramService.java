@@ -368,6 +368,7 @@ public final class ProgramService {
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
+   * @param loginOnly true if only logged in aplicants can apply to the program.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link
    *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be

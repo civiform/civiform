@@ -40,11 +40,10 @@ public final class ProgramForm {
     programTypeValue = "default";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
-    loginOnly = false;
+    loginOnly = true;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
     applicationSteps = new ArrayList<>();
-    loginOnly = false;
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -147,7 +146,7 @@ public final class ProgramForm {
     this.eligibilityIsGating = eligibilityIsGating;
   }
 
-  public Boolean getLoginOnly() {
+  public boolean getLoginOnly() {
     return loginOnly;
   }
 

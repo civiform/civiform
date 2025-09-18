@@ -83,6 +83,7 @@ public class ProgramBuilder {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of())
@@ -150,6 +151,7 @@ public class ProgramBuilder {
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -267,6 +269,7 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
+            /* oginOnly= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
@@ -298,6 +301,7 @@ public class ProgramBuilder {
             obsoleteVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
