@@ -314,8 +314,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(maybeApplicant).isNotPresent();
 
     // Additional validations for enhanced logout behavior.
-    AccountModel account = maybeApplicant.get().getAccount();
-    IdTokens idTokens = account.getIdTokens();
+    IdTokens idTokens = accountWithTiGroup.getIdTokens();
     assertThat(idTokens.getIdToken(profileData.getSessionId())).hasValue(ID_TOKEN_STRING);
   }
 
