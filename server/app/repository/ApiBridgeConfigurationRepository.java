@@ -61,6 +61,20 @@ public final class ApiBridgeConfigurationRepository {
   }
 
   /** Returns an {@link ApiBridgeConfigurationModel} record or empty optional asynchronously. */
+  public CompletionStage<Optional<ApiBridgeConfigurationModel>> findByAdminName(String adminName) {
+    return supplyAsync(
+        () ->
+            database
+                .find(ApiBridgeConfigurationModel.class)
+                .where()
+                .eq("adminName", adminName)
+                .setLabel("ApiBridgeConfigurationRepository.findByAdminName")
+                .setProfileLocation(queryProfileLocationBuilder.create("findByAdminName"))
+                .findOneOrEmpty(),
+        dbExecutionContext);
+  }
+
+  /** Returns an {@link ApiBridgeConfigurationModel} record or empty optional asynchronously. */
   public CompletionStage<Optional<ApiBridgeConfigurationModel>>
       findByHostUrlAndUrlPathAndCompatibilityLevel(
           String hostUrl, String urlPath, CompatibilityLevel compatibilityLevel) {

@@ -1409,6 +1409,13 @@ export class AdminPrograms {
     return await this.page.locator('#block-name-input').inputValue()
   }
 
+  async clickEditBridgeDefinitionButton() {
+    await this.page
+      .getByRole('button', {name: 'Edit Bridge Definition'})
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async addProgramRepeatedBlock(
     programName: string,
     enumeratorBlockName: string,

@@ -2099,4 +2099,32 @@ public final class ProgramService {
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
   }
+
+  /** Update the program with the new provided api bridge definitions */
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateBridgeConfiguration(
+      long programId, ImmutableMap<String, ApiBridgeDefinition> newBridgeDefinitions)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+
+    checkBridgeDefinitionErrors(
+        programDefinition.programType(), errorsBuilder, newBridgeDefinitions);
+
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
+
+    ProgramDefinition newProgramDefinition =
+        programDefinition.toBuilder()
+            .setBridgeDefinitions(ImmutableMap.copyOf(newBridgeDefinitions))
+            .build();
+
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(newProgramDefinition.toProgram())))
+            .toCompletableFuture()
+            .join());
+  }
 }

@@ -17,4 +17,13 @@ public final class JsonUtils {
       throw new RuntimeException(e);
     }
   }
+
+  /** Unchecked version of ObjectMapper.writeValueAsString(Object). */
+  public static String writeValueAsString(ObjectMapper objectMapper, Object value) {
+    try {
+      return objectMapper.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
