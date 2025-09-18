@@ -333,7 +333,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 buildUSWDSCheckboxOption(
                     /* id= */ "login-only-applications",
                     /* name= */ "loginOnly",
-                    /* value= */ String.valueOf(loginOnly),
                     /* isChecked= */ loginOnly,
                     /* isDisabled= */ false,
                     /* label= */ "Is program available to only logged in applicants"))
@@ -727,5 +726,18 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withCondDisabled(isDisabled),
             label(label).withFor(id).withClasses("usa-checkbox__label"))
         .withClasses("usa-checkbox");
+  }
+  private DivTag buildUSWDSCheckboxOption(
+    String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
+    return div(
+      input()
+        .withId(id)
+        .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+        .withType("checkbox")
+        .withName(name)
+        .withCondChecked(isChecked)
+        .withCondDisabled(isDisabled),
+      label(label).withFor(id).withClasses("usa-checkbox__label"))
+      .withClasses("usa-checkbox");
   }
 }
