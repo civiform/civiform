@@ -1,5 +1,6 @@
 # Messages for French (français)
 # Exported from translatewiki.net
+# Author: Gomoko
 
 button.logout=Se déconnecter
 label.selectLanguage=Veuillez sélectionner votre langue préférée.
@@ -405,8 +406,7 @@ option.notSure=Je ne sais pas
 option.maybe=Peut-être
 map.applyFiltersButtonText=Apply filters
 map.filterLegendText=Filters
-# Fuzzy
-map.locationLinkText=View more details
+map.locationLinkText=Afficher plus de détails
 map.locationsCount=Affichage de {0} lieu(x) sur {1}
 map.locationsSelectedCount={0} of {1} maximum locations selected.
 map.noSelectionsMessage=Aucun lieu sélectionné.

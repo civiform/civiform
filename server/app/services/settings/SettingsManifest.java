@@ -1062,8 +1062,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled(RequestHeader request) {
-    return getBool("DATE_VALIDATION_ENABLED", request);
+  public boolean getDateValidationEnabled() {
+    return getBool("DATE_VALIDATION_ENABLED");
   }
 
   /**
@@ -2320,7 +2320,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables admin validation settings for date questions.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(

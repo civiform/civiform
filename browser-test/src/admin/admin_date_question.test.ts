@@ -1,11 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from '../support'
+import {loginAsAdmin, waitForPageJsLoad} from '../support'
 
 test.describe('Create date question with validation parameters', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'date_validation_enabled')
-  })
-
   test('Edit date question with date validation settings', async ({
     page,
     adminQuestions,

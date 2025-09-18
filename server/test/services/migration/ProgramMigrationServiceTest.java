@@ -8,6 +8,9 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static support.TestQuestionBank.createDropdownQuestionDefinition;
+import static support.TestQuestionBank.createQuestionDefinition;
+import static support.TestQuestionBank.createYesNoQuestionDefinition;
 
 import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,14 +45,9 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
@@ -72,23 +70,27 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String INVALID_YES_NO_NAME = "invalidYesNoQuestion";
   private static final String DROPDOWN_QUESTION_NAME = "dropdownQuestion";
 
-  private static final QuestionDefinition QUESTION_1 = createTextQuestion(QUESTION_1_NAME, 1L);
-  private static final QuestionDefinition QUESTION_2 = createTextQuestion(QUESTION_2_NAME, 2L);
+  private static final QuestionDefinition QUESTION_1 =
+      createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
+  private static final QuestionDefinition QUESTION_2 =
+      createQuestionDefinition(QUESTION_2_NAME, 2L, QuestionType.TEXT, Optional.empty());
   private static final QuestionDefinition QUESTION_3 =
-      createQuestion(QUESTION_3_NAME, 3L, QuestionType.ADDRESS);
+      createQuestionDefinition(QUESTION_3_NAME, 3L, QuestionType.ADDRESS, Optional.empty());
   private static final QuestionDefinition ENUMERATOR =
-      createQuestion("enumerator", 4L, QuestionType.ENUMERATOR);
+      createQuestionDefinition("enumerator", 4L, QuestionType.ENUMERATOR, Optional.empty());
   private static final QuestionDefinition REPEATED =
-      createTextQuestionWithEnumerator("repeated", 5L, Optional.of(4L));
+      createQuestionDefinition("repeated", 5L, QuestionType.TEXT, Optional.of(4L));
   private static final QuestionDefinition VALID_YES_NO_QUESTION =
-      createYesNoQuestion(
+      createYesNoQuestionDefinition(
           VALID_YES_NO_NAME, 6L, ImmutableList.of("yes", "no", "maybe", "not-sure"));
   private static final QuestionDefinition INVALID_YES_NO_QUESTION =
-      createYesNoQuestion(INVALID_YES_NO_NAME, 7L, ImmutableList.of("yes", "no", "absolutely"));
+      createYesNoQuestionDefinition(
+          INVALID_YES_NO_NAME, 7L, ImmutableList.of("yes", "no", "absolutely"));
   private static final QuestionDefinition MINIMAL_VALID_YES_NO_QUESTION =
-      createYesNoQuestion("minimalValidYesNo", 8L, ImmutableList.of("yes", "no"));
+      createYesNoQuestionDefinition("minimalValidYesNo", 8L, ImmutableList.of("yes", "no"));
   private static final QuestionDefinition DROPDOWN_QUESTION =
-      createDropdownQuestion(DROPDOWN_QUESTION_NAME, 9L, ImmutableList.of("option1", "option2"));
+      createDropdownQuestionDefinition(
+          DROPDOWN_QUESTION_NAME, 9L, ImmutableList.of("option1", "option2"));
 
   private static final ImmutableList<QuestionDefinition> QUESTIONS_1_2 =
       ImmutableList.of(QUESTION_1, QUESTION_2);
@@ -468,7 +470,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
       throws Exception {
     // Q3 has the same name as Q1 would have after adding a deduping suffix
     QuestionDefinition question3 =
-        createQuestion(QUESTION_1_NAME + " -_- a", 3L, QuestionType.ADDRESS);
+        createQuestionDefinition(
+            QUESTION_1_NAME + " -_- a", 3L, QuestionType.ADDRESS, Optional.empty());
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
             .withBlock("Block A")
@@ -640,7 +643,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram(PROGRAM_NAME_1)
             .withProgramType(ProgramType.DEFAULT)
             .buildDefinition();
-    QuestionDefinition question = createTextQuestion(QUESTION_1_NAME, 1L);
+    QuestionDefinition question =
+        createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
     ImmutableList<QuestionDefinition> questionDefinitions = ImmutableList.of(question);
 
     service.saveImportedProgram(programDefinition, questionDefinitions, ImmutableMap.of());
@@ -679,11 +683,14 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           throws Exception {
     // Create child questions with enumerator IDs
     QuestionDefinition childQuestion1 =
-        createTextQuestionWithEnumerator(QUESTION_2_NAME, 2L, Optional.of(QUESTION_1.getId()));
+        createQuestionDefinition(
+            QUESTION_2_NAME, 2L, QuestionType.TEXT, Optional.of(QUESTION_1.getId()));
     QuestionDefinition childQuestion2 =
-        createTextQuestionWithEnumerator(QUESTION_3_NAME, 3L, Optional.of(QUESTION_1.getId()));
+        createQuestionDefinition(
+            QUESTION_3_NAME, 3L, QuestionType.TEXT, Optional.of(QUESTION_1.getId()));
     QuestionDefinition childQuestion3 =
-        createTextQuestionWithEnumerator(QUESTION_4_NAME, 4L, Optional.of(QUESTION_1.getId()));
+        createQuestionDefinition(
+            QUESTION_4_NAME, 4L, QuestionType.TEXT, Optional.of(QUESTION_1.getId()));
     QuestionModel childQuestion3model = new QuestionModel(childQuestion3);
     childQuestion3model.addVersion(versionRepository.getActiveVersion()).save();
 
@@ -765,8 +772,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void validateQuestionKeyUniqueness_importTwoConflictingKeys_throws() {
-    ImmutableList<QuestionDefinition> questions =
-        ImmutableList.of(QUESTION_1, createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+    QuestionDefinition conflictingQuestion =
+        createQuestionDefinition(
+            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+    ImmutableList<QuestionDefinition> questions = ImmutableList.of(QUESTION_1, conflictingQuestion);
 
     Exception e =
         assertThrows(
@@ -781,8 +790,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   @Test
   public void validateQuestionKeyUniqueness_existingKeyConflictHasDifferentName_throws() {
     resourceCreator.insertQuestion(QUESTION_1_NAME);
-    ImmutableList<QuestionDefinition> questions =
-        ImmutableList.of(createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+    QuestionDefinition conflictingQuestion =
+        createQuestionDefinition(
+            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+    ImmutableList<QuestionDefinition> questions = ImmutableList.of(conflictingQuestion);
 
     Exception e =
         assertThrows(
@@ -923,80 +934,5 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-  }
-
-  // Helper methods to create test questions
-  private static QuestionDefinition createTextQuestion(String name, Long id) {
-    return createTextQuestionWithEnumerator(name, id, Optional.empty());
-  }
-
-  private static QuestionDefinition createTextQuestionWithEnumerator(
-      String name, Long id, Optional<Long> enumeratorId) {
-    try {
-      return createQuestionWithEnumerator(name, id, enumeratorId, QuestionType.TEXT);
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static QuestionDefinition createQuestion(String name, Long id, QuestionType type) {
-    try {
-      return createQuestionWithEnumerator(name, id, Optional.empty(), type);
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static QuestionDefinition createQuestionWithEnumerator(
-      String name, Long id, Optional<Long> enumeratorId, QuestionType type)
-      throws UnsupportedQuestionTypeException {
-    return new QuestionDefinitionBuilder()
-        .setName(name)
-        .setId(id)
-        .setQuestionType(type)
-        .setQuestionText(LocalizedStrings.withDefaultValue(name))
-        .setDescription(name)
-        .setEnumeratorId(enumeratorId)
-        .build();
-  }
-
-  // Helper methods for YES/NO questions
-  private static QuestionDefinition createYesNoQuestion(
-      String name, Long id, ImmutableList<String> optionNames) {
-    return createMultiOptionQuestion(name, id, MultiOptionQuestionType.YES_NO, optionNames);
-  }
-
-  private static QuestionDefinition createDropdownQuestion(
-      String name, Long id, ImmutableList<String> optionNames) {
-    return createMultiOptionQuestion(name, id, MultiOptionQuestionType.DROPDOWN, optionNames);
-  }
-
-  private static QuestionDefinition createMultiOptionQuestion(
-      String name,
-      Long id,
-      MultiOptionQuestionType multiOptionType,
-      ImmutableList<String> optionNames) {
-    ImmutableList.Builder<QuestionOption> optionsBuilder = ImmutableList.builder();
-    for (int i = 0; i < optionNames.size(); i++) {
-      optionsBuilder.add(
-          QuestionOption.create(
-              (long) i, optionNames.get(i), LocalizedStrings.of(Locale.US, optionNames.get(i))));
-    }
-
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("Test " + multiOptionType.name() + " question")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Select an option"))
-            .build();
-
-    MultiOptionQuestionDefinition question =
-        new MultiOptionQuestionDefinition(config, optionsBuilder.build(), multiOptionType);
-    // Set the ID using the same pattern as existing createQuestionWithEnumerator method
-    try {
-      return new QuestionDefinitionBuilder(question).setId(id).build();
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

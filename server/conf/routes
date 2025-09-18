@@ -90,6 +90,8 @@ POST    /admin/questions                                                       c
 POST    /admin/questions/:id/discard                                           controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore                                           controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive                                           controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
+POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
 # For rendering North Star question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)

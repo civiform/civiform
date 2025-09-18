@@ -1,8 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
-  disableFeatureFlag,
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -12,10 +10,6 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'date_validation_enabled')
-  })
-
   test('sample question seeding works', async ({
     page,
     adminQuestions,
@@ -71,14 +65,6 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await validateScreenshot(page, `${type}-edit-page`)
-      if (type == QuestionType.DATE) {
-        await disableFeatureFlag(page, 'date_validation_enabled')
-        await adminQuestions.gotoQuestionEditPage(questionName)
-        await validateScreenshot(
-          page,
-          `${type}-edit-page-date-validation-disabled`,
-        )
-      }
       await adminQuestions.updateQuestion(questionName)
 
       const programName = `program-for-${type}-question-lifecycle`

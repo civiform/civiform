@@ -51,7 +51,7 @@ public class QuestionConfigTest {
     settingsManifest = mock(SettingsManifest.class);
     request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
     playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
-    when(settingsManifest.getDateValidationEnabled(request)).thenReturn(true);
+    when(settingsManifest.getDateValidationEnabled()).thenReturn(true);
     when(playThymeleafContextFactory.create(request))
         .thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
@@ -195,7 +195,7 @@ public class QuestionConfigTest {
 
   @Test
   public void buildDateConfig_dateValidationDisabled_isEmpty() throws Exception {
-    when(settingsManifest.getDateValidationEnabled(request)).thenReturn(false);
+    when(settingsManifest.getDateValidationEnabled()).thenReturn(false);
     QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
 
     Optional<DivTag> maybeConfig =
