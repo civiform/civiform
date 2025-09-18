@@ -244,48 +244,53 @@
   </th:block>
 </th:block>
 
-<th:block th:fragment="loginOrLogout">
-  <th:block th:if="${isGuest && loginDropdownEnabled}">
-    <ul class="usa-language__primary usa-accordion">
-      <li class="usa-language__primary-item">
-        <button
-          id="select-login-menu"
-          type="button"
-          class="usa-button usa-language__link"
-          role="button"
-          aria-expanded="false"
-          aria-controls="select-login"
-          th:text="#{button.login}"
-        ></button>
-        <ul id="select-login" class="usa-language__submenu" hidden="true">
-          <li class="usa-language__submenu-item">
-            <a
-              th:text="#{button.applicantLogin}"
-              id="applicant-login-button"
-              th:href="${loginLink}"
-            ></a>
-          </li>
-          <li class="usa-language__submenu-item">
-            <a
-              th:text="#{button.adminLogin}"
-              id="admin-login-button"
-              th:href="${adminLoginUrl}"
-            ></a>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </th:block>
+<th:block th:fragment="loginDropdown">
+  <ul class="usa-language__primary usa-accordion">
+    <li class="usa-language__primary-item">
+      <button
+        id="select-login-menu"
+        type="button"
+        class="usa-button usa-language__link"
+        role="button"
+        aria-expanded="false"
+        aria-controls="select-login"
+        th:text="#{button.login}"
+      ></button>
+      <ul id="select-login" class="usa-language__submenu" hidden="true">
+        <li class="usa-language__submenu-item">
+          <a
+            th:text="#{button.applicantLogin}"
+            id="applicant-login-button"
+            th:href="${loginLink}"
+          ></a>
+        </li>
+        <li class="usa-language__submenu-item">
+          <a
+            th:text="#{button.adminLogin}"
+            id="admin-login-button"
+            th:href="${adminLoginUrl}"
+          ></a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</th:block>
 
-  <th:block th:if="${isGuest && !loginDropdownEnabled}">
-    <a
-      role="button"
-      class="usa-button usa-button--outline margin-right-0 margin-left-0"
-      th:text="#{button.login}"
-      id="login-button"
-      data-testid="login-button"
-      th:href="${loginLink}"
-    ></a>
+<th:block th:fragment="loginOrLogout">
+  <th:block th:if="${isGuest}">
+    <th:block th:if="${loginDropdownEnabled}">
+      <div th:replace="~{applicant/NavigationFragment:: loginDropdown}"></div>
+    </th:block>
+    <th:block th:if="${!loginDropdownEnabled}">
+      <a
+        role="button"
+        class="usa-button usa-button--outline margin-right-0 margin-left-0"
+        th:text="#{button.login}"
+        id="login-button"
+        data-testid="login-button"
+        th:href="${loginLink}"
+      ></a>
+    </th:block>
   </th:block>
 
   <th:block th:if="${!isGuest}">
