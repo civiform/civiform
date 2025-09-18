@@ -1,7 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AuthStrategy,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -15,9 +14,6 @@ import {CardSectionName} from './support/applicant_program_list'
 
 test.describe('Applicant auth', {tag: ['@northstar']}, () => {
   const endYourSessionText = 'end your session'
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
 
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)

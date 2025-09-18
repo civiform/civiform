@@ -4,7 +4,6 @@ import {enableFeatureFlag, validateAccessibility} from '../support'
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'show_not_production_banner_enabled')
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('View "Not Production" banner', async ({page}) => {

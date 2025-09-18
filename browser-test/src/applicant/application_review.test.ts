@@ -9,7 +9,6 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 import {ProgramExtraAction, ProgramLifecycle} from '../support/admin_programs'
 
@@ -17,9 +16,6 @@ test.describe(
   'Program admin review of submitted applications',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
     test('all major steps', async ({
       page,
       adminQuestions,

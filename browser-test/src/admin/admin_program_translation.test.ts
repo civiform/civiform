@@ -15,10 +15,6 @@ test.describe(
   'Admin can manage program translations',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test('page layout screenshot', async ({
       page,
       adminPrograms,

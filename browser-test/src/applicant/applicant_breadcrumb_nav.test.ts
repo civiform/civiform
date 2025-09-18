@@ -1,10 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  logout,
-  validateAccessibility,
-} from '../support'
+import {loginAsAdmin, logout, validateAccessibility} from '../support'
 
 test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
   const programName = 'Test program for breadcrumb navigation'
@@ -12,8 +7,6 @@ test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
   const staticQuestionText = 'static question text'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await loginAsAdmin(page)
 
     await adminQuestions.addStaticQuestion({

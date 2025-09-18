@@ -2,7 +2,6 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -12,10 +11,6 @@ import {
 import {Page} from 'playwright'
 
 test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {

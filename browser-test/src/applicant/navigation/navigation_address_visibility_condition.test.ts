@@ -20,7 +20,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       test.beforeEach(
         async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
           await enableFeatureFlag(page, 'esri_address_correction_enabled')
           await enableFeatureFlag(
             page,

@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -14,10 +13,6 @@ test.describe(
   'Email question for applicant flow',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test.describe('single email question', () => {
       const programName = 'Test program for single email'
 

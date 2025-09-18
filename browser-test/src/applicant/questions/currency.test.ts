@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -16,10 +15,6 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
   const invalidCurrency = '1.0'
   const currencyError =
     'Error: Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30'
-
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
 
   test.describe('single currency question', () => {
     const programName = 'Test program for single currency'

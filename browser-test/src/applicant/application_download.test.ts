@@ -1,6 +1,5 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -11,9 +10,8 @@ test.describe(
   'Applicant application download test',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page, seeding}) => {
+    test.beforeEach(async ({seeding}) => {
       await seeding.seedQuestions()
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('download finished application', async ({

@@ -13,7 +13,6 @@ import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'date_validation_enabled')
   })
 

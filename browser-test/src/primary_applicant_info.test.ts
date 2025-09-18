@@ -16,7 +16,6 @@ import {
 
 test.describe('primary applicant info questions', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'date_validation_enabled')
   })
 

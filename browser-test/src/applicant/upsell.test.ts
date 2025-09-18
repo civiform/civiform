@@ -26,8 +26,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const relatedProgramName = 'Related program'
 
   test.beforeEach(async ({page, adminPrograms}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {

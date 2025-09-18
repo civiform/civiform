@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -17,7 +16,6 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

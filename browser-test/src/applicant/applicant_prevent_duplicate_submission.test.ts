@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -39,8 +38,6 @@ test.describe('Prevent Duplicate Submission', () => {
     {tag: ['@northstar']},
     async ({applicantQuestions, page, applicantProgramOverview}) => {
       await test.step('As applicant, submit an application', async () => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-
         await loginAsTestUser(page)
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(

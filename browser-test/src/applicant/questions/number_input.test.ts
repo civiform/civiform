@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -17,10 +16,6 @@ test.describe(
     const errorMessage = 'This question is required.'
     const invalidErrorMessage =
       'Error: Number must be a positive whole number and can only contain numeric characters 0-9.'
-
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
 
     test.describe('single number question', () => {
       const programName = 'Test program for single number'

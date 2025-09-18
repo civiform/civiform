@@ -26,7 +26,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
             page,
             'esri_address_service_area_validation_enabled',
           )
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
 
           // Create Questions
           await adminQuestions.addAddressQuestion({

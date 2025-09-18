@@ -1,15 +1,9 @@
 import {test} from '../support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-  waitForPageJsLoad,
-} from '../support'
+import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
 test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('preview as applicant and use to admin back button', async ({

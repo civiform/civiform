@@ -1,12 +1,11 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Admin question preview', {tag: ['@northstar']}, () => {
   const questionName = 'test-question'
 
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('Preview whole page', async ({page, adminQuestions}) => {

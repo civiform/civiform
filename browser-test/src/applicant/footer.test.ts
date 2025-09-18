@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -8,10 +7,6 @@ import {
 } from '../support'
 
 test.describe('North Star footer', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('renders footer', async ({page}) => {
     await validateScreenshot(page.locator('footer'), 'footer')
     await validateAccessibility(page)
