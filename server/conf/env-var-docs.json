@@ -927,6 +927,12 @@
         "description": "Enables admin validation settings for date questions.",
         "type": "bool",
         "required": false
+      },
+      "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Remove the CSV/JSON/PDF download capability for Program Admins.",
+        "type": "bool",
+        "required": false
       }
     }
   },
