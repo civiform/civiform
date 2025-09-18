@@ -940,6 +940,29 @@ map.selectOptionPlaceholderText=- Select -
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
 
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Add filter
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+# Title for filters section
+map.addFiltersTitle=Filters
+# Label for display name field
+map.displayNameLabel=Display name
+# Label for key field
+map.keyLabel=Key
+# Label for location address key field
+map.locationAddressLabel=Address key
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=View more details URL key
+# Label for location name key field
+map.locationNameLabel=Name key
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Maximum location selections
+
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
