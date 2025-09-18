@@ -113,7 +113,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       Optional<Boolean> showDownloadModal,
       Optional<String> message) {
     boolean showDownloadButton =
-        !(settingsManifest.getRemoveDownloadForProgramAdmins(request)
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
             && profile.isOnlyProgramAdmin());
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));

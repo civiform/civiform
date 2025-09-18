@@ -1067,8 +1067,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
-  public boolean getRemoveDownloadForProgramAdmins(RequestHeader request) {
-    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS", request);
+  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
+    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
   /**
@@ -2327,7 +2327,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
-                          "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS",
+                          "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
