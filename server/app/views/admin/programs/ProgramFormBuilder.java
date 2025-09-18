@@ -170,6 +170,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
+    System.out.println("**************" + loginOnly);
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -321,13 +322,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* label= */ "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        // Login only program
-        //                FieldWithLabel.checkbox()
-        //            .setId("login-only-aplications")
-        //            .setFieldName("loginOnly")
-        //            .setValue(String.valueOf(loginOnly))
-        //            .setChecked(loginOnly)
-        //            .getCheckboxTag(),
         fieldset(
                 legend("Login only applications").withClass("text-gray-600"),
                 buildUSWDSCheckboxOption(
@@ -727,17 +721,18 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             label(label).withFor(id).withClasses("usa-checkbox__label"))
         .withClasses("usa-checkbox");
   }
+
   private DivTag buildUSWDSCheckboxOption(
-    String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
+      String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
     return div(
-      input()
-        .withId(id)
-        .withClasses("usa-checkbox__input usa-checkbox__input--tile")
-        .withType("checkbox")
-        .withName(name)
-        .withCondChecked(isChecked)
-        .withCondDisabled(isDisabled),
-      label(label).withFor(id).withClasses("usa-checkbox__label"))
-      .withClasses("usa-checkbox");
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 }

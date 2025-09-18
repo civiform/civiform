@@ -40,7 +40,7 @@ public final class ProgramForm {
     programTypeValue = "default";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
-    loginOnly = true;
+    loginOnly = false;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
     applicationSteps = new ArrayList<>();

@@ -29,14 +29,6 @@ class AdminPrograms {
       },
     )
   }
-  // static attachLoginOnlyListner() {
-  //   const loginOnlyCheckbox = <HTMLInputElement>(document.querySelector('#login-only-applications'))
-  //   if(!loginOnlyCheckbox){
-  //     return
-  //   }
-  //   loginOnlyCheckbox.value = 'true'
-  //   loginOnlyCheckbox.checked = true
-  // }
 
   /**
    * Attaches a change event listener to the program type selector to
@@ -360,5 +352,4 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
-  // AdminPrograms.attachLoginOnlyListner()
 }
