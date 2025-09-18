@@ -5,13 +5,15 @@ import {
   loginAsTestUser,
   logout,
 } from '../support'
+import {BASE_URL} from '../support/config'
 
 test.describe(
   'Applicant application download test',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({seeding}) => {
+    test.beforeEach(async ({page, seeding}) => {
       await seeding.seedQuestions()
+      await page.goto(BASE_URL)
     })
 
     test('download finished application', async ({

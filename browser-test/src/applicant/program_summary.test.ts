@@ -208,6 +208,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
       await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
     })
 
     await test.step('Download file in North Star', async () => {
