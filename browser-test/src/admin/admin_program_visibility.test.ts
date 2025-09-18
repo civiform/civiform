@@ -46,7 +46,7 @@ test.describe(
 
       // Verify the program cannot be seen
       await applicantQuestions.expectProgramHidden(programName)
-      await validateScreenshot(page, 'program-visibility-hidden-ns')
+      await validateScreenshot(page, 'program-visibility-hidden')
     })
 
     test('create a public program, verify applicants can see it on the home page', async ({
@@ -77,7 +77,7 @@ test.describe(
         programShortDescription,
       )
 
-      await validateScreenshot(page, 'program-visibility-public-ns')
+      await validateScreenshot(page, 'program-visibility-public')
     })
 
     test('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async ({
@@ -223,7 +223,7 @@ test.describe(
         programShortDescription,
       )
 
-      await validateScreenshot(page, 'program-visibility-for-selected-tis-ns')
+      await validateScreenshot(page, 'program-visibility-for-selected-tis')
     })
 
     test('create a program visible only for Selected TIs, then choose TI_Only, all TIs can see the program', async ({

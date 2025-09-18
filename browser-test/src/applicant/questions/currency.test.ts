@@ -42,7 +42,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'currency-north-star',
+          'currency',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -52,7 +52,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'currency-errors-north-star',
+          'currency-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

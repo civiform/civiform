@@ -36,7 +36,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'id-north-star',
+          'id',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -47,7 +47,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'id-errors-north-star',
+          'id-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

@@ -77,7 +77,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await validateScreenshot(
       page,
-      'northstar-ineligible',
+      'ineligible',
       /* fullPage= */ false,
       /* mobileScreenshot= */ true,
     )
@@ -169,10 +169,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
-      await validateScreenshot(
-        page.getByRole('alert'),
-        'northstar-eligibility-msg',
-      )
+      await validateScreenshot(page.getByRole('alert'), 'eligibility-msg')
     })
   })
 
@@ -270,7 +267,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await validateScreenshot(
       page,
-      'northstar-ineligible-right-to-left',
+      'ineligible-right-to-left',
       /* fullPage= */ false,
       /* mobileScreenshot= */ true,
     )

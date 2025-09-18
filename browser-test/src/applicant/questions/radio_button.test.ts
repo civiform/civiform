@@ -41,7 +41,7 @@ test.describe(
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'radio-button-north-star',
+            'radio-button',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )
@@ -51,7 +51,7 @@ test.describe(
           await applicantQuestions.clickContinue()
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'radio-button-errors-north-star',
+            'radio-button-errors',
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )
@@ -206,7 +206,7 @@ test.describe(
         ])
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'radio-button-options-with-markdown-north-star',
+          'radio-button-options-with-markdown',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

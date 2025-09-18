@@ -27,10 +27,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       )
     })
 
-    test('validate screenshot with north star flag enabled', async ({
-      page,
-      applicantQuestions,
-    }) => {
+    test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,
@@ -39,7 +36,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'name-north-star',
+          'name',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )
@@ -49,7 +46,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
-          'name-errors-north-star',
+          'name-errors',
           /* fullPage= */ false,
           /* mobileScreenshot= */ false,
         )

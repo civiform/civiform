@@ -45,7 +45,7 @@ test.describe(
       )
       await validateScreenshot(
         page.getByTestId('staticQuestionRoot'),
-        'markdown-text-north-star',
+        'markdown-text',
         /* fullPage= */ false,
         /* mobileScreenshot= */ false,
       )

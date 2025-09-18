@@ -561,7 +561,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
         await validateScreenshot(
           page,
-          'northstar-ineligible-page-with-markdown',
+          'ineligible-page-with-markdown',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )

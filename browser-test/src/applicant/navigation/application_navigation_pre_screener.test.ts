@@ -205,7 +205,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('main'),
-        'north-star-pre-screener-upsell-right-to-left',
+        'pre-screener-upsell-right-to-left',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
