@@ -1066,6 +1066,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DATE_VALIDATION_ENABLED");
   }
 
+  /** Remove the CSV/JSON/PDF download capability for Program Admins. */
+  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
+    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
    * replayed if the user logs out
@@ -2320,7 +2325,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables admin validation settings for date questions.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
+                          "Remove the CSV/JSON/PDF download capability for Program Admins.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(

@@ -57,6 +57,7 @@ import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
@@ -84,6 +85,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final ProgramApplicationTableView tableView;
+  private final SettingsManifest settingsManifest;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -109,7 +111,8 @@ public final class AdminApplicationController extends CiviFormController {
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
       StatusService statusService,
-      ProgramApplicationTableView tableView) {
+      ProgramApplicationTableView tableView,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -124,6 +127,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.tableView = checkNotNull(tableView);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -137,6 +141,10 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     final ProgramDefinition program;
 
     try {
@@ -186,6 +194,10 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
       SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
@@ -251,6 +263,10 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics(
       Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
             .setFromTime(parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
@@ -267,6 +283,10 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
       checkProgramAdminAuthorization(request, program.adminName()).join();
@@ -335,6 +355,7 @@ public final class AdminApplicationController extends CiviFormController {
             statusService.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
+            profileUtils.currentUserProfile(request),
             request));
   }
 

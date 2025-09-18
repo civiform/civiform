@@ -50,6 +50,7 @@ import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.AlertComponent;
 import views.ApplicantUtils;
@@ -82,6 +83,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
   private final Messages enUsMessages;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationTableView(
@@ -89,12 +91,14 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter,
-      @BindingAnnotations.EnUsLang Messages enUsMessages) {
+      @BindingAnnotations.EnUsLang Messages enUsMessages,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
     this.enUsMessages = checkNotNull(enUsMessages);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -108,6 +112,9 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ProgramApplicationListView.RenderFilterParams filterParams,
       Optional<Boolean> showDownloadModal,
       Optional<String> message) {
+    boolean showDownloadButton =
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+            && profile.isOnlyProgramAdmin());
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
 
@@ -124,7 +131,11 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         "bg-opacity-75",
                         StyleUtils.responsiveSmall("mb-6")),
                 br(),
-                renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
+                renderSearchForm(
+                    program,
+                    allPossibleProgramApplicationStatuses,
+                    filterParams,
+                    showDownloadButton),
                 div(),
                 renderApplicationTable(
                         paginatedApplications.getPageContents(),
@@ -156,15 +167,18 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             .setAdminType(profile)
             .getBundle(request)
             .setTitle(program.adminName() + " - Applications")
-            .addModals(downloadModal)
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv);
+    if (showDownloadButton) {
+      htmlBundle.addModals(downloadModal);
+    }
     return layout.renderCentered(htmlBundle);
   }
 
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      ProgramApplicationListView.RenderFilterParams filterParams) {
+      ProgramApplicationListView.RenderFilterParams filterParams,
+      boolean showDownloadButton) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -262,13 +276,15 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(
             div()
                 .withClasses("mt-6", "mb-8", "flex", "space-x-2")
-                .with(
-                    div().withClass("flex-grow"),
+                .with(div().withClass("flex-grow"))
+                .condWith(
+                    showDownloadButton,
                     makeSvgTextButton("Download", Icons.DOWNLOAD)
                         .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                         .withName(SHOW_DOWNLOAD_MODAL)
                         .withValue("true")
-                        .withType("submit"),
+                        .withType("submit"))
+                .with(
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
