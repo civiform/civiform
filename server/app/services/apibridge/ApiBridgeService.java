@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,7 @@ import play.libs.ws.WSResponse;
 import services.ErrorAnd;
 
 /** Handles the direct http communication with a bridge service. */
+@Singleton
 public final class ApiBridgeService implements WSBodyReadables {
   private static final Logger logger = LoggerFactory.getLogger(ApiBridgeService.class);
   private final WSClient wsClient;

@@ -205,4 +205,9 @@ public class ApiBridgeConfigurationModel extends BaseModel {
   public Instant updateTime() {
     return updateTime;
   }
+
+  /** Gets the formatted url of the hostUrl and urlPath combined */
+  public String getFullHostUrlWithPath() {
+    return "%s%s".formatted(hostUrl, urlPath);
+  }
 }

@@ -164,6 +164,10 @@ GET     /admin/api-bridge/discovery                                            c
 POST    /admin/api-bridge/hx/discovery                                         controllers.admin.apibridge.DiscoveryController.hxDiscoveryPopulate(request: Request)
 POST    /admin/api-bridge/hx/add                                               controllers.admin.apibridge.DiscoveryController.hxAdd(request: Request)
 
+GET     /admin/programs/:programId/api-bridge/edit                             controllers.admin.apibridge.ProgramBridgeController.edit(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/hx/bridge-configuration          controllers.admin.apibridge.ProgramBridgeController.hxBridgeConfiguration(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/save                             controllers.admin.apibridge.ProgramBridgeController.save(request: Request, programId: Long)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey                                        controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey                              controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)

@@ -285,6 +285,11 @@ button.usa-button.usa-button--unstyled.htmx-request {
   table-layout: fixed;
 }
 
+// Set a basic default gap for `display: flex`.
+.display-flex.flex-gap {
+  gap: 1rem;
+}
+
 // Adjust the nav to behave like a tab strip
 .cf-tab-strip {
   @include u-border-bottom(1px, 'solid', 'base-light');
