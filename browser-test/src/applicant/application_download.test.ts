@@ -1,11 +1,11 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
 } from '../support'
+import {BASE_URL} from '../support/config'
 
 test.describe(
   'Applicant application download test',
@@ -13,7 +13,7 @@ test.describe(
   () => {
     test.beforeEach(async ({page, seeding}) => {
       await seeding.seedQuestions()
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await page.goto(BASE_URL)
     })
 
     test('download finished application', async ({

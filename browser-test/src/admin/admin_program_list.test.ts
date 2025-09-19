@@ -17,10 +17,6 @@ import {
 } from '../support/admin_programs'
 
 test.describe('Program list page.', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 

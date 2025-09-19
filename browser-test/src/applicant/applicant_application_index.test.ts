@@ -27,8 +27,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -907,10 +905,6 @@ test.describe(
   'applicant program index page with images',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test('shows program with wide image in North Star and removes image from card when in My Applications', async ({
       page,
       adminPrograms,

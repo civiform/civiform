@@ -17,10 +17,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   const phoneQuestionText = 'phone question text'
   const currencyQuestionText = 'currency question text'
 
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test.describe('navigation with five blocks', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)

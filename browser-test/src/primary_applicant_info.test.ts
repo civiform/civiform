@@ -1,6 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -14,10 +13,6 @@ import {
 } from './support/admin_questions'
 
 test.describe('primary applicant info questions', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
     page,
     adminQuestions,

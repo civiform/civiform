@@ -46,8 +46,6 @@ test.describe(
 
       await loginAsTestUser(page)
 
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.submitFromReviewPage(
@@ -88,8 +86,6 @@ test.describe(
         await logout(page)
       })
 
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.submitFromReviewPage(
@@ -123,8 +119,6 @@ test.describe(
       await logout(page) // Log out as admin
       await loginAsTestUser(page)
 
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.submitFromReviewPage(
@@ -152,8 +146,6 @@ test.describe(
       applicantQuestions,
     }) => {
       await logout(page) // Log out as admin
-
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
@@ -200,8 +192,6 @@ test.describe(
         await tiDashboard.expectDashboardContainClient(client)
       })
 
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
@@ -240,8 +230,6 @@ test.describe(
         await tiDashboard.expectDashboardContainClient(client)
       })
 
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         // Validate accessibility label
@@ -270,7 +258,6 @@ test.describe(
       adminSettings,
       applicantQuestions,
     }) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
       await adminSettings.gotoAdminSettings()
 

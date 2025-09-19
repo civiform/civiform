@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguageNorthstar,
@@ -24,8 +23,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     const currencyQuestionText = 'currency question text'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({
@@ -211,11 +208,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
       await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
     })
 
     await test.step('Download file in North Star', async () => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,

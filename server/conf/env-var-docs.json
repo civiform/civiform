@@ -907,7 +907,7 @@
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       },

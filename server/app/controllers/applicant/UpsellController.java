@@ -153,7 +153,7 @@ public final class UpsellController extends CiviFormController {
               Optional<ToastMessage> toastMessage =
                   toastMessageValue.map(m -> ToastMessage.alert(m));
 
-              if (settingsManifest.getNorthStarApplicantUi(request)) {
+              if (settingsManifest.getNorthStarApplicantUi()) {
                 Instant instant = Instant.parse(submitTime);
                 Date submitDate = Date.from(instant);
                 DateFormat dateFormat =

@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -35,7 +34,6 @@ test.describe(
         adminQuestions,
         adminPrograms,
       )
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('parses markdown', async ({page, applicantQuestions}) => {
