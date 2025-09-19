@@ -23,6 +23,7 @@ import static j2html.TagCreator.tr;
 
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
@@ -81,7 +82,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private final ApplicantUtils applicantUtils;
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
-  private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
+  private final Logger log = LoggerFactory.getLogger(ProgramApplicationTableView.class);
   private final Messages enUsMessages;
   private final SettingsManifest settingsManifest;
 
@@ -109,7 +110,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
-      ProgramApplicationListView.RenderFilterParams filterParams,
+      ProgramApplicationTableView.RenderFilterParams filterParams,
       Optional<Boolean> showDownloadModal,
       Optional<String> message) {
     boolean showDownloadButton =
@@ -177,7 +178,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      ProgramApplicationListView.RenderFilterParams filterParams,
+      ProgramApplicationTableView.RenderFilterParams filterParams,
       boolean showDownloadButton) {
     String redirectUrl =
         routes.AdminApplicationController.index(
@@ -293,7 +294,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
   private Modal renderDownloadApplicationsModal(
       ProgramDefinition program,
-      ProgramApplicationListView.RenderFilterParams filterParams,
+      ProgramApplicationTableView.RenderFilterParams filterParams,
       boolean showDownloadModal) {
     String modalId = "download-program-applications-modal";
     DivTag modalContent =
@@ -543,6 +544,35 @@ public class ProgramApplicationTableView extends BaseHtmlView {
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();
+    }
+  }
+
+  @AutoValue
+  public abstract static class RenderFilterParams {
+    public abstract Optional<String> search();
+
+    public abstract Optional<String> fromDate();
+
+    public abstract Optional<String> untilDate();
+
+    public abstract Optional<String> selectedApplicationStatus();
+
+    public static Builder builder() {
+      return new AutoValue_ProgramApplicationTableView_RenderFilterParams.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setSearch(Optional<String> search);
+
+      public abstract Builder setFromDate(Optional<String> fromDate);
+
+      public abstract Builder setUntilDate(Optional<String> untilDate);
+
+      public abstract Builder setSelectedApplicationStatus(
+          Optional<String> selectedApplicationStatus);
+
+      public abstract RenderFilterParams build();
     }
   }
 }
