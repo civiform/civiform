@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -15,10 +14,6 @@ test.describe(
   'Radio button question for applicant flow',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test.describe('single radio button question', {tag: ['@northstar']}, () => {
       const programName = 'Test program for single radio button'
 
@@ -29,7 +24,6 @@ test.describe(
           adminQuestions,
           adminPrograms,
         )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {

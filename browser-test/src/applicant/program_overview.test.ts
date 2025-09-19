@@ -1,7 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   loginAsTestUser,
@@ -17,8 +16,6 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   const questionText = 'This is a text question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await test.step('create a new program with one text question', async () => {
       await loginAsAdmin(page)
       await adminQuestions.addTextQuestion({

@@ -18,8 +18,6 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
   const radioQuestionText = 'radio question text'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await loginAsAdmin(page)
 
     await adminQuestions.addDateQuestion({

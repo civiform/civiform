@@ -3,7 +3,6 @@ import {expect, test} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -15,10 +14,6 @@ test.describe(
   'Yes/no question for applicant flow',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test.describe('single yes/no question', () => {
       const programName = 'Test program for single yes/no question'
 

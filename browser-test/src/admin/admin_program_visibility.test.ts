@@ -2,7 +2,6 @@ import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -17,10 +16,6 @@ test.describe(
   'Validate program visibility is correct for applicants and TIs',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
       page,
       adminPrograms,

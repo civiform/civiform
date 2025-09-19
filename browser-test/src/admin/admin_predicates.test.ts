@@ -13,10 +13,6 @@ import {
 } from '../support'
 
 test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('add a hide predicate', async ({
     page,
     adminQuestions,

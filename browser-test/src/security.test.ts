@@ -1,14 +1,10 @@
 import {test, expect} from './support/civiform_fixtures'
-import {loginAsAdmin, enableFeatureFlag} from './support'
+import {loginAsAdmin} from './support'
 
 test.describe(
   'applicant security',
   {tag: ['@parallel-candidate', '@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test('applicant cannot access admin pages', async ({request}) => {
       const response = await request.get('/admin/programs')
       await expect(response).toBeOK()

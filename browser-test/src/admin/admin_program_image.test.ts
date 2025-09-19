@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   dismissToast,
   loginAsAdmin,
   validateScreenshot,
@@ -15,7 +14,6 @@ import {
 
 test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
     await loginAsAdmin(page)
   })
 

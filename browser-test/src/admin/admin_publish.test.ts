@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -15,8 +15,6 @@ test.describe(
     const draftQuestionText = `${questionText} new version`
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
@@ -80,7 +78,6 @@ test.describe(
       adminPrograms,
       adminQuestions,
     }) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
       const disabledProgram = 'Disabled test program'
       const publicProgram = 'Public test program'
       const questionName = 'admin-publish-test-address-q'
@@ -135,8 +132,6 @@ test.describe('publish all programs -- universal questions', () => {
     'shows a modal with information about universal questions',
     {tag: ['@northstar']},
     async ({page, adminPrograms, adminQuestions}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       const programOne = 'program one'
       const programTwo = 'program two'
       const nameQuestion = 'name'

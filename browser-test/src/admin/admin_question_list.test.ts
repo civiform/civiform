@@ -2,17 +2,12 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
 test.describe('Admin question list', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,

@@ -419,7 +419,6 @@ label.year=Year
 # Label showing the user when there is no name
 label.unnamedUser=Unnamed user
 
-link.edit=Edit
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Select a new client
 

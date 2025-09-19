@@ -1,7 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  disableFeatureFlag,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguageNorthstar,
@@ -25,8 +23,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     const currencyQuestionText = 'currency question text'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({
@@ -193,10 +189,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     const fileName = 'foo.txt'
     const fileContent = 'some sample text'
 
-    // TODO(#8143): File uploads in North Star tests are blocked by CSP errors. After those
-    // errors are fixed, this entire test can run with north_star_applicant_ui enabled
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-
     await test.step('As admin, set up program', async () => {
       await loginAsAdmin(page)
 
@@ -213,14 +205,13 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Upload file', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
     })
 
     await test.step('Download file in North Star', async () => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,

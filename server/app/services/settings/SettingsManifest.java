@@ -1047,8 +1047,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi(RequestHeader request) {
-    return getBool("NORTH_STAR_APPLICANT_UI", request);
+  public boolean getNorthStarApplicantUi() {
+    return getBool("NORTH_STAR_APPLICANT_UI");
   }
 
   /** Enable using custom theme colors on North Star applicant UI. */
@@ -1064,6 +1064,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables admin validation settings for date questions. */
   public boolean getDateValidationEnabled() {
     return getBool("DATE_VALIDATION_ENABLED");
+  }
+
+  /** Remove the CSV/JSON/PDF download capability for Program Admins. */
+  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
+    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
   /**
@@ -2302,7 +2307,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " flows",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "Enable using custom theme colors on North Star applicant UI.",
@@ -2320,7 +2325,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables admin validation settings for date questions.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
+                          "Remove the CSV/JSON/PDF download capability for Program Admins.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(

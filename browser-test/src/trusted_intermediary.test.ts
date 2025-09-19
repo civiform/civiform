@@ -14,10 +14,6 @@ import {
 import {ProgramCategories} from './support/admin_programs'
 
 test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('sees client name and link in sub-banner while applying on behalf of applicant', async ({
     page,
     tiDashboard,

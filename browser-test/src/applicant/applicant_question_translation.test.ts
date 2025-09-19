@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguageNorthstar,
@@ -8,10 +7,6 @@ import {
 } from '../support'
 
 test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('Expect single-answer question is translated for applicant', async ({
     page,
     adminPrograms,

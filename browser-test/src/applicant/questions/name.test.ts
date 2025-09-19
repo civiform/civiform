@@ -11,10 +11,6 @@ import {
 } from '../../support'
 
 test.describe('name applicant flow', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 

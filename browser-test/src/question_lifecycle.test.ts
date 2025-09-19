@@ -1,7 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -11,10 +10,6 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
   test('sample question seeding works', async ({
     page,
     adminQuestions,

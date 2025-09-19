@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -58,8 +57,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsTestUser(page)
 
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.applyProgram(
         programName,
@@ -109,8 +106,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsTestUser(page)
 
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.applyProgram(
         programName,
@@ -145,8 +140,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     adminPredicates,
     applicantQuestions,
   }) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
     await test.step('Add an eligibility message with special character for markdown', async () => {
       const eligibilityMsg =
         'This is *a* **customized** eligibility [message](https://staging-aws.civiform.dev)'
@@ -179,8 +172,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     tiDashboard,
   }) => {
     await loginAsTrustedIntermediary(page)
-
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Create client', async () => {
       await tiDashboard.gotoTIDashboardPage(page)
@@ -249,7 +240,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await loginAsTestUser(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.applyProgram(
@@ -280,7 +270,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await loginAsTestUser(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: start application', async () => {
       await applicantQuestions.applyProgram(
@@ -311,7 +300,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await loginAsTestUser(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: start application', async () => {
       await applicantQuestions.applyProgram(
@@ -354,7 +342,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await loginAsTestUser(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.applyProgram(

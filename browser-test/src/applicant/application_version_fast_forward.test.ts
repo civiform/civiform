@@ -23,9 +23,8 @@ test.describe(
   'Application Version Fast-Forward Flow',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page, seeding}) => {
+    test.beforeEach(async ({seeding}) => {
       await seeding.clearDatabase()
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('all major steps', async ({browser}) => {

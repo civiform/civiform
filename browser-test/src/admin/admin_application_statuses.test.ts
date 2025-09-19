@@ -4,7 +4,6 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   dismissModal,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -21,10 +20,6 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
-
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
