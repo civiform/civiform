@@ -31,11 +31,4 @@ public record ProgramPredicatesEditPageViewModel(
   public String blockName() {
     return blockDefinition.name();
   }
-
-  public String predicateUseCaseLowercase() {
-    return switch (predicateUseCase) {
-      case ELIGIBILITY -> "eligibility";
-      case VISIBILITY -> "visibility";
-    };
-  }
 }

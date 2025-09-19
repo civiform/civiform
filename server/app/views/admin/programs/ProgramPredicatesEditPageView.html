@@ -14,16 +14,15 @@
     ></a>
 
     <div class="width-mobile-lg">
-      <span th:text="${model.blockName()}" class="cf-prose-h6"></span>
-      <div
-        class="cf-prose-h3 margin-top-2"
-        th:text="|Edit ${model.predicateUseCaseLowercase()} conditions|"
-      ></div>
-      <div
-        class="text-gray-50"
-        th:block
-        th:switch="${model.predicateUseCase.name()}"
-      >
+      <h6
+        class="font-sans-3xs text-uppercase margin-bottom-2"
+        th:text="${model.blockName()}"
+      ></h6>
+      <h3
+        class="font-family-alt margin-bottom-05"
+        th:text="|Edit ${model.predicateUseCase.toDisplayString()} conditions|"
+      ></h3>
+      <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
         <p th:case="'VISIBILITY'" class="margin-top-05">
           Add or remove conditions for when this screen is shown or hidden.
         </p>
@@ -43,7 +42,7 @@
       <a href="#" class="padding-x-05">Back to top</a>
     </div>
 
-    <div class="cf-horizontal-separator"></div>
+    <div class="cf-horizontal-separator margin-y-2"></div>
 
     <button type="submit" class="usa-button">Save and exit</button>
     <button type="submit" class="usa-button usa-button--outline">Cancel</button>
