@@ -28,6 +28,7 @@ import services.CiviFormError;
 import services.JsonUtils;
 import services.apibridge.ProgramBridgeService;
 import services.applicant.question.Scalar;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -255,8 +256,15 @@ public class ProgramBridgeController extends Controller {
             errors.getErrors().stream().map(CiviFormError::message).toArray(String[]::new));
       }
 
+      Long firstBlockId =
+          programDefinition.blockDefinitions().stream()
+              .findFirst()
+              .map(BlockDefinition::id)
+              .orElse(1L);
+
       return redirect(
-          controllers.admin.routes.AdminProgramBlocksController.edit(programId, 1).url());
+          controllers.admin.routes.AdminProgramBlocksController.edit(programId, firstBlockId)
+              .url());
     } catch (ProgramNotFoundException e) {
       return notFound();
     }

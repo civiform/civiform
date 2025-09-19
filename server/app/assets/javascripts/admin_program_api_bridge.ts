@@ -10,6 +10,8 @@ export class AdminProgramApiBridge {
       return
     }
 
+    // Remove existing listeners and bind to new ones after the swap
+    // replaces the html.
     document
       .querySelectorAll<HTMLSelectElement>('[id^=question-id]')
       .forEach((dropdown: HTMLSelectElement) => {

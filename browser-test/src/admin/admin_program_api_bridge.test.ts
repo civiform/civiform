@@ -9,7 +9,7 @@ import {
 import {ProgramBridgeConfigurationPage} from '../page/admin/programs/program_bridge_configuration_page'
 import {MOCK_WEB_SERVICES_URL} from '../support/config'
 
-test.describe('program creation', () => {
+test.describe('program api bridge', () => {
   const programName = 'Comprehensive Sample Program'
   const hostUrl = `${MOCK_WEB_SERVICES_URL}/api-bridge`
   const urlPath = '/bridge/success'
@@ -32,10 +32,7 @@ test.describe('program creation', () => {
     },
   )
 
-  test('create and update program with categories', async ({
-    page,
-    adminPrograms,
-  }) => {
+  test('configure api bridge on a program', async ({page, adminPrograms}) => {
     const programBridgeConfiguration = new ProgramBridgeConfigurationPage(page)
 
     await test.step('go to bridge edit page', async () => {

@@ -86,7 +86,7 @@ public class ProgramBridgeControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxBridgeConfiguration_formValidationError() {
+  public void hxBridgeConfiguration_selectEmptyBridgeOptionClearsForm() {
     ProgramModel program = ProgramBuilder.newDraftProgram("program-name-1").build();
 
     var request = fakeRequestBuilder().bodyForm(ImmutableMap.of()).build();

@@ -3,6 +3,7 @@ package views.admin.apibridge.programbridge;
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import models.ApiBridgeConfigurationModel;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import views.admin.BaseViewModel;
 
@@ -26,7 +27,13 @@ public record EditPageViewModel(
   }
 
   public String getProgramEditUrl() {
-    return controllers.admin.routes.AdminProgramBlocksController.edit(programDefinition().id(), 1)
+    Long firstBlockId =
+        programDefinition().blockDefinitions().stream()
+            .findFirst()
+            .map(BlockDefinition::id)
+            .orElse(1L);
+    return controllers.admin.routes.AdminProgramBlocksController.edit(
+            programDefinition().id(), firstBlockId)
         .url();
   }
 }
