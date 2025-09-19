@@ -263,10 +263,6 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics(
       Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
-        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
-      return unauthorized();
-    }
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
             .setFromTime(parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
