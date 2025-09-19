@@ -19,10 +19,6 @@ test.describe(
     const downloadFlag = 'remove_download_for_program_admins_enabled'
     const adminFlag = 'allow_civiform_admin_access_programs'
 
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
     test(
       downloadFlag,
       async ({page, adminPrograms, seeding, applicantQuestions}) => {
