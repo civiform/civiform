@@ -6,8 +6,18 @@ package services.program.predicate;
  * non-terminal node is evaluated based on the results of its children.
  */
 public enum PredicateExpressionNodeType {
-  AND,
-  OR,
-  LEAF_OPERATION,
-  LEAF_ADDRESS_SERVICE_AREA
+  AND("all"),
+  OR("any"),
+  LEAF_OPERATION(""),
+  LEAF_ADDRESS_SERVICE_AREA("");
+
+  private final String displayString;
+
+  PredicateExpressionNodeType(String displayString) {
+    this.displayString = displayString;
+  }
+
+  public String toDisplayString() {
+    return displayString;
+  }
 }
