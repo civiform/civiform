@@ -509,6 +509,7 @@ public final class ReadOnlyApplicantProgramService {
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
                 .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                .setLoginOnly(programDefinition.loginOnly())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setEncodedFileKeys(encodedFileKeys)
