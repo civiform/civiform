@@ -33,11 +33,16 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import javax.inject.Inject;
+
+import models.GeoJsonDataModel;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.GeoJsonDataRepository;
 import services.applicant.question.Scalar;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
+import services.geojson.Feature;
+import services.geojson.FeatureCollection;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -54,6 +59,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -95,15 +101,18 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
   private final AdminLayout layout;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   @Inject
   public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      GeoJsonDataRepository geoJsonDataRepository) {
     super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   public Content renderNewVisibility(
@@ -649,7 +658,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       QuestionDefinition questionDefinition,
       int groupId,
       Optional<LeafExpressionNode> maybeLeafNode) {
-    DivTag valueField = div().withClasses(COLUMN_WIDTH);
+    DivTag valueField = div();
+    if (!questionDefinition.getQuestionType().equals(QuestionType.MAP)) {
+      valueField.withClasses(COLUMN_WIDTH);
+    }
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
       // Address questions only support service area predicates.
@@ -722,7 +734,52 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       }
 
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
+    } else if (questionDefinition.getQuestionType().equals(QuestionType.MAP)) {
+      // For map questions, we need to provide a discrete list of feature IDs to choose from.
+      // We extract the feature IDs from the GeoJSON data associated with this map question.
+      String geoJsonEndpoint =
+        ((MapQuestionDefinition) questionDefinition).getMapValidationPredicates().geoJsonEndpoint();
+      GeoJsonDataModel geoJsonDataModel = geoJsonDataRepository.getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint).toCompletableFuture().join().orElse(null);
+      FeatureCollection geoJson = geoJsonDataModel != null ? geoJsonDataModel.getGeoJson() : null;
+
+      if (geoJson == null) {
+        return valueField
+            .withData("question-id", String.valueOf(questionDefinition.getId()))
+            .with(div("No map data available for this question.").withClasses("text-gray-500", "italic"));
+      }
+
+      ImmutableSet<String> currentlyCheckedValues =
+        assertLeafOperationNode(maybeLeafNode)
+          .map(LeafOperationExpressionNode::comparedValue)
+          .map(PredicateValue::value)
+          .map(
+            value ->
+              Splitter.on(", ")
+                .splitToStream(value.substring(1, value.length() - 1))
+                .map(item -> item.replaceAll("\"", ""))
+                .collect(ImmutableSet.toImmutableSet()))
+          .orElse(ImmutableSet.of());
+
+      for (Feature feature : geoJson.features()) {
+        String featureId = feature.id();
+        boolean isChecked = currentlyCheckedValues.contains(featureId);
+
+        LabelTag optionCheckbox =
+          FieldWithLabel.checkbox()
+            .setFieldName(
+              String.format(
+                "group-%d-question-%d-predicateValues[]",
+                groupId, questionDefinition.getId()))
+            .setValue(featureId)
+            .setLabelText(featureId)
+            .setChecked(isChecked)
+            .getCheckboxTag();
+        valueField.with(optionCheckbox);
+      }
+
+      return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
     }
+
 
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
         assertLeafOperationNode(maybeLeafNode);
