@@ -162,6 +162,9 @@ public abstract class NorthStarBaseView {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
+    boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
+    context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
+
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
     context.setVariable("showDebugTools", showDebugTools);
