@@ -16,5 +16,6 @@ RUN apt-get install nginx --assume-yes
 
 COPY localstack.nginx.conf /etc/nginx/conf.d/
 ADD localstack-docker-entrypoint.sh /usr/local/bin/
+ADD stop-nginx.sh /etc/localstack/init/shutdown.d/
 
 ENTRYPOINT ["localstack-docker-entrypoint.sh"]
