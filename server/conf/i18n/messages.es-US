@@ -90,6 +90,10 @@ title.login=Acceso
 content.loginPrompt=Accede con tu cuenta {0}
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Crear una cuenta
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=Acceder
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=Año
 # Label showing the user when there is no name
 label.unnamedUser=Usuario sin nombre
 
-link.edit=Editar
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Seleccionar un nuevo cliente
 
