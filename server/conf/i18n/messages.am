@@ -90,6 +90,10 @@ title.login=ግባ
 content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=መለያ ፍጠር
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=ግባ
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=ዓመት
 # Label showing the user when there is no name
 label.unnamedUser=ያልተሰየመ ተጠቃሚ
 
-link.edit=አርትዕ
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=አዲስ ደንበኛ ይምረጡ
 
