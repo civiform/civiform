@@ -997,6 +997,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false
+      },
+      "LOGIN_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
+        "type": "bool",
+        "required": false
       }
     }
   }
