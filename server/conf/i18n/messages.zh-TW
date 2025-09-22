@@ -90,6 +90,10 @@ title.login=登錄
 content.loginPrompt=請使用「{0}」帳戶登入
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=建立帳戶
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=登入
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=年
 # Label showing the user when there is no name
 label.unnamedUser=不具名使用者
 
-link.edit=編輯
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=選取新客戶
 
