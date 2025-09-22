@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateAccessibility,
   validateScreenshot,
@@ -12,6 +13,8 @@ import {MOCK_WEB_SERVICES_URL} from '../support/config'
 import {NavigationOption} from '../support/admin_programs'
 
 test.describe('program api bridge', () => {
+  test.skip(!isLocalDevEnvironment(), 'Requires mock-web-services')
+
   const programName = 'Comprehensive Sample Program'
   const hostUrl = `${MOCK_WEB_SERVICES_URL}/api-bridge`
   const urlPath = '/bridge/success'
