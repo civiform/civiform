@@ -137,7 +137,6 @@ public final class PredicateGenerator {
           singleValueMatcher.find()
               ? singleValueMatcher
               : multiValueMatcher.find() ? multiValueMatcher : null;
-
       if (matcher == null) {
         continue;
       }
