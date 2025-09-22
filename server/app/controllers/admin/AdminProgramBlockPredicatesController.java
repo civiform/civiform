@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -39,7 +38,6 @@ import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
-import views.admin.programs.ProgramHeader;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditPageView;
 import views.admin.programs.ProgramPredicatesEditPageViewModel;
@@ -110,15 +108,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
-        ProgramHeader header = new ProgramHeader(programDefinition, DRAFT);
         return ok(predicatesEditPageView.render(
-                request, new ProgramPredicatesEditPageViewModel(header)))
+                request,
+                new ProgramPredicatesEditPageViewModel(
+                    programDefinition, blockDefinition, predicateUseCase)))
             .as(Http.MimeTypes.HTML);
       }
 
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
       ImmutableList<QuestionDefinition> predicateQuestions =
           switch (predicateUseCase) {
             case ELIGIBILITY ->

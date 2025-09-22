@@ -364,3 +364,10 @@ button.usa-button.usa-button--unstyled.htmx-request {
 .usa-button.usa-button--unstyled.cf-map-question-filter-button {
   background-color: transparent;
 }
+
+// We currently disable USWDS border settings for backwards compatibility
+// with non USWDS pages. Once that override is removed, this can be
+// replaced with USWDS border styles.
+.cf-horizontal-separator {
+  border-top: 1px solid #dfe1e2;
+}
