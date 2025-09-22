@@ -466,3 +466,25 @@ session.extend.button=ຂະຫຍາຍເຊດຊັນ
 session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດຜົນ
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
 translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.
+
+button.adminLogin=Administrator log in
+
+button.applicantLogin=Applicant log in
+
+map.addFilterButton=Add filter
+
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+
+map.addFiltersTitle=Filters
+
+map.displayNameLabel=Display name
+
+map.keyLabel=Key
+
+map.locationAddressLabel=Address key
+
+map.locationDetailsUrlLabel=View more details URL key
+
+map.locationNameLabel=Name key
+
+map.maxLocationSelectionsLabel=Maximum location selections

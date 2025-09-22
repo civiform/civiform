@@ -467,3 +467,25 @@ session.extend.button=Gia hạn phiên
 session.extended.success=Đã gia hạn phiên thành công
 session.extended.error=Không gia hạn được phiên
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+
+button.adminLogin=Administrator log in
+
+button.applicantLogin=Applicant log in
+
+map.addFilterButton=Add filter
+
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+
+map.addFiltersTitle=Filters
+
+map.displayNameLabel=Display name
+
+map.keyLabel=Key
+
+map.locationAddressLabel=Address key
+
+map.locationDetailsUrlLabel=View more details URL key
+
+map.locationNameLabel=Name key
+
+map.maxLocationSelectionsLabel=Maximum location selections

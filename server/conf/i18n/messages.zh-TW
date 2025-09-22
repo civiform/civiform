@@ -467,3 +467,25 @@ session.extend.button=延長工作階段
 session.extended.success=已成功延長工作階段
 session.extended.error=無法延長工作階段
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+
+button.adminLogin=Administrator log in
+
+button.applicantLogin=Applicant log in
+
+map.addFilterButton=Add filter
+
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+
+map.addFiltersTitle=Filters
+
+map.displayNameLabel=Display name
+
+map.keyLabel=Key
+
+map.locationAddressLabel=Address key
+
+map.locationDetailsUrlLabel=View more details URL key
+
+map.locationNameLabel=Name key
+
+map.maxLocationSelectionsLabel=Maximum location selections
