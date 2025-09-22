@@ -90,6 +90,10 @@ title.login=로그인
 content.loginPrompt={0} 계정으로 로그인하세요.
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=계정 만들기
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=연도
 # Label showing the user when there is no name
 label.unnamedUser=이름이 지정되지 않은 사용자
 
-link.edit=편집
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=새 고객 선택
 
