@@ -90,6 +90,10 @@ title.login=Mag log in
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Gumawa ng account
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=Taon
 # Label showing the user when there is no name
 label.unnamedUser=Walang pangalang user
 
-link.edit=I-edit
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Pumili ng bagong kliyente
 
