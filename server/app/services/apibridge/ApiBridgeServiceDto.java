@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 /** Data Transfer Objects for CiviForm API Bridge. */
@@ -89,6 +90,9 @@ public final class ApiBridgeServiceDto {
 
     /** A URI reference that identifies the specific occurrence of the problem. */
     String instance();
+
+    /** Gets a formatted string of the problem detail */
+    String asErrorMessage();
   }
 
   /**
@@ -106,7 +110,20 @@ public final class ApiBridgeServiceDto {
       @JsonProperty("status") Integer status,
       @JsonProperty("detail") String detail,
       @JsonProperty("instance") String instance)
-      implements IProblemDetail {}
+      implements IProblemDetail {
+
+    @Override
+    public String asErrorMessage() {
+      return """
+             type='%s'
+             title='%s'
+             status=%d
+             detail='%s'
+             instance='%s'
+             """
+          .formatted(type, title, status, detail, instance);
+    }
+  }
 
   /**
    * Extended Problem Detail for validation errors.
@@ -129,6 +146,24 @@ public final class ApiBridgeServiceDto {
     public ValidationProblemDetail {
       validationErrors =
           validationErrors != null ? ImmutableList.copyOf(validationErrors) : ImmutableList.of();
+    }
+
+    @Override
+    public String asErrorMessage() {
+      var valErrors =
+          validationErrors.stream()
+              .map(x -> "[name='%s' message='%s']".formatted(x.name, x.message))
+              .collect(Collectors.joining(", "));
+
+      return """
+             type='%s'
+             title='%s'
+             status=%d
+             detail='%s'
+             instance='%s'
+             validationErrors='%s'
+             """
+          .formatted(type, title, status, detail, instance, valErrors);
     }
   }
 

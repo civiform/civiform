@@ -1,7 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -14,15 +13,10 @@ import {
   ProgramCategories,
   ProgramExtraAction,
   ProgramLifecycle,
-  ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
 
-test.describe('Program list page.', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
+test.describe('Program list page.', {tag: ['@northstar']}, () => {
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -91,18 +85,18 @@ test.describe('Program list page.', () => {
       )
     })
 
-    await test.step('check that long description is shown', async () => {
+    await test.step('check that short description is shown', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgramCard.locator(
         '.cf-program-description',
       )
       await expect(
-        firstProgramDesc.getByText(programLongDescription),
+        firstProgramDesc.getByText(programShortDescription),
       ).toBeVisible()
       await expect(
-        firstProgramDesc.locator(`text=${programShortDescription}`),
-      ).toHaveCount(0) // short description should not be shown
+        firstProgramDesc.locator(`text=${programLongDescription}`),
+      ).toHaveCount(0) // long description should not be shown
     })
   })
 
@@ -243,14 +237,11 @@ test.describe('Program list page.', () => {
     const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
-    await adminPrograms.addProgram(
+
+    await adminPrograms.addPreScreenerNS(
       preScreenerProgram,
-      'program description',
       'short program description',
-      'https://usa.gov',
       ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addExternalProgram(
       externalProgram,

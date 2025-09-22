@@ -1,6 +1,9 @@
 package services.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.TestQuestionBank.createDropdownQuestionDefinition;
+import static support.TestQuestionBank.createQuestionDefinition;
+import static support.TestQuestionBank.createYesNoQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -17,12 +20,12 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
 public final class QuestionValidationUtilsTest extends ResetPostgres {
+  // Test configuration for multi-option questions
   private static final QuestionDefinitionConfig QUESTION_CONFIG =
       QuestionDefinitionConfig.builder()
           .setName("applicant ice cream")
@@ -30,10 +33,14 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
           .setQuestionText(LocalizedStrings.of(Locale.US, "Ice cream?"))
           .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
           .build();
-  private static final QuestionDefinition NAME_QUESTION = createQuestion("name", 1L);
-  private static final QuestionDefinition AGE_QUESTION = createQuestion("age", 2L);
+
+  // Use TestQuestionBank static methods for creating test questions
+  private static final QuestionDefinition NAME_QUESTION =
+      createQuestionDefinition("name", 1L, QuestionType.TEXT, Optional.empty());
+  private static final QuestionDefinition AGE_QUESTION =
+      createQuestionDefinition("age", 2L, QuestionType.TEXT, Optional.empty());
   private static final QuestionDefinition REPEATED_NAME_QUESTION =
-      createQuestionWithEnumerator("repeated_name", 3L, Optional.of(1L));
+      createQuestionDefinition("repeated_name", 3L, QuestionType.TEXT, Optional.of(1L));
   private static final String PROGRAM_NAME_1 = "Program 1";
 
   @Test
@@ -102,7 +109,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             .withBlock()
             .withOptionalQuestion(NAME_QUESTION)
             .withRequiredQuestionDefinition(AGE_QUESTION)
-            .withRequiredQuestionDefinition(createQuestion("phone", 3L))
+            .withRequiredQuestionDefinition(
+                createQuestionDefinition("phone", 3L, QuestionType.TEXT, Optional.empty()))
             .buildDefinition();
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(NAME_QUESTION);
 
@@ -203,11 +211,12 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors.iterator().next().message()).contains(REPEATED_NAME_QUESTION.getName());
   }
 
+  // YES/NO validation tests
   @Test
   public void validateYesNoQuestions_allValidOptions_noErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "valid-yes-no-question", ImmutableList.of("yes", "no", "maybe", "not-sure"));
+        createYesNoQuestionDefinition(
+            "valid-yes-no-question", 1L, ImmutableList.of("yes", "no", "maybe", "not-sure"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -218,7 +227,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_minimalValidOptions_noErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions("minimal-yes-no-question", ImmutableList.of("yes", "no"));
+        createYesNoQuestionDefinition("minimal-yes-no-question", 1L, ImmutableList.of("yes", "no"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -229,8 +238,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_invalidOption_returnsError() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "invalid-yes-no-question", ImmutableList.of("yes", "no", "absolutely"));
+        createYesNoQuestionDefinition(
+            "invalid-yes-no-question", 1L, ImmutableList.of("yes", "no", "absolutely"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -245,8 +254,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_multipleInvalidOptions_returnsAllErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "invalid-yes-no-question", ImmutableList.of("yes", "absolutely", "definitely-not"));
+        createYesNoQuestionDefinition(
+            "invalid-yes-no-question", 1L, ImmutableList.of("yes", "absolutely", "definitely-not"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -263,12 +272,13 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
   @Test
   public void validateYesNoQuestions_mixedQuestionTypes_onlyValidatesYesNo() {
-    QuestionDefinition textQuestion = createQuestion("text-question", 1L);
+    QuestionDefinition textQuestion =
+        createQuestionDefinition("text-question", 1L, QuestionType.TEXT, Optional.empty());
     QuestionDefinition dropdownQuestion =
-        createDropdownQuestionWithOptions(
-            "dropdown-question", ImmutableList.of("custom-option-1", "custom-option-2"));
+        createDropdownQuestionDefinition(
+            "dropdown-question", 2L, ImmutableList.of("custom-option-1", "custom-option-2"));
     QuestionDefinition validYesNoQuestion =
-        createYesNoQuestionWithOptions("valid-yes-no-question", ImmutableList.of("yes", "no"));
+        createYesNoQuestionDefinition("valid-yes-no-question", 3L, ImmutableList.of("yes", "no"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(
@@ -280,10 +290,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_mixedValidAndInvalidYesNo_returnsInvalidError() {
     QuestionDefinition validYesNoQuestion =
-        createYesNoQuestionWithOptions("valid-yes-no-question", ImmutableList.of("yes", "no"));
+        createYesNoQuestionDefinition("valid-yes-no-question", 1L, ImmutableList.of("yes", "no"));
     QuestionDefinition invalidYesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "invalid-yes-no-question", ImmutableList.of("yes", "no", "perhaps"));
+        createYesNoQuestionDefinition(
+            "invalid-yes-no-question", 2L, ImmutableList.of("yes", "no", "perhaps"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(
@@ -306,10 +316,11 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
   @Test
   public void validateYesNoQuestions_noYesNoQuestions_noErrors() {
-    QuestionDefinition textQuestion = createQuestion("text-question", 1L);
+    QuestionDefinition textQuestion =
+        createQuestionDefinition("text-question", 1L, QuestionType.TEXT, Optional.empty());
     QuestionDefinition dropdownQuestion =
-        createDropdownQuestionWithOptions(
-            "dropdown-question", ImmutableList.of("option-1", "option-2"));
+        createDropdownQuestionDefinition(
+            "dropdown-question", 2L, ImmutableList.of("option-1", "option-2"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(
@@ -321,7 +332,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_caseExactMatch_validatesCorrectly() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions("case-sensitive-question", ImmutableList.of("Yes", "No"));
+        createYesNoQuestionDefinition("case-sensitive-question", 1L, ImmutableList.of("Yes", "No"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -340,7 +351,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_missingYesOption_returnsError() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions("missing-yes-question", ImmutableList.of("no", "maybe"));
+        createYesNoQuestionDefinition("missing-yes-question", 1L, ImmutableList.of("no", "maybe"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -353,7 +364,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_missingNoOption_returnsError() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions("missing-no-question", ImmutableList.of("yes", "not-sure"));
+        createYesNoQuestionDefinition(
+            "missing-no-question", 1L, ImmutableList.of("yes", "not-sure"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -366,8 +378,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_missingBothRequiredOptions_returnsBothErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "missing-both-required-question", ImmutableList.of("maybe", "not-sure"));
+        createYesNoQuestionDefinition(
+            "missing-both-required-question", 1L, ImmutableList.of("maybe", "not-sure"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -382,8 +394,9 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_hasRequiredOptionsAndInvalidOnes_returnsOnlyInvalidErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
+        createYesNoQuestionDefinition(
             "valid-required-invalid-extra-question",
+            1L,
             ImmutableList.of("yes", "no", "invalid-option"));
 
     ImmutableSet<CiviFormError> errors =
@@ -400,8 +413,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_missingRequiredAndHasInvalid_returnsAllErrors() {
     QuestionDefinition yesNoQuestion =
-        createYesNoQuestionWithOptions(
-            "missing-and-invalid-question", ImmutableList.of("yes", "invalid-option"));
+        createYesNoQuestionDefinition(
+            "missing-and-invalid-question", 1L, ImmutableList.of("yes", "invalid-option"));
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateYesNoQuestions(ImmutableList.of(yesNoQuestion));
@@ -413,65 +426,5 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
                 + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
                 + " allowed.",
             "YES_NO question 'missing-and-invalid-question' is missing required 'no' option.");
-  }
-
-  // Helper methods for YES/NO question
-  private QuestionDefinition createYesNoQuestionWithOptions(
-      String name, ImmutableList<String> optionNames) {
-    return createMultiOptionQuestionWithOptions(name, QuestionType.YES_NO, optionNames);
-  }
-
-  private QuestionDefinition createDropdownQuestionWithOptions(
-      String name, ImmutableList<String> optionNames) {
-    return createMultiOptionQuestionWithOptions(name, QuestionType.DROPDOWN, optionNames);
-  }
-
-  private QuestionDefinition createMultiOptionQuestionWithOptions(
-      String name, QuestionType type, ImmutableList<String> optionNames) {
-    ImmutableList.Builder<QuestionOption> optionsBuilder = ImmutableList.builder();
-    for (int i = 0; i < optionNames.size(); i++) {
-      optionsBuilder.add(
-          QuestionOption.create(
-              (long) i, optionNames.get(i), LocalizedStrings.of(Locale.US, optionNames.get(i))));
-    }
-
-    MultiOptionQuestionType multiOptionType =
-        switch (type) {
-          case YES_NO -> MultiOptionQuestionType.YES_NO;
-          case DROPDOWN -> MultiOptionQuestionType.DROPDOWN;
-          case RADIO_BUTTON -> MultiOptionQuestionType.RADIO_BUTTON;
-          case CHECKBOX -> MultiOptionQuestionType.CHECKBOX;
-          default -> throw new IllegalArgumentException("Unsupported multi-option type: " + type);
-        };
-
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("Test " + type.name() + " question")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "Select an option"))
-            .build();
-
-    return new MultiOptionQuestionDefinition(config, optionsBuilder.build(), multiOptionType);
-  }
-
-  // Helper methods to create test questions
-  private static QuestionDefinition createQuestion(String name, Long id) {
-    return createQuestionWithEnumerator(name, id, Optional.empty());
-  }
-
-  private static QuestionDefinition createQuestionWithEnumerator(
-      String name, Long id, Optional<Long> enumeratorId) {
-    try {
-      return new QuestionDefinitionBuilder()
-          .setName(name)
-          .setId(id)
-          .setQuestionType(QuestionType.TEXT)
-          .setQuestionText(LocalizedStrings.withDefaultValue(name))
-          .setDescription(name)
-          .setEnumeratorId(enumeratorId)
-          .build();
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

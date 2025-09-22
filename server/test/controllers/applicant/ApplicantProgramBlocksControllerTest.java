@@ -427,7 +427,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programId = Long.toString(program.id);
     Request request =
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(false);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
 
     Result result =
         subject
@@ -451,7 +451,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(true);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
@@ -1140,7 +1140,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ""))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(false);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
 
     Result result =
         subject
@@ -1180,7 +1180,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ""))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(true);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
@@ -1346,7 +1346,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "InitialLastName"))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(requestWithAnswer)).thenReturn(false);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
 
     subject
         .updateWithApplicantId(
@@ -1370,7 +1370,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ""))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(requestWithoutAnswer)).thenReturn(false);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
 
     Result result =
         subject
@@ -1413,7 +1413,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "InitialLastName"))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(requestWithAnswer)).thenReturn(true);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     subject
         .updateWithApplicantId(
@@ -1437,7 +1437,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ""))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi(requestWithoutAnswer)).thenReturn(true);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject

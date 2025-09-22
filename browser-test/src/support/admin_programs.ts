@@ -1409,6 +1409,13 @@ export class AdminPrograms {
     return await this.page.locator('#block-name-input').inputValue()
   }
 
+  async clickEditBridgeDefinitionButton() {
+    await this.page
+      .getByRole('button', {name: 'Edit Bridge Definition'})
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async addProgramRepeatedBlock(
     programName: string,
     enumeratorBlockName: string,
@@ -1515,8 +1522,8 @@ export class AdminPrograms {
   }
 
   /**
-   * Opens the applications page by clicking on a program's card action
-   * Admin must be a Program admin, otherwise the extra action won't be visible
+   * Opens the applications page by clicking on a program's card action.
+   * Opens the extra actions dropdown if present so the action is visible.
    *
    * @param programName - Name of the program
    */
@@ -1526,6 +1533,13 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await this.expectActiveProgram(programName)
+    const extraActions = this.getProgramExtraActionsButton(
+      programName,
+      ProgramLifecycle.ACTIVE,
+    )
+    if (await extraActions.isVisible()) {
+      await extraActions.click()
+    }
     await this.getProgramAction(
       programName,
       ProgramLifecycle.ACTIVE,

@@ -90,6 +90,8 @@ POST    /admin/questions                                                       c
 POST    /admin/questions/:id/discard                                           controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore                                           controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive                                           controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
+POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
 # For rendering North Star question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
@@ -161,6 +163,10 @@ GET     /admin/reporting/download/:dataSetName                                 c
 GET     /admin/api-bridge/discovery                                            controllers.admin.apibridge.DiscoveryController.discovery(request: Request)
 POST    /admin/api-bridge/hx/discovery                                         controllers.admin.apibridge.DiscoveryController.hxDiscoveryPopulate(request: Request)
 POST    /admin/api-bridge/hx/add                                               controllers.admin.apibridge.DiscoveryController.hxAdd(request: Request)
+
+GET     /admin/programs/:programId/api-bridge/edit                             controllers.admin.apibridge.ProgramBridgeController.edit(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/hx/bridge-configuration          controllers.admin.apibridge.ProgramBridgeController.hxBridgeConfiguration(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/save                             controllers.admin.apibridge.ProgramBridgeController.save(request: Request, programId: Long)
 
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey                                        controllers.FileController.acledAdminShow(request: Request, fileKey: String)

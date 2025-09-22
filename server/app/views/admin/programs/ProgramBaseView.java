@@ -41,6 +41,8 @@ abstract class ProgramBaseView extends BaseHtmlView {
 
   /** Represents different buttons that can be displayed in the program information header. */
   public enum ProgramHeaderButton {
+    /** Redirect to the program api bridge definition editing page. */
+    EDIT_BRIDGE_DEFINITIONS,
     /**
      * Redirects program to an editable view. Should be used only if the program is currently read
      * only.
@@ -55,7 +57,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
     /**
      * Downloads a PDF preview of the current program version, with all of its blocks and questions.
      */
-    DOWNLOAD_PDF_PREVIEW,
+    DOWNLOAD_PDF_PREVIEW
   }
 
   protected final SettingsManifest settingsManifest;
@@ -289,6 +291,14 @@ abstract class ProgramBaseView extends BaseHtmlView {
               ViewUtils.makeSvgTextButton("Download PDF preview", Icons.DOWNLOAD)
                   .withClasses(HEADER_BUTTON_STYLES),
               routes.AdminProgramPreviewController.pdfPreview(programDefinition.id()).url());
+
+      case EDIT_BRIDGE_DEFINITIONS ->
+          asRedirectElement(
+              ViewUtils.makeSvgTextButton("Edit Bridge Definition", Icons.CAKE)
+                  .withClasses(HEADER_BUTTON_STYLES),
+              controllers.admin.apibridge.routes.ProgramBridgeController.edit(
+                      programDefinition.id())
+                  .url());
     };
   }
 

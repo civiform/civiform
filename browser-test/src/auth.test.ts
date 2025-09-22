@@ -1,44 +1,36 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  loginAsTestUser,
-  validateScreenshot,
-  testUserDisplayName,
   AuthStrategy,
-  logout,
   loginAsAdmin,
+  loginAsTestUser,
+  logout,
+  testUserDisplayName,
   validateAccessibility,
+  validateScreenshot,
   validateToastMessage,
-  disableFeatureFlag,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
+import {CardSectionName} from './support/applicant_program_list'
 
-test.describe('Applicant auth', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
+test.describe('Applicant auth', {tag: ['@northstar']}, () => {
+  const endYourSessionText = 'end your session'
 
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
-    await validateScreenshot(page, 'logged-in')
 
     await expect(page.getByRole('banner')).toContainText(
       `Logged in as ${testUserDisplayName()}`,
     )
     await expect(
-      page.getByRole('banner').getByRole('link', {name: 'Logout'}),
+      page.getByRole('banner').getByRole('button', {name: 'Logout'}),
     ).toBeAttached()
   })
 
-  test('No guest user shown in banner when viewing index page', async ({
+  test('End your session banner is not shown when first viewing index page', async ({
     page,
   }) => {
-    await validateScreenshot(page, 'no-user')
-
-    await expect(page.getByRole('banner')).not.toContainText(
-      "You're a guest user.",
-    )
     await expect(
-      page.getByRole('banner').getByRole('link', {name: 'End session'}),
+      page.getByRole('banner').getByRole('button', {name: endYourSessionText}),
     ).not.toBeAttached()
   })
 
@@ -54,20 +46,19 @@ test.describe('Applicant auth', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await applicantQuestions.applyProgram('Minimal Sample Program')
-    await expect(page.getByRole('banner')).toContainText("You're a guest user.")
+    await applicantQuestions.applyProgram(
+      'Minimal Sample Program',
+      /* northStarEnabled= */ true,
+    )
+    await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
-      page.getByRole('banner').getByRole('link', {name: 'End session'}),
+      page.getByRole('button', {name: endYourSessionText}),
     ).toBeAttached()
 
-    await page
-      .getByRole('banner')
-      .getByRole('link', {name: 'End session'})
-      .click()
+    await page.getByRole('button', {name: endYourSessionText}).click()
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'guest-just-ended-session')
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
@@ -84,7 +75,7 @@ test.describe('Applicant auth', () => {
       `Logged in as ${testUserDisplayName()}`,
     )
 
-    await page.getByRole('link', {name: 'Logout'}).click()
+    await page.getByRole('button', {name: 'Logout'}).click()
 
     await validateScreenshot(page, 'central-provider-logout')
     await expect(
@@ -110,13 +101,12 @@ test.describe('Applicant auth', () => {
     )
   })
 
-  test('Toast is shown when logged-in user end their session', async ({
+  test('Toast is shown when logged-in user ends their session', async ({
     page,
   }) => {
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'user-just-ended-session')
 
     await validateAccessibility(page)
   })
@@ -124,6 +114,7 @@ test.describe('Applicant auth', () => {
   test('Guest login followed by auth login stores submitted applications', async ({
     page,
     adminPrograms,
+    applicantProgramList,
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
@@ -132,8 +123,11 @@ test.describe('Applicant auth', () => {
     await adminPrograms.publishAllDrafts()
 
     await logout(page)
-    await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.applyProgram(
+      programName,
+      /* northStarEnabled= */ true,
+    )
+    await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
     await loginAsTestUser(page)
 
     // Check that program is marked as submitted.
@@ -142,18 +136,22 @@ test.describe('Applicant auth', () => {
     })
     await expect(applicationCardLocator).toBeAttached()
 
-    // locator("..") gets the direct parent element
     await expect(
-      applicationCardLocator.locator('..').getByText('Submitted'),
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
 
     // Logout and login to make sure data is tied to account.
     await logout(page)
     await loginAsTestUser(page)
 
-    // locator("..") gets the direct parent element
     await expect(
-      applicationCardLocator.locator('..').getByText('Submitted'),
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
   })
 })

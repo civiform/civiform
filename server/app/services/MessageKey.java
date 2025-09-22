@@ -77,6 +77,8 @@ public enum MessageKey {
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
+  BUTTON_ADMIN_LOGIN("button.adminLogin"), // North star only
+  BUTTON_APPLICANT_LOGIN("button.applicantLogin"), // North star only
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
   BUTTON_APPLY_SELECTIONS("button.applySelections"), // North Star only
@@ -320,6 +322,15 @@ public enum MessageKey {
   MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
   MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
+  MAP_ADD_FILTER_BUTTON("map.addFilterButton"), // North Star only
+  MAP_ADD_FILTERS_SUBTITLE("map.addFiltersSubtitle"), // North Star only
+  MAP_ADD_FILTERS_TITLE("map.addFiltersTitle"), // North Star only
+  MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
+  MAP_KEY_LABEL("map.keyLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

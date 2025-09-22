@@ -8,10 +8,12 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.EnumeratorQuestionForm;
+import forms.MapFilterForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -20,6 +22,7 @@ import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -38,6 +41,8 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.admin.questions.MapQuestionSettingsFiltersPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
@@ -51,6 +56,8 @@ public final class AdminQuestionController extends CiviFormController {
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
+  private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
+
   @Inject
   public AdminQuestionController(
       ProfileUtils profileUtils,
@@ -59,6 +66,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
+      MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
@@ -66,6 +74,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
   }
 
   /**
@@ -84,6 +93,27 @@ public final class AdminQuestionController extends CiviFormController {
                         filter.map(TextFormatter::sanitizeHtml),
                         request)),
             classLoaderExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result addMapQuestionFilter(Request request) {
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
+
+    // Count existing filters to determine the index for the new filter
+    long currentFilterIndex = form.getFilters().size();
+
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
+
+    return ok(mapQuestionSettingsFiltersPartialView.render(
+            request,
+            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysList, currentFilterIndex)))
+        .as(Http.MimeTypes.HTML);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result deleteMapQuestionFilter(Request request) {
+    // Return empty response - HTMX will remove the element from DOM
+    return ok("").as(Http.MimeTypes.HTML);
   }
 
   /**

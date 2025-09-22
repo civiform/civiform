@@ -796,6 +796,22 @@ public abstract class ProgramDefinition {
         .collect(toImmutableList());
   }
 
+  /**
+   * Get a list of all {@link QuestionDefinition} in the program. Requires a fully hydrated
+   * ProgramDefinition with all questions.
+   *
+   * @return List of all questions in program softed by question name.
+   */
+  @JsonIgnore
+  public ImmutableList<QuestionDefinition> getAllQuestions() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .sorted((q1, q2) -> q1.getName().compareToIgnoreCase(q2.getName()))
+        .collect(toImmutableList());
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
