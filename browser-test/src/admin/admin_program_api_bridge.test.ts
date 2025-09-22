@@ -4,10 +4,12 @@ import {
   loginAsAdmin,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
 } from '../support'
 import {ProgramBridgeConfigurationPage} from '../page/admin/programs/program_bridge_configuration_page'
 import {MOCK_WEB_SERVICES_URL} from '../support/config'
+import {NavigationOption} from '../support/admin_programs'
 
 test.describe('program api bridge', () => {
   const programName = 'Comprehensive Sample Program'
@@ -102,9 +104,33 @@ test.describe('program api bridge', () => {
       )
     })
 
-    await test.step('save and reload bridge edit page', async () => {
+    await test.step('save', async () => {
       await programBridgeConfiguration.save()
       await waitForPageJsLoad(page)
+    })
+
+    await test.step('verify block cannot be removed', async () => {
+      await adminPrograms.removeCurrentBlock()
+      await validateToastMessage(
+        page,
+        'This screen cannot be removed while any of its questions are used by the API bridge',
+      )
+    })
+
+    await test.step('verify block cannot be removed', async () => {
+      await adminPrograms.removeQuestionFromProgram(
+        programName,
+        'Screen 1',
+        ['Sample Address Question'],
+        NavigationOption.SKIP_EXCESSIVE_NAVIGATION,
+      )
+      await validateToastMessage(
+        page,
+        'This question cannot be removed while used by the API bridge',
+      )
+    })
+
+    await test.step('reload bridge edit page', async () => {
       await adminPrograms.clickEditBridgeDefinitionButton()
       await programBridgeConfiguration.changeBridgeAdminName('bridge-success')
     })

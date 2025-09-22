@@ -24,6 +24,7 @@ import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
@@ -2239,7 +2240,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   public void export_whenQuestionIsRemovedFromProgram_itIsStillInResponseForAllApplications()
       throws ProgramNotFoundException,
           ProgramNeedsABlockException,
-          IllegalPredicateOrderingException {
+          IllegalPredicateOrderingException,
+          ProgramBlockDefinitionNotFoundException {
     var programService = instanceOf(ProgramService.class);
     createFakeQuestions();
 
