@@ -331,6 +331,7 @@ public enum MessageKey {
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
+  MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
