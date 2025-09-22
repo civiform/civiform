@@ -8,8 +8,6 @@ GET     /*path/                                                                 
 # Redirect automatic requests from the browser to the specified favicon.
 GET     /favicon.ico                                                                                    controllers.HomeController.favicon()
 GET     /favicon.png                                                                                    controllers.HomeController.favicon()
-GET     /apple-touch-icon.png                                                                           controllers.HomeController.favicon()
-GET     /apple-touch-icon-precomposed.png                                                               controllers.HomeController.favicon()
 
 # The landing page
 GET     /                                                                                               controllers.HomeController.index(request: Request)
