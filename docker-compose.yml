@@ -5,14 +5,10 @@ services:
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
+    ports:
+      - 4566:4566
     environment:
       - SERVICES=s3,ses
-    links:
-      # Once a file is uploaded to localstack, localstack redirects back to CiviForm.
-      # It does this by mapping any 'localhost' domain to the 'civiform' domain (see
-      # localstack/localstack.nginx.conf). So, we need the localstack service to be
-      # aware of the civiform service to do that redirect correctly.
-      - 'civiform:civiform-service'
     networks:
       default:
         aliases:
