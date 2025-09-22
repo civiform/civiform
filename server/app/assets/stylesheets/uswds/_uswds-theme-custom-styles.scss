@@ -365,19 +365,6 @@ button.usa-button.usa-button--unstyled.htmx-request {
   background-color: transparent;
 }
 
-.cf-prose-h3 {
-  @include u-font_size('heading', 'lg');
-  @include u-line-height('sans', $theme-heading-line-height);
-  font-family: var(--heading, Merriweather);
-  font-weight: font-weight('bold');
-}
-
-.cf-prose-h6 {
-  @include u-font('sans', '3xs');
-  @include u-line-height('sans', $theme-heading-line-height);
-  text-transform: uppercase;
-}
-
 // We currently disable USWDS border settings for backwards compatibility
 // with non USWDS pages. Once that override is removed, this can be
 // replaced with USWDS border styles.

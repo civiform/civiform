@@ -14,14 +14,14 @@
     ></a>
 
     <div class="width-mobile-lg">
-      <h6
+      <div
         class="font-sans-3xs text-uppercase margin-bottom-2"
         th:text="${model.blockName()}"
-      ></h6>
-      <h3
-        class="font-family-alt margin-bottom-05"
+      ></div>
+      <div
+        class="font-alt-lg text-bold margin-bottom-05"
         th:text="|Edit ${model.predicateUseCase.toDisplayString()} conditions|"
-      ></h3>
+      ></div>
       <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
         <p th:case="'VISIBILITY'" class="margin-top-05">
           Add or remove conditions for when this screen is shown or hidden.
