@@ -90,6 +90,10 @@ title.login=تسجيل الدخول
 content.loginPrompt=يُرجى تسجيل الدخول باستخدام حسابك على "{0}"
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=إنشاء حساب
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=تسجيل الدخول
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=السنة
 # Label showing the user when there is no name
 label.unnamedUser=مستخدم بدون اسم
 
-link.edit=تعديل
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=اختيار عميل جديد
 
