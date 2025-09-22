@@ -24,7 +24,7 @@
   ></div>
 
   <!-- Filters -->
-  <div th:if="${mapQuestion.getFilters().size() > 0}">
+  <th:block th:if="${mapQuestion.getFilters().size() > 0}">
     <fieldset class="grid-row grid-gap">
       <legend
         class="usa-legend text-bold"
@@ -71,7 +71,7 @@
         th:text="#{map.resetFiltersButtonText}"
       ></button>
     </div>
-  </div>
+  </th:block>
 
   <div class="grid-row grid-gap padding-1">
     <!-- Scrollable container with location checkboxes -->
