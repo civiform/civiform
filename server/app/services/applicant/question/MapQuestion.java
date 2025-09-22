@@ -145,7 +145,13 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String createLocationJson(String featureId, String locationName) {
-    return String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", featureId, locationName);
+    MapSelection selection = MapSelection.create(featureId, locationName);
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.writeValueAsString(selection);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to serialize MapSelection to JSON", e);
+    }
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {

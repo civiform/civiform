@@ -657,10 +657,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       QuestionDefinition questionDefinition,
       int groupId,
       Optional<LeafExpressionNode> maybeLeafNode) {
-    DivTag valueField = div();
-    if (!questionDefinition.getQuestionType().equals(QuestionType.MAP)) {
-      valueField.withClasses(COLUMN_WIDTH);
-    }
+    DivTag valueField = div().withClasses(COLUMN_WIDTH);
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ADDRESS)) {
       // Address questions only support service area predicates.
@@ -734,58 +731,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
     } else if (questionDefinition.getQuestionType().equals(QuestionType.MAP)) {
-      // For map questions, we need to provide a discrete list of feature IDs to choose from.
-      // We extract the feature IDs from the GeoJSON data associated with this map question.
-      String geoJsonEndpoint =
-          ((MapQuestionDefinition) questionDefinition)
-              .getMapValidationPredicates()
-              .geoJsonEndpoint();
-      GeoJsonDataModel geoJsonDataModel =
-          geoJsonDataRepository
-              .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
-              .toCompletableFuture()
-              .join()
-              .orElse(null);
-      FeatureCollection geoJson = geoJsonDataModel != null ? geoJsonDataModel.getGeoJson() : null;
-
-      if (geoJson == null) {
-        return valueField
-            .withData("question-id", String.valueOf(questionDefinition.getId()))
-            .with(
-                div("No map data available for this question.")
-                    .withClasses("text-gray-500", "italic"));
-      }
-
-      ImmutableSet<String> currentlyCheckedValues =
-          assertLeafOperationNode(maybeLeafNode)
-              .map(LeafOperationExpressionNode::comparedValue)
-              .map(PredicateValue::value)
-              .map(
-                  value ->
-                      Splitter.on(", ")
-                          .splitToStream(value.substring(1, value.length() - 1))
-                          .map(item -> item.replaceAll("\"", ""))
-                          .collect(ImmutableSet.toImmutableSet()))
-              .orElse(ImmutableSet.of());
-
-      for (Feature feature : geoJson.features()) {
-        String featureId = feature.id();
-        boolean isChecked = currentlyCheckedValues.contains(featureId);
-
-        LabelTag optionCheckbox =
-            FieldWithLabel.checkbox()
-                .setFieldName(
-                    String.format(
-                        "group-%d-question-%d-predicateValues[]",
-                        groupId, questionDefinition.getId()))
-                .setValue(featureId)
-                .setLabelText(featureId)
-                .setChecked(isChecked)
-                .getCheckboxTag();
-        valueField.with(optionCheckbox);
-      }
-
-      return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
+      return createMapQuestionValueField(
+          (MapQuestionDefinition) questionDefinition, groupId, maybeLeafNode);
     }
 
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
@@ -821,6 +768,62 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                         .setDisabled(hasOneValue)
                         .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                         .getInputTag()));
+  }
+
+  private DivTag createMapQuestionValueField(
+      MapQuestionDefinition questionDefinition,
+      int groupId,
+      Optional<LeafExpressionNode> maybeLeafNode) {
+    DivTag valueField = div();
+
+    // For map questions, provide a list of feature IDs to choose from.
+    // Extract the feature IDs from the GeoJSON data associated with this map question.
+    String geoJsonEndpoint = questionDefinition.getMapValidationPredicates().geoJsonEndpoint();
+    GeoJsonDataModel geoJsonDataModel =
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join()
+            .orElse(null);
+    FeatureCollection geoJson = geoJsonDataModel != null ? geoJsonDataModel.getGeoJson() : null;
+
+    if (geoJson == null) {
+      return valueField
+          .withData("question-id", String.valueOf(questionDefinition.getId()))
+          .with(
+              div("No map data available for this question.")
+                  .withClasses("text-gray-500", "italic"));
+    }
+
+    ImmutableSet<String> currentlyCheckedValues =
+        assertLeafOperationNode(maybeLeafNode)
+            .map(LeafOperationExpressionNode::comparedValue)
+            .map(PredicateValue::value)
+            .map(
+                value ->
+                    Splitter.on(", ")
+                        .splitToStream(value.substring(1, value.length() - 1))
+                        .map(item -> item.replaceAll("\"", ""))
+                        .collect(ImmutableSet.toImmutableSet()))
+            .orElse(ImmutableSet.of());
+
+    for (Feature feature : geoJson.features()) {
+      String featureId = feature.id();
+      boolean isChecked = currentlyCheckedValues.contains(featureId);
+
+      LabelTag optionCheckbox =
+          FieldWithLabel.checkbox()
+              .setFieldName(
+                  String.format(
+                      "group-%d-question-%d-predicateValues[]",
+                      groupId, questionDefinition.getId()))
+              .setValue(featureId)
+              .setLabelText(featureId)
+              .setChecked(isChecked)
+              .getCheckboxTag();
+      valueField.with(optionCheckbox);
+    }
+    return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
   @Override
