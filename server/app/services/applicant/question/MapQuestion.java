@@ -1,11 +1,6 @@
 package services.applicant.question;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -13,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import services.MessageKey;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -138,20 +134,8 @@ public final class MapQuestion extends AbstractQuestion {
       //  Creating an instance of ObjectMapper is a heavy-ish operation so it should be done in the
       // constructor but that's not possible here, so using the same settings as the global
       // ObjectMapper for consistency
-      ObjectMapper mapper =
-          new ObjectMapper()
-              // Play defaults
-              .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-              .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-              // This adds support for Optional
-              .registerModule(new Jdk8Module())
-              // This adds support for ImmutableList, ImmutableSet, etc.
-              .registerModule(new GuavaModule())
-              // This adds support for Instant, LocalDateTime, java.time classes, etc.
-              .registerModule(new JavaTimeModule());
-
       TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
-      return Optional.of(mapper.readValue(jsonString, typeRef));
+      return Optional.of(ObjectMapperSingleton.instance().readValue(jsonString, typeRef));
     } catch (Exception e) {
       return Optional.empty();
     }
@@ -164,9 +148,8 @@ public final class MapQuestion extends AbstractQuestion {
 
   public String createLocationJson(String featureId, String locationName) {
     MapSelection selection = MapSelection.create(featureId, locationName);
-    ObjectMapper mapper = new ObjectMapper();
     try {
-      return mapper.writeValueAsString(selection);
+      return ObjectMapperSingleton.instance().writeValueAsString(selection);
     } catch (Exception e) {
       throw new RuntimeException("Failed to serialize MapSelection to JSON", e);
     }
