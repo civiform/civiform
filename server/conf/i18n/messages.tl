@@ -467,3 +467,27 @@ session.extend.button=I-extend ang Session
 session.extended.success=Na-extend na ang session
 session.extended.error=Hindi na-extend ang session
 translation.untranslated=Mananatiling hindi naka-translate ang string na ito para sa mga eksperimento sa imprastraktura ng pag-translate.
+
+button.adminLogin=Administrator log in
+
+button.applicantLogin=Applicant log in
+
+map.addFilterButton=Add filter
+
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+
+map.addFiltersTitle=Filters
+
+map.displayNameLabel=Display name
+
+map.keyLabel=Key
+
+map.locationAddressLabel=Address key
+
+map.locationDetailsUrlLabel=View more details URL key
+
+map.locationNameLabel=Name key
+
+map.mapRegionAltText=Interactive map displaying locations
+
+map.maxLocationSelectionsLabel=Maximum location selections
