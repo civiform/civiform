@@ -16,6 +16,8 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -1161,6 +1163,115 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .getProgramDefinition();
 
     assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
+  }
+
+  @Test
+  public void blockHasQuestionsUsedByApiBridge_returnsTrue()
+      throws ProgramBlockDefinitionNotFoundException {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ImmutableMap<String, ApiBridgeDefinition> map =
+        ImmutableMap.of(
+            "key-name",
+            new ApiBridgeDefinition(
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        addressQuestion.getQuestionNameKey(), Scalar.ZIP, "externalQuestion1")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        textQuestion.getQuestionNameKey(), Scalar.TEXT, "externalQuestion2"))));
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(map)
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .build()
+            .getProgramDefinition();
+
+    BlockDefinition block = programDefinition.blockDefinitions().stream().findFirst().get();
+
+    assertThat(programDefinition.blockHasQuestionsUsedByApiBridge(block.id())).isTrue();
+  }
+
+  @Test
+  public void blockHasQuestionsUsedByApiBridge_returnsFalse()
+      throws ProgramBlockDefinitionNotFoundException {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(ImmutableMap.of())
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .withBlock()
+            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    BlockDefinition block = programDefinition.blockDefinitions().stream().findFirst().get();
+
+    assertThat(programDefinition.blockHasQuestionsUsedByApiBridge(block.id())).isFalse();
+  }
+
+  @Test
+  public void isQuestionsListUsedByApiBridge_returnsTrueIfApiBridgeUsesQuestions() {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ImmutableMap<String, ApiBridgeDefinition> map =
+        ImmutableMap.of(
+            "key-name",
+            new ApiBridgeDefinition(
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        addressQuestion.getQuestionNameKey(), Scalar.ZIP, "externalQuestion1")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        textQuestion.getQuestionNameKey(), Scalar.TEXT, "externalQuestion2"))));
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(map)
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(
+            programDefinition.isQuestionsListUsedByApiBridge(
+                ImmutableList.of(addressQuestion.getId())))
+        .isTrue();
+  }
+
+  @Test
+  public void isQuestionsListUsedByApiBridge_returnsFalseIfApiBridgeHasNoQuestions() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(ImmutableMap.of())
+            .withBlock()
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(), false)
+            .withQuestionDefinition(
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(), false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(
+            programDefinition.isQuestionsListUsedByApiBridge(
+                ImmutableList.of(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getId())))
+        .isFalse();
+    assertThat(programDefinition.isQuestionsListUsedByApiBridge(ImmutableList.of())).isFalse();
   }
 
   @Test
