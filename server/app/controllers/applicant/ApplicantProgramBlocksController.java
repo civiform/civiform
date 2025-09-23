@@ -1427,7 +1427,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
@@ -1436,32 +1435,44 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
-    ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-        applicantProgramServiceCompletableFuture.join();
-
-    Optional<Block> optionalBlockBeforeUpdate =
-        readOnlyApplicantProgramService.getActiveBlock(blockId);
-
     // Process the form data and make any necessary changes.
     CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
-        applicantStage
+        CompletableFuture.allOf(
+                applicantStage.toCompletableFuture(), applicantProgramServiceCompletableFuture)
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> {
+                  ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                      applicantProgramServiceCompletableFuture.join();
+
+                  Optional<Block> optionalBlockBeforeUpdate =
+                      readOnlyApplicantProgramService.getActiveBlock(blockId);
+
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
-                  return applicantService.resetAddressCorrectionWhenAddressChanged(
-                      programId, optionalBlockBeforeUpdate, blockId, formData);
+
+                  // Wrap both values in a Pair or custom holder
+                  return applicantService
+                      .resetAddressCorrectionWhenAddressChanged(
+                          programId, optionalBlockBeforeUpdate, blockId, formData)
+                      .thenApply(
+                          updatedFormData ->
+                              new BlockFormDataPair<>(optionalBlockBeforeUpdate, updatedFormData));
                 },
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
-                    applicantService.setPhoneCountryCode(
-                        programId, optionalBlockBeforeUpdate, blockId, formData),
+                pair ->
+                    applicantService
+                        .setPhoneCountryCode(
+                            programId, pair.getBlock(), blockId, pair.getFormData())
+                        .thenApply(
+                            updatedFormData ->
+                                new BlockFormDataPair<>(pair.getBlock(), updatedFormData)),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
+                pair ->
                     applicantService.cleanDateQuestions(
-                        programId, optionalBlockBeforeUpdate, blockId, formData),
+                        programId, pair.getBlock(), blockId, pair.getFormData()),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1478,6 +1489,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
+
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                  applicantProgramServiceCompletableFuture.join();
+
+              Optional<Block> optionalBlockBeforeUpdate =
+                  readOnlyApplicantProgramService.getActiveBlock(blockId);
 
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
@@ -2060,5 +2077,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             latestProgramId ->
                 redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
                     .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+  }
+
+  public static class BlockFormDataPair<B, F> {
+    private final B block;
+    private final F formData;
+
+    public BlockFormDataPair(B block, F formData) {
+      this.block = block;
+      this.formData = formData;
+    }
+
+    public B getBlock() {
+      return block;
+    }
+
+    public F getFormData() {
+      return formData;
+    }
   }
 }
