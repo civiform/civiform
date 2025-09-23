@@ -290,13 +290,13 @@ public abstract class ProgramDefinition {
             .distinct()
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<String> allQuestionsNamesUsedByBlock =
+    ImmutableList<String> allQuestionsNamesUsedByProgram =
         getAllQuestions().stream()
             .filter(x -> questionIds.contains(x.getId()))
             .map(x -> x.getQuestionNameKey())
             .collect(ImmutableList.toImmutableList());
 
-    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByBlock::contains);
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByProgram::contains);
   }
 
   /**

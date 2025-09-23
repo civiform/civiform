@@ -1187,10 +1187,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBridgeDefinitions(map)
             .withBlock()
             .withQuestionDefinition(addressQuestion, false)
-            .withBlock()
-            .withQuestionDefinition(textQuestion, false)
-            .withQuestionDefinition(
-                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
             .build()
             .getProgramDefinition();
 
