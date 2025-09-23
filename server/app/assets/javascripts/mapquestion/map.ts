@@ -38,7 +38,7 @@ export const init = (): void => {
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
-      const mapElement = renderMap(mapId, mapData as MapData)
+      const mapElement = renderMap(mapId, mapData as MapData, mapMessages)
       initLocationSelection(mapId, mapMessages)
       initFilters(mapId, mapElement, mapMessages, mapData as MapData)
     } catch (error) {
@@ -196,7 +196,11 @@ const addPopupsToMap = (
   })
 }
 
-const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
+const renderMap = (
+  mapId: string,
+  mapData: MapData,
+  messages: MapMessages,
+): MapLibreMap => {
   if (!mapData.settings || !mapData.geoJson) {
     throw new Error(
       `Invalid map data for ${mapId}: missing settings or geoJson`,
@@ -206,6 +210,21 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   const settings: MapSettings = mapData.settings
   const geoJson: FeatureCollection = mapData.geoJson
   const map = createMap(mapId)
+
+  const canvas: HTMLCanvasElement = map.getCanvas()
+  canvas.setAttribute('aria-label', messages.mapRegionAltText)
+
+  // Add focus styles to the map container when the canvas is focused
+  const mapContainer = document.getElementById(mapId)
+  if (mapContainer) {
+    canvas.addEventListener('focus', () => {
+      mapContainer.classList.add('usa-focus')
+    })
+
+    canvas.addEventListener('blur', () => {
+      mapContainer.classList.remove('usa-focus')
+    })
+  }
 
   map.on('load', () => {
     addLocationsToMap(map, geoJson)

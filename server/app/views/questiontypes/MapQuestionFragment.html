@@ -214,6 +214,8 @@
         /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       locationsSelectedCount:
         /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
+      mapRegionAltText:
+        /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
     }
 
     window.app.data.maps = window.app.data.maps || {}
@@ -225,10 +227,6 @@
         nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
         addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
-      },
-      messages: {
-        locationsCount:
-          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       },
     }
   </script>
