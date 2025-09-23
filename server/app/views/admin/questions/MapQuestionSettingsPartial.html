@@ -1,6 +1,9 @@
 <!-- TODO(#11161): Update styling to match design specifications -->
 <div id="geoJsonOutput">
-  <label for="maxLocationSelections">Maximum location selections</label
+  <label
+    for="maxLocationSelections"
+    th:text="#{map.maxLocationSelectionsLabel}"
+  ></label
   ><input
     class="usa-input"
     name="maxLocationSelections"
@@ -8,9 +11,13 @@
     type="number"
     th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
   />
-  <label class="usa-label" for="locationName.key">Location name</label>
+  <label
+    class="usa-label"
+    for="locationName.key"
+    th:text="#{map.locationNameLabel}"
+  ></label>
   <select class="usa-select" name="locationName.key" id="locationName.key">
-    <option value>Select a key</option>
+    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
@@ -18,13 +25,17 @@
       th:selected="${key == model.locationName.key}"
     ></option>
   </select>
-  <label class="usa-label" for="locationAddress.key">Location address</label>
+  <label
+    class="usa-label"
+    for="locationAddress.key"
+    th:text="#{map.locationAddressLabel}"
+  ></label>
   <select
     class="usa-select"
     name="locationAddress.key"
     id="locationAddress.key"
   >
-    <option value>Select a key</option>
+    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
@@ -32,15 +43,17 @@
       th:selected="${key == model.locationAddress.key}"
     ></option>
   </select>
-  <label class="usa-label" for="locationDetailsUrl.key"
-    >Location details URL</label
-  >
+  <label
+    class="usa-label"
+    for="locationDetailsUrl.key"
+    th:text="#{map.locationDetailsUrlLabel}"
+  ></label>
   <select
     class="usa-select"
     name="locationDetailsUrl.key"
     id="locationDetailsUrl.key"
   >
-    <option value>Select a key</option>
+    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
     <option
       th:each="key: ${model.possibleKeys}"
       th:value="${key}"
@@ -49,35 +62,25 @@
     ></option>
   </select>
 
-  <div>Filters</div>
-  <div>Select up to three filters to make available to applicants.</div>
-  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
-  <div th:each="filter, i : ${model.filters}">
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].key'"
-      >Key</label
-    >
-    <select
-      class="usa-select"
-      th:name="'filters[' + ${i.index} + '].key'"
-      th:id="'filters[' + ${i.index} + '].key'"
-    >
-      <option value>Select a key</option>
-      <option
-        th:each="key: ${model.possibleKeys}"
-        th:value="${key}"
-        th:text="${key}"
-        th:selected="${key == filter.key}"
-      ></option>
-    </select>
-    <label class="usa-label" th:for="'filters[' + ${i.index} + '].displayName'"
-      >Display Name</label
-    >
-    <input
-      class="usa-input"
-      th:id="'filters[' + ${i.index} + '].displayName'"
-      th:name="'filters[' + ${i.index} + '].displayName'"
-      th:value="${filter.displayName}"
-    />
+  <div th:text="#{map.addFiltersTitle}"></div>
+  <div th:text="#{map.addFiltersSubtitle}"></div>
+  <div id="filters">
+    <div th:each="filter, i : ${model.filters}">
+      <div
+        th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+      ></div>
+    </div>
   </div>
-  <!-- TODO(#11198): Make add filter button functional and add delete functionality for filters -->
+  <!-- TODO(#11199): Make the location name, address, details URL required, enforce 3 filter maximum limit, and require display names for all filters -->
+  <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
+  <button
+    th:hx-post="${model.hxAddMapQuestionFilterEndpoint}"
+    hx-include="closest form"
+    hx-swap="beforeend"
+    hx-target="#filters"
+    id="add-map-filter-button"
+    type="button"
+    class="add-map-filter usa-button usa-button--outline"
+    th:text="#{map.addFilterButton}"
+  ></button>
 </div>

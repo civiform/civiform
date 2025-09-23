@@ -1320,7 +1320,7 @@ public final class ApplicantService {
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
                   && settingsManifest.getExternalProgramCardsEnabled(request)
-                  && settingsManifest.getNorthStarApplicantUi(request))) {
+                  && settingsManifest.getNorthStarApplicantUi())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });

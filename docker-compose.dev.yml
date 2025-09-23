@@ -32,14 +32,6 @@ services:
     stdin_open: true # docker run -i
     tty: true # docker run -t
 
-  localstack:
-    # Overrides the localstack image used to work around
-    # https://github.com/seattle-uat/civiform/issues/2639.
-    # Note that we don't set this in the base template
-    # since it's not necessary for CI / browser test runs.
-    image: civiform-localstack
-    ports:
-      - 4566:4566
   azurite:
     ports:
       - 10000:10000
@@ -48,7 +40,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.10@sha256:66a5efb5677ffac1037774a0e141fd3a4c035c9c0c0e624c9cc980dfa10f45e5
+    image: postgres:16.10@sha256:b477759d38be47671d54a054d832791f8ddb9f0eaf6faf51ed17516087793a66
     stdin_open: true
     tty: true
     volumes:

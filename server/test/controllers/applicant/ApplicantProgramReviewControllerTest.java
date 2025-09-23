@@ -526,7 +526,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
                     applicantId, programId))
             .header(skipUserProfile, "false")
             .build();
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(false);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
     return subject
         .submitWithApplicantId(request, applicantId, programId)
         .toCompletableFuture()
@@ -541,7 +541,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
                     applicantId, programId))
             .header(skipUserProfile, "false")
             .build();
-    when(settingsManifest.getNorthStarApplicantUi(request)).thenReturn(true);
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
     return subject
         .submitWithApplicantId(request, applicantId, programId)
         .toCompletableFuture()

@@ -110,7 +110,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             applicationPrograms -> {
               Result result;
-              if (settingsManifest.getNorthStarApplicantUi(request)) {
+              if (settingsManifest.getNorthStarApplicantUi()) {
                 result =
                     ok(northStarProgramIndexView.render(
                             messagesApi.preferred(request),
@@ -163,7 +163,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     return programsFuture.thenApplyAsync(
         programs -> {
-          return settingsManifest.getNorthStarApplicantUi(request)
+          return settingsManifest.getNorthStarApplicantUi()
               ? ok(northStarProgramIndexView.render(
                       messagesApi.preferred(request),
                       request,

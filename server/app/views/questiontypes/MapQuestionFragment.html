@@ -24,52 +24,54 @@
   ></div>
 
   <!-- Filters -->
-  <fieldset class="grid-row grid-gap">
-    <legend
-      class="usa-legend text-bold"
-      th:text="#{map.filterLegendText}"
-    ></legend>
-    <div
-      th:each="filter, i : ${mapQuestion.getFilters()}"
-      class="grid-col flex-align-self-end"
-    >
-      <label
-        class="usa-label"
-        th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
-        th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
-      ></label>
-      <select
-        class="usa-select"
-        th:data-filter-key="${filter.settingValue()}"
-        th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
-        th:data-map-id="${mapId}"
+  <th:block th:if="${mapQuestion.getFilters().size() > 0}">
+    <fieldset class="grid-row grid-gap">
+      <legend
+        class="usa-legend text-bold"
+        th:text="#{map.filterLegendText}"
+      ></legend>
+      <div
+        th:each="filter, i : ${mapQuestion.getFilters()}"
+        class="grid-col flex-align-self-end"
       >
-        <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-        <option
-          th:if="${questionRendererParams.geoJson().isPresent()}"
-          th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
-          th:value="${option}"
-          th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
-        ></option>
-      </select>
-    </div>
-  </fieldset>
+        <label
+          class="usa-label"
+          th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
+          th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
+        ></label>
+        <select
+          class="usa-select"
+          th:data-filter-key="${filter.settingValue()}"
+          th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
+          th:data-map-id="${mapId}"
+        >
+          <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+          <option
+            th:if="${questionRendererParams.geoJson().isPresent()}"
+            th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
+            th:value="${option}"
+            th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
+          ></option>
+        </select>
+      </div>
+    </fieldset>
 
-  <!-- Apply filters buttons -->
-  <div class="margin-bottom-2">
-    <button
-      type="button"
-      class="usa-button cf-apply-filters-button"
-      th:data-map-id="${mapId}"
-      th:text="#{map.applyFiltersButtonText}"
-    ></button>
-    <button
-      type="button"
-      class="usa-button usa-button--outline cf-reset-filters-button"
-      th:data-map-id="${mapId}"
-      th:text="#{map.resetFiltersButtonText}"
-    ></button>
-  </div>
+    <!-- Apply filters buttons -->
+    <div class="margin-bottom-2">
+      <button
+        type="button"
+        class="usa-button cf-apply-filters-button"
+        th:data-map-id="${mapId}"
+        th:text="#{map.applyFiltersButtonText}"
+      ></button>
+      <button
+        type="button"
+        class="usa-button usa-button--outline cf-reset-filters-button"
+        th:data-map-id="${mapId}"
+        th:text="#{map.resetFiltersButtonText}"
+      ></button>
+    </div>
+  </th:block>
 
   <div class="grid-row grid-gap padding-1">
     <!-- Scrollable container with location checkboxes -->
@@ -110,9 +112,9 @@
           <input
             class="usa-checkbox__input cf-location-checkbox-input"
             th:id="${locationId}"
-            th:value="${locationName}"
+            th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
             th:name="${mapQuestion.getSelectionPathAsArray()}"
-            th:checked="${mapQuestion.locationIsSelected(locationName)}"
+            th:checked="${mapQuestion.locationIsSelected(featureId)}"
             th:data-map-id="${mapId}"
             type="checkbox"
           />
@@ -212,6 +214,8 @@
         /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       locationsSelectedCount:
         /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
+      mapRegionAltText:
+        /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
     }
 
     window.app.data.maps = window.app.data.maps || {}
@@ -223,10 +227,6 @@
         nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
         addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
-      },
-      messages: {
-        locationsCount:
-          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
       },
     }
   </script>

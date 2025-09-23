@@ -9,21 +9,18 @@ on:
     branches: [main]
     paths:
       - 'server/conf/i18n/**'
-  schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
 
 jobs:
   sync-i18n:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout civiform repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           path: civiform
 
       - name: Checkout civiform-messages repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           repository: civiform/civiform-messages
           token: ${{ secrets.CIVIFORM_AUTOMATION_MESSAGES_WRITE }}

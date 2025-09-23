@@ -125,13 +125,6 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-dev-oidc
 
-      - name: Build localstack
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: bin/build-localstack-env
-
       - name: Build mock-web-services
         env:
           DOCKER_BUILDKIT: 1

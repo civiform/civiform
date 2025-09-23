@@ -116,7 +116,7 @@ public final class QuestionConfig {
                 .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
                 .getContainer());
       case DATE:
-        return settingsManifest.getDateValidationEnabled(request)
+        return settingsManifest.getDateValidationEnabled()
             ? Optional.of(
                 config
                     .addDateQuestionConfig((DateQuestionForm) questionForm, messages)

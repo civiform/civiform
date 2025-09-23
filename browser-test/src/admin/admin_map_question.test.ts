@@ -35,9 +35,11 @@ test.describe('Create and edit map question', () => {
         await maxLocationInput.fill('3')
         await expect(maxLocationInput).toHaveValue('3')
 
-        const locationNameSelect = page.getByLabel('Location name')
-        const locationAddressSelect = page.getByLabel('Location address')
-        const locationDetailsUrlSelect = page.getByLabel('Location details URL')
+        const locationNameSelect = page.getByLabel('Name key')
+        const locationAddressSelect = page.getByLabel('Address key')
+        const locationDetailsUrlSelect = page.getByLabel(
+          'View more details URL key',
+        )
 
         await expect(locationNameSelect).toBeVisible()
         await expect(locationAddressSelect).toBeVisible()
@@ -61,27 +63,25 @@ test.describe('Create and edit map question', () => {
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Select up to three filters to make available to applicants.',
+            'Add up to six filters to make available to applicants.',
           ),
         ).toBeVisible()
 
-        for (let i = 0; i < 3; i++) {
-          const filterKeySelect = page
-            .locator('select[name^="filters["]')
-            .nth(i)
-          const filterDisplayInput = page
-            .locator('input[name*="displayName"]')
-            .nth(i)
+        await page.getByRole('button', {name: 'Add filter'}).click()
 
-          await expect(filterKeySelect).toBeVisible()
-          await expect(filterDisplayInput).toBeVisible()
-          await expect(
-            filterKeySelect.locator('option[value="name"]'),
-          ).toBeAttached()
-          await expect(
-            filterKeySelect.locator('option[value="address"]'),
-          ).toBeAttached()
-        }
+        const filterKeySelect = page.getByLabel('Key', {exact: true})
+        const filterDisplayInput = page.getByLabel('Display name', {
+          exact: true,
+        })
+
+        await expect(filterKeySelect).toBeVisible()
+        await expect(filterDisplayInput).toBeVisible()
+        await expect(
+          filterKeySelect.locator('option[value="name"]'),
+        ).toBeAttached()
+        await expect(
+          filterKeySelect.locator('option[value="address"]'),
+        ).toBeAttached()
       })
     })
 
@@ -104,8 +104,8 @@ test.describe('Create and edit map question', () => {
         await expect(
           page.getByLabel('Maximum location selections'),
         ).toHaveValue('2')
-        await expect(page.getByLabel('Location name')).toHaveValue('name')
-        await expect(page.getByLabel('Location address')).toHaveValue('address')
+        await expect(page.getByLabel('Name key')).toHaveValue('name')
+        await expect(page.getByLabel('Address key')).toHaveValue('address')
 
         await page
           .getByLabel('Question text')

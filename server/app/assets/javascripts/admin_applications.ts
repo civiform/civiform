@@ -7,7 +7,7 @@ class AdminApplications {
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
-  // This value should be kept in sync with ProgramApplicationListView.java
+  // This value should be kept in sync with ProgramApplicationTableView.java
   private static SHOW_DOWNLOAD_MODAL = 'showDownloadModal'
 
   // These values should be kept in sync with those in admin_application_view.ts
