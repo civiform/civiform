@@ -22,8 +22,8 @@
 
       <div class="grid-container">
         <div class="grid-row">
-          <div class="tablet:grid-col-8">
-            <a
+          <div  class="tablet:grid-col-8">
+            <a th:if="${!isGuest and !isLogin}"
               th:href="${actionUrl}"
               class="usa-button"
               th:text="#{button.startApp}"
