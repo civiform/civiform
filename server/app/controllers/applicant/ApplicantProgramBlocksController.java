@@ -1451,7 +1451,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
-                  // Wrap both values in a Pair or custom holder
+                  // Wrap both values in a pair so they can be passed to the next stage.
                   return applicantService
                       .resetAddressCorrectionWhenAddressChanged(
                           programId, optionalBlockBeforeUpdate, blockId, formData)
