@@ -375,4 +375,15 @@ button.usa-button.usa-button--unstyled.htmx-request {
 // Remove after admin redesign
 .border-gray-300 {
   border-color: #d1d5db;
+
+.cf-condition-card-border {
+  border: 1px solid #dfe1e2;
+}
+
+.cf-subcondition-left-border {
+  border-left: 4px solid #dfe1e2;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
 }

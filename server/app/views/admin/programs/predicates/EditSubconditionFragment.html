@@ -1,0 +1,58 @@
+<th:block th:fragment="editSubcondition(conditionId, subconditionId)">
+  <div>
+    <div class="cf-subcondition-left-border padding-left-3">
+      <div
+        class="usa-form-group margin-top-2"
+        th:with="questionId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionId'}"
+      >
+        <label class="usa-label" th:for="${questionId}"
+          >Question<span class="usa-hint--required">*</span></label
+        >
+        <select
+          class="usa-select"
+          th:id="${questionId}"
+          th:name="${questionId}"
+        >
+          <option>-Select-</option>
+        </select>
+      </div>
+      <div
+        class="usa-form-group margin-top-2"
+        th:with="operatorId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'}"
+      >
+        <label class="usa-label" th:for="${operatorId}"
+          >State<span class="usa-hint--required">*</span></label
+        >
+        <select
+          class="usa-select"
+          th:id="${operatorId}"
+          th:name="${operatorId}"
+        >
+          <option>-Select-</option>
+        </select>
+      </div>
+      <div
+        class="usa-form-group margin-top-2"
+        th:with="valueId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-value'}"
+      >
+        <label class="usa-label" th:for="${valueId}"
+          >Value(s)<span class="usa-hint--required">*</span></label
+        >
+        <select class="usa-select" th:id="${valueId}" th:name="${valueId}">
+          <option>-Select-</option>
+        </select>
+      </div>
+
+      <div class="width-full display-inline-block">
+        <a
+          href="#"
+          class="usa-link usa-button usa-button--unstyled float-right text-secondary-dark"
+          >Remove sub-condition</a
+        >
+      </div>
+    </div>
+    <div class="margin-top-3">
+      <a href="#" class="usa-link">Add sub-condition</a>
+    </div>
+  </div>
+</th:block>
