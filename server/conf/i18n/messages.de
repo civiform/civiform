@@ -942,6 +942,8 @@ map.selectedLocationsHeading=Selected locations
 map.selectOptionPlaceholderText=- Select -
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
+# Alt text for map region
+map.mapRegionAltText=Interactive map displaying locations
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
