@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
@@ -311,10 +312,11 @@ public class DateQuestionTest extends ResetPostgres {
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
     // Should autofill with today's date when both min and max are APPLICATION_DATE
-    assertThat(dateQuestion.getDateValue().get()).isEqualTo(TODAY);
-    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(TODAY.getMonthValue());
-    assertThat(dateQuestion.getDayValue().get()).isEqualTo(TODAY.getDayOfMonth());
-    assertThat(dateQuestion.getYearValue().get()).isEqualTo(TODAY.getYear());
+    LocalDate expectedDate = LocalDate.now(ZoneId.systemDefault());
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(expectedDate);
+    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(expectedDate.getMonthValue());
+    assertThat(dateQuestion.getDayValue().get()).isEqualTo(expectedDate.getDayOfMonth());
+    assertThat(dateQuestion.getYearValue().get()).isEqualTo(expectedDate.getYear());
   }
 
   @Test

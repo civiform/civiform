@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.MessageKey;
@@ -187,7 +188,7 @@ public final class DateQuestion extends AbstractQuestion {
     
     // Autofill with current date if both minDate and maxDate are APPLICATION_DATE
     if (dateValue.isEmpty() && shouldAutofillWithCurrentDate()) {
-      dateValue = Optional.of(CURRENT_DATE);
+      dateValue = Optional.of(LocalDate.now(ZoneId.systemDefault()));
     }
     
     return dateValue;
