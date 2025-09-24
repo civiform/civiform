@@ -65,6 +65,7 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.apibridge.ApiBridgeProcessor;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -128,6 +129,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
+  private final ApiBridgeProcessor apiBridgeProcessor;
 
   @Inject
   public ApplicantService(
@@ -148,6 +150,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
+      ApiBridgeProcessor apiBridgeProcessor,
       SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
@@ -175,6 +178,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
+    this.apiBridgeProcessor = checkNotNull(apiBridgeProcessor);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -278,7 +282,8 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -302,7 +307,8 @@ public final class ApplicantService {
         updateMap,
         updates,
         addressServiceAreaValidationEnabled,
-        forceUpdate);
+        forceUpdate,
+        apiBridgeEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -312,7 +318,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -356,7 +363,8 @@ public final class ApplicantService {
                               programDefinition,
                               updates,
                               serviceAreaUpdate,
-                              forceUpdate);
+                              forceUpdate,
+                              apiBridgeEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -367,7 +375,8 @@ public final class ApplicantService {
                   programDefinition,
                   updates,
                   Optional.empty(),
-                  forceUpdate);
+                  forceUpdate,
+                  apiBridgeEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -383,7 +392,8 @@ public final class ApplicantService {
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -409,6 +419,24 @@ public final class ApplicantService {
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
+
+      if (apiBridgeEnabled) {
+        return apiBridgeProcessor
+            .callApiBridgeEndpoints(
+                applicant.getApplicantData(), programDefinition.bridgeDefinitions())
+            .thenComposeAsync(
+                updatedApplicantData -> {
+                  applicant.setApplicantData(updatedApplicantData);
+
+                  return accountRepository
+                      .updateApplicant(applicant)
+                      .thenApplyAsync(
+                          (finishedSaving) -> roApplicantProgramService,
+                          classLoaderExecutionContext.current());
+                },
+                classLoaderExecutionContext.current());
+      }
+
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
