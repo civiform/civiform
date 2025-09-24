@@ -20,6 +20,7 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
+import helpers.Pair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -1425,33 +1426,58 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                classLoaderExecutionContext.current())
+            .toCompletableFuture();
+
+    // Process the form data and make any necessary changes.
+    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+        CompletableFuture.allOf(
+                applicantStage.toCompletableFuture(), applicantProgramServiceCompletableFuture)
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+            .thenComposeAsync(
                 v -> {
+                  ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                      applicantProgramServiceCompletableFuture.join();
+
+                  Optional<Block> optionalBlockBeforeUpdate =
+                      readOnlyApplicantProgramService.getActiveBlock(blockId);
+
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
-                  return applicantService.resetAddressCorrectionWhenAddressChanged(
-                      applicantId, programId, blockId, formData);
+
+                  // Wrap both values in a pair so they can be passed to the next stage.
+                  return applicantService
+                      .resetAddressCorrectionWhenAddressChanged(
+                          programId, optionalBlockBeforeUpdate, blockId, formData)
+                      .thenApply(
+                          updatedFormData ->
+                              new Pair<>(optionalBlockBeforeUpdate, updatedFormData));
                 },
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
-                    applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
+                pair ->
+                    applicantService
+                        .setPhoneCountryCode(
+                            programId,
+                            /* blockMaybe= */ pair.left(),
+                            blockId,
+                            /* formData= */ pair.right())
+                        .thenApply(updatedFormData -> new Pair<>(pair.left(), updatedFormData)),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
-                    applicantService.cleanDateQuestions(applicantId, programId, blockId, formData),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                pair ->
+                    applicantService.cleanDateQuestions(
+                        programId,
+                        /* blockMaybe= */ pair.left(),
+                        blockId,
+                        /* formData= */ pair.right()),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1468,10 +1494,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
+
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
+
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
+
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
 
