@@ -208,4 +208,8 @@ export class AdminPredicates {
       `button:has-text("This screen has ${predicateType} ")`,
     )
   }
+
+  async expectCondition(conditionId: number) {
+    await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
+  }
 }
