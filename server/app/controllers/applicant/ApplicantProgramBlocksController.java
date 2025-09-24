@@ -1469,10 +1469,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             /* blockMaybe= */ pair.left(),
                             blockId,
                             /* formData= */ pair.right())
-                        .thenApply(
-                            updatedFormData ->
-                                new Pair<>(
-                                    /* optionalBlockBeforeUpdate= */ pair.left(), updatedFormData)),
+                        .thenApply(updatedFormData -> new Pair<>(pair.left(), updatedFormData)),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 pair ->
