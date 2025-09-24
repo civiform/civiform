@@ -1,11 +1,11 @@
 package services.applicant.predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.exception.InvalidPredicateException;
@@ -120,14 +120,15 @@ public final class PredicateEvaluator {
 
     ApplicantData flattenedData = new ApplicantData(applicantData.asJsonString());
 
-    ObjectMapper mapper = new ObjectMapper();
     ImmutableList<String> featureIds =
         applicantData.readStringList(selectionsPath).stream()
             .flatMap(Collection::stream)
             .map(
                 jsonString -> {
                   try {
-                    return mapper.readValue(jsonString, MapSelection.class).featureId();
+                    return ObjectMapperSingleton.instance()
+                        .readValue(jsonString, MapSelection.class)
+                        .featureId();
                   } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                   }
