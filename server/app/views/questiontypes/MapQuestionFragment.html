@@ -208,7 +208,7 @@
     window.app = window.app || {}
     window.app.data = window.app.data || {}
     window.app.data.maxLocationSelections =
-      /*[[${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}]]*/ null
+      /*[[${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent() ? mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt() : null}]]*/ null
     window.app.data.messages = {
       locationsCount:
         /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
