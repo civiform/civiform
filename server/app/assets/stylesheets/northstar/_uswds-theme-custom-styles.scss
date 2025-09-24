@@ -191,6 +191,28 @@ it is around the label */
 .usa-list {
   list-style-type: disc;
 }
+// Restore default link styling that was removed by Tailwind CSS resets
+// This ensures links have proper color and underline styling without Tailwind
+a:not(.usa-link):not(.usa-button):not([class*='usa-']) {
+  color: color($theme-link-color);
+  text-decoration: underline;
+
+  &:visited {
+    color: color($theme-link-visited-color);
+  }
+
+  &:hover {
+    color: color($theme-link-hover-color);
+  }
+}
+
+// Ensure proper vertical spacing that may have been affected by Tailwind resets
+p,
+div,
+section {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
 
 .content-spacing {
   @include u-height('105');
