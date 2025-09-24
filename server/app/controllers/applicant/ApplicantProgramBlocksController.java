@@ -20,6 +20,7 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
+import helpers.Pair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -1457,22 +1458,29 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           programId, optionalBlockBeforeUpdate, blockId, formData)
                       .thenApply(
                           updatedFormData ->
-                              new BlockFormDataPair<>(optionalBlockBeforeUpdate, updatedFormData));
+                              new Pair<>(optionalBlockBeforeUpdate, updatedFormData));
                 },
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 pair ->
                     applicantService
                         .setPhoneCountryCode(
-                            programId, pair.getBlock(), blockId, pair.getFormData())
+                            programId,
+                            /* blockMaybe= */ pair.left(),
+                            blockId,
+                            /* formData= */ pair.right())
                         .thenApply(
                             updatedFormData ->
-                                new BlockFormDataPair<>(pair.getBlock(), updatedFormData)),
+                                new Pair<>(
+                                    /* optionalBlockBeforeUpdate= */ pair.left(), updatedFormData)),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 pair ->
                     applicantService.cleanDateQuestions(
-                        programId, pair.getBlock(), blockId, pair.getFormData()),
+                        programId,
+                        /* blockMaybe= */ pair.left(),
+                        blockId,
+                        /* formData= */ pair.right()),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -2077,23 +2085,5 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             latestProgramId ->
                 redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
                     .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
-  }
-
-  public static class BlockFormDataPair<B, F> {
-    private final B block;
-    private final F formData;
-
-    public BlockFormDataPair(B block, F formData) {
-      this.block = block;
-      this.formData = formData;
-    }
-
-    public B getBlock() {
-      return block;
-    }
-
-    public F getFormData() {
-      return formData;
-    }
   }
 }
