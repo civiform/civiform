@@ -6,11 +6,10 @@
     th:with="keyId=|filter-${index}-key|, displayNameId=|filter-${index}-displayName|"
   >
     <div>
-      <label
-        class="usa-label"
-        th:for="${keyId}"
-        th:text="#{map.keyLabel}"
-      ></label>
+      <label class="usa-label" th:for="${keyId}" th:inline="text">
+        [[#{map.keyLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
       <select
         class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
@@ -24,11 +23,10 @@
           th:selected="${selectedKey != null && key == selectedKey}"
         ></option>
       </select>
-      <label
-        class="usa-label"
-        th:for="${displayNameId}"
-        th:text="#{map.displayNameLabel}"
-      ></label>
+      <label class="usa-label" th:for="${displayNameId}" th:inline="text">
+        [[#{map.displayNameLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
       <input
         class="usa-input"
         th:name="'filters[' + ${index} + '].displayName'"

@@ -8,7 +8,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicInteger;
 import services.CiviFormError;
+import services.question.MapSettingType;
 
 public final class MapQuestionDefinition extends QuestionDefinition {
   public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
@@ -37,12 +39,49 @@ public final class MapQuestionDefinition extends QuestionDefinition {
 
     if (maxLocationSelections.isPresent()) {
       if (maxLocationSelections.getAsInt() < 1) {
-        errors.add(CiviFormError.of("Max location selections cannot be less than 1"));
+        errors.add(CiviFormError.of("Maximum location selections cannot be less than 1"));
       }
+    } else {
+      errors.add(CiviFormError.of("Maximum location selections is required"));
     }
 
-    // TODO(#11199): Add validation for required fields (location name, address, details URL), num
-    // of filters, and require display names for each filter
+    AtomicInteger filtersCount = new AtomicInteger();
+    getQuestionSettings()
+        .ifPresent(
+            settings ->
+                settings.forEach(
+                    questionSetting -> {
+                      if (questionSetting.settingValue() == null
+                          || questionSetting.settingValue().isEmpty()) {
+                        String friendlyName =
+                            switch (questionSetting.settingType().toString()) {
+                              case "LOCATION_NAME_GEO_JSON_KEY" -> "Name key";
+                              case "LOCATION_ADDRESS_GEO_JSON_KEY" -> "Address key";
+                              case "LOCATION_DETAILS_URL_GEO_JSON_KEY" ->
+                                  "View more details URL key";
+                              case "LOCATION_FILTER_GEO_JSON_KEY" -> "Filter key";
+                              default -> questionSetting.settingType().toString();
+                            };
+                        errors.add(CiviFormError.of(friendlyName + " cannot be empty"));
+                      } else if (questionSetting
+                          .settingType()
+                          .equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)) {
+                        filtersCount.getAndIncrement();
+                        if (questionSetting.localizedSettingDisplayName().isEmpty()
+                            || questionSetting
+                                .localizedSettingDisplayName()
+                                .get()
+                                .getDefault()
+                                .isEmpty()) {
+                          errors.add(CiviFormError.of("Filter display name cannot be empty"));
+                        }
+                      }
+                    }));
+
+    if (filtersCount.get() > 6) {
+      errors.add(CiviFormError.of("Question cannot have more than six filters"));
+    }
+
     return errors.build();
   }
 
