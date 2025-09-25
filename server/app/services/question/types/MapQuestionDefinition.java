@@ -8,9 +8,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.concurrent.atomic.AtomicInteger;
 import services.CiviFormError;
 import services.question.MapSettingType;
+import services.question.QuestionSetting;
 
 public final class MapQuestionDefinition extends QuestionDefinition {
   public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
@@ -45,40 +45,49 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       errors.add(CiviFormError.of("Maximum location selections is required"));
     }
 
-    AtomicInteger filtersCount = new AtomicInteger();
-    getQuestionSettings()
-        .ifPresent(
-            settings ->
-                settings.forEach(
-                    questionSetting -> {
-                      if (questionSetting.settingValue() == null
-                          || questionSetting.settingValue().isEmpty()) {
-                        String friendlyName =
-                            switch (questionSetting.settingType().toString()) {
-                              case "LOCATION_NAME_GEO_JSON_KEY" -> "Name key";
-                              case "LOCATION_ADDRESS_GEO_JSON_KEY" -> "Address key";
-                              case "LOCATION_DETAILS_URL_GEO_JSON_KEY" ->
-                                  "View more details URL key";
-                              case "LOCATION_FILTER_GEO_JSON_KEY" -> "Filter key";
-                              default -> questionSetting.settingType().toString();
-                            };
-                        errors.add(CiviFormError.of(friendlyName + " cannot be empty"));
-                      } else if (questionSetting
-                          .settingType()
-                          .equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)) {
-                        filtersCount.getAndIncrement();
-                        if (questionSetting.localizedSettingDisplayName().isEmpty()
-                            || questionSetting
-                                .localizedSettingDisplayName()
-                                .get()
-                                .getDefault()
-                                .isEmpty()) {
-                          errors.add(CiviFormError.of("Filter display name cannot be empty"));
-                        }
-                      }
-                    }));
+    // Validate settings in a single pass
+    ImmutableSet<QuestionSetting> settings = getQuestionSettings().orElse(ImmutableSet.of());
+    boolean hasNameKey = false;
+    boolean hasAddressKey = false;
+    boolean hasDetailsUrlKey = false;
+    int filterCount = 0;
 
-    if (filtersCount.get() > 6) {
+    for (QuestionSetting setting : settings) {
+      boolean isValidSetting = setting.settingValue() != null && !setting.settingValue().isEmpty();
+
+      switch ((MapSettingType) setting.settingType()) {
+        case LOCATION_NAME_GEO_JSON_KEY -> {
+          if (isValidSetting) hasNameKey = true;
+        }
+        case LOCATION_ADDRESS_GEO_JSON_KEY -> {
+          if (isValidSetting) hasAddressKey = true;
+        }
+        case LOCATION_DETAILS_URL_GEO_JSON_KEY -> {
+          if (isValidSetting) hasDetailsUrlKey = true;
+        }
+        case LOCATION_FILTER_GEO_JSON_KEY -> {
+          filterCount++;
+          if (!isValidSetting) {
+            errors.add(CiviFormError.of("Filter key cannot be empty"));
+          }
+          if (setting.localizedSettingDisplayName().isEmpty()
+              || setting.localizedSettingDisplayName().get().getDefault().isEmpty()) {
+            errors.add(CiviFormError.of("Filter display name cannot be empty"));
+          }
+        }
+      }
+    }
+
+    if (!hasNameKey) {
+      errors.add(CiviFormError.of("Name key cannot be empty"));
+    }
+    if (!hasAddressKey) {
+      errors.add(CiviFormError.of("Address key cannot be empty"));
+    }
+    if (!hasDetailsUrlKey) {
+      errors.add(CiviFormError.of("View more details URL key cannot be empty"));
+    }
+    if (filterCount > 6) {
       errors.add(CiviFormError.of("Question cannot have more than six filters"));
     }
 
