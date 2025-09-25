@@ -429,7 +429,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     blockId,
                     cleanForm(questionPathToValueMap),
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                    false),
+                    false,
+                    settingsManifest.getApiBridgeEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -906,7 +907,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             blockId,
                             fileUploadQuestionFormData.build(),
                             settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                            /* forceUpdate= */ true);
+                            /* forceUpdate= */ true,
+                            settingsManifest.getApiBridgeEnabled(request));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1174,7 +1176,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         fileUploadQuestionFormData.build(),
                                         settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                             request),
-                                        false));
+                                        false,
+                                        settingsManifest.getApiBridgeEnabled(request)));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1303,7 +1306,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         fileUploadQuestionFormData.build(),
                                         settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                             request),
-                                        false));
+                                        false,
+                                        settingsManifest.getApiBridgeEnabled(request)));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1525,7 +1529,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       blockId,
                       formData,
                       settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                      false)
+                      false,
+                      settingsManifest.getApiBridgeEnabled(request))
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(
