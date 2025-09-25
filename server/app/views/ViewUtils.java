@@ -88,8 +88,7 @@ public final class ViewUtils {
         .with(
             Icons.svg(icon)
                 // 18px icon size (replacing Tailwind h-4.5 w-4.5 classes)
-                .withClasses("inline-block")
-                .attr("style", "height: 18px; width: 18px; vertical-align: middle;"),
+                .withClasses("inline-block", "cf-icon-button"),
             span(buttonText).withClass("text-left"));
   }
 

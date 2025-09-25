@@ -214,6 +214,42 @@ section {
   margin-block-end: 0;
 }
 
+// Sizing classes to replace Tailwind classes
+.cf-icon-button {
+  height: 18px;
+  width: 18px;
+  vertical-align: middle;
+}
+
+.cf-icon-sm {
+  height: 24px;
+  width: 24px;
+}
+
+.cf-icon-md {
+  height: 32px;
+  width: 32px;
+}
+
+.cf-toggle-switch {
+  width: 56px; // w-14
+  height: 32px; // h-8
+}
+
+.cf-toggle-nub {
+  width: 24px; // w-6
+  height: 24px; // h-6
+}
+
+.cf-tooltip-width {
+  width: 384px; // w-96
+}
+
+.cf-button-size {
+  height: 40px; // h-10
+  width: 128px; // w-32
+}
+
 .content-spacing {
   @include u-height('105');
 }
