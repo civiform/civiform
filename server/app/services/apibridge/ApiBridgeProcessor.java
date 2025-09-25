@@ -7,7 +7,6 @@ import static services.apibridge.ApiBridgeServiceDto.IProblemDetail;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -52,7 +51,8 @@ public final class ApiBridgeProcessor {
       return CompletableFuture.completedFuture(applicantData);
     }
 
-    return getEnabledBridgeConfigs(bridgeDefinitionMap)
+    return apiBridgeConfigurationRepository
+        .findAllEnabledByAdminNames(bridgeDefinitionMap.keySet())
         .thenComposeAsync(
             bridgeConfigs -> {
               // There are no enabled bridges configured for the program
@@ -60,11 +60,7 @@ public final class ApiBridgeProcessor {
                 return CompletableFuture.completedFuture(applicantData);
               }
 
-              // This is here to remove a warning related to the toArray call. It works fine
-              // and is tested, but complains about the generic. Could not get the warning to
-              // go away while maintaining the return type. :shrug:
-              @SuppressWarnings("unchecked")
-              CompletableFuture<ApplicantData>[] stages =
+              ImmutableList<CompletableFuture<ApplicantData>> stages =
                   bridgeConfigs.stream()
                       .map(
                           bridgeConfig ->
@@ -73,14 +69,13 @@ public final class ApiBridgeProcessor {
                                       bridgeDefinitionMap.get(bridgeConfig.adminName()),
                                       bridgeConfig)
                                   .toCompletableFuture())
-                      .collect(ImmutableList.toImmutableList())
-                      .toArray(new CompletableFuture[0]);
+                      .collect(ImmutableList.toImmutableList());
 
-              return CompletableFuture.allOf(stages)
+              return CompletableFuture.allOf(stages.toArray(new CompletableFuture[0]))
                   .thenApplyAsync(
                       v ->
-                          Arrays.stream(stages)
-                              .map(stage -> stage.join())
+                          stages.stream()
+                              .map(CompletableFuture::join)
                               .reduce(
                                   new ApplicantData(),
                                   (accumulator, resultData) -> {
@@ -89,18 +84,6 @@ public final class ApiBridgeProcessor {
                                   }),
                       apiBridgeExecutionContext);
             });
-  }
-
-  /** Get enabled bridge configuration settings for the requested program bridge definitions. */
-  private CompletionStage<ImmutableList<ApiBridgeConfigurationModel>> getEnabledBridgeConfigs(
-      ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitionMap) {
-    return apiBridgeConfigurationRepository
-        .findAll()
-        .thenApply(
-            allBridgeConfigs ->
-                allBridgeConfigs.stream()
-                    .filter(x -> bridgeDefinitionMap.containsKey(x.adminName()) && x.enabled())
-                    .collect(ImmutableList.toImmutableList()));
   }
 
   /** Calls a single api bridge and handles the result */
