@@ -69,10 +69,8 @@ test.describe('Create and edit map question', () => {
 
         await page.getByRole('button', {name: 'Add filter'}).click()
 
-        const filterKeySelect = page.getByLabel('Key', {exact: true})
-        const filterDisplayInput = page.getByLabel('Display name', {
-          exact: true,
-        })
+        const filterKeySelect = page.getByTestId('key-select')
+        const filterDisplayInput = page.getByTestId('display-name-input')
 
         await expect(filterKeySelect).toBeVisible()
         await expect(filterDisplayInput).toBeVisible()
