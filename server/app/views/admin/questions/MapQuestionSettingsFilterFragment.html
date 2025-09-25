@@ -11,6 +11,7 @@
         <span title="required" class="usa-hint usa-hint--required">*</span>
       </label>
       <select
+        data-testid="key-select"
         class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
         th:id="${keyId}"
@@ -28,6 +29,7 @@
         <span title="required" class="usa-hint usa-hint--required">*</span>
       </label>
       <input
+        data-testid="display-name-input"
         class="usa-input"
         th:name="'filters[' + ${index} + '].displayName'"
         th:id="${displayNameId}"
