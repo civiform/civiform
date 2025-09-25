@@ -240,6 +240,7 @@ public final class ProgramTranslationView extends TranslationFormView {
 
     // On north star, only default programs have a long description. Whereas when north star is off,
     // both default programs and common intake forms have long description.
+    // TODO(#11581): North star clean up
     boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
     ProgramType programType = program.programType();
     boolean showLongDescription = northStarEnabled && programType.equals(ProgramType.DEFAULT);

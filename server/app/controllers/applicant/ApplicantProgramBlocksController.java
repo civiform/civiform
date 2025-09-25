@@ -565,6 +565,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 applicantRoutes,
                                 profile);
 
+                        // TODO(#11572): North star clean up
                         if (settingsManifest.getNorthStarApplicantUi()) {
                           final String programSlug;
                           try {
@@ -705,6 +706,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
+                // TODO(#11572): North star clean up
                 if (settingsManifest.getNorthStarApplicantUi()) {
                   final String programSlug;
                   try {
@@ -1649,6 +1651,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
+            // TODO(#11572): North star clean up
             if (settingsManifest.getNorthStarApplicantUi()) {
               final String programSlug;
               try {
@@ -1739,6 +1742,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
+    // TODO(#11573): North star clean up
     if (settingsManifest.getNorthStarApplicantUi()) {
       return supplyAsync(
           () -> {
@@ -1873,6 +1877,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
               applicantRoutes,
               profile);
+      // TODO(#11574): North star clean up
       if (settingsManifest.getNorthStarApplicantUi()) {
         return CompletableFuture.completedFuture(
             ok(northStarAddressCorrectionBlockView.render(
@@ -1929,6 +1934,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
+      // TODO(#11571): North star clean up
       if (settingsManifest.getNorthStarApplicantUi()) {
         eligibilityAlertSettings =
             getNorthStarEligibilityAlertSettings(
@@ -1939,6 +1945,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 request,
                 profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                 !roApplicantProgramService.isApplicationNotEligible(),
+                // TODO(#11571): North star clean up
                 settingsManifest.getNorthStarApplicantUi(),
                 false,
                 programId,
@@ -2059,6 +2066,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
+            // TODO(#11571): North star clean up
             settingsManifest.getNorthStarApplicantUi(),
             false,
             programId,

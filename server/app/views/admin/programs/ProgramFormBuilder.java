@@ -157,6 +157,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
+    // TODO(#11581): North star clean up
     boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
@@ -298,6 +299,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setReadOnly(disableExternalLink)
             .setAttribute(
                 "data-northstar-enabled",
+                // TODO(#11581): North star clean up
                 String.valueOf(settingsManifest.getNorthStarApplicantUi()))
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
