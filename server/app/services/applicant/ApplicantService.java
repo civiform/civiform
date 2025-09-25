@@ -1320,6 +1320,7 @@ public final class ApplicantService {
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
                   && settingsManifest.getExternalProgramCardsEnabled(request)
+                  // TODO(#11579): North star clean up
                   && settingsManifest.getNorthStarApplicantUi())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }

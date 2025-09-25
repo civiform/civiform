@@ -149,6 +149,7 @@ public final class ProgramImageView extends BaseHtmlView {
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
     formsAndCurrentCardContainer.with(formsContainer);
 
+    // TODO(#11570): North star clean up
     if (settingsManifest.getNorthStarApplicantUi()) {
       DivTag cardPreview;
       try {
