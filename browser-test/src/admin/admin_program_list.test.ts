@@ -299,6 +299,40 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
     )
   })
 
+  test.describe('Test test test', () => {
+    test('Program actions show up as expected', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const programName = 'program name'
+      await test.step('test', async () => {
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.publishProgram(programName)
+
+        await adminPrograms
+          .getProgramExtraActionsButton(programName, ProgramLifecycle.ACTIVE)
+          .click()
+        await adminPrograms
+          .getProgramExtraAction(
+            programName,
+            ProgramLifecycle.ACTIVE,
+            ProgramExtraAction.EDIT,
+          )
+          .click()
+        await adminPrograms.gotoAdminProgramsPage()
+
+        await adminPrograms.expectProgramActionsVisible(
+          programName,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.VIEW],
+          [ProgramExtraAction.EDIT],
+        )
+      })
+    })
+  })
+
   test('external program does not show information about universal questions', async ({
     page,
     adminPrograms,
