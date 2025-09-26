@@ -1,4 +1,6 @@
-<th:block th:fragment="editSubcondition(conditionId, subconditionId)">
+<th:block
+  th:fragment="editSubcondition(conditionId, subconditionId, questions)"
+>
   <div>
     <div class="border-left-05 border-base-lighter padding-left-3">
       <div
@@ -14,6 +16,11 @@
           th:name="${questionId}"
         >
           <option>-Select-</option>
+          <option
+            th:each="question : ${questions}"
+            th:value="${question.getId()}"
+            th:text="${question.getQuestionText().getDefault()}"
+          ></option>
         </select>
       </div>
       <div
