@@ -366,8 +366,20 @@ button.usa-button.usa-button--unstyled.htmx-request {
 }
 
 // We currently disable USWDS border settings for backwards compatibility
-// with non USWDS pages. Once that override is removed, this can be
+// with non USWDS pages. Once that override is removed, these can be
 // replaced with USWDS border styles.
 .cf-horizontal-separator {
   border-top: 1px solid #dfe1e2;
+}
+
+.cf-condition-card-border {
+  border: 1px solid #dfe1e2;
+}
+
+.cf-subcondition-left-border {
+  border-left: 4px solid #dfe1e2;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
 }
