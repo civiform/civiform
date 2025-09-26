@@ -8,6 +8,7 @@ import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.StorageServiceName;
 import services.cloud.generic_s3.AbstractS3ApplicantStorage;
+import services.cloud.generic_s3.GenericS3ClientWrapper;
 
 /** An AWS Simple Storage Service (S3) extension of {@link AbstractS3ApplicantStorage}. */
 @Singleton
@@ -19,13 +20,14 @@ public final class AwsApplicantStorage extends AbstractS3ApplicantStorage {
 
   @Inject
   public AwsApplicantStorage(
+    GenericS3ClientWrapper awsS3ClientWrapper,
       AwsStorageUtils awsStorageUtils,
       AwsRegion region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
-    super(awsStorageUtils, region, credentials, config, environment, appLifecycle);
+    super(awsS3ClientWrapper,awsStorageUtils, region, credentials, config, environment, appLifecycle);
   }
 
   /** The bucket path defined in the conf file */
