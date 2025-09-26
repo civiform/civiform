@@ -114,24 +114,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+      ImmutableList<QuestionDefinition> predicateQuestions =
+          getAvailablePredicateQuestionDefinitions(
+              programDefinition, blockDefinitionId, predicateUseCase);
 
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
         return ok(editPredicatePageView.render(
                 request,
                 new EditPredicatePageViewModel(
-                    programDefinition, blockDefinition, predicateUseCase)))
+                    programDefinition, blockDefinition, predicateUseCase, predicateQuestions)))
             .as(Http.MimeTypes.HTML);
       }
 
-      ImmutableList<QuestionDefinition> predicateQuestions =
-          switch (predicateUseCase) {
-            case ELIGIBILITY ->
-                programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
-                    blockDefinitionId);
-            case VISIBILITY ->
-                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-                    blockDefinitionId);
-          };
       return ok(
           legacyPredicatesEditView.render(
               request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase));
@@ -141,6 +135,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
+    return switch (predicateUseCase) {
+      case ELIGIBILITY ->
+          programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
+      case VISIBILITY ->
+          programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId);
+    };
   }
 
   /** POST endpoint for updating show-hide configurations. */
@@ -434,11 +441,26 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   /** HTMX partial that renders a card for editing a condition within a predicate. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result hxEditCondition(Request request) {
-    DynamicForm formData = formFactory.form().bindFromRequest(request);
-    long conditionId = Long.parseLong(formData.get("conditionId"));
-    return ok(editConditionPartialView.render(
-            request, new EditConditionPartialViewModel(conditionId)))
-        .as(Http.MimeTypes.HTML);
+  public Result hxEditCondition(
+      Request request, long programId, long blockDefinitionId, String predicateUseCaseString) {
+    PredicateUseCase predicateUseCase = PredicateUseCase.valueOf(predicateUseCaseString);
+    try {
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      DynamicForm formData = formFactory.form().bindFromRequest(request);
+      long conditionId = Long.parseLong(formData.get("conditionId"));
+      ImmutableList<QuestionDefinition> predicateQuestions =
+          getAvailablePredicateQuestionDefinitions(
+              programDefinition, blockDefinitionId, predicateUseCase);
+      return ok(editConditionPartialView.render(
+              request,
+              new EditConditionPartialViewModel(
+                  programId, blockDefinitionId, predicateUseCase, conditionId, predicateQuestions)))
+          .as(Http.MimeTypes.HTML);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    }
   }
 }
