@@ -6,7 +6,7 @@
     th:replace="~{admin/programs/ProgramHeaderFragment :: programHeader(${model.programHeader()})}"
   ></th:block>
 
-  <div class="padding-x-4 padding-y-3 usa-prose">
+  <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
     <a
       th:href="${model.blockEditUrl()}"
       th:text="|Back to edit ${model.blockName()}|"
