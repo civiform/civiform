@@ -2,26 +2,61 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
+import com.google.common.collect.ImmutableMap;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import play.data.FormFactory;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
+import repository.VersionRepository;
+import services.program.ProgramService;
+import services.program.predicate.PredicateGenerator;
+import services.program.predicate.PredicateUseCase;
+import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramPredicateConfigureView;
+import views.admin.programs.ProgramPredicatesEditView;
+import views.admin.programs.predicates.EditConditionPartialView;
+import views.admin.programs.predicates.EditPredicatePageView;
 
+@RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private ProgramModel programWithThreeBlocks;
+  private SettingsManifest settingsManifest;
 
   private AdminProgramBlockPredicatesController controller;
 
   @Before
   public void setup() {
-    controller = instanceOf(AdminProgramBlockPredicatesController.class);
+    settingsManifest = mock(SettingsManifest.class);
+    controller =
+        new AdminProgramBlockPredicatesController(
+            instanceOf(PredicateGenerator.class),
+            instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
+            instanceOf(ProgramPredicatesEditView.class),
+            instanceOf(ProgramPredicateConfigureView.class),
+            instanceOf(EditPredicatePageView.class),
+            instanceOf(EditConditionPartialView.class),
+            instanceOf(FormFactory.class),
+            instanceOf(RequestChecker.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
@@ -36,7 +71,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withNonExistantProgram_notFound() {
+  @Parameters({"true", "false"})
+  public void editVisibility_withNonExistantProgram_notFound(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
                 controller.editVisibility(
@@ -45,7 +83,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void editEligibility_withNonExistantProgram_notFound() {
+  @Parameters({"true", "false"})
+  public void editEligibility_withNonExistantProgram_notFound(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
                 controller.editEligibility(
@@ -62,16 +103,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withInvalidBlock_notFound() {
+  @Parameters({"true", "false"})
+  public void editVisibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
+    Result result = controller.editVisibility(fakeRequest(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
-  public void editEligibility_withInvalidBlock_notFound() {
+  @Parameters({"true", "false"})
+  public void editEligibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
@@ -89,7 +136,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withActiveProgram_throws() {
+  @Parameters({"true", "false"})
+  public void editVisibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.editVisibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
@@ -97,7 +147,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void editEligibility_withActiveProgram_throws() {
+  @Parameters({"true", "false"})
+  public void editEligibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+        .thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.editEligibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
@@ -176,5 +229,36 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.destroyEligibility(programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void hxEditCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
+    Result result =
+        controller.hxEditCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            programWithThreeBlocks.id,
+            1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("what is your name?");
+  }
+
+  @Test
+  public void hxEditCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
+    Result result =
+        controller.hxEditCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            programWithThreeBlocks.id,
+            3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("what is your name?");
+    assertThat(content).contains("What is your address?");
+    assertThat(content).contains("Select your favorite ice cream flavor");
+    assertThat(content).doesNotContain("What is your favorite color?");
   }
 }
