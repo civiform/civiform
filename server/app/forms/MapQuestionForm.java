@@ -167,8 +167,7 @@ public class MapQuestionForm extends QuestionForm {
         QuestionSetting.create(
             getLocationDetailsUrl().getKey(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY));
 
-    getFilters().stream()
-        .filter(this::isValidSetting)
+    getFilters()
         .forEach(
             filter ->
                 builder.add(
@@ -177,12 +176,5 @@ public class MapQuestionForm extends QuestionForm {
                         MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
                         Optional.of(LocalizedStrings.withDefaultValue(filter.getDisplayName())))));
     return builder.build();
-  }
-
-  private boolean isValidSetting(Setting isValidSetting) {
-    return isValidSetting.getKey() != null
-        && !isValidSetting.getKey().isEmpty()
-        && isValidSetting.getDisplayName() != null
-        && !isValidSetting.getDisplayName().isEmpty();
   }
 }

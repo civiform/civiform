@@ -39,10 +39,10 @@ type QuestionParams = {
   maxDateYear?: number | null
   // Map question parameters
   geoJsonEndpoint?: string
-  maxLocationSelections?: string | null
-  locationNameKey?: string | null
-  locationAddressKey?: string | null
-  locationDetailsUrlKey?: string | null
+  maxLocationSelections?: string
+  locationNameKey?: string
+  locationAddressKey?: string
+  locationDetailsUrlKey?: string
   filters?: Array<{key?: string | null; displayName?: string | null}> | null
   displayMode?: QuestionDisplayMode | null
 }
@@ -834,9 +834,9 @@ export class AdminQuestions {
     universal = false,
     geoJsonEndpoint = 'http://mock-web-services:8000/geojson/data',
     maxLocationSelections = '1',
-    locationNameKey = null,
-    locationAddressKey = null,
-    locationDetailsUrlKey = null,
+    locationNameKey = 'name',
+    locationAddressKey = 'address',
+    locationDetailsUrlKey = 'website',
     filters = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
@@ -869,22 +869,16 @@ export class AdminQuestions {
         .fill(maxLocationSelections)
     }
 
-    // Configure location settings if provided
-    if (locationNameKey != null) {
-      await this.page
-        .getByLabel('Name key')
-        .selectOption({value: locationNameKey})
-    }
-    if (locationAddressKey != null) {
-      await this.page
-        .getByLabel('Address key')
-        .selectOption({value: locationAddressKey})
-    }
-    if (locationDetailsUrlKey != null) {
-      await this.page
-        .getByLabel('View more details URL key')
-        .selectOption({value: locationDetailsUrlKey})
-    }
+    // Configure location settings
+    await this.page
+      .getByLabel('Name key')
+      .selectOption({value: locationNameKey})
+    await this.page
+      .getByLabel('Address key')
+      .selectOption({value: locationAddressKey})
+    await this.page
+      .getByLabel('View more details URL key')
+      .selectOption({value: locationDetailsUrlKey})
 
     // Configure filters if provided
     if (filters != null) {

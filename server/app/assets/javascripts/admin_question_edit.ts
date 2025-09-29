@@ -18,6 +18,7 @@ class AdminQuestionEdit {
     }
 
     this.addDateValidationHandlers()
+    this.addMapFilterButtonHandler()
   }
 
   addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
@@ -167,6 +168,24 @@ class AdminQuestionEdit {
           document.getElementById(idPrefix + '-year') as HTMLInputElement
         ).value = ''
       }
+    })
+  }
+
+  updateAddFilterButtonState = () => {
+    const filterCount = document.querySelectorAll('.filter-input').length
+    const addButton = document.getElementById(
+      'add-map-filter-button',
+    ) as HTMLButtonElement
+    if (addButton) {
+      addButton.disabled = filterCount >= 6
+    }
+  }
+
+  addMapFilterButtonHandler() {
+    this.updateAddFilterButtonState()
+
+    document.body.addEventListener('htmx:afterRequest', () => {
+      this.updateAddFilterButtonState()
     })
   }
 }

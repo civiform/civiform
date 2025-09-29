@@ -3,15 +3,16 @@
 >
   <div
     class="display-flex flex-justify filter-input"
+    th:data-testid="filter-input"
     th:with="keyId=|filter-${index}-key|, displayNameId=|filter-${index}-displayName|"
   >
     <div>
-      <label
-        class="usa-label"
-        th:for="${keyId}"
-        th:text="#{map.keyLabel}"
-      ></label>
+      <label class="usa-label" th:for="${keyId}" th:inline="text">
+        [[#{map.keyLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
       <select
+        data-testid="key-select"
         class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
         th:id="${keyId}"
@@ -24,12 +25,12 @@
           th:selected="${selectedKey != null && key == selectedKey}"
         ></option>
       </select>
-      <label
-        class="usa-label"
-        th:for="${displayNameId}"
-        th:text="#{map.displayNameLabel}"
-      ></label>
+      <label class="usa-label" th:for="${displayNameId}" th:inline="text">
+        [[#{map.displayNameLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
       <input
+        data-testid="display-name-input"
         class="usa-input"
         th:name="'filters[' + ${index} + '].displayName'"
         th:id="${displayNameId}"
