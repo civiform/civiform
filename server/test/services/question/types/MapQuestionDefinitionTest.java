@@ -81,7 +81,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
   }
 
   @Test
-  public void validate_withoutGeoJson_returnsError() {
+  public void validate_withoutGeoJson_withoutMaxLocationSelections_returnsErrors() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
             .setName("test")
@@ -93,7 +93,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
     assertThat(question.validate())
         .contains(
             CiviFormError.of("Map question must have valid GeoJSON"),
-            CiviFormError.of("Maximum location selections is required"));
+            CiviFormError.of("Maximum location selections cannot be empty"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
@@ -104,7 +104,9 @@ public class MapQuestionDefinitionTest extends WithApplication {
         new Object[] {OptionalInt.of(2), Optional.<String>empty()},
 
         // Error cases.
-        new Object[] {OptionalInt.empty(), Optional.of("Maximum location selections is required")},
+        new Object[] {
+          OptionalInt.empty(), Optional.of("Maximum location selections cannot be empty")
+        },
         new Object[] {
           OptionalInt.of(0), Optional.of("Maximum location selections cannot be less than 1")
         });

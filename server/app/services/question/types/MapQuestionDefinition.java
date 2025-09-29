@@ -42,7 +42,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
         errors.add(CiviFormError.of("Maximum location selections cannot be less than 1"));
       }
     } else {
-      errors.add(CiviFormError.of("Maximum location selections is required"));
+      errors.add(CiviFormError.of("Maximum location selections cannot be empty"));
     }
 
     // Validate settings in a single pass
