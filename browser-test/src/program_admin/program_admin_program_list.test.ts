@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -8,11 +7,7 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('Program admin program list', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
+test.describe('Program admin program list', {tag: ['@northstar']}, () => {
   test('shows all the programs that are active', async ({
     page,
     adminPrograms,

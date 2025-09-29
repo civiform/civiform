@@ -1,69 +1,11 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {
-  disableFeatureFlag,
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-} from '../support'
-
-test.describe('File upload question preview - prenorthstar', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
-  test('File upload preview', async ({page, adminQuestions}) => {
-    const fileUploadQuestionName = 'File Upload Question'
-
-    await loginAsAdmin(page)
-    await test.step('Create question', async () => {
-      await adminQuestions.addFileUploadQuestion({
-        questionName: fileUploadQuestionName,
-      })
-    })
-
-    await test.step('Expect preview renders properly', async () => {
-      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
-
-      await validateScreenshot(
-        page.locator('#sample-question'),
-        'file-question-preview',
-      )
-    })
-  })
-})
-
-test.describe('File upload question preview', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
-  test('File upload preview', async ({page, adminQuestions}) => {
-    const fileUploadQuestionName = 'File Upload Question'
-
-    await loginAsAdmin(page)
-    await test.step('Create question', async () => {
-      await adminQuestions.addFileUploadQuestion({
-        questionName: fileUploadQuestionName,
-      })
-    })
-
-    await test.step('Expect preview renders properly', async () => {
-      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
-
-      await validateScreenshot(
-        page.locator('#sample-question'),
-        'file-question-preview-ns',
-      )
-    })
-  })
-})
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Admin question preview', {tag: ['@northstar']}, () => {
   const questionName = 'test-question'
 
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('Preview whole page', async ({page, adminQuestions}) => {
@@ -77,7 +19,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
     await test.step('Use screenshot to verify layout of entire page', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
 
-      await validateScreenshot(page, 'north-star-question-preview-page')
+      await validateScreenshot(page, 'question-preview-page')
     })
   })
 
@@ -93,7 +35,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-address-question',
+        'address-question',
       )
     })
   })
@@ -115,7 +57,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-checkbox-question',
+        'checkbox-question',
       )
     })
   })
@@ -132,7 +74,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-currency-question',
+        'currency-question',
       )
     })
   })
@@ -149,7 +91,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-date-question',
+        'date-question',
       )
     })
   })
@@ -171,7 +113,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-dropdown-question',
+        'dropdown-question',
       )
     })
   })
@@ -188,7 +130,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-email-question',
+        'email-question',
       )
     })
   })
@@ -206,7 +148,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-enumerator-question',
+        'enumerator-question',
       )
     })
   })
@@ -223,7 +165,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#sample-question'),
-        'north-star-file-question-preview',
+        'file-question-preview',
       )
     })
   })
@@ -240,7 +182,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-id-question',
+        'id-question',
       )
     })
   })
@@ -257,7 +199,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-name-question',
+        'name-question',
       )
     })
   })
@@ -274,7 +216,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-number-question',
+        'number-question',
       )
     })
   })
@@ -309,7 +251,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-radio-question',
+        'radio-question',
       )
     })
   })
@@ -326,7 +268,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-static-question',
+        'static-question',
       )
     })
   })
@@ -343,7 +285,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-phone-question',
+        'phone-question',
       )
     })
   })
@@ -360,7 +302,7 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('#question-fragment'),
-        'north-star-text-question',
+        'text-question',
       )
     })
   })

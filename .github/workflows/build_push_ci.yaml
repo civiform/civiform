@@ -61,7 +61,6 @@ jobs:
         version:
           [
             'formatter',
-            'localstack',
             'browser_test',
             'oidc',
             'mock-web-services',
@@ -71,11 +70,6 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
-            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
-          - version: localstack
-            image: 'civiform/civiform-localstack:latest'
-            script: 'bin/build-localstack-env'
-            file_pattern: 'localstack/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
@@ -102,7 +96,7 @@ jobs:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
         with:
           json: 'true'
         if: ${{ github.event_name != 'workflow_dispatch' }}

@@ -1,15 +1,9 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-  waitForPageJsLoad,
-} from '../support'
+import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
 test.describe('Yes/no options', () => {
   test('Renders options correctly', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Go to edit page for yes/no question', async () => {
       await adminQuestions.gotoAdminQuestionsPage()
@@ -32,9 +26,6 @@ test.describe('Yes/no options', () => {
 })
 
 test.describe('Yes/no translations', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
   test('renders translation screen with pre-translated message only', async ({
     page,
     adminQuestions,

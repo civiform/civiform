@@ -114,10 +114,11 @@ const updateSelectionCountForMap = (
     CF_SELECTED_LOCATION_MESSAGE,
   ) as HTMLElement | null
 
-  if (countText) {
+  const maxLocationSelections = window.app?.data?.maxLocationSelections
+  if (countText && maxLocationSelections) {
     countText.textContent = localizeString(messages.locationsSelectedCount, [
       count.toString(),
-      window.app.data.maxLocationSelections.toString(),
+      maxLocationSelections.toString(),
     ])
   }
 }

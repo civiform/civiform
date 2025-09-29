@@ -3,7 +3,6 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
@@ -30,7 +29,6 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.VersionRepository;
@@ -48,41 +46,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
-  }
-
-  @Test
-  public void programBySlug_redirectsToActiveProgramVersionForExistingApplications() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    VersionRepository versionRepository = instanceOf(VersionRepository.class);
-
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
-    applicant.save();
-
-    ApplicationModel app =
-        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
-    app.save();
-
-    ProgramModel programModelV2 =
-        resourceCreator().insertDraftProgram(programDefinition.adminName());
-    versionRepository.publishNewSynchronizedVersion();
-
-    CiviFormController controller = instanceOf(CiviFormController.class);
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result =
-        instanceOf(ProgramSlugHandler.class)
-            .showProgram(controller, request, programDefinition.slug())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    Long.toString(programModelV2.id), /* isFromUrlCall= */ false)
-                .url());
   }
 
   @Test
@@ -277,7 +240,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
@@ -325,7 +288,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     LanguageUtils languageUtils =
         new LanguageUtils(
@@ -370,7 +333,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -419,7 +382,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);

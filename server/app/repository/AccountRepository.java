@@ -118,6 +118,19 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
+  public List<AccountModel> lookupAccountByEmailCaseInsensitive(String emailAddress) {
+    checkNotNull(emailAddress);
+    checkArgument(!emailAddress.isEmpty());
+    return database
+        .find(AccountModel.class)
+        .where()
+        .ieq("email_address", emailAddress)
+        .setLabel("AccountModel.findByEmail")
+        .setProfileLocation(
+            queryProfileLocationBuilder.create("lookupAccountByEmailCaseInsensitive"))
+        .findList();
+  }
+
   public CompletionStage<Optional<AccountModel>> lookupAccountByEmailAsync(String emailAddress) {
     if (emailAddress == null) {
       return CompletableFuture.failedStage(new NullPointerException());
@@ -424,7 +437,20 @@ public final class AccountRepository {
       return Optional.empty();
     }
 
-    Optional<AccountModel> maybeAccount = lookupAccountByEmail(accountEmail);
+    List<AccountModel> accounts = lookupAccountByEmailCaseInsensitive(accountEmail);
+
+    Optional<AccountModel> maybeAccount;
+
+    if (accounts.size() == 1) {
+      // unique user found.
+      maybeAccount = Optional.of(accounts.get(0));
+    } else if (accounts.size() > 1) {
+      // more than one result: fallback to exact-match search to be safe
+      maybeAccount = lookupAccountByEmail(accountEmail);
+    } else {
+      maybeAccount = Optional.empty();
+    }
+
     if (maybeAccount.isEmpty()) {
       return Optional.of(
           CiviFormError.of(

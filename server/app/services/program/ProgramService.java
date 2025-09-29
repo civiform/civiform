@@ -1517,6 +1517,11 @@ public final class ProgramService {
       }
     }
 
+    if (programDefinition.isQuestionsListUsedByApiBridge(questionIds)) {
+      throw new IllegalApiBridgeStateException(
+          "This question cannot be removed while used by the API bridge.");
+    }
+
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
@@ -1691,6 +1696,7 @@ public final class ProgramService {
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException,
           ProgramNeedsABlockException,
+          ProgramBlockDefinitionNotFoundException,
           IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
@@ -1700,6 +1706,11 @@ public final class ProgramService {
             .collect(ImmutableList.toImmutableList());
     if (newBlocks.isEmpty()) {
       throw new ProgramNeedsABlockException(programId);
+    }
+
+    if (programDefinition.blockHasQuestionsUsedByApiBridge(blockDefinitionId)) {
+      throw new IllegalApiBridgeStateException(
+          "This screen cannot be removed while any of its questions are used by the API bridge.");
     }
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
@@ -2098,5 +2109,33 @@ public final class ProgramService {
             .collect(ImmutableList.toImmutableList());
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
+  }
+
+  /** Update the program with the new provided api bridge definitions */
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateBridgeConfiguration(
+      long programId, ImmutableMap<String, ApiBridgeDefinition> newBridgeDefinitions)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+
+    checkBridgeDefinitionErrors(
+        programDefinition.programType(), errorsBuilder, newBridgeDefinitions);
+
+    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    if (!errors.isEmpty()) {
+      return ErrorAnd.error(errors);
+    }
+
+    ProgramDefinition newProgramDefinition =
+        programDefinition.toBuilder()
+            .setBridgeDefinitions(ImmutableMap.copyOf(newBridgeDefinitions))
+            .build();
+
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.getShallowProgramDefinition(
+                    programRepository.updateProgramSync(newProgramDefinition.toProgram())))
+            .toCompletableFuture()
+            .join());
   }
 }

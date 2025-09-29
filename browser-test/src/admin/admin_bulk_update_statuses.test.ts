@@ -12,10 +12,9 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   AdminProgramStatuses,
-  disableFeatureFlag,
 } from '../support'
 
-test.describe('with program statuses', () => {
+test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
   const rejectedStatusName = 'Rejected'
@@ -23,7 +22,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -37,8 +35,8 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
@@ -67,19 +65,11 @@ test.describe('with program statuses', () => {
   test('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
-    applicantQuestions,
     adminProgramMigration,
+    seeding,
   }) => {
-    test.slow()
-    // There is already 1 application from the beforeEach, so apply 105 more times.
-    for (let i = 0; i < 105; i++) {
-      await logout(page)
-
-      // Submit an application as a guest.
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
-    }
-    const id = await adminPrograms.getApplicationId()
+    // There is already 1 application from the beforeEach, so create 105 more using bulk seeding.
+    await seeding.seedApplications(programName, 105)
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -95,11 +85,12 @@ test.describe('with program statuses', () => {
       'usa-alert--info',
     )
 
+    const applicationRows = page
+      .getByRole('row')
+      .filter({hasText: /Guest \(\d+\)/})
+
     for (let i = 0; i < 100; i++) {
-      await adminPrograms.expectApplicationHasStatusString(
-        `Guest (${id - i})`,
-        approvedStatusName,
-      )
+      await expect(applicationRows.nth(i)).toContainText(approvedStatusName)
     }
     await page.locator('.usa-pagination__button:has-text("2")').click()
     // last applicant
@@ -116,7 +107,6 @@ test.describe('when email is configured for the status and applicant, a checkbox
   const noEmailStatusName = 'No email status'
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
-      await disableFeatureFlag(page, 'north_star_applicant_ui')
       await setupProgramsWithStatuses(
         page,
         adminPrograms,
@@ -205,15 +195,15 @@ test.describe('when email is configured for the status and applicant, a checkbox
     })
 
     await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
   }

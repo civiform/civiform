@@ -169,7 +169,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                   request,
                                   profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                                   !roApplicantProgramService.isApplicationNotEligible(),
-                                  settingsManifest.getNorthStarApplicantUi(request),
+                                  // TODO(#11571): North star clean up
+                                  settingsManifest.getNorthStarApplicantUi(),
                                   false,
                                   programId,
                                   roApplicantProgramService.getIneligibleQuestions());
@@ -217,7 +218,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           params.setLoginPromptModal(loginPromptModal);
                         }
 
-                        if (settingsManifest.getNorthStarApplicantUi(request)) {
+                        // TODO(#11575): North star clean up
+                        if (settingsManifest.getNorthStarApplicantUi()) {
                           int totalBlockCount =
                               roApplicantProgramService.getAllActiveBlocks().size();
                           int completedBlockCount =
@@ -467,7 +469,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition) {
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    // TODO(#11573): North star clean up
+    if (settingsManifest.getNorthStarApplicantUi()) {
       NorthStarApplicantIneligibleView.Params params =
           NorthStarApplicantIneligibleView.Params.builder()
               .setRequest(request)
@@ -499,7 +502,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       long applicantId,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       long programId) {
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    // TODO(#11576): North star clean up
+    if (settingsManifest.getNorthStarApplicantUi()) {
       Call reviewPage = applicantRoutes.review(profile, applicantId, programId);
       return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
     } else {

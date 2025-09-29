@@ -43,7 +43,8 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
 
   @Secure
   public Result sampleQuestion(Request request, String questionType) {
-    if (!settingsManifest.getNorthStarApplicantUi(request)) {
+    // TODO(#11580): North star clean up
+    if (!settingsManifest.getNorthStarApplicantUi()) {
       return notFound();
     }
 

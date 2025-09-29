@@ -854,7 +854,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
         instanceOf(StatusService.class),
-        instanceOf(ProgramApplicationTableView.class));
+        instanceOf(ProgramApplicationTableView.class),
+        instanceOf(SettingsManifest.class));
   }
 
   private List<String> createApplicationList(int count, ProgramModel program) {

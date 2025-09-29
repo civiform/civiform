@@ -201,7 +201,7 @@ public final class DurableJobModule extends AbstractModule {
                 categoryTranslationFileParser));
 
     durableJobRegistry.registerStartupJob(
-        DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS,
+        DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825,
         JobType.RUN_ONCE,
         UpdateLastActivityTimeForAccounts::new);
 

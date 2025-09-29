@@ -13,24 +13,12 @@ import controllers.WithMockedProfiles;
 import java.time.Instant;
 import models.ApplicantModel;
 import models.ApplicationModel;
-import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.Path;
-import services.applicant.ApplicantData;
-import services.applicant.question.Scalar;
-import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.Operator;
-import services.program.predicate.PredicateAction;
-import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
-import services.program.predicate.PredicateValue;
-import services.question.QuestionAnswerer;
 import support.ProgramBuilder;
 
 public class UpsellControllerTest extends WithMockedProfiles {
@@ -40,34 +28,6 @@ public class UpsellControllerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
-  }
-
-  @Test
-  public void considerRegister_redirectsToUpsellViewForDefaultProgramType() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-    ApplicationModel application =
-        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
-    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
-    String redirectLocation = "someUrl";
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result =
-        instanceOf(UpsellController.class)
-            .considerRegister(
-                request,
-                applicant.id,
-                programDefinition.id(),
-                application.id,
-                redirectLocation,
-                application.getSubmitTime().toString())
-            .toCompletableFuture()
-            .join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Application confirmation");
-    assertThat(contentAsString(result)).contains("Create account");
   }
 
   @Test
@@ -96,127 +56,6 @@ public class UpsellControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Application confirmation");
     assertThat(contentAsString(result)).contains("Create an account");
-  }
-
-  @Test
-  public void
-      considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
-    QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
-    EligibilityDefinition eligibility =
-        EligibilityDefinition.builder()
-            .setPredicate(
-                PredicateDefinition.create(
-                    PredicateExpressionNode.create(
-                        LeafOperationExpressionNode.create(
-                            predicateQuestion.id,
-                            Scalar.TEXT,
-                            Operator.EQUAL_TO,
-                            PredicateValue.of("yellow"))),
-                    PredicateAction.ELIGIBLE_BLOCK))
-            .build();
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("color-program")
-            .withBlock()
-            .withRequiredQuestion(predicateQuestion)
-            .withEligibilityDefinition(eligibility)
-            .buildDefinition();
-
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    // Answer the color question with an ineligible response
-    Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
-    QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), colorPath, "green");
-    QuestionAnswerer.addMetadata(applicant.getApplicantData(), colorPath, 456L, 12345L);
-    applicant.save();
-
-    ProgramDefinition commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("commonintake")
-            .withBlock()
-            .withRequiredQuestion(predicateQuestion)
-            .buildDefinition();
-    ApplicationModel application =
-        resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
-    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
-    String redirectLocation = "someUrl";
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result =
-        instanceOf(UpsellController.class)
-            .considerRegister(
-                request,
-                applicant.id,
-                commonIntakeForm.id(),
-                application.id,
-                redirectLocation,
-                application.getSubmitTime().toString())
-            .toCompletableFuture()
-            .join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Programs");
-    assertThat(contentAsString(result)).contains("could not find");
-    assertThat(contentAsString(result))
-        .doesNotContain(programDefinition.localizedName().getDefault());
-    assertThat(contentAsString(result)).contains("Create account");
-  }
-
-  @Test
-  public void considerRegister_redirectsToUpsellViewForCommonIntakeWithRecommendedPrograms() {
-    QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
-    EligibilityDefinition eligibility =
-        EligibilityDefinition.builder()
-            .setPredicate(
-                PredicateDefinition.create(
-                    PredicateExpressionNode.create(
-                        LeafOperationExpressionNode.create(
-                            predicateQuestion.id,
-                            Scalar.TEXT,
-                            Operator.EQUAL_TO,
-                            PredicateValue.of("yellow"))),
-                    PredicateAction.ELIGIBLE_BLOCK))
-            .build();
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("color-program")
-            .withBlock()
-            .withRequiredQuestion(predicateQuestion)
-            .withEligibilityDefinition(eligibility)
-            .buildDefinition();
-
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    // Answer the color question with an eligible response
-    Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");
-    QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), colorPath, "yellow");
-    QuestionAnswerer.addMetadata(applicant.getApplicantData(), colorPath, 456L, 12345L);
-    applicant.save();
-
-    ProgramDefinition commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("commonintake")
-            .withBlock()
-            .withRequiredQuestion(predicateQuestion)
-            .buildDefinition();
-    ApplicationModel application =
-        resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
-    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
-    String redirectLocation = "someUrl";
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result =
-        instanceOf(UpsellController.class)
-            .considerRegister(
-                request,
-                applicant.id,
-                commonIntakeForm.id(),
-                application.id,
-                redirectLocation,
-                application.getSubmitTime().toString())
-            .toCompletableFuture()
-            .join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Programs");
-    assertThat(contentAsString(result)).contains(programDefinition.localizedName().getDefault());
-    assertThat(contentAsString(result)).contains("Create account");
   }
 
   @Test

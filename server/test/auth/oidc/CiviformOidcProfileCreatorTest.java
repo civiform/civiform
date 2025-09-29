@@ -279,6 +279,45 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(maybeApplicant).isNotPresent();
   }
 
+  @Test
+  public void mergeCiviFormProfile_skippedWithEnhancedLogout_forTrustedIntermediaries() {
+    // Setup.
+    AccountModel accountWithTiGroup = new AccountModel();
+    accountWithTiGroup.setMemberOfGroup(new TrustedIntermediaryGroupModel("name", "description"));
+    CiviFormProfile trustedIntermediary = mock(CiviFormProfile.class);
+    when(trustedIntermediary.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(accountWithTiGroup));
+    when(trustedIntermediary.getApplicant())
+        .thenReturn(CompletableFuture.completedFuture(new ApplicantModel()));
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, clock);
+    when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
+
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviformOidcProfileCreator oidcProfileAdapter =
+        getOidcProfileCreatorWithEnhancedLogoutEnabled();
+
+    // Execute.
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile, context);
+
+    // Verify.
+    // Profile data should still be present after the no-op merge.
+    assertThat(profileData).isNotNull();
+    assertThat(profileData).isEqualTo(fakeProfileData);
+
+    // email is set
+    assertThat(profileData.getEmail()).isEqualTo(EMAIL);
+    assertThat(profileData.getDisplayName()).isNull();
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isNotPresent();
+
+    // Additional validations for enhanced logout behavior.
+    IdTokens idTokens = accountWithTiGroup.getIdTokens();
+    assertThat(idTokens.getIdToken(profileData.getSessionId())).hasValue(ID_TOKEN_STRING);
+  }
+
   private Object[] allowedPhoneNumbers() {
     return new Object[] {
       // E164 format phone number for GB

@@ -1047,8 +1047,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi(RequestHeader request) {
-    return getBool("NORTH_STAR_APPLICANT_UI", request);
+  public boolean getNorthStarApplicantUi() {
+    return getBool("NORTH_STAR_APPLICANT_UI");
   }
 
   /** Enable using custom theme colors on North Star applicant UI. */
@@ -1062,8 +1062,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled(RequestHeader request) {
-    return getBool("DATE_VALIDATION_ENABLED", request);
+  public boolean getDateValidationEnabled() {
+    return getBool("DATE_VALIDATION_ENABLED");
+  }
+
+  /** Remove the CSV/JSON/PDF download capability for Program Admins. */
+  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
+    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
   /**
@@ -1118,6 +1123,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
   public boolean getApiBridgeEnabled(RequestHeader request) {
     return getBool("API_BRIDGE_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
+   * logic capabilities for admin.
+   */
+  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin
+   * login.
+   */
+  public boolean getLoginDropdownEnabled(RequestHeader request) {
+    return getBool("LOGIN_DROPDOWN_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2294,7 +2315,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " flows",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "Enable using custom theme colors on North Star applicant UI.",
@@ -2310,6 +2331,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "DATE_VALIDATION_ENABLED",
                           "Enables admin validation settings for date questions.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
+                          "Remove the CSV/JSON/PDF download capability for Program Admins.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2380,6 +2407,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "EXPANDED_FORM_LOGIC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
+                              + " editing UI and expanded logic capabilities for admin.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "LOGIN_DROPDOWN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
+                              + " applicant and admin login.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

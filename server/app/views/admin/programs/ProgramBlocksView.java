@@ -167,7 +167,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
+        new ArrayList<>(
+            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram(), request));
 
     // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
     // buttons to preview or download the application.
@@ -255,8 +256,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
+      boolean isEditingAllowed, Request request) {
     if (isEditingAllowed) {
+      if (settingsManifest.getApiBridgeEnabled(request)) {
+        return ImmutableList.of(
+            ProgramHeaderButton.EDIT_PROGRAM_DETAILS,
+            ProgramHeaderButton.EDIT_PROGRAM_IMAGE,
+            ProgramHeaderButton.EDIT_BRIDGE_DEFINITIONS);
+      }
+
       return ImmutableList.of(
           ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
     } else {

@@ -28,6 +28,7 @@ import services.applications.ProgramAdminApplicationService;
 import services.geo.ServiceAreaInclusion;
 import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
@@ -649,7 +650,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         ProgramModel program, QuestionModel questionToRemove)
         throws ProgramNotFoundException,
             ProgramNeedsABlockException,
-            IllegalPredicateOrderingException {
+            IllegalPredicateOrderingException,
+            ProgramBlockDefinitionNotFoundException {
       ProgramDefinition draft = programService.newDraftOf(program.id);
       var blockToDelete =
           draft.blockDefinitions().stream()

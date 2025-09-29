@@ -3,11 +3,12 @@ package services.export;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import services.ObjectMapperSingleton;
 
 /** Provides methods related to "prettifying" (formatting) JSON strings. */
 public final class JsonPrettifier {
   private static final ObjectMapper OBJECT_MAPPER =
-      new ObjectMapper()
+      ObjectMapperSingleton.createCopy()
           .enable(SerializationFeature.INDENT_OUTPUT)
           .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 

@@ -1,9 +1,10 @@
 package views.admin.questions;
 
+import com.google.common.collect.ImmutableList;
+import controllers.admin.routes;
 import forms.MapQuestionForm;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.Set;
 import lombok.Builder;
 import views.admin.BaseViewModel;
 
@@ -14,11 +15,12 @@ public record MapQuestionSettingsPartialViewModel(
     MapQuestionForm.Setting locationAddress,
     MapQuestionForm.Setting locationDetailsUrl,
     List<MapQuestionForm.Setting> filters,
-    Set<String> possibleKeys)
+    ImmutableList<String> possibleKeys)
     implements BaseViewModel {
 
   /** Creates an empty MapQuestionSettingsPartialViewModel with default placeholders. */
-  public static MapQuestionSettingsPartialViewModel withEmptyDefaults(Set<String> possibleKeys) {
+  public static MapQuestionSettingsPartialViewModel withEmptyDefaults(
+      ImmutableList<String> possibleKeys) {
     return new MapQuestionSettingsPartialViewModel(
         OptionalInt.empty(),
         MapQuestionForm.Setting.emptySetting(),
@@ -26,5 +28,13 @@ public record MapQuestionSettingsPartialViewModel(
         MapQuestionForm.Setting.emptySetting(),
         MapQuestionForm.Setting.emptyFilters(),
         possibleKeys);
+  }
+
+  public String hxAddMapQuestionFilterEndpoint() {
+    return routes.AdminQuestionController.addMapQuestionFilter().url();
+  }
+
+  public String hxDeleteMapQuestionFilterEndpoint() {
+    return routes.AdminQuestionController.deleteMapQuestionFilter().url();
   }
 }

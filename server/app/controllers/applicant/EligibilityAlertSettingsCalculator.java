@@ -16,6 +16,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
+// TODO(#11571): North star clean up
 public final class EligibilityAlertSettingsCalculator {
   private final ProgramService programService;
   private final MessagesApi messagesApi;
