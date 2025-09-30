@@ -1,52 +1,105 @@
 <th:block
-  th:fragment="editSubcondition(conditionId, subconditionId, questions)"
+  th:fragment="editSubcondition(conditionId, subconditionId, questionOptions, scalarOptions, operatorOptions, hxEditSubconditionEndpoint, hasSelectedQuestion)"
 >
-  <div>
-    <div class="border-left-05 border-base-lighter padding-left-3">
-      <div
-        class="usa-form-group margin-top-2"
-        th:with="questionId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionId'}"
-      >
-        <label class="usa-label" th:for="${questionId}"
+  <div class="subcondition-container">
+    <!-- Define input ids in the expected format: 
+    questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
+    scalarDropdownId:   conditionId-<conditionId>-subconditionId-<subconditionId>-scalar
+    operatorDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-operator 
+    -->
+    <div
+      class="border-left-05 border-base-lighter padding-left-3"
+      th:with="questionDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-question'}, scalarDropDownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-scalar'},operatorDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'},valueInputId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-value'}"
+    >
+      <div class="usa-form-group margin-top-2">
+        <label class="usa-label" th:for="${questionDropdownId}"
           >Question<span class="usa-hint--required">*</span></label
         >
         <select
-          class="usa-select"
-          th:id="${questionId}"
-          th:name="${questionId}"
+          class="usa-select cf-predicate-question-select"
+          th:id="${questionDropdownId}"
+          th:name="${questionDropdownId}"
+          th:data-scalar-target-id="${scalarDropDownId}"
+          hx-swap="outerHTML"
+          th:hx-post="${hxEditSubconditionEndpoint}"
+          th:hx-vals='&apos;{ "conditionId": "&apos; + ${conditionId} + &apos;", "subconditionId": "&apos; + ${subconditionId} + &apos;" }&apos;'
+          th:hx-target="${'closest div[class*=subcondition-container]'}"
         >
-          <option>-Select-</option>
+          <option th:selected="${!hasSelectedQuestion}">-Select-</option>
           <option
-            th:each="question : ${questions}"
-            th:value="${question.getId()}"
-            th:text="${question.getQuestionText().getDefault()}"
+            th:each="question : ${questionOptions}"
+            th:value="${question.value()}"
+            th:text="${question.displayText()}"
+            th:selected="${question.selected()}"
           ></option>
         </select>
       </div>
-      <div
-        class="usa-form-group margin-top-2"
-        th:with="operatorId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'}"
-      >
-        <label class="usa-label" th:for="${operatorId}"
+      <div class="usa-form-group margin-top-2 cf-predicate-scalar-select">
+        <label class="usa-label" th:for="${scalarDropDownId}"
+          >Field<span class="usa-hint--required">*</span></label
+        >
+        <select
+          class="usa-select"
+          th:id="${scalarDropDownId}"
+          th:name="${scalarDropDownId}"
+          th:data-operator-target-id="${operatorDropdownId}"
+          th:disabled="${!hasSelectedQuestion}"
+        >
+          <option
+            th:selected="${!hasSelectedQuestion}"
+            th:hidden="${hasSelectedQuestion}"
+          >
+            -Select-
+          </option>
+          <option
+            th:each="scalar : ${scalarOptions}"
+            th:value="${scalar.value()}"
+            th:text="${scalar.displayText()}"
+            th:data-type="${scalar.type()}"
+            th:selected="${scalar.selected()}"
+          ></option>
+        </select>
+      </div>
+      <div class="usa-form-group margin-top-2 cf-predicate-operator-select">
+        <label class="usa-label" th:for="${operatorDropdownId}"
           >State<span class="usa-hint--required">*</span></label
         >
         <select
           class="usa-select"
-          th:id="${operatorId}"
-          th:name="${operatorId}"
+          th:id="${operatorDropdownId}"
+          th:name="${operatorDropdownId}"
+          th:disabled="${!hasSelectedQuestion}"
         >
-          <option>-Select-</option>
+          <option
+            th:selected="${!hasSelectedQuestion}"
+            th:hidden="${hasSelectedQuestion}"
+          >
+            -Select-
+          </option>
+          <option
+            th:each="operator : ${operatorOptions}"
+            th:value="${operator.value()}"
+            th:text="${operator.displayText()}"
+            th:selected="${operator.selected()}"
+          ></option>
         </select>
       </div>
-      <div
-        class="usa-form-group margin-top-2"
-        th:with="valueId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-value'}"
-      >
-        <label class="usa-label" th:for="${valueId}"
+      <div class="usa-form-group margin-top-2 cf-predicate-value-input">
+        <label class="usa-label" th:for="${valueInputId}"
           >Value(s)<span class="usa-hint--required">*</span></label
         >
-        <select class="usa-select" th:id="${valueId}" th:name="${valueId}">
-          <option>-Select-</option>
+        <select
+          class="usa-select"
+          th:id="${valueInputId}"
+          th:name="${valueInputId}"
+          th:disabled="${!hasSelectedQuestion}"
+        >
+          <option
+            th:selected="${!hasSelectedQuestion}"
+            th:hidden="${hasSelectedQuestion}"
+          >
+            -Select-
+          </option>
         </select>
       </div>
 
