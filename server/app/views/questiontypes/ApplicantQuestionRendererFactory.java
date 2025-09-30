@@ -3,6 +3,7 @@ package views.questiontypes;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -12,7 +13,9 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
+import services.question.MapSettingType;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.YesNoQuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -87,6 +90,7 @@ public final class ApplicantQuestionRendererFactory {
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionType(questionType);
 
+    System.out.println(questionType);
     if (questionType.isMultiOptionType()) {
       if (questionType == QuestionType.YES_NO) {
         ImmutableList<QuestionOption> yesNoOptions =
@@ -129,6 +133,17 @@ public final class ApplicantQuestionRendererFactory {
                     "sample option admin name",
                     LocalizedStrings.of(Locale.US, "Sample question option"))));
       }
+    }
+
+    if (questionType.equals(QuestionType.MAP)) {
+      builder.setQuestionSettings(
+          ImmutableSet.of(
+              QuestionSetting.builder()
+                  .setSettingValue("sample")
+                  .setSettingTypeString(String.valueOf(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY))
+                  .setLocalizedSettingDisplayName(
+                      Optional.ofNullable(LocalizedStrings.of(Locale.US, "Sample Filter")))
+                  .build()));
     }
 
     if (questionType.equals(QuestionType.ENUMERATOR)) {

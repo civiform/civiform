@@ -14,8 +14,13 @@ interface Window {
           [key: string]: Array<{value: string; display: string}>
         }
       }
+      questionType: QuestionType | undefined
     }
   }
+}
+
+enum QuestionType {
+  MAP = 'map'
 }
 
 declare const window: Window

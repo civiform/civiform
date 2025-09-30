@@ -55,8 +55,7 @@
         >
           <option value th:text="#{map.selectOptionPlaceholderText}"></option>
           <option
-            th:if="${questionRendererParams.geoJson().isPresent()}"
-            th:each="option : ${questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue())}"
+            th:each="option : ${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingValue()) : {}}"
             th:value="${option}"
             th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
           ></option>
@@ -68,7 +67,7 @@
     <div class="margin-bottom-2">
       <button
         type="button"
-        class="usa-button cf-apply-filters-button"
+        class="usa-button margin-top-1 cf-apply-filters-button"
         th:data-map-id="${mapId}"
         th:text="#{map.applyFiltersButtonText}"
       ></button>

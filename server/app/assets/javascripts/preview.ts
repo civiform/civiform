@@ -120,8 +120,15 @@ export default class PreviewController {
         '[name="displayedOptionIds[]"]',
       )
 
+      const questionType = window.app?.data?.questionType;
+
       if (hasYesNoCheckboxes) {
         PreviewController.addYesNoCheckboxListeners()
+      } else if (questionType === QuestionType.MAP) {
+        PreviewController.addFilterObservers({
+          questionSettings,
+          questionPreviewContainer,
+        })
       } else {
         PreviewController.addOptionObservers({
           questionSettings,
@@ -194,6 +201,58 @@ export default class PreviewController {
       characterDataOldValue: true,
     })
     syncOptionsToPreview()
+  }
+
+  private static addFilterObservers({
+    questionSettings,
+    questionPreviewContainer,
+  }: {
+    questionSettings: HTMLElement
+    questionPreviewContainer: HTMLElement
+  }) {
+    console.log('add filter observers')
+
+    let currentFilterCount = questionSettings.querySelectorAll('.filter-input').length
+
+    const syncFiltersToPreview = () => {
+      console.log('sync filters to preview')
+      PreviewController.updateFiltersList({
+        questionSettings,
+        questionPreviewContainer,
+      })
+
+      // Check if filter count has changed and reattach listeners if needed
+      const newFilterCount = questionSettings.querySelectorAll('.filter-input').length
+      if (newFilterCount !== currentFilterCount) {
+        currentFilterCount = newFilterCount
+        attachFilterListeners()
+      }
+    }
+
+    const attachFilterListeners = () => {
+      const filterInputs = Array.from(
+        questionSettings.querySelectorAll(
+          'input[name*="filters"][name*=".displayName"]',
+        ),
+      )
+      filterInputs.forEach((input) => {
+        input.removeEventListener('input', syncFiltersToPreview)
+        input.addEventListener('input', syncFiltersToPreview)
+      })
+    }
+
+    attachFilterListeners()
+
+    const mutationObserver = new MutationObserver(() => {
+      syncFiltersToPreview()
+    })
+
+    mutationObserver.observe(questionSettings, {
+      childList: true,
+      subtree: true,
+    })
+
+    syncFiltersToPreview()
   }
 
   private static addYesNoCheckboxListeners() {
@@ -295,6 +354,63 @@ export default class PreviewController {
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
+  }
+
+  private static updateFiltersList({
+    questionSettings,
+    questionPreviewContainer,
+  }: {
+    questionSettings: HTMLElement
+    questionPreviewContainer: HTMLElement
+  }) {
+    // Get all configured filter display names from the question settings
+    const configuredFilters = Array.from(
+      questionSettings.querySelectorAll(
+        'input[name*="filters"][name*=".displayName"]',
+      ),
+    ).map((el) => {
+      return (el as HTMLInputElement).value || 'Filter'
+    })
+
+    // Find the fieldset containing the filters in the preview
+    const fieldset = questionPreviewContainer.querySelector('fieldset')
+    if (!fieldset) {
+      return
+    }
+
+    // Get existing filter containers in preview
+    const existingFilterDivs = Array.from(
+      fieldset.querySelectorAll('.grid-col.flex-align-self-end'),
+    )
+
+    // Get the first filter as a template (if it exists)
+    const template = existingFilterDivs[0]
+    if (!template) {
+      return
+    }
+
+    // Remove all existing filters
+    existingFilterDivs.forEach((div) => div.remove())
+
+    // Create new filters based on configured settings
+    configuredFilters.forEach((displayName, index) => {
+      const newFilter = template.cloneNode(true) as HTMLElement
+      const label = newFilter.querySelector('label')
+      const select = newFilter.querySelector('select')
+
+      if (label) {
+        const filterId = `filter${index + 1}-preview`
+        label.textContent = displayName
+        label.setAttribute('for', filterId)
+      }
+
+      if (select) {
+        const filterId = `filter${index + 1}-preview`
+        select.id = filterId
+      }
+
+      fieldset.appendChild(newFilter)
+    })
   }
 
   private static updateFromNewQuestionText(text: string) {
