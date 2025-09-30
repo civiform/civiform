@@ -468,8 +468,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   programId, blockDefinitionId, predicateUseCase, conditionId, predicateQuestions)))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-       // TODO(#11560): Render error alert.
-       return notFound();
+      // TODO(#11560): Render error alert.
+      return notFound();
     }
   }
 }
