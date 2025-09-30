@@ -216,7 +216,8 @@ public final class ProgramCardFactory {
                                     "absolute",
                                     "right-0",
                                     "w-56",
-                                    "z-50")
+                                    "z-50",
+                                    "border-gray-200")
                                 .with(programRow.extraRowActions()))));
   }
 
