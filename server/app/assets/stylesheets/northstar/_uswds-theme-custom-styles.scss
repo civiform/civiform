@@ -726,9 +726,7 @@ main {
 
 // Custom height for map question map container
 .cf-map-container {
-  height: 400px;
   min-height: 400px;
-  max-height: 400px;
 }
 
 .maplibregl-popup-content {
@@ -749,4 +747,9 @@ main {
 // Map question filtering - hide filtered out locations
 .cf-location-hidden {
   display: none;
+}
+
+.usa-button.cf-apply-filters-button,
+.usa-button.cf-reset-filters-button {
+  margin-top: 0.5rem;
 }
