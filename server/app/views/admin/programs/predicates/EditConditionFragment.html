@@ -1,4 +1,6 @@
-<th:block th:fragment="editCondition(conditionId, hxEditConditionEndpoint)">
+<th:block
+  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, operatorNodeTypeList)"
+>
   <div
     class="usa-card margin-bottom-2 cf-condition-card-border width-mobile-lg"
   >
@@ -11,12 +13,13 @@
         <button
           type="button"
           class="usa-button usa-button--unstyled zero-top-margin"
+          aria-label="Delete condition"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="#b50909"
             stroke-width="1%"
-            aria-label="Delete condition"
+            aria-hidden="true"
             viewBox="0 0 24 24"
             width="24"
             height="24"
@@ -37,7 +40,7 @@
           name="condition-{$conditionId}-nodeType"
         >
           <option
-            th:each="nodeType : ${model.operatorNodeTypes()}"
+            th:each="nodeType : ${operatorNodeTypeList}"
             th:text="${nodeType.toDisplayString()}"
             th:value="${nodeType.name()}"
           ></option>

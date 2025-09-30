@@ -40,6 +40,7 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
+import views.admin.programs.predicates.EditConditionCommand;
 import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditConditionPartialViewModel;
 import views.admin.programs.predicates.EditPredicatePageView;
@@ -435,10 +436,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** HTMX partial that renders a card for editing a condition within a predicate. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditCondition(Request request) {
-    DynamicForm formData = formFactory.form().bindFromRequest(request);
-    long conditionId = Long.parseLong(formData.get("conditionId"));
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+      return notFound("Expanded form logic is not enabled.");
+    }
+
+    Form<EditConditionCommand> form =
+        formFactory.form(EditConditionCommand.class).bindFromRequest(request);
+    if (form.hasErrors()) {
+      // TODO(#11560): Render error alert.
+    }
+
     return ok(editConditionPartialView.render(
-            request, new EditConditionPartialViewModel(conditionId)))
+            request, new EditConditionPartialViewModel(form.get().getConditionId())))
         .as(Http.MimeTypes.HTML);
   }
 }
