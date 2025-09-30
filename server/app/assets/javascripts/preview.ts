@@ -6,6 +6,15 @@ import {
 import {assertNotNull, formatText, formatTextHtml} from './util'
 import * as DOMPurify from 'dompurify'
 
+// This doesn't include all the possible question types, just the ones we need to
+// handle specially in the preview controller.
+export enum QuestionType {
+  MAP = 'Map',
+  YES_NO = 'Yes/No',
+  RADIO_BUTTON = 'Radio Button',
+  CHECKBOX = 'Checkbox'
+}
+
 export default class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
   private static readonly QUESTION_HELP_TEXT_INPUT_ID =
@@ -115,25 +124,25 @@ export default class PreviewController {
     )
 
     if (questionSettings && questionPreviewContainer) {
-      // YES/NO questions are the ONLY ones with displayedOptionIds[] checkboxes
-      const hasYesNoCheckboxes = questionSettings.querySelector(
-        '[name="displayedOptionIds[]"]',
-      )
-
-      const questionType = window.app?.data?.questionType;
-
-      if (hasYesNoCheckboxes) {
-        PreviewController.addYesNoCheckboxListeners()
-      } else if (questionType === QuestionType.MAP) {
-        PreviewController.addFilterObservers({
-          questionSettings,
-          questionPreviewContainer,
-        })
-      } else {
-        PreviewController.addOptionObservers({
-          questionSettings,
-          questionPreviewContainer,
-        })
+      switch (window.app?.data?.questionType) {
+        case QuestionType.YES_NO: {
+          PreviewController.addYesNoCheckboxListeners()
+          break
+        }
+        case QuestionType.MAP: {
+          PreviewController.addFilterObservers({
+            questionSettings,
+            questionPreviewContainer,
+          })
+          break
+        }
+        case QuestionType.RADIO_BUTTON:
+        case QuestionType.CHECKBOX:
+          PreviewController.addOptionObservers({
+            questionSettings,
+            questionPreviewContainer,
+          })
+          break
       }
     }
   }

@@ -19,8 +19,4 @@ interface Window {
   }
 }
 
-enum QuestionType {
-  MAP = 'map'
-}
-
 declare const window: Window
