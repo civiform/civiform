@@ -1,5 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
+import {waitForHtmxReady} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -217,5 +218,24 @@ export class AdminPredicates {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
     ).toBeHidden()
+  }
+
+  async selectQuestion(
+    conditionId: number,
+    subconditionId: number,
+    questionText: string,
+  ) {
+    await this.page
+      .getByLabel('Question', {
+        id:
+          'condition-' +
+          conditionId +
+          '-subcondition-' +
+          subconditionId +
+          '-question',
+      })
+      .selectOption(questionText)
+
+    await waitForHtmxReady(this.page)
   }
 }
