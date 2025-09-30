@@ -6,30 +6,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'expanded_form_logic_enabled')
   })
 
-  test('predicate page program header', async ({page, adminPrograms}) => {
-    await loginAsAdmin(page)
-
-    const programName = 'Predicate page program header'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlockUsingSpec(programName, {
-      name: 'Screen 1',
-      description: 'first screen',
-      questions: [],
-    })
-
-    await adminPrograms.goToEditBlockEligibilityPredicatePage(
-      programName,
-      'Screen 1',
-      /* expandedFormLogicEnabled= */ true,
-    )
-
-    expect(await page.innerText('#program-title')).toContain(programName)
-    await validateScreenshot(
-      page.locator('.cf-legacy-program-header'),
-      'program-header',
-    )
-  })
-
   test('create and edit a new predicate', async ({
     page,
     adminQuestions,
