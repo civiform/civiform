@@ -56,9 +56,7 @@ import views.style.StyleUtils;
 public final class QuestionConfig {
 
   private static final String INNER_DIV_CLASSES =
-      StyleUtils.joinStyles(
-          "border", "bg-gray-100",
-          "p-4", "m-4");
+      StyleUtils.joinStyles("border", "bg-gray-100", "p-4", "m-4", "border-gray-200");
 
   private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
