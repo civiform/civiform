@@ -2,6 +2,7 @@ interface Window {
   app: {
     scripts: {
       AdminProgramApiBridge: AdminProgramApiBridge
+      AdminPredicateEdit: AdminPredicateEdit
     }
     data: {
       maxLocationSelections: number
@@ -19,6 +20,11 @@ interface Window {
         }
       }
       questionType: QuestionType
+      predicate: {
+        operator_scalars: {
+          [key: string]: Array<string>
+        }
+      }
     }
   }
 }

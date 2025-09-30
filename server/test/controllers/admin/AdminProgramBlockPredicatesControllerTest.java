@@ -11,14 +11,18 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ProgramModel;
+import org.codehaus.plexus.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
@@ -33,10 +37,17 @@ import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
+import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.FailedRequestPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
+  private static Request EDIT_CONDITION_REQUEST =
+      fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build();
+  private static Request EDIT_SUBCONDITION_REQUEST =
+      fakeRequestBuilder()
+          .bodyForm(ImmutableMap.of("conditionId", "1", "subconditionId", "1"))
+          .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
 
@@ -54,12 +65,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
             instanceOf(EditConditionPartialView.class),
+            instanceOf(EditSubconditionPartialView.class),
             instanceOf(FailedRequestPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
-            settingsManifest);
+            settingsManifest,
+            instanceOf(ObjectMapper.class));
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
@@ -240,7 +253,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxEditCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -254,7 +267,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxEditCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -269,7 +282,54 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxEditCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            EDIT_CONDITION_REQUEST,
+            programWithThreeBlocks.id,
+            3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("what is your name?");
+    assertThat(content).contains("What is your address?");
+    assertThat(content).contains("Select your favorite ice cream flavor");
+    assertThat(content).doesNotContain("What is your favorite color?");
+  }
+
+  @Test
+  public void hxEditSubcondition_expandedLogicDisabled_notFound() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
+
+    Result result =
+        controller.hxEditSubcondition(
+            EDIT_SUBCONDITION_REQUEST,
+            programWithThreeBlocks.id,
+            1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(Helpers.contentAsString(result)).contains("Expanded form logic is not enabled.");
+  }
+
+  @Test
+  public void hxEditSubcondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            EDIT_SUBCONDITION_REQUEST,
+            programWithThreeBlocks.id,
+            1L,
+            PredicateUseCase.ELIGIBILITY.name());
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("what is your name?");
+  }
+
+  @Test
+  public void hxEditSubcondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
             3L,
             PredicateUseCase.VISIBILITY.name());
@@ -340,5 +400,74 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(content).contains("We are experiencing a system error");
+  }
+
+  @Test
+  public void hxEditSubcondition_withAddressQuestionId_isSelected() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "conditionId",
+                        "1",
+                        "subconditionId",
+                        "1",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.addressApplicantAddress().id)))
+                .build(),
+            programWithThreeBlocks.id,
+            3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    // Verify only scalars applicable to the selected question are shown
+    assertThat(content).contains("service area");
+    assertThat(content)
+        .doesNotContain(ImmutableList.of("street", "first name", "date", "currency"));
+  }
+
+  @Test
+  public void hxEditSubcondition_malformedQuestionId_selectsDefaults() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "conditionId",
+                        "1",
+                        "subconditionId",
+                        "1",
+                        "condition-1-subcondition-1-INVALIDQuestionId",
+                        String.valueOf(testQuestionBank.addressApplicantAddress().id)))
+                .build(),
+            programWithThreeBlocks.id,
+            3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    // Verify that the question with id addressApplicantAddress is not selected.
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    // Without a question selected, verify the form is in its default state with 4 default inputs
+    // (question, scalar, operator value) and
+    // scalar/operator/value disabled.
+    assertThat(
+            StringUtils.countMatches(
+                StringUtils.deleteWhitespace(content), "<optionselected=\"selected\">"))
+        .isEqualTo(4);
+    assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(3);
   }
 }

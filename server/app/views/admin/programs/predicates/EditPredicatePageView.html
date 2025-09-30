@@ -108,3 +108,23 @@
     <button type="submit" class="usa-button usa-button--outline">Cancel</button>
   </div>
 </th:block>
+
+<th:block th:fragment="scripts">
+  <!--/* Store the operator scalar map for use on the client */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.predicate = window.app.data.predicate || {}
+    window.app.data.predicate.operator_scalars = JSON.parse(
+      /*[[${model.operatorScalarsJson()}]]*/ '{}',
+    )
+
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      window.app.scripts.AdminPredicateEdit.onHtmxAfterSwap(event)
+    })
+  </script>
+</th:block>
