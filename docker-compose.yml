@@ -52,10 +52,6 @@ services:
 
   civiform:
     image: civiform-dev
-    links:
-      - 'db:database'
-      - 'dev-oidc'
-      - 'mock-web-services'
     expose:
       - '9000'
       - '8457'
