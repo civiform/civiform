@@ -49,10 +49,8 @@ export default class PreviewController {
     '.cf-map-question-filter-fieldset'
   private static readonly QUESTION_MAP_FILTER_SELECTOR =
     '.cf-map-question-filter'
-  private static readonly QUESTION_MAP_FILTER_LABEL_SELECTOR =
-    '.cf-map-question-filter-label'
-  private static readonly QUESTION_MAP_FILTER_SELECT_SELECTOR =
-    '.cf-map-question-filter-select'
+  private static readonly QUESTION_MAP_FILTERS_CONTAINER_SELECTOR =
+    '.cf-map-question-filters-container'
 
   // These are defined in {@link ApplicantQuestionRendererFactory}.
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
@@ -229,11 +227,7 @@ export default class PreviewController {
     questionSettings: HTMLElement
     questionPreviewContainer: HTMLElement
   }) {
-    const getFilterCount = () => {
-      return questionSettings.querySelectorAll('.filter-input').length
-    }
-
-    let currentFilterCount = getFilterCount()
+    let currentFilterCount = PreviewController.getFilterCount(questionSettings)
 
     const syncFiltersToPreview = () => {
       PreviewController.updateFiltersList({
@@ -242,7 +236,18 @@ export default class PreviewController {
       })
 
       // Check if filter count has changed and reattach listeners if needed
-      const newFilterCount = getFilterCount()
+      const newFilterCount = PreviewController.getFilterCount(questionSettings)
+      const filterContainer = questionPreviewContainer.querySelector(
+        PreviewController.QUESTION_MAP_FILTERS_CONTAINER_SELECTOR,
+      )
+      if (newFilterCount === 0) {
+        filterContainer?.classList.add('hidden')
+        filterContainer?.setAttribute('aria-hidden', 'true')
+      } else {
+        filterContainer?.classList.remove('hidden')
+        filterContainer?.removeAttribute('aria-hidden')
+      }
+
       if (newFilterCount !== currentFilterCount) {
         currentFilterCount = newFilterCount
         attachFilterListeners()
@@ -373,6 +378,35 @@ export default class PreviewController {
     }
   }
 
+  private static createFilterElement(
+    displayName: string,
+    index: number,
+  ): HTMLElement {
+    const filterId = `filter${index + 1}-preview`
+
+    const filterDiv = document.createElement('div')
+    filterDiv.className = 'grid-col flex-align-self-end cf-map-question-filter'
+
+    const label = document.createElement('label')
+    label.className = 'usa-label margin-top-1'
+    label.textContent = displayName
+    label.setAttribute('for', filterId)
+
+    const select = document.createElement('select')
+    select.className = 'usa-select'
+    select.id = filterId
+
+    const option = document.createElement('option')
+    option.value = ''
+    option.textContent = 'Select an option'
+    select.appendChild(option)
+
+    filterDiv.appendChild(label)
+    filterDiv.appendChild(select)
+
+    return filterDiv
+  }
+
   private static updateFiltersList({
     questionSettings,
     questionPreviewContainer,
@@ -393,43 +427,19 @@ export default class PreviewController {
       return
     }
 
-    // Get existing filter containers in preview
     const existingPreviewFilters = Array.from(
       mapFilterContainer.querySelectorAll(
         PreviewController.QUESTION_MAP_FILTER_SELECTOR,
       ),
     )
 
-    // Get the first filter as a template
-    const filterTemplate = existingPreviewFilters[0]
-    if (!filterTemplate) {
-      return
-    }
-
-    // Remove all existing filters
     existingPreviewFilters.forEach((div) => div.remove())
 
-    // Create new filters based on configured settings
     configuredFilters.forEach((displayName, index) => {
-      const newFilter = filterTemplate.cloneNode(true) as HTMLElement
-      const filterLabel = newFilter.querySelector(
-        PreviewController.QUESTION_MAP_FILTER_LABEL_SELECTOR,
+      const newFilter = PreviewController.createFilterElement(
+        displayName,
+        index,
       )
-      const filterSelect = newFilter.querySelector(
-        PreviewController.QUESTION_MAP_FILTER_SELECT_SELECTOR,
-      )
-
-      if (filterLabel) {
-        const filterId = `filter${index + 1}-preview`
-        filterLabel.textContent = displayName
-        filterLabel.setAttribute('for', filterId)
-      }
-
-      if (filterSelect) {
-        const filterId = `filter${index + 1}-preview`
-        filterSelect.id = filterId
-      }
-
       mapFilterContainer.appendChild(newFilter)
     })
   }
@@ -554,6 +564,10 @@ export default class PreviewController {
       ;(<HTMLElement>matchingElement).textContent =
         text + ' #' + (index + 1).toString()
     })
+  }
+
+  private static getFilterCount = (questionSettings: HTMLElement) => {
+    return questionSettings.querySelectorAll('.filter-input').length
   }
 
   private static getFilterDisplayNames = (questionSettings: HTMLElement) => {

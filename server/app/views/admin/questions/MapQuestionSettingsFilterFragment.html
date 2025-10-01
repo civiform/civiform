@@ -13,7 +13,7 @@
       </label>
       <select
         data-testid="key-select"
-        class="usa-select cf-map-question-filter-select"
+        class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
         th:id="${keyId}"
       >
@@ -25,11 +25,7 @@
           th:selected="${selectedKey != null && key == selectedKey}"
         ></option>
       </select>
-      <label
-        class="usa-label cf-map-question-filter-label"
-        th:for="${displayNameId}"
-        th:inline="text"
-      >
+      <label class="usa-label" th:for="${displayNameId}" th:inline="text">
         [[#{map.displayNameLabel}]]
         <span title="required" class="usa-hint usa-hint--required">*</span>
       </label>

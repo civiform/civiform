@@ -8,7 +8,7 @@
     name="maxLocationSelections"
     id="maxLocationSelections"
     type="number"
-    th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
+    th:value="${model.maxLocationSelections.isPresent() ? model.maxLocationSelections.getAsInt() : ''}"
   />
   <label class="usa-label" for="locationName.key" th:inline="text">
     [[#{map.locationNameLabel}]]

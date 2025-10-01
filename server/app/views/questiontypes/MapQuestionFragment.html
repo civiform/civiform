@@ -32,7 +32,10 @@
     ></div>
   </div>
   <!-- Filters -->
-  <th:block th:if="${mapQuestion.getFilters().size() > 0 || isPreview}">
+  <div
+    th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+    th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
+  >
     <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
       <legend
         class="usa-legend text-bold"
@@ -43,12 +46,12 @@
         class="grid-col flex-align-self-end cf-map-question-filter"
       >
         <label
-          class="usa-label margin-top-1 cf-map-question-filter-label"
+          class="usa-label margin-top-1"
           th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
           th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
         ></label>
         <select
-          class="usa-select cf-map-question-filter-select"
+          class="usa-select"
           th:data-filter-key="${filter.settingValue()}"
           th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
           th:data-map-id="${mapId}"
@@ -78,7 +81,7 @@
         th:text="#{map.resetFiltersButtonText}"
       ></button>
     </div>
-  </th:block>
+  </div>
 
   <div class="grid-row grid-gap padding-1">
     <div class="grid-col-12 desktop:grid-col-6">
