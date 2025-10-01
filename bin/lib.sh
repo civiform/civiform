@@ -10,6 +10,12 @@ fi
 set -e
 set +x
 
+# Optionally alias docker to podman if user wishes.
+if [[ "${USE_PODMAN_FOR_CIVIFORM}" == "1" || "${USE_PODMAN_FOR_CIVIFORM}" == "true" ]]; then
+  shopt -s expand_aliases
+  alias docker=podman
+fi
+
 readonly LIB_DIR="${BASH_SOURCE%/*}/lib"
 
 # Control the name that `docker compose` preprends resources with.
