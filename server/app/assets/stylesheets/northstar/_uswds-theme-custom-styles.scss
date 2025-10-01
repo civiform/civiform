@@ -693,6 +693,104 @@ main {
     }
   }
 }
+// Tailwind Preflight CSS Reset (replaces what was lost when removing Tailwind)
+// This provides the base reset styles that Tailwind was supplying
+// IMPORTANT: Exclude USWDS pseudo-elements to avoid breaking RTL and other USWDS styles
+*:not([class*='usa-']):not([class*='cf-']),
+*:not([class*='usa-']):not([class*='cf-'])::after,
+*:not([class*='usa-']):not([class*='cf-'])::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0 solid;
+}
+
+// Universal box-sizing (safe for all elements)
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Basic margin/padding reset for non-USWDS elements
+body,
+p,
+blockquote,
+dl,
+dd,
+figure,
+pre {
+  margin: 0;
+}
+
+// List reset - but preserve USWDS list styling
+ol:not([class*='usa-']),
+ul:not([class*='usa-']),
+menu:not([class*='usa-']) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Media elements - consistent display and responsive behavior
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+}
+
+// Hidden elements
+[hidden]:where(:not([hidden='until-found'])) {
+  display: none !important;
+}
+
+// Required field asterisk styling (critical for form validation display)
+.usa-label--required::after,
+.usa-legend--required::after {
+  color: #e52207 !important; // Red color for required asterisks
+  content: ' *' !important; // Ensure asterisk appears
+}
+
+// Ensure form labels with required class display asterisks correctly
+.usa-label.usa-label--required::after,
+.usa-legend.usa-legend--required::after {
+  color: #e52207 !important;
+  content: ' *' !important;
+}
+
+// Required indicator for question titles (replaces Tailwind text-red-600)
+.required-indicator {
+  color: #e52207 !important; // Red color for title asterisks
+}
+
+// Required hints for individual form field labels
+.usa-hint--required {
+  color: #e52207 !important; // Red color for field label asterisks
+}
+
+// Tailwind CSS replacement classes
+.maxw-mobile-lg {
+  max-width: 480px;
+}
+
+// Radio button and checkbox width constraint (replaces Tailwind max-w-mobile-lg)
+.cf-checkbox-question-input {
+  max-width: 480px;
+}
+
+// Fieldset-level constraints for radio button and checkbox questions
+.cf-question-radio .usa-fieldset,
+.cf-question-checkbox .usa-fieldset {
+  max-width: 480px;
+}
 
 // Map question custom styles
 // Custom height for map question location container
