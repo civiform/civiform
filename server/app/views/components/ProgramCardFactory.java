@@ -195,7 +195,10 @@ public final class ProgramCardFactory {
                             span(questionCount == 1 ? " question" : " questions"))
                         .condWith(
                             programRow.universalQuestionsText().isPresent(),
-                            p(programRow.universalQuestionsText().orElse("")))),
+                            p(programRow.universalQuestionsText().orElse("")))
+                        .condWith(
+                            programRow.translationCompletionTag().isPresent(),
+                            p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -316,6 +319,8 @@ public final class ProgramCardFactory {
 
       abstract Optional<String> universalQuestionsText();
 
+      abstract Optional<DomContent> translationCompletionTag();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -329,6 +334,8 @@ public final class ProgramCardFactory {
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setUniversalQuestionsText(Optional<String> v);
+
+        public abstract Builder setTranslationCompletionTag(Optional<DomContent> v);
 
         public abstract ProgramRow build();
       }

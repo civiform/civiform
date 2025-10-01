@@ -49,6 +49,7 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.TranslationLocales;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.predicate.PredicateDefinition;
@@ -96,6 +97,7 @@ public final class ProgramService {
   private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public ProgramService(
@@ -106,7 +108,8 @@ public final class ProgramService {
       CategoryRepository categoryRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicationStatusesRepository applicationStatusesRepository,
+      TranslationLocales translationLocales) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -115,6 +118,7 @@ public final class ProgramService {
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Get the names for all programs. */
@@ -637,6 +641,38 @@ public final class ProgramService {
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
+  }
+
+  public boolean isTranslationComplete(ProgramDefinition programDefinition)
+      throws ProgramNotFoundException {
+    ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
+
+    if (supportedLanguages.isEmpty()) {
+      return true;
+    }
+
+    StatusDefinitions statusDefinitions =
+        applicationStatusesRepository.lookupActiveStatusDefinitions(programDefinition.adminName());
+
+    for (Locale locale : supportedLanguages) {
+      if (locale.equals(DEFAULT_LOCALE)) {
+        continue;
+      }
+
+      if (programDefinition.localizedName().maybeGet(locale).isEmpty()
+          || programDefinition.localizedDescription().maybeGet(locale).isEmpty()
+          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()) {
+        return false;
+      }
+
+      for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
+        if (status.localizedStatusText().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /** Preserve translations on existing titles and descriptions in application steps */
