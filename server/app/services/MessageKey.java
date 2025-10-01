@@ -330,8 +330,11 @@ public enum MessageKey {
   MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
   MAP_KEY_LABEL("map.keyLabel"), // North Star only
   MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
   MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),

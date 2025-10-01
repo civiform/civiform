@@ -63,7 +63,7 @@ test.describe('Create and edit map question', () => {
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Add up to six filters to make available to applicants.',
+            'Select up to six filters to make available to applicants.',
           ),
         ).toBeVisible()
 
