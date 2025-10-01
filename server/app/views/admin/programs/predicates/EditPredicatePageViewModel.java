@@ -8,13 +8,15 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateUseCase;
+import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramHeader;
 
 public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
-    PredicateUseCase predicateUseCase)
+    PredicateUseCase predicateUseCase,
+    ImmutableList<QuestionDefinition> questions)
     implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {
@@ -41,5 +43,11 @@ public record EditPredicatePageViewModel(
 
   public PredicateAction eligibilityAction() {
     return PredicateAction.ELIGIBLE_BLOCK;
+  }
+
+  public String hxEditConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
   }
 }
