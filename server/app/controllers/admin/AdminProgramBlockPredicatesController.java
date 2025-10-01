@@ -443,7 +443,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** HTMX partial that renders a card for editing a condition within a predicate. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditCondition(
-      Request request, long programId, long blockDefinitionId, String predicateUseCaseString) {
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
     if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
       return notFound("Expanded form logic is not enabled.");
     }
@@ -454,20 +454,21 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       // TODO(#11560): Render error alert.
     }
 
-    PredicateUseCase predicateUseCase = PredicateUseCase.valueOf(predicateUseCaseString);
     try {
+      PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       DynamicForm formData = formFactory.form().bindFromRequest(request);
       long conditionId = Long.parseLong(formData.get("conditionId"));
       ImmutableList<QuestionDefinition> predicateQuestions =
-          getAvailablePredicateQuestionDefinitions(
-              programDefinition, blockDefinitionId, predicateUseCase);
+          getAvailablePredicateQuestionDefinitions(programDefinition, blockDefinitionId, useCase);
       return ok(editConditionPartialView.render(
               request,
               new EditConditionPartialViewModel(
-                  programId, blockDefinitionId, predicateUseCase, conditionId, predicateQuestions)))
+                  programId, blockDefinitionId, useCase, conditionId, predicateQuestions)))
           .as(Http.MimeTypes.HTML);
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | IllegalArgumentException e) {
       // TODO(#11560): Render error alert.
       return notFound();
     }

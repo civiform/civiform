@@ -232,6 +232,21 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxEditCondition_expandedLogicDisabled_notFound() {
+    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest())).thenReturn(false);
+
+    assertThatThrownBy(
+            () ->
+                controller.hxEditCondition(
+                    fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+                    programWithThreeBlocks.id,
+                    1L,
+                    PredicateUseCase.ELIGIBILITY.name()))
+        .isInstanceOf(NotChangeableException.class)
+        .hasMessage("Expanded form logic is not enabled.");
+  }
+
+  @Test
   public void hxEditCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
     Result result =
         controller.hxEditCondition(
