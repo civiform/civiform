@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -233,21 +234,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditCondition_expandedLogicDisabled_notFound() {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest())).thenReturn(false);
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
 
-    assertThatThrownBy(
-            () ->
-                controller.hxEditCondition(
-                    fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
-                    programWithThreeBlocks.id,
-                    1L,
-                    PredicateUseCase.ELIGIBILITY.name()))
-        .isInstanceOf(NotChangeableException.class)
-        .hasMessage("Expanded form logic is not enabled.");
+    Result result =
+        controller.hxEditCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            programWithThreeBlocks.id,
+            1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(Helpers.contentAsString(result)).contains("Expanded form logic is not enabled.");
   }
 
   @Test
   public void hxEditCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxEditCondition(
             fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
@@ -262,6 +264,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxEditCondition(
             fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
