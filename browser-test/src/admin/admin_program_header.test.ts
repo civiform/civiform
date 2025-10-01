@@ -20,7 +20,7 @@ test.describe('admin program page headers', {tag: ['@northstar']}, () => {
       /* expandedFormLogicEnabled= */ true,
     )
 
-    expect(await page.innerText('#program-title')).toContain(programName)
+    await expect(page.locator('#program-title')).toContainText(programName)
     await validateScreenshot(
       page.locator('.cf-legacy-program-header'),
       'program-header',

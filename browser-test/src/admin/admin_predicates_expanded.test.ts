@@ -27,7 +27,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       // Validate empty state without predicate
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
-      expect(await page.innerText('#eligibility-predicate')).toContain(
+      await expect(page.locator('#eligibility-predicate')).toContainText(
         'This screen does not have any eligibility conditions',
       )
     })
