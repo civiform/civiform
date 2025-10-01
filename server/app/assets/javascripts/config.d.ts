@@ -14,7 +14,7 @@ interface Window {
           [key: string]: Array<{value: string; display: string}>
         }
       }
-      questionType: QuestionType | undefined
+      questionType: QuestionType
     }
   }
 }

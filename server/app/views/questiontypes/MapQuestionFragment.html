@@ -33,22 +33,22 @@
   </div>
   <!-- Filters -->
   <th:block th:if="${mapQuestion.getFilters().size() > 0 || isPreview}">
-    <fieldset class="grid-row grid-gap">
+    <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
       <legend
         class="usa-legend text-bold"
         th:text="#{map.filterLegendText}"
       ></legend>
       <div
         th:each="filter, i : ${mapQuestion.getFilters()}"
-        class="grid-col flex-align-self-end"
+        class="grid-col flex-align-self-end cf-map-question-filter"
       >
         <label
-          class="usa-label margin-top-1"
+          class="usa-label margin-top-1 cf-map-question-filter-label"
           th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
           th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
         ></label>
         <select
-          class="usa-select"
+          class="usa-select cf-map-question-filter-select"
           th:data-filter-key="${filter.settingValue()}"
           th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
           th:data-map-id="${mapId}"

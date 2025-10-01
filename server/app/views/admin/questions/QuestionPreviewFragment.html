@@ -13,12 +13,10 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 
-  <script 
-    th:inline="javascript"
-    th:nonce="${cspNonce}"
-  >
+  <script th:inline="javascript" th:nonce="${cspNonce}">
     window.app = window.app || {}
     window.app.data = window.app.data || {}
-    window.app.data.questionType = /*[[${question.getType().getLabel()}]]*/ undefined
+    window.app.data.questionType =
+      /*[[${question.getType().getLabel()}]]*/ undefined
   </script>
 </div>

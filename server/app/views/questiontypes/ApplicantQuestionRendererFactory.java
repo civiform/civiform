@@ -90,7 +90,6 @@ public final class ApplicantQuestionRendererFactory {
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
             .setQuestionType(questionType);
 
-    System.out.println(questionType);
     if (questionType.isMultiOptionType()) {
       if (questionType == QuestionType.YES_NO) {
         ImmutableList<QuestionOption> yesNoOptions =
