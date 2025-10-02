@@ -28,6 +28,7 @@ import {
   updateSelectedLocations,
 } from './map_question_selection'
 import {initFilters} from './map_question_filters'
+import {initPagination} from './map_question_pagination'
 
 export const init = (): void => {
   const mapMessages = window.app?.data?.messages as MapMessages
@@ -41,6 +42,7 @@ export const init = (): void => {
       const mapElement = renderMap(mapId, mapData as MapData, mapMessages)
       initLocationSelection(mapId, mapMessages)
       initFilters(mapId, mapElement, mapMessages, mapData as MapData)
+      initPagination(mapId)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }

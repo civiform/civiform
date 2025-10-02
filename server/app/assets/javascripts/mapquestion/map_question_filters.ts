@@ -11,15 +11,15 @@ import {
   LOCATIONS_LAYER,
   MapData,
   mapQuerySelector,
-  CF_LOCATIONS_LIST_CONTAINER,
-  CF_LOCATION_CHECKBOX,
   CF_LOCATION_HIDDEN,
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
   MapMessages,
   localizeString,
+  queryLocationCheckboxes,
 } from './map_util'
+import {updatePagination} from './map_question_pagination'
 
 export const initFilters = (
   mapId: string,
@@ -83,6 +83,7 @@ const applyLocationFilters = (
   })
 
   updateLocationCountForMap(mapId, messages)
+  updatePagination(mapId)
 }
 
 const updateLocationCountForMap = (
@@ -160,12 +161,3 @@ const queryMapSelectOptions = (mapId: string): NodeListOf<Element> => {
   return document.querySelectorAll(`select[${DATA_MAP_ID}="${mapId}"]`)
 }
 
-const queryLocationCheckboxes = (mapId: string) => {
-  const locationsListContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!locationsListContainer) return []
-
-  return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
-}
