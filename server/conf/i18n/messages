@@ -956,7 +956,7 @@ map.mapRegionAltText=Interactive map displaying locations
 # Button for adding a filter
 map.addFilterButton=Add filter
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersSubtitle=Select up to six filters to make available to applicants.
 # Title for filters section
 map.addFiltersTitle=Filters
 # Label for display name field
@@ -971,6 +971,12 @@ map.locationDetailsUrlLabel=View more details URL key
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
