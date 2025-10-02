@@ -50,8 +50,8 @@ export const CF_LOCATION_HIDDEN = 'cf-location-hidden'
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
 export const LOCATIONS_LAYER = 'locations-layer'
-export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]
-export const DEFAULT_MAP_ZOOM = 8
+export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.5865]
+export const DEFAULT_MAP_ZOOM = 12
 export const DEFAULT_MAP_MARKER_TYPE = 'circle'
 export const DEFAULT_MAP_MARKER_STYLE = {
   'circle-radius': 6,
@@ -87,4 +87,24 @@ export const localizeString = (message: string, params: string[]) => {
   }
 
   return message
+}
+
+export const queryLocationCheckboxes = (mapId: string) => {
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  ) as HTMLElement | null
+  if (!locationsListContainer) return []
+
+  return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
+}
+
+export const getVisibleCheckboxes = (mapId: string) => {
+    const locationCheckboxes = queryLocationCheckboxes(mapId)
+    return Array.from(locationCheckboxes).filter((checkbox) => {
+      const checkboxElement = (checkbox as HTMLElement) || null
+      return (
+        checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
+      )
+    })
 }

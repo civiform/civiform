@@ -84,7 +84,7 @@
   </div>
 
   <div class="grid-row grid-gap padding-1">
-    <div class="grid-col-12 desktop:grid-col-6">
+    <div class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0 ">
       <div
         th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
         class="text-ink margin-bottom-1 cf-location-count"
@@ -111,12 +111,18 @@
           aria-label="Location selection"
         >
           <div
+            th:with="totalLocations=${questionRendererParams.geoJson().get().features().size()}"
+            class="text-ink margin-bottom-1 cf-location-count"
+            th:data-map-id="${mapId}"
+            th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
+          ></div>
+          <div
             th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
             th:with="locationId='location-' + ${iterator.index},
-                     locationName=${feature.properties().get(mapQuestion.getNameValue())},
-                     locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
-                     locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
-                     featureId=${feature.id}"
+                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
+                      locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
+                      locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                      featureId=${feature.id}"
             th:data-feature-id="${featureId}"
             class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
           >
@@ -157,6 +163,53 @@
           class="square-mobile"
         ></div>
       </div>
+      <nav
+        aria-label="Pagination"
+        class="usa-pagination flex-justify-end cf-pagination"
+        th:data-map-id="${mapId}"
+      >
+        <ul class="usa-pagination__list">
+          <li class="usa-pagination__item usa-pagination__arrow">
+            <a
+              href="javascript:void(0);"
+              class="usa-pagination__link usa-pagination__previous-page"
+              aria-label="Previous page"
+            >
+              <cf:icon type="icon-navigate_before" class="usa-icon" />
+              <span class="usa-pagination__link-text" th:text="#{button.previousScreen}"></span>
+            </a>
+          </li>
+          <!--/* Page buttons will be dynamically populated here from templates below */-->
+          <li class="usa-pagination__item usa-pagination__arrow">
+            <a
+              href="javascript:void(0);"
+              class="usa-pagination__link usa-pagination__next-page"
+              aria-label="Next page"
+            >
+              <span class="usa-pagination__link-text" th:text="#{button.nextPage}"></span>
+              <cf:icon type="icon-navigate_next" class="usa-icon" />
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!--/* Templates for pagination button elements */-->
+      <template class="cf-pagination-button-template" th:data-map-id="${mapId}">
+        <li class="usa-pagination__item usa-pagination__page-no cf-pagination-item">
+          <a
+            href="javascript:void(0);"
+            class="usa-pagination__button"
+          ></a>
+        </li>
+      </template>
+      <template class="cf-pagination-overflow-template" th:data-map-id="${mapId}">
+        <li
+          class="usa-pagination__item usa-pagination__overflow cf-pagination-item"
+          aria-label="ellipsis indicating non-visible pages"
+        >
+          <span>…</span>
+        </li>
+      </template>
     </div>
 
     <!-- Map container -->
@@ -164,7 +217,7 @@
       <!-- TODO(#11150): Add map question preview functionality -->
       <div
         th:id="${mapId}"
-        class="cf-map-container width-full height-full bg-base-lighter"
+        class="cf-map-container width-full height-full maxh-viewport bg-base-lighter"
         data-testid="map-container"
       >
         <div th:if="${isPreview}" class="square-mobile"></div>
