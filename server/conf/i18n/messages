@@ -922,6 +922,10 @@ option.maybe=Maybe
 
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
+# Header for the section showing available locations
+map.availableLocations=Available locations
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Link text for location details URLs
