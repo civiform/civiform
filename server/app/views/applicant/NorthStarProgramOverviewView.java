@@ -100,7 +100,6 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     }
 
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
-
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
     context.setVariable("isLoginOnly", programDefinition.loginOnly());
 
