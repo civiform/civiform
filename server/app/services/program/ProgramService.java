@@ -661,12 +661,26 @@ public final class ProgramService {
 
       if (programDefinition.localizedName().maybeGet(locale).isEmpty()
           || programDefinition.localizedDescription().maybeGet(locale).isEmpty()
-          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()) {
+          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()
+          || programDefinition.localizedShortDescription().maybeGet(locale).isEmpty()
+          || (programDefinition.localizedSummaryImageDescription().isPresent()
+              && programDefinition
+                  .localizedSummaryImageDescription()
+                  .get()
+                  .maybeGet(locale)
+                  .isEmpty())) {
         return false;
       }
 
       for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
         if (status.localizedStatusText().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+      }
+
+      for (BlockDefinition block : programDefinition.blockDefinitions()) {
+        if (block.localizedName().maybeGet(locale).isEmpty()
+            || block.localizedDescription().maybeGet(locale).isEmpty()) {
           return false;
         }
       }

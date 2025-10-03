@@ -69,7 +69,8 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ false,
-                  cardData.draftProgram().get()));
+                  cardData.draftProgram().get(),
+                  request));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -79,6 +80,7 @@ public final class ProgramCardFactory {
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
+                  request,
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
@@ -145,6 +147,7 @@ public final class ProgramCardFactory {
       boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
+      Http.Request request,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = isActive ? "Published on " : "Edited on ";
@@ -168,6 +171,9 @@ public final class ProgramCardFactory {
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
+
+    boolean isTranslationManagementImprovementEnabled =
+        settingsManifest.getTranslationManagementImprovementEnabled(request);
 
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
@@ -197,7 +203,8 @@ public final class ProgramCardFactory {
                             programRow.universalQuestionsText().isPresent(),
                             p(programRow.universalQuestionsText().orElse("")))
                         .condWith(
-                            programRow.translationCompletionTag().isPresent(),
+                            programRow.translationCompletionTag().isPresent()
+                                && isTranslationManagementImprovementEnabled,
                             p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()
