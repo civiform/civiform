@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   localstack:
-    image: localstack/localstack:4.8.0@sha256:fe24345d30a3cdc3cead7d88ebbdf39ae480fa3fe4de1765b98a9a066b8515cf
+    image: localstack/localstack:4.9.1@sha256:ef90c3d6d69e36752d0154f9bc21099fc70dfbffc99a0145a6d7d04a721a6124
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
