@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
@@ -300,6 +301,59 @@ public class DateQuestionTest extends ResetPostgres {
             .createDateQuestion();
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
+  }
+
+  @Test
+  public void getDateValue_autofillsCurrentDate_whenBothMinAndMaxDateAreApplicationDate() {
+    DateQuestionDefinition questionWithValidation = createDateQuestionDefinition(MIN_DATE_TODAY, MAX_DATE_TODAY);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionWithValidation, new ApplicantModel(), new ApplicantData(), Optional.empty());
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    // Should autofill with today's date when both min and max are APPLICATION_DATE
+    LocalDate expectedDate = LocalDate.now(ZoneId.systemDefault());
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(expectedDate);
+    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(expectedDate.getMonthValue());
+    assertThat(dateQuestion.getDayValue().get()).isEqualTo(expectedDate.getDayOfMonth());
+    assertThat(dateQuestion.getYearValue().get()).isEqualTo(expectedDate.getYear());
+  }
+
+  @Test
+  public void getDateValue_doesNotAutofill_whenApplicantAlreadyHasDateValue() {
+    DateQuestionDefinition questionWithValidation = createDateQuestionDefinition(MIN_DATE_TODAY, MAX_DATE_TODAY);
+    ApplicantData applicantDataWithDate = new ApplicantData();
+    applicantDataWithDate.putDate(
+        ApplicantData.APPLICANT_PATH.join("question_name").join("date"), 
+        LocalDate.of(2023, 12, 25));
+    
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionWithValidation, new ApplicantModel(), applicantDataWithDate, Optional.empty());
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    // Should not autofill when applicant already has a date value
+    assertThat(dateQuestion.getDateValue().get()).isEqualTo(LocalDate.of(2023, 12, 25));
+    assertThat(dateQuestion.getMonthValue().get()).isEqualTo(12);
+    assertThat(dateQuestion.getDayValue().get()).isEqualTo(25);
+    assertThat(dateQuestion.getYearValue().get()).isEqualTo(2023);
+  }
+
+  @Test
+  public void getDateValue_doesNotAutofill_whenOnlyOneDateIsApplicationDate() {
+    DateValidationOption minDateCustom = DateValidationOption.builder()
+        .setDateType(DateType.CUSTOM)
+        .setCustomDate(Optional.of(YESTERDAY))
+        .build();
+    
+    DateQuestionDefinition questionWithValidation = createDateQuestionDefinition(minDateCustom, MAX_DATE_TODAY);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionWithValidation, new ApplicantModel(), new ApplicantData(), Optional.empty());
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    // Should not autofill when only one date is APPLICATION_DATE
+    assertThat(dateQuestion.getDateValue()).isEmpty();
   }
 
   private DateQuestionDefinition createDateQuestionDefinition(
