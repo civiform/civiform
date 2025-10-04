@@ -116,7 +116,43 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
-  public void getExistingApplicant_succeeds_noAuthorityFallsBackToEmail() {
+  public void getExistingApplicant_emailMatchForNonTI_fails() {
+    // An existing email match is not used because it is not a TI.
+    // Setup.
+    resourceCreator
+        .insertAccount()
+        .setEmailAddress("SOME OTHER EMAIL")
+        .setAuthorityId("SOME OTHER ID")
+        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
+        .save();
+    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+
+    // Execute.
+    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+
+    // Verify.
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_anotherAccount_fails() {
+    // With a different account, we don't return it.
+    resourceCreator
+        .insertAccount()
+        .setEmailAddress(EMAIL)
+        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
+        .save();
+    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+
+    // Execute.
+    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+
+    // Verify.
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_TiClient_succeeds_noAuthorityFallsBackToEmail() {
     // When an existing account doesn't have an authority_id we still find it by
     // email.
 
@@ -124,6 +160,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Existing account doesn't have an authority.
     resourceCreator
         .insertAccount()
+        .setManagedByGroup(resourceCreator.insertTrustedIntermediaryGroup())
         .setEmailAddress(EMAIL)
         .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
         .save();
