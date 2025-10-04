@@ -184,6 +184,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
@@ -231,6 +232,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
