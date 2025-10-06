@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "htmx-ext-response-targets": "^2.0.3"
+  }
+}

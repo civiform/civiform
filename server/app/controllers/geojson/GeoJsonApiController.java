@@ -51,7 +51,7 @@ public final class GeoJsonApiController {
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
-              String errorMessage = "An error occurred trying to retrieve GeoJSON";
+              String errorMessage = String.format("Error: GeoJSON unable to be retrieved - %s", ex.getCause().getMessage());
 
               // TODO(#11125): Implement error state.
               return ok(div(errorMessage).withClass("text-red-500").toString())

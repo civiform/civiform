@@ -463,6 +463,20 @@ public final class QuestionEditView extends BaseHtmlView {
             p().withId("question-name-preview")
                 .withClasses("text-xs", "text-gray-500", "pb-3")
                 .with(span("Visible in the API as: "), span("").withId("formatted-name")));
+
+    formTag.with(
+        FieldWithLabel.textArea()
+            .setFieldName("questionDescription")
+            .setLabelText("Question note for administrative use only")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionDescription())
+            .getTextareaTag(),
+        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
+
+    ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
+    Optional<DivTag> questionConfig =
+        getQuestionConfig(questionForm, messages, settingsManifest, request);
+
     if (!forCreate) {
       formTag.with(
           input()
@@ -479,7 +493,7 @@ public final class QuestionEditView extends BaseHtmlView {
       formTag.with(
           FieldWithLabel.input()
               .setFieldName("geoJsonEndpoint")
-              .setLabelText("GeoJSON Endpoint")
+              .setLabelText("GeoJSON Endpoint URL")
               .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .setRequired(true)
               // GeoJSON endpoint can only be added upon question creation
@@ -487,21 +501,10 @@ public final class QuestionEditView extends BaseHtmlView {
               .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
               .setAttribute("hx-target", "#geoJsonOutput")
               .setAttribute("hx-trigger", "change delay:1s")
-              .getInputTag());
+              .setAttribute("hx-target-error", "#geojson-error")
+              .getInputTag()).with(div().withId("geojson-error"));
     }
 
-    formTag.with(
-        FieldWithLabel.textArea()
-            .setFieldName("questionDescription")
-            .setLabelText("Question note for administrative use only")
-            .setDisabled(!submittable)
-            .setValue(questionForm.getQuestionDescription())
-            .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
-
-    ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
-    Optional<DivTag> questionConfig =
-        getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
