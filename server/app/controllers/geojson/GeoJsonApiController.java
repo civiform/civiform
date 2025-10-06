@@ -2,6 +2,8 @@ package controllers.geojson;
 
 import static j2html.TagCreator.div;
 import static play.mvc.Results.ok;
+import static play.mvc.Results.notFound;
+import static play.mvc.Results.forbidden;
 
 import auth.Authorizers;
 import java.util.concurrent.CompletionStage;
@@ -54,7 +56,7 @@ public final class GeoJsonApiController {
               String errorMessage = String.format("Error: GeoJSON unable to be retrieved - %s", ex.getCause().getMessage());
 
               // TODO(#11125): Implement error state.
-              return ok(div(errorMessage).withClass("text-red-500").toString())
+              return forbidden(div(errorMessage).withClass("text-red-500").toString())
                   .as(Http.MimeTypes.HTML);
             });
   }

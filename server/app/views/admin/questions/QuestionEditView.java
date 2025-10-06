@@ -289,6 +289,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
+        .attr("hx-ext", "response-targets")
         .withClasses(
             "border-gray-400",
             "border-r",
@@ -492,17 +493,20 @@ public final class QuestionEditView extends BaseHtmlView {
     if (questionType.equals(QuestionType.MAP)) {
       formTag.with(
           FieldWithLabel.input()
+              .setId("geoJsonInput")
               .setFieldName("geoJsonEndpoint")
+              .setLabelText("GeoJSON Endpoint URL")
               .setLabelText("GeoJSON Endpoint URL")
               .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .setRequired(true)
+              .showFieldErrors(true)
               // GeoJSON endpoint can only be added upon question creation
               .setReadOnly(!forCreate)
               .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
               .setAttribute("hx-target", "#geoJsonOutput")
               .setAttribute("hx-trigger", "change delay:1s")
-              .setAttribute("hx-target-error", "#geojson-error")
-              .getInputTag()).with(div().withId("geojson-error"));
+              .setAttribute("hx-target-error", "#geoJsonOutput")
+              .getInputTag());
     }
 
     if (questionConfig.isPresent()) {
