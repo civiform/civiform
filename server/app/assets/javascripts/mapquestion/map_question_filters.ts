@@ -19,7 +19,7 @@ import {
   localizeString,
   queryLocationCheckboxes,
 } from './map_util'
-import { resetPagination } from './map_question_pagination'
+import {resetPagination} from './map_question_pagination'
 
 export const initFilters = (
   mapId: string,

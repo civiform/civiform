@@ -36,7 +36,10 @@ export const initPagination = (mapId: string): void => {
   updatePagination(mapId, paginationNav)
 }
 
-export const updatePagination = (mapId: string, paginationNav: Element): void => {
+export const updatePagination = (
+  mapId: string,
+  paginationNav: Element,
+): void => {
   const state = getPaginationState(mapId, paginationNav)
   renderPaginationButtons(mapId, state, paginationNav)
   updateVisibleLocations(mapId, state)

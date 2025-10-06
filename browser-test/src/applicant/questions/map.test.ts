@@ -210,7 +210,10 @@ if (isLocalDevEnvironment()) {
         })
       })
 
-      test('paginate map question locations', async ({page, applicantQuestions}) => {
+      test('paginate map question locations', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await test.step('Navigate to map question', async () => {
           await applicantQuestions.applyProgram(programName, true)
         })
@@ -235,7 +238,7 @@ if (isLocalDevEnvironment()) {
           await expect(previousButton).toBeVisible()
           await previousButton.click()
         })
-      })  
+      })
     })
 
     test.describe('multiple map questions', () => {
