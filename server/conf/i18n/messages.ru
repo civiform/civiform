@@ -1,5 +1,7 @@
 # Messages for Russian (русский)
 # Exported from translatewiki.net
+# Author: Okras
+# Author: Pavel200071
 
 button.logout=Выйти
 label.selectLanguage=Выберите язык.
@@ -40,6 +42,8 @@ link.skipToMainContent=Перейти к основному контенту
 title.login=Вход
 content.loginPrompt=Войдите в свой аккаунт, зарегистрированный на портале "{0}"
 button.createAnAccount=Создать аккаунт
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=Войти
 button.signIn=Войти
 content.alternativeLoginPrompt=Нет аккаунта?
@@ -50,7 +54,7 @@ content.loginDisabledPrompt=Вход в аккаунт сейчас недост
 content.adminLoginPrompt=Не нашли подходящий вариант?
 content.adminFooterPrompt=Вы администратор?
 link.adminLogin=Войти как администратор
-input.fileAlreadyUploaded=Загружен файл "{0}".
+input.fileAlreadyUploaded=Загружен файл {0}.
 input.singleFileUploadHint=Выберите файл
 input.multipleFileUploadHint=Выберите один или несколько файлов (не более {0})
 input.unlimitedFileUploadHint=Выберите один или несколько файлов
@@ -193,7 +197,6 @@ label.searchByDob=Поиск по дате рождения
 label.searchByName=Поиск по имени
 label.year=Год
 label.unnamedUser=Пользователь без имени
-link.edit=Изменить
 link.selectNewClient=Выбрать
 title.allClients=Все клиенты
 title.createClient=Создать клиента
@@ -211,6 +214,7 @@ button.start=Начать
 toast.applicationOutOfDate=Форма заявки изменилась. Чтобы продолжить, проверьте заполненные данные и ответьте на все вопросы.
 content.reviewPageIntro=Чтобы приступить к подаче заявки, выберите шаг ниже. Вы можете сохранять свои ответы и возвращаться к заполнению в любое время.
 content.doesNotQualify=Указанные данные не отвечают требованиям программы
+link.edit=Изменить
 link.answer=Ответить
 content.previouslyAnsweredOn=Вы отвечали на этот вопрос {0}
 ariaLabel.answer=Ответить на вопрос "{0}"
@@ -404,6 +408,8 @@ option.no=Нет
 option.notSure=Затрудняюсь ответить
 option.maybe=Возможно
 map.applyFiltersButtonText=Apply filters
+map.availableLocations=Доступные местоположения
+map.selectLocations=Выберите до {0} местоположений
 map.filterLegendText=Filters
 map.locationLinkText=View more details
 map.locationsCount=Показано мест: {0} из {1}.
@@ -414,6 +420,19 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Выбранные места
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+map.addFiltersSubtitle=Выберите до шести фильтров, которые будут доступны заявителям.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
+map.locationNameHelpText=Выберите, какой ключ соответствует названию местоположения.
+map.locationAddressHelpText=Выберите, какой ключ соответствует адресу местоположения.
+map.locationDetailsUrlHelpText=Выберите, какой ключ соответствует URL-адресу сведений о местоположении.
 adminValidation.multiOptionEmpty=На вопрос с множественным выбором должен быть дан ответ.
 adminValidation.multiOptionAdminError=В названиях, предназначенных для администраторов, допускаются только строчные буквы, цифры, символ подчеркивания и дефис.
 error.notFoundTitle=Нам не удалось найти страницу, которую вы пытались открыть
@@ -466,27 +485,3 @@ session.extend.button=Продлить сеанс
 session.extended.success=Сеанс продлен.
 session.extended.error=Не удалось продлить сеанс.
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

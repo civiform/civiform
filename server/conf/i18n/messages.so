@@ -40,6 +40,8 @@ link.skipToMainContent=U bood nuxurka muhiimka ah
 title.login=Soo gal
 content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 button.createAnAccount=Samee koonto
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=Halkan ka gal
 button.signIn=Gal
 content.alternativeLoginPrompt=Akoon ma lihid?
@@ -193,7 +195,6 @@ label.searchByDob=Ku raadi taariikhda dhalashada
 label.searchByName=Ku raadi magaca(yada)
 label.year=Sanadka
 label.unnamedUser=Isticmaale aan la magacaabin
-link.edit=Wax ka beddel
 link.selectNewClient=Dooro macamiil cusub
 title.allClients=Dhammaan macaamiisha
 title.createClient=Abuur macmiil cusub
@@ -211,6 +212,7 @@ button.start=Bilow
 toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
 content.reviewPageIntro=Dooro tallaabo hoose si aad u bilowdo codsigaaga. Waad kaydsan kartaa oo ku soo noqon kartaa wakhti kasta.
 content.doesNotQualify=Uma qalmo
+link.edit=Wax ka beddel
 link.answer=Jawaab
 content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
 ariaLabel.answer=Jawaab {0}
@@ -416,6 +418,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Goobaha la xushay
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
 adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaan karaan xarfaha yaryar, lambaro, calaamada hoose, iyo dhibcaha jiidan.
 error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
@@ -468,27 +481,3 @@ session.extend.button=Mudo dheerayso Kulanka
 session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
 session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
 translation.untranslated=Qoraalkan wuxuu ahaan doonnaa mid aan la turjumin si loogu tijaabiyo aaladaha turjumaadda.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections
