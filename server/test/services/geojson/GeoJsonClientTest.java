@@ -31,7 +31,7 @@ public class GeoJsonClientTest extends WithApplication {
   public void setUp() throws Exception {
     WSClient wsClient = mock(WSClient.class);
     GeoJsonDataRepository geoJsonDataRepository = mock(GeoJsonDataRepository.class);
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = instanceOf(ObjectMapper.class);
 
     geoJsonClient = new GeoJsonClient(wsClient, geoJsonDataRepository, objectMapper);
 

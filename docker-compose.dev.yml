@@ -33,13 +33,9 @@ services:
     tty: true # docker run -t
 
   localstack:
-    # Overrides the localstack image used to work around
-    # https://github.com/seattle-uat/civiform/issues/2639.
-    # Note that we don't set this in the base template
-    # since it's not necessary for CI / browser test runs.
-    image: civiform-localstack
     ports:
       - 4566:4566
+
   azurite:
     ports:
       - 10000:10000
@@ -83,7 +79,7 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
 
-  grafana:  
+  grafana:
     profiles: ['monitoring']
     image: grafana/grafana@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
     depends_on:
@@ -98,8 +94,6 @@ services:
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
       - grafana-data:/var/lib/grafana
-    links:
-      - prometheus
 
 volumes:
   db-data:

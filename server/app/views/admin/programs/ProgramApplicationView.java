@@ -14,6 +14,7 @@ import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 
 import annotations.BindingAnnotations.EnUsLang;
+import auth.CiviFormProfile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +42,7 @@ import services.MessageKey;
 import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -70,15 +72,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
       AdminLayoutFactory layoutFactory,
       @EnUsLang Messages enUsMessages,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -91,7 +96,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
+      CiviFormProfile profile,
       Request request) {
+    boolean showDownloadButton =
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+            && profile.isOnlyProgramAdmin());
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
@@ -142,7 +151,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                     .with(
                                         renderStatusOptionsSelector(application, statusDefinitions),
                                         updateNoteModal.getButton()))
-                            .with(renderDownloadButton(programId, application.id))))
+                            .condWith(
+                                showDownloadButton,
+                                renderDownloadButton(programId, application.id))))
             .with(
                 p(renderSubmitTime(application))
                     .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
@@ -156,6 +167,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
+            .setAdminType(profile)
             .getBundle(request)
             .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)

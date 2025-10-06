@@ -1,0 +1,83 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="heading" type="String"*/-->
+<!--/*@thymesVar id="schema" type="com.google.common.collect.ImmutableList<views.admin.apibridge.programbridge.ProgramSchemaField>"*/-->
+<th:block th:fragment="group(heading, schema)">
+  <h2 class="text-normal" th:text="${heading} + ' Fields'"></h2>
+
+  <article
+    class="margin-bottom-2 bg-base-lightest padding-2 radius-lg"
+    th:each="schemafield, iterstat : ${schema}"
+    th:with="questionDropDownId=${'question-id-' + #strings.randomAlphanumeric(8)},
+             scalarDropDownId=${'scalar-id-' + #strings.randomAlphanumeric(8)},
+             nameArray=${#strings.toLowerCase(heading) + 'Fields[' + iterstat.index + ']'}"
+  >
+    <h3 class="text-normal font-body-sm margin-top-0">
+      <span class="text-bold font-body-sm">Field Name: </span>
+      <span th:text="${schemafield.title()}"></span>
+    </h3>
+
+    <p class="font-body-sm" th:text="${schemafield.description()}"></p>
+
+    <input
+      type="hidden"
+      th:value="${schemafield.externalName()}"
+      th:name="${nameArray} + '.externalName'"
+    />
+
+    <div class="display-flex flex-gap">
+      <div>
+        <label
+          class="usa-label margin-top-0 text-bold"
+          th:for="${questionDropDownId}"
+          th:aria-label="${heading + ' field question for ' + schemafield.title()}"
+          >Question</label
+        >
+
+        <select
+          class="usa-select"
+          th:id="${questionDropDownId}"
+          th:name="${nameArray} + '.questionName'"
+          th:data-scalar-target-id="${scalarDropDownId}"
+          required="required"
+        >
+          <option value="">-- Select One --</option>
+          <option
+            th:each="question: ${model.questions()}"
+            th:text="${question.getName()}"
+            th:value="${question.getQuestionNameKey()}"
+            th:selected="${question.getQuestionNameKey().equals(schemafield.questionName())}"
+          ></option>
+        </select>
+      </div>
+
+      <th:block
+        th:with="allScalars=${model.getScalarInfo(schemafield.questionName())}"
+      >
+        <div>
+          <label
+            class="usa-label margin-top-0 text-bold"
+            th:for="${scalarDropDownId}"
+            th:aria-label="${heading + ' field scalar for ' + schemafield.title()}"
+            >Scalar</label
+          >
+          <select
+            class="usa-select width-mobile"
+            th:id="${scalarDropDownId}"
+            th:name="${nameArray} + '.questionScalar'"
+            required="required"
+          >
+            <option value="" th:if="${allScalars.size() > 1}">
+              -- Select One --
+            </option>
+            <option
+              th:each="scalar: ${allScalars}"
+              th:text="${scalar.toDisplayString()}"
+              th:value="${scalar.name()}"
+              th:selected="${scalar.name().equals(schemafield.questionScalar())}"
+            ></option>
+          </select>
+        </div>
+      </th:block>
+    </div>
+  </article>
+</th:block>

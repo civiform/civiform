@@ -10,6 +10,7 @@ export interface MapSettings {
 export interface MapMessages {
   readonly locationsCount: string
   readonly locationsSelectedCount: string
+  readonly mapRegionAltText: string
 }
 
 export interface MapData {

@@ -523,6 +523,12 @@ main {
   }
 }
 
+// Add white border to login dropdown options specifically
+.usa-language__submenu {
+  border-width: 0.05rem;
+  border-color: color('white');
+}
+
 [dir='rtl'] {
   .usa-button:not(.margin-left-0, .cf-apply-button) {
     margin-right: 0px;
@@ -720,9 +726,7 @@ main {
 
 // Custom height for map question map container
 .cf-map-container {
-  height: 400px;
   min-height: 400px;
-  max-height: 400px;
 }
 
 .maplibregl-popup-content {
@@ -743,4 +747,9 @@ main {
 // Map question filtering - hide filtered out locations
 .cf-location-hidden {
   display: none;
+}
+
+.usa-button.cf-apply-filters-button,
+.usa-button.cf-reset-filters-button {
+  margin-top: 0.5rem;
 }

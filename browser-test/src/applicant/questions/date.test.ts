@@ -3,20 +3,13 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
-  disableFeatureFlag,
 } from '../../support'
 
-test.describe('Date question for applicant flow', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-    await enableFeatureFlag(page, 'date_validation_enabled')
-  })
-
+test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
   test.describe('single date question', () => {
     const programName = 'Test program for single date'
 
@@ -30,115 +23,99 @@ test.describe('Date question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'date')
-    })
-
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'date-errors')
-    })
-
-    test('with filled in date submits successfully', async ({
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('2025-05-02')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with no answer does not submit', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      // Click next without selecting anything.
-      await applicantQuestions.clickNext()
-
-      // Check required error is present
-      const dateId = '.cf-question-date'
-      expect(await page.innerText(dateId)).toContain(
-        'This question is required.',
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
       )
-    })
 
-    test('with date outside valid range does not submit', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Expect date outside valid range to fail validation', async () => {
-        await applicantQuestions.applyProgram(programName)
-        // Date is before min date but not more than 150 years in the past
-        await applicantQuestions.answerDateQuestion('2000-01-01')
-        await applicantQuestions.clickNext()
-
-        // Check required error is present
-        expect(await page.innerText('.cf-question-date')).toContain(
-          'Date must be after 2025-01-01',
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'date',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
         )
       })
 
-      await test.step('Expect date within valid range to submit successfully', async () => {
-        // Date is after min date
-        await applicantQuestions.answerDateQuestion('2026-01-01')
-        await applicantQuestions.clickNext()
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'date-errors',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
+      })
 
-        await applicantQuestions.submitFromReviewPage()
+      await test.step('when returning to the page, expect date is filled in', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2025',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+        // Return to page.
+        await applicantQuestions.clickEdit()
+        await validateScreenshot(
+          page,
+          'date-filled-in',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ false,
+        )
       })
     })
-  })
 
-  test.describe('date validation disabled', () => {
-    const programName = 'Test program for disabled date validation'
-
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await disableFeatureFlag(page, 'date_validation_enabled')
-      await setUpSingleDateQuestion(
+    test('attempts to submit', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(
         programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-        /* withValidation= */ false,
+        /* northStarEnabled= */ true,
       )
+
+      await test.step('with no answer does not submit', async () => {
+        // Click "Continue" without selecting anything.
+        await applicantQuestions.clickContinue()
+
+        await expect(page.getByText('This question is required.')).toBeVisible()
+      })
+
+      await test.step('with unallowable date in past does not submit', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2000',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await expect(
+          page.getByText('Date must be after 2025-01-01'),
+        ).toBeVisible()
+      })
+
+      await test.step('with filled in date submits successfully', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2025',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      })
     })
 
-    test('with invalid answer does not submit', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('2566-05-02')
-      await applicantQuestions.clickNext()
-
-      // Check required error is present
-      expect(await page.innerText('.cf-question-date')).toContain(
-        'Please enter a date less than the 150 years in future',
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
       )
-      await applicantQuestions.answerDateQuestion('1866-05-02')
-      await applicantQuestions.clickNext()
+      await expect(page.getByLabel('Day')).toHaveAttribute('aria-required')
+      await expect(page.getByLabel('Month')).toHaveAttribute('aria-required')
+      await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
 
-      // Check required error is present
-      expect(await page.innerText('.cf-question-date')).toContain(
-        'Please enter a date in the last 150 years',
-      )
-    })
-
-    test('with filled in date submits successfully', async ({
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('2022-05-02')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
+      await validateAccessibility(page)
     })
   })
 
@@ -148,8 +125,14 @@ test.describe('Date question for applicant flow', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({questionName: 'birthday-date-q'})
-      await adminQuestions.addDateQuestion({questionName: 'todays-date-q'})
+      await adminQuestions.addDateQuestion({
+        questionName: 'birthday-date-q',
+        questionText: 'What is your birthday? (This is required)',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'todays-date-q',
+        questionText: "What is today's date? (This is optional)",
+      })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
@@ -166,30 +149,55 @@ test.describe('Date question for applicant flow', () => {
     test('with valid dates submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('2022-07-04', 0)
-      await applicantQuestions.answerDateQuestion('1990-10-10', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '07 - July',
+        '04',
+        0,
+      )
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1990',
+        '10 - October',
+        '10',
+        1,
+      )
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
     }) => {
       // Only answer second question.
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDateQuestion('1990-10-10', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1990',
+        '10 - October',
+        '10',
+        1,
+      )
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
 
     test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await validateAccessibility(page)
     })

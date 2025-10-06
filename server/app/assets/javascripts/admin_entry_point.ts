@@ -34,6 +34,16 @@ import * as fileUpload from './file_upload'
 import * as azureUpload from './azure_upload'
 import htmx from './htmx'
 
+import {AdminProgramApiBridge} from './admin_program_api_bridge'
+
+// Ensure the object path exists
+window.app = window.app || {}
+window.app.data = window.app.data || {}
+window.app.scripts = window.app.scripts || {}
+
+// Attach so the specific page can manage init
+window.app.scripts.AdminProgramApiBridge = AdminProgramApiBridge
+
 window.addEventListener('load', () => {
   initializeEverything()
   htmx.on('htmx:afterSettle', () => {

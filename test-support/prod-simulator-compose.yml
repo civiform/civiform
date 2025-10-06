@@ -12,8 +12,6 @@ services:
     image: civiform:prod
     restart: always
     container_name: civiform_prod
-    links:
-      - 'db:database'
     ports:
       - 8888:9000
     environment:

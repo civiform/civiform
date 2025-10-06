@@ -25,10 +25,8 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import models.QuestionDisplayMode;
 import models.QuestionTag;
 import modules.ThymeleafModule;
@@ -246,7 +244,8 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    // TODO(#11580): North star clean up
+    if (settingsManifest.getNorthStarApplicantUi()) {
       // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
       // fragments without using HTMX
       previewContent =
@@ -537,13 +536,13 @@ public final class QuestionEditView extends BaseHtmlView {
       SettingsManifest settingsManifest,
       Request request) {
     if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
-      Set<String> possibleKeys =
+      ImmutableList<String> possibleKeys =
           geoJsonDataRepository
               .getMostRecentGeoJsonDataRowForEndpoint(
                   ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .join()
               .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
-              .orElse(new HashSet<>());
+              .orElse(ImmutableList.of());
 
       return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
@@ -555,7 +554,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
-      MapQuestionForm mapQuestionForm, Set<String> possibleKeys) {
+      MapQuestionForm mapQuestionForm, ImmutableList<String> possibleKeys) {
 
     return new MapQuestionSettingsPartialViewModel(
         mapQuestionForm.getMaxLocationSelections(),

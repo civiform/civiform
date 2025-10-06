@@ -8,7 +8,6 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
-import models.AccountModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,25 +23,6 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   public void setup() {
     resetDatabase();
     controller = instanceOf(AdminProgramPreviewController.class);
-  }
-
-  @Test
-  public void preview_redirectsToProgramReviewPage() {
-    ProgramModel program = resourceCreator().insertActiveProgram("test-slug");
-    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-
-    String programSlug = "test-slug";
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result = controller.preview(request, programSlug).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0),
-                    Long.toString(program.id),
-                    /* isFromUrlCall= */ false)
-                .url());
   }
 
   @Test

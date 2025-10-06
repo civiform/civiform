@@ -1,0 +1,37 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apibridge.programbridge.fragments.ProgramBridgeEditPartialViewModel"*/-->
+<th:block th:fragment="content">
+  <form method="post" th:action="${model.getSaveUrl()}">
+    <input
+      type="hidden"
+      th:value="${templateGlobals.csrfToken()}"
+      name="csrfToken"
+    />
+    <input
+      type="hidden"
+      th:value="${model.bridgeConfiguration().adminName()}"
+      name="bridgeAdminName"
+    />
+
+    <th:block
+      th:insert="~{admin/apibridge/programbridge/fragments/QuestionGroup::group('Input', ${model.getRequestSchema()})}"
+    ></th:block>
+
+    <th:block
+      th:insert="~{admin/apibridge/programbridge/fragments/QuestionGroup::group('Output', ${model.getResponseSchema()})}"
+    ></th:block>
+
+    <button type="submit" class="usa-button">Save</button>
+  </form>
+
+  <!--/* Bootstrap the edit form javascript */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      window.app.scripts.AdminProgramApiBridge.init(event)
+    })
+  </script>
+</th:block>

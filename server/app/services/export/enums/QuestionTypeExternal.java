@@ -20,6 +20,7 @@ public enum QuestionTypeExternal {
   ENUMERATOR,
   FILE_UPLOAD,
   ID,
+  MAP,
   NAME,
   NUMBER,
   TEXT,
@@ -36,6 +37,7 @@ public enum QuestionTypeExternal {
       case ENUMERATOR -> QuestionTypeExternal.ENUMERATOR;
       case FILEUPLOAD -> QuestionTypeExternal.FILE_UPLOAD;
       case ID -> QuestionTypeExternal.ID;
+      case MAP -> QuestionTypeExternal.MAP;
       case NAME -> QuestionTypeExternal.NAME;
       case NUMBER -> QuestionTypeExternal.NUMBER;
       case TEXT -> QuestionTypeExternal.TEXT;

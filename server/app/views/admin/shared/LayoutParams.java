@@ -8,6 +8,7 @@ import lombok.Builder;
 @Builder
 public record LayoutParams(
     String pageTemplate,
+    Boolean isWidescreen,
     String civiformImageTag,
     Boolean addNoIndexMetaTag,
     String favicon,

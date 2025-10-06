@@ -4,9 +4,9 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,9 +29,16 @@ public class MessageKeyTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters(source = MessageKey.class)
-  public void messageKey_isValid(MessageKey messageKey) {
-    assertThat(messagesApi.isDefinedAt(Lang.defaultLang(), messageKey.getKeyName())).isTrue();
+  public void allMessageKeys_areValid() {
+    var invalidKeys = new ArrayList<String>();
+
+    for (MessageKey messageKey : MessageKey.values()) {
+      if (!messagesApi.isDefinedAt(Lang.defaultLang(), messageKey.getKeyName())) {
+        invalidKeys.add(messageKey.getKeyName());
+      }
+    }
+
+    assertThat(invalidKeys).isEmpty();
   }
 
   @Test

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.ApiBridgeConfigurationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -334,6 +335,12 @@ public class ProgramBuilder {
 
   public ProgramBuilder withApplicationSteps(ImmutableList<ApplicationStep> applicationSteps) {
     builder.setApplicationSteps(applicationSteps);
+    return this;
+  }
+
+  public ProgramBuilder withBridgeDefinitions(
+      ImmutableMap<String, ApiBridgeConfigurationModel.ApiBridgeDefinition> bridgeDefinitions) {
+    builder.setBridgeDefinitions(bridgeDefinitions);
     return this;
   }
 

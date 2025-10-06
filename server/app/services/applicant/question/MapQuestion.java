@@ -1,11 +1,14 @@
 package services.applicant.question;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import services.MessageKey;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -25,7 +28,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   private ImmutableSet<ValidationErrorMessage> validateSelections() {
-    int numberOfSelections = getSelectedLocationNames().map(ImmutableList::size).orElse(0);
+    int numberOfSelections = getSelectedLocations().size();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()) {
@@ -42,8 +45,8 @@ public final class MapQuestion extends AbstractQuestion {
 
   @Override
   public String getAnswerString() {
-    Optional<ImmutableList<String>> selectedLocationNames = getSelectedLocationNames();
-    return selectedLocationNames.map(strings -> String.join(", ", strings)).orElse("-");
+    ImmutableList<String> selectedLocationNames = getSelectedLocationNames();
+    return selectedLocationNames.isEmpty() ? "-" : String.join(", ", selectedLocationNames);
   }
 
   @Override
@@ -99,13 +102,57 @@ public final class MapQuestion extends AbstractQuestion {
     return getSelectionPath().toString() + Path.ARRAY_SUFFIX;
   }
 
-  public Optional<ImmutableList<String>> getSelectedLocationNames() {
-    return applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+  public ImmutableList<String> getSelectedLocationNames() {
+    return getSelectedLocations().stream()
+        .map(location -> location.get("locationName"))
+        .collect(ImmutableList.toImmutableList());
   }
 
-  public boolean locationIsSelected(String locationName) {
-    Optional<ImmutableList<String>> selectedNames = getSelectedLocationNames();
-    return selectedNames.isPresent() && selectedNames.get().contains(locationName);
+  public ImmutableList<String> getSelectedLocationIds() {
+    return getSelectedLocations().stream()
+        .map(location -> location.get("featureId"))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<Map<String, String>> getSelectedLocations() {
+    Optional<ImmutableList<String>> selectedLocationsString =
+        applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+
+    return selectedLocationsString
+        .map(
+            strings ->
+                strings.stream()
+                    .map(this::parseLocationJson)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(ImmutableList.toImmutableList()))
+        .orElseGet(ImmutableList::of);
+  }
+
+  private Optional<Map<String, String>> parseLocationJson(String jsonString) {
+    try {
+      //  Creating an instance of ObjectMapper is a heavy-ish operation so it should be done in the
+      // constructor but that's not possible here, so using the same settings as the global
+      // ObjectMapper for consistency
+      TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
+      return Optional.of(ObjectMapperSingleton.instance().readValue(jsonString, typeRef));
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  public boolean locationIsSelected(String locationId) {
+    ImmutableList<String> selectedIds = getSelectedLocationIds();
+    return selectedIds.contains(locationId);
+  }
+
+  public String createLocationJson(String featureId, String locationName) {
+    MapSelection selection = MapSelection.create(featureId, locationName);
+    try {
+      return ObjectMapperSingleton.instance().writeValueAsString(selection);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to serialize MapSelection to JSON", e);
+    }
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {

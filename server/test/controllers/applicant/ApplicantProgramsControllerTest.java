@@ -365,30 +365,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
-  // representing a program slug.
-  public void show_withStringProgramParam_showsByProgramSlug() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
-
-    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
-    // meaningful redirect location.
-    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
-    currentApplicant.save();
-
-    String alphaNumProgramParam = program.getSlug();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .contains(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(program.id), /* isFromUrlCall= */ false)
-                .url());
-  }
-
-  @Test
   public void northStar_show_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
@@ -418,32 +394,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
         controller.showWithApplicantId(fakeRequest(), 1, "123").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  @Test
-  public void showWithApplicantId_withStringProgramParam_redirectsToReview() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
-
-    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
-    // meaningful redirect location.
-    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
-    currentApplicant.save();
-
-    String alphaNumProgramParam = program.getSlug();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result =
-        controller
-            .showWithApplicantId(request, currentApplicant.id, alphaNumProgramParam)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .contains(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(program.id), /* isFromUrlCall= */ false)
-                .url());
   }
 
   @Test
