@@ -1,17 +1,16 @@
 <!-- Element that looks similar to a USWDS alert. It has more customization,
      such as the "Create account" button. -->
 <div
-  th:fragment="createAccount(createAccountLink, loginLink, createAccountLinkText, loginLinkText)"
+  th:fragment="loginOnly(createAccountLink, loginLink, createAccountLinkText)"
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body">
     <h2
       class="usa-alert__heading"
-      th:text="#{alert.createAccount}"
-      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
-    ></h2>
+      th:text="#{alert.loginOnly}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.loginOnly})}"></h2>
 
-    <p class="usa-alert__text" th:text="#{alert.createAccountDescription}"></p>
+    <p class="usa-alert__text" th:text="#{alert.loginOnlyDescription}"></p>
 
     <div class="content-spacing"></div>
 
@@ -26,16 +25,5 @@
         ></a>
       </div>
     </div>
-
-    <div class="text-medium-spacing"></div>
-    <p th:if="${!isLoginOnly}">
-      <a
-        class="usa-link"
-        role="button"
-        href="javascript:void(0);"
-        th:text="${loginLinkText}"
-        th:href="${loginLink}"
-      ></a>
-    </p>
   </div>
 </div>
