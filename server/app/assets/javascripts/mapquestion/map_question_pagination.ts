@@ -12,6 +12,7 @@ const MAX_VISIBLE_PAGE_BUTTONS = 3
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR = '.cf-pagination-overflow-template'
+const CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON = '.cf-map-question-pagination-next-button'
 
 interface PaginationState {
   currentPage: number
@@ -81,13 +82,13 @@ const updateVisibleLocations = (
   // Hide all checkboxes first, but preserve the CF_LOCATION_HIDDEN class for filtered items
   allCheckboxes.forEach((checkbox) => {
     const checkboxElement = checkbox as HTMLElement
-    checkboxElement.style.display = 'none'
+    checkboxElement.classList.add('hidden')
   })
 
   // Show only the checkboxes for the current page
   visibleCheckboxes.slice(startIndex, endIndex).forEach((checkbox) => {
     const checkboxElement = checkbox as HTMLElement
-    checkboxElement.style.display = ''
+    checkboxElement.classList.remove('hidden')
   })
 }
 
@@ -121,7 +122,7 @@ const renderPaginationButtons = (
 
   // Insert page buttons before the "next" arrow
   const nextArrow = paginationList.querySelector(
-    '.usa-pagination__arrow:last-child',
+    CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
   )
 
   pageNumbers.forEach((pageNum) => {
