@@ -100,11 +100,11 @@ export const queryLocationCheckboxes = (mapId: string) => {
 }
 
 export const getVisibleCheckboxes = (mapId: string) => {
-    const locationCheckboxes = queryLocationCheckboxes(mapId)
-    return Array.from(locationCheckboxes).filter((checkbox) => {
-      const checkboxElement = (checkbox as HTMLElement) || null
-      return (
-        checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
-      )
-    })
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+  return Array.from(locationCheckboxes).filter((checkbox) => {
+    const checkboxElement = (checkbox as HTMLElement) || null
+    return (
+      checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
+    )
+  })
 }

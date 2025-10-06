@@ -1,6 +1,5 @@
 import {
   CF_LOCATIONS_LIST_CONTAINER,
-  CF_LOCATION_HIDDEN,
   DATA_MAP_ID,
   getVisibleCheckboxes,
   mapQuerySelector,
@@ -11,8 +10,18 @@ const ITEMS_PER_PAGE = 6
 const MAX_VISIBLE_PAGE_BUTTONS = 3
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
-const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR = '.cf-pagination-overflow-template'
-const CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON = '.cf-map-question-pagination-next-button'
+const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
+  '.cf-pagination-overflow-template'
+const CF_PAGINATION_ITEM_SELECTOR = '.cf-pagination-item'
+const CF_PAGINATION_LIST_SELECTOR = '.cf-pagination-list'
+const USA_CURRENT_CLASS = 'usa-current'
+export const CF_MAP_QUESTION_PAGINATION_BUTTON =
+  'cf-map-question-pagination-button'
+export const CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON =
+  'cf-map-question-pagination-next-button'
+export const CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON =
+  'cf-map-question-pagination-previous-button'
+export const DATA_PAGE_ATTRIBUTE = 'data-page'
 
 interface PaginationState {
   currentPage: number
@@ -23,17 +32,21 @@ interface PaginationState {
 
 export const initPagination = (mapId: string): void => {
   updatePagination(mapId)
-  setupPaginationEventListeners(mapId)
 }
 
 export const updatePagination = (mapId: string): void => {
-  const state = getPaginationState(mapId)
-  renderPaginationButtons(mapId, state)
+  const paginationNav = getPaginationNavComponent(mapId)
+  if (!paginationNav) return
+  const state = getPaginationState(mapId, paginationNav)
+  renderPaginationButtons(mapId, state, paginationNav)
   updateVisibleLocations(mapId, state)
-  updatePaginationButtonStates(mapId, state)
+  updatePaginationButtonStates(state, paginationNav)
 }
 
-const getPaginationState = (mapId: string): PaginationState => {
+export const getPaginationState = (
+  mapId: string,
+  paginationNav: Element,
+): PaginationState => {
   const locationsContainer = mapQuerySelector(
     mapId,
     CF_LOCATIONS_LIST_CONTAINER,
@@ -47,10 +60,11 @@ const getPaginationState = (mapId: string): PaginationState => {
   const visibleItems = getVisibleCheckboxes(mapId).length
   const totalPages = Math.max(1, Math.ceil(visibleItems / ITEMS_PER_PAGE))
 
-  const paginationNav = getPaginationNavComponent(mapId)
-  // Get current page from pagination nav data attribute, default to 1
   const currentPage = Math.min(
-    parseInt(paginationNav?.getAttribute(DATA_CURRENT_PAGE_ATTRIBUTE) || '1', 10),
+    parseInt(
+      paginationNav?.getAttribute(DATA_CURRENT_PAGE_ATTRIBUTE) || '1',
+      10,
+    ),
     totalPages,
   )
 
@@ -66,13 +80,6 @@ const updateVisibleLocations = (
   mapId: string,
   state: PaginationState,
 ): void => {
-  const locationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-
-  if (!locationsContainer) return
-
   const allCheckboxes = Array.from(queryLocationCheckboxes(mapId))
   const visibleCheckboxes = getVisibleCheckboxes(mapId)
 
@@ -95,18 +102,23 @@ const updateVisibleLocations = (
 const renderPaginationButtons = (
   mapId: string,
   state: PaginationState,
+  paginationNav: Element,
 ): void => {
-  const paginationNav = getPaginationNavComponent(mapId)
-  if (!paginationNav) return
-
-  const paginationList = paginationNav.querySelector('.usa-pagination__list')
+  const paginationList = paginationNav.querySelector(
+    CF_PAGINATION_LIST_SELECTOR,
+  )
   if (!paginationList) return
 
   // Update current page data attribute
-  paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, state.currentPage.toString())
+  paginationNav.setAttribute(
+    DATA_CURRENT_PAGE_ATTRIBUTE,
+    state.currentPage.toString(),
+  )
 
   // Clear existing page buttons (keep prev/next arrows)
-  const existingPageButtons = paginationList.querySelectorAll('.cf-pagination-item')
+  const existingPageButtons = paginationList.querySelectorAll(
+    CF_PAGINATION_ITEM_SELECTOR,
+  )
   existingPageButtons.forEach((button) => button.remove())
 
   if (state.totalPages === 1) {
@@ -114,27 +126,22 @@ const renderPaginationButtons = (
     return
   }
 
-  // Calculate which page numbers to show
-  const pageNumbers = calculateVisiblePages(
-    state.currentPage,
-    state.totalPages,
-  )
+  const pageNumbers = calculateVisiblePages(state.currentPage, state.totalPages)
 
-  // Insert page buttons before the "next" arrow
   const nextArrow = paginationList.querySelector(
-    CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
+    `.${CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON}`,
   )
 
   pageNumbers.forEach((pageNum) => {
-    const buttonElement =
+    const paginationButtonElement =
       pageNum === '...'
         ? createOverflowElement(mapId)
         : createPageButton(mapId, pageNum as number, state.currentPage)
 
     if (nextArrow) {
-      paginationList.insertBefore(buttonElement, nextArrow)
+      paginationList.insertBefore(paginationButtonElement, nextArrow)
     } else {
-      paginationList.appendChild(buttonElement)
+      paginationList.appendChild(paginationButtonElement)
     }
   })
 }
@@ -143,36 +150,45 @@ const calculateVisiblePages = (
   currentPage: number,
   totalPages: number,
 ): (number | string)[] => {
-  if (totalPages <= MAX_VISIBLE_PAGE_BUTTONS) {
-    // Show all pages if we have fewer than max
+  // Show all pages if we have fewer than max + first/last
+  if (totalPages <= MAX_VISIBLE_PAGE_BUTTONS + 2) {
     return Array.from({length: totalPages}, (_, i) => i + 1)
   }
 
   const pages: (number | string)[] = []
   const halfVisible = Math.floor(MAX_VISIBLE_PAGE_BUTTONS / 2)
 
-  let startPage = Math.max(1, currentPage - halfVisible)
-  let endPage = Math.min(totalPages, startPage + MAX_VISIBLE_PAGE_BUTTONS - 1)
+  let startPage = Math.max(2, currentPage - halfVisible)
+  const endPage = Math.min(
+    totalPages - 1,
+    startPage + MAX_VISIBLE_PAGE_BUTTONS - 1,
+  )
 
   // Adjust start if we're near the end
   if (endPage - startPage + 1 < MAX_VISIBLE_PAGE_BUTTONS) {
-    startPage = Math.max(1, endPage - MAX_VISIBLE_PAGE_BUTTONS + 1)
+    startPage = Math.max(2, endPage - MAX_VISIBLE_PAGE_BUTTONS + 1)
   }
 
+  // Always show first page
+  pages.push(1)
+
   // Add overflow before if needed
-  if (startPage > 1) {
+  if (startPage > 2) {
     pages.push('...')
   }
 
-  // Add visible page numbers
+  // Add visible page numbers (excluding first and last)
   for (let i = startPage; i <= endPage; i++) {
     pages.push(i)
   }
 
   // Add overflow after if needed
-  if (endPage < totalPages) {
+  if (endPage < totalPages - 1) {
     pages.push('...')
   }
+
+  // Always show last page
+  pages.push(totalPages)
 
   return pages
 }
@@ -185,18 +201,15 @@ const createPageButton = (
   const template = getPaginationButtonTemplate(mapId)
   const li = template.cloneNode(true) as HTMLLIElement
 
-  const link = li.querySelector('.usa-pagination__button')!
+  const link = li.querySelector(`.${CF_MAP_QUESTION_PAGINATION_BUTTON}`)!
   link.textContent = pageNumber.toString()
   link.setAttribute('aria-label', `Page ${pageNumber}`)
-  link.setAttribute('data-page', pageNumber.toString())
+  link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
 
   if (pageNumber === currentPage) {
-    link.classList.add('usa-current')
+    link.classList.add(USA_CURRENT_CLASS)
     link.setAttribute('aria-current', 'page')
-  } else {
-    link.classList.remove('usa-current')
-    link.removeAttribute('aria-current')
   }
 
   return li
@@ -211,102 +224,50 @@ const getPaginationButtonTemplate = (mapId: string): HTMLLIElement => {
   const template = document.querySelector(
     `${CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR}[${DATA_MAP_ID}="${mapId}"]`,
   ) as HTMLTemplateElement
-  return template.content.querySelector('.usa-pagination__page-no')!
+  return template.content.querySelector(CF_PAGINATION_ITEM_SELECTOR)!
 }
 
 const getPaginationOverflowTemplate = (mapId: string): HTMLLIElement => {
   const template = document.querySelector(
     `${CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR}[${DATA_MAP_ID}="${mapId}"]`,
   ) as HTMLTemplateElement
-  return template.content.querySelector('.usa-pagination__overflow')!
+  return template.content.querySelector(CF_PAGINATION_ITEM_SELECTOR)!
 }
 
 const updatePaginationButtonStates = (
-  mapId: string,
   state: PaginationState,
+  paginationNav: Element,
 ): void => {
-  const paginationNav = getPaginationNavComponent(mapId)
-  if (!paginationNav) return
-
   const prevButton = paginationNav.querySelector(
-    '.usa-pagination__previous-page',
+    `.${CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON}`,
   ) as HTMLElement
   const nextButton = paginationNav.querySelector(
-    '.usa-pagination__next-page',
+    `.${CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON}`,
   ) as HTMLElement
 
   // Hide/show previous button
   if (prevButton) {
-    const prevLi = prevButton.closest('li')
-    if (prevLi) {
-      prevLi.style.display = state.currentPage === 1 ? 'none' : ''
-    }
+    prevButton.style.display = state.currentPage === 1 ? 'none' : ''
   }
 
   // Hide/show next button
   if (nextButton) {
-    const nextLi = nextButton.closest('li')
-    if (nextLi) {
-      nextLi.style.display =
-        state.currentPage === state.totalPages ? 'none' : ''
-    }
+    nextButton.style.display =
+      state.currentPage === state.totalPages ? 'none' : ''
   }
 }
 
-const setupPaginationEventListeners = (mapId: string): void => {
+export const goToPage = (mapId: string, page: number): void => {
   const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
 
-  // Delegate click events for pagination buttons
-  paginationNav.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement
-    if (!target) return
+  const state = getPaginationState(mapId, paginationNav)
+  const validPage = Math.max(1, Math.min(page, state.totalPages))
 
-    // Handle page number clicks
-    if (target.classList.contains('usa-pagination__button')) {
-      const page = parseInt(target.getAttribute('data-page') || '1', 10)
-      goToPage(mapId, page)
-    }
-
-    // Handle previous button
-    if (target.classList.contains('usa-pagination__previous-page') ||
-        target.closest('.usa-pagination__previous-page')) {
-      const state = getPaginationState(mapId)
-      if (state.currentPage > 1) {
-        goToPage(mapId, state.currentPage - 1)
-      }
-    }
-
-    // Handle next button
-    if (target.classList.contains('usa-pagination__next-page') ||
-        target.closest('.usa-pagination__next-page')) {
-      const state = getPaginationState(mapId)
-      if (state.currentPage < state.totalPages) {
-        goToPage(mapId, state.currentPage + 1)
-      }
-    }
-  })
-}
-
-const goToPage = (mapId: string, page: number): void => {
-  const paginationNav = getPaginationNavComponent(mapId)
-  if (!paginationNav) return
-
-  paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, page.toString())
+  paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, validPage.toString())
   updatePagination(mapId)
-
-  // Scroll to top of locations list
-  const locationsContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (locationsContainer) {
-    locationsContainer.scrollTop = 0
-  }
 }
 
-const getPaginationNavComponent = (mapId: string) => {
-  return document.querySelector(
-    `.cf-pagination[data-map-id="${mapId}"]`,
-  )
+export const getPaginationNavComponent = (mapId: string) => {
+  return document.querySelector(`.cf-pagination[data-map-id="${mapId}"]`)
 }

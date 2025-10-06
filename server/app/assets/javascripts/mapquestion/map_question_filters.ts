@@ -160,4 +160,3 @@ const buildMapFilterExpression = (filters: {
 const queryMapSelectOptions = (mapId: string): NodeListOf<Element> => {
   return document.querySelectorAll(`select[${DATA_MAP_ID}="${mapId}"]`)
 }
-

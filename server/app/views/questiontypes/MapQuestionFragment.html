@@ -84,6 +84,9 @@
   </div>
 
   <div class="grid-row grid-gap padding-1">
+    <div
+      class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0"
+    >
     <div class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0 ">
       <div
         th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
@@ -168,26 +171,54 @@
         class="usa-pagination flex-justify-end cf-pagination"
         th:data-map-id="${mapId}"
       >
-        <ul class="usa-pagination__list">
-          <li class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button">
+        <ul class="usa-pagination__list cf-pagination-list">
+          <li
+            class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
+          >
             <a
               href="#"
               class="usa-pagination__link usa-pagination__previous-page"
+              name="cf-map-question-pagination-previous-button"
               aria-label="Previous page"
+              th:data-map-id="${mapId}"
             >
-              <cf:icon type="icon-navigate_before" class="usa-icon" />
-              <span class="usa-pagination__link-text" th:text="#{button.previousScreen}"></span>
+              <cf:icon
+                type="icon-navigate_before"
+                class="usa-icon"
+                name="cf-map-question-pagination-previous-button"
+                th:data-map-id="${mapId}"
+              />
+              <span
+                class="usa-pagination__link-text"
+                name="cf-map-question-pagination-previous-button"
+                th:data-map-id="${mapId}"
+                th:text="#{button.previousScreen}"
+              ></span>
             </a>
           </li>
           <!--/* Page buttons will be dynamically populated here from templates below */-->
-          <li class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-next-button">
+          <li
+            class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-next-button"
+          >
             <a
               href="#"
               class="usa-pagination__link usa-pagination__next-page"
+              name="cf-map-question-pagination-next-button"
               aria-label="Next page"
+              th:data-map-id="${mapId}"
             >
-              <span class="usa-pagination__link-text" th:text="#{button.nextPage}"></span>
-              <cf:icon type="icon-navigate_next" class="usa-icon" />
+              <span
+                class="usa-pagination__link-text"
+                name="cf-map-question-pagination-next-button"
+                th:data-map-id="${mapId}"
+                th:text="#{button.nextPage}"
+              ></span>
+              <cf:icon
+                type="icon-navigate_next"
+                class="usa-icon"
+                name="cf-map-question-pagination-next-button"
+                th:data-map-id="${mapId}"
+              />
             </a>
           </li>
         </ul>
@@ -195,14 +226,20 @@
 
       <!--/* Templates for pagination button elements */-->
       <template class="cf-pagination-button-template" th:data-map-id="${mapId}">
-        <li class="usa-pagination__item usa-pagination__page-no cf-pagination-item">
+        <li
+          class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
+        >
           <a
-            href="javascript:void(0);"
-            class="usa-pagination__button"
+            href="#"
+            class="usa-pagination__button cf-map-question-pagination-button"
+            name="cf-map-question-pagination-button"
           ></a>
         </li>
       </template>
-      <template class="cf-pagination-overflow-template" th:data-map-id="${mapId}">
+      <template
+        class="cf-pagination-overflow-template"
+        th:data-map-id="${mapId}"
+      >
         <li
           class="usa-pagination__item usa-pagination__overflow cf-pagination-item"
           aria-label="ellipsis indicating non-visible pages"

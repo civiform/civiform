@@ -28,7 +28,16 @@ import {
   updateSelectedLocations,
 } from './map_question_selection'
 import {initFilters} from './map_question_filters'
-import {initPagination} from './map_question_pagination'
+import {
+  CF_MAP_QUESTION_PAGINATION_BUTTON,
+  CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
+  CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON,
+  DATA_PAGE_ATTRIBUTE,
+  getPaginationNavComponent,
+  getPaginationState,
+  goToPage,
+  initPagination,
+} from './map_question_pagination'
 
 export const init = (): void => {
   const mapMessages = window.app?.data?.messages as MapMessages
@@ -251,16 +260,43 @@ const renderMap = (
 }
 
 const setupGlobalEventListeners = (messages: MapMessages): void => {
-  // Global click handler for map popup buttons
+  // Global click handler for map popup and pagination buttons
   document.addEventListener('click', (e) => {
-    const target = (e.target as HTMLButtonElement) || null
+    const target = (e.target as HTMLElement) || null
     if (!target) return
 
-    if (target.name == CF_POPUP_CONTENT_BUTTON) {
-      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
-      const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
-      if (featureId && mapId) {
-        selectLocationsFromMap(featureId, mapId, messages)
+    const targetName = target.getAttribute('name')
+    if (!targetName) return
+
+    const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
+    if (!mapId) return
+
+    switch (targetName) {
+      case CF_POPUP_CONTENT_BUTTON: {
+        const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+        if (featureId) {
+          selectLocationsFromMap(featureId, mapId, messages)
+        }
+        return
+      }
+      case CF_MAP_QUESTION_PAGINATION_BUTTON:
+      case CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON:
+      case CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON: {
+        e.preventDefault()
+        let page: number
+        if (targetName === CF_MAP_QUESTION_PAGINATION_BUTTON) {
+          page = parseInt(target.getAttribute(DATA_PAGE_ATTRIBUTE) || '1', 10)
+        } else {
+          const paginationNav = getPaginationNavComponent(mapId)
+          if (!paginationNav) return
+          const state = getPaginationState(mapId, paginationNav)
+          page =
+            targetName === CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON
+              ? state.currentPage - 1
+              : state.currentPage + 1
+        }
+        goToPage(mapId, page)
+        return
       }
     }
   })
