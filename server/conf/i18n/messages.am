@@ -40,6 +40,8 @@ link.skipToMainContent=ወደ ዋና ይዘት ዝለል
 title.login=ግባ
 content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 button.createAnAccount=መለያ ፍጠር
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=ግባ
 button.signIn=ይግቡ
 content.alternativeLoginPrompt=መለያ የለዎትም?
@@ -193,7 +195,6 @@ label.searchByDob=በልደት ቀን ይፈልጉ
 label.searchByName=በስም(ዎች) ይፈልጉ
 label.year=ዓመት
 label.unnamedUser=ያልተሰየመ ተጠቃሚ
-link.edit=አርትዕ
 link.selectNewClient=አዲስ ደንበኛ ይምረጡ
 title.allClients=ሁሉም ደንበኞች
 title.createClient=አዲስ ደንበኛን ይፍጠሩ
@@ -211,6 +212,7 @@ button.start=ይጀምሩ
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 content.reviewPageIntro=ማመልከቻዎን ለመጀመር ከታች አንድ እርምጃ ይምረጡ። ማስቀመጥ እና በማንኛውም ጊዜ ተመልሰው መምጣት ይችላሉ።
 content.doesNotQualify=ብቁ አይደለም
+link.edit=አርትዕ
 link.answer=መልስ
 content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
 ariaLabel.answer=መልስ {0}
@@ -415,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
 adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ የሚችሉት ፊደሎችን፣ ቁጥሮችን፣ የሥር መስመሮችን እና ዳሾችንን ብቻ ነው።
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
@@ -467,27 +480,3 @@ session.extend.button=ክፍለ-ጊዜን አራዝም
 session.extended.success=ክፍለ-ጊዜ በተሳካ ሁኔታ ተራዝሟል
 session.extended.error=ክፍለ-ጊዜን ማራዘም አልተሳካም
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections
