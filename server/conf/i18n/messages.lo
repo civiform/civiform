@@ -40,6 +40,8 @@ link.skipToMainContent=ຂ້າມໄປຫາເນື້ອຫາຫຼັກ
 title.login=ເຂົ້າສູ່ລະບົບ
 content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ {0} ຂອງທ່ານ
 button.createAnAccount=ສ້າງບັນຊີ
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=ເຂົ້າສູ່ລະບົບ
 button.signIn=ເຂົ້າສູ່ລະບົບ
 content.alternativeLoginPrompt=ບໍ່ມີບັນຊີບໍ?
@@ -193,7 +195,6 @@ label.searchByDob=ຊອກຫາຕາມວັນເດືອນປີເກ�
 label.searchByName=ຊອກຫາຕາມຊື່
 label.year=ປີ
 label.unnamedUser=ຜູ້ໃຊ້ທີ່ບໍ່ມີຊື່
-link.edit=ແກ້ໄຂ
 link.selectNewClient=ເລືອກລູກຂ່າຍຄົນໃໝ່
 title.allClients=ລູກຂ່າຍທຸກຄົນ
 title.createClient=ສ້າງລູກຂ່າຍໃໝ່
@@ -211,6 +212,7 @@ button.start=ເລີ່ມ
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
 content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
+link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
 content.previouslyAnsweredOn=ຕອບກ່ອນໜ້ານີ້ເມື່ອ {0}
 ariaLabel.answer=ຕອບ {0}
@@ -414,6 +416,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
 adminValidation.multiOptionAdminError=ຊື່ຂອງຜູ້ເບິ່ງແຍງສາມາດມີໄດ້ສະເພາະຕົວພິມນ້ອຍ, ຕົວເລກ, ຂີດກ້ອງ ແລະ ຂີດກາງ.
 error.notFoundTitle=ພວກເຮົາບໍ່ສາມາດຊອກຫາໜ້າທີ່ທ່ານພະຍາຍາມເຂົ້າເບິ່ງໄດ້
@@ -466,27 +479,3 @@ session.extend.button=ຂະຫຍາຍເຊດຊັນ
 session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດຜົນ
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
 translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

@@ -41,6 +41,8 @@ link.skipToMainContent=跳至主要內容
 title.login=登錄
 content.loginPrompt=請使用「{0}」帳戶登入
 button.createAnAccount=建立帳戶
+button.applicantLogin=申請人登入
+button.adminLogin=管理員登入
 button.login=登入
 button.signIn=登入
 content.alternativeLoginPrompt=還沒有帳戶嗎？
@@ -194,7 +196,6 @@ label.searchByDob=依出生日期搜尋
 label.searchByName=依姓名搜尋
 label.year=年
 label.unnamedUser=不具名使用者
-link.edit=編輯
 link.selectNewClient=選取新客戶
 title.allClients=所有客戶
 title.createClient=建立新客戶
@@ -212,6 +213,7 @@ button.start=開始
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
 content.reviewPageIntro=選取下方步驟可開始申請計畫。您可以儲存申請書，以便日後隨時回來繼續填寫。
 content.doesNotQualify=不符合資格
+link.edit=編輯
 link.answer=回答問題
 content.previouslyAnsweredOn=已於 {0}回答
 ariaLabel.answer=回答以下問題：{0}
@@ -404,17 +406,32 @@ option.yes=是
 option.no=否
 option.notSure=不確定
 option.maybe=或許
-map.applyFiltersButtonText=Apply filters
-map.filterLegendText=Filters
-map.locationLinkText=View more details
-map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
-map.locationsSelectedCount={0} of {1} maximum locations selected.
-map.noSelectionsMessage=尚未選取任何地點。
-map.resetFiltersButtonText=Clear filters
-map.selectLocationButtonText=Select location
-map.selectedLocationsHeading=選取的地點
+map.applyFiltersButtonText=套用篩選
+map.availableLocations=可用位置
+map.selectLocations=最多可選擇 {0} 個位置
+map.filterLegendText=篩選
+map.locationLinkText=查看更多詳細內容
+map.locationsCount=目前顯示 {0} 個位置，共 {1} 個
+map.locationsSelectedCount=已選取最多 {1} 個位置裡的 {0} 個。
+map.noSelectionsMessage=尚未選取任何位置。
+map.resetFiltersButtonText=清除篩選
+map.selectLocationButtonText=選擇位置
+map.selectedLocationsHeading=已選位置
 map.selectOptionPlaceholderText=- Select -
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=請選擇最多 {0} 個位置。
+map.mapRegionAltText=顯示位置的互動式地圖
+map.addFilterButton=添加篩選
+map.addFiltersSubtitle=選擇最多 6 個篩選來供申請人使用。
+map.addFiltersTitle=篩選
+map.displayNameLabel=顯示名稱
+map.keyLabel=鍵
+map.locationAddressLabel=地址鍵
+map.locationDetailsUrlLabel=查看更多詳細資訊 URL 鍵
+map.locationNameLabel=名稱鍵
+map.maxLocationSelectionsLabel=最多位置選擇
+map.locationNameHelpText=選擇代表位置名稱的鍵。
+map.locationAddressHelpText=選擇代表位置地址的鍵。
+map.locationDetailsUrlHelpText=選擇代表位置詳細資訊 URL 的鍵。
 adminValidation.multiOptionEmpty=多選題不得留空。
 adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字母、數字、底線和破折號。
 error.notFoundTitle=我們找不到你嘗試前往的頁面
@@ -466,28 +483,4 @@ session.length.warning.message=基於時間長度限制，您的工作階段即�
 session.extend.button=延長工作階段
 session.extended.success=已成功延長工作階段
 session.extended.error=無法延長工作階段
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections
+translation.untranslated=為了進行翻譯基礎設施實驗，此字串尚未翻譯。
