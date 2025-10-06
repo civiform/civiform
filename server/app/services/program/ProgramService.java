@@ -683,6 +683,12 @@ public final class ProgramService {
             || block.localizedDescription().maybeGet(locale).isEmpty()) {
           return false;
         }
+        if (block.localizedEligibilityMessage().isPresent()) {
+          LocalizedStrings localizedEligibilityMessage = block.localizedEligibilityMessage().get();
+          if (localizedEligibilityMessage.maybeGet(locale).isEmpty()) {
+            return false;
+          }
+        }
       }
     }
 
