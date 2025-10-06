@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
@@ -16,6 +17,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.applicant.routes;
 import forms.ProgramForm;
@@ -26,6 +28,7 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import models.CategoryModel;
@@ -33,9 +36,13 @@ import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import services.MessageKey;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -47,13 +54,14 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.TextFormatter;
 import views.style.BaseStyles;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-abstract class ProgramFormBuilder extends BaseHtmlView {
+public class ProgramFormBuilder extends BaseHtmlView {
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
   // Names of form fields.
@@ -67,16 +75,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final String baseUrl;
   private final AccountRepository accountRepository;
   private final CategoryRepository categoryRepository;
+  private final Messages messages;
 
+  @Inject
   ProgramFormBuilder(
       Config configuration,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      MessagesApi messagesApi) {
     this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
+    this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   /** Builds the form using program form data. */
@@ -166,6 +178,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
+
+    String defaultConfirmationScreen =
+        messages.at(MessageKey.CONTENT_CONFIRMED.getKeyName(), displayName, "N/A");
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -338,7 +353,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 buildApplicationStepDiv(2, applicationSteps, disableApplicationSteps),
                 buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
                 buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
-        h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
+        h2("Confirmation message").withClasses("mt-6", "mb-2", "font-semibold"),
+        h3("Current confirmation message preview:").withClasses("pt-1", "font-semibold", "ml-4"),
+        createUSWDSInfoStatusAlert(
+            "program-confirmation-message-preview",
+            confirmationScreen.equals("")
+                ? ImmutableList.of(defaultConfirmationScreen)
+                : ImmutableList.of(defaultConfirmationScreen, confirmationScreen)),
         // Confirmation message
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -351,6 +372,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(confirmationScreen)
             .setDisabled(disableConfirmationMessage)
             .setReadOnly(disableConfirmationMessage)
+            .addReferenceClass("pt-3")
             .getTextareaTag());
 
     formTag.with(createSubmitButton(programEditStatus));
@@ -707,5 +729,22 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withCondDisabled(isDisabled),
             label(label).withFor(id).withClasses("usa-checkbox__label"))
         .withClasses("usa-checkbox");
+  }
+
+  private DivTag createUSWDSInfoStatusAlert(String id, ImmutableList<String> content) {
+    DivTag bodyDiv =
+        div().withId(String.format("%s%s", id, "-body")).withClasses("usa-alert__body");
+
+    // Using TextFormatter here preserves empty lines and markdown formatting
+    for (String value : content) {
+      bodyDiv.with(
+          TextFormatter.formatText(
+              value,
+              /* preserveEmptyLines= */ true,
+              /* addRequiredIndicator= */ false,
+              messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT)));
+    }
+
+    return div(bodyDiv).withId(id).withClasses("usa-alert usa-alert--info usa-alert--no-icon ml-4");
   }
 }
