@@ -80,6 +80,38 @@
         "phone": "(206) 684-4063",
         "website": "https://spl.org/locations/university-branch"
       }
+    },
+    {
+      "type": "Feature",
+      "id": "rainier-beach-pool",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.2619, 47.5223]
+      },
+      "properties": {
+        "name": "Rainier Beach Pool",
+        "address": "8825 Rainier Ave S, Seattle, WA 98118",
+        "type": "recreation_center",
+        "hours": "Mon-Fri: 6am-9pm, Sat-Sun: 8am-6pm",
+        "phone": "(206) 386-1944",
+        "website": "https://seattle.gov/parks/aquatics"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "magnolia-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3985, 47.6417]
+      },
+      "properties": {
+        "name": "Magnolia Community Center",
+        "address": "2550 34th Ave W, Seattle, WA 98199",
+        "type": "community_center",
+        "hours": "Mon-Fri: 9am-9pm, Sat: 9am-5pm",
+        "phone": "(206) 386-4235",
+        "website": "https://seattle.gov/parks"
+      }
     }
   ]
 }

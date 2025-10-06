@@ -10,7 +10,8 @@ import {
 } from '../../support'
 import {Page} from 'playwright'
 
-const EXPECTED_LOCATION_COUNT = 5
+const EXPECTED_LOCATION_COUNT = 6
+const TOTAL_LOCATION_COUNT = 7
 
 // map question tests rely on mock web services so they will only work in local dev environments
 if (isLocalDevEnvironment()) {
@@ -81,7 +82,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Verify location count is displayed', async () => {
           const locationCount = page.getByText(
-            `Displaying ${EXPECTED_LOCATION_COUNT} of ${EXPECTED_LOCATION_COUNT} locations`,
+            `Displaying ${TOTAL_LOCATION_COUNT} of ${TOTAL_LOCATION_COUNT} locations`,
           )
           await expect(locationCount).toBeVisible()
         })
@@ -193,7 +194,7 @@ if (isLocalDevEnvironment()) {
             /Displaying \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
+          await expect(locationCount).toHaveText('Displaying 2 of 7 locations')
         })
 
         await test.step('Reset filters', async () => {
@@ -208,6 +209,33 @@ if (isLocalDevEnvironment()) {
           await expect(selectedValue).toHaveValue('')
         })
       })
+
+      test('paginate map question locations', async ({page, applicantQuestions}) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const checkboxes = locationsList.getByRole('checkbox')
+        await test.step('Verify initial locations list state', async () => {
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
+        })
+
+        await test.step('Go to next page', async () => {
+          const nextButton = page.getByText('Next')
+          await nextButton.click()
+          const checkboxes = locationsList.getByRole('checkbox')
+          await expect(checkboxes).toHaveCount(1)
+        })
+
+        const previousButton = page.getByText('Previous', {exact: true})
+        await test.step('Go back to previous page', async () => {
+          await expect(previousButton).toBeVisible()
+          await previousButton.click()
+        })
+      })  
     })
 
     test.describe('multiple map questions', () => {
