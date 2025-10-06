@@ -1,5 +1,7 @@
 # Messages for Arabic (العربية)
 # Exported from translatewiki.net
+# Author: Meno25
+# Author: Mohammed Qays
 
 button.logout=تسجيل الخروج
 label.selectLanguage=يُرجى اختيار لغتك المفضّلة.
@@ -40,6 +42,8 @@ link.skipToMainContent=التخطّي إلى المحتوى الرئيسي
 title.login=تسجيل الدخول
 content.loginPrompt=يُرجى تسجيل الدخول باستخدام حسابك على "{0}"
 button.createAnAccount=إنشاء حساب
+button.applicantLogin=تسجيل دخول المتقدم
+button.adminLogin=Administrator log in
 button.login=تسجيل الدخول
 button.signIn=تسجيل الدخول
 content.alternativeLoginPrompt=أليس لديك حساب؟
@@ -193,7 +197,6 @@ label.searchByDob=البحث باستخدم تاريخ الميلاد
 label.searchByName=البحث باستخدام الأسماء
 label.year=السنة
 label.unnamedUser=مستخدم بدون اسم
-link.edit=تعديل
 link.selectNewClient=اختيار عميل جديد
 title.allClients=جميع العملاء
 title.createClient=إنشاء عميل جديد
@@ -211,6 +214,7 @@ button.start=بدء
 toast.applicationOutOfDate=لقد تم تعديل الطلب. يُرجى مراجعته والإجابة عن الأسئلة للمتابعة
 content.reviewPageIntro=يُرجى اختيار خطوة أدناه لبدء الطلب. يمكنك حفظه والعودة إليه في أي وقت.
 content.doesNotQualify=لا يستوفي شروط الأهلية
+link.edit=تعديل
 link.answer=الإجابة
 content.previouslyAnsweredOn=سبق أن تمّت الإجابة عنه في ‎{0}
 ariaLabel.answer=يُرجى الإجابة عن السؤال "{0}"
@@ -403,17 +407,27 @@ option.yes=نعم
 option.no=لا
 option.notSure=لا أعلم
 option.maybe=ربما
-map.applyFiltersButtonText=Apply filters
-map.filterLegendText=Filters
-map.locationLinkText=View more details
+map.applyFiltersButtonText=تطبيق المرشحات
+map.filterLegendText=المرشحات
+map.locationLinkText=عرض المزيد من التفاصيل
 map.locationsCount=جارٍ عرض مواقع جغرافية عددها {0} من {1}
 map.locationsSelectedCount={0} of {1} maximum locations selected.
 map.noSelectionsMessage=لم يتم اختيار أي موقع جغرافي.
-map.resetFiltersButtonText=Clear filters
-map.selectLocationButtonText=Select location
+map.resetFiltersButtonText=مسح المرشحات
+map.selectLocationButtonText=حدد الموقع
 map.selectedLocationsHeading=المواقع الجغرافية التي تم اختيارها
-map.selectOptionPlaceholderText=- Select -
-map.validation.tooManySelections=Please select at most {0} locations.
+map.selectOptionPlaceholderText=- يختار -
+map.validation.tooManySelections=يرجى تحديد {0} موقعًا على الأكثر.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=إضافة مرشح
+map.addFiltersSubtitle=قم باختيار ما يصل إلى ستة مرشحات لجعلها متاحة للمتقدمين.
+map.addFiltersTitle=المرشحات
+map.displayNameLabel=اسم العرض
+map.keyLabel=مفتاح
+map.locationAddressLabel=مفتاح العنوان
+map.locationDetailsUrlLabel=عرض المزيد من التفاصيل مفتاح URL
+map.locationNameLabel=مفتاح الاسم
+map.maxLocationSelectionsLabel=أقصى اختيارات الموقع
 adminValidation.multiOptionEmpty=لا يمكن ترك الأسئلة المتعددة الإجابات فارغة.
 adminValidation.multiOptionAdminError=يمكن أن تتضمن أسماء المشرفين الأحرف الصغيرة والأرقام والشُرط السفلية والشُرط العادية فقط.
 error.notFoundTitle=لم نتمكن من العثور على الصفحة التي حاولت زيارتها
@@ -466,27 +480,3 @@ session.extend.button=تمديد الجلسة
 session.extended.success=تم تمديد الجلسة بنجاح
 session.extended.error=تعذَّر تمديد الجلسة
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

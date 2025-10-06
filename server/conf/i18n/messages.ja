@@ -1,5 +1,6 @@
 # Messages for Japanese (日本語)
 # Exported from translatewiki.net
+# Author: Largestone
 
 button.logout=ログアウト
 label.selectLanguage=使用する言語をお選びください。
@@ -40,6 +41,8 @@ link.skipToMainContent=スキップしてメイン コンテンツに移動
 title.login=ログイン
 content.loginPrompt={0} アカウントでログインしてください
 button.createAnAccount=アカウントを作成する
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=ログイン
 button.signIn=ログイン
 content.alternativeLoginPrompt=アカウントをお持ちでない場合
@@ -193,7 +196,6 @@ label.searchByDob=生年月日で検索
 label.searchByName=名前で検索
 label.year=年
 label.unnamedUser=名前のないユーザー
-link.edit=編集
 link.selectNewClient=クライアントを新規選択
 title.allClients=すべてのクライアント
 title.createClient=クライアントを新規作成
@@ -211,6 +213,7 @@ button.start=開始
 toast.applicationOutOfDate=申請が更新されました。続行するには、確認して質問に回答してください
 content.reviewPageIntro=以下の手順を選択して申請を開始してください。保存して、いつでも作業に戻ることができます。
 content.doesNotQualify=資格がありません
+link.edit=編集
 link.answer=回答
 content.previouslyAnsweredOn={0} に回答済み
 ariaLabel.answer={0} に回答
@@ -414,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=選択された場所
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=フィルターを追加
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=フィルター
+map.displayNameLabel=表示名
+map.keyLabel=キー
+map.locationAddressLabel=アドレスキー
+map.locationDetailsUrlLabel=URLキーの詳細を表示
+map.locationNameLabel=名前キー
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=多肢選択式の質問は選択肢を選ぶ必要があります。
 adminValidation.multiOptionAdminError=管理者名に使用できるのは、小文字のアルファベット、数字、アンダースコア、ダッシュのみです。
 error.notFoundTitle=アクセスしようとしているページが見つかりませんでした
@@ -466,27 +480,3 @@ session.extend.button=セッションを延長
 session.extended.success=セッションは正常に延長されました
 session.extended.error=セッションを延長できませんでした
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

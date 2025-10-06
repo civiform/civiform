@@ -1,6 +1,10 @@
 <!-- TODO(#11161): Update styling to match design specifications -->
 <div id="geoJsonOutput">
-  <label for="maxLocationSelections" th:inline="text">
+  <label
+    for="maxLocationSelections"
+    class="usa-label text-base-dark margin-top-0"
+    th:inline="text"
+  >
     [[#{map.maxLocationSelectionsLabel}]]
     <span title="required" class="usa-hint usa-hint--required">*</span> </label
   ><input
@@ -8,11 +12,18 @@
     name="maxLocationSelections"
     id="maxLocationSelections"
     type="number"
-    th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
+    th:value="${model.maxLocationSelections.isPresent() ? model.maxLocationSelections.getAsInt() : ''}"
   />
-  <label class="usa-label" for="locationName.key" th:inline="text">
-    [[#{map.locationNameLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
+  <label
+    class="usa-label text-base-dark"
+    for="locationName.key"
+    th:inline="text"
+  >
+    <div class="font-body-sm">
+      [[#{map.locationNameLabel}]]
+      <span title="required" class="usa-hint usa-hint--required">*</span>
+    </div>
+    <div class="font-body-2xs" th:text="#{map.locationNameHelpText}"></div>
   </label>
   <select class="usa-select" name="locationName.key" id="locationName.key">
     <option value th:text="#{map.selectOptionPlaceholderText}"></option>
@@ -23,9 +34,16 @@
       th:selected="${key == model.locationName.key}"
     ></option>
   </select>
-  <label class="usa-label" for="locationAddress.key" th:inline="text">
-    [[#{map.locationAddressLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
+  <label
+    class="usa-label text-base-dark"
+    for="locationAddress.key"
+    th:inline="text"
+  >
+    <div class="font-body-sm">
+      [[#{map.locationAddressLabel}]]
+      <span title="required" class="usa-hint usa-hint--required">*</span>
+    </div>
+    <div class="font-body-2xs" th:text="#{map.locationAddressHelpText}"></div>
   </label>
   <select
     class="usa-select"
@@ -40,9 +58,19 @@
       th:selected="${key == model.locationAddress.key}"
     ></option>
   </select>
-  <label class="usa-label" for="locationDetailsUrl.key" th:inline="text">
-    [[#{map.locationDetailsUrlLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
+  <label
+    class="usa-label text-base-dark"
+    for="locationDetailsUrl.key"
+    th:inline="text"
+  >
+    <div class="font-body-sm">
+      [[#{map.locationDetailsUrlLabel}]]
+      <span title="required" class="usa-hint usa-hint--required">*</span>
+    </div>
+    <div
+      class="font-body-2xs"
+      th:text="#{map.locationDetailsUrlHelpText}"
+    ></div>
   </label>
   <select
     class="usa-select"
@@ -58,15 +86,19 @@
     ></option>
   </select>
 
-  <div th:text="#{map.addFiltersTitle}"></div>
-  <div th:text="#{map.addFiltersSubtitle}"></div>
-  <div id="filters">
-    <div th:each="filter, i : ${model.filters}">
-      <div
-        th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
-      ></div>
+  <fieldset class="usa-fieldset margin-top-3">
+    <legend class="usa-legend text-base-dark margin-top-105">
+      <h3 class="font-body-sm" th:text="#{map.addFiltersTitle}"></h3>
+      <h4 class="font-body-2xs" th:text="#{map.addFiltersSubtitle}"></h4>
+    </legend>
+    <div id="filters">
+      <div th:each="filter, i : ${model.filters}">
+        <div
+          th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+        ></div>
+      </div>
     </div>
-  </div>
+  </fieldset>
   <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
   <button
     th:hx-post="${model.hxAddMapQuestionFilterEndpoint}"
@@ -75,7 +107,9 @@
     hx-target="#filters"
     id="add-map-filter-button"
     type="button"
-    class="add-map-filter usa-button usa-button--outline"
-    th:text="#{map.addFilterButton}"
-  ></button>
+    class="add-map-filter usa-button usa-button--outline margin-top-3"
+    th:inline="text"
+  >
+    <cf:icon type="icon-add" />[[#{map.addFilterButton}]]
+  </button>
 </div>
