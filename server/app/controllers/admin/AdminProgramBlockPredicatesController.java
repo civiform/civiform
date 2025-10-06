@@ -457,14 +457,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      DynamicForm formData = formFactory.form().bindFromRequest(request);
-      long conditionId = Long.parseLong(formData.get("conditionId"));
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(programDefinition, blockDefinitionId, useCase);
       return ok(editConditionPartialView.render(
               request,
               new EditConditionPartialViewModel(
-                  programId, blockDefinitionId, useCase, conditionId, predicateQuestions)))
+                  programId,
+                  blockDefinitionId,
+                  useCase,
+                  form.get().getConditionId(),
+                  predicateQuestions)))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
