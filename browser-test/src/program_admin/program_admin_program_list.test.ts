@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -60,5 +61,15 @@ test.describe('Program admin program list', {tag: ['@northstar']}, () => {
         'program-admin-program-list-visible-disabled-program',
       )
     })
+  })
+})
+
+test.describe('Translation tag showing as expected', ()=> {
+  test.beforeEach(async({page}) => {
+    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
+  })
+
+  test ('', async ({page})=> {
+    
   })
 })
