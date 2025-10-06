@@ -31,16 +31,23 @@ interface PaginationState {
 }
 
 export const initPagination = (mapId: string): void => {
-  updatePagination(mapId)
-}
-
-export const updatePagination = (mapId: string): void => {
   const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
+  updatePagination(mapId, paginationNav)
+}
+
+export const updatePagination = (mapId: string, paginationNav: Element): void => {
   const state = getPaginationState(mapId, paginationNav)
   renderPaginationButtons(mapId, state, paginationNav)
   updateVisibleLocations(mapId, state)
   updatePaginationButtonStates(state, paginationNav)
+}
+
+export const resetPagination = (mapId: string): void => {
+  const paginationNav = getPaginationNavComponent(mapId)
+  if (!paginationNav) return
+  paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, '1')
+  updatePagination(mapId, paginationNav)
 }
 
 export const getPaginationState = (
@@ -265,7 +272,7 @@ export const goToPage = (mapId: string, page: number): void => {
   const validPage = Math.max(1, Math.min(page, state.totalPages))
 
   paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, validPage.toString())
-  updatePagination(mapId)
+  updatePagination(mapId, paginationNav)
 }
 
 export const getPaginationNavComponent = (mapId: string) => {

@@ -50,8 +50,8 @@ export const CF_LOCATION_HIDDEN = 'cf-location-hidden'
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
 export const LOCATIONS_LAYER = 'locations-layer'
-export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.5865]
-export const DEFAULT_MAP_ZOOM = 12
+export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]
+export const DEFAULT_MAP_ZOOM = 8
 export const DEFAULT_MAP_MARKER_TYPE = 'circle'
 export const DEFAULT_MAP_MARKER_STYLE = {
   'circle-radius': 6,

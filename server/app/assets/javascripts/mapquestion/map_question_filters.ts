@@ -19,7 +19,7 @@ import {
   localizeString,
   queryLocationCheckboxes,
 } from './map_util'
-import {updatePagination} from './map_question_pagination'
+import { resetPagination } from './map_question_pagination'
 
 export const initFilters = (
   mapId: string,
@@ -83,7 +83,7 @@ const applyLocationFilters = (
   })
 
   updateLocationCountForMap(mapId, messages)
-  updatePagination(mapId)
+  resetPagination(mapId)
 }
 
 const updateLocationCountForMap = (
