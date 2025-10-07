@@ -723,3 +723,9 @@ main {
 .usa-button.cf-reset-filters-button {
   margin-top: 0.5rem;
 }
+
+// Custom pagination item for higher accessibility standards than USWDS default
+.usa-pagination__item.cf-pagination-item {
+  height: 2.75rem;
+  min-width: 2.75rem;
+}
