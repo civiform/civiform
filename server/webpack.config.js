@@ -77,6 +77,7 @@ module.exports = {
     }),
     new ProvidePlugin({
       htmx: 'htmx.org',
+      hxResponseTarget: 'htmx-ext-response-targets',
     }),
     new CopyWebpackPlugin({
       patterns: [
