@@ -153,7 +153,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
         case CHECKBOX -> multiSelectJsonPresenter;
         case CURRENCY -> currencyJsonPresenter;
         case DATE -> dateJsonPresenter;
-        case DROPDOWN, RADIO_BUTTON -> singleSelectJsonPresenter;
+        case DROPDOWN, RADIO_BUTTON, YES_NO -> singleSelectJsonPresenter;
         case EMAIL -> emailJsonPresenter;
         case ENUMERATOR -> enumeratorJsonPresenter;
         case FILEUPLOAD -> fileUploadJsonPresenter;

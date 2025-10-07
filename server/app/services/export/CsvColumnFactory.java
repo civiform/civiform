@@ -67,7 +67,7 @@ final class CsvColumnFactory {
           buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
       case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
       case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
-      case DROPDOWN, RADIO_BUTTON ->
+      case DROPDOWN, RADIO_BUTTON, YES_NO ->
           buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
       case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
         // Enumerator questions themselves are not included in the CSV, but their repeated questions

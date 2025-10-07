@@ -41,6 +41,8 @@ link.skipToMainContent=Chuyển đến nội dung chính
 title.login=Đăng nhập
 content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
 button.createAnAccount=Tạo tài khoản
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=Đăng nhập
 button.signIn=Đăng nhập
 content.alternativeLoginPrompt=Bạn không có tài khoản?
@@ -194,7 +196,6 @@ label.searchByDob=Tìm theo ngày sinh
 label.searchByName=Tìm theo tên
 label.year=Năm
 label.unnamedUser=Người dùng chưa được đặt tên
-link.edit=Chỉnh sửa
 link.selectNewClient=Chọn một khách hàng mới
 title.allClients=Tất cả khách hàng
 title.createClient=Tạo hồ sơ khách hàng mới
@@ -212,6 +213,7 @@ button.start=Bắt đầu
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.
 content.doesNotQualify=Không đủ tiêu chuẩn
+link.edit=Chỉnh sửa
 link.answer=Câu trả lời
 content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 ariaLabel.answer=Câu trả lời {0}
@@ -415,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Địa điểm đã chọn
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
 adminValidation.multiOptionAdminError=Tên của quản trị viên chỉ có thể chứa chữ cái viết thường, số, dấu gạch dưới và dấu gạch ngang.
 error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
@@ -467,27 +480,3 @@ session.extend.button=Gia hạn phiên
 session.extended.success=Đã gia hạn phiên thành công
 session.extended.error=Không gia hạn được phiên
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections
