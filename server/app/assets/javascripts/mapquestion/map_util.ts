@@ -52,13 +52,21 @@ export const CF_LOCATION_HIDDEN = 'cf-location-hidden'
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
 export const LOCATIONS_LAYER = 'locations-layer'
+export const DEFAULT_LOCATION_ICON = 'locationMarkerIcon'
+export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
 export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]
 export const DEFAULT_MAP_ZOOM = 8
-export const DEFAULT_MAP_MARKER_TYPE = 'circle'
-export const DEFAULT_MAP_MARKER_STYLE = {
-  'circle-radius': 6,
-  'circle-color': '#005EA2',
-}
+export const DEFAULT_ICON_IMAGE_SOURCE =
+  '/assets/Images/uswds/icon-location_on.png'
+export const SELECTED_ICON_IMAGE_SOURCE =
+  '/assets/Images/uswds/icon-location_selected.png'
+
+// MARKER TEMPLATES
+export const CF_MAP_MARKER_ICON_TEMPLATE = 'cf-map-marker-icon-template'
+export const CF_MAP_MARKER_ICON_SELECTED_TEMPLATE =
+  'cf-map-marker-icon-selected-template'
+export const MAPLIBRE_MARKER_CLASS = 'maplibregl-marker'
+
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {

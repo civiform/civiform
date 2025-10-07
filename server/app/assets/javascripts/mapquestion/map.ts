@@ -1,19 +1,14 @@
-import {LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
+import {LngLatLike, Map as MapLibreMap, Popup, GeoJSONSource} from 'maplibre-gl'
 import {GeoJsonProperties, Feature, FeatureCollection, Point} from 'geojson'
 import {
   MapData,
   MapSettings,
-  mapQuerySelector,
   CF_POPUP_CONTENT_TEMPLATE,
   CF_POPUP_CONTENT_LOCATION_NAME,
   CF_POPUP_CONTENT_LOCATION_ADDRESS,
   CF_POPUP_CONTENT_LOCATION_LINK,
-  LOCATIONS_SOURCE,
-  LOCATIONS_LAYER,
   DEFAULT_MAP_CENTER_POINT,
   DEFAULT_MAP_ZOOM,
-  DEFAULT_MAP_MARKER_TYPE,
-  DEFAULT_MAP_MARKER_STYLE,
   DEFAULT_MAP_STYLE,
   CF_POPUP_CONTENT_BUTTON,
   CF_SELECTED_LOCATIONS_CONTAINER,
@@ -21,6 +16,15 @@ import {
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
   MapMessages,
+  LOCATIONS_SOURCE,
+  LOCATIONS_LAYER,
+  DEFAULT_LOCATION_ICON,
+  SELECTED_LOCATION_ICON,
+  DEFAULT_ICON_IMAGE_SOURCE,
+  SELECTED_ICON_IMAGE_SOURCE,
+  mapQuerySelector,
+  CF_MAP_MARKER_ICON_TEMPLATE,
+  CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
 } from './map_util'
 import {
   initLocationSelection,
@@ -43,15 +47,13 @@ export const init = (): void => {
   const mapMessages = window.app?.data?.messages as MapMessages
   const mapDataObject = window.app?.data?.maps || {}
 
-  // Set up global event listeners for all map interactions
-  setupGlobalEventListeners(mapMessages)
-
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
       const mapElement = renderMap(mapId, mapData as MapData, mapMessages)
       initLocationSelection(mapId, mapMessages)
       initFilters(mapId, mapElement, mapMessages, mapData as MapData)
       initPagination(mapId)
+      setupEventListenersForMap(mapId, mapElement, mapMessages)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }
@@ -68,10 +70,11 @@ const createMap = (mapId: string) => {
   })
 }
 
-const addLocationsToMap = (
+const addLocationsToMap = async (
+  mapId: string,
   map: MapLibreMap,
   geoJson: FeatureCollection,
-): void => {
+): Promise<void> => {
   // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
   // Will need these later for filtering, selection, and submission
   const geoJsonWithOriginalIds = {
@@ -81,21 +84,54 @@ const addLocationsToMap = (
       properties: {
         ...feature.properties,
         originalId: feature.id,
+        selected: false, // Track selection state in feature properties
       },
     })),
   }
 
-  map.addSource(LOCATIONS_SOURCE, {
-    type: 'geojson',
-    data: geoJsonWithOriginalIds,
-  })
+  const defaultIconTemplate = mapQuerySelector(
+    mapId,
+    CF_MAP_MARKER_ICON_TEMPLATE,
+  ) as HTMLTemplateElement
+  const selectedIconTemplate = mapQuerySelector(
+    mapId,
+    CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
+  ) as HTMLTemplateElement
 
-  // TODO(#11279): Add custom icons to the map markers
-  map.addLayer({
-    id: LOCATIONS_LAYER,
-    type: DEFAULT_MAP_MARKER_TYPE,
-    source: LOCATIONS_SOURCE,
-    paint: DEFAULT_MAP_MARKER_STYLE,
+  const defaultIconSrc =
+    (defaultIconTemplate?.content.querySelector('img') as HTMLImageElement)
+      ?.src || DEFAULT_ICON_IMAGE_SOURCE
+  const selectedIconSrc =
+    (selectedIconTemplate?.content.querySelector('img') as HTMLImageElement)
+      ?.src || SELECTED_ICON_IMAGE_SOURCE
+
+  await Promise.all([
+    map.loadImage(defaultIconSrc),
+    map.loadImage(selectedIconSrc),
+  ]).then(([defaultImage, selectedImage]) => {
+    map.addImage(DEFAULT_LOCATION_ICON, defaultImage.data)
+    map.addImage(SELECTED_LOCATION_ICON, selectedImage.data)
+
+    map.addSource(LOCATIONS_SOURCE, {
+      type: 'geojson',
+      data: geoJsonWithOriginalIds,
+    })
+
+    map.addLayer({
+      id: LOCATIONS_LAYER,
+      type: 'symbol',
+      source: LOCATIONS_SOURCE,
+      layout: {
+        'icon-image': [
+          'case',
+          ['get', 'selected'],
+          SELECTED_LOCATION_ICON,
+          DEFAULT_LOCATION_ICON,
+        ],
+        'icon-size': 1,
+        'icon-allow-overlap': true,
+      },
+    })
   })
 }
 
@@ -238,7 +274,9 @@ const renderMap = (
   }
 
   map.on('load', () => {
-    addLocationsToMap(map, geoJson)
+    addLocationsToMap(mapId, map, geoJson).catch((error) => {
+      console.error(`Error adding locations to map ${mapId}:`, error)
+    })
     addPopupsToMap(mapId, map, settings)
 
     map.on('mouseenter', LOCATIONS_LAYER, (): void => {
@@ -259,10 +297,16 @@ const renderMap = (
   return map
 }
 
-const setupGlobalEventListeners = (messages: MapMessages): void => {
-  // Global click handler for map popup and pagination buttons
-  document.addEventListener('click', (e) => {
-    const target = (e.target as HTMLElement) || null
+const setupEventListenersForMap = (
+  mapId: string,
+  mapElement: MapLibreMap,
+  messages: MapMessages,
+): void => {
+  const mapContainer = document.getElementById(mapId)
+  if (!mapContainer) return
+
+  mapContainer.addEventListener('click', (e) => {
+    const target = e.target as HTMLButtonElement
     if (!target) return
 
     const targetName = target.getAttribute('name')
@@ -273,12 +317,12 @@ const setupGlobalEventListeners = (messages: MapMessages): void => {
 
     switch (targetName) {
       case CF_POPUP_CONTENT_BUTTON: {
-        const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
-        if (featureId) {
-          selectLocationsFromMap(featureId, mapId, messages)
+          const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+          if (featureId) {
+            selectLocationsFromMap(featureId, mapId, messages)
+            updateSelectedMarker(mapElement, featureId, true)
+          }
         }
-        return
-      }
       case CF_MAP_QUESTION_PAGINATION_BUTTON:
       case CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON:
       case CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON: {
@@ -301,37 +345,77 @@ const setupGlobalEventListeners = (messages: MapMessages): void => {
     }
   })
 
-  // Global change handler for all location checkboxes
-  document.addEventListener('change', (e) => {
-    const target = e.target as HTMLInputElement
-    if (target == null || target.type !== 'checkbox') return
-    const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
-    if (!mapId) return // Not a map checkbox
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  )
+  const selectedLocationsContainer = mapQuerySelector(
+    mapId,
+    CF_SELECTED_LOCATIONS_CONTAINER,
+  )
 
-    // If it's a selected checkbox being unchecked, uncheck the original
-    const selectedContainer = target.closest(
-      `.${CF_SELECTED_LOCATIONS_CONTAINER}`,
-    )
-    if (
-      !target.checked &&
-      selectedContainer &&
-      selectedContainer.getAttribute(DATA_MAP_ID_ATTR) === mapId
-    ) {
+  // Change handler for location checkboxes in the locations list
+  if (locationsListContainer) {
+    locationsListContainer.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement
+      if (target == null || target.type !== 'checkbox') return
+
       const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
       if (featureId) {
-        // Find original checkbox with matching feature ID in the same map
-        const locationsContainer = document.querySelector(
-          `[${DATA_MAP_ID_ATTR}="${mapId}"].${CF_LOCATIONS_LIST_CONTAINER}`,
-        )
-        const originalCheckbox = locationsContainer?.querySelector(
+        updateSelectedMarker(mapElement, featureId, target.checked)
+      }
+
+      updateSelectedLocations(mapId, messages)
+    })
+  }
+
+  // Change handler for checkboxes in the selected locations list
+  if (selectedLocationsContainer) {
+    selectedLocationsContainer.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement
+      if (target == null || target.type !== 'checkbox') return
+
+      const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+      if (!target.checked && featureId) {
+        updateSelectedMarker(mapElement, featureId, false)
+
+        // Find and uncheck the original checkbox
+        const originalCheckbox = locationsListContainer?.querySelector(
           `[${DATA_FEATURE_ID_ATTR}="${featureId}"] input[type="checkbox"]`,
         ) as HTMLInputElement
         if (originalCheckbox && originalCheckbox.type === 'checkbox') {
           originalCheckbox.checked = false
         }
       }
-    }
 
-    updateSelectedLocations(mapId, messages)
+      updateSelectedLocations(mapId, messages)
+    })
+  }
+}
+
+export const updateSelectedMarker = (
+  mapElement: MapLibreMap,
+  featureId: string,
+  selected: boolean,
+) => {
+  const source = mapElement.getSource(LOCATIONS_SOURCE) as GeoJSONSource
+
+  const data = source._data as FeatureCollection
+  const updatedFeatures = data.features.map((feature) => {
+    if (feature.properties?.originalId === featureId) {
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          selected: selected,
+        },
+      }
+    }
+    return feature
+  })
+
+  source.setData({
+    ...data,
+    features: updatedFeatures,
   })
 }
