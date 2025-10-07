@@ -239,6 +239,7 @@ if (isLocalDevEnvironment()) {
         await test.step('Go back to previous page', async () => {
           await expect(previousButton).toBeVisible()
           await previousButton.click()
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
         })
       })
     })
