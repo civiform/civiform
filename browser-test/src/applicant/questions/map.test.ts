@@ -10,7 +10,9 @@ import {
 } from '../../support'
 import {Page} from 'playwright'
 
+// number of locations expected to be visible per page
 const EXPECTED_LOCATION_COUNT = 6
+// number of locations in the mock data
 const TOTAL_LOCATION_COUNT = 7
 
 // map question tests rely on mock web services so they will only work in local dev environments
