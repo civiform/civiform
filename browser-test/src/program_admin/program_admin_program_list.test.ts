@@ -64,12 +64,57 @@ test.describe('Program admin program list', {tag: ['@northstar']}, () => {
   })
 })
 
-test.describe('Translation tag showing as expected', ()=> {
-  test.beforeEach(async({page}) => {
+test.describe('Translation tag showing as expected', () => {
+  test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'translation_management_improvement_enabled')
   })
 
-  test ('', async ({page})=> {
-    
+  const programName = 'Program for translation tags'
+
+  test('Tag translation incomplete and complete shows up as expected', async ({
+    page,
+    adminPrograms,
+    adminTranslations,
+  }) => {
+    await test.step('Tag translation incomplete is visible', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.gotoAdminProgramsPage()
+      await expect(page.getByText('Translation Incomplete')).toBeVisible()
+    })
+
+    await test.step('Translate all fields available', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      const languages = [
+        'Amharic',
+        'Arabic',
+        'Traditional Chinese',
+        'French',
+        'Japanese',
+        'Korean',
+        'Lao',
+        'Russian',
+        'Somali',
+        'Spanish',
+        'Tagalog',
+        'Vietnamese',
+      ]
+
+      for (const language of languages) {
+        await adminTranslations.selectLanguage(language)
+        await adminTranslations.editProgramTranslations({
+          name: `${language} name`,
+          description: `${language} description`,
+          blockName: `${language} block name`,
+          blockDescription: `${language} block description`,
+          statuses: [],
+        })
+      }
+    })
+
+    await test.step('Tag translation complete is visible', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await expect(page.getByText('Translation Complete')).toBeVisible()
+    })
   })
 })
