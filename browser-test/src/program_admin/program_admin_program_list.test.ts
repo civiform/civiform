@@ -75,12 +75,14 @@ test.describe('Translation tag showing as expected', () => {
     page,
     adminPrograms,
     adminTranslations,
+    adminProgramStatuses,
   }) => {
     await test.step('Tag translation incomplete is visible', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoAdminProgramsPage()
       await expect(page.getByText('Translation Incomplete')).toBeVisible()
+      await expect(page.getByText('Translation Complete')).toBeHidden()
     })
 
     await test.step('Translate all fields available', async () => {
@@ -115,6 +117,15 @@ test.describe('Translation tag showing as expected', () => {
     await test.step('Tag translation complete is visible', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       await expect(page.getByText('Translation Complete')).toBeVisible()
+      await expect(page.getByText('Translation Incomplete')).toBeHidden()
+    })
+
+    await test.step('Tag translation incomplete shows when a new field to the proram needs to be translated', async () => {
+      await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+      await adminProgramStatuses.createStatus('testStatus')
+      await adminPrograms.gotoAdminProgramsPage()
+      await expect(page.getByText('Translation Incomplete')).toBeVisible()
+      await expect(page.getByText('Translation Complete')).toBeHidden()
     })
   })
 })
