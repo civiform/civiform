@@ -2,6 +2,8 @@ import {
   CF_LOCATIONS_LIST_CONTAINER,
   DATA_MAP_ID,
   getVisibleCheckboxes,
+  localizeString,
+  MapMessages,
   mapQuerySelector,
   queryLocationCheckboxes,
 } from './map_util'
@@ -14,6 +16,7 @@ const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
   '.cf-pagination-overflow-template'
 const CF_PAGINATION_ITEM_SELECTOR = '.cf-pagination-item'
 const CF_PAGINATION_LIST_SELECTOR = '.cf-pagination-list'
+const CF_PAGINATION_STATUS_SELECTOR = '.cf-pagination-status'
 const USA_CURRENT_CLASS = 'usa-current'
 export const CF_MAP_QUESTION_PAGINATION_BUTTON =
   'cf-map-question-pagination-button'
@@ -119,6 +122,16 @@ const renderPaginationButtons = (
   )
   if (!paginationList) return
 
+  // Move focus to the sr-only header BEFORE removing buttons to prevent focus jump
+  if (paginationList.contains(document.activeElement)) {
+    const paginationStatus = document.querySelector(
+      `${CF_PAGINATION_STATUS_SELECTOR}[${DATA_MAP_ID}="${mapId}"]`,
+    ) as HTMLElement
+    if (paginationStatus) {
+      paginationStatus.focus()
+    }
+  }
+
   // Update current page data attribute
   paginationNav.setAttribute(
     DATA_CURRENT_PAGE_ATTRIBUTE,
@@ -213,7 +226,9 @@ const createPageButton = (
 
   const link = li.querySelector(`.${CF_MAP_QUESTION_PAGINATION_BUTTON}`)!
   link.textContent = pageNumber.toString()
-  link.setAttribute('aria-label', `Page ${pageNumber}`)
+  link.setAttribute('aria-label', localizeString((window.app.data.messages as MapMessages).goToPage, [
+        pageNumber.toString(),
+      ]))
   link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
 

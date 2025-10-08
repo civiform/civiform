@@ -157,10 +157,11 @@
       <nav
         th:if="${questionRendererParams.geoJson().isPresent()}"
         role="navigation"
-        aria-label="Pagination"
+        aria-label="Pagination for map locations"
         class="usa-pagination flex-justify-end cf-pagination"
         th:data-map-id="${mapId}"
       >
+        <div class="sr-only cf-pagination-status" tabindex="-1" th:data-map-id="${mapId}" th:text="#{map.paginationStatus}"></div>
         <ul class="usa-pagination__list cf-pagination-list">
           <li
             class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
@@ -220,7 +221,8 @@
           class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
         >
           <a
-            href="#"
+            role="button"
+            tabindex="0"
             class="usa-pagination__button cf-map-question-pagination-button"
             name="cf-map-question-pagination-button"
           ></a>
@@ -322,6 +324,8 @@
         /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
       mapRegionAltText:
         /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
+      goToPage:
+        /*[[#{map.goToPage}]]*/ 'Go to page {0}',
     }
 
     window.app.data.maps = window.app.data.maps || {}
