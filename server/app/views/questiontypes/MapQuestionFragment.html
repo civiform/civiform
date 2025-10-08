@@ -161,7 +161,12 @@
         class="usa-pagination flex-justify-end cf-pagination"
         th:data-map-id="${mapId}"
       >
-        <div class="sr-only cf-pagination-status" tabindex="-1" th:data-map-id="${mapId}" th:text="#{map.paginationStatus}"></div>
+        <div
+          class="sr-only cf-pagination-status"
+          tabindex="-1"
+          th:data-map-id="${mapId}"
+          th:text="#{map.paginationStatus}"
+        ></div>
         <ul class="usa-pagination__list cf-pagination-list">
           <li
             class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
@@ -324,8 +329,7 @@
         /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
       mapRegionAltText:
         /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
-      goToPage:
-        /*[[#{map.goToPage}]]*/ 'Go to page {0}',
+      goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
     }
 
     window.app.data.maps = window.app.data.maps || {}

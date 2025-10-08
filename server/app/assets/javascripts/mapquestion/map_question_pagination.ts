@@ -226,9 +226,12 @@ const createPageButton = (
 
   const link = li.querySelector(`.${CF_MAP_QUESTION_PAGINATION_BUTTON}`)!
   link.textContent = pageNumber.toString()
-  link.setAttribute('aria-label', localizeString((window.app.data.messages as MapMessages).goToPage, [
-        pageNumber.toString(),
-      ]))
+  link.setAttribute(
+    'aria-label',
+    localizeString((window.app.data.messages as MapMessages).goToPage, [
+      pageNumber.toString(),
+    ]),
+  )
   link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
 
