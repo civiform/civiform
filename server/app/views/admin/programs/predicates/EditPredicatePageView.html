@@ -1,12 +1,12 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
-<!--/*@thymesVar id="model" type="views.admin.programs.ProgramPredicatesEditPageViewModel"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.predicates.EditPredicatePageViewModel"*/-->
 
 <th:block th:fragment="content">
   <th:block
     th:replace="~{admin/programs/ProgramHeaderFragment :: programHeader(${model.programHeader()})}"
   ></th:block>
 
-  <div class="padding-x-4 padding-y-3 usa-prose">
+  <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
     <a
       th:href="${model.blockEditUrl()}"
       th:text="|Back to edit ${model.blockName()}|"
@@ -85,6 +85,10 @@
             of the following are true:
           </p>
         </div>
+
+        <div
+          th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+        ></div>
       </form>
     </div>
 
@@ -92,7 +96,7 @@
       <a href="#" class="padding-x-05">Back to top</a>
     </div>
 
-    <div class="cf-horizontal-separator margin-y-2"></div>
+    <div class="border-top border-base-lighter margin-y-2"></div>
 
     <button type="submit" class="usa-button">Save and exit</button>
     <button type="submit" class="usa-button usa-button--outline">Cancel</button>

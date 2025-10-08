@@ -39,9 +39,12 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramPredicateConfigureView;
-import views.admin.programs.ProgramPredicatesEditPageView;
-import views.admin.programs.ProgramPredicatesEditPageViewModel;
 import views.admin.programs.ProgramPredicatesEditView;
+import views.admin.programs.predicates.EditConditionCommand;
+import views.admin.programs.predicates.EditConditionPartialView;
+import views.admin.programs.predicates.EditConditionPartialViewModel;
+import views.admin.programs.predicates.EditPredicatePageView;
+import views.admin.programs.predicates.EditPredicatePageViewModel;
 import views.components.ToastMessage;
 import views.components.ToastMessage.ToastType;
 
@@ -54,8 +57,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramPredicatesEditView legacyPredicatesEditView;
-  private final ProgramPredicatesEditPageView predicatesEditPageView;
-  private final ProgramPredicateConfigureView predicatesConfigureView;
+  private final ProgramPredicateConfigureView legacyPredicatesConfigureView;
+  private final EditPredicatePageView editPredicatePageView;
+  private final EditConditionPartialView editConditionPartialView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
@@ -66,8 +70,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       ProgramPredicatesEditView legacyPredicatesEditView,
-      ProgramPredicatesEditPageView predicatesEditPageView,
-      ProgramPredicateConfigureView predicatesConfigureView,
+      ProgramPredicateConfigureView legacyPredicatesConfigureView,
+      EditPredicatePageView editPredicatePageView,
+      EditConditionPartialView editConditionPartialView,
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
@@ -78,8 +83,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.legacyPredicatesEditView = checkNotNull(legacyPredicatesEditView);
-    this.predicatesEditPageView = checkNotNull(predicatesEditPageView);
-    this.predicatesConfigureView = checkNotNull(predicatesConfigureView);
+    this.legacyPredicatesConfigureView = checkNotNull(legacyPredicatesConfigureView);
+    this.editPredicatePageView = checkNotNull(editPredicatePageView);
+    this.editConditionPartialView = checkNotNull(editConditionPartialView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -109,24 +115,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+      ImmutableList<QuestionDefinition> predicateQuestions =
+          getAvailablePredicateQuestionDefinitions(
+              programDefinition, blockDefinitionId, predicateUseCase);
 
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
-        return ok(predicatesEditPageView.render(
+        return ok(editPredicatePageView.render(
                 request,
-                new ProgramPredicatesEditPageViewModel(
-                    programDefinition, blockDefinition, predicateUseCase)))
+                new EditPredicatePageViewModel(
+                    programDefinition, blockDefinition, predicateUseCase, predicateQuestions)))
             .as(Http.MimeTypes.HTML);
       }
 
-      ImmutableList<QuestionDefinition> predicateQuestions =
-          switch (predicateUseCase) {
-            case ELIGIBILITY ->
-                programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
-                    blockDefinitionId);
-            case VISIBILITY ->
-                programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
-                    blockDefinitionId);
-          };
       return ok(
           legacyPredicatesEditView.render(
               request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase));
@@ -136,6 +136,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
+    return switch (predicateUseCase) {
+      case ELIGIBILITY ->
+          programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
+      case VISIBILITY ->
+          programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId);
+    };
   }
 
   /** POST endpoint for updating show-hide configurations. */
@@ -187,7 +200,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
-          predicatesConfigureView.renderNewVisibility(
+          legacyPredicatesConfigureView.renderNewVisibility(
               request,
               programDefinition,
               blockDefinition,
@@ -224,7 +237,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   visibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
-          predicatesConfigureView.renderExistingVisibility(
+          legacyPredicatesConfigureView.renderExistingVisibility(
               request, programDefinition, blockDefinition, visibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
@@ -243,7 +256,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
       return ok(
-          predicatesConfigureView.renderNewEligibility(
+          legacyPredicatesConfigureView.renderNewEligibility(
               request,
               programDefinition,
               blockDefinition,
@@ -281,7 +294,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   eligibilityQuestionIds.contains(questionDefinition.getId()));
 
       return ok(
-          predicatesConfigureView.renderExistingEligibility(
+          legacyPredicatesConfigureView.renderExistingEligibility(
               request, programDefinition, blockDefinition, eligibilityQuestionDefinitions));
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
@@ -425,5 +438,41 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             .url();
     return redirect(indexUrl)
         .flashing(toastType.toString().toLowerCase(Locale.getDefault()), toastMessage);
+  }
+
+  /** HTMX partial that renders a card for editing a condition within a predicate. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxEditCondition(
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+      return notFound("Expanded form logic is not enabled.");
+    }
+
+    Form<EditConditionCommand> form =
+        formFactory.form(EditConditionCommand.class).bindFromRequest(request);
+    if (form.hasErrors()) {
+      // TODO(#11560): Render error alert.
+    }
+
+    try {
+      PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      ImmutableList<QuestionDefinition> predicateQuestions =
+          getAvailablePredicateQuestionDefinitions(programDefinition, blockDefinitionId, useCase);
+      return ok(editConditionPartialView.render(
+              request,
+              new EditConditionPartialViewModel(
+                  programId,
+                  blockDefinitionId,
+                  useCase,
+                  form.get().getConditionId(),
+                  predicateQuestions)))
+          .as(Http.MimeTypes.HTML);
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | IllegalArgumentException e) {
+      // TODO(#11560): Render error alert.
+      return notFound();
+    }
   }
 }

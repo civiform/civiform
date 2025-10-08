@@ -40,6 +40,8 @@ link.skipToMainContent=Lumaktaw sa pangunahing content
 title.login=Mag log in
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 button.createAnAccount=Gumawa ng account
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=Maglog-in
 button.signIn=Mag-sign in
 content.alternativeLoginPrompt=Walang account?
@@ -193,7 +195,6 @@ label.searchByDob=Maghanap ayon sa petsa ng kapanganakan
 label.searchByName=Maghanap ayon sa (mga) pangalan
 label.year=Taon
 label.unnamedUser=Walang pangalang user
-link.edit=I-edit
 link.selectNewClient=Pumili ng bagong kliyente
 title.allClients=Lahat ng kliyente
 title.createClient=Gumawa ng bagong kliyente
@@ -211,6 +212,7 @@ button.start=Magsimula
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 content.reviewPageIntro=Pumili ng hakbang sa ibaba para simulan ang iyong aplikasyon. Puwede kang mag-save at bumalik anumang oras.
 content.doesNotQualify=Hindi kwalipikado
+link.edit=I-edit
 link.answer=Sagot
 content.previouslyAnsweredOn=Sinagutan noong {0}
 ariaLabel.answer=Sagot {0}
@@ -415,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Mga piniling lokasyon
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
 adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at gitling lang ang puwedeng gamitin para sa mga pangalan ng admin.
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
@@ -467,27 +480,3 @@ session.extend.button=I-extend ang Session
 session.extended.success=Na-extend na ang session
 session.extended.error=Hindi na-extend ang session
 translation.untranslated=Mananatiling hindi naka-translate ang string na ito para sa mga eksperimento sa imprastraktura ng pag-translate.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

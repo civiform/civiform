@@ -41,6 +41,8 @@ link.skipToMainContent=Passer au contenu principal
 title.login=Connexion
 content.loginPrompt=Veuillez vous connecter avec votre compte {0}.
 button.createAnAccount=Créer un compte
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=Se connecter
 button.signIn=Se connecter
 content.alternativeLoginPrompt=Vous n''avez pas de compte ?
@@ -194,7 +196,6 @@ label.searchByDob=Rechercher par date de naissance
 label.searchByName=Rechercher par nom(s)
 label.year=Année
 label.unnamedUser=Utilisateur sans nom
-link.edit=Modifier
 link.selectNewClient=Sélectionner un autre client
 title.allClients=Tous les clients
 title.createClient=Créer un client
@@ -212,6 +213,7 @@ button.start=Commencer
 toast.applicationOutOfDate=La demande d''inscription a été modifiée. Veuillez la vérifier et répondre aux questions pour continuer.
 content.reviewPageIntro=Sélectionnez une étape ci-dessous pour commencer votre demande d''inscription. Vous pouvez l''enregistrer et y revenir à tout moment.
 content.doesNotQualify=Non éligible
+link.edit=Modifier
 link.answer=Réponse
 content.previouslyAnsweredOn=Dernière réponse le {0}
 ariaLabel.answer=Répondre à la question {0}
@@ -415,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=Lieux sélectionnés
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=Les questions à choix multiples ne peuvent pas proposer d''option vide.
 adminValidation.multiOptionAdminError=Les noms d''administrateur ne peuvent contenir que des minuscules, des chiffres, des traits de soulignement et des tirets.
 error.notFoundTitle=Impossible de trouver la page que vous avez essayé de consulter
@@ -467,27 +480,3 @@ session.extend.button=Prolonger la session
 session.extended.success=Session prolongée
 session.extended.error=Échec de la prolongation de la session
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

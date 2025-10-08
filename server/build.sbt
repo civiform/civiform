@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.8-jre",
+      "com.google.guava" % "guava" % "33.5.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.30.1",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.52.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.53.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.7",
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.4" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.8-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.4",
@@ -96,7 +96,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.41.0",
+      "com.google.errorprone" % "error_prone_core" % "2.42.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.51.0",
 
       // Apache libraries for export

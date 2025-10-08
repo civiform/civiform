@@ -40,6 +40,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
+import services.question.YesNoQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -1225,6 +1226,25 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getQuestionDefinition()
               .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, YesNoQuestionOption optionId) {
+      return answerYesNoQuestion(question, null, optionId);
+    }
+
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, String repeatedEntityName, YesNoQuestionOption optionId) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
+      Path answerPath =
+          question
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId.getId());
       applicant.save();
       return this;
     }

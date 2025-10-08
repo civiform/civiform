@@ -63,16 +63,14 @@ test.describe('Create and edit map question', () => {
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Add up to six filters to make available to applicants.',
+            'Select up to six filters to make available to applicants.',
           ),
         ).toBeVisible()
 
         await page.getByRole('button', {name: 'Add filter'}).click()
 
-        const filterKeySelect = page.getByLabel('Key', {exact: true})
-        const filterDisplayInput = page.getByLabel('Display name', {
-          exact: true,
-        })
+        const filterKeySelect = page.getByTestId('key-select')
+        const filterDisplayInput = page.getByTestId('display-name-input')
 
         await expect(filterKeySelect).toBeVisible()
         await expect(filterDisplayInput).toBeVisible()
@@ -82,6 +80,52 @@ test.describe('Create and edit map question', () => {
         await expect(
           filterKeySelect.locator('option[value="address"]'),
         ).toBeAttached()
+      })
+
+      await test.step('Verify filter button disabled after 6 filters', async () => {
+        for (let i = 0; i < 5; i++) {
+          const responsePromise = page.waitForResponse(
+            (response) =>
+              response.url().includes('addMapQuestionFilter') &&
+              response.status() === 200,
+          )
+          await page.getByRole('button', {name: 'Add filter'}).click()
+          await responsePromise
+        }
+
+        const addFilterButton = page.getByRole('button', {name: 'Add filter'})
+        await expect(addFilterButton).toBeDisabled()
+      })
+    })
+
+    test('Map question validation with empty settings', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await test.step('Create map question with empty settings', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.gotoAdminQuestionsPage()
+        await page.click('#create-question-button')
+        await page.click('#create-map-question')
+        await waitForPageJsLoad(page)
+
+        await adminQuestions.fillInQuestionBasics({
+          questionName: 'map-question-with-empty-settings',
+          description: 'test map question',
+          questionText: 'test map question',
+          helpText: 'map question',
+        })
+      })
+
+      await test.step('Verify validation prevents submission with empty settings', async () => {
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+
+        await expect(page.getByText('Create')).toBeVisible()
+        await expect(page.getByLabel('GeoJSON endpoint')).toBeVisible()
+
+        const toastContainer = await page.innerHTML('#toast-container')
+        expect(toastContainer).toContain('bg-red-400')
+        expect(toastContainer).toContain('cannot be empty')
       })
     })
 

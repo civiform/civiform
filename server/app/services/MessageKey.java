@@ -312,12 +312,14 @@ public enum MessageKey {
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
   MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
   MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
   MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
   MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
+  MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
   MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
   MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
   MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
@@ -328,8 +330,11 @@ public enum MessageKey {
   MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
   MAP_KEY_LABEL("map.keyLabel"), // North Star only
   MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
   MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),

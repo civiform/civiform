@@ -738,7 +738,8 @@ public final class QuestionsListView extends BaseHtmlView {
                                 "absolute",
                                 "right-0",
                                 "w-56",
-                                "z-50")
+                                "z-50",
+                                "border-gray-200")
                             .with(extraActions.build())));
 
     return Pair.of(result, modals.build());

@@ -1,4 +1,4 @@
-package views.admin.programs;
+package views.admin.programs.predicates;
 
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
@@ -7,15 +7,17 @@ import controllers.admin.routes;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateAction;
-import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateUseCase;
-import views.admin.BaseViewModel;
+import services.question.types.QuestionDefinition;
+import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramHeader;
 
-public record ProgramPredicatesEditPageViewModel(
+public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
-    PredicateUseCase predicateUseCase)
-    implements BaseViewModel {
+    PredicateUseCase predicateUseCase,
+    ImmutableList<QuestionDefinition> questions)
+    implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {
     return new ProgramHeader(programDefinition, DRAFT);
@@ -43,7 +45,9 @@ public record ProgramPredicatesEditPageViewModel(
     return PredicateAction.ELIGIBLE_BLOCK;
   }
 
-  public ImmutableList<PredicateExpressionNodeType> operatorNodeTypes() {
-    return ImmutableList.of(PredicateExpressionNodeType.AND, PredicateExpressionNodeType.OR);
+  public String hxEditConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
   }
 }

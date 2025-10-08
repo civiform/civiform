@@ -40,6 +40,8 @@ link.skipToMainContent=기본 콘텐츠로 건너뛰기
 title.login=로그인
 content.loginPrompt={0} 계정으로 로그인하세요.
 button.createAnAccount=계정 만들기
+button.applicantLogin=Applicant log in
+button.adminLogin=Administrator log in
 button.login=로그인
 button.signIn=로그인
 content.alternativeLoginPrompt=계정이 없나요?
@@ -193,7 +195,6 @@ label.searchByDob=생일로 검색
 label.searchByName=이름으로 검색
 label.year=연도
 label.unnamedUser=이름이 지정되지 않은 사용자
-link.edit=편집
 link.selectNewClient=새 고객 선택
 title.allClients=모든 클라이언트
 title.createClient=새 클라이언트 만들기
@@ -211,6 +212,7 @@ button.start=시작
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 content.reviewPageIntro=신청을 시작하려면 아래 단계를 선택하세요. 언제든지 저장하고 다시 돌아올 수 있습니다.
 content.doesNotQualify=자격요건을 충족하지 않음
+link.edit=편집
 link.answer=답변
 content.previouslyAnsweredOn={0}에 답변됨
 ariaLabel.answer={0}에 답변
@@ -415,6 +417,17 @@ map.selectLocationButtonText=Select location
 map.selectedLocationsHeading=선택된 위치
 map.selectOptionPlaceholderText=- Select -
 map.validation.tooManySelections=Please select at most {0} locations.
+map.mapRegionAltText=Interactive map displaying locations
+map.addFilterButton=Add filter
+# Fuzzy
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+map.addFiltersTitle=Filters
+map.displayNameLabel=Display name
+map.keyLabel=Key
+map.locationAddressLabel=Address key
+map.locationDetailsUrlLabel=View more details URL key
+map.locationNameLabel=Name key
+map.maxLocationSelectionsLabel=Maximum location selections
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
 adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 밑줄, 대시만 포함할 수 있습니다.
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
@@ -467,27 +480,3 @@ session.extend.button=세션 연장
 session.extended.success=세션이 연장되었습니다
 session.extended.error=세션을 연장할 수 없습니다
 translation.untranslated=이 문자열은 번역 인프라 실험을 위해 번역되지 않은 상태로 유지됩니다.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections
