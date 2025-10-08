@@ -65,7 +65,6 @@ export const SELECTED_ICON_IMAGE_SOURCE =
 export const CF_MAP_MARKER_ICON_TEMPLATE = 'cf-map-marker-icon-template'
 export const CF_MAP_MARKER_ICON_SELECTED_TEMPLATE =
   'cf-map-marker-icon-selected-template'
-export const MAPLIBRE_MARKER_CLASS = 'maplibregl-marker'
 
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,

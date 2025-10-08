@@ -70,11 +70,11 @@ const createMap = (mapId: string) => {
   })
 }
 
-const addLocationsToMap = async (
+const addLocationsToMap = (
   mapId: string,
   map: MapLibreMap,
   geoJson: FeatureCollection,
-): Promise<void> => {
+): void => {
   // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
   // Will need these later for filtering, selection, and submission
   const geoJsonWithOriginalIds = {
@@ -105,34 +105,35 @@ const addLocationsToMap = async (
     (selectedIconTemplate?.content.querySelector('img') as HTMLImageElement)
       ?.src || SELECTED_ICON_IMAGE_SOURCE
 
-  await Promise.all([
-    map.loadImage(defaultIconSrc),
-    map.loadImage(selectedIconSrc),
-  ]).then(([defaultImage, selectedImage]) => {
-    map.addImage(DEFAULT_LOCATION_ICON, defaultImage.data)
-    map.addImage(SELECTED_LOCATION_ICON, selectedImage.data)
+  Promise.all([map.loadImage(defaultIconSrc), map.loadImage(selectedIconSrc)])
+    .then(([defaultImage, selectedImage]) => {
+      map.addImage(DEFAULT_LOCATION_ICON, defaultImage.data)
+      map.addImage(SELECTED_LOCATION_ICON, selectedImage.data)
 
-    map.addSource(LOCATIONS_SOURCE, {
-      type: 'geojson',
-      data: geoJsonWithOriginalIds,
-    })
+      map.addSource(LOCATIONS_SOURCE, {
+        type: 'geojson',
+        data: geoJsonWithOriginalIds,
+      })
 
-    map.addLayer({
-      id: LOCATIONS_LAYER,
-      type: 'symbol',
-      source: LOCATIONS_SOURCE,
-      layout: {
-        'icon-image': [
-          'case',
-          ['get', 'selected'],
-          SELECTED_LOCATION_ICON,
-          DEFAULT_LOCATION_ICON,
-        ],
-        'icon-size': 1,
-        'icon-allow-overlap': true,
-      },
+      map.addLayer({
+        id: LOCATIONS_LAYER,
+        type: 'symbol',
+        source: LOCATIONS_SOURCE,
+        layout: {
+          'icon-image': [
+            'case',
+            ['get', 'selected'],
+            SELECTED_LOCATION_ICON,
+            DEFAULT_LOCATION_ICON,
+          ],
+          'icon-size': 1,
+          'icon-allow-overlap': true,
+        },
+      })
     })
-  })
+    .catch((error) => {
+      console.error(`Error loading marker icons for map ${mapId}:`, error)
+    })
 }
 
 const createPopupContent = (
@@ -274,9 +275,7 @@ const renderMap = (
   }
 
   map.on('load', () => {
-    addLocationsToMap(mapId, map, geoJson).catch((error) => {
-      console.error(`Error adding locations to map ${mapId}:`, error)
-    })
+    addLocationsToMap(mapId, map, geoJson)
     addPopupsToMap(mapId, map, settings)
 
     map.on('mouseenter', LOCATIONS_LAYER, (): void => {
