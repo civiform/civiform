@@ -1,5 +1,5 @@
 <th:block
-  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, operatorNodeTypeList)"
+  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, operatorNodeTypeList, questions)"
 >
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
@@ -48,7 +48,7 @@
         of the following are true:
       </div>
       <div
-        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, 1)}"
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, 1, ${questions})}"
       ></div>
     </div>
 
