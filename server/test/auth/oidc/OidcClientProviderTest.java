@@ -54,7 +54,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)), null);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     OidcClientProvider oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)), null);
 
     OidcClient client = oidcClientProvider.get();
 
@@ -186,7 +186,7 @@ public class OidcClientProviderTest extends ResetPostgres {
                       OidcClientProviderParams.create(
                           bad_secret_config,
                           profileFactory,
-                          CfTestHelpers.userRepositoryProvider(accountRepository)));
+                          CfTestHelpers.userRepositoryProvider(accountRepository)), null);
               badOidcClientProvider.get();
             })
         .isInstanceOf(RuntimeException.class);
