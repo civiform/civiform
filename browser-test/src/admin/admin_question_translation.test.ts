@@ -51,6 +51,7 @@ test.describe('Admin can manage question translations', () => {
     await validateScreenshot(page, 'multi-option-question-translation')
   })
 
+  // map questions use mock-web-services, which is only available in local environments
   if (isLocalDevEnvironment()) {
     test('create a map question and add translations for settings', async ({
       page,
