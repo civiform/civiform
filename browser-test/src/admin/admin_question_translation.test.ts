@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -50,47 +51,50 @@ test.describe('Admin can manage question translations', () => {
     await validateScreenshot(page, 'multi-option-question-translation')
   })
 
-  test('create a map question and add translations for settings', async ({
-    page,
-    adminQuestions,
-    adminTranslations,
-  }) => {
-    const questionName = 'map-setting-translated'
+  // map questions use mock-web-services, which is only available in local environments
+  if (isLocalDevEnvironment()) {
+    test('create a map question and add translations for settings', async ({
+      page,
+      adminQuestions,
+      adminTranslations,
+    }) => {
+      const questionName = 'map-setting-translated'
 
-    await test.step('Add a new question to be translated', async () => {
-      await loginAsAdmin(page)
-      await adminQuestions.addMapQuestion({
-        questionName,
-        filters: [{key: 'type', displayName: 'Type'}],
+      await test.step('Add a new question to be translated', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addMapQuestion({
+          questionName,
+          filters: [{key: 'type', displayName: 'Type'}],
+        })
+      })
+
+      await test.step('Go to the question translation page and add a translation for Spanish', async () => {
+        await adminQuestions.goToQuestionTranslationPage(questionName)
+        await adminTranslations.selectLanguage('Spanish')
+
+        await validateScreenshot(page, 'map-question-translation')
+
+        await page
+          .getByLabel('Question text')
+          .fill('texto de la pregunta del mapa')
+        await page
+          .getByLabel('Question help text')
+          .fill('Texto de ayuda para la pregunta del mapa')
+        await page.getByLabel('Filter display name').fill('Tipo')
+        await page.getByText('Save Spanish updates').click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Verify that the translation was saved', async () => {
+        await adminQuestions.gotoAdminQuestionsPage()
+        await adminQuestions.updateQuestion(questionName)
+        await adminQuestions.goToQuestionTranslationPage(questionName)
+        await adminTranslations.selectLanguage('Spanish')
+
+        await expect(page.getByLabel('Filter display name')).toHaveValue('Tipo')
       })
     })
-
-    await test.step('Go to the question translation page and add a translation for Spanish', async () => {
-      await adminQuestions.goToQuestionTranslationPage(questionName)
-      await adminTranslations.selectLanguage('Spanish')
-
-      await validateScreenshot(page, 'map-question-translation')
-
-      await page
-        .getByLabel('Question text')
-        .fill('texto de la pregunta del mapa')
-      await page
-        .getByLabel('Question help text')
-        .fill('Texto de ayuda para la pregunta del mapa')
-      await page.getByLabel('Filter display name').fill('Tipo')
-      await page.getByText('Save Spanish updates').click()
-      await waitForPageJsLoad(page)
-    })
-
-    await test.step('Verify that the translation was saved', async () => {
-      await adminQuestions.gotoAdminQuestionsPage()
-      await adminQuestions.updateQuestion(questionName)
-      await adminQuestions.goToQuestionTranslationPage(questionName)
-      await adminTranslations.selectLanguage('Spanish')
-
-      await expect(page.getByLabel('Filter display name')).toHaveValue('Tipo')
-    })
-  })
+  }
 
   test('updating a question does not clobber translations', async ({
     page,
