@@ -13,8 +13,10 @@ import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
+import models.SettingsGroupModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.cache.SyncCacheApi;
 import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
@@ -22,10 +24,12 @@ public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private final Config config;
+  private final SyncCacheApi settingsCache;
   private static final Logger logger = LoggerFactory.getLogger("SettingsManifest");
 
-  public AbstractSettingsManifest(Config config) {
+  public AbstractSettingsManifest(Config config, SyncCacheApi settingsCache) {
     this.config = checkNotNull(config);
+    this.settingsCache = checkNotNull(settingsCache);
   }
 
   /**
@@ -118,18 +122,46 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected boolean getBool(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+    return getBool(variableName, true);
+    //    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+    //      logger.warn(
+    //          String.format(
+    //              "Settings not found on request when looking up value for %s", variableName));
+    //      return getBool(variableName);
+    //    }
+    //
+    //    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    //
+    //    return writableSettings.containsKey(variableName)
+    //        ? writableSettings.get(variableName).equals("true")
+    //        : getBool(variableName);
+  }
+
+  protected boolean getBool(String variableName, Boolean ignored) {
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry =
+        settingsCache.get("current-settings");
+
+    if (optionalCacheEntry.isEmpty()) {
       logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
+          String.format("Settings not found in cache when looking up value for %s", variableName));
       return getBool(variableName);
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
 
-    return writableSettings.containsKey(variableName)
-        ? writableSettings.get(variableName).equals("true")
-        : getBool(variableName);
+    if (optionalSettingsGroupModel.isEmpty()) {
+      logger.warn(
+          String.format("Settings not found in model when looking up value for %s", variableName));
+      return getBool(variableName);
+    }
+
+    String settingValue = optionalSettingsGroupModel.get().getSettings().get(variableName);
+
+    if (settingValue == null) {
+      return getBool(variableName);
+    }
+
+    return Boolean.parseBoolean(settingValue);
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
