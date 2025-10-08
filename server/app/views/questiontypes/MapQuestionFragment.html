@@ -156,26 +156,26 @@
       </div>
       <nav
         th:if="${questionRendererParams.geoJson().isPresent()}"
-        role="navigation"
-        aria-label="Pagination for map locations"
+        tabindex="-1"
+        th:aria-label="#{map.ariaLabelPaginationList}"
         class="usa-pagination flex-justify-end cf-pagination"
         th:data-map-id="${mapId}"
       >
         <div
+          aria-live="polite"
+          aria-atomic="true"
           class="sr-only cf-pagination-status"
-          tabindex="-1"
           th:data-map-id="${mapId}"
-          th:text="#{map.paginationStatus}"
         ></div>
         <ul class="usa-pagination__list cf-pagination-list">
           <li
             class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
           >
-            <a
-              href="#"
-              class="usa-pagination__link usa-pagination__previous-page"
+            <button
+              type="button"
+              class="usa-button--unstyled usa-pagination__link usa-pagination__previous-page"
               name="cf-map-question-pagination-previous-button"
-              aria-label="Previous page"
+              th:aria-label="#{map.ariaLabelPreviousPage}"
               th:data-map-id="${mapId}"
             >
               <cf:icon
@@ -190,17 +190,17 @@
                 th:data-map-id="${mapId}"
                 th:text="#{button.previousScreen}"
               ></span>
-            </a>
+            </button>
           </li>
           <!--/* Page buttons will be dynamically populated here from templates below */-->
           <li
             class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-next-button"
           >
-            <a
-              href="#"
-              class="usa-pagination__link usa-pagination__next-page"
+            <button
+              type="button"
+              class="usa-button--unstyled usa-pagination__link usa-pagination__next-page"
               name="cf-map-question-pagination-next-button"
-              aria-label="Next page"
+              th:aria-label="#{map.ariaLabelNextPage}"
               th:data-map-id="${mapId}"
             >
               <span
@@ -215,7 +215,7 @@
                 name="cf-map-question-pagination-next-button"
                 th:data-map-id="${mapId}"
               />
-            </a>
+            </button>
           </li>
         </ul>
       </nav>
@@ -225,12 +225,11 @@
         <li
           class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
         >
-          <a
-            role="button"
-            tabindex="0"
-            class="usa-pagination__button cf-map-question-pagination-button"
+          <button
+            type="button"
+            class="usa-button--unstyled usa-pagination__button cf-map-question-pagination-button"
             name="cf-map-question-pagination-button"
-          ></a>
+          ></button>
         </li>
       </template>
       <template
@@ -330,6 +329,7 @@
       mapRegionAltText:
         /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
       goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
+      paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
     }
 
     window.app.data.maps = window.app.data.maps || {}

@@ -312,6 +312,9 @@ public enum MessageKey {
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
   MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_ARIA_LABEL_PREVIOUS_PAGE("map.ariaLabelPreviousPage"), // North Star only
+  MAP_ARIA_LABEL_NEXT_PAGE("map.ariaLabelNextPage"), // North Star only
+  MAP_ARIA_LABEL_PAGINATION_LIST("map.ariaLabelPaginationList"), // North Star only
   MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
   MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
   MAP_GO_TO_PAGE("map.goToPage"), // North Star only

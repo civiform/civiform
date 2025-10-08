@@ -14,6 +14,7 @@ const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
   '.cf-pagination-overflow-template'
+const CF_PAGINATION = 'cf-pagination'
 const CF_PAGINATION_ITEM_SELECTOR = '.cf-pagination-item'
 const CF_PAGINATION_LIST_SELECTOR = '.cf-pagination-list'
 const CF_PAGINATION_STATUS_SELECTOR = '.cf-pagination-status'
@@ -122,13 +123,11 @@ const renderPaginationButtons = (
   )
   if (!paginationList) return
 
-  // Move focus to the sr-only header BEFORE removing buttons to prevent focus jump
+  // Move focus to the nav BEFORE removing buttons to prevent focus jump
   if (paginationList.contains(document.activeElement)) {
-    const paginationStatus = document.querySelector(
-      `${CF_PAGINATION_STATUS_SELECTOR}[${DATA_MAP_ID}="${mapId}"]`,
-    ) as HTMLElement
-    if (paginationStatus) {
-      paginationStatus.focus()
+    const paginationNav = mapQuerySelector(mapId, CF_PAGINATION) as HTMLElement
+    if (paginationNav) {
+      paginationNav.focus()
     }
   }
 
@@ -285,6 +284,26 @@ const updatePaginationButtonStates = (
   }
 }
 
+const updatePaginationStatus = (
+  mapId: string,
+  paginationNav: Element,
+): void => {
+  const updatedState = getPaginationState(mapId, paginationNav)
+  const statusElement = paginationNav.querySelector(
+    CF_PAGINATION_STATUS_SELECTOR,
+  ) as HTMLElement
+  if (statusElement) {
+    statusElement.textContent = localizeString(
+      (window.app.data.messages as MapMessages).paginationStatus,
+      [updatedState.currentPage.toString(), updatedState.totalPages.toString()],
+    )
+    // Clear the text after announcement to prevent navigation to it
+    setTimeout(() => {
+      statusElement.textContent = ''
+    }, 1000)
+  }
+}
+
 export const goToPage = (mapId: string, page: number): void => {
   const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
@@ -294,6 +313,7 @@ export const goToPage = (mapId: string, page: number): void => {
 
   paginationNav.setAttribute(DATA_CURRENT_PAGE_ATTRIBUTE, validPage.toString())
   updatePagination(mapId, paginationNav)
+  updatePaginationStatus(mapId, paginationNav)
 }
 
 export const getPaginationNavComponent = (mapId: string) => {

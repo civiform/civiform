@@ -12,6 +12,7 @@ export interface MapMessages {
   readonly locationsSelectedCount: string
   readonly mapRegionAltText: string
   readonly goToPage: string
+  readonly paginationStatus: string
 }
 
 export interface MapData {
