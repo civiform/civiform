@@ -25,6 +25,8 @@ import {
   mapQuerySelector,
   CF_MAP_MARKER_ICON_TEMPLATE,
   CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
+  localizeString,
+  CF_SELECT_LOCATION_BUTTON_CLICKED,
 } from './map_util'
 import {
   initLocationSelection,
@@ -141,6 +143,7 @@ const createPopupContent = (
   templateContent: HTMLCollection,
   settings: MapSettings,
   properties: GeoJsonProperties,
+  messages: MapMessages,
 ): Node | null => {
   if (!properties) return null
   const name: string = properties[settings.nameGeoJsonKey] as string
@@ -191,6 +194,13 @@ const createPopupContent = (
     .namedItem(CF_POPUP_CONTENT_BUTTON)
     ?.cloneNode(true) as HTMLButtonElement
   if (buttonElement) {
+    if (properties.selected) {
+      buttonElement.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
+      buttonElement.textContent = localizeString(
+        messages.mapSelectedButtonText,
+        [],
+      )
+    }
     buttonElement.setAttribute('data-feature-id', featureId)
     buttonElement.setAttribute(DATA_MAP_ID_ATTR, mapId)
     popupContent.appendChild(buttonElement)
@@ -203,6 +213,7 @@ const addPopupsToMap = (
   mapId: string,
   map: MapLibreMap,
   settings: MapSettings,
+  messages: MapMessages,
 ): void => {
   map.on('click', LOCATIONS_LAYER, (e) => {
     const features: Feature[] | undefined = e.features
@@ -235,6 +246,7 @@ const addPopupsToMap = (
       popupContentTemplate.content.children,
       settings,
       properties,
+      messages,
     )
     if (popupContent) {
       popup.setDOMContent(popupContent)
@@ -276,7 +288,7 @@ const renderMap = (
 
   map.on('load', () => {
     addLocationsToMap(mapId, map, geoJson)
-    addPopupsToMap(mapId, map, settings)
+    addPopupsToMap(mapId, map, settings, messages)
 
     map.on('mouseenter', LOCATIONS_LAYER, (): void => {
       const canvas = map.getCanvas()
@@ -316,10 +328,13 @@ const setupEventListenersForMap = (
 
     switch (targetName) {
       case CF_POPUP_CONTENT_BUTTON: {
+          target.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
+          target.textContent = localizeString(messages.mapSelectedButtonText, [])
           const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
           if (featureId) {
             selectLocationsFromMap(featureId, mapId, messages)
             updateSelectedMarker(mapElement, featureId, true)
+            updatePopupButtonState(mapId, featureId, true)
           }
         }
       case CF_MAP_QUESTION_PAGINATION_BUTTON:
@@ -362,6 +377,7 @@ const setupEventListenersForMap = (
       const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
       if (featureId) {
         updateSelectedMarker(mapElement, featureId, target.checked)
+        updatePopupButtonState(mapId, featureId, target.checked)
       }
 
       updateSelectedLocations(mapId, messages)
@@ -377,6 +393,7 @@ const setupEventListenersForMap = (
       const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
       if (!target.checked && featureId) {
         updateSelectedMarker(mapElement, featureId, false)
+        updatePopupButtonState(mapId, featureId, target.checked)
 
         // Find and uncheck the original checkbox
         const originalCheckbox = locationsListContainer?.querySelector(
@@ -417,4 +434,31 @@ export const updateSelectedMarker = (
     ...data,
     features: updatedFeatures,
   })
+}
+
+const updatePopupButtonState = (
+  mapId: string,
+  featureId: string,
+  isSelected: boolean,
+): void => {
+  const mapContainer = document.getElementById(mapId)
+  if (!mapContainer) return
+
+  const popupButton = mapContainer.querySelector(
+    `[data-map-id="${mapId}"][data-feature-id="${featureId}"]`,
+  )
+  if (!popupButton) return
+
+  if (isSelected) {
+    popupButton.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
+    popupButton.textContent = localizeString(
+      (window.app?.data?.messages as MapMessages).mapSelectedButtonText,
+      [],
+    )
+  } else {
+    popupButton.classList.remove(CF_SELECT_LOCATION_BUTTON_CLICKED)
+    popupButton.textContent = (
+      window.app?.data?.messages as MapMessages
+    ).mapSelectLocationButtonText
+  }
 }

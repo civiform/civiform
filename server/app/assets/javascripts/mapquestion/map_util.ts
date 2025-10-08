@@ -13,6 +13,8 @@ export interface MapMessages {
   readonly mapRegionAltText: string
   readonly goToPage: string
   readonly paginationStatus: string
+  readonly mapSelectedButtonText: string
+  readonly mapSelectLocationButtonText: string
 }
 
 export interface MapData {
@@ -32,6 +34,8 @@ export const CF_POPUP_CONTENT_LOCATION_ADDRESS =
   'cf-popup-content-location-address'
 export const CF_POPUP_CONTENT_LOCATION_LINK = 'cf-popup-content-location-link'
 export const CF_POPUP_CONTENT_BUTTON = 'cf-select-location-button'
+export const CF_SELECT_LOCATION_BUTTON_CLICKED =
+  'cf-select-location-button-clicked'
 
 // LOCATIONS LIST
 export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
