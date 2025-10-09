@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AuthStrategy,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -35,32 +36,6 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     ).not.toBeAttached()
   })
 
-  test('Guest user can end session after starting an application and toast is shown', async ({
-    page,
-    adminPrograms,
-    applicantQuestions,
-    seeding,
-  }) => {
-    await seeding.seedProgramsAndCategories()
-    await page.goto('/')
-    await loginAsAdmin(page)
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
-
-    await applicantQuestions.applyProgram(
-      'Minimal Sample Program',
-      /* northStarEnabled= */ true,
-    )
-    await expect(page.getByTestId('login-button')).toBeAttached()
-    await expect(
-      page.getByRole('button', {name: endYourSessionText}),
-    ).toBeAttached()
-
-    await page.getByRole('button', {name: endYourSessionText}).click()
-    expect(await page.title()).toContain('Find programs')
-
-    await validateToastMessage(page, 'Your session has ended.')
-  })
 
   test('Guest user with session replay protection enabled can end session after starting an application and toast is shown', async ({
     page,
@@ -68,12 +43,12 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     applicantQuestions,
     seeding,
   }) => {
+    await enableFeatureFlag(page, 'session_replay_protection_enabled')
     await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()
     await logout(page)
-    await enableFeatureFlag(page, 'session_replay_protection_enabled')
 
     await applicantQuestions.applyProgram(
       'Minimal Sample Program',
@@ -86,6 +61,37 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await expect(
       page.getByText(/Your session will automatically expire after/),
     ).toBeAttached()
+
+    await page.getByRole('button', {name: endYourSessionText}).click()
+    expect(await page.title()).toContain('Find programs')
+
+    await validateToastMessage(page, 'Your session has ended.')
+  })
+
+  test('Guest user can end session after starting an application and toast is shown', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    seeding,
+  }) => {
+    await disableFeatureFlag(page, 'session_replay_protection_enabled')
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await applicantQuestions.applyProgram(
+      'Minimal Sample Program',
+      /* northStarEnabled= */ true,
+    )
+    await expect(page.getByTestId('login-button')).toBeAttached()
+    await expect(
+      page.getByRole('button', {name: endYourSessionText}),
+    ).toBeAttached()
+        await expect(
+      page.getByText(/Your session will automatically expire after/),
+    ).not.toBeAttached()
 
     await page.getByRole('button', {name: endYourSessionText}).click()
     expect(await page.title()).toContain('Find programs')
