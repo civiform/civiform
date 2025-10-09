@@ -556,4 +556,107 @@ public class MultiOptionQuestionDefinitionTest {
         .setDescription("description")
         .setQuestionText(LocalizedStrings.of(Locale.US, "question?"));
   }
+
+  @Test
+  public void getDisplayableOptions_withAllDisplayable_returnsAllOptions() {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(true)),
+            QuestionOption.create(
+                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(true)),
+            QuestionOption.create(
+                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(true)));
+
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            makeConfigBuilder().build(), options, MultiOptionQuestionType.RADIO_BUTTON);
+
+    assertThat(definition.getDisplayableOptions()).hasSize(3);
+    assertThat(definition.getDisplayableOptions()).isEqualTo(options);
+  }
+
+  @Test
+  public void getDisplayableOptions_withSomeHidden_returnsOnlyDisplayable() {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(true)),
+            QuestionOption.create(
+                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(false)),
+            QuestionOption.create(
+                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(true)),
+            QuestionOption.create(
+                4L, 4L, "opt4", LocalizedStrings.of(Locale.US, "option 4"), Optional.of(false)));
+
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            makeConfigBuilder().build(), options, MultiOptionQuestionType.YES_NO);
+
+    ImmutableList<QuestionOption> displayableOptions = definition.getDisplayableOptions();
+
+    assertThat(displayableOptions).hasSize(2);
+    assertThat(displayableOptions.stream().map(QuestionOption::id)).containsExactly(1L, 3L);
+    assertThat(displayableOptions.stream().map(QuestionOption::adminName))
+        .containsExactly("opt1", "opt3");
+  }
+
+  @Test
+  public void getDisplayableOptions_withLegacyOptions_returnsAll() {
+    // Legacy options don't have displayInAnswerOptions set (empty Optional)
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.of(Locale.US, "option 2")));
+
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            makeConfigBuilder().build(), options, MultiOptionQuestionType.DROPDOWN);
+
+    // Legacy options (with empty displayInAnswerOptions) should all be displayed
+    assertThat(definition.getDisplayableOptions()).hasSize(2);
+    assertThat(definition.getDisplayableOptions()).isEqualTo(options);
+  }
+
+  @Test
+  public void getDisplayableOptions_withMixedLegacyAndNew_returnsCorrectly() {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            // Legacy option (no displayInAnswerOptions)
+            QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1")),
+            // New option - visible
+            QuestionOption.create(
+                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(true)),
+            // New option - hidden
+            QuestionOption.create(
+                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(false)),
+            // Legacy option (no displayInAnswerOptions)
+            QuestionOption.create(4L, "opt4", LocalizedStrings.of(Locale.US, "option 4")));
+
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            makeConfigBuilder().build(), options, MultiOptionQuestionType.CHECKBOX);
+
+    ImmutableList<QuestionOption> displayableOptions = definition.getDisplayableOptions();
+
+    // Should include: legacy opt1, visible opt2, legacy opt4 (but NOT hidden opt3)
+    assertThat(displayableOptions).hasSize(3);
+    assertThat(displayableOptions.stream().map(QuestionOption::id)).containsExactly(1L, 2L, 4L);
+  }
+
+  @Test
+  public void getDisplayableOptions_withAllHidden_returnsEmpty() {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(false)),
+            QuestionOption.create(
+                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(false)));
+
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            makeConfigBuilder().build(), options, MultiOptionQuestionType.RADIO_BUTTON);
+
+    assertThat(definition.getDisplayableOptions()).isEmpty();
+  }
 }

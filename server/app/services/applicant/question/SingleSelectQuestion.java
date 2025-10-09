@@ -58,9 +58,12 @@ public final class SingleSelectQuestion extends AbstractQuestion {
 
     Long selectedValue = optionalSelectedValue.get();
 
-    // Validate the long is in the set of allowed Question options.
+    // Validate the long is in the set of allowed Question options that are displayable to
+    // applicants.
+    // This prevents submission of options that have been removed/hidden by admins.
     boolean validSelection =
-        getQuestionDefinition().getOptions().stream().anyMatch(o -> selectedValue.equals(o.id()));
+        getQuestionDefinition().getDisplayableOptions().stream()
+            .anyMatch(o -> selectedValue.equals(o.id()));
 
     if (!validSelection) {
       return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
