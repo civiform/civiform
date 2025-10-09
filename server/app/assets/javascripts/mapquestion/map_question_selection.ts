@@ -127,6 +127,7 @@ export const selectLocationsFromMap = (
   featureId: string,
   mapId: string,
   messages: MapMessages,
+  isSelected: boolean,
 ): void => {
   const locationsListContainer = mapQuerySelector(
     mapId,
@@ -142,7 +143,7 @@ export const selectLocationsFromMap = (
       `.${CF_LOCATION_CHECKBOX_INPUT}`,
     ) as HTMLInputElement
     if (checkboxInputElement) {
-      checkboxInputElement.checked = true
+      checkboxInputElement.checked = isSelected
       updateSelectedLocations(mapId, messages)
     }
   }

@@ -323,18 +323,20 @@ const setupEventListenersForMap = (
     const targetName = target.getAttribute('name')
     if (!targetName) return
 
+    const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
+    if (!featureId) return
+
     const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
     if (!mapId) return
 
     switch (targetName) {
       case CF_POPUP_CONTENT_BUTTON: {
-          target.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
-          target.textContent = localizeString(messages.mapSelectedButtonText, [])
-          const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
-          if (featureId) {
-            selectLocationsFromMap(featureId, mapId, messages)
-            updateSelectedMarker(mapElement, featureId, true)
-            updatePopupButtonState(mapId, featureId, true)
+            const isSelected = !target.classList.contains(
+              CF_SELECT_LOCATION_BUTTON_CLICKED,
+            )
+            selectLocationsFromMap(featureId, mapId, messages, isSelected)
+            updateSelectedMarker(mapElement, featureId, isSelected)
+            updatePopupButtonState(mapId, featureId, isSelected)
           }
         }
       case CF_MAP_QUESTION_PAGINATION_BUTTON:
@@ -412,7 +414,7 @@ const setupEventListenersForMap = (
 export const updateSelectedMarker = (
   mapElement: MapLibreMap,
   featureId: string,
-  selected: boolean,
+  isSelected: boolean,
 ) => {
   const source = mapElement.getSource(LOCATIONS_SOURCE) as GeoJSONSource
 
@@ -423,7 +425,7 @@ export const updateSelectedMarker = (
         ...feature,
         properties: {
           ...feature.properties,
-          selected: selected,
+          selected: isSelected,
         },
       }
     }
