@@ -484,3 +484,13 @@ session.extend.button=延長工作階段
 session.extended.success=已成功延長工作階段
 session.extended.error=無法延長工作階段
 translation.untranslated=為了進行翻譯基礎設施實驗，此字串尚未翻譯。
+
+map.ariaLabelNextPage=Go to next page of map locations
+
+map.ariaLabelPaginationList=Pagination for map locations
+
+map.ariaLabelPreviousPage=Go to previous page of map locations
+
+map.goToPage=Go to page {0} of map locations
+
+map.paginationStatus=Now displaying page {0} of {1}.

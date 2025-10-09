@@ -480,3 +480,23 @@ session.extend.button=세션 연장
 session.extended.success=세션이 연장되었습니다
 session.extended.error=세션을 연장할 수 없습니다
 translation.untranslated=이 문자열은 번역 인프라 실험을 위해 번역되지 않은 상태로 유지됩니다.
+
+map.ariaLabelNextPage=Go to next page of map locations
+
+map.ariaLabelPaginationList=Pagination for map locations
+
+map.ariaLabelPreviousPage=Go to previous page of map locations
+
+map.availableLocations=Available locations
+
+map.goToPage=Go to page {0} of map locations
+
+map.locationAddressHelpText=Select which key represents the location address.
+
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+
+map.locationNameHelpText=Select which key represents the location name.
+
+map.paginationStatus=Now displaying page {0} of {1}.
+
+map.selectLocations=Select up to {0} locations
