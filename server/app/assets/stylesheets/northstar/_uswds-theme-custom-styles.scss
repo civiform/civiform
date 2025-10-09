@@ -715,7 +715,12 @@ main {
 }
 
 // Map question filtering - hide filtered out locations
-.cf-location-hidden {
+.cf-filter-hidden {
+  display: none;
+}
+
+// Map question pagination - hide locations not on current page
+.cf-pagination-hidden {
   display: none;
 }
 

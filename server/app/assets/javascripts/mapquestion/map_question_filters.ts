@@ -11,7 +11,7 @@ import {
   LOCATIONS_LAYER,
   MapData,
   mapQuerySelector,
-  CF_LOCATION_HIDDEN,
+  CF_FILTER_HIDDEN,
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
@@ -76,9 +76,9 @@ const applyLocationFilters = (
     const matchesFilter = featureMatchesFilters(matchingFeature, filters)
 
     if (matchesFilter) {
-      containerElement.classList.remove(CF_LOCATION_HIDDEN)
+      containerElement.classList.remove(CF_FILTER_HIDDEN)
     } else {
-      containerElement.classList.add(CF_LOCATION_HIDDEN)
+      containerElement.classList.add(CF_FILTER_HIDDEN)
     }
   })
 
@@ -94,7 +94,7 @@ const updateLocationCountForMap = (
   const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
     const checkboxElement = (checkbox as HTMLElement) || null
     return (
-      checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
+      checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
   }).length
 

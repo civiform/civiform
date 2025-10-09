@@ -3,7 +3,8 @@ import {
   CF_LOCATION_CHECKBOX,
   CF_SELECTED_LOCATIONS_CONTAINER,
   CF_NO_SELECTIONS_MESSAGE,
-  CF_LOCATION_HIDDEN,
+  CF_FILTER_HIDDEN,
+  CF_PAGINATION_HIDDEN,
   mapQuerySelector,
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
@@ -64,7 +65,8 @@ export const updateSelectedLocations = (
     selectedLocationsContainer.textContent = ''
     selectedCheckboxes.forEach((originalCheckbox) => {
       const selectedLocation = originalCheckbox.cloneNode(true) as HTMLElement
-      selectedLocation.classList.remove(CF_LOCATION_HIDDEN)
+      selectedLocation.classList.remove(CF_FILTER_HIDDEN)
+      selectedLocation.classList.remove(CF_PAGINATION_HIDDEN)
 
       const input = selectedLocation.querySelector(
         'input[type="checkbox"]',

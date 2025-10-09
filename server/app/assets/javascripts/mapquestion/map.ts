@@ -326,38 +326,38 @@ const setupEventListenersForMap = (
     const featureId = target.getAttribute(DATA_FEATURE_ID_ATTR)
     if (!featureId) return
 
-    const mapId = target.getAttribute(DATA_MAP_ID_ATTR)
-    if (!mapId) return
+    if (targetName === CF_POPUP_CONTENT_BUTTON && featureId) {
+      const isSelected = !target.classList.contains(
+        CF_SELECT_LOCATION_BUTTON_CLICKED,
+      )
+      selectLocationsFromMap(featureId, mapId, messages, isSelected)
+      updateSelectedMarker(mapElement, featureId, isSelected)
+      updatePopupButtonState(mapId, featureId, isSelected)
+    }
+  })
 
-    switch (targetName) {
-      case CF_POPUP_CONTENT_BUTTON: {
-            const isSelected = !target.classList.contains(
-              CF_SELECT_LOCATION_BUTTON_CLICKED,
-            )
-            selectLocationsFromMap(featureId, mapId, messages, isSelected)
-            updateSelectedMarker(mapElement, featureId, isSelected)
-            updatePopupButtonState(mapId, featureId, isSelected)
-          }
-        }
-      case CF_MAP_QUESTION_PAGINATION_BUTTON:
-      case CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON:
-      case CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON: {
-        e.preventDefault()
-        let page: number
-        if (targetName === CF_MAP_QUESTION_PAGINATION_BUTTON) {
-          page = parseInt(target.getAttribute(DATA_PAGE_ATTRIBUTE) || '1', 10)
-        } else {
-          const paginationNav = getPaginationNavComponent(mapId)
-          if (!paginationNav) return
-          const state = getPaginationState(mapId, paginationNav)
-          page =
-            targetName === CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON
-              ? state.currentPage - 1
-              : state.currentPage + 1
-        }
-        goToPage(mapId, page)
-        return
-      }
+  const paginationNav = getPaginationNavComponent(mapId)
+  if (!paginationNav) return
+  paginationNav.addEventListener('click', (e) => {
+    const target = e.target as HTMLButtonElement
+    const targetName = target?.getAttribute('name')
+
+    const paginationButtons = [
+      CF_MAP_QUESTION_PAGINATION_BUTTON,
+      CF_MAP_QUESTION_PAGINATION_PREVIOUS_BUTTON,
+      CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
+    ]
+
+    if (targetName && paginationButtons.includes(targetName)) {
+      e.preventDefault()
+
+      const page =
+        targetName === CF_MAP_QUESTION_PAGINATION_BUTTON
+          ? parseInt(target.getAttribute(DATA_PAGE_ATTRIBUTE) || '1', 10)
+          : getPaginationState(mapId, paginationNav).currentPage +
+            (targetName === CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON ? 1 : -1)
+
+      goToPage(mapId, page)
     }
   })
 

@@ -51,7 +51,10 @@ export const DATA_MAP_ID_ATTR = 'data-map-id'
 export const CF_APPLY_FILTERS_BUTTON = 'cf-apply-filters-button'
 export const CF_RESET_FILTERS_BUTTON = 'cf-reset-filters-button'
 export const CF_LOCATION_COUNT = 'cf-location-count'
-export const CF_LOCATION_HIDDEN = 'cf-location-hidden'
+export const CF_FILTER_HIDDEN = 'cf-filter-hidden'
+
+// PAGINATION
+export const CF_PAGINATION_HIDDEN = 'cf-pagination-hidden'
 
 // MAP DEFAULTS
 export const LOCATIONS_SOURCE = 'locations'
@@ -117,7 +120,7 @@ export const getVisibleCheckboxes = (mapId: string) => {
   return Array.from(locationCheckboxes).filter((checkbox) => {
     const checkboxElement = (checkbox as HTMLElement) || null
     return (
-      checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
+      checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
   })
 }
