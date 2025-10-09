@@ -15,18 +15,17 @@ import {
   CF_LOCATIONS_LIST_CONTAINER,
   DATA_FEATURE_ID_ATTR,
   DATA_MAP_ID_ATTR,
-  MapMessages,
   LOCATIONS_SOURCE,
   LOCATIONS_LAYER,
   DEFAULT_LOCATION_ICON,
   SELECTED_LOCATION_ICON,
-  DEFAULT_ICON_IMAGE_SOURCE,
-  SELECTED_ICON_IMAGE_SOURCE,
   mapQuerySelector,
   CF_MAP_MARKER_ICON_TEMPLATE,
   CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
   localizeString,
   CF_SELECT_LOCATION_BUTTON_CLICKED,
+  DEFAULT_MAP_MARKER_TYPE,
+  getMessages,
 } from './map_util'
 import {
   initLocationSelection,
@@ -46,16 +45,15 @@ import {
 } from './map_question_pagination'
 
 export const init = (): void => {
-  const mapMessages = window.app?.data?.messages as MapMessages
   const mapDataObject = window.app?.data?.maps || {}
 
   Object.entries(mapDataObject).forEach(([mapId, mapData]) => {
     try {
-      const mapElement = renderMap(mapId, mapData as MapData, mapMessages)
-      initLocationSelection(mapId, mapMessages)
-      initFilters(mapId, mapElement, mapMessages, mapData as MapData)
+      const mapElement = renderMap(mapId, mapData as MapData)
+      initLocationSelection(mapId)
+      initFilters(mapId, mapElement, mapData as MapData)
       initPagination(mapId)
-      setupEventListenersForMap(mapId, mapElement, mapMessages)
+      setupEventListenersForMap(mapId, mapElement)
     } catch (error) {
       console.warn(`Failed to render map ${mapId}:`, error)
     }
@@ -91,23 +89,10 @@ const addLocationsToMap = (
     })),
   }
 
-  const defaultIconTemplate = mapQuerySelector(
-    mapId,
-    CF_MAP_MARKER_ICON_TEMPLATE,
-  ) as HTMLTemplateElement
-  const selectedIconTemplate = mapQuerySelector(
-    mapId,
-    CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
-  ) as HTMLTemplateElement
-
-  const defaultIconSrc =
-    (defaultIconTemplate?.content.querySelector('img') as HTMLImageElement)
-      ?.src || DEFAULT_ICON_IMAGE_SOURCE
-  const selectedIconSrc =
-    (selectedIconTemplate?.content.querySelector('img') as HTMLImageElement)
-      ?.src || SELECTED_ICON_IMAGE_SOURCE
-
-  Promise.all([map.loadImage(defaultIconSrc), map.loadImage(selectedIconSrc)])
+  Promise.all([
+    loadIconImage(map, mapId, CF_MAP_MARKER_ICON_TEMPLATE),
+    loadIconImage(map, mapId, CF_MAP_MARKER_ICON_SELECTED_TEMPLATE),
+  ])
     .then(([defaultImage, selectedImage]) => {
       map.addImage(DEFAULT_LOCATION_ICON, defaultImage.data)
       map.addImage(SELECTED_LOCATION_ICON, selectedImage.data)
@@ -119,7 +104,7 @@ const addLocationsToMap = (
 
       map.addLayer({
         id: LOCATIONS_LAYER,
-        type: 'symbol',
+        type: DEFAULT_MAP_MARKER_TYPE,
         source: LOCATIONS_SOURCE,
         layout: {
           'icon-image': [
@@ -138,12 +123,28 @@ const addLocationsToMap = (
     })
 }
 
+const loadIconImage = (
+  map: MapLibreMap,
+  mapId: string,
+  templateString: string,
+) => {
+  const iconTemplate = mapQuerySelector(
+    mapId,
+    templateString,
+  ) as HTMLTemplateElement
+
+  const iconSrc = (
+    iconTemplate?.content.querySelector('img') as HTMLImageElement
+  )?.src
+
+  return map.loadImage(iconSrc)
+}
+
 const createPopupContent = (
   mapId: string,
   templateContent: HTMLCollection,
   settings: MapSettings,
   properties: GeoJsonProperties,
-  messages: MapMessages,
 ): Node | null => {
   if (!properties) return null
   const name: string = properties[settings.nameGeoJsonKey] as string
@@ -197,8 +198,7 @@ const createPopupContent = (
     if (properties.selected) {
       buttonElement.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
       buttonElement.textContent = localizeString(
-        messages.mapSelectedButtonText,
-        [],
+        getMessages().mapSelectedButtonText,
       )
     }
     buttonElement.setAttribute('data-feature-id', featureId)
@@ -213,7 +213,6 @@ const addPopupsToMap = (
   mapId: string,
   map: MapLibreMap,
   settings: MapSettings,
-  messages: MapMessages,
 ): void => {
   map.on('click', LOCATIONS_LAYER, (e) => {
     const features: Feature[] | undefined = e.features
@@ -246,7 +245,6 @@ const addPopupsToMap = (
       popupContentTemplate.content.children,
       settings,
       properties,
-      messages,
     )
     if (popupContent) {
       popup.setDOMContent(popupContent)
@@ -256,11 +254,7 @@ const addPopupsToMap = (
   })
 }
 
-const renderMap = (
-  mapId: string,
-  mapData: MapData,
-  messages: MapMessages,
-): MapLibreMap => {
+const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   if (!mapData.settings || !mapData.geoJson) {
     throw new Error(
       `Invalid map data for ${mapId}: missing settings or geoJson`,
@@ -272,7 +266,7 @@ const renderMap = (
   const map = createMap(mapId)
 
   const canvas: HTMLCanvasElement = map.getCanvas()
-  canvas.setAttribute('aria-label', messages.mapRegionAltText)
+  canvas.setAttribute('aria-label', getMessages().mapRegionAltText)
 
   // Add focus styles to the map container when the canvas is focused
   const mapContainer = document.getElementById(mapId)
@@ -288,7 +282,7 @@ const renderMap = (
 
   map.on('load', () => {
     addLocationsToMap(mapId, map, geoJson)
-    addPopupsToMap(mapId, map, settings, messages)
+    addPopupsToMap(mapId, map, settings)
 
     map.on('mouseenter', LOCATIONS_LAYER, (): void => {
       const canvas = map.getCanvas()
@@ -311,7 +305,6 @@ const renderMap = (
 const setupEventListenersForMap = (
   mapId: string,
   mapElement: MapLibreMap,
-  messages: MapMessages,
 ): void => {
   const mapContainer = document.getElementById(mapId)
   if (!mapContainer) return
@@ -330,7 +323,7 @@ const setupEventListenersForMap = (
       const isSelected = !target.classList.contains(
         CF_SELECT_LOCATION_BUTTON_CLICKED,
       )
-      selectLocationsFromMap(featureId, mapId, messages, isSelected)
+      selectLocationsFromMap(featureId, mapId, isSelected)
       updateSelectedMarker(mapElement, featureId, isSelected)
       updatePopupButtonState(mapId, featureId, isSelected)
     }
@@ -382,7 +375,7 @@ const setupEventListenersForMap = (
         updatePopupButtonState(mapId, featureId, target.checked)
       }
 
-      updateSelectedLocations(mapId, messages)
+      updateSelectedLocations(mapId)
     })
   }
 
@@ -406,7 +399,7 @@ const setupEventListenersForMap = (
         }
       }
 
-      updateSelectedLocations(mapId, messages)
+      updateSelectedLocations(mapId)
     })
   }
 }
@@ -454,13 +447,10 @@ const updatePopupButtonState = (
   if (isSelected) {
     popupButton.classList.add(CF_SELECT_LOCATION_BUTTON_CLICKED)
     popupButton.textContent = localizeString(
-      (window.app?.data?.messages as MapMessages).mapSelectedButtonText,
-      [],
+      getMessages().mapSelectedButtonText,
     )
   } else {
     popupButton.classList.remove(CF_SELECT_LOCATION_BUTTON_CLICKED)
-    popupButton.textContent = (
-      window.app?.data?.messages as MapMessages
-    ).mapSelectLocationButtonText
+    popupButton.textContent = getMessages().mapSelectLocationButtonText
   }
 }

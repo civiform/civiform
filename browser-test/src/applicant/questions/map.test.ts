@@ -242,6 +242,62 @@ if (isLocalDevEnvironment()) {
           await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
         })
       })
+
+      test('pin icon and popup button state changes on selection', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName, true)
+
+        const mapContainer = page.getByTestId('map-container')
+        const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const selectedLocationsList = page.getByTestId(
+          'selected-locations-list',
+        )
+
+        // Dismiss attribution control to avoid overlap with popups
+        await page.getByLabel('Toggle attribution').click()
+
+        await test.step('Select location and verify pin changes color', async () => {
+          await locationsList.getByRole('checkbox').first().check()
+          await validateScreenshot(mapContainer, 'map-with-selected-pin')
+          await locationsList.getByRole('checkbox').first().uncheck()
+        })
+
+        await test.step('Verify popup button states', async () => {
+          await mapCanvas.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-unselected')
+          const selectButton = page.getByRole('button', {
+            name: /select.*location/i,
+          })
+
+          await selectButton.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-selected')
+
+          await expect(selectedLocationsList.getByRole('checkbox')).toHaveCount(
+            1,
+          )
+        })
+
+        await test.step('Unselect and verify select button returns to default', async () => {
+          await selectedLocationsList
+            .locator('input[type="checkbox"]')
+            .first()
+            .click()
+
+          await expect(
+            page.getByText('No locations have been selected.'),
+          ).toBeVisible()
+
+          await validateScreenshot(
+            mapContainer,
+            'map-popup-button-unselected-after-unselect',
+          )
+        })
+      })
     })
 
     test.describe('multiple map questions', () => {

@@ -62,11 +62,8 @@ export const LOCATIONS_LAYER = 'locations-layer'
 export const DEFAULT_LOCATION_ICON = 'locationMarkerIcon'
 export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
 export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]
+export const DEFAULT_MAP_MARKER_TYPE = 'symbol'
 export const DEFAULT_MAP_ZOOM = 8
-export const DEFAULT_ICON_IMAGE_SOURCE =
-  '/assets/Images/uswds/icon-location_on.png'
-export const SELECTED_ICON_IMAGE_SOURCE =
-  '/assets/Images/uswds/icon-location_selected.png'
 
 // MARKER TEMPLATES
 export const CF_MAP_MARKER_ICON_TEMPLATE = 'cf-map-marker-icon-template'
@@ -96,7 +93,7 @@ export const mapQuerySelector = (
 
 // Get the internalized string and replace parameters like {0}, {1}, etc.
 // TODO: implement a more robust solution for string internationalization in typescript
-export const localizeString = (message: string, params: string[]) => {
+export const localizeString = (message: string, params: string[] = []) => {
   for (let i = 0; i < params.length; i++) {
     const placeholder = `{${i}}`
     message = message.replace(placeholder, params[i])
@@ -123,4 +120,8 @@ export const getVisibleCheckboxes = (mapId: string) => {
       checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
   })
+}
+
+export const getMessages = (): MapMessages => {
+  return window.app?.data?.messages as MapMessages
 }

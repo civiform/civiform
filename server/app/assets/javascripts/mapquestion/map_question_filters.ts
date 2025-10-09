@@ -15,16 +15,15 @@ import {
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
-  MapMessages,
   localizeString,
   queryLocationCheckboxes,
+  getMessages,
 } from './map_util'
 import {resetPagination} from './map_question_pagination'
 
 export const initFilters = (
   mapId: string,
   mapElement: MapLibreMap,
-  messages: MapMessages,
   mapData: MapData,
 ): void => {
   const featureMap = new Map<string, Feature>()
@@ -36,7 +35,7 @@ export const initFilters = (
 
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap, messages),
+    () => applyLocationFilters(mapId, mapElement, featureMap),
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -47,7 +46,7 @@ export const initFilters = (
         if (!selectOptionElement) return
         selectOptionElement.value = ''
       })
-      applyLocationFilters(mapId, mapElement, featureMap, messages, true)
+      applyLocationFilters(mapId, mapElement, featureMap, true)
     },
   )
 }
@@ -56,7 +55,6 @@ const applyLocationFilters = (
   mapId: string,
   map: MapLibreMap,
   featureMap: Map<string, Feature>,
-  messages: MapMessages,
   reset?: boolean,
 ): void => {
   const filters = reset ? {} : getFilters(mapId)
@@ -82,14 +80,11 @@ const applyLocationFilters = (
     }
   })
 
-  updateLocationCountForMap(mapId, messages)
+  updateLocationCountForMap(mapId)
   resetPagination(mapId)
 }
 
-const updateLocationCountForMap = (
-  mapId: string,
-  messages: MapMessages,
-): void => {
+const updateLocationCountForMap = (mapId: string): void => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
     const checkboxElement = (checkbox as HTMLElement) || null
@@ -103,7 +98,7 @@ const updateLocationCountForMap = (
     CF_LOCATION_COUNT,
   ) as HTMLElement | null
   if (countText) {
-    countText.textContent = localizeString(messages.locationsCount, [
+    countText.textContent = localizeString(getMessages().locationsCount, [
       visibleCount.toString(),
       locationCheckboxes.length.toString(),
     ])

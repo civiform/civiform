@@ -3,10 +3,10 @@ import {
   DATA_MAP_ID,
   getVisibleCheckboxes,
   localizeString,
-  MapMessages,
   mapQuerySelector,
   queryLocationCheckboxes,
   CF_PAGINATION_HIDDEN,
+  getMessages,
 } from './map_util'
 
 const ITEMS_PER_PAGE = 6
@@ -228,9 +228,7 @@ const createPageButton = (
   link.textContent = pageNumber.toString()
   link.setAttribute(
     'aria-label',
-    localizeString((window.app.data.messages as MapMessages).goToPage, [
-      pageNumber.toString(),
-    ]),
+    localizeString(getMessages().goToPage, [pageNumber.toString()]),
   )
   link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
@@ -294,10 +292,10 @@ const updatePaginationStatus = (
     CF_PAGINATION_STATUS_SELECTOR,
   ) as HTMLElement
   if (statusElement) {
-    statusElement.textContent = localizeString(
-      (window.app.data.messages as MapMessages).paginationStatus,
-      [updatedState.currentPage.toString(), updatedState.totalPages.toString()],
-    )
+    statusElement.textContent = localizeString(getMessages().paginationStatus, [
+      updatedState.currentPage.toString(),
+      updatedState.totalPages.toString(),
+    ])
     // Clear the text after announcement to prevent navigation to it
     setTimeout(() => {
       statusElement.textContent = ''
