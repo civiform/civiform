@@ -234,4 +234,9 @@
     background-color: #f7fafc;
   }
 
+  /* Fix pagination current page button color specificity issue */
+  .usa-pagination .usa-current:visited {
+    color: #fff;
+  }
+
 }

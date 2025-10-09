@@ -11,6 +11,8 @@ export interface MapMessages {
   readonly locationsCount: string
   readonly locationsSelectedCount: string
   readonly mapRegionAltText: string
+  readonly goToPage: string
+  readonly paginationStatus: string
 }
 
 export interface MapData {
@@ -87,4 +89,24 @@ export const localizeString = (message: string, params: string[]) => {
   }
 
   return message
+}
+
+export const queryLocationCheckboxes = (mapId: string) => {
+  const locationsListContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  ) as HTMLElement | null
+  if (!locationsListContainer) return []
+
+  return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
+}
+
+export const getVisibleCheckboxes = (mapId: string) => {
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+  return Array.from(locationCheckboxes).filter((checkbox) => {
+    const checkboxElement = (checkbox as HTMLElement) || null
+    return (
+      checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
+    )
+  })
 }

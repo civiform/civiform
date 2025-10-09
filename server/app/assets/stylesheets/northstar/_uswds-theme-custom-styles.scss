@@ -694,36 +694,6 @@ main {
   }
 }
 
-// Map question custom styles
-// Custom height for map question location container
-.cf-locations-list {
-  height: 400px;
-  scroll-behavior: smooth;
-}
-
-// Ensure locations column matches map height exactly
-.cf-locations-column {
-  height: 400px;
-
-  // Custom scrollbar styling to remove background
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: color('gray-50');
-    border-radius: units('05');
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: color('gray-60');
-  }
-}
-
 // Custom height for map question map container
 .cf-map-container {
   min-height: 400px;
@@ -752,4 +722,10 @@ main {
 .usa-button.cf-apply-filters-button,
 .usa-button.cf-reset-filters-button {
   margin-top: 0.5rem;
+}
+
+// Custom pagination item for higher accessibility standards than USWDS default
+.usa-pagination__item.cf-pagination-item {
+  height: 2.75rem;
+  min-width: 2.75rem;
 }
