@@ -216,6 +216,22 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
+   * Get only the options that should be displayed to applicants in answer forms.
+   *
+   * <p>This filters options based on the {@code displayInAnswerOptions} field. Options without this
+   * field set (legacy options) are included by default for backward compatibility.
+   *
+   * @return a list of options that should be shown to applicants for selection
+   */
+  public ImmutableList<QuestionOption> getDisplayableOptions() {
+    return this.questionOptions.stream()
+        .filter(
+            option ->
+                option.displayInAnswerOptions().isEmpty() || option.displayInAnswerOptions().get())
+        .collect(toImmutableList());
+  }
+
+  /**
    * Get the admin names of the question's options.
    *
    * @return a list of option admin names.
