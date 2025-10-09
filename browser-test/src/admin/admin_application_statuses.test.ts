@@ -1016,16 +1016,51 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       await logout(page)
     })
 
-    await test.step('submit an application as a TI and verify Submitted by column is present', async () => {
-      await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+    test('Trusted Intermediary application shows correct Submitted By name', async ({
+      page,
 
-      const row = await page.$('table tbody tr:last-child')
-      const submittedByElement = await row.$('td:nth-child(5)')
-      await expect(submittedByElement).toHaveText('Test User Name')
+      adminPrograms,
 
-      await logout(page)
+      applicantQuestions,
+    }) => {
+      await test.step('login as test user and submit application', async () => {
+        await loginAsTestUser(page)
+
+        await applicantQuestions.clickApplyProgramButton(
+          programWithStatusesName,
+        )
+
+        await applicantQuestions.submitFromReviewPage()
+
+        await logout(page)
+      })
+
+      await test.step('login as TI and submit second application', async () => {
+        await loginAsTrustedIntermediary(page)
+
+        await applicantQuestions.clickApplyProgramButton(
+          programWithStatusesName,
+        )
+
+        await applicantQuestions.submitFromReviewPage()
+
+        await logout(page)
+      })
+
+      await test.step('view applications and verify Submitted By column', async () => {
+        await loginAsProgramAdmin(page)
+
+        await adminPrograms.viewApplications(programWithStatusesName)
+
+        const row =
+          await adminPrograms.getApplicationsTableRow('Test User Name')
+
+        const submittedBy = row.locator('td:nth-child(5)')
+
+        await expect(submittedBy).toHaveText(
+          'Trusted Intermediary Display Name',
+        )
+      })
     })
   }
 })

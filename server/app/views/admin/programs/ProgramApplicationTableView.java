@@ -521,7 +521,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
         .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE))
-        .with(td(application.getSubmitterEmail().orElse("")));
+        .with(td(application.getSubmitterEmail().orElse("")).withClass("cf-submitted-by"));
   }
 
   private ATag renderApplicationLink(String text, ApplicationModel application) {
