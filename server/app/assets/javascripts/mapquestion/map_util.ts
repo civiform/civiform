@@ -65,11 +65,6 @@ export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]
 export const DEFAULT_MAP_MARKER_TYPE = 'symbol'
 export const DEFAULT_MAP_ZOOM = 8
 
-// MARKER TEMPLATES
-export const CF_MAP_MARKER_ICON_TEMPLATE = 'cf-map-marker-icon-template'
-export const CF_MAP_MARKER_ICON_SELECTED_TEMPLATE =
-  'cf-map-marker-icon-selected-template'
-
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {

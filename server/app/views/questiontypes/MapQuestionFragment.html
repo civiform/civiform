@@ -312,12 +312,6 @@
       th:text="#{map.selectLocationButtonText}"
     ></button>
   </template>
-  <template class="cf-map-marker-icon-template">
-    <img th:src="${locationIcon}" alt="Location icon" />
-  </template>
-  <template class="cf-map-marker-icon-selected-template">
-    <img th:src="${selectedLocationIcon}" alt="Selected location icon" />
-  </template>
 
   <script
     th:if="${questionRendererParams.geoJson().isPresent()}"
@@ -340,6 +334,10 @@
       mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
       mapSelectLocationButtonText:
         /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
+    }
+    window.app.data.iconUrls = {
+      locationIcon: /*[[${locationIcon}]]*/ '',
+      selectedLocationIcon: /*[[${selectedLocationIcon}]]*/ '',
     }
 
     window.app.data.maps = window.app.data.maps || {}

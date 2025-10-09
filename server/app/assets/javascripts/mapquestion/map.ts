@@ -21,8 +21,6 @@ import {
   DATA_MAP_ID_ATTR,
   DEFAULT_LOCATION_ICON,
   SELECTED_LOCATION_ICON,
-  CF_MAP_MARKER_ICON_TEMPLATE,
-  CF_MAP_MARKER_ICON_SELECTED_TEMPLATE,
   localizeString,
   CF_SELECT_LOCATION_BUTTON_CLICKED,
   getMessages,
@@ -90,8 +88,8 @@ const addLocationsToMap = (
   }
 
   Promise.all([
-    loadIconImage(map, mapId, CF_MAP_MARKER_ICON_TEMPLATE),
-    loadIconImage(map, mapId, CF_MAP_MARKER_ICON_SELECTED_TEMPLATE),
+    map.loadImage(window.app?.data?.iconUrls?.locationIcon),
+    map.loadImage(window.app?.data?.iconUrls?.selectedLocationIcon),
   ])
     .then(([defaultImage, selectedImage]) => {
       map.addImage(DEFAULT_LOCATION_ICON, defaultImage.data)
@@ -123,22 +121,6 @@ const addLocationsToMap = (
     })
 }
 
-const loadIconImage = (
-  map: MapLibreMap,
-  mapId: string,
-  templateString: string,
-) => {
-  const iconTemplate = mapQuerySelector(
-    mapId,
-    templateString,
-  ) as HTMLTemplateElement
-
-  const iconSrc = (
-    iconTemplate?.content.querySelector('img') as HTMLImageElement
-  )?.src
-
-  return map.loadImage(iconSrc)
-}
 
 const createPopupContent = (
   mapId: string,
