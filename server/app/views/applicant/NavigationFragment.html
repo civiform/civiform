@@ -191,8 +191,14 @@
           th:utext="#{heading.informationAriaLabelPrefix('')}"
         ></p>
         <p
+          th:if="${!sessionReplayProtectionEnabled}"
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
+        ></p>
+        <p
+          th:if="${sessionReplayProtectionEnabled}"
+          class="usa-alert__text"
+          th:utext="#{banner.guestBannerText(${endSessionLinkHtml})} + ' ' + ${sessionReplayBanner}"
         ></p>
       </div>
     </div>

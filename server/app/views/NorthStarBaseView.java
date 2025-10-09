@@ -162,6 +162,27 @@ public abstract class NorthStarBaseView {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
+    boolean sessionReplayProtectionEnabled = settingsManifest.getSessionReplayProtectionEnabled();
+    context.setVariable("sessionReplayProtectionEnabled", sessionReplayProtectionEnabled);
+    if (sessionReplayProtectionEnabled) {
+      int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
+      String sessionDurationUnits = messages.at(MessageKey.BANNER_MINUTES.getKeyName());
+      if (sessionDurationMinutes >= 60) {
+        int sessionDurationHours = sessionDurationMinutes / 60;
+        sessionDurationUnits =
+            sessionDurationHours == 1
+                ? messages.at(MessageKey.BANNER_HOUR.getKeyName())
+                : messages.at(MessageKey.BANNER_HOURS.getKeyName());
+        sessionDurationMinutes = sessionDurationHours;
+      }
+      String sessionExpirationMessage =
+          messages.at(
+              MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
+              String.valueOf(sessionDurationMinutes),
+              sessionDurationUnits);
+      context.setVariable("sessionReplayBanner", sessionExpirationMessage);
+    }
+
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
 

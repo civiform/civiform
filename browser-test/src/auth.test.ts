@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AuthStrategy,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -60,6 +61,38 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
 
     await validateToastMessage(page, 'Your session has ended.')
   })
+
+  test('Guest user with session replay protection enabled can end session after starting an application and toast is shown', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    seeding,
+  }) => {
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+    await enableFeatureFlag(page, 'session_replay_protection_enabled')
+
+    await applicantQuestions.applyProgram(
+      'Minimal Sample Program',
+      /* northStarEnabled= */ true,
+    )
+    await expect(page.getByTestId('login-button')).toBeAttached()
+    await expect(
+      page.getByRole('button', {name: endYourSessionText}),
+    ).toBeAttached()
+    await expect(
+      page.getByText(/Your session will automatically expire after/),
+    ).toBeAttached()
+
+    await page.getByRole('button', {name: endYourSessionText}).click()
+    expect(await page.title()).toContain('Find programs')
+
+    await validateToastMessage(page, 'Your session has ended.')
+  })
+
 
   test('Applicant can confirm central provider logout', async ({page}) => {
     test.skip(

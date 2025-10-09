@@ -1055,6 +1055,12 @@ banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
 banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=end your session
+# A message letting the user know how long their session will last before they are logged out automatically. The first placeholder will be a number, and the second will be either "minutes", "hours" or "hour" depending on the length of the session.
+banner.sessionExpiration=Your session will automatically expire after {0} {1}, so please log in or submit your application before that time to avoid losing your progress.
+# Unit of time for session expiration message
+banner.minutes=minutes
+banner.hours=hours
+banner.hour=hour
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
