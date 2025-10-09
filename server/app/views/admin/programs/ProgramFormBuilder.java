@@ -359,13 +359,12 @@ public class ProgramFormBuilder extends BaseHtmlView {
             h3("Current confirmation message preview:")
                 .withClasses("pt-1", "font-semibold", "ml-4"),
             AlertComponent.renderFullAlert(
-                    AlertType.INFO,
+                    AlertType.SUCCESS,
                     /* text= */ "",
                     /* title= */ Optional.empty(),
                     /* hidden= */ false,
                     /* headingLevel= */ HeadingLevel.H3,
                     /* classes...= */ "mb-2",
-                    "usa-alert--no-icon",
                     "ml-4")
                 .withId("program-confirmation-message-preview"),
             // Confirmation message
