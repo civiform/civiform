@@ -93,7 +93,6 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await validateToastMessage(page, 'Your session has ended.')
   })
 
-
   test('Applicant can confirm central provider logout', async ({page}) => {
     test.skip(
       TEST_USER_AUTH_STRATEGY !== AuthStrategy.FAKE_OIDC,
