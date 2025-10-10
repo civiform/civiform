@@ -13,12 +13,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.MessagesApi;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import repository.ResetPostgres;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 
-public class ProgramFormBuilderTest {
+public class ProgramFormBuilderTest extends ResetPostgres {
   private ProgramFormBuilder formBuilder;
   private Config config;
 
@@ -44,7 +46,12 @@ public class ProgramFormBuilderTest {
     AccountRepository mockAccountRepo = mock(AccountRepository.class);
     CategoryRepository mockCategoryRepo = mock(CategoryRepository.class);
     formBuilder =
-        new ProgramFormBuilder(config, settingsManifest, mockAccountRepo, mockCategoryRepo) {};
+        new ProgramFormBuilder(
+            config,
+            settingsManifest,
+            mockAccountRepo,
+            mockCategoryRepo,
+            instanceOf(MessagesApi.class)) {};
   }
 
   @Test
