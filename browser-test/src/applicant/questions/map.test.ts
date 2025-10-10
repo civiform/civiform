@@ -137,16 +137,16 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        await test.step('Click on map to trigger popups', async () => {
-          const mapContainer = page.getByTestId('map-container')
-          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
-          await mapCanvas.click()
-        })
-
         await test.step('Dismiss attribution control to avoid overlap', async () => {
           // Close the MapLibre attribution control so it doesn't cover popups
           const attributionButton = page.getByLabel('Toggle attribution')
           await attributionButton.click()
+        })
+
+        await test.step('Click on map to trigger popups', async () => {
+          const mapContainer = page.getByTestId('map-container')
+          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+          await mapCanvas.click()
         })
 
         await test.step('Check for popup select buttons', async () => {

@@ -73,16 +73,14 @@ const addLocationsToMap = (
   map: MapLibreMap,
   geoJson: FeatureCollection,
 ): void => {
-  // Preserve original IDs in properties because MapLibre only preserves properties when processing click events
-  // Will need these later for filtering, selection, and submission
-  const geoJsonWithOriginalIds = {
+  // Convert 'selected' property from string 'true'/'false' to boolean
+  const geoJsonWithSelectedBooleans = {
     ...geoJson,
     features: geoJson.features.map((feature) => ({
       ...feature,
       properties: {
         ...feature.properties,
-        originalId: feature.id,
-        selected: false, // Track selection state in feature properties
+        selected: feature.properties?.selected === 'true',
       },
     })),
   }
@@ -97,7 +95,7 @@ const addLocationsToMap = (
 
       map.addSource(LOCATIONS_SOURCE, {
         type: 'geojson',
-        data: geoJsonWithOriginalIds,
+        data: geoJsonWithSelectedBooleans,
       })
 
       map.addLayer({
@@ -120,7 +118,6 @@ const addLocationsToMap = (
       console.error(`Error loading marker icons for map ${mapId}:`, error)
     })
 }
-
 
 const createPopupContent = (
   mapId: string,
