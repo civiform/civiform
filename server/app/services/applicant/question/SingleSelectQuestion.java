@@ -136,6 +136,16 @@ public final class SingleSelectQuestion extends AbstractQuestion {
     return getQuestionDefinition().getOptionsForLocaleOrDefault(locale);
   }
 
+  /** Get displayable options in the applicant's preferred locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions() {
+    return getDisplayableOptions(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  /** Get displayable options in the specified locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions(Locale locale) {
+    return getQuestionDefinition().getDisplayableOptionsForLocaleOrDefault(locale);
+  }
+
   @Override
   public String getAnswerString() {
     return getSelectedOptionValue()
