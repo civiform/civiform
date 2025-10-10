@@ -85,11 +85,17 @@
             of the following are true:
           </p>
         </div>
-
-        <div
-          th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
-        ></div>
+        <div th:unless="${model.questions.isEmpty()}">
+          <div
+            th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+          ></div>
+        </div>
       </form>
+      <div th:if="${model.questions.isEmpty()}">
+        <div
+          th:replace="~{admin/programs/predicates/NoConditionsAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
+        ></div>
+      </div>
     </div>
 
     <div class="usa-footer__return-to-top">
