@@ -950,6 +950,8 @@ map.paginationStatus=Now displaying page {0} of {1}.
 map.resetFiltersButtonText=Clear filters
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Select location
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Selected
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
 # Placeholder text for map question select option dropdown

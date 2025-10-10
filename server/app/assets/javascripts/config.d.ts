@@ -6,6 +6,10 @@ interface Window {
     data: {
       maxLocationSelections: number
       messages: object
+      iconUrls: {
+        locationIcon: string
+        selectedLocationIcon: string
+      }
       maps: {
         [id: string]: object // Maps map IDs to GeoJSON objects
       }

@@ -125,6 +125,7 @@
             th:name="${mapQuestion.getSelectionPathAsArray()}"
             th:checked="${mapQuestion.locationIsSelected(featureId)}"
             th:data-map-id="${mapId}"
+            th:data-feature-id="${featureId}"
             type="checkbox"
           />
           <label
@@ -330,6 +331,13 @@
         /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
       goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
       paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
+      mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
+      mapSelectLocationButtonText:
+        /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
+    }
+    window.app.data.iconUrls = {
+      locationIcon: /*[[${locationIcon}]]*/ '',
+      selectedLocationIcon: /*[[${selectedLocationIcon}]]*/ '',
     }
 
     window.app.data.maps = window.app.data.maps || {}

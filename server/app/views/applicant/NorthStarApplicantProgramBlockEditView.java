@@ -7,6 +7,8 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import forms.EnumeratorQuestionForm;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,8 +23,10 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.MapQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
@@ -310,7 +314,25 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
               question.getQuestionDefinition().getName()));
     }
 
-    return maybeExistingGeoJsonDataRow.get().getGeoJson();
+    FeatureCollection geoJson = maybeExistingGeoJsonDataRow.get().getGeoJson();
+
+    // Preserve original IDs and selected state in properties because MapLibre
+    // only preserves properties when processing click events
+    MapQuestion mapQuestion = question.createMapQuestion();
+    List<Feature> geoJsonWithUpdatedProperties =
+        geoJson.features().stream()
+            .map(
+                feature -> {
+                  HashMap<String, String> updatedProperties = new HashMap<>(feature.properties());
+                  updatedProperties.put("originalId", feature.id());
+                  updatedProperties.put(
+                      "selected", String.valueOf(mapQuestion.locationIsSelected(feature.id())));
+                  return new Feature(
+                      feature.type(), feature.geometry(), updatedProperties, feature.id());
+                })
+            .collect(Collectors.toList());
+
+    return new FeatureCollection(geoJson.type(), geoJsonWithUpdatedProperties);
   }
 
   private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {
