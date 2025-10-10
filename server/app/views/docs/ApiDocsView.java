@@ -299,7 +299,7 @@ public class ApiDocsView extends BaseHtmlView {
           (MultiOptionQuestionDefinition) questionDefinition;
 
       Stream<DomContent> currentOptionElements =
-          asCommaSeparatedCodeElementStream(multiOptionQD.getOptionAdminNames());
+          asCommaSeparatedCodeElementStream(multiOptionQD.getDisplayableOptionAdminNames());
 
       Stream<DomContent> allPossibleOptionElements =
           asCommaSeparatedCodeElementStream(
