@@ -155,4 +155,106 @@ public class SingleSelectQuestionTest extends ResetPostgres {
     assertThat(singleSelectQuestion.getOptions().get(0).locale())
         .isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
   }
+
+  @Test
+  public void withRemovedOption_validationFails() {
+    // Create question with options where option 2 is hidden (removed by admin)
+    ImmutableList<QuestionOption> optionsWithOneHidden =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1"),
+                Optional.of(true)), // Displayable
+            QuestionOption.create(
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                Optional.of(false))); // Hidden/removed by admin
+
+    MultiOptionQuestionDefinition questionWithHiddenOption =
+        new MultiOptionQuestionDefinition(
+            CONFIG, optionsWithOneHidden, MultiOptionQuestionType.RADIO_BUTTON);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionWithHiddenOption, applicant, applicantData, Optional.empty());
+
+    // Applicant tries to submit option 2 (which was removed)
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 2L);
+
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+
+    // Should have validation error because option 2 is not displayable
+    assertThat(singleSelectQuestion.getValidationErrors()).hasSize(1);
+    var errors =
+        singleSelectQuestion
+            .getValidationErrors()
+            .get(singleSelectQuestion.getContextualizedPath());
+    assertThat(errors).containsOnly(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+  }
+
+  @Test
+  public void withRemovedOption_displayableOptionStillValid() {
+    // Create question with options where option 2 is hidden (removed by admin)
+    ImmutableList<QuestionOption> optionsWithOneHidden =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1"),
+                Optional.of(true)), // Displayable
+            QuestionOption.create(
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                Optional.of(false))); // Hidden/removed by admin
+
+    MultiOptionQuestionDefinition questionWithHiddenOption =
+        new MultiOptionQuestionDefinition(
+            CONFIG, optionsWithOneHidden, MultiOptionQuestionType.DROPDOWN);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionWithHiddenOption, applicant, applicantData, Optional.empty());
+
+    // Applicant selects option 1 (which is still displayable)
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1L);
+
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+
+    // Should have no validation errors
+    assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).isPresent();
+    assertThat(singleSelectQuestion.getSelectedOptionValue().get().id()).isEqualTo(1L);
+  }
+
+  @Test
+  public void withLegacyOptions_allOptionsStillValid() {
+    // Legacy options don't have displayInAnswerOptions set
+    ImmutableList<QuestionOption> legacyOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.of(Locale.US, "option 2")));
+
+    MultiOptionQuestionDefinition legacyQuestion =
+        new MultiOptionQuestionDefinition(CONFIG, legacyOptions, MultiOptionQuestionType.DROPDOWN);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(legacyQuestion, applicant, applicantData, Optional.empty());
+
+    // Applicant selects any option (both should be valid for legacy questions)
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 2L);
+
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+
+    // Should have no validation errors - legacy options default to displayable
+    assertThat(singleSelectQuestion.getValidationErrors()).isEmpty();
+    assertThat(singleSelectQuestion.getSelectedOptionValue()).isPresent();
+  }
 }

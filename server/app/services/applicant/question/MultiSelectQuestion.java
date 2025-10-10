@@ -41,6 +41,22 @@ public final class MultiSelectQuestion extends AbstractQuestion {
     int numberOfSelections = getSelectedOptionValues().map(ImmutableList::size).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
+    // Validate that all selected option IDs are displayable (not removed/hidden by admin)
+    Optional<ImmutableList<Long>> maybeSelectedIds =
+        applicantQuestion.getApplicantData().readLongList(getSelectionPath());
+    if (maybeSelectedIds.isPresent()) {
+      ImmutableList<Long> selectedIds = maybeSelectedIds.get();
+      ImmutableSet<Long> validOptionIds =
+          definition.getDisplayableOptions().stream()
+              .map(QuestionOption::id)
+              .collect(ImmutableSet.toImmutableSet());
+
+      boolean allSelectionsValid = selectedIds.stream().allMatch(validOptionIds::contains);
+      if (!allSelectionsValid) {
+        errors.add(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+      }
+    }
+
     if (definition.getMultiOptionValidationPredicates().minChoicesRequired().isPresent()) {
       int minChoicesRequired =
           definition.getMultiOptionValidationPredicates().minChoicesRequired().getAsInt();

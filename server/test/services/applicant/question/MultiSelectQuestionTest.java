@@ -114,7 +114,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
         new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     // Put too few selections.
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -192,5 +192,120 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     assertThat(multiSelectQuestion.getOptions()).isNotEmpty();
     assertThat(multiSelectQuestion.getOptions().get(0).locale())
         .isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
+  }
+
+  @Test
+  public void withRemovedOptions_validationFails() {
+    // Create question with options where options 3 and 4 are hidden (removed by admin)
+    ImmutableList<QuestionOption> optionsWithSomeHidden =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+            QuestionOption.create(
+                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+            QuestionOption.create(
+                3L,
+                3L,
+                "tres",
+                LocalizedStrings.of(Locale.US, "third"),
+                Optional.of(false)), // Hidden
+            QuestionOption.create(
+                4L,
+                4L,
+                "cuatro",
+                LocalizedStrings.of(Locale.US, "fourth"),
+                Optional.of(false))); // Hidden
+
+    MultiOptionQuestionDefinition questionWithHiddenOptions =
+        new MultiOptionQuestionDefinition(
+            CONFIG, optionsWithSomeHidden, MultiOptionQuestionType.CHECKBOX);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            questionWithHiddenOptions, applicant, applicantData, Optional.empty());
+
+    // Applicant tries to submit options including a removed one
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L); // Valid
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 3L); // Invalid - removed
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    // Should have validation error because option 3 is not displayable
+    assertThat(multiSelectQuestion.getValidationErrors()).hasSize(1);
+    var errors =
+        multiSelectQuestion.getValidationErrors().get(applicantQuestion.getContextualizedPath());
+    assertThat(errors).contains(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+  }
+
+  @Test
+  public void withRemovedOptions_onlyValidSelectionsPass() {
+    // Create question with options where options 3 and 4 are hidden (removed by admin)
+    ImmutableList<QuestionOption> optionsWithSomeHidden =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+            QuestionOption.create(
+                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+            QuestionOption.create(
+                3L,
+                3L,
+                "tres",
+                LocalizedStrings.of(Locale.US, "third"),
+                Optional.of(false)), // Hidden
+            QuestionOption.create(
+                4L,
+                4L,
+                "cuatro",
+                LocalizedStrings.of(Locale.US, "fourth"),
+                Optional.of(false))); // Hidden
+
+    MultiOptionQuestionDefinition questionWithHiddenOptions =
+        new MultiOptionQuestionDefinition(
+            CONFIG, optionsWithSomeHidden, MultiOptionQuestionType.CHECKBOX);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            questionWithHiddenOptions, applicant, applicantData, Optional.empty());
+
+    // Applicant selects only valid (displayable) options
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    // Should have no validation errors
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  public void withLegacyOptions_allSelectionsValid() {
+    // Legacy options don't have displayInAnswerOptions set
+    ImmutableList<QuestionOption> legacyOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "uno", LocalizedStrings.of(Locale.US, "valid")),
+            QuestionOption.create(2L, "dos", LocalizedStrings.of(Locale.US, "ok")),
+            QuestionOption.create(3L, "tres", LocalizedStrings.of(Locale.US, "third")),
+            QuestionOption.create(4L, "cuatro", LocalizedStrings.of(Locale.US, "fourth")));
+
+    MultiOptionQuestionDefinition legacyQuestion =
+        new MultiOptionQuestionDefinition(CONFIG, legacyOptions, MultiOptionQuestionType.CHECKBOX);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(legacyQuestion, applicant, applicantData, Optional.empty());
+
+    // Select any legacy options (all should be valid)
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 3L);
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    // Should have no validation errors - legacy options default to displayable
+    assertThat(multiSelectQuestion.getValidationErrors()).isEmpty();
   }
 }
