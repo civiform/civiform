@@ -485,3 +485,13 @@ session.extend.button=Продлить сеанс
 session.extended.success=Сеанс продлен.
 session.extended.error=Не удалось продлить сеанс.
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+
+map.ariaLabelNextPage=Go to next page of map locations
+
+map.ariaLabelPaginationList=Pagination for map locations
+
+map.ariaLabelPreviousPage=Go to previous page of map locations
+
+map.goToPage=Go to page {0} of map locations
+
+map.paginationStatus=Now displaying page {0} of {1}.

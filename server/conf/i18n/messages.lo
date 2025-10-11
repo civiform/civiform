@@ -479,3 +479,23 @@ session.extend.button=ຂະຫຍາຍເຊດຊັນ
 session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດຜົນ
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
 translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.
+
+map.ariaLabelNextPage=Go to next page of map locations
+
+map.ariaLabelPaginationList=Pagination for map locations
+
+map.ariaLabelPreviousPage=Go to previous page of map locations
+
+map.availableLocations=Available locations
+
+map.goToPage=Go to page {0} of map locations
+
+map.locationAddressHelpText=Select which key represents the location address.
+
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+
+map.locationNameHelpText=Select which key represents the location name.
+
+map.paginationStatus=Now displaying page {0} of {1}.
+
+map.selectLocations=Select up to {0} locations

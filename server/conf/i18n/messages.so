@@ -481,3 +481,23 @@ session.extend.button=Mudo dheerayso Kulanka
 session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
 session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
 translation.untranslated=Qoraalkan wuxuu ahaan doonnaa mid aan la turjumin si loogu tijaabiyo aaladaha turjumaadda.
+
+map.ariaLabelNextPage=Go to next page of map locations
+
+map.ariaLabelPaginationList=Pagination for map locations
+
+map.ariaLabelPreviousPage=Go to previous page of map locations
+
+map.availableLocations=Available locations
+
+map.goToPage=Go to page {0} of map locations
+
+map.locationAddressHelpText=Select which key represents the location address.
+
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+
+map.locationNameHelpText=Select which key represents the location name.
+
+map.paginationStatus=Now displaying page {0} of {1}.
+
+map.selectLocations=Select up to {0} locations
