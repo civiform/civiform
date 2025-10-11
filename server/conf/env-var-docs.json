@@ -1003,6 +1003,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
         "type": "bool",
         "required": false
+      },
+      "SAMPLE_FLAG_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Sample.",
+        "type": "bool",
+        "required": false
       }
     }
   }

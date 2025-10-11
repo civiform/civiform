@@ -3,7 +3,11 @@ package controllers.dev;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import javax.inject.Inject;
+import models.SettingsGroupModel;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.mvc.Controller;
 import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
@@ -20,10 +24,14 @@ import services.settings.SettingsService;
 public final class FeatureFlagOverrideController extends Controller {
 
   private final SettingsService settingsService;
+  private final SyncCacheApi settingsCache;
 
   @Inject
-  public FeatureFlagOverrideController(SettingsService settingsService) {
+  public FeatureFlagOverrideController(
+      SettingsService settingsService,
+      @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
     this.settingsService = Preconditions.checkNotNull(settingsService);
+    this.settingsCache = Preconditions.checkNotNull(settingsCache);
   }
 
   public Result enable(Request request, String rawFlagName) {
@@ -36,8 +44,22 @@ public final class FeatureFlagOverrideController extends Controller {
 
   private Result updateFlag(Request request, String rawFlagName, String newValue) {
     var flagName = rawFlagName.toUpperCase(Locale.ROOT);
-    var currentSettings =
-        settingsService.loadSettings().toCompletableFuture().join().orElse(ImmutableMap.of());
+
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry =
+        settingsCache.get("current-settings");
+
+    if (optionalCacheEntry.isEmpty()) {
+      throw new IllegalStateException("No cached settings found");
+    }
+
+    Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
+
+    if (optionalSettingsGroupModel.isEmpty()) {
+      throw new IllegalStateException("No cached settings found");
+    }
+
+    SettingsGroupModel cachedSettings = optionalSettingsGroupModel.get();
+    var currentSettings = cachedSettings.getSettings();
 
     ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
 
