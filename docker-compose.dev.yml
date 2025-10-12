@@ -6,7 +6,7 @@
 # Volumes to un-shadow build directories under server are created in the dockerfile.
 x-sbt-volumes:
   volumes: &sbt-volumes
-    - ./server:/usr/src/server
+    - ./server:/usr/src/server:z
 
 services:
   dev-oidc:
