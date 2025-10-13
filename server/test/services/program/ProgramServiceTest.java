@@ -3,6 +3,8 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.i18n.Lang;
 import play.inject.BindingKey;
 import repository.CategoryRepository;
@@ -44,6 +47,7 @@ import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.ProgramBlockValidationFactory;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
@@ -59,6 +63,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.TranslationLocales;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -71,6 +76,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
+  private TranslationLocales translationLocales;
 
   @Before
   public void setProgramServiceImpl() {
@@ -78,7 +84,18 @@ public class ProgramServiceTest extends ResetPostgres {
         new BindingKey<>(SyncCacheApi.class)
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
-    ps = instanceOf(ProgramService.class);
+    translationLocales = mock(TranslationLocales.class);
+    ps =
+        new ProgramService(
+            instanceOf(repository.ProgramRepository.class),
+            instanceOf(services.question.QuestionService.class),
+            instanceOf(repository.AccountRepository.class),
+            instanceOf(repository.VersionRepository.class),
+            instanceOf(repository.CategoryRepository.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ProgramBlockValidationFactory.class),
+            instanceOf(repository.ApplicationStatusesRepository.class),
+            translationLocales); // Inject the mock
   }
 
   @Before
@@ -223,6 +240,42 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition activeProgramDef = activePrograms.get(0);
     assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
     assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void isTranslationComplete_noTranslatableLocales_returnsTrue() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of());
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
+    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+
+    assertThat(isComplete).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_incomplete_returnsFalse() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
+    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+
+    assertThat(isComplete).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_complete_returnsTrue() throws Exception {
+    // The test environment has multiple translatable locales by default.
+    // We will add a Spanish translation for all localizable fields.
+    Locale esLocale = Locale.forLanguageTag("es-US");
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(esLocale, "programa de prueba")
+            .withLocalizedDescription(esLocale, "descripción de prueba")
+            .withLocalizedShortDescription(esLocale, "descripción corta")
+            .withLocalizedConfirmationMessage(esLocale, "mensaje de confirmación")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+
+    // Once we limit to only Spanish, it should be complete.
+    assertThat(ps.isTranslationComplete(program.getProgramDefinition())).isTrue();
   }
 
   @Test
