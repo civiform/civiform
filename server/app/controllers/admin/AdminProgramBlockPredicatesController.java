@@ -45,6 +45,8 @@ import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditConditionPartialViewModel;
 import views.admin.programs.predicates.EditPredicatePageView;
 import views.admin.programs.predicates.EditPredicatePageViewModel;
+import views.admin.programs.predicates.FailedRequestPartialView;
+import views.admin.programs.predicates.FailedRequestPartialViewModel;
 import views.components.ToastMessage;
 import views.components.ToastMessage.ToastType;
 
@@ -60,6 +62,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramPredicateConfigureView legacyPredicatesConfigureView;
   private final EditPredicatePageView editPredicatePageView;
   private final EditConditionPartialView editConditionPartialView;
+  private final FailedRequestPartialView failedRequestPartialView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
@@ -73,6 +76,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramPredicateConfigureView legacyPredicatesConfigureView,
       EditPredicatePageView editPredicatePageView,
       EditConditionPartialView editConditionPartialView,
+      FailedRequestPartialView failedRequestPartialView,
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
@@ -86,6 +90,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.legacyPredicatesConfigureView = checkNotNull(legacyPredicatesConfigureView);
     this.editPredicatePageView = checkNotNull(editPredicatePageView);
     this.editConditionPartialView = checkNotNull(editConditionPartialView);
+    this.failedRequestPartialView = checkNotNull(failedRequestPartialView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -451,7 +456,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Form<EditConditionCommand> form =
         formFactory.form(EditConditionCommand.class).bindFromRequest(request);
     if (form.hasErrors()) {
-      // TODO(#11560): Render error alert.
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
     }
 
     try {
@@ -471,8 +477,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalArgumentException e) {
-      // TODO(#11560): Render error alert.
-      return notFound();
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
     }
   }
 }
