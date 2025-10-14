@@ -232,12 +232,39 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
+   * Get displayable options localized for the given locale, or default locale if not available.
+   *
+   * <p>This is similar to {@link #getOptionsForLocaleOrDefault(Locale)} but only returns options
+   * that should be displayed to applicants (filters by displayInAnswerOptions field).
+   *
+   * @param locale the desired locale for option text
+   * @return localized displayable options
+   */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptionsForLocaleOrDefault(
+      Locale locale) {
+    return getDisplayableOptions().stream()
+        .map(option -> option.localizeOrDefault(locale))
+        .collect(toImmutableList());
+  }
+
+  /**
    * Get the admin names of the question's options.
    *
    * @return a list of option admin names.
    */
   public ImmutableList<String> getOptionAdminNames() {
     return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
+  }
+
+  /**
+   * Get admin names of only the options that should be displayed to applicants.
+   *
+   * @return a list of displayable option admin names.
+   */
+  public ImmutableList<String> getDisplayableOptionAdminNames() {
+    return getDisplayableOptions().stream()
+        .map(QuestionOption::adminName)
+        .collect(toImmutableList());
   }
 
   /**

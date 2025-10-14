@@ -550,6 +550,199 @@ public class MultiOptionQuestionDefinitionTest {
                 .orElse(ImmutableSet.of()));
   }
 
+  @Test
+  public void getDisplayableOptionsForLocaleOrDefault_allOptionsDisplayable_returnsAllOptions()
+      throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1", Locale.GERMAN, "Option 1"),
+                Optional.of(true)),
+            QuestionOption.create(
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2", Locale.GERMAN, "Option 2"),
+                Optional.of(true)));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getDisplayableOptionsForLocaleOrDefault(Locale.US))
+        .containsExactly(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "option 1",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.US),
+            LocalizedQuestionOption.create(
+                /* id= */ 2L,
+                /* order= */ 2L,
+                /* adminName= */ "opt2",
+                /* optionText= */ "option 2",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.US));
+  }
+
+  @Test
+  public void getDisplayableOptionsForLocaleOrDefault_someOptionsHidden_returnsOnlyDisplayable()
+      throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1", Locale.GERMAN, "Option 1"),
+                Optional.of(true)),
+            QuestionOption.create(
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2", Locale.GERMAN, "Option 2"),
+                Optional.of(false)),
+            QuestionOption.create(
+                3L,
+                3L,
+                "opt3",
+                LocalizedStrings.of(Locale.US, "option 3", Locale.GERMAN, "Option 3"),
+                Optional.of(true)));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getDisplayableOptionsForLocaleOrDefault(Locale.US))
+        .containsExactly(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "option 1",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.US),
+            LocalizedQuestionOption.create(
+                /* id= */ 3L,
+                /* order= */ 3L,
+                /* adminName= */ "opt3",
+                /* optionText= */ "option 3",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.US));
+  }
+
+  @Test
+  public void getDisplayableOptionsForLocaleOrDefault_legacyOptions_returnsAllOptions()
+      throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, "opt1", LocalizedStrings.of(Locale.US, "option 1", Locale.GERMAN, "Option 1")),
+            QuestionOption.create(
+                2L, "opt2", LocalizedStrings.of(Locale.US, "option 2", Locale.GERMAN, "Option 2")));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getDisplayableOptionsForLocaleOrDefault(Locale.US))
+        .containsExactly(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "option 1",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US),
+            LocalizedQuestionOption.create(
+                /* id= */ 2L,
+                /* order= */ 2L,
+                /* adminName= */ "opt2",
+                /* optionText= */ "option 2",
+                /* displayInAnswerOptions= */ Optional.empty(),
+                /* locale= */ Locale.US));
+  }
+
+  @Test
+  public void
+      getDisplayableOptionsForLocaleOrDefault_differentLocale_returnsLocalizedDisplayableOptions()
+          throws Exception {
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1", Locale.GERMAN, "Option 1"),
+                Optional.of(true)),
+            QuestionOption.create(
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2", Locale.GERMAN, "Option 2"),
+                Optional.of(false)),
+            QuestionOption.create(
+                3L,
+                3L,
+                "opt3",
+                LocalizedStrings.of(Locale.US, "option 3", Locale.GERMAN, "Option 3"),
+                Optional.of(true)));
+    QuestionDefinition definition =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setQuestionOptions(options)
+            .build();
+
+    MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
+
+    assertThat(multiOption.getDisplayableOptionsForLocaleOrDefault(Locale.GERMAN))
+        .containsExactly(
+            LocalizedQuestionOption.create(
+                /* id= */ 1L,
+                /* order= */ 1L,
+                /* adminName= */ "opt1",
+                /* optionText= */ "Option 1",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.GERMAN),
+            LocalizedQuestionOption.create(
+                /* id= */ 3L,
+                /* order= */ 3L,
+                /* adminName= */ "opt3",
+                /* optionText= */ "Option 3",
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* locale= */ Locale.GERMAN));
+  }
+
   private QuestionDefinitionConfig.Builder makeConfigBuilder() {
     return QuestionDefinitionConfig.builder()
         .setName("name")
