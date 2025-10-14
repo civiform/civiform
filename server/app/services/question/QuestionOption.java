@@ -118,7 +118,7 @@ public abstract class QuestionOption {
         .setId(id)
         .setAdminName(adminName)
         .setOptionText(optionText)
-        .setDisplayOrder(OptionalLong.empty())
+        .setDisplayOrder(OptionalLong.of(displayOrder))
         .setDisplayInAnswerOptions(displayInAnswerOptions)
         .build();
   }
