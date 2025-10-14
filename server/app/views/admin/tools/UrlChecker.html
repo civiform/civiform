@@ -3,6 +3,7 @@
 <th:block th:fragment="content">
   <div class="margin-y-4">
     <form
+      id="pageForm"
       th:hx-post="${model.testUrlEndpoint()}"
       hx-indicator="#submit"
       hx-target="#results"
@@ -30,5 +31,5 @@
       </div>
     </form>
   </div>
-  <output for="url" id="results"></output>
+  <output for="url" form="pageForm" id="results"></output>
 </th:block>
