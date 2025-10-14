@@ -1,35 +1,5 @@
-import {LngLatLike, Map as MapLibreMap, Popup, GeoJSONSource} from 'maplibre-gl'
-import {GeoJsonProperties, Feature, FeatureCollection, Point} from 'geojson'
-import {
-  MapData,
-  MapSettings,
-  mapQuerySelector,
-  CF_POPUP_CONTENT_TEMPLATE,
-  CF_POPUP_CONTENT_LOCATION_NAME,
-  CF_POPUP_CONTENT_LOCATION_ADDRESS,
-  CF_POPUP_CONTENT_LOCATION_LINK,
-  LOCATIONS_SOURCE,
-  LOCATIONS_LAYER,
-  DEFAULT_MAP_CENTER_POINT,
-  DEFAULT_MAP_ZOOM,
-  DEFAULT_MAP_MARKER_TYPE,
-  DEFAULT_MAP_STYLE,
-  CF_POPUP_CONTENT_BUTTON,
-  CF_SELECTED_LOCATIONS_CONTAINER,
-  CF_LOCATIONS_LIST_CONTAINER,
-  DATA_FEATURE_ID_ATTR,
-  DATA_MAP_ID_ATTR,
-  DEFAULT_LOCATION_ICON,
-  SELECTED_LOCATION_ICON,
-  localizeString,
-  CF_SELECT_LOCATION_BUTTON_CLICKED,
-  getMessages,
-} from './map_util'
-import {
-  initLocationSelection,
-  selectLocationsFromMap,
-  updateSelectedLocations,
-} from './map_question_selection'
+import {Feature, FeatureCollection, GeoJsonProperties, Point} from 'geojson'
+import {GeoJSONSource, LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
 import {initFilters} from './map_question_filters'
 import {
   CF_MAP_QUESTION_PAGINATION_BUTTON,
@@ -41,6 +11,36 @@ import {
   goToPage,
   initPagination,
 } from './map_question_pagination'
+import {
+  initLocationSelection,
+  selectLocationsFromMap,
+  updateSelectedLocations,
+} from './map_question_selection'
+import {
+  CF_LOCATIONS_LIST_CONTAINER,
+  CF_POPUP_CONTENT_BUTTON,
+  CF_POPUP_CONTENT_LOCATION_ADDRESS,
+  CF_POPUP_CONTENT_LOCATION_LINK,
+  CF_POPUP_CONTENT_LOCATION_NAME,
+  CF_POPUP_CONTENT_TEMPLATE,
+  CF_SELECTED_LOCATIONS_CONTAINER,
+  CF_SELECT_LOCATION_BUTTON_CLICKED,
+  DATA_FEATURE_ID_ATTR,
+  DATA_MAP_ID_ATTR,
+  DEFAULT_LOCATION_ICON,
+  DEFAULT_MAP_CENTER_POINT,
+  DEFAULT_MAP_MARKER_TYPE,
+  DEFAULT_MAP_STYLE,
+  DEFAULT_MAP_ZOOM,
+  getMessages,
+  localizeString,
+  LOCATIONS_LAYER,
+  LOCATIONS_SOURCE,
+  MapData,
+  MapSettings,
+  mapQuerySelector,
+  SELECTED_LOCATION_ICON,
+} from './map_util'
 
 export const init = (): void => {
   const mapDataObject = window.app?.data?.maps || {}
@@ -390,23 +390,27 @@ export const updateSelectedMarker = (
 ) => {
   const source = mapElement.getSource(LOCATIONS_SOURCE) as GeoJSONSource
 
-  const data = source._data as FeatureCollection
-  const updatedFeatures = data.features.map((feature) => {
-    if (feature.properties?.originalId === featureId) {
-      return {
-        ...feature,
-        properties: {
-          ...feature.properties,
-          selected: isSelected,
-        },
-      }
-    }
-    return feature
-  })
+  void source.getData().then((data) => {
+    const featureCollection = data as FeatureCollection
+    const updatedFeatures = featureCollection.features.map(
+      (feature: Feature) => {
+        if (feature.properties?.originalId === featureId) {
+          return {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              selected: isSelected,
+            },
+          }
+        }
+        return feature
+      },
+    )
 
-  source.setData({
-    ...data,
-    features: updatedFeatures,
+    source.setData({
+      ...featureCollection,
+      features: updatedFeatures,
+    })
   })
 }
 
