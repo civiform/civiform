@@ -154,6 +154,16 @@ class AdminApplicationView {
   }
 
   private registerConfirmationMessageInputListeners() {
+    // Check for presence of the confirmation message preview element before adding listeners
+    if (
+      !document.getElementById(
+        AdminApplicationView.CONFIRMATION_MESSAGE_PREVIEW_ID,
+      )
+    ) {
+      // If the confirmation message preview isn't present, there's nothing to do.
+      return
+    }
+
     // Render confirmation message text on load
     window.addEventListener(
       'pageshow',
