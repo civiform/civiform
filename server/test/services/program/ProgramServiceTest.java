@@ -262,20 +262,27 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void isTranslationComplete_complete_returnsTrue() throws Exception {
-    // The test environment has multiple translatable locales by default.
-    // We will add a Spanish translation for all localizable fields.
-    Locale esLocale = Locale.forLanguageTag("es-US");
-    ProgramModel program =
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel programModel =
         ProgramBuilder.newDraftProgram("test program", "description")
-            .withLocalizedName(esLocale, "programa de prueba")
-            .withLocalizedDescription(esLocale, "descripción de prueba")
-            .withLocalizedShortDescription(esLocale, "descripción corta")
-            .withLocalizedConfirmationMessage(esLocale, "mensaje de confirmación")
-            .withBlock("Screen 1", "Screen 1 description")
-            .build();
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step one title")
+                        .updateTranslation(Locale.CHINESE, "步骤一标题"),
+                        LocalizedStrings.withDefaultValue("step one description")
+                        .updateTranslation(Locale.CHINESE, "步骤一描述")
+                    )
+                )
+            )
+        .build();
+    
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    programModel.setLocalizedName(LocalizedStrings.of(Locale.US, "name"));
+
 
     // Once we limit to only Spanish, it should be complete.
-    assertThat(ps.isTranslationComplete(program.getProgramDefinition())).isTrue();
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
   }
 
   @Test
