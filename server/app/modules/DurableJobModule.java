@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
 import durablejobs.JobExecutionTimeResolver;
@@ -19,10 +20,12 @@ import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.CalculateEligibilityDeterminationJob;
+import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
+import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -30,16 +33,18 @@ import models.JobType;
 import org.apache.pekko.actor.ActorSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import repository.GeoJsonDataRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.geojson.GeoJsonClient;
+import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -115,11 +120,15 @@ public final class DurableJobModule extends AbstractModule {
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
       ApplicantService applicantService,
+      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      Config config,
+      GeoJsonDataRepository geoJsonDataRepository,
+      GeoJsonClient geoJsonClient) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -155,8 +164,19 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
         JobType.RECURRING,
         persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
+            new CalculateEligibilityDeterminationJob(
+                applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
+    if (config.getBoolean("map_question_enabled")
+        && config.getBoolean("durable_jobs.map_refresh")) {
+      durableJobRegistry.register(
+          DurableJobName.REFRESH_MAP_DATA,
+          JobType.RECURRING,
+          persistedDurableJobModel ->
+              new MapRefreshJob(persistedDurableJobModel, geoJsonDataRepository, geoJsonClient),
+          new RecurringJobExecutionTimeResolvers.EveryThirtyMinutes());
+    }
 
     return durableJobRegistry;
   }
@@ -165,7 +185,7 @@ public final class DurableJobModule extends AbstractModule {
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
       CategoryRepository categoryRepository,
-      Environment environment,
+      CategoryTranslationFileParser categoryTranslationFileParser,
       Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
 
@@ -175,7 +195,15 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ON_EACH_STARTUP,
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
-                categoryRepository, environment, persistedDurableJob, mapperProvider.get()));
+                categoryRepository,
+                persistedDurableJob,
+                mapperProvider.get(),
+                categoryTranslationFileParser));
+
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825,
+        JobType.RUN_ONCE,
+        UpdateLastActivityTimeForAccounts::new);
 
     return durableJobRegistry;
   }

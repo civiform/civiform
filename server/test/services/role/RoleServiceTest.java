@@ -54,7 +54,8 @@ public class RoleServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
+  public void makeProgramAdmins_emailsAreNotCaseSensitiveWhenAccountExists()
+      throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
     AccountModel account = new AccountModel();
@@ -68,18 +69,60 @@ public class RoleServiceTest extends ResetPostgres {
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
 
-    assertThat(lowerCaseResult)
+    assertThat(lowerCaseResult).isEmpty();
+
+    // Lookup the upper case account. They do have permission to the program.
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).contains(programName);
+
+    // Now make the upper case Email a program admin.
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
+    assertThat(result).isEmpty();
+
+    // Lookup the upper case account. They also have permissions to the program.
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
+  public void makeProgramAdmins_emailsAreCaseSensitiveWithMoreThanOneAccount()
+      throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Person@email.com";
+    String emailLowerCase = "fake.person@email.com";
+    String emailComboCase = "fake.Person@email.com";
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(emailUpperCase);
+    account.save();
+
+    AccountModel accountLower = new AccountModel();
+    accountLower.setEmailAddress(emailLowerCase);
+    accountLower.save();
+
+    String programName = "test program";
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
+
+    // Make the combo case email a program admin.
+    Optional<CiviFormError> comboCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailComboCase));
+
+    assertThat(comboCaseResult)
         .isEqualTo(
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "Cannot add %s as a Program Admin because they do not have an admin"
-                            + " account. Have the user log in as admin on the home page, then they"
-                            + " can be added as a Program Admin. ",
-                        emailLowerCase))));
+                        "Cannot add %s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to. ",
+                        emailComboCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
     account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+
+    // Lookup the lower case account. They do not have permission to any programs.
+    account = accountRepository.lookupAccountByEmail(emailLowerCase).get();
     assertThat(account.getAdministeredProgramNames()).isEmpty();
 
     // Now make the upper case Email a program admin.
@@ -124,9 +167,10 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "Cannot add %s as a Program Admin because they do not have an admin"
-                            + " account. Have the user log in as admin on the home page, then they"
-                            + " can be added as a Program Admin. ",
+                        "Cannot add %s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to. ",
                         email))));
   }
 
@@ -147,12 +191,14 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "Cannot add %1$s as a Program Admin because they do not have an admin"
-                            + " account. Have the user log in as admin on the home page, then they"
-                            + " can be added as a Program Admin. Cannot add %2$s as a Program"
-                            + " Admin because they do not have an admin account. Have the user log"
-                            + " in as admin on the home page, then they can be added as a Program"
-                            + " Admin. ",
+                        "Cannot add %1$s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to. Cannot add %2$s"
+                            + " as a Program Admin because they haven't previously logged into"
+                            + " CiviForm. Have the user log in, then add them as a Program Admin."
+                            + " After they've been added, they will need refresh their browser see"
+                            + " the programs they've been assigned to. ",
                         email1, email2))));
   }
 

@@ -6,6 +6,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
@@ -35,10 +36,13 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.YesNoQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
+import views.admin.BaseView;
+import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -52,9 +56,7 @@ import views.style.StyleUtils;
 public final class QuestionConfig {
 
   private static final String INNER_DIV_CLASSES =
-      StyleUtils.joinStyles(
-          "border", "bg-gray-100",
-          "p-4", "m-4");
+      StyleUtils.joinStyles("border", "bg-gray-100", "p-4", "m-4", "border-gray-200");
 
   private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
@@ -112,20 +114,26 @@ public final class QuestionConfig {
                 .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
                 .getContainer());
       case DATE:
-        return settingsManifest.getDateValidationEnabled(request)
+        return settingsManifest.getDateValidationEnabled()
             ? Optional.of(
                 config
                     .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
                     .getContainer())
             : Optional.empty();
+      case MAP: // fallthrough intended - MAP question configuration is handled in
+        // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
-      case MAP: // @TODO(#11001): Add map question config
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
       case STATIC:
       default:
         return Optional.empty();
     }
+  }
+
+  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfigUsingThymeleaf(
+      Request request, BaseView<TModel> view, TModel model) {
+    return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
   }
 
   private QuestionConfig addPhoneConfig() {
@@ -482,12 +490,20 @@ public final class QuestionConfig {
     ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
     if (multiOptionQuestionForm.getOptions().size() == 0) {
       optionsBuilder.add(
+          div()
+              .with(
+                  label()
+                      .withText("Select answer options")
+                      .withData("testId", "yes-no-options-label")
+                      .with(ViewUtils.requiredQuestionIndicator())
+                      .withClasses("text-sm", "font-medium", "text-gray-700")));
+      optionsBuilder.add(
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 0,
+                      /* id= */ YesNoQuestionOption.YES.getId(),
                       /* order= */ 0,
-                      /* adminName= */ "yes",
+                      /* adminName= */ YesNoQuestionOption.YES.getAdminName(),
                       /* optionText= */ "Yes",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -495,9 +511,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 1,
+                      /* id= */ YesNoQuestionOption.NO.getId(),
                       /* order= */ 1,
-                      /* adminName= */ "no",
+                      /* adminName= */ YesNoQuestionOption.NO.getAdminName(),
                       /* optionText= */ "No",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -505,9 +521,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 2,
+                      /* id= */ YesNoQuestionOption.NOT_SURE.getId(),
                       /* order= */ 2,
-                      /* adminName= */ "not-sure",
+                      /* adminName= */ YesNoQuestionOption.NOT_SURE.getAdminName(),
                       /* optionText= */ "Not sure",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -515,9 +531,9 @@ public final class QuestionConfig {
           yesNoOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      /* id= */ 3,
+                      /* id= */ YesNoQuestionOption.MAYBE.getId(),
                       /* order= */ 3,
-                      /* adminName= */ "maybe",
+                      /* adminName= */ YesNoQuestionOption.MAYBE.getAdminName(),
                       /* optionText= */ "Maybe",
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE))));
@@ -543,13 +559,12 @@ public final class QuestionConfig {
   }
 
   private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
+
     // Hidden inputs allow Play's form binding to submit the input value, while we show static text
     // to the admin.
     InputTag optionAdminNameHidden =
-        input()
-            .withName("optionAdminNames[]")
-            .withValue(existingOption.map(LocalizedQuestionOption::adminName).get())
-            .withClasses("display-none");
+        input().withName("optionAdminNames[]").withValue(adminName).withClasses("display-none");
     InputTag optionIdsHiddenInput =
         input()
             .withName("optionIds[]")
@@ -561,14 +576,13 @@ public final class QuestionConfig {
             .withValue(existingOption.map(LocalizedQuestionOption::optionText).get())
             .withClasses("display-none");
 
-    DivTag adminNameDiv =
-        div(
-            strong("Admin ID: "),
-            text(existingOption.map(LocalizedQuestionOption::adminName).get()));
+    DivTag adminNameDiv = div(strong("Admin ID: "), text(adminName));
     DivTag optionTextDiv =
         div(
             strong("Option text: "),
             text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+
+    boolean isRequiredOption = YesNoQuestionOption.getRequiredAdminNames().contains(adminName);
 
     boolean isChecked =
         existingOption.get().displayInAnswerOptions().isPresent()
@@ -579,26 +593,34 @@ public final class QuestionConfig {
             "Admin ID: %s. Option text: %s.",
             existingOption.map(LocalizedQuestionOption::adminName).get(),
             existingOption.map(LocalizedQuestionOption::optionText).get());
-    LabelTag labels =
+    LabelTag label =
         label()
             .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
-            .withFor(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withFor(adminName)
             .attr("aria-label", ariaLabel)
             .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
+
+    // Checkbox for selecting whether to display the option to the applicant.
+    // Value is set to the ID because falsy checkbox values get discarded on form
+    // submission.
+    InputTag checkboxInput =
+        input()
+            .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withType("checkbox")
+            .withName("displayedOptionIds[]")
+            .withValue(Long.toString(existingOption.get().id()))
+            .withClasses("usa-checkbox__input");
+
+    // Apply disabled and checked for required options
+    if (isRequiredOption) {
+      checkboxInput.attr("checked", "checked").attr("disabled", "disabled");
+    } else {
+      checkboxInput.withCondChecked(isChecked);
+    }
+
     DivTag checkboxWithLabels =
         div()
-            .with(
-                // Checkbox for selecting whether to display the option to the applicant.
-                // Value is set to the ID because falsy checkbox values get discarded on form
-                // submission.
-                input()
-                    .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
-                    .withType("checkbox")
-                    .withName("displayedOptionIds[]")
-                    .withValue(Long.toString(existingOption.get().id()))
-                    .withCondChecked(isChecked)
-                    .withClasses("usa-checkbox__input"),
-                labels)
+            .with(checkboxInput, label)
             .withClasses(
                 "usa-checkbox",
                 "flex-align-center",
@@ -609,10 +631,26 @@ public final class QuestionConfig {
                 "items-center",
                 "padding-1",
                 "margin-1");
-    return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
-        .with(
-            optionIdsHiddenInput, optionAdminNameHidden, optionTextHiddenInput, checkboxWithLabels);
+
+    DivTag container =
+        div()
+            .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+            .with(
+                optionIdsHiddenInput,
+                optionAdminNameHidden,
+                optionTextHiddenInput,
+                checkboxWithLabels);
+
+    // Add extra hidden input for required options to ensure value is submitted
+    if (isRequiredOption) {
+      container.with(
+          input()
+              .withType("hidden")
+              .withName("displayedOptionIds[]")
+              .withValue(Long.toString(existingOption.get().id())));
+    }
+
+    return container;
   }
 
   /**
@@ -633,6 +671,12 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getNumberTag());
+    return this;
+  }
+
+  private <TModel extends BaseViewModel> QuestionConfig addConfig(
+      Request request, BaseView<TModel> view, TModel model) {
+    content.with(rawHtml(view.render(request, model)));
     return this;
   }
 

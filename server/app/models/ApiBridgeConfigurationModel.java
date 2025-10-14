@@ -14,18 +14,26 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.regex.Pattern;
+import services.applicant.question.Scalar;
 
 /** Entity representing a bridge configuration. */
 @Entity
 @Table(name = "api_bridge_configuration")
 public class ApiBridgeConfigurationModel extends BaseModel {
   public record ApiBridgeDefinitionItem(
-      @JsonProperty("question_name") String questionName,
-      @JsonProperty("external_name") String externalName) {}
+      @JsonProperty("questionName") String questionName,
+      @JsonProperty("questionScalar") Scalar questionScalar,
+      @JsonProperty("externalName") String externalName) {}
 
   public record ApiBridgeDefinition(
-      @JsonProperty("input_fields") ImmutableList<ApiBridgeDefinitionItem> inputFields,
-      @JsonProperty("output_fields") ImmutableList<ApiBridgeDefinitionItem> outputFields) {}
+      @JsonProperty("inputFields") ImmutableList<ApiBridgeDefinitionItem> inputFields,
+      @JsonProperty("outputFields") ImmutableList<ApiBridgeDefinitionItem> outputFields) {
+
+    public ApiBridgeDefinition {
+      inputFields = inputFields != null ? ImmutableList.copyOf(inputFields) : ImmutableList.of();
+      outputFields = outputFields != null ? ImmutableList.copyOf(outputFields) : ImmutableList.of();
+    }
+  }
 
   private static final Pattern ADMIN_NAME_PATTERN = Pattern.compile("^[a-z][a-z0-9-]*$");
 
@@ -196,5 +204,10 @@ public class ApiBridgeConfigurationModel extends BaseModel {
   /** Gets the update time. */
   public Instant updateTime() {
     return updateTime;
+  }
+
+  /** Gets the formatted url of the hostUrl and urlPath combined */
+  public String getFullHostUrlWithPath() {
+    return "%s%s".formatted(hostUrl, urlPath);
   }
 }

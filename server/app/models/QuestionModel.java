@@ -27,6 +27,7 @@ import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -75,6 +76,9 @@ public class QuestionModel extends BaseModel {
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
+  // questionSettings is a storage column for question-specific settings
+  private @DbJsonB ImmutableSet<QuestionSetting> questionSettings;
+
   private @DbJsonB LocalizedStrings enumeratorEntityType;
 
   private @DbArray List<QuestionTag> questionTags;
@@ -84,6 +88,8 @@ public class QuestionModel extends BaseModel {
 
   /** When the question was last modified. */
   @WhenModified private Instant lastModifiedTime;
+
+  private @Constraints.Required QuestionDisplayMode displayMode;
 
   private UUID concurrencyToken;
 
@@ -179,6 +185,7 @@ public class QuestionModel extends BaseModel {
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
     if (concurrencyToken != null) {
@@ -187,6 +194,7 @@ public class QuestionModel extends BaseModel {
 
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
+    setQuestionSettings(builder);
 
     this.questionDefinition = builder.build();
   }
@@ -225,6 +233,18 @@ public class QuestionModel extends BaseModel {
     }
   }
 
+  /** Add {@link QuestionSetting}s to the builder. */
+  private void setQuestionSettings(QuestionDefinitionBuilder builder)
+      throws InvalidQuestionTypeException {
+    if (!QuestionType.supportsQuestionSettings(QuestionType.of(questionType))) {
+      return;
+    }
+
+    if (questionSettings != null) {
+      builder.setQuestionSettings(questionSettings);
+    }
+  }
+
   private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
@@ -255,12 +275,18 @@ public class QuestionModel extends BaseModel {
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
+    displayMode = questionDefinition.getDisplayMode();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
       questionOptions = multiOption.getOptions();
+    }
+
+    if (questionDefinition.getQuestionSettings().isPresent()
+        && QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())) {
+      questionSettings = questionDefinition.getQuestionSettings().get();
     }
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
@@ -331,5 +357,14 @@ public class QuestionModel extends BaseModel {
 
   public UUID getConcurrencyToken() {
     return this.concurrencyToken;
+  }
+
+  public QuestionDisplayMode getDisplayMode() {
+    return this.displayMode;
+  }
+
+  public QuestionModel setDisplayMode(QuestionDisplayMode displayMode) {
+    this.displayMode = displayMode;
+    return this;
   }
 }

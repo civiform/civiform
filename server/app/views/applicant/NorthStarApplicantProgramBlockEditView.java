@@ -6,19 +6,26 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import forms.EnumeratorQuestionForm;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
+import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
+import repository.GeoJsonDataRepository;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.geojson.FeatureCollection;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 import views.NorthStarBaseView;
@@ -37,6 +44,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final GeoJsonDataRepository mapDataRepository;
 
   @Inject
   NorthStarApplicantProgramBlockEditView(
@@ -47,7 +55,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      GeoJsonDataRepository mapDataRepository) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -57,6 +66,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         languageUtils,
         deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
+    this.mapDataRepository = mapDataRepository;
   }
 
   public String render(
@@ -136,6 +146,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
+      context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
@@ -264,6 +275,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                                   params.errorDisplayMode(),
                                   params.block().hasErrors(),
                                   ordinalErrorCount.get()));
+                  if (question.getType().equals(QuestionType.MAP)) {
+                    paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
+                  }
+
                   if (params.block().isFileUpload()) {
                     StorageUploadRequest signedRequest =
                         params
@@ -274,6 +289,28 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                   }
                   return paramsBuilder.build();
                 }));
+  }
+
+  private FeatureCollection getQuestionGeoJsonData(ApplicantQuestion question) {
+    String geoJsonEndpoint =
+        ((MapValidationPredicates) question.getQuestionDefinition().getValidationPredicates())
+            .geoJsonEndpoint();
+
+    Optional<GeoJsonDataModel> maybeExistingGeoJsonDataRow =
+        mapDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join();
+
+    if (maybeExistingGeoJsonDataRow.isEmpty()) {
+      // TODO(#11078): Failure state for missing GeoJSON data
+      throw new IllegalStateException(
+          String.format(
+              "No GeoJSON data found for %s question.",
+              question.getQuestionDefinition().getName()));
+    }
+
+    return maybeExistingGeoJsonDataRow.get().getGeoJson();
   }
 
   private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {

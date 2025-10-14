@@ -3,11 +3,11 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
-import models.AccountModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,22 +26,14 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void preview_redirectsToProgramReviewPage() {
-    ProgramModel program = resourceCreator().insertActiveProgram("test-slug");
-    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-
+  public void northStar_preview_displaysProgramOverviewPage() {
     String programSlug = "test-slug";
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
+    resourceCreator().insertActiveProgram(programSlug);
+    createGlobalAdminWithMockedProfile();
+    Request request = fakeRequestBuilder().build();
     Result result = controller.preview(request, programSlug).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0),
-                    Long.toString(program.id),
-                    /* isFromUrlCall= */ false)
-                .url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("<title>test-slug - Program Overview</title>");
   }
 
   @Test

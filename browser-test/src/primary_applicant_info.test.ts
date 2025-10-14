@@ -1,6 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -13,11 +12,7 @@ import {
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
 
-test.describe('primary applicant info questions', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
+test.describe('primary applicant info questions', {tag: ['@northstar']}, () => {
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
     page,
     adminQuestions,
@@ -256,10 +251,10 @@ test.describe('primary applicant info questions', () => {
     await logout(page)
     await loginAsTestUser(page)
 
-    await applicantQuestions.applyProgram('test')
+    await applicantQuestions.applyProgram('test', true)
     await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.clickContinue()
+    await applicantQuestions.submitFromReviewPage(true)
 
     await logout(page)
     await loginAsProgramAdmin(page)

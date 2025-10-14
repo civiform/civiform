@@ -64,6 +64,7 @@ public class Swagger2SchemaGeneratorTest {
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =
@@ -261,6 +262,7 @@ definitions:
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =
@@ -811,6 +813,7 @@ definitions:
                 ImmutableList.<CategoryModel>builder()
                     .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
                     .build())
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     OpenApiSchemaSettings settings =

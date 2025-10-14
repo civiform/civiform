@@ -46,7 +46,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
     bundle.setJsBundle(JsBundle.ADMIN);
     Content content = bundle.render();
-    assertThat(content.body()).contains("<link rel=\"icon\" href=\"data:image");
+    assertThat(content.body()).doesNotContain("<link rel=\"icon\"");
   }
 
   @Test

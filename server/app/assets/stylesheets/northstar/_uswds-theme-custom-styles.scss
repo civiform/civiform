@@ -523,6 +523,12 @@ main {
   }
 }
 
+// Add white border to login dropdown options specifically
+.usa-language__submenu {
+  border-width: 0.05rem;
+  border-color: color('white');
+}
+
 [dir='rtl'] {
   .usa-button:not(.margin-left-0, .cf-apply-button) {
     margin-right: 0px;
@@ -686,4 +692,40 @@ main {
       padding-inline-start: 2ex;
     }
   }
+}
+
+// Custom height for map question map container
+.cf-map-container {
+  min-height: 400px;
+}
+
+.maplibregl-popup-content {
+  padding: 0 !important;
+  width: 320px;
+}
+
+.maplibregl-popup-close-button {
+  color: color('blue-60v');
+}
+
+// Ensure MapLibre attribution links are underlined and styled consistently for accessibility
+.maplibregl-ctrl-attrib a {
+  text-decoration: underline !important;
+  color: color('blue-60v') !important;
+}
+
+// Map question filtering - hide filtered out locations
+.cf-location-hidden {
+  display: none;
+}
+
+.usa-button.cf-apply-filters-button,
+.usa-button.cf-reset-filters-button {
+  margin-top: 0.5rem;
+}
+
+// Custom pagination item for higher accessibility standards than USWDS default
+.usa-pagination__item.cf-pagination-item {
+  height: 2.75rem;
+  min-width: 2.75rem;
 }

@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import forms.EnumeratorQuestionForm;
 import java.util.Optional;
 import models.ApplicantModel;
 import modules.ThymeleafModule;
@@ -76,7 +77,10 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);
     context.setVariable("questionRendererParams", rendererParams);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
+    context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
+    context.setVariable("isPreview", true);
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 

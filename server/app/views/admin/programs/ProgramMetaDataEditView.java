@@ -9,6 +9,7 @@ import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
@@ -34,8 +35,9 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
       Config configuration,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository,
-      CategoryRepository categoryRepository) {
-    super(configuration, settingsManifest, accountRepository, categoryRepository);
+      CategoryRepository categoryRepository,
+      MessagesApi messagesApi) {
+    super(configuration, settingsManifest, accountRepository, categoryRepository, messagesApi);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

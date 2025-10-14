@@ -37,21 +37,21 @@ public class EsriTestHelper {
     private final WSClient wsClient;
     private final EsriClient esriClient;
 
-    public ServerSettings(Server server, WSClient wsClient, EsriClient esriClient) {
+    ServerSettings(Server server, WSClient wsClient, EsriClient esriClient) {
       this.server = server;
       this.wsClient = wsClient;
       this.esriClient = esriClient;
     }
 
-    public Server getServer() {
+    Server getServer() {
       return server;
     }
 
-    public WSClient getWsClient() {
+    WSClient getWsClient() {
       return wsClient;
     }
 
-    public EsriClient getEsriClient() {
+    EsriClient getEsriClient() {
       return esriClient;
     }
   }

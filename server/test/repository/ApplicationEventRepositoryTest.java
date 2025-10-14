@@ -45,6 +45,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
     ApplicationEventModel insertedEvent = repo.insertAndRefreshSync(event);
+
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -83,6 +84,27 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent.getCreator()).isEqualTo(Optional.empty());
     assertThat(insertedEvent.getDetails()).isEqualTo(details);
     assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+  }
+
+  @Test
+  public void insertStatusEvents_updatesAccountLastActivityTime() {
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
+    Instant activitytimeBeforeUpdate = applicant1.getAccount().getLastActivityTime();
+    ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
+    ApplicationEventDetails initialStatus =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
+            .build();
+    repo.insertStatusEvents(
+        ImmutableList.of(application1), Optional.empty(), initialStatus.statusEvent().get());
+
+    // check if accounts table is updated
+    applicant1.getAccount().refresh();
+    Instant activitytimeAfterUpdate = applicant1.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
@@ -305,11 +327,13 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Setup
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    AccountModel actor = resourceCreator.insertAccount();
+    AccountModel admin = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
-    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
+    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("some note"), admin);
 
     // Execute
     ImmutableList<ApplicationEventModel> applicationEvents =
@@ -325,6 +349,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
+    // Check if activity time is updated in Accounts
+    applicant.getAccount().refresh();
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test

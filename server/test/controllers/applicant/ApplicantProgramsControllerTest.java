@@ -365,27 +365,20 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
-  // representing a program slug.
-  public void show_withStringProgramParam_showsByProgramSlug() {
+  public void northStar_show_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
-    // meaningful redirect location.
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
-    Result result = controller.show(request, alphaNumProgramParam).toCompletableFuture().join();
+    Result result =
+        controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .contains(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(program.id), /* isFromUrlCall= */ false)
-                .url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
   }
 
   @Test
@@ -404,29 +397,23 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showWithApplicantId_withStringProgramParam_redirectsToReview() {
+  public void northStar_showWithApplicantId_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
-    // meaningful redirect location.
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
     currentApplicant.save();
 
     String alphaNumProgramParam = program.getSlug();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false").build();
     Result result =
         controller
-            .showWithApplicantId(request, currentApplicant.id, alphaNumProgramParam)
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
             .toCompletableFuture()
             .join();
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .contains(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(program.id), /* isFromUrlCall= */ false)
-                .url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
   }
 
   @Test

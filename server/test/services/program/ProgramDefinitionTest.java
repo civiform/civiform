@@ -10,11 +10,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -69,6 +72,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -101,6 +105,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -124,6 +129,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -260,6 +266,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
@@ -287,6 +294,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -326,6 +334,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls(tiGroups))
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     program =
@@ -374,6 +383,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -431,6 +441,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -513,6 +524,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     // block1
@@ -614,6 +626,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     // block1
@@ -737,6 +750,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     // blockA (applicantName)
@@ -1152,6 +1166,115 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
+  public void blockHasQuestionsUsedByApiBridge_returnsTrue()
+      throws ProgramBlockDefinitionNotFoundException {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ImmutableMap<String, ApiBridgeDefinition> map =
+        ImmutableMap.of(
+            "key-name",
+            new ApiBridgeDefinition(
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        addressQuestion.getQuestionNameKey(), Scalar.ZIP, "externalQuestion1")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        textQuestion.getQuestionNameKey(), Scalar.TEXT, "externalQuestion2"))));
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(map)
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .build()
+            .getProgramDefinition();
+
+    BlockDefinition block = programDefinition.blockDefinitions().stream().findFirst().get();
+
+    assertThat(programDefinition.blockHasQuestionsUsedByApiBridge(block.id())).isTrue();
+  }
+
+  @Test
+  public void blockHasQuestionsUsedByApiBridge_returnsFalse()
+      throws ProgramBlockDefinitionNotFoundException {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(ImmutableMap.of())
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .withBlock()
+            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    BlockDefinition block = programDefinition.blockDefinitions().stream().findFirst().get();
+
+    assertThat(programDefinition.blockHasQuestionsUsedByApiBridge(block.id())).isFalse();
+  }
+
+  @Test
+  public void isQuestionsListUsedByApiBridge_returnsTrueIfApiBridgeUsesQuestions() {
+    var addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    var textQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+
+    ImmutableMap<String, ApiBridgeDefinition> map =
+        ImmutableMap.of(
+            "key-name",
+            new ApiBridgeDefinition(
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        addressQuestion.getQuestionNameKey(), Scalar.ZIP, "externalQuestion1")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        textQuestion.getQuestionNameKey(), Scalar.TEXT, "externalQuestion2"))));
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(map)
+            .withBlock()
+            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(
+            programDefinition.isQuestionsListUsedByApiBridge(
+                ImmutableList.of(addressQuestion.getId())))
+        .isTrue();
+  }
+
+  @Test
+  public void isQuestionsListUsedByApiBridge_returnsFalseIfApiBridgeHasNoQuestions() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBridgeDefinitions(ImmutableMap.of())
+            .withBlock()
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(), false)
+            .withQuestionDefinition(
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(), false)
+            .withQuestionDefinition(
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(
+            programDefinition.isQuestionsListUsedByApiBridge(
+                ImmutableList.of(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getId())))
+        .isFalse();
+    assertThat(programDefinition.isQuestionsListUsedByApiBridge(ImmutableList.of())).isFalse();
+  }
+
+  @Test
   public void getCreateTimeWhenExist() {
     Instant now = Instant.now();
     ProgramDefinition def =
@@ -1171,6 +1294,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -1193,6 +1317,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -1217,6 +1342,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -1239,6 +1365,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
@@ -1262,6 +1389,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .setLocalizedSummaryImageDescription(Optional.of(description))
             .build();
 
@@ -1287,6 +1415,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(def.localizedSummaryImageDescription().isPresent()).isFalse();
@@ -1311,6 +1440,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "first image description")))
             .build();
@@ -1346,6 +1476,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1372,6 +1503,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(def.summaryImageFileKey().isPresent()).isFalse();
@@ -1395,6 +1527,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1490,6 +1623,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             // The following fields should *not* be included in the serialization
@@ -1673,6 +1807,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     ObjectMapper objectMapper =

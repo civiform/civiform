@@ -46,6 +46,8 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   public enum NavPage {
+    /** Used when no page is set */
+    NULL_PAGE,
     PROGRAMS,
     QUESTIONS,
     INTERMEDIARIES,
@@ -53,6 +55,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     API_KEYS,
     SETTINGS,
     API_DOCS,
+    API_BRIDGE_DISCOVERY
   }
 
   private final NavPage activeNavPage;
@@ -216,6 +219,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String apiDocsLink = controllers.docs.routes.ApiDocsController.index().url();
+    String apiBridgeDiscoveryLink =
+        controllers.admin.apibridge.routes.DiscoveryController.discovery().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
     String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
@@ -271,7 +276,13 @@ public final class AdminLayout extends BaseHtmlLayout {
                     .condWith(
                         getSettingsManifest().getApiGeneratedDocsEnabled(request),
                         createDropdownSubItem(
-                            "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
+                            "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage)))
+                    .condWith(
+                        getSettingsManifest().getApiBridgeEnabled(request),
+                        createDropdownSubItem(
+                            "Bridge Discovery",
+                            apiBridgeDiscoveryLink,
+                            NavPage.API_BRIDGE_DISCOVERY.equals(activeNavPage))));
 
     LiTag programAdminApiNavItemDropdown =
         createTopNavItemWithDropdown(
@@ -284,8 +295,7 @@ public final class AdminLayout extends BaseHtmlLayout {
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage))));
 
     switch (primaryAdminType) {
-      case CIVIFORM_ADMIN:
-        {
+      case CIVIFORM_ADMIN ->
           adminHeaderUl.with(
               programsNavItem,
               questionsNavItem,
@@ -294,18 +304,13 @@ public final class AdminLayout extends BaseHtmlLayout {
               apiNavItemDropdown,
               settingsNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"),
               logoutNavItem);
-          break;
-        }
-      case PROGRAM_ADMIN:
-        {
+      case PROGRAM_ADMIN ->
           adminHeaderUl
               .with(programAdminProgramsHeaderLink, reportingNavItem)
               .condWith(
                   getSettingsManifest().getApiGeneratedDocsEnabled(request),
                   programAdminApiNavItemDropdown)
               .with(logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
-          break;
-        }
     }
 
     return adminHeaderUl;

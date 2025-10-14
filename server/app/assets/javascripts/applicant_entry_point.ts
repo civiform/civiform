@@ -8,6 +8,7 @@ import * as languageSelector from './language_selector'
 import * as enumerator from './enumerator'
 import * as radio from './radio'
 import * as toast from './toast'
+import * as map from './mapquestion/map'
 import * as modal from './modal'
 import * as northStarModal from './north_star_modal'
 import * as fileUpload from './file_upload'
@@ -35,6 +36,7 @@ window.addEventListener('load', () => {
   enumerator.init()
   radio.init()
   toast.init()
+  map.init()
   modal.init()
   northStarModal.init()
   fileUpload.init()

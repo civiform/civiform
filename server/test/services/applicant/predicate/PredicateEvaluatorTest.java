@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import services.DateConverter;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -26,6 +27,7 @@ public class PredicateEvaluatorTest {
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private final QuestionDefinition addressQuestion =
       questionBank.addressApplicantAddress().getQuestionDefinition();
+  private final QuestionDefinition mapQuestion = questionBank.mapQuestion().getQuestionDefinition();
 
   private ApplicantData applicantData;
   private ApplicantQuestion applicantQuestion;
@@ -40,7 +42,9 @@ public class PredicateEvaluatorTest {
             addressQuestion, new ApplicantModel(), applicantData, Optional.empty());
     generator =
         new JsonPathPredicateGenerator(
-            Mockito.mock(DateConverter.class), ImmutableList.of(addressQuestion), Optional.empty());
+            Mockito.mock(DateConverter.class),
+            ImmutableList.of(addressQuestion, mapQuestion),
+            Optional.empty());
     evaluator = new PredicateEvaluator(applicantData, generator);
   }
 
@@ -60,6 +64,39 @@ public class PredicateEvaluatorTest {
 
     applicantData.putString(applicantQuestion.createAddressQuestion().getStreetPath(), "different");
     assertThat(evaluator.evaluate(node)).isFalse();
+  }
+
+  @Test
+  public void evaluate_mapQuestionLeafNode() {
+    Path selectionsPath =
+        mapQuestion
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH)
+            .join(Scalar.SELECTIONS);
+    ImmutableList<String> selections =
+        ImmutableList.of(
+            "{\"featureId\":\"feature-id-1\",\"locationName\":\"Location 1\"}",
+            "{\"featureId\":\"feature-id-3\",\"locationName\":\"Location 3\"}");
+    applicantData.putArray(selectionsPath, selections);
+
+    LeafOperationExpressionNode leafNode =
+        LeafOperationExpressionNode.create(
+            mapQuestion.getId(),
+            Scalar.SELECTIONS,
+            Operator.ANY_OF,
+            PredicateValue.listOfStrings(ImmutableList.of("feature-id-1", "feature-id-2")));
+    PredicateExpressionNode node = PredicateExpressionNode.create(leafNode);
+
+    assertThat(evaluator.evaluate(node)).isTrue();
+
+    LeafOperationExpressionNode noMatchLeafNode =
+        LeafOperationExpressionNode.create(
+            mapQuestion.getId(),
+            Scalar.SELECTIONS,
+            Operator.ANY_OF,
+            PredicateValue.listOfStrings(ImmutableList.of("feature-id-4", "feature-id-5")));
+    PredicateExpressionNode noMatchNode = PredicateExpressionNode.create(noMatchLeafNode);
+
+    assertThat(evaluator.evaluate(noMatchNode)).isFalse();
   }
 
   @Test

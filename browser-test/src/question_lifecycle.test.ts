@@ -1,8 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
-  disableFeatureFlag,
-  enableFeatureFlag,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -10,12 +9,7 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-test.describe('normal question lifecycle', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(page, 'north_star_applicant_ui')
-    await disableFeatureFlag(page, 'date_validation_enabled')
-  })
-
+test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
   test('sample question seeding works', async ({
     page,
     adminQuestions,
@@ -40,6 +34,10 @@ test.describe('normal question lifecycle', () => {
       adminQuestions,
       adminPrograms,
     }) => {
+      // Map questions rely on mock web services in tests, so they can only be run in local dev environemnts
+      if (type === QuestionType.MAP && !isLocalDevEnvironment()) {
+        test.skip()
+      }
       await loginAsAdmin(page)
 
       const questionName = `qlc-${type}`
@@ -67,21 +65,6 @@ test.describe('normal question lifecycle', () => {
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await validateScreenshot(page, `${type}-edit-page`)
-      if (type === QuestionType.DATE) {
-        await enableFeatureFlag(page, 'date_validation_enabled')
-        await adminQuestions.gotoQuestionEditPage(questionName)
-        await validateScreenshot(
-          page,
-          `${type}-edit-page-with-date-validation-enabled`,
-        )
-
-        await page.selectOption('#min-date-type', {value: 'CUSTOM'})
-        await page.selectOption('#max-date-type', {value: 'CUSTOM'})
-        await validateScreenshot(
-          page.locator('#question-settings'),
-          `${type}-edit-page-with-custom-date-pickers`,
-        )
-      }
       await adminQuestions.updateQuestion(questionName)
 
       const programName = `program-for-${type}-question-lifecycle`
@@ -105,7 +88,10 @@ test.describe('normal question lifecycle', () => {
 
       // Take screenshot of questions being published and active.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-only-active`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-only-active`,
+      )
 
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
@@ -113,7 +99,10 @@ test.describe('normal question lifecycle', () => {
 
       // Take screenshot of question being in draft state.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-active-and-draft`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-active-and-draft`,
+      )
 
       await adminPrograms.publishProgram(programName)
 

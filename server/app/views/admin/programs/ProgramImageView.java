@@ -149,7 +149,8 @@ public final class ProgramImageView extends BaseHtmlView {
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
     formsAndCurrentCardContainer.with(formsContainer);
 
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
+    // TODO(#11570): North star clean up
+    if (settingsManifest.getNorthStarApplicantUi()) {
       DivTag cardPreview;
       try {
         String content =
@@ -357,7 +358,6 @@ public final class ProgramImageView extends BaseHtmlView {
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
-            /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
             profile,
             zoneId,

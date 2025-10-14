@@ -1,4 +1,5 @@
 import {test, expect, APIRequestContext} from '@playwright/test'
+import {slugify} from './admin_programs'
 
 export class Seeding {
   public request!: APIRequestContext
@@ -24,6 +25,21 @@ export class Seeding {
   async clearDatabase() {
     await test.step('Clear database', async () => {
       const response = await this.request.post('/dev/seed/clearHeadless')
+      await expect(response).toBeOK()
+    })
+  }
+
+  async seedApplications(programName: string, count: number) {
+    await test.step(`Seed ${count} applications for program ${programName}`, async () => {
+      const response = await this.request.post(
+        '/dev/seedApplicationsHeadless',
+        {
+          form: {
+            programSlug: slugify(programName),
+            count: count.toString(),
+          },
+        },
+      )
       await expect(response).toBeOK()
     })
   }

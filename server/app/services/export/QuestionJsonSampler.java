@@ -23,6 +23,7 @@ import services.applicant.question.EmailQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
@@ -146,6 +147,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     private final EmptyJsonSampler emptyJsonSampler;
     private final FileUploadJsonSampler fileUploadJsonSampler;
     private final IdJsonSampler idJsonSampler;
+    private final MapJsonSampler mapJsonSampler;
     private final MultiSelectJsonSampler multiSelectJsonSampler;
     private final NameJsonSampler nameJsonSampler;
     private final NumberJsonSampler numberJsonSampler;
@@ -163,6 +165,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         EmptyJsonSampler emptyJsonSampler,
         FileUploadJsonSampler fileUploadJsonSampler,
         IdJsonSampler idJsonSampler,
+        MapJsonSampler mapJsonSampler,
         MultiSelectJsonSampler multiSelectJsonSampler,
         NameJsonSampler nameJsonSampler,
         NumberJsonSampler numberJsonSampler,
@@ -177,6 +180,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
       this.emptyJsonSampler = checkNotNull(emptyJsonSampler);
       this.fileUploadJsonSampler = checkNotNull(fileUploadJsonSampler);
       this.idJsonSampler = checkNotNull(idJsonSampler);
+      this.mapJsonSampler = checkNotNull(mapJsonSampler);
       this.multiSelectJsonSampler = checkNotNull(multiSelectJsonSampler);
       this.nameJsonSampler = checkNotNull(nameJsonSampler);
       this.numberJsonSampler = checkNotNull(numberJsonSampler);
@@ -201,6 +205,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case ENUMERATOR -> enumeratorJsonSampler;
         case FILEUPLOAD -> fileUploadJsonSampler;
         case ID -> idJsonSampler;
+        case MAP -> mapJsonSampler;
         case NAME -> nameJsonSampler;
         case NUMBER -> numberJsonSampler;
         case PHONE -> phoneJsonSampler;
@@ -208,6 +213,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
           // do not include an answer from the user.
         case STATIC -> emptyJsonSampler;
         case TEXT -> textJsonSampler;
+        case YES_NO -> singleSelectJsonSampler;
 
         default ->
             throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
@@ -490,7 +496,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ApplicantData applicantData = sampleDataContext.getApplicantData();
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createMultiSelectQuestion().getOptions();
+          applicantQuestion.createMultiSelectQuestion().getDisplayableOptions();
 
       // Add up to two options to the sample data.
       if (questionOptions.size() > 0) {
@@ -512,6 +518,37 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     @Override
     public QuestionJsonPresenter getJsonPresenter() {
       return multiSelectJsonPresenter;
+    }
+  }
+
+  class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
+    private final QuestionJsonPresenter mapJsonPresenter;
+
+    @Inject
+    MapJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
+      this.mapJsonPresenter = questionJsonPresenterFactory.create(QuestionType.MAP);
+    }
+
+    @Override
+    public MapQuestion getQuestion(ApplicantQuestion applicantQuestion) {
+      return applicantQuestion.createMapQuestion();
+    }
+
+    @Override
+    public void addSampleData(
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      ApplicantData applicantData = sampleDataContext.getApplicantData();
+
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 0, "feature_123", "Location 1");
+
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 1, "feature_456", "Location 2");
+    }
+
+    @Override
+    public QuestionJsonPresenter getJsonPresenter() {
+      return mapJsonPresenter;
     }
   }
 
@@ -622,7 +659,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createSingleSelectQuestion().getOptions();
+          applicantQuestion.createSingleSelectQuestion().getDisplayableOptions();
 
       if (questionOptions.size() != 0) {
         LocalizedQuestionOption firstOption = questionOptions.get(0);

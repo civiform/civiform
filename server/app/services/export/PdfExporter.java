@@ -450,7 +450,7 @@ public final class PdfExporter {
       if (question.getQuestionType().isMultiOptionType()) {
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
         List list = createList(indentationLevel);
-        for (QuestionOption option : multiOption.getOptions()) {
+        for (QuestionOption option : multiOption.getDisplayableOptions()) {
           list.add(new ListItem(option.optionText().getDefault()));
         }
         document.add(list);

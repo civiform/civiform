@@ -1,9 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -31,7 +28,6 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
@@ -42,8 +38,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
   private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private AdminImportController controller;
-  private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-  private VersionRepository versionRepository;
   private Database database;
 
   @Before
@@ -55,12 +49,10 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
-            mockSettingsManifest,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(ProgramService.class));
     database = DB.getDefault();
-    versionRepository = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -98,44 +90,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_noDuplicatesEnabled_malformattedJson_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
-  }
-
-  @Test
   public void hxImportProgram_noTopLevelProgramFieldInJson_error() {
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        "{ \"id\" : 32, \"adminName\" : \"admin-name\","
-                            + " \"adminDescription\" : \"description\"}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result))
-        .containsPattern("JSON did not have a top-level .*program.* field");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_noTopLevelProgramFieldInJson_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
@@ -172,52 +127,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_noDuplicatesEnabled_notEnoughInfoToCreateProgramDef_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        "{ \"program\": { \"adminName\" : \"admin-name\","
-                            + " \"adminDescription\" : \"description\"}}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
-  }
-
-  @Test
   public void hxImportProgram_programAlreadyExists_error() {
-    // save a program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // attempt to import the program again
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("This program already exists in our system.");
-    assertThat(contentAsString(result)).contains("Please check your file and and try again.");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_programAlreadyExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     // save a program
     controller.hxSaveProgram(
         fakeRequestBuilder()
@@ -269,8 +179,8 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     // see the error
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("There was an error rendering your program.");
-    assertThat(contentAsString(result)).contains("Please check your data and try again.");
+    assertThat(contentAsString(result)).contains("One or more question errors occured");
+    assertThat(contentAsString(result)).contains("Question ID 2 is not defined");
   }
 
   @Test
@@ -295,53 +205,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_noDuplicatesEnabled_draftProgramExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // Create a draft program, so that there are unpublished programs
-    ProgramBuilder.newDraftProgram("draft-program").build();
-
-    // save a program
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("There are draft programs and questions in our system.");
-    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_draftQuestionExists_error() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // Create a draft question, so there is an unpublished question
-    versionRepository
-        .getDraftVersionOrCreate()
-        .addQuestion(resourceCreator.insertQuestion("draft-question"))
-        .save();
-
-    // save a program
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("There are draft programs and questions in our system.");
-    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
-  }
-
-  @Test
   public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
     Result result =
         controller.hxImportProgram(
@@ -358,50 +221,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      hxImportProgram_noDuplicatesEnabled_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Minimal Sample Program");
-    assertThat(contentAsString(result)).contains("minimal-sample-program");
-    assertThat(contentAsString(result)).contains("Screen 1");
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITHOUT_QUESTIONS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "no-questions")
-            .findOne()
-            .getProgramDefinition();
-
-    assertThat(programDefinition.externalLink()).isEqualTo("https://www.example.com");
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithoutQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -455,84 +275,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "minimal-sample-program")
-            .findOne()
-            .getProgramDefinition();
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Name")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(programDefinition.externalLink()).isEqualTo("https://github.com/civiform/civiform");
-    assertThat(questionDefinition.getQuestionText().getDefault())
-        .isEqualTo("Please enter your first and last name");
-    assertThat(programDefinition.getQuestionIdsInProgram()).contains(questionDefinition.getId());
-  }
-
-  @Test
   public void hxSaveProgram_handlesNestEnumeratorQuestions() {
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition enumeratorQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Sample Enumerator Question")
-            .findOne()
-            .getQuestionDefinition();
-
-    QuestionDefinition nestedEnumeratorQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "cats")
-            .findOne()
-            .getQuestionDefinition();
-
-    QuestionDefinition childQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "cat-color")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(enumeratorQuestionDefinition.getId())
-        .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
-    assertThat(nestedEnumeratorQuestionDefinition.getId())
-        .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_handlesNestEnumeratorQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -668,128 +411,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesUpdatedQuestionIdsOnPredicates()
-      throws ProgramBlockDefinitionNotFoundException {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "visibility-eligibility")
-            .findOne()
-            .getProgramDefinition();
-    Long eligibilityQuestionId =
-        programDefinition
-            .getBlockDefinition(1)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getOrNode()
-            .children()
-            .get(0)
-            .getAndNode()
-            .children()
-            .get(0)
-            .getLeafOperationNode()
-            .questionId();
-    Long visibilityQuestionId =
-        programDefinition
-            .getBlockDefinition(2)
-            .visibilityPredicate()
-            .get()
-            .rootNode()
-            .getLeafOperationNode()
-            .questionId();
-    Long savedQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "id-test")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-
-    assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
-    assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
-
-    Long eligibilityInServiceAreaAddressQuestionId =
-        programDefinition
-            .getBlockDefinition(3)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getLeafAddressNode()
-            .questionId();
-    Long savedInServiceAreaAddressQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Address")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-    assertThat(eligibilityInServiceAreaAddressQuestionId)
-        .isEqualTo(savedInServiceAreaAddressQuestionId);
-
-    Long eligibilityNotInServiceAreaAddressQuestionId =
-        programDefinition
-            .getBlockDefinition(4)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getLeafAddressNode()
-            .questionId();
-    Long savedNotInServiceAreaAddressQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "second-address")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-    assertThat(eligibilityNotInServiceAreaAddressQuestionId)
-        .isEqualTo(savedNotInServiceAreaAddressQuestionId);
-  }
-
-  @Test
   public void hxSaveProgram_discardsPaiTagsOnImportedQuestions() {
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "dob")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(questionDefinition.getPrimaryApplicantInfoTags()).isEqualTo(ImmutableSet.of());
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_discardsPaiTagsOnImportedQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -835,32 +457,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxSaveProgram_noDuplicatesEnabled_preservesUniversalSettingOnImportedQuestions() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                // Questions must be marked as "universal" before being tagged with a PAI
-                // tag, so we can reuse the PROGRAM_JSON_WITH_PAI_TAGS json
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "dob")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(questionDefinition.isUniversal()).isTrue();
-  }
-
-  @Test
   public void hxSaveProgram_addsAnEmptyStatus() {
     controller.hxSaveProgram(
         fakeRequestBuilder()
@@ -881,8 +477,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void deserialize_malformedOption_returnsError() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
-
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
             fakeRequestBuilder()
@@ -905,8 +499,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void deserialize_multipleOptions_parsesCorrectly() {
-    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled()).thenReturn(true);
-
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
         controller.getDeserializeResult(
             fakeRequestBuilder()
@@ -933,51 +525,6 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(duplicateOptions).containsKey("Text");
     assertThat(duplicateOptions.get("Text"))
         .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
-  }
-
-  @Test
-  public void deserializeDuplicateHandlingNotEnabled_parsesProgramOnly() {
-    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
-        controller.getDeserializeResult(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        PROGRAM_JSON_WITH_ONE_QUESTION,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
-                        OVERWRITE_EXISTING,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Text",
-                        CREATE_DUPLICATE,
-                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Phone",
-                        "Boo"))
-                .build());
-
-    assertThat(deserializeResult.isError()).isFalse();
-    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption> duplicateOptions =
-        deserializeResult.getResult().getDuplicateQuestionHandlingOptions();
-    assertThat(duplicateOptions).isEmpty();
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_addsAnEmptyStatus() {
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    StatusDefinitions statusDefinitions =
-        database
-            .find(ApplicationStatusesModel.class)
-            .where()
-            .eq("program_name", "minimal-sample-program")
-            .findOne()
-            .getStatusDefinitions();
-
-    assertThat(statusDefinitions.getStatuses()).isEmpty();
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =
@@ -1052,7 +599,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -1129,7 +677,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -1216,7 +765,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : {
+                 "admin-name-1": {
+                     "inputFields" : [ {
+                         "questionName": "q-name-1",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }],
+                     "outputFields" : [ {
+                         "questionName": "q-name-2",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }]
+                 }
+             }
           },
           "questions" : [ {
               "type" : "name",
@@ -1246,6 +809,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 1,
               "universal" : false,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : [ ]
               }
           } ]
@@ -1397,7 +961,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             },
             "questions" : [ {
               "type" : "name",
@@ -1421,6 +986,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 13,
                 "universal" : true,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ "APPLICANT_NAME" ]
               }
             }, {
@@ -1447,6 +1013,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1478,6 +1045,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 94,
                 "enumeratorId" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1509,6 +1077,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 95,
                 "enumeratorId" : 94,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               }
             } ]
@@ -1739,7 +1308,8 @@ public class AdminImportControllerTest extends ResetPostgres {
            },
              "isRequired" : true
            }
-         }]
+         }],
+         "bridgeDefinitions" : { }
         },
         "questions" : [ {
           "type" : "id",
@@ -1763,6 +1333,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 3,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1787,6 +1358,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 4,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1810,6 +1382,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 5,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         }, {
@@ -1835,6 +1408,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 6,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         } ]
@@ -1923,7 +1497,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
           },
           "questions" : [{
               "type" : "date",
@@ -1947,6 +1522,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 3,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_DOB"]
               }
           }, {
@@ -1971,6 +1547,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 4,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_NAME"]
               }
           }, {
@@ -1995,6 +1572,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 5,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_PHONE"]
               }
           }, {
@@ -2019,6 +1597,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 6,
               "universal" : true,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : ["APPLICANT_EMAIL"]
               }
           }]
@@ -2107,7 +1686,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
         },
         "questions" : [ {
           "type" : "name",
@@ -2137,6 +1717,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 1,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         } ]

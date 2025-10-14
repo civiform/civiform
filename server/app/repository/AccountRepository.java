@@ -118,6 +118,19 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
+  public List<AccountModel> lookupAccountByEmailCaseInsensitive(String emailAddress) {
+    checkNotNull(emailAddress);
+    checkArgument(!emailAddress.isEmpty());
+    return database
+        .find(AccountModel.class)
+        .where()
+        .ieq("email_address", emailAddress)
+        .setLabel("AccountModel.findByEmail")
+        .setProfileLocation(
+            queryProfileLocationBuilder.create("lookupAccountByEmailCaseInsensitive"))
+        .findList();
+  }
+
   public CompletionStage<Optional<AccountModel>> lookupAccountByEmailAsync(String emailAddress) {
     if (emailAddress == null) {
       return CompletableFuture.failedStage(new NullPointerException());
@@ -236,31 +249,43 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
-  /** Merge the older applicant data into the newer applicant, and set both to the given account. */
-  public CompletionStage<ApplicantModel> mergeApplicants(
-      ApplicantModel left, ApplicantModel right, AccountModel account) {
+  /**
+   * Merge the older applicant data into the newer applicant, and set both to the given account.
+   *
+   * @return The updated newer applicant.
+   */
+  public CompletionStage<ApplicantModel> mergeApplicantsOlderIntoNewer(
+      ApplicantModel applicant1, ApplicantModel applicant2, AccountModel account) {
     return supplyAsync(
         () ->
             transactionManager.execute(
                 () -> {
-                  left.setAccount(account).save();
-                  right.setAccount(account).save();
-                  return mergeApplicants(left, right).saveAndReturn();
+                  applicant1.setAccount(account).save();
+                  applicant2.setAccount(account).save();
+                  return mergeApplicantsOlderIntoNewer(applicant1, applicant2).saveAndReturn();
                 }),
         dbExecutionContext);
   }
 
-  /** Merge the applicant data from older applicant into the newer applicant. */
-  private ApplicantModel mergeApplicants(ApplicantModel left, ApplicantModel right) {
-    if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
-      ApplicantModel tmp = left;
-      left = right;
-      right = tmp;
+  /**
+   * Merge the applicant data from the older applicant into the newer applicant.
+   *
+   * @return The updated newer applicant.
+   */
+  private ApplicantModel mergeApplicantsOlderIntoNewer(
+      ApplicantModel applicant1, ApplicantModel applicant2) {
+    ApplicantModel older = applicant1;
+    ApplicantModel newer = applicant2;
+    if (applicant1.getWhenCreated().isAfter(applicant2.getWhenCreated())) {
+      newer = applicant1;
+      older = applicant2;
     }
-    // At this point, "left" is older, "right" is newer, we will merge "left" into "right", because
-    // the newer applicant is always preferred when more than one applicant matches an account.
-    right.getApplicantData().mergeFrom(left.getApplicantData());
-    return right;
+    // The newer applicant is always preferred when more than one applicant
+    // matches an account; merge the older one into it, preferring data in the
+    //  newer one.
+
+    newer.getApplicantData().mergeFrom(older.getApplicantData());
+    return newer;
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
@@ -412,14 +437,28 @@ public final class AccountRepository {
       return Optional.empty();
     }
 
-    Optional<AccountModel> maybeAccount = lookupAccountByEmail(accountEmail);
+    List<AccountModel> accounts = lookupAccountByEmailCaseInsensitive(accountEmail);
+
+    Optional<AccountModel> maybeAccount;
+
+    if (accounts.size() == 1) {
+      // unique user found.
+      maybeAccount = Optional.of(accounts.get(0));
+    } else if (accounts.size() > 1) {
+      // more than one result: fallback to exact-match search to be safe
+      maybeAccount = lookupAccountByEmail(accountEmail);
+    } else {
+      maybeAccount = Optional.empty();
+    }
+
     if (maybeAccount.isEmpty()) {
       return Optional.of(
           CiviFormError.of(
               String.format(
-                  "Cannot add %s as a Program Admin because they do not have an admin account."
-                      + " Have the user log in as admin on the home page, then they can be added"
-                      + " as a Program Admin.",
+                  "Cannot add %s as a Program Admin because they haven't previously logged into"
+                      + " CiviForm. Have the user log in, then add them as a Program Admin. After"
+                      + " they've been added, they will need refresh their browser see the programs"
+                      + " they've been assigned to.",
                   accountEmail)));
     }
 

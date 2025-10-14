@@ -755,6 +755,17 @@ validation.invalidDateFormat=Ingresa una fecha en el formato correcto.
 validation.dateBeyondAllowablePast=Ingresa una fecha dentro de los últimos {0} años
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Ingresa una fecha dentro de los próximos {0} años
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=La fecha debe ser posterior al día de hoy
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=La fecha debe ser posterior al {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=La fecha debe ser anterior al día de hoy
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=La fecha debe ser anterior al {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=La fecha debe ser entre el {0} y el {1}
+validation.currentDateRequired=Ingresa la fecha de hoy
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,10 +908,37 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 # YES/NO QUESTION - text specific to yes/no questions. #
 #---------------------------------------------------------------------#
 
-option.yes=Yes
+option.yes=Sí
 option.no=No
-option.notSure=Not sure
-option.maybe=Maybe
+option.notSure=No lo sé
+option.maybe=Tal vez
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
+map.applyFiltersButtonText=Apply filters
+# Legend text for the map filters section
+map.filterLegendText=Filters
+# Link text for location details URLs
+map.locationLinkText=View more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Mostrando {0} de {1} ubicaciones
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount={0} of {1} maximum locations selected.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=No se seleccionaron ubicaciones.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Clear filters
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Ubicaciones seleccionadas
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Select -
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Please select at most {0} locations.
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1013,6 +1051,9 @@ category.tag.housing=Vivienda
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Militar
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Capacitación
 
@@ -1021,6 +1062,9 @@ category.tag.transportation=Transporte
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Servicios públicos
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veterano
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Categorías
@@ -1052,3 +1096,27 @@ session.extended.error=No se pudo extender la sesión
 
 # Untranslated string for translation infrastructure testing.
 translation.untranslated=This string remains untranslated for translation infrastructure experiments.
+
+button.adminLogin=Administrator log in
+
+button.applicantLogin=Applicant log in
+
+map.addFilterButton=Add filter
+
+map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+
+map.addFiltersTitle=Filters
+
+map.displayNameLabel=Display name
+
+map.keyLabel=Key
+
+map.locationAddressLabel=Address key
+
+map.locationDetailsUrlLabel=View more details URL key
+
+map.locationNameLabel=Name key
+
+map.mapRegionAltText=Interactive map displaying locations
+
+map.maxLocationSelectionsLabel=Maximum location selections

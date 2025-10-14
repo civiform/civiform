@@ -18,7 +18,9 @@ import * as adminSettingsView from './admin_settings_view'
 import * as adminValidation from './admin_validation'
 import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
+import * as map from './mapquestion/map'
 import * as modal from './modal'
+import * as northStarModal from './north_star_modal'
 import * as questionBank from './questionBank'
 import PreviewController, * as preview from './preview'
 import {SessionTimeoutHandler} from './session'
@@ -31,6 +33,16 @@ import * as trustedIntermediaryController from './admin_trusted_intermediary_lis
 import * as fileUpload from './file_upload'
 import * as azureUpload from './azure_upload'
 import htmx from './htmx'
+
+import {AdminProgramApiBridge} from './admin_program_api_bridge'
+
+// Ensure the object path exists
+window.app = window.app || {}
+window.app.data = window.app.data || {}
+window.app.scripts = window.app.scripts || {}
+
+// Attach so the specific page can manage init
+window.app.scripts.AdminProgramApiBridge = AdminProgramApiBridge
 
 window.addEventListener('load', () => {
   initializeEverything()
@@ -58,6 +70,7 @@ function initializeEverything(): void {
   apiDocs.init()
   devIcons.init()
   modal.init()
+  northStarModal.init()
   questionBank.init()
   preview.init()
   enumerator.init()
@@ -73,5 +86,6 @@ function initializeEverything(): void {
 
 function afterSettle(): void {
   PreviewController.updateListeners()
+  map.init()
   enumerator.updateListeners()
 }

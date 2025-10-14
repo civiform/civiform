@@ -59,11 +59,17 @@ public class WithMockedProfiles {
     }
   }
 
-  public static void setupInjectorWithExtraBinding(play.api.inject.Binding<?> additionalBinding) {
+  public static void setupInjectorWithExtraBinding(
+      play.api.inject.Binding<?>... additionalBindings) {
     stopApp();
+
+    java.util.List<play.api.inject.Binding<?>> allBindings = new java.util.ArrayList<>();
+    allBindings.add(bind(ProfileUtils.class).toInstance(MOCK_UTILS));
+    allBindings.addAll(java.util.Arrays.asList(additionalBindings));
+
     app =
         new GuiceApplicationBuilder()
-            .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS), additionalBinding)
+            .overrides(allBindings.toArray(new play.api.inject.Binding<?>[0]))
             .build();
     setupInjectorForApp(app);
   }

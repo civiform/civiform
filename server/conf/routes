@@ -8,8 +8,6 @@ GET     /*path/                                                                 
 # Redirect automatic requests from the browser to the specified favicon.
 GET     /favicon.ico                                                                                    controllers.HomeController.favicon()
 GET     /favicon.png                                                                                    controllers.HomeController.favicon()
-GET     /apple-touch-icon.png                                                                           controllers.HomeController.favicon()
-GET     /apple-touch-icon-precomposed.png                                                               controllers.HomeController.favicon()
 
 # The landing page
 GET     /                                                                                               controllers.HomeController.index(request: Request)
@@ -71,6 +69,7 @@ GET     /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicat
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates                      controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/delete               controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage        controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/editCondition                                                              controllers.admin.AdminProgramBlockPredicatesController.hxEditCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                              controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
@@ -90,6 +89,8 @@ POST    /admin/questions                                                       c
 POST    /admin/questions/:id/discard                                           controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore                                           controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive                                           controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
+POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
 # For rendering North Star question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
@@ -157,10 +158,22 @@ GET     /admin/reporting/:programSlug                                          c
 GET     /admin/reporting/:programSlug/download                                 controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName                                 controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
+# Admin api bridge
+GET     /admin/api-bridge/discovery                                            controllers.admin.apibridge.DiscoveryController.discovery(request: Request)
+POST    /admin/api-bridge/hx/discovery                                         controllers.admin.apibridge.DiscoveryController.hxDiscoveryPopulate(request: Request)
+POST    /admin/api-bridge/hx/add                                               controllers.admin.apibridge.DiscoveryController.hxAdd(request: Request)
+
+GET     /admin/programs/:programId/api-bridge/edit                             controllers.admin.apibridge.ProgramBridgeController.edit(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/hx/bridge-configuration          controllers.admin.apibridge.ProgramBridgeController.hxBridgeConfiguration(request: Request, programId: Long)
+POST    /admin/programs/:programId/api-bridge/save                             controllers.admin.apibridge.ProgramBridgeController.save(request: Request, programId: Long)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey                                        controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey                              controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
 GET     /applicants/:applicantId/files/:fileKey                                controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)
+
+# Routes for handling GeoJSON
+POST    /admin/geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                                          controllers.Assets.versioned(file)
@@ -180,11 +193,14 @@ POST    /programs/:programId/submit                                             
 GET     /programs/:programParam/blocks/:blockId/edit                                                                              controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
 GET     /programs/:programParam/blocks/:blockId/review                                                                            controllers.applicant.ApplicantProgramBlocksController.review(request: Request, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
 POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper                            controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
-GET     /programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                                                        controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programParam: String, previousBlockIndex: Int, inReview: Boolean, isFromUrlCall: Boolean ?= true)
-GET     /programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper                                controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper, isFromUrlCall: Boolean ?= true)
-GET     /programs/:programId/blocks/:blockId/addFile/:inReview                                                                    controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
-GET     /programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview                                                        controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
+GET     /programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programParam: String, previousBlockIndex: Int, inReview: Boolean, isFromUrlCall: Boolean ?= true)
+GET     /programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper                             controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper, isFromUrlCall: Boolean ?= true)
+GET     /programs/:programParam/blocks/:blockId/addFile/:inReview                                                                 controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programParam: String, blockId: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
+GET     /programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programParam: String, blockId: String, fileKey: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+
+# Routes for handling GeoJSON
+POST    /geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
 
 # This route is special. It may specify a program by id or by program
 # slug. Since Play doesn't allow overloaded controller methods, accept
@@ -203,15 +219,15 @@ GET     /programs/:programSlug/disabled                                         
 GET     /applicants/:applicantId/programs                                                                                         controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long, categories: java.util.List[String])
 GET     /applicants/:applicantId/programs/:programName                                                                            controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programName: String)
 GET     /applicants/:applicantId/programs/:programParam/edit                                                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programParam: String, isFromUrlCall: Boolean ?= true)
-GET     /applicants/:applicantId/programs/:programParam/review                                                                       controllers.applicant.ApplicantProgramReviewController.reviewWithApplicantId(request: Request, applicantId: Long, programParam: String, isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/review                                                                    controllers.applicant.ApplicantProgramReviewController.reviewWithApplicantId(request: Request, applicantId: Long, programParam: String, isFromUrlCall: Boolean ?= true)
 POST    /applicants/:applicantId/programs/:programId/submit                                                                       controllers.applicant.ApplicantProgramReviewController.submitWithApplicantId(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/edit                                                         controllers.applicant.ApplicantProgramBlocksController.editWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
-GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/review                                                       controllers.applicant.ApplicantProgramBlocksController.reviewWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/edit                                                      controllers.applicant.ApplicantProgramBlocksController.editWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/review                                                    controllers.applicant.ApplicantProgramBlocksController.reviewWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, questionName: java.util.Optional[String], isFromUrlCall: Boolean ?= true)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper    controllers.applicant.ApplicantProgramBlocksController.confirmAddressWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
-GET     /applicants/:applicantId/programs/:programId/blocks/:previousBlockIndex/previous/:inReview                                controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programId: Long, previousBlockIndex: Int, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper        controllers.applicant.ApplicantProgramBlocksController.updateFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/addFile/:inReview                                            controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview                                controllers.applicant.ApplicantProgramBlocksController.removeFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                             controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programParam: String, previousBlockIndex: Int, inReview: Boolean, isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantRequestedActionWrapper        controllers.applicant.ApplicantProgramBlocksController.updateFileWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper, isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/addFile/:inReview                                         controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                             controllers.applicant.ApplicantProgramBlocksController.removeFileWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, fileKey: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                   controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # API
@@ -279,6 +295,8 @@ POST    /dev/seedQuestionsHeadless                          controllers.dev.DevT
 POST    /dev/seedPrograms                                   controllers.dev.DevToolsController.seedPrograms()
 +nocsrf
 POST    /dev/seedProgramsHeadless                           controllers.dev.DevToolsController.seedProgramsHeadless()
++nocsrf
+POST    /dev/seedApplicationsHeadless                       controllers.dev.DevToolsController.seedApplicationsHeadless(request: Request)
 POST    /dev/seed/clear                                     controllers.dev.DevToolsController.clear()
 +nocsrf
 POST    /dev/seed/clearHeadless                             controllers.dev.DevToolsController.clearHeadless()

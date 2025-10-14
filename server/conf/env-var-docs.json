@@ -806,6 +806,12 @@
         "mode": "HIDDEN",
         "description": "The number of server threads available for the durable job runner. More than a single thread will the server execute multiple jobs in parallel. Default value is 1.",
         "type": "int"
+      },
+      "DURABLE_JOBS_MAP_REFRESH": {
+        "mode": "HIDDEN",
+        "description": "A boolean specifying whether or not to refresh map data for the CiviForm instance.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -901,13 +907,8 @@
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables showing new UI with an updated user experience in Applicant flows",
-        "type": "bool"
-      },
-      "PROGRAM_FILTERING_ENABLED": {
         "mode": "ADMIN_READABLE",
-        "description": "Enables filtering programs by category on the homepage",
+        "description": "Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       },
       "CUSTOM_THEME_COLORS_ENABLED": {
@@ -916,27 +917,28 @@
         "type": "bool",
         "required": false
       },
-      "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable options for handling duplicate questions when importing/migrating programs: create a duplicate, use the existing question, or overwrite the existing question.",
-        "type": "bool",
-        "required": false
-      },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables suffix dropdown field in name question.",
         "type": "bool"
+      },
+      "DATE_VALIDATION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables admin validation settings for date questions.",
+        "type": "bool",
+        "required": false
+      },
+      "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Remove the CSV/JSON/PDF download capability for Program Admins.",
+        "type": "bool",
+        "required": false
       }
     }
   },
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs between deployed environments. Note: this should only be used on new environments, since existing programs will be modified if a program with the same question gets imported.",
-        "type": "bool"
-      },
       "SESSION_REPLAY_PROTECTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
@@ -960,9 +962,9 @@
         "type": "bool",
         "required": false
       },
-      "DATE_VALIDATION_ENABLED": {
+      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables admin validation settings for date questions.",
+        "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
         "type": "bool",
         "required": false
       },
@@ -975,6 +977,30 @@
       "MAP_QUESTION_ENABLED": {
         "mode": "HIDDEN",
         "description": "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their programs.",
+        "type": "bool",
+        "required": false
+      },
+      "SETTINGS_CACHE_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the database.",
+        "type": "bool",
+        "required": false
+      },
+      "API_BRIDGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
+        "type": "bool",
+        "required": false
+      },
+      "EXPANDED_FORM_LOGIC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
+        "type": "bool",
+        "required": false
+      },
+      "LOGIN_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
         "type": "bool",
         "required": false
       }

@@ -32,9 +32,6 @@ https://designsystem.digital.gov/utilities/.
   $theme-utility-breakpoints-custom: ('none-width': 0px),
   $theme-breadcrumb-min-width: 'none-width',
 
-  // This will need to be removed down the road to support uswds only pages.
-  // Currently enabling it results in pages where some elements now have a black border
-  $border-settings: ('output': false),
   // Disables mobile menu entirely as the admin area is not mobile friendly and
   // we don't want it to be collapsing into a vertical menu. Making the min width mobile
   // is the key setting for this as it defaults to desktop width size.

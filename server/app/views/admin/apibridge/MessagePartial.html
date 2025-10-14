@@ -1,0 +1,21 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apibridge.MessagePartialViewModel"*/-->
+
+<div
+  th:class="'width-tablet usa-alert usa-alert--slim usa-alert--' + ${model.alertType().name().toLowerCase()}"
+  role="alert"
+  th:aria-label="${model.alertTypeName()}"
+>
+  <div class="usa-alert__body">
+    <h2 class="usa-alert__heading" th:text="${model.alertTypeName()}"></h2>
+    <div class="usa-alert__text">
+      <ul class="usa-list margin-top-0">
+        <li
+          class="usa-checklist__item margin-top-0"
+          th:each="message: ${model.messages()}"
+          th:text="${message}"
+        ></li>
+      </ul>
+    </div>
+  </div>
+</div>

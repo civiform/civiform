@@ -39,11 +39,6 @@ import views.style.BaseStyles;
 
 /** The HtmlBundle class stores all of the data necessary for rendering a page. */
 public final class HtmlBundle {
-  // This is the fallback favicon to use if one is not provided.
-  // This image is just white background with "CF" in blue text
-  private static final String FALLBACK_FAVICON_DATA_URI =
-      "data:image/x-icon;base64,AAABAAEAEBAAAAEAIACcAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAWNJREFUOE9j/A8EDBQAxsFjwKuPPxgK5h1n2HnhCdhDDtqSDJNSrBikhbgYDIrWMVx78gHFo7vrPRnsgWrgXvBp28lw5s4bhuZIYwY+LjaGltXnGXg4WRmOt/uBDZAT5WEo9tOFG6KvIMwgwM0GMeDui88MmnmrGWZn2TLEO6iCFd169pHh/P23DCGWigzGJesZzNXEGGZm2GAEN9gAkLN923YxXOoPZtCQ5sdQBHKBiYoowxSgl2CAnZWZgZGRAeKC3RefMni37mS40BfEoCUjgNUA9DC4NSWMQUGMB2LAozdfGVSyVjJMT7dmSHZWBxtw+dF7hjXH7jGUB+ozWFVuYlCS4GMoD9CDG26gKMwAdgUsHUT07WPYf+UZQ1OECYMQDztD06pzDGwsTAynuwIYjAiFAcjYD19/MRTNP8Gw+cwjhj///oGjcTLQzzLC3OBYwBuIFKRkhBfINWQQ5QVyvQAAuEmo0TDmRP4AAAAASUVORK5CYII=";
-
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
   private static final String USWDS_FILEPATH = "dist/uswds.bundle";
@@ -256,13 +251,8 @@ public final class HtmlBundle {
         .condWith(
             faviconURL.isPresent(),
             link().withRel("icon").withHref(faviconURL.orElse("")),
-            link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
-            link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
-        .condWith(
-            faviconURL.isEmpty(),
-            link().withRel("icon").withHref(FALLBACK_FAVICON_DATA_URI),
-            link().withRel("apple-touch-icon").withHref(FALLBACK_FAVICON_DATA_URI),
-            link().withRel("apple-touch-icon-precomposed.png").withHref(FALLBACK_FAVICON_DATA_URI))
+            link().withRel("apple-touch-icon").withHref(faviconURL.orElse("")),
+            link().withRel("apple-touch-icon-precomposed.png").withHref(faviconURL.orElse("")))
         .with(metadata)
         .with(CspUtil.applyCsp(request, headScripts))
         .with(CspUtil.applyCspToStyles(request, stylesheets));
@@ -322,7 +312,7 @@ public final class HtmlBundle {
   private static class HtmlBundleContent implements Content {
     HtmlTag bundleContent;
 
-    public HtmlBundleContent(HtmlTag bundleContent) {
+    HtmlBundleContent(HtmlTag bundleContent) {
       this.bundleContent = bundleContent;
     }
 

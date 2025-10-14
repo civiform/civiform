@@ -1,15 +1,11 @@
 package repository;
 
-import annotations.BindingAnnotations;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import models.JobType;
 import models.PersistedDurableJobModel;
 
@@ -19,28 +15,25 @@ public final class PersistedDurableJobRepository {
       new QueryProfileLocationBuilder("PersistedDurableJobRepository");
 
   private final Database database;
-  private final Provider<LocalDateTime> nowProvider;
 
   @Inject
-  public PersistedDurableJobRepository(
-      @BindingAnnotations.Now Provider<LocalDateTime> nowProvider) {
+  public PersistedDurableJobRepository() {
     this.database = DB.getDefault();
-    this.nowProvider = Preconditions.checkNotNull(nowProvider);
   }
 
   /**
    * Find the first scheduled job matching the job name and execution time, or an empty Optional if
    * none exists
    */
-  public Optional<PersistedDurableJobModel> findScheduledJob(
-      String jobName, Instant executionTime) {
+  public Optional<PersistedDurableJobModel> findScheduledRecurringJob(String jobName) {
     return database
         .find(PersistedDurableJobModel.class)
         .setLabel("PersistedDurableJobModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("findScheduledJob"))
         .where()
         .eq("job_name", jobName)
-        .eq("execution_time", executionTime)
+        .isNull("success_time")
+        .gt("remaining_attempts", 0)
         .setMaxRows(1)
         .findOneOrEmpty();
   }
@@ -78,7 +71,7 @@ public final class PersistedDurableJobRepository {
         .setProfileLocation(queryProfileLocationBuilder.create("getRecurringJobForExecution"))
         .where()
         .eq("job_type", JobType.RECURRING)
-        .le("execution_time", nowProvider.get())
+        .le("execution_time", Instant.now())
         .gt("remaining_attempts", 0)
         .isNull("success_time")
         .setMaxRows(1)

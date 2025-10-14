@@ -21,6 +21,7 @@ import java.util.UUID;
 import models.LifecycleStage;
 import models.QuestionModel;
 import models.QuestionTag;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -207,34 +208,27 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_returnsPopulatedForm() {
+  public void northStar_edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
+    assertThat(contentAsString(result)).contains("what is your name?");
   }
 
   @Test
-  public void edit_repeatedQuestion_hasEnumeratorName() {
+  public void northStar_edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped).contains("What is the $this's name?");
   }
 
   @Test
@@ -295,18 +289,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void newOne_returnsExpectedForm() {
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
-            .addCSRFToken()
-            .build();
+  public void northStar_newOne_returnsExpectedForm() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Sample question of type:");
     assertThat(contentAsString(result)).contains("/some/redirect/url");
   }
 

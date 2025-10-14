@@ -8,6 +8,7 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_D
 import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.MAP_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
@@ -290,6 +291,23 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
+  public void samplesMapQuestion() {
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
+        questionJsonSamplerFactory
+            .create(QuestionType.MAP)
+            .getSampleJsonEntries(MAP_QUESTION_DEFINITION.withPopulatedTestId());
+
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_map_question.question_type"),
+                Optional.of("MAP"),
+                Path.create("applicant.sample_map_question.selections"),
+                Optional.of(Arrays.asList("feature_123", "feature_456"))));
+  }
+
+  @Test
   public void sampleEnumeratorQuestions_nestedEnumerator() {
     SampleDataContext sampleDataContext = new SampleDataContext();
     questionJsonSamplerFactory
@@ -394,5 +412,24 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 Path.create(
                     "applicant.sample_enumerator_question.entities[1].sample_enumerated_date_question.date"),
                 Optional.of("2023-01-02")));
+  }
+
+  @Test
+  public void allQuestionTypesAreImplemented() {
+    for (QuestionType questionType : QuestionType.values()) {
+      if (questionType == QuestionType.NULL_QUESTION) {
+        continue;
+      }
+
+      try {
+        questionJsonSamplerFactory.create(questionType);
+      } catch (RuntimeException e) {
+        throw new AssertionError(
+            String.format(
+                "QuestionType %s is not implemented in QuestionJsonSampler: %s",
+                questionType, e.getMessage()),
+            e);
+      }
+    }
   }
 }

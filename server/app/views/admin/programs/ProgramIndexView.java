@@ -155,13 +155,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (programService.anyDisabledPrograms()) {
       contentDiv.with(
           renderFilterLink(
-              ProgramTab.IN_USE,
-              selectedTab,
-              controllers.admin.routes.AdminProgramController.index().url()),
+              ProgramTab.IN_USE, selectedTab, routes.AdminProgramController.index().url()),
           renderFilterLink(
               ProgramTab.DISABLED,
               selectedTab,
-              controllers.admin.routes.AdminProgramController.indexDisabled().url()));
+              routes.AdminProgramController.indexDisabled().url()));
     }
 
     contentDiv.with(
@@ -434,20 +432,13 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private LiTag renderPublishModalProgramItem(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
-    String visibilityText = " ";
-    switch (program.displayMode()) {
-      case DISABLED:
-        visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
-        break;
-      case HIDDEN_IN_INDEX:
-        visibilityText = " (Hidden from applicants) ";
-        break;
-      case PUBLIC:
-        visibilityText = " (Publicly visible) ";
-        break;
-      default:
-        break;
-    }
+    String visibilityText =
+        switch (program.displayMode()) {
+          case DISABLED -> " (Hidden from applicants and Trusted Intermediaries) ";
+          case HIDDEN_IN_INDEX -> " (Hidden from applicants) ";
+          case PUBLIC -> " (Publicly visible) ";
+          case SELECT_TI, TI_ONLY -> " ";
+        };
 
     Optional<String> maybeUniversalQuestionsText =
         generateUniversalQuestionText(program, universalQuestionIds);
@@ -461,8 +452,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             new LinkElement()
                 .setText("Edit")
                 .setHref(
-                    controllers.admin.routes.AdminProgramController.edit(
-                            program.id(), ProgramEditStatus.EDIT.name())
+                    routes.AdminProgramController.edit(program.id(), ProgramEditStatus.EDIT.name())
                         .url())
                 .asAnchorText())
         .withClass("pt-2");
@@ -474,14 +464,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             span(" - "),
             new LinkElement()
                 .setText("Edit")
-                .setHref(
-                    controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
+                .setHref(routes.AdminQuestionController.edit(question.getId()).url())
                 .asAnchorText())
         .withClass("pt-2");
   }
 
   private ButtonTag renderNewProgramButton() {
-    String link = controllers.admin.routes.AdminProgramController.newOne().url();
+    String link = routes.AdminProgramController.newOne().url();
     ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
@@ -547,6 +536,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
+
+        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+          maybeRenderManageTranslationsLink(activeProgram.get())
+              .ifPresent(activeRowExtraActions::add);
+        }
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
@@ -608,11 +602,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
-    String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
+    String editLink = routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
-      editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
+      editLink = routes.AdminProgramController.newVersionFrom(program.id()).url();
       editLinkId = "program-new-version-link-" + program.id();
     }
 
@@ -624,8 +617,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
-    String viewLink =
-        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLink = routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
     String viewLinkId = "program-view-link-" + program.id();
 
     ButtonTag button =

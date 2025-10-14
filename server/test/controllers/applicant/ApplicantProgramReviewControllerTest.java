@@ -469,6 +469,40 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
+  @Test
+  public void northstar_submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+    this.northstarSubmit(applicant.id, activeProgram.id);
+
+    // Submit the application again without editing
+    Result noEditsResult = this.northstarSubmit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(noEditsResult.status()).isEqualTo(FOUND);
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult = this.northstarSubmit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(sameValuesResult.status()).isEqualTo(FOUND);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
+  }
+
   public Result reviewWithApplicantId(long applicantId, long programId) {
     String programIdStr = String.valueOf(programId);
     Request request =
@@ -487,12 +521,27 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result submit(long applicantId, long programId) {
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "false")
             .call(
                 routes.ApplicantProgramReviewController.submitWithApplicantId(
                     applicantId, programId))
             .header(skipUserProfile, "false")
             .build();
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
+    return subject
+        .submitWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
+  }
+
+  public Result northstarSubmit(long applicantId, long programId) {
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramReviewController.submitWithApplicantId(
+                    applicantId, programId))
+            .header(skipUserProfile, "false")
+            .build();
+    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
     return subject
         .submitWithApplicantId(request, applicantId, programId)
         .toCompletableFuture()

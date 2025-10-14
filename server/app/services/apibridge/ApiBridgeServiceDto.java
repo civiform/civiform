@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.stream.Collectors;
+import lombok.Getter;
 
 /** Data Transfer Objects for CiviForm API Bridge. */
 public final class ApiBridgeServiceDto {
@@ -15,6 +17,49 @@ public final class ApiBridgeServiceDto {
   public enum CompatibilityLevel {
     @JsonProperty("v1")
     V1
+  }
+
+  /**
+   * Enum representing the basic data types supported by JSON Schema.
+   *
+   * @see <a href="https://json-schema.org/understanding-json-schema/reference/type.html">JSON
+   *     Schema Type Reference</a>
+   */
+  @Getter
+  public enum JsonSchemaDataType {
+    ARRAY("array"),
+    BOOLEAN("boolean"),
+    NULL("null"),
+    NUMBER("number"),
+    OBJECT("object"),
+    STRING("string");
+
+    private final String value;
+
+    JsonSchemaDataType(String value) {
+      this.value = value;
+    }
+
+    /**
+     * Parses a string value to the corresponding JsonSchemaType enum constant.
+     *
+     * @param value the string value to parse
+     * @return the corresponding JsonSchemaType
+     * @throws IllegalArgumentException if the value doesn't match any known type
+     */
+    public static JsonSchemaDataType fromValue(String value) {
+      if (value == null) {
+        throw new IllegalArgumentException("Type value cannot be null");
+      }
+
+      for (JsonSchemaDataType type : values()) {
+        if (type.value.equals(value)) {
+          return type;
+        }
+      }
+
+      throw new IllegalArgumentException("Unknown JSON Schema type: '" + value + "'");
+    }
   }
 
   /**
@@ -45,6 +90,9 @@ public final class ApiBridgeServiceDto {
 
     /** A URI reference that identifies the specific occurrence of the problem. */
     String instance();
+
+    /** Gets a formatted string of the problem detail */
+    String asErrorMessage();
   }
 
   /**
@@ -62,7 +110,20 @@ public final class ApiBridgeServiceDto {
       @JsonProperty("status") Integer status,
       @JsonProperty("detail") String detail,
       @JsonProperty("instance") String instance)
-      implements IProblemDetail {}
+      implements IProblemDetail {
+
+    @Override
+    public String asErrorMessage() {
+      return """
+             type='%s'
+             title='%s'
+             status=%d
+             detail='%s'
+             instance='%s'
+             """
+          .formatted(type, title, status, detail, instance);
+    }
+  }
 
   /**
    * Extended Problem Detail for validation errors.
@@ -85,6 +146,24 @@ public final class ApiBridgeServiceDto {
     public ValidationProblemDetail {
       validationErrors =
           validationErrors != null ? ImmutableList.copyOf(validationErrors) : ImmutableList.of();
+    }
+
+    @Override
+    public String asErrorMessage() {
+      var valErrors =
+          validationErrors.stream()
+              .map(x -> "[name='%s' message='%s']".formatted(x.name, x.message))
+              .collect(Collectors.joining(", "));
+
+      return """
+             type='%s'
+             title='%s'
+             status=%d
+             detail='%s'
+             instance='%s'
+             validationErrors='%s'
+             """
+          .formatted(type, title, status, detail, instance, valErrors);
     }
   }
 

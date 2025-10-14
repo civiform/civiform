@@ -2,9 +2,11 @@ package support;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.ApiBridgeConfigurationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -84,7 +86,8 @@ public class ProgramBuilder {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of());
+            .setApplicationSteps(ImmutableList.of())
+            .setBridgeDefinitions(ImmutableMap.of());
     return new ProgramBuilder(id, builder, /* persisted= */ false);
   }
 
@@ -332,6 +335,12 @@ public class ProgramBuilder {
 
   public ProgramBuilder withApplicationSteps(ImmutableList<ApplicationStep> applicationSteps) {
     builder.setApplicationSteps(applicationSteps);
+    return this;
+  }
+
+  public ProgramBuilder withBridgeDefinitions(
+      ImmutableMap<String, ApiBridgeConfigurationModel.ApiBridgeDefinition> bridgeDefinitions) {
+    builder.setBridgeDefinitions(bridgeDefinitions);
     return this;
   }
 

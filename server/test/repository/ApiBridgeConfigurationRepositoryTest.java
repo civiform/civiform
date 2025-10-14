@@ -6,10 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.apibridge.ApiBridgeServiceDto.CompatibilityLevel;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.ApiBridgeConfigurationModel;
 import org.junit.Before;
 import org.junit.Test;
+import services.applicant.question.Scalar;
 
 public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
 
@@ -36,6 +38,50 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
 
     var model = repo.findAll().toCompletableFuture().join();
     assertThat(model).hasSize(3);
+  }
+
+  @Test
+  public void findAllEnabledByAdminNames_succeeds() {
+    repo.insert(createBridgeConfigurationModel().setAdminName("admin-name-1"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-2").setUrlPath("urlPath2"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel()
+                .setAdminName("admin-name-3")
+                .setUrlPath("urlPath3")
+                .setEnabled(false))
+        .toCompletableFuture()
+        .join();
+
+    var adminNames = ImmutableSet.of("admin-name-1", "admin-name-2", "admin-name-3");
+
+    var model = repo.findAllEnabledByAdminNames(adminNames).toCompletableFuture().join();
+    assertThat(model).hasSize(2);
+  }
+
+  @Test
+  public void findByHostUrl_succeeds() {
+    repo.insert(
+            createBridgeConfigurationModel()
+                .setAdminName("admin-name-1")
+                .setHostUrl("dontDontThis"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-2").setUrlPath("urlPath2"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-3").setUrlPath("urlPath3"))
+        .toCompletableFuture()
+        .join();
+
+    var model = repo.findByHostUrl("hostUrl").toCompletableFuture().join();
+    assertThat(model).hasSize(2);
   }
 
   @Test
@@ -76,7 +122,7 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
             new ApiBridgeDefinition(
                 ImmutableList.of(
                     new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                        "questionName1", "externalName1")),
+                        "questionName1", Scalar.TEXT, "externalName1")),
                 ImmutableList.of()))
         .setEnabled(false);
 
@@ -112,12 +158,12 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
     return new ApiBridgeDefinition(
         ImmutableList.of(
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName1", "externalName1"),
+                "questionName1", Scalar.TEXT, "externalName1"),
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName2", "externalName2")),
+                "questionName2", Scalar.TEXT, "externalName2")),
         ImmutableList.of(
             new ApiBridgeConfigurationModel.ApiBridgeDefinitionItem(
-                "questionName3", "externalName3")));
+                "questionName3", Scalar.TEXT, "externalName3")));
   }
 
   private ApiBridgeConfigurationModel createBridgeConfigurationModel() {
