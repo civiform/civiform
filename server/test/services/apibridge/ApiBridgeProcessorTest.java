@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static services.apibridge.ApiBridgeServiceDto.CompatibilityLevel;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -49,6 +50,7 @@ public class ApiBridgeProcessorTest extends ResetPostgres {
             apiBridgeService,
             apiBridgeConfigurationRepository,
             instanceOf(ApiBridgeExecutionContext.class),
+            instanceOf(ObjectMapper.class),
             instanceOf(RequestPayloadMapper.class),
             instanceOf(ResponsePayloadMapper.class));
 
@@ -128,7 +130,8 @@ public class ApiBridgeProcessorTest extends ResetPostgres {
           "title": "Response title",
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "required": [
-            "accountNumber, isValid"
+            "accountNumber",
+            "isValid"
           ],
           "properties": {
             "isValid": {
@@ -740,7 +743,11 @@ public class ApiBridgeProcessorTest extends ResetPostgres {
         new ApiBridgeDefinition(
             ImmutableList.of(
                 new ApiBridgeDefinitionItem(
-                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName)),
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName),
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AccountNumberName,
+                    Scalar.NUMBER,
+                    SampleExternalName.AccountNumberName)),
             ImmutableList.of(
                 new ApiBridgeDefinitionItem(
                     SampleQuestionName.IsValidName,
@@ -749,6 +756,7 @@ public class ApiBridgeProcessorTest extends ResetPostgres {
 
     var originalApplicantData = new ApplicantData();
     originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    originalApplicantData.putLong(SamplePath.AccountNumberPath, 1234);
 
     // Run
     assertThatThrownBy(
@@ -811,6 +819,220 @@ public class ApiBridgeProcessorTest extends ResetPostgres {
     assertThat(resultApplicantData.readString(SamplePath.TextPath)).hasValue("test value");
     // No bridge response should be present
     assertThat(resultApplicantData.readString(SamplePath.IsValidPath)).isEmpty();
+  }
+
+  @Test
+  public void run_callApiBridgeEndpoints_invalidRequestPayload_missingRequiredField() {
+    var bridgeFields =
+        new ApiBridgeDefinition(
+            ImmutableList.of(
+                // Only providing zipCode, missing accountNumber which is required
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName)),
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.IsValidName,
+                    Scalar.SELECTION,
+                    SampleExternalName.IsValidName)));
+
+    var originalApplicantData = new ApplicantData();
+    originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    // accountNumber is missing - request validation should fail
+
+    // Run
+    var resultApplicantData =
+        apiBridgeProcessor
+            .callApiBridgeEndpoints(
+                originalApplicantData,
+                ImmutableMap.of(SampleBridgeAdminName.AccountValidation, bridgeFields))
+            .toCompletableFuture()
+            .join();
+
+    // Verify original data is returned unchanged since request validation failed
+    assertThat(resultApplicantData).isNotNull();
+    assertThat(resultApplicantData.readString(SamplePath.AddressZipPath)).hasValue("99999");
+    // No bridge response should be present since bridge was not called
+    assertThat(resultApplicantData.readString(SamplePath.IsValidPath)).isEmpty();
+  }
+
+  @Test
+  public void run_callApiBridgeEndpoints_invalidRequestPayload_wrongDataType() {
+    var bridgeFields =
+        new ApiBridgeDefinition(
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName),
+                // accountNumber expects number but we'll provide a text field
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.TextPath,
+                    Scalar.TEXT,
+                    SampleExternalName.AccountNumberName)),
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.IsValidName,
+                    Scalar.SELECTION,
+                    SampleExternalName.IsValidName)));
+
+    var originalApplicantData = new ApplicantData();
+    originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    originalApplicantData.putString(SamplePath.TextPath, "not a number");
+
+    // Run
+    var resultApplicantData =
+        apiBridgeProcessor
+            .callApiBridgeEndpoints(
+                originalApplicantData,
+                ImmutableMap.of(SampleBridgeAdminName.AccountValidation, bridgeFields))
+            .toCompletableFuture()
+            .join();
+
+    // Verify original data is returned unchanged since request validation failed
+    assertThat(resultApplicantData).isNotNull();
+    assertThat(resultApplicantData.readString(SamplePath.AddressZipPath)).hasValue("99999");
+    assertThat(resultApplicantData.readString(SamplePath.TextPath)).hasValue("not a number");
+    // No bridge response should be present since bridge was not called
+    assertThat(resultApplicantData.readString(SamplePath.IsValidPath)).isEmpty();
+  }
+
+  @Test
+  public void run_callApiBridgeEndpoints_invalidResponsePayload_missingRequiredField() {
+    // Mock the bridge service to return a response missing required field
+    when(apiBridgeService.bridge(eq("%s%s".formatted(BASE_URL, SampleBridgeUrl.Success)), any()))
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                ErrorAnd.of(
+                    new BridgeResponse(
+                        CompatibilityLevel.V1,
+                        ImmutableMap.of(
+                            // Missing isValid field which is required
+                            SampleExternalName.AccountNumberName, 1234)))));
+
+    var bridgeFields =
+        new ApiBridgeDefinition(
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName),
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AccountNumberName,
+                    Scalar.NUMBER,
+                    SampleExternalName.AccountNumberName)),
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.IsValidName,
+                    Scalar.SELECTION,
+                    SampleExternalName.IsValidName)));
+
+    var originalApplicantData = new ApplicantData();
+    originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    originalApplicantData.putLong(SamplePath.AccountNumberPath, 1234);
+
+    // Run - should throw exception due to invalid response
+    assertThatThrownBy(
+            () ->
+                apiBridgeProcessor
+                    .callApiBridgeEndpoints(
+                        originalApplicantData,
+                        ImmutableMap.of(SampleBridgeAdminName.AccountValidation, bridgeFields))
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(ApiBridgeProcessingException.class)
+        .hasMessageContaining("Response payload does not match schema");
+  }
+
+  @Test
+  public void run_callApiBridgeEndpoints_invalidResponsePayload_wrongDataType() {
+    // Mock the bridge service to return a response with wrong data type
+    when(apiBridgeService.bridge(eq("%s%s".formatted(BASE_URL, SampleBridgeUrl.Success)), any()))
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                ErrorAnd.of(
+                    new BridgeResponse(
+                        CompatibilityLevel.V1,
+                        ImmutableMap.of(
+                            SampleExternalName.IsValidName,
+                            "not a boolean", // Should be boolean
+                            SampleExternalName.AccountNumberName,
+                            1234)))));
+
+    var bridgeFields =
+        new ApiBridgeDefinition(
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName),
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AccountNumberName,
+                    Scalar.NUMBER,
+                    SampleExternalName.AccountNumberName)),
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.IsValidName,
+                    Scalar.SELECTION,
+                    SampleExternalName.IsValidName)));
+
+    var originalApplicantData = new ApplicantData();
+    originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    originalApplicantData.putLong(SamplePath.AccountNumberPath, 1234);
+
+    // Run - should throw exception due to invalid response
+    assertThatThrownBy(
+            () ->
+                apiBridgeProcessor
+                    .callApiBridgeEndpoints(
+                        originalApplicantData,
+                        ImmutableMap.of(SampleBridgeAdminName.AccountValidation, bridgeFields))
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(ApiBridgeProcessingException.class)
+        .hasMessageContaining("Response payload does not match schema");
+  }
+
+  @Test
+  public void run_callApiBridgeEndpoints_invalidResponsePayload_additionalProperties() {
+    // Mock the bridge service to return a response with additional properties
+    when(apiBridgeService.bridge(eq("%s%s".formatted(BASE_URL, SampleBridgeUrl.Success)), any()))
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                ErrorAnd.of(
+                    new BridgeResponse(
+                        CompatibilityLevel.V1,
+                        ImmutableMap.of(
+                            SampleExternalName.IsValidName,
+                            true,
+                            SampleExternalName.AccountNumberName,
+                            1234,
+                            "unexpectedField",
+                            "unexpected value")))));
+
+    var bridgeFields =
+        new ApiBridgeDefinition(
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AddressName, Scalar.ZIP, SampleExternalName.ZipCodeName),
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.AccountNumberName,
+                    Scalar.NUMBER,
+                    SampleExternalName.AccountNumberName)),
+            ImmutableList.of(
+                new ApiBridgeDefinitionItem(
+                    SampleQuestionName.IsValidName,
+                    Scalar.SELECTION,
+                    SampleExternalName.IsValidName)));
+
+    var originalApplicantData = new ApplicantData();
+    originalApplicantData.putString(SamplePath.AddressZipPath, "99999");
+    originalApplicantData.putLong(SamplePath.AccountNumberPath, 1234);
+
+    // Run - should throw exception due to additional properties not allowed
+    assertThatThrownBy(
+            () ->
+                apiBridgeProcessor
+                    .callApiBridgeEndpoints(
+                        originalApplicantData,
+                        ImmutableMap.of(SampleBridgeAdminName.AccountValidation, bridgeFields))
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(ApiBridgeProcessingException.class)
+        .hasMessageContaining("Response payload does not match schema");
   }
 
   private static class SampleBridgeAdminName {
