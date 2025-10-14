@@ -265,23 +265,17 @@ public class ProgramServiceTest extends ResetPostgres {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
     ProgramModel programModel =
         ProgramBuilder.newDraftProgram("test program", "description")
-            .withApplicationSteps(
-                ImmutableList.of(
-                    new ApplicationStep(
-                        LocalizedStrings.withDefaultValue("step one title")
-                        .updateTranslation(Locale.CHINESE, "步骤一标题"),
-                        LocalizedStrings.withDefaultValue("step one description")
-                        .updateTranslation(Locale.CHINESE, "步骤一描述")
-                    )
-                )
-            )
-        .build();
-    
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            //.withLocalizedName(Locale.CHINESE, "屏幕 1")
+            //.withLocalizedDescription(Locale.CHINESE, "屏幕 1 描述")
+            .build();
     ProgramDefinition programDefinition = programModel.getProgramDefinition();
-    programModel.setLocalizedName(LocalizedStrings.of(Locale.US, "name"));
 
-
-    // Once we limit to only Spanish, it should be complete.
+    // The program has translations for all fields, so it should be complete.
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
   }
 
