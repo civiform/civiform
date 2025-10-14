@@ -175,6 +175,10 @@ GET     /applicants/:applicantId/files/:fileKey                                c
 # Routes for handling GeoJSON
 POST    /admin/geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
 
+# Admin Tools
+GET     /admin/tools/urlChecker                                                controllers.admin.tools.AdminToolsController.urlTester(request: Request)
+POST    /admin/tools/urlChecker                                                controllers.admin.tools.AdminToolsController.hxTestUrl(request: Request)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                                          controllers.Assets.versioned(file)
 
