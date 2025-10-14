@@ -2,7 +2,7 @@ import {Locator, Page} from '@playwright/test'
 import {BaseAdminPage} from '../base_admin_page'
 
 /**
- * This is representation of the /admin/api-bridge-discovery page.
+ * This is representation of the /admin/tools/urlChecker page.
  */
 export class UrlCheckerPage extends BaseAdminPage {
   constructor(page: Page) {
