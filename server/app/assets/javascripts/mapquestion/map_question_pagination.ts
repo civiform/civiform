@@ -3,9 +3,10 @@ import {
   DATA_MAP_ID,
   getVisibleCheckboxes,
   localizeString,
-  MapMessages,
   mapQuerySelector,
   queryLocationCheckboxes,
+  CF_PAGINATION_HIDDEN,
+  getMessages,
 } from './map_util'
 
 const ITEMS_PER_PAGE = 6
@@ -100,16 +101,16 @@ const updateVisibleLocations = (
   const startIndex = (state.currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
 
-  // Hide all checkboxes first, but preserve the CF_LOCATION_HIDDEN class for filtered items
+  // Hide all checkboxes first, but preserve the CF_FILTER_HIDDEN class for filtered items
   allCheckboxes.forEach((checkbox) => {
     const checkboxElement = checkbox as HTMLElement
-    checkboxElement.classList.add('hidden')
+    checkboxElement.classList.add(CF_PAGINATION_HIDDEN)
   })
 
   // Show only the checkboxes for the current page
   visibleCheckboxes.slice(startIndex, endIndex).forEach((checkbox) => {
     const checkboxElement = checkbox as HTMLElement
-    checkboxElement.classList.remove('hidden')
+    checkboxElement.classList.remove(CF_PAGINATION_HIDDEN)
   })
 }
 
@@ -227,9 +228,7 @@ const createPageButton = (
   link.textContent = pageNumber.toString()
   link.setAttribute(
     'aria-label',
-    localizeString((window.app.data.messages as MapMessages).goToPage, [
-      pageNumber.toString(),
-    ]),
+    localizeString(getMessages().goToPage, [pageNumber.toString()]),
   )
   link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
@@ -293,10 +292,10 @@ const updatePaginationStatus = (
     CF_PAGINATION_STATUS_SELECTOR,
   ) as HTMLElement
   if (statusElement) {
-    statusElement.textContent = localizeString(
-      (window.app.data.messages as MapMessages).paginationStatus,
-      [updatedState.currentPage.toString(), updatedState.totalPages.toString()],
-    )
+    statusElement.textContent = localizeString(getMessages().paginationStatus, [
+      updatedState.currentPage.toString(),
+      updatedState.totalPages.toString(),
+    ])
     // Clear the text after announcement to prevent navigation to it
     setTimeout(() => {
       statusElement.textContent = ''

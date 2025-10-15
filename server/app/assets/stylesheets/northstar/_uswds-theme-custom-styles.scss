@@ -715,7 +715,12 @@ main {
 }
 
 // Map question filtering - hide filtered out locations
-.cf-location-hidden {
+.cf-filter-hidden {
+  display: none;
+}
+
+// Map question pagination - hide locations not on current page
+.cf-pagination-hidden {
   display: none;
 }
 
@@ -728,4 +733,19 @@ main {
 .usa-pagination__item.cf-pagination-item {
   height: 2.75rem;
   min-width: 2.75rem;
+}
+
+.usa-button.usa-button--secondary.cf-select-location-button-clicked {
+  background-color: color('primary-darker');
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
+      no-repeat center;
+    background-size: contain;
+  }
 }
