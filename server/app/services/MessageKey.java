@@ -77,6 +77,8 @@ public enum MessageKey {
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
+  BUTTON_ADMIN_LOGIN("button.adminLogin"), // North star only
+  BUTTON_APPLICANT_LOGIN("button.applicantLogin"), // North star only
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
   BUTTON_APPLY_SELECTIONS("button.applySelections"), // North Star only
@@ -211,6 +213,12 @@ public enum MessageKey {
   DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),
   DATE_VALIDATION_DOB_NOT_IN_PAST("validation.dobNotInPast"),
   DATE_VALIDATION_IMPOSSIBLE_DOB("validation.impossibleDob"),
+  DATE_VALIDATION_FUTURE_DATE_REQUIRED("validation.futureDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_PAST("validation.dateTooFarInPast"),
+  DATE_VALIDATION_PAST_DATE_REQUIRED("validation.pastDateRequired"),
+  DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE("validation.dateTooFarInFuture"),
+  DATE_VALIDATION_DATE_NOT_IN_RANGE("validation.dateNotInRange"),
+  DATE_VALIDATION_CURRENT_DATE_REQUIRED("validation.currentDateRequired"),
   DAY_LABEL("label.day"),
   DIALOG_DELETE_CONFIRMATION("dialog.deleteConfirmation"),
   DOB_EXAMPLE("label.dobExample"),
@@ -303,6 +311,37 @@ public enum MessageKey {
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
+  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_ARIA_LABEL_PREVIOUS_PAGE("map.ariaLabelPreviousPage"), // North Star only
+  MAP_ARIA_LABEL_NEXT_PAGE("map.ariaLabelNextPage"), // North Star only
+  MAP_ARIA_LABEL_PAGINATION_LIST("map.ariaLabelPaginationList"), // North Star only
+  MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
+  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
+  MAP_GO_TO_PAGE("map.goToPage"), // North Star only
+  MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
+  MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
+  MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
+  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_PAGINATION_STATUS("map.paginationStatus"), // North Star only
+  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
+  MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
+  MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
+  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
+  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
+  MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
+  MAP_ADD_FILTER_BUTTON("map.addFilterButton"), // North Star only
+  MAP_ADD_FILTERS_SUBTITLE("map.addFiltersSubtitle"), // North Star only
+  MAP_ADD_FILTERS_TITLE("map.addFiltersTitle"), // North Star only
+  MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
+  MAP_KEY_LABEL("map.keyLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
+  MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
+  MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
+  MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
+  MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
@@ -355,6 +394,10 @@ public enum MessageKey {
   OPTION_MEMORABLE_DATE_OCTOBER("option.memorableDate.October"),
   OPTION_MEMORABLE_DATE_NOVEMBER("option.memorableDate.November"),
   OPTION_MEMORABLE_DATE_DECEMBER("option.memorableDate.December"),
+  OPTION_YES("option.yes"),
+  OPTION_NO("option.no"),
+  OPTION_NOT_SURE("option.notSure"),
+  OPTION_MAYBE("option.maybe"),
   PHONE_NUMBER_LABEL("label.phoneNum"),
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),

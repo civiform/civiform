@@ -3,25 +3,28 @@ package controllers.dev.seeding;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import javax.inject.Inject;
 import models.CategoryModel;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.i18n.Lang;
+import play.i18n.Langs;
 
 /**
  * Parses the program translation files to create {@code CategoryModel}s used to seed the database
@@ -30,159 +33,102 @@ import play.i18n.Lang;
 public final class CategoryTranslationFileParser {
 
   public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/";
-  private final Environment environment;
-  private Map<String, String> childcareMap = new HashMap<>();
-  private Map<String, String> economicMap = new HashMap<>();
-  private Map<String, String> educationMap = new HashMap<>();
-  private Map<String, String> employmentMap = new HashMap<>();
-  private Map<String, String> foodMap = new HashMap<>();
-  private Map<String, String> generalMap = new HashMap<>();
-  private Map<String, String> healthcareMap = new HashMap<>();
-  private Map<String, String> housingMap = new HashMap<>();
-  private Map<String, String> internetMap = new HashMap<>();
-  private Map<String, String> trainingMap = new HashMap<>();
-  private Map<String, String> transportationMap = new HashMap<>();
-  private Map<String, String> utilitiesMap = new HashMap<>();
+  private static final String CATEGORY_PREFIX = "category.tag.";
   private static final Logger logger = LoggerFactory.getLogger(CategoryTranslationFileParser.class);
 
-  public CategoryTranslationFileParser(Environment environment) {
+  private final Environment environment;
+  private final Langs langs;
+
+  @Inject
+  public CategoryTranslationFileParser(Environment environment, Langs langs) {
     this.environment = checkNotNull(environment);
+    this.langs = checkNotNull(langs);
   }
 
   public List<CategoryModel> createCategoryModelList() {
-    parseCategoryTranslationFiles();
-
-    List<CategoryModel> categoryModels = new ArrayList<>();
-
-    List<Map<String, String>> categoryMaps =
-        List.of(
-            childcareMap,
-            economicMap,
-            educationMap,
-            employmentMap,
-            foodMap,
-            generalMap,
-            healthcareMap,
-            housingMap,
-            internetMap,
-            trainingMap,
-            transportationMap,
-            utilitiesMap);
-
-    categoryMaps.stream()
-        .filter(map -> !map.isEmpty())
-        .map(this::createCategoryModelFromCategoryMap)
-        .forEach(categoryModels::add);
-
-    return categoryModels;
+    return createCategoryModelList(this.environment);
   }
 
-  private void parseCategoryTranslationFiles() {
-    File directory = environment.getFile(CATEGORY_TRANSLATIONS_DIRECTORY);
+  public List<CategoryModel> createCategoryModelList(Environment env) {
+    Map<String, Map<String, String>> categoryTranslations = new HashMap<>();
+    ImmutableSet<String> configuredLanguages =
+        langs.availables().stream().map(Lang::code).collect(ImmutableSet.toImmutableSet());
+
+    if (configuredLanguages.isEmpty()) {
+      logger.warn("No languages configured in play.i18n.langs");
+      return ImmutableList.of();
+    }
+
+    File directory = env.getFile(CATEGORY_TRANSLATIONS_DIRECTORY);
 
     if (!directory.exists()) {
-      logger.error("Directory does not exist: " + CATEGORY_TRANSLATIONS_DIRECTORY);
-      return;
+      logger.error("Directory does not exist: {}", CATEGORY_TRANSLATIONS_DIRECTORY);
+      return ImmutableList.of();
     }
 
     if (!directory.isDirectory()) {
-      logger.error("File is not a directory: " + CATEGORY_TRANSLATIONS_DIRECTORY);
-      return;
+      logger.error("File is not a directory: {}", CATEGORY_TRANSLATIONS_DIRECTORY);
+      return ImmutableList.of();
     }
 
-    File[] files;
-    try {
-      files = directory.listFiles();
-      if (files == null) {
-        logger.error(
-            "Unable to list files in directory: "
-                + CATEGORY_TRANSLATIONS_DIRECTORY
-                + ".  "
-                + "There may have been an I/O error.");
-        return;
+    for (String langCode : configuredLanguages) {
+      // Default messages file is for en-US, others have the language as extension
+      String fileName = langCode.equals("en-US") ? "messages" : "messages." + langCode;
+      File file = new File(directory, fileName);
+
+      if (!file.exists()) {
+        logger.warn("Message file not found for configured language {}: {}", langCode, fileName);
+        continue;
       }
-      for (File file : files) {
-        // We should only parse messages files. We skip the english file, since that is blank.
-        if (!file.getName().startsWith("messages") || file.getName().equals("messages.en-US")) {
-          continue;
-        }
-        String fileLanguage =
-            file.getName().equals("messages")
-                ? "en-US"
-                : FilenameUtils.getExtension(file.getName());
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
 
-          Properties prop = new Properties();
-          prop.load(reader);
+      try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
+        Properties prop = new Properties();
+        prop.load(reader);
 
-          prop.entrySet()
-              .forEach(
-                  entry -> {
-                    // Ignore any non-category strings
-                    if (!entry.getKey().toString().startsWith("category")) {
-                      return;
-                    }
-                    switch ((String) entry.getKey()) {
-                      case "category.tag.childcare":
-                        childcareMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.economic":
-                        economicMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.education":
-                        educationMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.employment":
-                        employmentMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.food":
-                        foodMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.general":
-                        generalMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.healthcare":
-                        healthcareMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.housing":
-                        housingMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.internet":
-                        internetMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.training":
-                        trainingMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.transportation":
-                        transportationMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      case "category.tag.utilities":
-                        utilitiesMap.put(fileLanguage, (String) entry.getValue());
-                        break;
-                      default:
-                        logger.error("Unknown category: " + entry.getKey());
-                    }
-                  });
+        prop.entrySet().stream()
+            .filter(entry -> entry.getKey().toString().startsWith(CATEGORY_PREFIX))
+            .forEach(
+                entry -> {
+                  String fullKey = entry.getKey().toString();
+                  String categoryKey = fullKey.substring(CATEGORY_PREFIX.length());
 
-        } catch (FileNotFoundException e) {
-          logger.error("File not found: " + file.getName(), e);
-        } catch (IOException e) {
-          logger.error("Error reading file: " + file.getName(), e);
-        }
+                  categoryTranslations
+                      .computeIfAbsent(categoryKey, k -> new HashMap<>())
+                      .put(langCode, entry.getValue().toString());
+                });
+
+      } catch (IOException e) {
+        logger.error("Error reading file: {}", fileName, e);
       }
-    } catch (SecurityException e) {
-      logger.error(
-          "There was a security exception listing files in directory: "
-              + CATEGORY_TRANSLATIONS_DIRECTORY,
-          e);
     }
+
+    return createCategoryModels(categoryTranslations, configuredLanguages);
   }
 
-  private CategoryModel createCategoryModelFromCategoryMap(Map<String, String> categoryMap) {
-    ImmutableMap.Builder<Locale, String> categoryBuilder = ImmutableMap.builder();
-    for (String key : categoryMap.keySet()) {
-      categoryBuilder.put(Lang.forCode(key).toLocale(), categoryMap.get(key));
+  private List<CategoryModel> createCategoryModels(
+      Map<String, Map<String, String>> categoryTranslations,
+      ImmutableSet<String> configuredLanguages) {
+    // Find categories that exist in ALL configured languages and create models
+    ImmutableList.Builder<CategoryModel> categoryModels = ImmutableList.builder();
+
+    for (String categoryKey : categoryTranslations.keySet()) {
+      Map<String, String> translations = categoryTranslations.get(categoryKey);
+
+      if (translations.keySet().equals(configuredLanguages)) {
+        ImmutableMap.Builder<Locale, String> categoryBuilder = ImmutableMap.builder();
+        translations.forEach(
+            (lang, translation) -> categoryBuilder.put(Lang.forCode(lang).toLocale(), translation));
+
+        categoryModels.add(new CategoryModel(categoryBuilder.build()));
+      } else {
+        Set<String> missingLanguages = Sets.difference(configuredLanguages, translations.keySet());
+        logger.info(
+            "Excluding category '{}' - missing translations for: {}",
+            categoryKey,
+            missingLanguages);
+      }
     }
-    return new CategoryModel(categoryBuilder.build());
+
+    return categoryModels.build();
   }
 }

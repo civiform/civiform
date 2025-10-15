@@ -44,8 +44,8 @@ public final class ProgramCardFactory {
 
   public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
-    boolean showCategories = settingsManifest.getProgramFilteringEnabled(request);
-    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
+    // TODO(#11581): North star clean up
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     String programTitleText = displayProgram.localizedName().getDefault();
 
@@ -118,8 +118,7 @@ public final class ProgramCardFactory {
                                 span(displayProgram.displayMode().visibilityState))
                             .withClasses(
                                 "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
-                    .condWith(
-                        showCategories,
+                    .with(
                         p(
                                 span("Categories:  ").withClasses("font-semibold"),
                                 iffElse(
@@ -171,6 +170,11 @@ public final class ProgramCardFactory {
             StyleUtils.responsiveXLarge("ml-8"));
 
     return div()
+        // This is used to provide the uniqueness needed for Playwright to locate
+        // the correct element for testing. In the future this should be accounted
+        // for in a way that allows for web first assertions ideally via accessibility
+        // name, but that is a larger change than can be accommodated.
+        .withData("lifecycle-stage", isActive ? "active" : "draft")
         .withClasses(
             "py-7",
             "flex",
@@ -212,7 +216,8 @@ public final class ProgramCardFactory {
                                     "absolute",
                                     "right-0",
                                     "w-56",
-                                    "z-50")
+                                    "z-50",
+                                    "border-gray-200")
                                 .with(programRow.extraRowActions()))));
   }
 
@@ -255,12 +260,7 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ false,
-            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
-    // if isWithProgramCard is false, we never reach the code that evaluates
-    // isProgramFilteringEnabled.
+            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
     }

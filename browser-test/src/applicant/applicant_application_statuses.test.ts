@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {test, expect} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -7,16 +7,15 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  enableFeatureFlag,
+  normalizeElements,
 } from '../support'
 
-test.describe('with program statuses', () => {
+test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -28,8 +27,8 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
 
       // Navigate to the submitted application as the program admin and set a status.
@@ -44,9 +43,19 @@ test.describe('with program statuses', () => {
     },
   )
 
-  test('displays status and passes accessibility checks', async ({page}) => {
-    await loginAsTestUser(page)
-    await validateAccessibility(page)
-    await validateScreenshot(page, 'program-list-with-status')
+  test.describe('application status', () => {
+    test('submitted with admin status only shows admin status', async ({
+      page,
+    }) => {
+      await loginAsTestUser(page)
+
+      const locator = page.locator('.cf-application-card')
+      await normalizeElements(page)
+      await expect(locator.getByText('Submitted on 1/1/30')).toBeHidden()
+      await expect(locator.getByText(approvedStatusName)).toBeVisible()
+
+      await validateScreenshot(locator, 'program-card-with-status')
+      await validateAccessibility(page)
+    })
   })
 })

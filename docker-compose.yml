@@ -1,18 +1,12 @@
 # Use postgres/example user/password credentials
 services:
   localstack:
-    image: localstack/localstack:4.5.0@sha256:9d4253786e0effe974d77fe3c390358391a56090a4fff83b4600d8a64404d95d
+    image: localstack/localstack:4.8.0@sha256:fe24345d30a3cdc3cead7d88ebbdf39ae480fa3fe4de1765b98a9a066b8515cf
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
     environment:
       - SERVICES=s3,ses
-    links:
-      # Once a file is uploaded to localstack, localstack redirects back to CiviForm.
-      # It does this by mapping any 'localhost' domain to the 'civiform' domain (see
-      # localstack/localstack.nginx.conf). So, we need the localstack service to be
-      # aware of the civiform service to do that redirect correctly.
-      - 'civiform:civiform-service'
     networks:
       default:
         aliases:
@@ -25,7 +19,7 @@ services:
           - localhost.localstack.cloud
 
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite@sha256:0a47e12e3693483cef5c71f35468b91d751611f172d2f97414e9c69113b106d9
+    image: mcr.microsoft.com/azure-storage/azurite@sha256:647c63a91102a9d8e8000aab803436e1fc85fbb285e7ce830a82ee5d6661cf37
     profiles: ['azure', 'emulator']
     expose:
       - '10000'
@@ -47,7 +41,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.9@sha256:47053cd4ee3f096afc744e53e3280de7b29b3670d2f2196c2acc0c6470923c99
+    image: postgres:16.10@sha256:b477759d38be47671d54a054d832791f8ddb9f0eaf6faf51ed17516087793a66
     restart: always
     expose:
       - '5432'
@@ -58,13 +52,10 @@ services:
 
   civiform:
     image: civiform-dev
-    links:
-      - 'db:database'
-      - 'dev-oidc'
-      - 'mock-web-services'
     expose:
       - '9000'
       - '8457'
+    stop_signal: SIGKILL
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}

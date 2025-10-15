@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import models.CategoryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import play.i18n.Lang;
 import repository.CategoryRepository;
 import repository.VersionRepository;
@@ -102,19 +101,19 @@ public final class DatabaseSeedTask {
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
-  private final Environment environment;
+  private final CategoryTranslationFileParser categoryTranslationFileParser;
 
   @Inject
   public DatabaseSeedTask(
       QuestionService questionService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
-      Environment environment) {
+      CategoryTranslationFileParser categoryTranslationFileParser) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.database = DB.getDefault();
-    this.environment = checkNotNull(environment);
+    this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
   }
 
   public ImmutableList<QuestionDefinition> run() {
@@ -176,8 +175,7 @@ public final class DatabaseSeedTask {
   private void seedProgramCategories() {
     if (categoryRepository.listCategories().isEmpty()) {
       try {
-        CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
-        List<CategoryModel> categories = parser.createCategoryModelList();
+        List<CategoryModel> categories = categoryTranslationFileParser.createCategoryModelList();
 
         categories.forEach(
             category -> {

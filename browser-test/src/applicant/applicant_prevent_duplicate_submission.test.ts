@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -34,62 +33,11 @@ test.describe('Prevent Duplicate Submission', () => {
     })
   })
 
-  test('View Prevent Duplicate Submission page in old UI', async ({
-    applicantQuestions,
-    page,
-  }) => {
-    await test.step('As applicant, submit an application', async () => {
-      // await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.answerNumberQuestion('0')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ false,
-      )
-      await applicantQuestions.gotoApplicantHomePage()
-    })
-
-    await test.step('Submit another application to the same program without changing anything', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ false,
-      )
-      // Wait for the page to finish loading
-      await waitForPageJsLoad(page)
-
-      expect(await page.innerText('html')).toContain(
-        'There are no changes to save',
-      )
-      await validateScreenshot(page, 'prevent-duplicate-submission')
-      await validateAccessibility(page)
-
-      // Click the "Continue editing" button to return to the review page
-      await page.click('#continue-editing-button')
-      await applicantQuestions.expectReviewPage()
-      await applicantQuestions.clickEdit()
-
-      // Edit the application but insert the same value as before and submit.
-      await applicantQuestions.answerNumberQuestion('0')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
-
-      // See the duplicate submissions page
-      await applicantQuestions.expectDuplicatesPage()
-
-      // Click the "Exit application" link to return to the programs page
-      await page.click('text="Exit application"')
-      await applicantQuestions.expectProgramsPage()
-    })
-  })
-
   test(
     'View Prevent Duplicate Submission modal in North Star',
     {tag: ['@northstar']},
     async ({applicantQuestions, page, applicantProgramOverview}) => {
       await test.step('As applicant, submit an application', async () => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-
         await loginAsTestUser(page)
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
@@ -117,10 +65,7 @@ test.describe('Prevent Duplicate Submission', () => {
           page.getByText('There are no changes to save for the ' + programName),
         ).toBeVisible()
 
-        await validateScreenshot(
-          page,
-          'north-star-prevent-duplicate-submission',
-        )
+        await validateScreenshot(page, 'prevent-duplicate-submission')
         await validateAccessibility(page)
       })
 

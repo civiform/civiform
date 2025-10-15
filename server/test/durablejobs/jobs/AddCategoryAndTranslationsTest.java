@@ -2,16 +2,16 @@ package durablejobs.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import java.time.Instant;
 import java.util.Locale;
 import models.CategoryModel;
 import models.JobType;
 import models.PersistedDurableJobModel;
 import org.junit.Test;
-import play.Environment;
-import play.Mode;
 import play.i18n.Lang;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
@@ -85,12 +85,12 @@ public class AddCategoryAndTranslationsTest extends ResetPostgres {
   }
 
   private void runJob() {
-    Environment environment = new Environment(Mode.PROD);
     AddCategoryAndTranslationsJob job =
         new AddCategoryAndTranslationsJob(
             instanceOf(CategoryRepository.class),
-            environment,
-            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()));
+            new PersistedDurableJobModel("fake-job", JobType.RUN_ONCE, Instant.now()),
+            instanceOf(ObjectMapper.class),
+            instanceOf(CategoryTranslationFileParser.class));
 
     job.run();
   }

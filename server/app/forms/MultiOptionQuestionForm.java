@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
@@ -12,7 +13,9 @@ import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 /** Superclass for all forms for updating a multi-option question. */
 public abstract class MultiOptionQuestionForm extends QuestionForm {
@@ -27,6 +30,13 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<Long> optionIds;
   private List<String> optionAdminNames;
   private List<String> newOptionAdminNames;
+
+  // The IDs of option types which have been selected by the admin to be included in the question's
+  // answer options.
+  // This list is currently only applicable to YES_NO questions, which contain optional question
+  // options.
+  private List<Long> displayedOptionIds;
+
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
   // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
@@ -40,6 +50,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.displayedOptionIds = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
     this.nextAvailableId = OptionalLong.of(0);
@@ -60,6 +71,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.displayedOptionIds = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -72,6 +84,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                   options.add(option.optionText());
                   optionIds.add(option.id());
                   optionAdminNames.add(option.adminName());
+                  if (getQuestionType() == QuestionType.YES_NO) {
+                    if (option.displayInAnswerOptions().isPresent()
+                        && option.displayInAnswerOptions().get()) {
+                      displayedOptionIds.add(option.id());
+                    }
+                  }
                 });
         this.nextAvailableId =
             OptionalLong.of(
@@ -124,6 +142,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public void setNewOptionAdminNames(List<String> newOptionAdminNames) {
     this.newOptionAdminNames = newOptionAdminNames;
+  }
+
+  public List<Long> getDisplayedOptionIds() {
+    return this.displayedOptionIds;
+  }
+
+  public void setDisplayedOptionIds(List<Long> displayedOptionIds) {
+    this.displayedOptionIds = displayedOptionIds;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -188,6 +214,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
 
     ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
+
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
@@ -197,12 +224,19 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
+      // Yes/No questions have optional question options; all other question types should write
+      // "true" for displayInAnswerOptions.
+      boolean displayInAnswerOptions =
+          getQuestionType() == QuestionType.YES_NO
+              ? displayedOptionIds.contains(optionIds.get(i))
+              : true;
       questionOptionsBuilder.add(
           QuestionOption.create(
-              optionIds.get(i),
-              i,
-              optionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(options.get(i))));
+              /* id= */ optionIds.get(i),
+              /* displayOrder= */ i,
+              /* adminName= */ optionAdminNames.get(i),
+              /* optionText= */ LocalizedStrings.withDefaultValue(options.get(i)),
+              /* displayInAnswerOptions= */ Optional.of(displayInAnswerOptions)));
     }
 
     // Get the next available ID, from either the max of the option IDs in the response or the
@@ -213,10 +247,11 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
-              nextAvailableId.getAsLong() + i,
-              options.size() + i,
-              newOptionAdminNames.get(i),
-              LocalizedStrings.withDefaultValue(newOptions.get(i))));
+              /* id= */ nextAvailableId.getAsLong() + i,
+              /* displayOrder= */ options.size() + i,
+              /* adminName= */ newOptionAdminNames.get(i),
+              /* optionText= */ LocalizedStrings.withDefaultValue(newOptions.get(i)),
+              /* displayInAnswerOptions= */ Optional.of(true)));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 

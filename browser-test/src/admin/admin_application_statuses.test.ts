@@ -13,18 +13,13 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
-  enableFeatureFlag,
 } from '../support'
 
-test.describe('view program statuses', () => {
+test.describe('view program statuses', {tag: ['@northstar']}, () => {
   const programWithStatusesName = 'Test program with statuses'
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
-
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
@@ -38,10 +33,8 @@ test.describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await applicantQuestions.clickApplyProgramButton(
-        programWithoutStatusesName,
-      )
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithoutStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
 
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(page)
@@ -90,10 +83,8 @@ test.describe('view program statuses', () => {
         await logout(page)
 
         // Submit an application as a guest.
-        await applicantQuestions.clickApplyProgramButton(
-          programWithoutStatusesName,
-        )
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.applyProgram(programWithoutStatusesName, true)
+        await applicantQuestions.submitFromReviewPage(true)
 
         await loginAsProgramAdmin(page)
       }
@@ -135,7 +126,7 @@ test.describe('view program statuses', () => {
     })
 
     test('shows placeholder option', async ({adminPrograms}) => {
-      expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+      await adminPrograms.expectStatusSelection('Choose an option:')
     })
 
     test('renders', async ({page}) => {
@@ -162,7 +153,7 @@ test.describe('view program statuses', () => {
       }) => {
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         await dismissModal(page)
-        expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
+        await adminPrograms.expectStatusSelection('Choose an option:')
       })
 
       test('when confirmed, the page is shown a success toast', async ({
@@ -174,7 +165,7 @@ test.describe('view program statuses', () => {
           `Status Change: Unset -> ${noEmailStatusName}`,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+        await adminPrograms.expectStatusSelection(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
       })
 
@@ -210,7 +201,7 @@ test.describe('view program statuses', () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+          await adminPrograms.expectStatusSelection(noEmailStatusName)
         })
 
         const modal =
@@ -229,7 +220,7 @@ test.describe('view program statuses', () => {
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
+          await adminPrograms.expectStatusSelection(noEmailStatusName)
         })
 
         await page.getByRole('link', {name: 'Back'}).click()
@@ -270,7 +261,7 @@ test.describe('view program statuses', () => {
           await expect(notifyCheckbox).not.toBeChecked()
 
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectStatusSelection(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
@@ -298,7 +289,7 @@ test.describe('view program statuses', () => {
 
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
-          expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+          await adminPrograms.expectStatusSelection(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
 
           if (supportsEmailInspection()) {
@@ -435,18 +426,20 @@ test.describe('view program statuses', () => {
         await logout(page)
 
         // Submit an application as a guest.
-        await applicantQuestions.clickApplyProgramButton(
+        await applicantQuestions.applyProgram(
           programWithDefaultStatusName,
+          true,
         )
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
 
         // Submit an application as the logged in test user.
         await loginAsTestUser(page)
-        await applicantQuestions.clickApplyProgramButton(
+        await applicantQuestions.applyProgram(
           programWithDefaultStatusName,
+          true,
         )
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
 
         await loginAsProgramAdmin(page)
@@ -475,7 +468,7 @@ test.describe('view program statuses', () => {
         `Status Change: ${waitingStatus} -> ${approvedStatus}`,
       )
       await adminPrograms.confirmStatusUpdateModal(modal)
-      expect(await adminPrograms.getStatusOption()).toBe(approvedStatus)
+      await adminPrograms.expectStatusSelection(approvedStatus)
       await adminPrograms.expectUpdateStatusToast()
 
       await page.getByRole('link', {name: 'Back'}).click()
@@ -530,10 +523,10 @@ test.describe('view program statuses', () => {
         await logout(page)
 
         // Submit an application as a guest.
-        await applicantQuestions.applyProgram(programForFilteringName)
+        await applicantQuestions.applyProgram(programForFilteringName, true)
         await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
         await loginAsProgramAdmin(page)
       },
     )
@@ -726,17 +719,18 @@ test.describe('view program statuses', () => {
         )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
+        await adminPrograms.expectActiveProgram(eligibilityProgramName)
         await logout(page)
 
         // Before eligibility conditions are added, submit ineligible app
-        await applicantQuestions.applyProgram(eligibilityProgramName)
+        await applicantQuestions.applyProgram(eligibilityProgramName, true)
 
         // Fill out application and submit.
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Robin', 'Hood')
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
         await logout(page)
 
         // Add eligibility conditions to existing program
@@ -758,12 +752,12 @@ test.describe('view program statuses', () => {
         await logout(page)
 
         // Submit eligible app
-        await applicantQuestions.applyProgram(eligibilityProgramName)
+        await applicantQuestions.applyProgram(eligibilityProgramName, true)
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Sonny', 'Hood')
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
 
         await logout(page)
       },
@@ -820,10 +814,10 @@ test.describe('view program statuses', () => {
       const guestEmail = 'guestemail@example.com'
 
       await test.step('submit application as guest', async () => {
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(programWithStatusesName, true)
         await applicantQuestions.answerEmailQuestion(guestEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -850,7 +844,7 @@ test.describe('view program statuses', () => {
           ' of this change at ' + guestEmail,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
+        await adminPrograms.expectStatusSelection(emailStatusName)
         await adminPrograms.expectUpdateStatusToast()
       })
       await test.step('verify status update email was sent to applicant', async () => {
@@ -873,10 +867,15 @@ test.describe('view program statuses', () => {
 
       await test.step('submit application as a logged in user with a different email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(
+          programWithStatusesName,
+          true,
+          false,
+        )
+        await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -934,10 +933,15 @@ test.describe('view program statuses', () => {
     }) => {
       await test.step('submit application as a logged in user with the same email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programWithStatusesName)
+        await applicantQuestions.applyProgram(
+          programWithStatusesName,
+          true,
+          false,
+        )
+        await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(testUserDisplayName())
-        await applicantQuestions.clickNext()
-        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -1000,15 +1004,15 @@ test.describe('view program statuses', () => {
     })
 
     await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
   }

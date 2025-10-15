@@ -6,7 +6,8 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-test.describe('Admin question list', () => {
+
+test.describe('Admin question list', {tag: ['@northstar']}, () => {
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,
@@ -200,7 +201,7 @@ test.describe('Admin question list', () => {
     ])
     await validateScreenshot(
       page,
-      'questions-list-sort-dropdown-last-adminname-asc',
+      'questions-list-sort-dropdown-last-adminname-asc-ns',
     )
     await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.questionBankNames()).toEqual([
@@ -231,7 +232,10 @@ test.describe('Admin question list', () => {
       'b\n',
     ])
 
-    await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
+    await validateScreenshot(
+      page,
+      'questions-list-sort-dropdown-lastmodified-ns',
+    )
   })
 
   test('shows if questions are marked for archival', async ({

@@ -44,6 +44,10 @@
     color: #005ea2;
   }
 
+  .add-map-filter.usa-button.usa-button--outline:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
+  }
+
   .usa-button.usa-modal__close {
     background-color: transparent;
     color: #71767a;
@@ -228,6 +232,11 @@
 
   .row-element:hover {
     background-color: #f7fafc;
+  }
+
+  /* Fix pagination current page button color specificity issue */
+  .usa-pagination .usa-current:visited {
+    color: #fff;
   }
 
 }

@@ -102,10 +102,10 @@ public class FieldWithLabel {
   private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
-    public String fieldErrorsId;
-    public boolean hasFieldErrors;
+    String fieldErrorsId;
+    boolean hasFieldErrors;
 
-    public FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
+    FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
       this.fieldErrorsId = fieldErrorsId;
       this.hasFieldErrors = hasFieldErrors;
     }
@@ -595,12 +595,23 @@ public class FieldWithLabel {
         labelText.isEmpty()
             ? screenReaderText
             : toolTipText.isPresent() ? labelText + " " : labelText;
+
+    // Use the special tooltip-friendly label class when a tooltip is present and we're not using
+    // USWDS
+    String labelClass =
+        labelText.isEmpty()
+            ? "sr-only"
+            : (isUSWDS
+                ? "usa-label mt-0"
+                : (toolTipText.isPresent()
+                    ? BaseStyles.INPUT_LABEL_WITH_TOOLTIP
+                    : BaseStyles.INPUT_LABEL));
+
     return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(
-            labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
+        .withClass(labelClass)
         .withText(text)
         .with(ViewUtils.requiredQuestionIndicator(required))
         // The DomContent is evaluated even if the condition is false, so provide

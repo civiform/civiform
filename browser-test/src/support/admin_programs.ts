@@ -68,6 +68,11 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export enum PredicateType {
+  ELIGIBILITY = 'eligibility',
+  VISIBILITY = 'visibility',
+}
+
 export enum ProgramCategories {
   CHILDCARE = 'Childcare',
   ECONOMIC = 'Economic',
@@ -118,6 +123,40 @@ export enum NotificationPreference {
   EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
 }
 
+/**
+ * Our support classes try do excessive amounts of navigation in an attempt
+ * to aid the test writer. This make trying to do a simple action on a page
+ * often return to the list page and drill back into the expected location
+ * prior to performing the simple action. This adds excessive time to a
+ * test.
+ *
+ * This enum is to allow for a targeted way to skip some of that navigation
+ * if you are already on the page where you expect to be without fully rewriting
+ * a lot of code or duplicating existing function which will add extra confusion
+ * on which method to call.
+ *
+ * Functions that use this should always set the default value to {@link DEFAULT} so that
+ * the existing functionality is maintained.
+ */
+export enum NavigationOption {
+  /**
+   * Existing behavior. Support methods go out of there way to make sure they are on
+   * the exact part of the page before executing the action. This may add extra
+   * navigation steps.
+   */
+  PERFORM_DETAILED_NAVIGATION,
+  /**
+   * Support methods assume you are already where you expect to be and immediately perform
+   * the action
+   */
+  SKIP_EXCESSIVE_NAVIGATION,
+  /**
+   * Default option points to {@link PERFORM_DETAILED_NAVIGATION}, the way the old code
+   * works. This will allow changing the default at a later point if needed.
+   */
+  DEFAULT = PERFORM_DETAILED_NAVIGATION,
+}
+
 export interface QuestionSpec {
   name: string
   isOptional?: boolean
@@ -129,7 +168,7 @@ export interface BlockSpec {
   questions?: QuestionSpec[]
 }
 
-function slugify(value: string): string {
+export function slugify(value: string): string {
   return value
     .toLowerCase()
     .replace(/ /g, '-')
@@ -415,7 +454,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeDisabled()
           expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isHidden()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeHidden()
+            await expect(descriptionRequiredIndicator).toBeHidden()
           }
         }
         break
@@ -471,6 +516,10 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeDisabled()
         expect(await externalLink.getAttribute('readonly')).not.toBeNull()
+        const requiredIndicator = this.getRequiredIndicatorFor(
+          'program-external-link-input',
+        )
+        await expect(requiredIndicator).toBeHidden()
         break
       }
 
@@ -482,14 +531,19 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether the given form field ais enabled.
+   * Verifies whether the given form field is enabled.
    *
    * @param formField - The specific form field type to verify (from FormField enum)
+   * @param programType - Optional program type to specify context (from ProgramType enum).
+   *                      Not all form fields require a program type for verification.
    *
    * @throws Will throw an error if the elements' states don't match the expected enabled state
    * @throws Will throw an error if an invalid or unsupported form field type is provided
    */
-  async expectFormFieldEnabled(formField: FormField) {
+  async expectFormFieldEnabled(
+    formField: FormField,
+    programType?: ProgramType,
+  ) {
     switch (formField) {
       case FormField.APPLICATION_STEPS: {
         for (let i = 0; i < 5; i++) {
@@ -505,7 +559,13 @@ export class AdminPrograms {
           await expect(stepDescription).toBeEnabled()
           expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
-            await stepTitle.locator('span').isVisible()
+            const titleRequiredIndicator =
+              this.getRequiredIndicatorFor('apply-step-1-title')
+            const descriptionRequiredIndicator = this.getRequiredIndicatorFor(
+              'apply-step-1-description',
+            )
+            await expect(titleRequiredIndicator).toBeVisible()
+            await expect(descriptionRequiredIndicator).toBeVisible()
           }
         }
         break
@@ -556,6 +616,19 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeEnabled()
         expect(await externalLink.getAttribute('readonly')).toBeNull()
+        // In pre - North Star, the external link field is optional for
+        // 'default' and 'pre-screeners'. In North Star, the external link field
+        // is disabled for 'default' and 'pre-screeners' and required for
+        // 'external programs'. Therefore, required indicator is dependent on
+        // program type. This condition can be removed once North Star is fully
+        // launched, since the required indicator will always be present if the
+        // field is enabled.
+        if (programType && programType === ProgramType.EXTERNAL) {
+          const requiredIndicator = this.getRequiredIndicatorFor(
+            'program-external-link-input',
+          )
+          await expect(requiredIndicator).toBeVisible()
+        }
         break
       }
 
@@ -813,6 +886,18 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async gotoActiveProgramManageTranslationsPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectActiveProgram(programName)
+    await this.selectProgramExtraAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramExtraAction.MANAGE_TRANSLATIONS,
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramManageTranslationsPage(programName)
+  }
+
   async goToProgramImagePage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -975,25 +1060,35 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditVisibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
+    } else {
+      await this.expectEditVisibilityPredicatePage(blockName)
+    }
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditEligibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
+    } else {
+      await this.expectEditEligibilityPredicatePage(blockName)
+    }
   }
 
   async goToProgramDescriptionPage(
@@ -1057,7 +1152,10 @@ export class AdminPrograms {
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'as a Program Admin because they do not have an admin account. Have the user log in as admin on the home page, then they can be added as a Program Admin.',
+      "as a Program Admin because they haven't previously logged into" +
+        ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
+        " they've been added, they will need refresh their browser see the programs" +
+        " they've been assigned to.",
     )
     expect(toastMessages).toContain('Error: ')
   }
@@ -1080,6 +1178,12 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain(
       'Eligibility condition for ' + blockName,
     )
+  }
+
+  async expectEditPredicatePage(predicateType: PredicateType) {
+    await expect(
+      this.page.getByText('Edit ' + predicateType + ' conditions'),
+    ).toBeVisible()
   }
 
   async expectSuccessToast(successToastMessage: string) {
@@ -1107,8 +1211,11 @@ export class AdminPrograms {
     programName: string,
     blockName: string,
     questionNames: string[] = [],
+    navigationOption: NavigationOption = NavigationOption.DEFAULT,
   ) {
-    await this.goToBlockInProgram(programName, blockName)
+    if (navigationOption == NavigationOption.PERFORM_DETAILED_NAVIGATION) {
+      await this.goToBlockInProgram(programName, blockName)
+    }
 
     for (const questionName of questionNames) {
       await this.page.click(
@@ -1229,6 +1336,12 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage()
   }
 
+  async removeCurrentBlock() {
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.page.click('#delete-block-button')
+    await waitForPageJsLoad(this.page)
+  }
+
   private async waitForQuestionBankAnimationToFinish() {
     // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
     // This is currently called over 300 times which adds up.
@@ -1250,9 +1363,11 @@ export class AdminPrograms {
 
   async addQuestionFromQuestionBank(questionName: string) {
     await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
+    await this.page
+      .locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      .click()
     await waitForPageJsLoad(this.page)
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
@@ -1356,6 +1471,13 @@ export class AdminPrograms {
     }
 
     return await this.page.locator('#block-name-input').inputValue()
+  }
+
+  async clickEditBridgeDefinitionButton() {
+    await this.page
+      .getByRole('button', {name: 'Edit Bridge Definition'})
+      .click()
+    await waitForPageJsLoad(this.page)
   }
 
   async addProgramRepeatedBlock(
@@ -1464,8 +1586,8 @@ export class AdminPrograms {
   }
 
   /**
-   * Opens the applications page by clicking on a program's card action
-   * Admin must be a Program admin, otherwise the extra action won't be visible
+   * Opens the applications page by clicking on a program's card action.
+   * Opens the extra actions dropdown if present so the action is visible.
    *
    * @param programName - Name of the program
    */
@@ -1475,6 +1597,13 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     await this.expectActiveProgram(programName)
+    const extraActions = this.getProgramExtraActionsButton(
+      programName,
+      ProgramLifecycle.ACTIVE,
+    )
+    if (await extraActions.isVisible()) {
+      await extraActions.click()
+    }
     await this.getProgramAction(
       programName,
       ProgramLifecycle.ACTIVE,
@@ -1531,20 +1660,14 @@ export class AdminPrograms {
     }
 
     if (clickFilterButton) {
-      await Promise.all([
-        this.page.waitForNavigation(),
-        await this.page.click('button:has-text("Filter")'),
-      ])
+      await this.page.click('button:has-text("Filter")')
     }
 
     await waitForPageJsLoad(this.page)
   }
 
   async clearFilterProgramApplications() {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('a:has-text("Clear")'),
-    ])
+    await this.page.click('a:has-text("Clear")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -1594,6 +1717,10 @@ export class AdminPrograms {
     return this.page.locator(this.statusSelector()).inputValue()
   }
 
+  async expectStatusSelection(status: string) {
+    await expect(this.page.locator(this.statusSelector())).toHaveValue(status)
+  }
+
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
@@ -1602,14 +1729,11 @@ export class AdminPrograms {
     return waitForAnyModalLocator(this.page)
   }
   /**
-   * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
-   * containing the modal has been refreshed.
+   * Clicks the confirm button in the status update confirmation dialog
    */
   async confirmStatusUpdateModal(modal: Locator) {
-    // Confirming should cause the frame to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const confirmButton = modal.getByText('Confirm')
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await confirmButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1655,10 +1779,8 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
-    // Confirming should cause the page to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
     const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await saveButton.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1667,8 +1789,9 @@ export class AdminPrograms {
   }
 
   async expectNoteUpdatedToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain('Application note updated')
+    await expect(this.page.locator('#toast-container')).toContainText(
+      'Application note updated',
+    )
   }
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
@@ -1829,6 +1952,10 @@ export class AdminPrograms {
     })
   }
 
+  getRequiredIndicatorFor(labelId: string): Locator {
+    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+  }
+
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
       name: 'Long program description',
@@ -1856,8 +1983,12 @@ export class AdminPrograms {
   getProgramCard(programName: string, lifecycle: string): Locator {
     return this.page
       .locator('div.cf-admin-program-card')
-      .filter({has: this.page.getByText(programName)})
-      .filter({has: this.page.getByText(lifecycle)})
+      .filter({has: this.page.getByText(programName, {exact: true})})
+      .filter({
+        has: this.page.locator(
+          `[data-lifecycle-stage=${lifecycle.toLowerCase()}]`,
+        ),
+      })
   }
 
   getProgramAction(
@@ -1876,7 +2007,9 @@ export class AdminPrograms {
     lifecycle: ProgramLifecycle,
   ): Locator {
     const programCard = this.getProgramCard(programName, lifecycle)
-    return programCard.locator('.cf-with-dropdown')
+    return programCard
+      .locator(`[data-lifecycle-stage=${lifecycle.toLowerCase()}]`)
+      .locator('.cf-with-dropdown')
   }
 
   getProgramExtraAction(

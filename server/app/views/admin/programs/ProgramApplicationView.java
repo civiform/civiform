@@ -14,6 +14,7 @@ import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 
 import annotations.BindingAnnotations.EnUsLang;
+import auth.CiviFormProfile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -41,12 +42,14 @@ import services.MessageKey;
 import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.admin.AdminLayout;
+import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -66,16 +69,21 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String CURRENT_STATUS = "currentStatus";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
-  private final BaseHtmlLayout layout;
+  private final AdminLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
-    this.layout = checkNotNull(layout);
+      AdminLayoutFactory layoutFactory,
+      @EnUsLang Messages enUsMessages,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -88,8 +96,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
+      CiviFormProfile profile,
       Request request) {
-    String title = "Program application view";
+    boolean showDownloadButton =
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+            && profile.isOnlyProgramAdmin());
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
@@ -140,7 +151,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                     .with(
                                         renderStatusOptionsSelector(application, statusDefinitions),
                                         updateNoteModal.getButton()))
-                            .with(renderDownloadButton(programId, application.id))))
+                            .condWith(
+                                showDownloadButton,
+                                renderDownloadButton(programId, application.id))))
             .with(
                 p(renderSubmitTime(application))
                     .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
@@ -154,8 +167,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
+            .setAdminType(profile)
             .getBundle(request)
-            .setTitle(title)
+            .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
@@ -165,7 +179,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
     addToastMessagesOnSuccess(htmlBundle, request.flash());
-    return layout.render(htmlBundle);
+    return layout.renderCentered(htmlBundle);
   }
 
   private ATag renderBackLink(Long programId) {

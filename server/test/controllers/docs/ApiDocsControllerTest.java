@@ -74,6 +74,19 @@ public class ApiDocsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void activeDocsForSlug_externalProgram_doesNotExist() {
+    ProgramBuilder.newActiveProgram("Test External Program")
+        .withProgramType(ProgramType.EXTERNAL)
+        .buildDefinition();
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(ApiDocsController.class).activeDocsForSlug(request, "test-external-program");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains(PROGRAM_OR_VERSION_NOT_FOUND_ERROR);
+  }
+
+  @Test
   public void draftDocsForSlug_noDraftAvailable() {
     Request request = fakeRequest();
     Result result = instanceOf(ApiDocsController.class).draftDocsForSlug(request, "test-program-1");

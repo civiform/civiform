@@ -23,6 +23,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.EmailQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
@@ -66,7 +67,7 @@ final class CsvColumnFactory {
           buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
       case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
       case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
-      case DROPDOWN, RADIO_BUTTON ->
+      case DROPDOWN, RADIO_BUTTON, YES_NO ->
           buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
       case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
         // Enumerator questions themselves are not included in the CSV, but their repeated questions
@@ -75,6 +76,7 @@ final class CsvColumnFactory {
       case FILEUPLOAD ->
           buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
       case ID -> buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
+      case MAP -> buildColumnsForMapQuestion(aq.createMapQuestion(), columnType);
       case NAME -> buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
       case NUMBER -> buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
       case PHONE -> buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
@@ -374,6 +376,16 @@ final class CsvColumnFactory {
             .setHeader(formatHeader(q.getTextPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(tq -> ((TextQuestion) tq).getTextValue().orElse(""))
+            .build());
+  }
+
+  private Stream<Column> buildColumnsForMapQuestion(MapQuestion q, ColumnType columnType) {
+    return Stream.of(
+        Column.builder()
+            .setColumnType(columnType)
+            .setHeader(formatHeader(q.getSelectionPath()))
+            .setQuestionPath(q.getContextualizedPath())
+            .setAnswerExtractor(mq -> String.valueOf(((MapQuestion) mq).getSelectedLocationIds()))
             .build());
   }
 

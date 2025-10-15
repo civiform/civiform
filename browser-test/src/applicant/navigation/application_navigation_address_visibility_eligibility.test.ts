@@ -7,7 +7,7 @@ import {
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
 
-test.describe('Applicant navigation flow', () => {
+test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   if (isLocalDevEnvironment()) {
     test.describe('using address as visibility condition', () => {
       const programName = 'Test program for address as visibility condition'
@@ -117,7 +117,10 @@ test.describe('Applicant navigation flow', () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
             '',
@@ -126,7 +129,7 @@ test.describe('Applicant navigation flow', () => {
             '98109',
             0,
           )
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(true)
           await applicantQuestions.clickConfirmAddress()
         })
@@ -138,16 +141,16 @@ test.describe('Applicant navigation flow', () => {
 
         await test.step('Fill out the remainder of the application and submit', async () => {
           await applicantQuestions.answerTextQuestion('answer 1')
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.answerTextQuestion('answer 2')
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
 
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             questionAddress,
             'Address In Area',
           )
 
-          await applicantQuestions.clickSubmit()
+          await applicantQuestions.clickSubmitApplication()
           await logout(page)
         })
       })
@@ -157,7 +160,10 @@ test.describe('Applicant navigation flow', () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await applicantQuestions.answerAddressQuestion(
             'Nonlegit Address',
             '',
@@ -166,7 +172,7 @@ test.describe('Applicant navigation flow', () => {
             '98109',
             0,
           )
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(false)
           await applicantQuestions.clickConfirmAddress()
         })
@@ -178,13 +184,13 @@ test.describe('Applicant navigation flow', () => {
 
         await test.step('Fill out the remainder of the application and submit', async () => {
           await applicantQuestions.answerTextQuestion('answer 2')
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             questionAddress,
             'Nonlegit Address',
           )
 
-          await applicantQuestions.clickSubmit()
+          await applicantQuestions.clickSubmitApplication()
           await logout(page)
         })
       })
@@ -194,7 +200,10 @@ test.describe('Applicant navigation flow', () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
             '',
@@ -203,7 +212,7 @@ test.describe('Applicant navigation flow', () => {
             '98109',
             0,
           )
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(true)
           await applicantQuestions.clickConfirmAddress()
         })
@@ -214,7 +223,7 @@ test.describe('Applicant navigation flow', () => {
         })
 
         await test.step('Edit address to be ineligible', async () => {
-          await applicantQuestions.clickPrevious()
+          await applicantQuestions.clickBack()
           await applicantQuestions.answerAddressQuestion(
             'Nonlegit Address',
             '',
@@ -223,25 +232,24 @@ test.describe('Applicant navigation flow', () => {
             '98109',
             0,
           )
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(false)
           await applicantQuestions.clickConfirmAddress()
         })
 
         await test.step('Skip page that is hidden when have invalid address', async () => {
-          await applicantQuestions.expectMayBeEligibileAlertToBeHidden()
           await applicantQuestions.validateQuestionIsOnPage(questionText2)
         })
 
         await test.step('Application submits successfully', async () => {
           await applicantQuestions.answerTextQuestion('answer 2')
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             questionAddress,
             'Nonlegit Address',
           )
 
-          await applicantQuestions.clickSubmit()
+          await applicantQuestions.clickSubmitApplication()
           await logout(page)
         })
       })

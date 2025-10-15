@@ -1,0 +1,25 @@
+<!--/*@thymesVar id="optionalMeasurementId" type="java.util.Optional<java.lang.String>"*/-->
+<!--/*@thymesVar id="cspNonce" type="java.lang.String"*/-->
+<th:block
+  th:fragment="tagManager(optionalMeasurementId, cspNonce)"
+  th:if="${optionalMeasurementId.isPresent()}"
+  th:with="measurementId=${optionalMeasurementId.get()}"
+>
+  <script
+    async
+    type="text/javascript"
+    th:src="|https://www.googletagmanager.com/gtag/js?id=${measurementId}|"
+    th:nonce="${cspNonce}"
+  ></script>
+
+  <!--/* Do not remove the prettier-ignore. This is keeping prettier from breaking the js. */-->
+  <!-- prettier-ignore -->
+  <script type="text/javascript" th:inline="javascript" th:nonce="${cspNonce}">
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', /*[[${measurementId}]]*/);
+  </script>
+</th:block>

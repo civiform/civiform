@@ -38,9 +38,7 @@ public class CiviFormProfileMergerTest {
 
   private UserProfile userProfile;
   private OidcProfile oidcProfile;
-  private CiviFormProfileData civiFormProfileData;
   private AccountModel account;
-  private ApplicationModel dummyApplication;
 
   private CiviFormProfileMerger civiFormProfileMerger;
 
@@ -53,7 +51,7 @@ public class CiviFormProfileMergerTest {
     oidcProfile = new OidcProfile();
     oidcProfile.addAttribute(EMAIL_ATTR, EMAIL1);
 
-    civiFormProfileData = new CiviFormProfileData();
+    CiviFormProfileData civiFormProfileData = new CiviFormProfileData();
     civiFormProfileData.setId(ACCOUNT_ID.toString());
     civiFormProfileData.addAttribute(EMAIL_ATTR, EMAIL2);
 
@@ -64,13 +62,13 @@ public class CiviFormProfileMergerTest {
 
     when(applicant.getAccount()).thenReturn(account);
 
-    dummyApplication = new ApplicationModel(applicant, null, null);
+    ApplicationModel dummyApplication = new ApplicationModel(applicant, null, null);
 
     when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
     when(profileFactory.wrap(any(ApplicantModel.class))).thenReturn(civiFormProfile);
     when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
-    when(repository.mergeApplicants(applicant, applicant, account))
+    when(repository.mergeApplicantsOlderIntoNewer(applicant, applicant, account))
         .thenReturn(completedFuture(applicant));
   }
 
@@ -79,7 +77,7 @@ public class CiviFormProfileMergerTest {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase= */ Optional.empty(),
-            /* existingProfile= */ Optional.empty(),
+            /* existingGuestProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -94,7 +92,7 @@ public class CiviFormProfileMergerTest {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
-            /* existingProfile= */ Optional.empty(),
+            /* existingGuestProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -153,7 +151,7 @@ public class CiviFormProfileMergerTest {
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
-    verify(repository).mergeApplicants(eq(applicant), eq(applicant), eq(account));
+    verify(repository).mergeApplicantsOlderIntoNewer(eq(applicant), eq(applicant), eq(account));
     assertThat(merged).hasValue(userProfile);
   }
 }

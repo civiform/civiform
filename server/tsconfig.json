@@ -13,5 +13,5 @@
     "baseUrl": "./",
     "strict": true
   },
-  "include": ["app/assets/javascripts/*"]
+  "include": ["app/assets/javascripts/**/*.ts"]
 }

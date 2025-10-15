@@ -39,7 +39,7 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
@@ -66,7 +66,8 @@ public class ApplicantQuestionRendererFactoryTest {
   public void compositeQuestionsUseFieldset(QuestionType type)
       throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION) {
+    // Map type questions are only compatible with North Star so won't get rendered for this test
+    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
       return;
     }
 
@@ -86,28 +87,13 @@ public class ApplicantQuestionRendererFactoryTest {
     DivTag content = sampleRenderer.render(params);
     String renderedContent = document(html(content));
     switch (type) {
-      case ADDRESS:
-      case CHECKBOX:
-      case ENUMERATOR:
-      case NAME:
-      case RADIO_BUTTON:
-        assertThat(renderedContent).contains("fieldset");
-        break;
-      case CURRENCY:
-      case DATE:
-      case DROPDOWN:
-      case EMAIL:
-      case FILEUPLOAD:
-      case ID:
-      case NUMBER:
-      case PHONE:
-      case STATIC:
-      case TEXT:
-        assertThat(renderedContent).doesNotContain("fieldset");
-        break;
+      case ADDRESS, CHECKBOX, ENUMERATOR, NAME, RADIO_BUTTON, YES_NO ->
+          assertThat(renderedContent).contains("fieldset");
+      case CURRENCY, DATE, DROPDOWN, EMAIL, FILEUPLOAD, ID, NUMBER, PHONE, STATIC, TEXT ->
+          assertThat(renderedContent).doesNotContain("fieldset");
+
         // This is here because errorprone doesn't like that it was missing
-      case NULL_QUESTION:
-        break;
+      case MAP, NULL_QUESTION -> {}
     }
   }
 }

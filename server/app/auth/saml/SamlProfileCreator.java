@@ -67,14 +67,13 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       return Optional.empty();
     }
 
-    if (!(samlProfile.get() instanceof SAML2Profile)) {
+    if (!(samlProfile.get() instanceof SAML2Profile profile)) {
       logger.warn(
-          "Got a profile from SAML2 callback but it wasn't a SAML profile: %s",
+          "Got a profile from SAML2 callback but it wasn't a SAML profile: {}",
           samlProfile.get().getClass().getName());
       return Optional.empty();
     }
 
-    SAML2Profile profile = (SAML2Profile) samlProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());

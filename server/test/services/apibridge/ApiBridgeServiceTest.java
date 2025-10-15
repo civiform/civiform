@@ -9,12 +9,17 @@ import static services.apibridge.ApiBridgeServiceDto.IProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ProblemDetail;
 import static services.apibridge.ApiBridgeServiceDto.ValidationProblemDetail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import io.prometheus.client.Collector;
+import io.prometheus.client.CollectorRegistry;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.libs.ws.WSClient;
@@ -38,7 +43,14 @@ public class ApiBridgeServiceTest extends ResetPostgres {
       wsClient.setHeaders(Map.of("Emulate-Response-Code", List.of(emulatedResponseCode)));
     }
 
-    return new ApiBridgeService(wsClient, instanceOf(ApiBridgeExecutionContext.class));
+    return new ApiBridgeService(
+        wsClient, instanceOf(ApiBridgeExecutionContext.class), instanceOf(ObjectMapper.class));
+  }
+
+  @Before
+  public void setup() {
+    // Make sure to clear any prometheus metrics between tests
+    CollectorRegistry.defaultRegistry.clear();
   }
 
   /*
@@ -63,6 +75,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     HealthcheckResponse responseModel = response.getResult();
     assertThat(responseModel).isNotNull();
     assertThat(responseModel.timestamp()).isGreaterThan(0);
+    assertMetricsSuccess("health-check");
   }
 
   @Test
@@ -82,6 +95,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     Optional<IProblemDetail> errorModel = response.getErrors().stream().findFirst();
     assertThat(errorModel.isPresent()).isTrue();
     assertThat(errorModel.get().status().toString()).isEqualTo(emulatedResponseCode);
+    assertMetricsHandledError("health-check");
   }
 
   @Test
@@ -92,6 +106,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("health-check");
   }
 
   @Test
@@ -102,6 +117,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("health-check");
   }
 
   @Test
@@ -115,6 +131,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
 
     DiscoveryResponse responseModel = response.getResult();
     assertThat(responseModel.endpoints()).hasSizeGreaterThan(0);
+    assertMetricsSuccess("discovery");
   }
 
   @Test
@@ -133,6 +150,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     Optional<IProblemDetail> errorModel = response.getErrors().stream().findFirst();
     assertThat(errorModel.isPresent()).isTrue();
     assertThat(errorModel.get().status().toString()).isEqualTo(emulatedResponseCode);
+    assertMetricsHandledError("discovery");
   }
 
   @Test
@@ -143,6 +161,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("discovery");
   }
 
   @Test
@@ -153,6 +172,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("discovery");
   }
 
   private BridgeRequest createBridgeRequest() {
@@ -178,6 +198,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     BridgeResponse responseModel = response.getResult();
     assertThat(responseModel).isNotNull();
     assertThat(responseModel.payload().isEmpty()).isFalse();
+    assertMetricsSuccess("bridge");
   }
 
   @Test
@@ -197,6 +218,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(errorModel.isPresent()).isTrue();
     assertThat(errorModel.get().status().toString()).isEqualTo(emulatedResponseCode);
     assertThat(errorModel.get()).isInstanceOf(ProblemDetail.class);
+    assertMetricsHandledError("bridge");
   }
 
   @Test
@@ -218,6 +240,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
 
     ValidationProblemDetail validationErrorModel = (ValidationProblemDetail) errorModel.get();
     assertThat(validationErrorModel.validationErrors().size()).isEqualTo(2);
+    assertMetricsHandledError("bridge");
   }
 
   @Test
@@ -231,6 +254,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("bridge");
   }
 
   @Test
@@ -241,6 +265,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsUnhandledError("bridge");
   }
 
   @Test
@@ -251,5 +276,72 @@ public class ApiBridgeServiceTest extends ResetPostgres {
     assertThat(response).isNotNull();
     assertThat(response.hasResult()).isFalse();
     assertThat(response.isError()).isTrue();
+    assertMetricsHandledError("bridge");
+  }
+
+  private void assertMetricsSuccess(String methodName) {
+    assertPrometheusMetric("api_bridge_requests_total", methodName, "success");
+    assertPrometheusMetric("api_bridge_request_duration_seconds_sum", methodName, "success");
+  }
+
+  private void assertMetricsHandledError(String methodName) {
+    assertPrometheusMetric("api_bridge_requests_total", methodName, "error");
+    assertPrometheusMetric("api_bridge_request_duration_seconds_sum", methodName, "error");
+  }
+
+  private void assertMetricsUnhandledError(String methodName) {
+    assertPrometheusMetricForUnhandledErrors("api_bridge_requests_total", methodName);
+    assertPrometheusMetricForUnhandledErrors("api_bridge_request_duration_seconds_sum", methodName);
+  }
+
+  /**
+   * Asserts that the prometheus metric for the specific method label is from the specified handled
+   * success/error and has a non-zero sample size.
+   */
+  private void assertPrometheusMetric(String metricName, String methodName, String status) {
+    Optional<Collector.MetricFamilySamples.Sample> optionalSample =
+        Collections.list(CollectorRegistry.defaultRegistry.metricFamilySamples()).stream()
+            .flatMap(mfs -> mfs.samples.stream())
+            .filter(sample -> sample.name.equals(metricName))
+            .findFirst();
+
+    assertThat(optionalSample.isPresent()).isTrue();
+
+    Collector.MetricFamilySamples.Sample durationSample = optionalSample.get();
+
+    assertThat(durationSample.labelValues)
+        .isNotNull()
+        .containsExactlyInAnyOrder(new String[] {methodName, status});
+
+    assertThat(durationSample.value).isGreaterThan(0.0);
+  }
+
+  /**
+   * Asserts that the prometheus metric for the specific method label has a non-zero sample size and
+   * verifies the unhandled exception is not recorded as success or error.
+   */
+  private void assertPrometheusMetricForUnhandledErrors(String metricName, String methodName) {
+    Optional<Collector.MetricFamilySamples.Sample> optionalSample =
+        Collections.list(CollectorRegistry.defaultRegistry.metricFamilySamples()).stream()
+            .flatMap(mfs -> mfs.samples.stream())
+            .filter(sample -> sample.name.equals(metricName))
+            .findFirst();
+
+    assertThat(optionalSample.isPresent()).isTrue();
+
+    Collector.MetricFamilySamples.Sample durationSample = optionalSample.get();
+
+    assertThat(durationSample.labelValues)
+        .isNotNull()
+        .hasSize(2)
+        .contains(methodName)
+        .satisfies(
+            list ->
+                assertThat(
+                        list.stream().filter(s -> !s.equals(methodName)).findFirst().orElseThrow())
+                    .isNotEqualTo("success")
+                    .isNotEqualTo("error"));
+
+    assertThat(durationSample.value).isGreaterThan(0.0);
   }
 }

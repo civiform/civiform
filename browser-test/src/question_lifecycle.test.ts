@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -8,7 +9,7 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-test.describe('normal question lifecycle', () => {
+test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
   test('sample question seeding works', async ({
     page,
     adminQuestions,
@@ -33,6 +34,10 @@ test.describe('normal question lifecycle', () => {
       adminQuestions,
       adminPrograms,
     }) => {
+      // Map questions rely on mock web services in tests, so they can only be run in local dev environemnts
+      if (type === QuestionType.MAP && !isLocalDevEnvironment()) {
+        test.skip()
+      }
       await loginAsAdmin(page)
 
       const questionName = `qlc-${type}`
@@ -83,7 +88,10 @@ test.describe('normal question lifecycle', () => {
 
       // Take screenshot of questions being published and active.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-only-active`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-only-active`,
+      )
 
       await adminQuestions.createNewVersionForQuestions(allQuestions)
 
@@ -91,7 +99,10 @@ test.describe('normal question lifecycle', () => {
 
       // Take screenshot of question being in draft state.
       await adminQuestions.gotoAdminQuestionsPage()
-      await validateScreenshot(page, `${type}-active-and-draft`)
+      await validateScreenshot(
+        page.locator('#questions-list-non-universal'),
+        `${type}-active-and-draft`,
+      )
 
       await adminPrograms.publishProgram(programName)
 
@@ -542,5 +553,52 @@ test.describe('normal question lifecycle', () => {
       'Visible in the API as:',
     )
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
+  })
+
+  test('enumerator dropdown shows correct options', async ({
+    page,
+    adminQuestions,
+  }) => {
+    const enumeratorOne = 'enumerator-q-one'
+    const enumeratorTwo = 'enumerator-q-two'
+    const textQuestion = 'text-q'
+
+    await test.step('create enumerator parent questions', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorOne})
+      await adminQuestions.addEnumeratorQuestion({questionName: enumeratorTwo})
+    })
+
+    await test.step('confirm enumerator options show up', async () => {
+      await page.click('#create-question-button')
+      await page.click('#create-text-question')
+      await waitForPageJsLoad(page)
+      await page.getByLabel('Question enumerator').selectOption(enumeratorOne)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await page.getByLabel('Question enumerator').selectOption(enumeratorTwo)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+    })
+
+    await test.step('add text question with parent enumerator selected', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestion,
+        questionText: '$this',
+        enumeratorName: enumeratorOne,
+      })
+    })
+
+    await test.step('edit text question and confirm correct enumerator option is selected and readonly', async () => {
+      await adminQuestions.gotoQuestionEditPage(textQuestion)
+      await expect(page.getByLabel('Question enumerator')).toContainText(
+        enumeratorOne,
+      )
+      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+        'readonly',
+      )
+    })
   })
 })

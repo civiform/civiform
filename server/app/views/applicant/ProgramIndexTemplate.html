@@ -43,7 +43,7 @@
       >
         <div class="grid-container text-white usa-prose">
           <h1 th:text="#{heading.homepage.v2}"></h1>
-          <div th:text="#{content.homepageIntro.v2}"></div>
+          <div class="usa-intro" th:text="#{content.homepageIntro.v2}"></div>
         </div>
       </div>
       <div
@@ -93,5 +93,8 @@
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
   </body>
 </html>

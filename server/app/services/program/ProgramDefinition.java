@@ -11,6 +11,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -158,6 +161,9 @@ public abstract class ProgramDefinition {
   @JsonProperty("applicationSteps")
   public abstract ImmutableList<ApplicationStep> applicationSteps();
 
+  @JsonProperty("bridgeDefinitions")
+  public abstract ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -255,6 +261,42 @@ public abstract class ProgramDefinition {
       }
     }
     return true;
+  }
+
+  /** Returns true if block has any questions used by an api bridge configuration */
+  public boolean blockHasQuestionsUsedByApiBridge(Long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByBlock =
+        getBlockDefinition(blockId).programQuestionDefinitions().stream()
+            .map(x -> x.getQuestionDefinition().getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByBlock::contains);
+  }
+
+  /** Returns true if any question id in the list is used by an api bridge configuration */
+  public boolean isQuestionsListUsedByApiBridge(ImmutableList<Long> questionIds) {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByProgram =
+        getAllQuestions().stream()
+            .filter(x -> questionIds.contains(x.getId()))
+            .map(x -> x.getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByProgram::contains);
   }
 
   /**
@@ -787,6 +829,22 @@ public abstract class ProgramDefinition {
         .collect(toImmutableList());
   }
 
+  /**
+   * Get a list of all {@link QuestionDefinition} in the program. Requires a fully hydrated
+   * ProgramDefinition with all questions.
+   *
+   * @return List of all questions in program softed by question name.
+   */
+  @JsonIgnore
+  public ImmutableList<QuestionDefinition> getAllQuestions() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .sorted((q1, q2) -> q1.getName().compareToIgnoreCase(q2.getName()))
+        .collect(toImmutableList());
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -858,6 +916,10 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("applicationSteps")
     public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
+
+    @JsonProperty("bridgeDefinitions")
+    public abstract Builder setBridgeDefinitions(
+        ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

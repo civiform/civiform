@@ -71,4 +71,16 @@ public final class RecurringJobExecutionTimeResolvers {
           .toInstant();
     }
   }
+
+  /** Every 30 minutes. Used for REFRESH_MAP_DATA */
+  public static final class EveryThirtyMinutes implements JobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      Instant now = clock.instant();
+      long epochMinutes = now.getEpochSecond() / 60;
+      long minutesUntilNext = 30 - (epochMinutes % 30);
+      return now.plusSeconds(minutesUntilNext * 60).truncatedTo(ChronoUnit.MINUTES);
+    }
+  }
 }

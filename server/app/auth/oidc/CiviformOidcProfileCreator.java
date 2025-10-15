@@ -132,6 +132,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // If the civiformProfile is a trusted intermediary, bypass remaining merging because
     // we don't want to actually merge the guest profile into theirs.
     if (isTrustedIntermediary(civiformProfile)) {
+      if (enhancedLogoutEnabled()) {
+        handleEnhancedLogout(civiformProfile, oidcProfile, roles);
+      }
       // Setting the email here ensures the canonical email field is populated
       // regardless of what the identity provider uses. See comment on
       // CiviFormProfileData.setEmail() for more info.
@@ -150,27 +153,32 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     if (enhancedLogoutEnabled()) {
-      // Save the id_token from the returned OidcProfile in the account so that it can be
-      // retrieved at logout time.
-      civiformProfile
-          .getAccount()
-          .thenAccept(
-              account -> {
-                String sessionId = civiformProfile.getProfileData().getSessionId();
-                if (!account.getActiveSession(sessionId).isPresent()) {
-                  logger.warn(
-                      "Session not in account's active sessions for role {}, and OIDC profile {}",
-                      roles,
-                      oidcProfile.getClass().getName());
-                }
-                accountRepositoryProvider
-                    .get()
-                    .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
-              })
-          .join();
+      handleEnhancedLogout(civiformProfile, oidcProfile, roles);
     }
 
     return civiformProfile.getProfileData();
+  }
+
+  private void handleEnhancedLogout(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, ImmutableSet<Role> roles) {
+    // Save the id_token from the returned OidcProfile in the account so that it can be
+    // retrieved at logout time.
+    civiformProfile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              String sessionId = civiformProfile.getProfileData().getSessionId();
+              if (!account.getActiveSession(sessionId).isPresent()) {
+                logger.warn(
+                    "Session not in account's active sessions for role {}, and OIDC profile {}",
+                    roles,
+                    oidcProfile.getClass().getName());
+              }
+              accountRepositoryProvider
+                  .get()
+                  .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
+            })
+        .join();
   }
 
   @Override
@@ -183,14 +191,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       return Optional.empty();
     }
 
-    if (!(oidcProfile.get() instanceof OidcProfile)) {
+    if (!(oidcProfile.get() instanceof OidcProfile profile)) {
       logger.warn(
-          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
+          "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
     }
 
-    OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());

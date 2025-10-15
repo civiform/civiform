@@ -20,8 +20,20 @@ https://designsystem.digital.gov/utilities/.
   // but we override the background color with Tailwind "bg-gray-900" when we
   // create the banner.
   $theme-banner-background-color: 'blue-90',
-  $border-settings: ('output': false),
-  $color-settings: ('output': false),
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
-  $theme-focus-offset: 0.5
+  $theme-focus-offset: 0.5,
+  $theme-heading-line-height: 2,
+  // "Normal" text should use "wide" width
+  $theme-text-measure: 6,
+  $flex-settings: (responsive: true),
+  $flex-direction-settings: (responsive: true),
+  $align-self-settings: (responsive: true),
+  $justify-content-settings: (responsive: true),
+  $theme-utility-breakpoints-custom: ('none-width': 0px),
+  $theme-breadcrumb-min-width: 'none-width',
+
+  // Disables mobile menu entirely as the admin area is not mobile friendly and
+  // we don't want it to be collapsing into a vertical menu. Making the min width mobile
+  // is the key setting for this as it defaults to desktop width size.
+  $theme-header-min-width: 'mobile'
 );

@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Keep;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJson;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -127,6 +129,8 @@ public class ProgramModel extends BaseModel {
    */
   @DbJsonB private ImmutableList<ApplicationStep> applicationSteps;
 
+  @DbJsonB private ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -193,6 +197,7 @@ public class ProgramModel extends BaseModel {
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
     this.applicationSteps = definition.applicationSteps();
+    this.bridgeDefinitions = definition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -241,6 +246,7 @@ public class ProgramModel extends BaseModel {
     this.acls = programAcls;
     this.categories = categories;
     this.applicationSteps = applicationSteps;
+    this.bridgeDefinitions = ImmutableMap.of();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -265,6 +271,7 @@ public class ProgramModel extends BaseModel {
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
     categories = programDefinition.categories();
     applicationSteps = programDefinition.applicationSteps();
+    bridgeDefinitions = programDefinition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -292,7 +299,8 @@ public class ProgramModel extends BaseModel {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
-            .setApplicationSteps(ImmutableList.copyOf(applicationSteps));
+            .setApplicationSteps(ImmutableList.copyOf(applicationSteps))
+            .setBridgeDefinitions(ImmutableMap.copyOf(bridgeDefinitions));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

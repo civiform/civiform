@@ -13,14 +13,10 @@ import {
   ProgramCategories,
   ProgramExtraAction,
   ProgramLifecycle,
-  ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
 
-test.describe('Program list page.', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
+test.describe('Program list page.', {tag: ['@northstar']}, () => {
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -89,23 +85,7 @@ test.describe('Program list page.', () => {
       )
     })
 
-    await test.step('check that long description is shown when North Star flag is off', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      const firstProgramCard = page.locator('.cf-admin-program-card').first()
-      const firstProgramDesc = firstProgramCard.locator(
-        '.cf-program-description',
-      )
-      await expect(
-        firstProgramDesc.getByText(programLongDescription),
-      ).toBeVisible()
-      await expect(
-        firstProgramDesc.locator(`text=${programShortDescription}`),
-      ).toHaveCount(0) // short description should not be shown
-    })
-
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-    await test.step('check that short description is shown when North Star flag is on', async () => {
+    await test.step('check that short description is shown', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgramCard.locator(
@@ -257,14 +237,11 @@ test.describe('Program list page.', () => {
     const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
-    await adminPrograms.addProgram(
+
+    await adminPrograms.addPreScreenerNS(
       preScreenerProgram,
-      'program description',
       'short program description',
-      'https://usa.gov',
       ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addExternalProgram(
       externalProgram,
@@ -287,7 +264,7 @@ test.describe('Program list page.', () => {
     await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
-  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
+  test('shows information about universal questions when at least one universal question is set', async ({
     page,
     adminPrograms,
     adminQuestions,
@@ -320,6 +297,32 @@ test.describe('Program list page.', () => {
     expect(await page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
     )
+  })
+
+  test('external program does not show information about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    await adminPrograms.addExternalProgram(
+      'External program',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    await adminPrograms.gotoAdminProgramsPage()
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard).not.toContainText('universal questions')
   })
 
   async function expectProgramListElements(
@@ -428,6 +431,47 @@ test.describe('Program list page.', () => {
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
     await adminPrograms.expectActiveProgram(programOne)
+  })
+
+  test('publishing an external program shows a modal without conditional warning about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    const externalProgramName = 'External Program'
+    await adminPrograms.addExternalProgram(
+      externalProgramName,
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    // Trigger the publish modal for the external program
+    await adminPrograms.gotoAdminProgramsPage()
+    const publishButton = adminPrograms.getProgramAction(
+      externalProgramName,
+      ProgramLifecycle.DRAFT,
+      ProgramAction.PUBLISH,
+    )
+    await publishButton.click()
+
+    // Verify modal does not show universal question warning, since they are not
+    //  applicable to external programs
+    const publishExternalProgramModal = '#publish-modal-external-program'
+    expect(await page.innerText(publishExternalProgramModal)).toContain(
+      'Are you sure you want to publish External Program?',
+    )
+    expect(await page.innerText(publishExternalProgramModal)).not.toContain(
+      'Warning: This program does not use all recommended universal questions.',
+    )
   })
 
   test('program list has current image', async ({
@@ -546,7 +590,7 @@ test.describe('Program list page.', () => {
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await page.getByText('Import existing program').isVisible()
+    await expect(page.getByText('Import existing program')).toBeVisible()
   })
 
   test('external program card actions', async ({page, adminPrograms}) => {
@@ -565,63 +609,75 @@ test.describe('Program list page.', () => {
       await expectProgramListElements(adminPrograms, [externalProgram])
     })
 
-    await test.step('verify external program cards on program list for Civiform admin', async () => {
-      // On draft mode, 'manage admins' and 'manage applications' extra actions
-      // are hidden
-      await adminPrograms.expectProgramActionsVisible(
-        externalProgram,
-        ProgramLifecycle.DRAFT,
-        [ProgramAction.PUBLISH, ProgramAction.EDIT],
-        [ProgramExtraAction.MANAGE_TRANSLATIONS, ProgramExtraAction.EXPORT],
-      )
-      await adminPrograms.expectProgramActionsHidden(
-        externalProgram,
-        ProgramLifecycle.DRAFT,
-        [],
-        [
-          ProgramExtraAction.MANAGE_ADMINS,
-          ProgramExtraAction.MANAGE_APPLICATIONS,
-        ],
-      )
+    await test.step(
+      'verify program card for external program on draft mode ' +
+        'in CiviForm admin panel',
+      async () => {
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.DRAFT,
+          [ProgramAction.PUBLISH, ProgramAction.EDIT],
+          [ProgramExtraAction.MANAGE_TRANSLATIONS],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.DRAFT,
+          [],
+          [
+            ProgramExtraAction.MANAGE_ADMINS,
+            ProgramExtraAction.MANAGE_APPLICATIONS,
+            ProgramExtraAction.EXPORT,
+          ],
+        )
+      },
+    )
 
-      // On active mode, 'share' action, and 'manage admins' and 'manage
-      // applications' extra actions are hidden
-      await adminPrograms.publishProgram(externalProgram)
-      await adminPrograms.expectProgramActionsVisible(
-        externalProgram,
-        ProgramLifecycle.ACTIVE,
-        [ProgramAction.VIEW],
-        [ProgramExtraAction.EDIT, ProgramExtraAction.EXPORT],
-      )
-      await adminPrograms.expectProgramActionsHidden(
-        externalProgram,
-        ProgramLifecycle.ACTIVE,
-        [ProgramAction.SHARE],
-        [
-          ProgramExtraAction.MANAGE_ADMINS,
-          ProgramExtraAction.VIEW_APPLICATIONS,
-        ],
-      )
+    await test.step(
+      'verify program card for external program on active mode ' +
+        'in CiviForm admin panel',
+      async () => {
+        await adminPrograms.publishProgram(externalProgram)
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.VIEW],
+          [ProgramExtraAction.EDIT],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.SHARE],
+          [
+            ProgramExtraAction.MANAGE_ADMINS,
+            ProgramExtraAction.VIEW_APPLICATIONS,
+            ProgramExtraAction.EXPORT,
+          ],
+        )
 
-      await logout(page)
-    })
+        await logout(page)
+      },
+    )
 
-    await test.step('verify external program cards on program list for Program admin', async () => {
-      await loginAsProgramAdmin(page)
+    await test.step(
+      'verify program card for external program on active mode ' +
+        'in Program admin panel',
+      async () => {
+        await loginAsProgramAdmin(page)
 
-      // All actions for program admins are hidden
-      await adminPrograms.expectProgramActionsVisible(
-        externalProgram,
-        ProgramLifecycle.ACTIVE,
-        [],
-        [],
-      )
-      await adminPrograms.expectProgramActionsHidden(
-        externalProgram,
-        ProgramLifecycle.ACTIVE,
-        [ProgramAction.SHARE, ProgramAction.VIEW_APPLICATIONS],
-        [],
-      )
-    })
+        // All actions for program admins are hidden
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [],
+          [],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.SHARE, ProgramAction.VIEW_APPLICATIONS],
+          [],
+        )
+      },
+    )
   })
 })

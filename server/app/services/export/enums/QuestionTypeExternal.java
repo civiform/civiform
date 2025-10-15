@@ -20,6 +20,7 @@ public enum QuestionTypeExternal {
   ENUMERATOR,
   FILE_UPLOAD,
   ID,
+  MAP,
   NAME,
   NUMBER,
   TEXT,
@@ -31,11 +32,12 @@ public enum QuestionTypeExternal {
       case CHECKBOX -> QuestionTypeExternal.MULTI_SELECT;
       case CURRENCY -> QuestionTypeExternal.CURRENCY;
       case DATE -> QuestionTypeExternal.DATE;
-      case DROPDOWN, RADIO_BUTTON -> QuestionTypeExternal.SINGLE_SELECT;
+      case DROPDOWN, RADIO_BUTTON, YES_NO -> QuestionTypeExternal.SINGLE_SELECT;
       case EMAIL -> QuestionTypeExternal.EMAIL;
       case ENUMERATOR -> QuestionTypeExternal.ENUMERATOR;
       case FILEUPLOAD -> QuestionTypeExternal.FILE_UPLOAD;
       case ID -> QuestionTypeExternal.ID;
+      case MAP -> QuestionTypeExternal.MAP;
       case NAME -> QuestionTypeExternal.NAME;
       case NUMBER -> QuestionTypeExternal.NUMBER;
       case TEXT -> QuestionTypeExternal.TEXT;

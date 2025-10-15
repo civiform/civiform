@@ -90,6 +90,10 @@ title.login=Login
 content.loginPrompt=Please log in with your {0} account
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Create an account
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=Year
 # Label showing the user when there is no name
 label.unnamedUser=Unnamed user
 
-link.edit=Edit
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Select a new client
 
@@ -755,6 +758,17 @@ validation.invalidDateFormat=Please enter a date in the correct format
 validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
 # Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Date must be after today''s date
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Date must be after {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Date must be before today''s date
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Date must be before {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Date must be between {0} and {1}
+validation.currentDateRequired=Please enter today''s date
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
@@ -894,6 +908,87 @@ validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Yes
+option.no=No
+option.notSure=Not sure
+option.maybe=Maybe
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
+map.applyFiltersButtonText=Apply filters
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Go to previous page of map locations
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Go to next page of map locations
+# Aria label for pagination list
+map.ariaLabelPaginationList=Pagination for map locations
+# Header for the section showing available locations
+map.availableLocations=Available locations
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
+# Legend text for the map filters section
+map.filterLegendText=Filters
+# Aria label for pagination buttons
+map.goToPage=Go to page {0} of map locations
+# Link text for location details URLs
+map.locationLinkText=View more details
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} of {1} locations
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount={0} of {1} maximum locations selected.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=No locations have been selected.
+# Sr only message displayed when page has changed
+map.paginationStatus=Now displaying page {0} of {1}.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Clear filters
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Selected locations
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Select -
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Please select at most {0} locations.
+# Alt text for map region
+map.mapRegionAltText=Interactive map displaying locations
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Add filter
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+# Title for filters section
+map.addFiltersTitle=Filters
+# Label for display name field
+map.displayNameLabel=Display name
+# Label for key field
+map.keyLabel=Key
+# Label for location address key field
+map.locationAddressLabel=Address key
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=View more details URL key
+# Label for location name key field
+map.locationNameLabel=Name key
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Maximum location selections
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -1004,6 +1099,9 @@ category.tag.housing=Housing
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Military
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Training
 
@@ -1012,6 +1110,9 @@ category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Veteran
 
 # An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Categories

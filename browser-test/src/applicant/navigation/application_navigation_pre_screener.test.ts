@@ -1,21 +1,20 @@
 import {test} from '../../support/civiform_fixtures'
+import {expect} from '@playwright/test'
 import {
   ClientInformation,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
 } from '../../support'
-import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
+import {ProgramVisibility} from '../../support/admin_programs'
+import {CardSectionName} from '../../support/applicant_program_list'
 
-test.describe('Applicant navigation flow', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-  })
+test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.describe('navigation with pre-screener', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'
@@ -33,14 +32,10 @@ test.describe('Applicant navigation flow', () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.editProgramBlock(
@@ -80,24 +75,22 @@ test.describe('Applicant navigation flow', () => {
     }) => {
       await loginAsTestUser(page)
       // Fill out pre-screener form, with non-eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion('4')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-ineligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
     })
 
@@ -107,24 +100,22 @@ test.describe('Applicant navigation flow', () => {
     }) => {
       await loginAsTestUser(page)
       // Fill out pre-screener form, with eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-eligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
     })
 
@@ -133,20 +124,24 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       // Fill out pre-screener form, with non-eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion('4')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
       )
 
       await validateScreenshot(
-        page.locator('main'),
+        page,
         'cif-ineligible-guest-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -159,31 +154,54 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       // Fill out pre-screener form, with eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-eligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
 
-      await page.click('button:has-text("Apply to programs")')
+      await page.click('text="Apply to programs"')
+      await applicantQuestions.expectLoginModal()
+    })
+
+    test('renders upsell page right to left correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
+
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+      await selectApplicantLanguageNorthstar(page, 'ar')
+      await validateAccessibility(page)
+
       await validateScreenshot(
         page.locator('main'),
-        'cif-submission-guest-login-prompt-modal',
-        /* fullPage= */ false,
+        'pre-screener-upsell-right-to-left',
+        /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
     })
@@ -191,28 +209,43 @@ test.describe('Applicant navigation flow', () => {
     test('shows pre-screener form as submitted after completion', async ({
       page,
       applicantQuestions,
+      applicantProgramList,
     }) => {
       // Fill out pre-screener form, with eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await page.click('button:has-text("Apply to programs")')
-      await page.click('button:has-text("Continue without an account")')
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-shows-submitted',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+      await page.click('text="Apply to programs"')
+      await page.click('text="Continue without an account"')
+
+      await expect(
+        applicantProgramList
+          .getCardLocator(
+            CardSectionName.MyApplications,
+            preScreenerProgramName,
+          )
+          .locator('div.bg-primary-lighter'),
+      ).toBeVisible()
+      await applicantProgramList.expectSubmittedTag(
+        CardSectionName.MyApplications,
+        preScreenerProgramName,
       )
+      // Validate hidden label for accessibility.
+      await expect(page.getByText('For your information: ')).toBeVisible()
+      await validateAccessibility(page)
     })
 
     test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({
@@ -236,23 +269,20 @@ test.describe('Applicant navigation flow', () => {
       await tiDashboard.clickOnViewApplications()
 
       // Fill out pre-screener form, with non-eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion('4')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
-      )
-
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-ineligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
     })
 
@@ -277,22 +307,20 @@ test.describe('Applicant navigation flow', () => {
       await tiDashboard.clickOnViewApplications()
 
       // Fill out pre-screener form, with eligible response
-      await applicantQuestions.applyProgram(preScreenerProgramName)
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectPreScreenerReviewPage()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
-      )
-      await validateScreenshot(
-        page.locator('main'),
-        'cif-eligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
     })
   })

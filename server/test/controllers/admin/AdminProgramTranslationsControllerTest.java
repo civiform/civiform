@@ -132,8 +132,34 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void edit_programNotFound_returnsNotFound() {
     assertThatThrownBy(() -> controller.edit(fakeRequest(), "non-existent program name", "es-US"))
-        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .hasMessage("No draft or active found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
+  public void edit_activeProgram_translation() throws ProgramNotFoundException {
+    ProgramModel program = createActiveProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
+
+    Result result =
+        controller.edit(fakeRequest(), program.getProgramDefinition().adminName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
+            "Spanish",
+            SPANISH_DISPLAY_NAME,
+            SPANISH_DESCRIPTION);
+    assertThat(contentAsString(result))
+        .contains("English text:", ENGLISH_DISPLAY_NAME, ENGLISH_DESCRIPTION);
+    assertThat(contentAsString(result))
+        .contains(SPANISH_FIRST_STATUS_TEXT, SPANISH_SECOND_STATUS_TEXT);
+    assertThat(contentAsString(result))
+        .doesNotContain(SPANISH_FIRST_STATUS_EMAIL, SPANISH_SECOND_STATUS_EMAIL);
+    assertThat(contentAsString(result))
+        .contains("English text:", ENGLISH_FIRST_STATUS_TEXT, ENGLISH_SECOND_STATUS_TEXT);
+    assertThat(contentAsString(result))
+        .doesNotContain(ENGLISH_FIRST_STATUS_EMAIL, ENGLISH_SECOND_STATUS_EMAIL);
   }
 
   @Test
@@ -228,7 +254,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_programNotFound() {
     assertThatThrownBy(() -> controller.update(fakeRequest(), "non-existent program name", "es-US"))
-        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .hasMessage("No draft or active found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -391,6 +417,41 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                   LocalizedStrings.withDefaultValue(ENGLISH_SECOND_STATUS_TEXT)
                       .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_TEXT))
               .build());
+
+  private ProgramModel createActiveProgramEnglishAndSpanish(
+      ImmutableList<StatusDefinitions.Status> statuses) {
+    ProgramModel initialProgram =
+        ProgramBuilder.newActiveProgram("Internal program name")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step one title")
+                            .updateTranslation(ES_LOCALE, "step one spanish title"),
+                        LocalizedStrings.withDefaultValue("step one description")
+                            .updateTranslation(ES_LOCALE, "step one spanish description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step two title")
+                            .updateTranslation(ES_LOCALE, "step two spanish title"),
+                        LocalizedStrings.withDefaultValue("step two description")
+                            .updateTranslation(ES_LOCALE, "step two spanish description"))))
+            .build();
+    // ProgamBuilder initializes the localized name and doesn't currently support providing
+    // overrides. Here we manually update the localized string in a separate update.
+    ProgramModel program =
+        initialProgram.getProgramDefinition().toBuilder()
+            .setLocalizedName(
+                LocalizedStrings.withDefaultValue(ENGLISH_DISPLAY_NAME)
+                    .updateTranslation(ES_LOCALE, SPANISH_DISPLAY_NAME))
+            .setLocalizedDescription(
+                LocalizedStrings.withDefaultValue(ENGLISH_DESCRIPTION)
+                    .updateTranslation(ES_LOCALE, SPANISH_DESCRIPTION))
+            .build()
+            .toProgram();
+    program.update();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(statuses));
+    return program;
+  }
 
   private ProgramModel createDraftProgramEnglishAndSpanish(
       ImmutableList<StatusDefinitions.Status> statuses) {

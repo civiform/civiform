@@ -516,7 +516,8 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
-        .contains("Screen 1 is eligible if \"applicant favorite color\" text is equal to \"blue\"");
+        .contains(
+            "Applicant is eligible if \"applicant favorite color\" text is equal to \"blue\"");
   }
 
   @Test
@@ -653,6 +654,9 @@ public class PdfExporterTest extends AbstractExporterTest {
       Answered on : 1969-12-31
       applicant file
       -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      applicant has a dog
+      Yes
       Answered on : 1969-12-31
       applicant household members
       item1

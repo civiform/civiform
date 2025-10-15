@@ -24,7 +24,8 @@
       "installGradle": "false"
     },
     "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/devcontainers/features/python:1": {}
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {}
   },
 
   "customizations": {

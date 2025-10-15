@@ -14,21 +14,31 @@ export class ApplicantProgramOverview {
 
   async startApplicationFromProgramOverviewPage(
     programName: string,
+    translatedOverviewTitle?: string,
+    translatedLinkText?: string,
   ): Promise<void> {
-    await this.expectProgramOverviewPage(programName)
+    await this.expectProgramOverviewPage(programName, translatedOverviewTitle)
     await this.page
-      .getByRole('link', {name: 'Start an application'})
+      .getByRole('link', {name: translatedLinkText || 'Start an application'})
       .first()
       .click()
   }
 
-  async expectProgramOverviewPage(programName: string): Promise<void> {
-    expect(await this.page.title()).toContain('Program Overview')
-    await expect(
-      this.page.getByRole('heading', {
-        name: `Apply for ${programName} program`,
-      }),
-    ).toBeVisible()
+  async expectProgramOverviewPage(
+    programName: string,
+    translatedOverviewTitle?: string,
+  ): Promise<void> {
+    expect(await this.page.title()).toContain(
+      translatedOverviewTitle || 'Program Overview',
+    )
+    // If the page is translated, we don't need to check that every heading is translated
+    if (!translatedOverviewTitle) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: `Apply for ${programName} program`,
+        }),
+      ).toBeVisible()
+    }
   }
 
   async startApplicationFromTranslatedProgramOverviewPage(

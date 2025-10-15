@@ -132,6 +132,10 @@ export class ApplicantQuestions {
     await this.page.check(`text=${checked}`)
   }
 
+  async answerYesNoQuestion(checked: string, order = 0) {
+    await this.page.getByText(checked, {exact: true}).nth(order).check()
+  }
+
   async answerDropdownQuestion(selected: string, index = 0) {
     await this.page.selectOption(
       `.cf-dropdown-question select >> nth=${index}`,
@@ -258,8 +262,8 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async northstarAnswerQuestionOnReviewPage(questionText: string) {
-    await this.page.getByText(questionText).isVisible()
+  async expectQuestionOnReviewPageNorthstar(questionText: string) {
+    await expect(this.page.getByText(questionText)).toBeVisible()
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
@@ -292,6 +296,8 @@ export class ApplicantQuestions {
     programName: string,
     northStarEnabled = false,
     showProgramOverviewPage = true,
+    translatedOverviewTitle?: string,
+    translatedLinkText?: string,
   ) {
     await this.clickApplyProgramButton(programName)
 
@@ -302,6 +308,8 @@ export class ApplicantQuestions {
       if (showProgramOverviewPage) {
         await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
+          translatedOverviewTitle,
+          translatedLinkText,
         )
       }
     } else {
@@ -355,6 +363,9 @@ export class ApplicantQuestions {
     await this.page.click('text="Back to homepage"')
   }
 
+  /**
+   * @deprecated
+   */
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -396,26 +407,20 @@ export class ApplicantQuestions {
     wantNotStartedPrograms: string[]
     wantInProgressOrSubmittedPrograms: string[]
   }) {
-    const gotNotStartedProgramNames =
-      await this.northStarProgramNamesForSection(
-        CardSectionName.ProgramsAndServices,
-      )
-    const gotInProgressOrSubmittedProgramNames =
-      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
-
-    // Sort results before comparing since we don't care about order.
-    gotNotStartedProgramNames.sort()
-    wantNotStartedPrograms.sort()
-    gotInProgressOrSubmittedProgramNames.sort()
-    wantInProgressOrSubmittedPrograms.sort()
-
-    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
-    expect(gotInProgressOrSubmittedProgramNames).toEqual(
-      wantInProgressOrSubmittedPrograms,
+    await this.expectProgramsinCorrectSections(
+      {
+        expectedProgramsInMyApplicationsSection:
+          wantInProgressOrSubmittedPrograms,
+        expectedProgramsInProgramsAndServicesSection: wantNotStartedPrograms,
+        expectedProgramsInRecommendedSection: [],
+        expectedProgramsInOtherProgramsSection: [],
+      },
+      /* filtersOn= */ false,
+      /* northStarEnabled= */ true,
     )
   }
 
-  async filterProgramsAndExpectWithFilteringEnabled(
+  async filterProgramsAndExpectInCorrectSections(
     {
       filterCategory,
       expectedProgramsInMyApplicationsSection,
@@ -929,6 +934,15 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickGoBackAndEditOnIneligiblePageNorthStar() {
+    await this.page
+      .getByRole('button', {
+        name: 'Edit my responses',
+      })
+      .click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectDuplicatesPage() {
     expect(await this.page.innerText('h2')).toContain(
       'There are no changes to save',
@@ -939,8 +953,23 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('li')).toContain(questionText)
   }
 
+  async expectIneligibleQuestionNorthStar(questionText: string) {
+    await expect(
+      this.page
+        .getByRole('alert')
+        .getByRole('listitem')
+        .getByText(questionText),
+    ).toHaveCount(1)
+  }
+
   async expectIneligibleQuestionsCount(number: number) {
     expect(await this.page.locator('li').count()).toEqual(number)
+  }
+
+  async expectIneligibleQuestionsCountNorthStar(number: number) {
+    await expect(
+      this.page.getByRole('alert').getByRole('listitem'),
+    ).toHaveCount(number)
   }
 
   async expectQuestionIsNotEligible(questionText: string) {
@@ -1007,6 +1036,18 @@ export class ApplicantQuestions {
     expect(await questionLocator.count()).toEqual(1)
     const summaryRowText = await questionLocator.innerText()
     expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionExistsOnReviewPage(questionText: string) {
+    await expect(
+      this.page.getByRole('listitem').getByText(questionText),
+    ).toBeVisible()
+  }
+
+  async expectQuestionDoesNotExistOnReviewPage(questionText: string) {
+    await expect(
+      this.page.getByRole('listitem').getByText(questionText),
+    ).toBeHidden()
   }
 
   async submitFromReviewPage(northStarEnabled = false) {

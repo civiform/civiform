@@ -1,12 +1,12 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   disableFeatureFlag,
+  enableFeatureFlag,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
 
-test.describe('developer tools', () => {
+test.describe('developer tools', {tag: ['@northstar']}, () => {
   test.afterEach(async ({page}) => {
     // Ensure the 'staging_disable_demo_mode_logins' flag is DISABLED for each test
     // unless a specific test intends to enable it.
@@ -17,7 +17,6 @@ test.describe('developer tools', () => {
 
     await test.step('link shown in the header', async () => {
       await expect(header.getByText('DevTools')).toBeInViewport()
-      await validateScreenshot(header, 'dev-tools-in-header')
       await validateAccessibility(page)
     })
 

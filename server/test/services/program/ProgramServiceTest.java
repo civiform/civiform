@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -26,6 +24,8 @@ import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -631,6 +631,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -659,6 +660,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -683,6 +685,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(validCategoryId),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -702,6 +705,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -725,6 +729,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -746,6 +751,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -764,6 +770,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result)
@@ -831,6 +838,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
@@ -850,6 +858,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -871,6 +880,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.copyOf(tiGroups),
             ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableMap.of(),
             ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
@@ -890,6 +900,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
+            ImmutableMap.of(),
             ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(result).isEmpty();
@@ -945,6 +956,75 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableSet<CiviFormError> errors =
         ps.checkApplicationStepErrors(
                 ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_defaultProgram_returnsErrorWhenIncomplete() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions =
+        ImmutableMap.of(
+            "/invalid_name_1",
+            new ApiBridgeDefinition(
+                ImmutableList.of(new ApiBridgeDefinitionItem("", null, "")),
+                ImmutableList.of(new ApiBridgeDefinitionItem("", null, ""))));
+
+    ImmutableList<String> errors =
+        ps
+            .checkBridgeDefinitionErrors(ProgramType.DEFAULT, errorsBuilder, bridgeDefinitions)
+            .build()
+            .stream()
+            .map(x -> x.message())
+            .collect(ImmutableList.toImmutableList());
+
+    assertThat(errors.size()).isEqualTo(7);
+    assertThat(errors)
+        .contains("Bridge definition admin name '/invalid_name_1' does not have a valid format");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field question"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field question"
+                + " scalar");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing input field external"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field question"
+                + " name");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field question"
+                + " scalar");
+    assertThat(errors)
+        .contains(
+            "Bridge definition for key '/invalid_name_1' at item 1 missing output field external"
+                + " name");
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_defaultProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions = ImmutableMap.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkBridgeDefinitionErrors(ProgramType.DEFAULT, errorsBuilder, bridgeDefinitions)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkBridgeDefinitionErrors_externalProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions = ImmutableMap.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkBridgeDefinitionErrors(ProgramType.EXTERNAL, errorsBuilder, bridgeDefinitions)
             .build();
 
     assertThat(errors.size()).isEqualTo(0);
@@ -1678,6 +1758,25 @@ public class ProgramServiceTest extends ResetPostgres {
     var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
 
     throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void getActiveProgramId_success() {
+    ProgramDefinition activeProgram =
+        ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    CompletionStage<Long> result = ps.getActiveProgramId(activeProgram.slug());
+
+    assertThat(result.toCompletableFuture().join()).isEqualTo(activeProgram.id());
+  }
+
+  @Test
+  public void getActiveProgramId_error_programNotFound() {
+    CompletionStage<Long> result = ps.getActiveProgramId("nonexistent-program");
+
+    assertThatThrownBy(() -> result.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(java.lang.RuntimeException.class)
+        .hasMessageContaining("Program not found for slug: nonexistent-program");
   }
 
   @Test
@@ -2495,9 +2594,13 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (eligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(eligibilityMsg);
   }
 
   @Test
@@ -2508,8 +2611,6 @@ public class ProgramServiceTest extends ResetPostgres {
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
-    // See commented out tests below
-    @SuppressWarnings("unused")
     Optional<LocalizedStrings> secondEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
 
@@ -2517,14 +2618,21 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().maybeAddedBlock()).isPresent();
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (firstEligibilityMsg);
-    ps.setBlockEligibilityMessage(
-        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
-    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (secondEligibilityMsg);
+    ProgramDefinition programAfterEligibilityMessageSet =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    BlockDefinition blockWithSetEligibilityMessage =
+        programAfterEligibilityMessageSet.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithSetEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(firstEligibilityMsg);
+
+    ProgramDefinition programAfterEligibilityMessageUpdate =
+        ps.setBlockEligibilityMessage(
+            updatedProgramDefinition.id(), addedBlock.id(), secondEligibilityMsg);
+    BlockDefinition blockWithUpdatedEligibilityMessage =
+        programAfterEligibilityMessageUpdate.getBlockDefinition(addedBlock.id());
+    assertThat(blockWithUpdatedEligibilityMessage.localizedEligibilityMessage())
+        .isEqualTo(secondEligibilityMsg);
   }
 
   @Test
@@ -3198,8 +3306,7 @@ public class ProgramServiceTest extends ResetPostgres {
                             Optional.of(programId)))
                     .build())
             .build();
-    ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+    ObjectMapper mapper = instanceOf(ObjectMapper.class);
 
     // Directly update the table with DB.sqlUpdate and execute. We can't save it through
     // the ebean model because the preupdate method will correct block ordering, and we

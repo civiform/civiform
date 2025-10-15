@@ -8,6 +8,7 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.translation.EnumeratorQuestionTranslationForm;
+import forms.translation.MapQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
@@ -151,16 +152,31 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
-    return questionService
-        .getReadOnlyQuestionService()
-        .toCompletableFuture()
-        .join()
-        .getActiveAndDraftQuestions()
-        .getDraftQuestionDefinition(questionName)
-        .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("No draft found for question: \"%s\"", questionName)));
+    Optional<QuestionDefinition> draftQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionName);
+
+    if (draftQuestionMaybe.isPresent()) {
+      return draftQuestionMaybe.get();
+    }
+
+    // If no draft is found, return the active question
+    Optional<QuestionDefinition> activeQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getActiveQuestionDefinition(questionName);
+
+    return activeQuestionMaybe.orElseThrow(
+        () ->
+            new BadRequestException(
+                String.format("No draft or active found for question: \"%s\"", questionName)));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
@@ -177,6 +193,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             .form(EnumeratorQuestionTranslationForm.class)
             .bindFromRequest(request)
             .get();
+      case MAP:
+        return formFactory.form(MapQuestionTranslationForm.class).bindFromRequest(request).get();
       case ADDRESS: // fallthrough intended
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended

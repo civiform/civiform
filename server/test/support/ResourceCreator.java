@@ -1,21 +1,25 @@
 package support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.GeoJsonDataModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -24,8 +28,11 @@ import models.TrustedIntermediaryGroupModel;
 import play.Environment;
 import play.Mode;
 import play.inject.Injector;
+import repository.DatabaseExecutionContext;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.apikey.ApiKeyService;
+import services.geojson.FeatureCollection;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -60,6 +67,10 @@ public class ResourceCreator {
     apiKey.save();
 
     return apiKey;
+  }
+
+  public void setLastActivityTimeToNull() {
+    database.sqlUpdate("UPDATE accounts SET last_activity_time=NULL;").execute();
   }
 
   public void truncateTables() {
@@ -196,10 +207,26 @@ public class ResourceCreator {
     return category;
   }
 
+  public GeoJsonDataModel insertGeoJsonData(DatabaseExecutionContext dbExecutionContext)
+      throws IOException {
+    ObjectMapper objectMapper = ObjectMapperSingleton.instance();
+    FeatureCollection sampleData =
+        objectMapper.readValue(
+            getClass().getResourceAsStream("/geojson/sample_locations.json"),
+            FeatureCollection.class);
+
+    GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
+    geoJsonData.setGeoJson(sampleData);
+    geoJsonData.setEndpoint("http://mock-web-services:8000/geojson/data");
+    geoJsonData.setConfirmTime(Instant.now());
+    CompletableFuture.runAsync(geoJsonData::save, dbExecutionContext).join();
+    return geoJsonData;
+  }
+
   public ImmutableList<CategoryModel> insertCategoriesFromParser() {
-    CategoryTranslationFileParser parser =
-        new CategoryTranslationFileParser(new Environment(Mode.PROD));
-    List<CategoryModel> parsedCategories = parser.createCategoryModelList();
+    CategoryTranslationFileParser parser = injector.instanceOf(CategoryTranslationFileParser.class);
+    List<CategoryModel> parsedCategories =
+        parser.createCategoryModelList(new Environment(Mode.PROD));
     ImmutableList.Builder<CategoryModel> savedCategoriesBuilder =
         ImmutableList.<CategoryModel>builder();
 

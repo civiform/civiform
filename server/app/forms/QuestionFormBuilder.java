@@ -11,6 +11,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
@@ -35,6 +36,7 @@ public final class QuestionFormBuilder {
       case FILEUPLOAD ->
           formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
       case ID -> formFactory.form(IdQuestionForm.class).bindFromRequest(request).get();
+      case MAP -> formFactory.form(MapQuestionForm.class).bindFromRequest(request).get();
       case NAME -> formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
       case NUMBER -> formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON ->
@@ -45,6 +47,7 @@ public final class QuestionFormBuilder {
           formFactory.form(StaticContentQuestionForm.class).bindFromRequest(request).get();
       case TEXT -> formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       case PHONE -> formFactory.form(PhoneQuestionForm.class).bindFromRequest(request).get();
+      case YES_NO -> formFactory.form(YesNoQuestionForm.class).bindFromRequest(request).get();
       default -> throw new InvalidQuestionTypeException(questionType.toString());
     };
   }
@@ -60,6 +63,7 @@ public final class QuestionFormBuilder {
       case EMAIL -> new EmailQuestionForm();
       case FILEUPLOAD -> new FileUploadQuestionForm();
       case ID -> new IdQuestionForm();
+      case MAP -> new MapQuestionForm();
       case NAME -> new NameQuestionForm();
       case NUMBER -> new NumberQuestionForm();
       case RADIO_BUTTON -> new RadioButtonQuestionForm();
@@ -67,6 +71,7 @@ public final class QuestionFormBuilder {
       case STATIC -> new StaticContentQuestionForm();
       case TEXT -> new TextQuestionForm();
       case PHONE -> new PhoneQuestionForm();
+      case YES_NO -> new YesNoQuestionForm();
       default -> throw new UnsupportedQuestionTypeException(questionType);
     };
   }
@@ -84,6 +89,7 @@ public final class QuestionFormBuilder {
       case FILEUPLOAD ->
           new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
       case ID -> new IdQuestionForm((IdQuestionDefinition) questionDefinition);
+      case MAP -> new MapQuestionForm((MapQuestionDefinition) questionDefinition);
       case NAME -> new NameQuestionForm((NameQuestionDefinition) questionDefinition);
       case NUMBER -> new NumberQuestionForm((NumberQuestionDefinition) questionDefinition);
       case RADIO_BUTTON ->
@@ -94,6 +100,7 @@ public final class QuestionFormBuilder {
           new StaticContentQuestionForm((StaticContentQuestionDefinition) questionDefinition);
       case TEXT -> new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       case PHONE -> new PhoneQuestionForm((PhoneQuestionDefinition) questionDefinition);
+      case YES_NO -> new YesNoQuestionForm((MultiOptionQuestionDefinition) questionDefinition);
       default -> throw new InvalidQuestionTypeException(questionType.toString());
     };
   }

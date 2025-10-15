@@ -2,17 +2,18 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
+  selectApplicantLanguageNorthstar,
   validateScreenshot,
 } from '../support'
 
-test.describe('Admin can manage translations', () => {
+test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
   test('Expect single-answer question is translated for applicant', async ({
     page,
     adminPrograms,
     adminQuestions,
     adminTranslations,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     await loginAsAdmin(page)
 
@@ -33,25 +34,29 @@ test.describe('Admin can manage translations', () => {
     await adminPrograms.addProgram(
       programName,
       'program description',
-      'short program description',
       'http://seattle.gov',
     )
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
     await adminPrograms.publishProgram(programName)
     await logout(page)
 
-    // View the translated program details on index without an account
-    await selectApplicantLanguage(page, 'Español')
+    // Go to the home page and select Spanish as the language
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
-    // Expect program details link to contain 'Detalles del programa' with link to 'http://seattle.gov'
-    expect(
-      await page.innerText('.cf-application-card a[href="http://seattle.gov"]'),
-    ).toContain('Detalles del programa')
+    await applicantQuestions.applyProgram(
+      programName,
+      /* northStarEnabled= */ true,
+      /* showProgramOverviewPage= */ false, // in this case, the application is unstarted, but we pass in false so that we can use the translated version of the program overview page below
+    )
+    await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
+      'Descripción general del programa', // translated page title
+      'Inscribirse en el programa Spanish question program', // translated page header
+      'Comenzar una solicitud', // translated button text
+    )
 
-    await applicantQuestions.applyProgram(programName)
-    // Set the language for this particular guest applicant
-    await selectApplicantLanguage(page, 'Español')
+    // TODO(#9203): When the bug is fixed, we don't need to select Español again.
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -79,7 +84,7 @@ test.describe('Admin can manage translations', () => {
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editQuestionTranslations(
-      '# Enter name  \n * Your first name \n *  Your middle name \n * Your last name',
+      '# Introducir nombre  \n * Tu nombre de pila \n *  Tu segundo nombre \n * Tu apellido',
       '## It will identify you',
     )
     // Add the question to a program and publish
@@ -87,7 +92,6 @@ test.describe('Admin can manage translations', () => {
     await adminPrograms.addProgram(
       programName,
       'program description',
-      'short program description',
       'http://seattle.gov',
     )
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
@@ -95,8 +99,11 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguage(page, 'Español')
+    await applicantQuestions.applyProgram(
+      programName,
+      /* northStarEnabled= */ true,
+    )
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     await validateScreenshot(
@@ -143,8 +150,11 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguage(page, 'Español')
+    await applicantQuestions.applyProgram(
+      programName,
+      /* northStarEnabled= */ true,
+    )
+    await selectApplicantLanguageNorthstar(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('uno')
     expect(await page.innerText('main form')).toContain('dos')
@@ -179,9 +189,22 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguage(page, 'Español')
+    await applicantQuestions.applyProgram(
+      programName,
+      /* northStarEnabled= */ true,
+    )
+    await selectApplicantLanguageNorthstar(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
+  })
+
+  test.describe('Language Selector Visibility', () => {
+    test('shows language selector when multiple languages are enabled', async ({
+      page,
+    }) => {
+      await expect(
+        page.getByRole('button', {name: 'Select Language'}),
+      ).toBeVisible()
+    })
   })
 })

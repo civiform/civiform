@@ -10,9 +10,9 @@ export function init() {
 function clearSearchForm() {
   const inputIds = [
     'name-query',
-    'date_of_birth_day',
-    'date_of_birth_month',
-    'date_of_birth_year',
+    'date-of-birth-day',
+    'date-of-birth-month',
+    'date-of-birth-year',
   ]
   for (const inputId of inputIds) {
     ;(document.getElementById(inputId) as HTMLInputElement).value = ''

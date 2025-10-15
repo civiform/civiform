@@ -2,7 +2,7 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
@@ -17,6 +17,7 @@ import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.DisplayMode;
@@ -48,7 +49,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void programBySlug_redirectsToActiveProgramVersionForExistingApplications() {
+  public void northStar_programBySlug_showsActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -73,10 +74,12 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(programModelV2.id)
-                .url());
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
+    // Verify it's showing the newer version (programModelV2) by checking for its ID in the content
+    assertThat(content).contains(String.valueOf(programModelV2.id));
   }
 
   @Test
@@ -182,7 +185,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
+                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -222,7 +225,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
+                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -237,7 +240,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
@@ -285,7 +288,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     LanguageUtils languageUtils =
         new LanguageUtils(
@@ -330,7 +333,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -379,7 +382,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -463,7 +466,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramsController.edit(
+                    String.valueOf(programDefinition.id()), /* isFromUrlCall= */ false)
                 .url());
   }
 
@@ -496,5 +500,176 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(play.mvc.Http.Status.BAD_REQUEST);
     assertThat(contentAsString(result))
         .contains(new ProgramNotFoundException(externalProgram.getSlug()).getMessage());
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndNotFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ false,
+                /* programSlugUrlEnabled= */ false);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndNotFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ false,
+                        /* programSlugUrlEnabled= */ false))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ true,
+                /* programSlugUrlEnabled= */ false);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugDisabledAndFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ true,
+                        /* programSlugUrlEnabled= */ false))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withId_success() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                programId,
+                applicant.id,
+                /* isFromUrlCall= */ false,
+                /* programSlugUrlEnabled= */ true);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withSlug_error() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        program.slug(),
+                        applicant.id,
+                        /* isFromUrlCall= */ false,
+                        /* programSlugUrlEnabled= */ true))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Could not parse value from 'test-program' to a numeric value");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndFromUrl_withId_error() throws Exception {
+    String programId = "123";
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    assertThatThrownBy(
+            () ->
+                instanceOf(ProgramSlugHandler.class)
+                    .resolveProgramParam(
+                        programId,
+                        applicant.id,
+                        /* isFromUrlCall= */ true,
+                        /* programSlugUrlEnabled= */ true))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Numeric program parameter should have been handled by the caller");
+  }
+
+  @Test
+  public void resolveProgramParam_whenSlugEnabledAndFromUrl_withSlug_success() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    CompletionStage<Long> result =
+        instanceOf(ProgramSlugHandler.class)
+            .resolveProgramParam(
+                program.slug(),
+                applicant.id,
+                /* isFromUrlCall= */ true,
+                /* programSlugUrlEnabled= */ true);
+
+    assertThat(result.toCompletableFuture().get()).isEqualTo(program.id());
+  }
+
+  @Test
+  public void getLatestProgramId_withExistingApplication() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program").buildDefinition();
+
+    // Create an applicant and application for the program
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    long resultId =
+        instanceOf(ProgramSlugHandler.class)
+            .getLatestProgramId(programDefinition.slug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify it returns the program ID from the application
+    assertThat(resultId).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getLatestProgramId_withNoExistingApplication() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    // Create an applicant, but no application
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    long resultId =
+        instanceOf(ProgramSlugHandler.class)
+            .getLatestProgramId(programDefinition.slug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify it returns the active program ID
+    assertThat(resultId).isEqualTo(programDefinition.id());
   }
 }

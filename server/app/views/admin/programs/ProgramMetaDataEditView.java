@@ -9,11 +9,13 @@ import forms.ProgramForm;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -33,8 +35,9 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
       Config configuration,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository,
-      CategoryRepository categoryRepository) {
-    super(configuration, settingsManifest, accountRepository, categoryRepository);
+      CategoryRepository categoryRepository,
+      MessagesApi messagesApi) {
+    super(configuration, settingsManifest, accountRepository, categoryRepository, messagesApi);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -97,6 +100,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
       Optional<ToastMessage> toastMessage,
       Optional<Modal> modal) {
     String title = String.format("Edit program: %s", existingProgram.localizedName().getDefault());
+    ProgramType programType = existingProgram.programType();
 
     FormTag formTag =
         programForm.isPresent()
@@ -112,7 +116,10 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                         renderHeader(title),
                         formTag
                             .with(makeCsrfTokenInputTag(request))
-                            .with(buildManageQuestionLink(existingProgram.id()))
+                            .condWith(
+                                programType.equals(ProgramType.DEFAULT)
+                                    || programType.equals(ProgramType.COMMON_INTAKE_FORM),
+                                buildManageQuestionLink(existingProgram.id()))
                             .withAction(
                                 controllers.admin.routes.AdminProgramController.update(
                                         existingProgram.id(), programEditStatus.name())

@@ -37,6 +37,7 @@ import support.ProgramBuilder;
 
 public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
+  public static final String EMAIL_WITH_CAPS = "Email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
 
@@ -205,6 +206,22 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void lookupByEmailAddressCaseInsensitive_sameCasing() {
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId())
+        .isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void lookupByEmailAddressCaseInsensitive_differentCasing() {
+    new AccountModel().setEmailAddress(EMAIL_WITH_CAPS).setAuthorityId(AUTHORITY_ID).save();
+
+    assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId())
+        .isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
   public void lookupByEmailAddressAsync() {
     new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
@@ -278,6 +295,49 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void addAdministeredProgram_existingAccountWithDifferentCasing_succeeds() {
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(EMAIL_WITH_CAPS);
+    account.save();
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
+
+    Optional<CiviFormError> result = repo.addAdministeredProgram(EMAIL, program);
+
+    assertThat(repo.lookupAccountByEmail(EMAIL_WITH_CAPS).get().getAdministeredProgramNames())
+        .containsOnly(PROGRAM_NAME);
+    assertThat(result).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void addAdministeredProgram_twoExistingAccountsWithDifferentCasing_returnsError() {
+    String otherEmailCasing = "email@Email.com";
+
+    AccountModel account = new AccountModel();
+    account.setEmailAddress(EMAIL);
+    account.save();
+
+    AccountModel accountWithCaps = new AccountModel();
+    accountWithCaps.setEmailAddress(EMAIL_WITH_CAPS);
+    accountWithCaps.save();
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
+
+    Optional<CiviFormError> result = repo.addAdministeredProgram(otherEmailCasing, program);
+
+    assertThat(result)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "Cannot add %s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to.",
+                        otherEmailCasing))));
+  }
+
+  @Test
   public void addAdministeredProgram_missingAccount_returnsError() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
@@ -289,9 +349,10 @@ public class AccountRepositoryTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "Cannot add %s as a Program Admin because they do not have an admin"
-                            + " account. Have the user log in as admin on the home page, then they"
-                            + " can be added as a Program Admin.",
+                        "Cannot add %s as a Program Admin because they haven't previously logged"
+                            + " into CiviForm. Have the user log in, then add them as a Program"
+                            + " Admin. After they've been added, they will need refresh their"
+                            + " browser see the programs they've been assigned to.",
                         EMAIL))));
   }
 

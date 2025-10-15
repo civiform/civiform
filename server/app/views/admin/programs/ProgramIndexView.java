@@ -155,13 +155,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (programService.anyDisabledPrograms()) {
       contentDiv.with(
           renderFilterLink(
-              ProgramTab.IN_USE,
-              selectedTab,
-              controllers.admin.routes.AdminProgramController.index().url()),
+              ProgramTab.IN_USE, selectedTab, routes.AdminProgramController.index().url()),
           renderFilterLink(
               ProgramTab.DISABLED,
               selectedTab,
-              controllers.admin.routes.AdminProgramController.indexDisabled().url()));
+              routes.AdminProgramController.indexDisabled().url()));
     }
 
     contentDiv.with(
@@ -307,10 +305,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                               getCountMissingUniversalQuestions(program, universalQuestionIds) > 0,
                               missingUniversalQuestionsWarning)
                           .with(buttons))
-                  .setModalTitle(
-                      "Are you sure you want to publish "
-                          + program.localizedName().getDefault()
-                          + " and all of its draft questions?")
+                  .setModalTitle(getPublishModalTitle(program))
                   .setTriggerButtonContent(
                       makeSvgTextButton("Publish", Icons.PUBLISH)
                           .withClasses(ButtonStyles.CLEAR_WITH_ICON))
@@ -324,8 +319,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     return "publish-modal-" + programSlug;
   }
 
+  private String getPublishModalTitle(ProgramDefinition program) {
+    String programName = program.localizedName().getDefault();
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      return "Are you sure you want to publish " + programName + "?";
+    }
+    return "Are you sure you want to publish " + programName + " and all of its draft questions?";
+  }
+
   private int getCountMissingUniversalQuestions(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      // External programs don't have questions, thus universal question are not applied to them
+      return 0;
+    }
+
     return universalQuestionIds.stream()
         .filter(id -> !program.getQuestionIdsInProgram().contains(id))
         .collect(ImmutableList.toImmutableList())
@@ -424,20 +432,13 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private LiTag renderPublishModalProgramItem(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
-    String visibilityText = " ";
-    switch (program.displayMode()) {
-      case DISABLED:
-        visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
-        break;
-      case HIDDEN_IN_INDEX:
-        visibilityText = " (Hidden from applicants) ";
-        break;
-      case PUBLIC:
-        visibilityText = " (Publicly visible) ";
-        break;
-      default:
-        break;
-    }
+    String visibilityText =
+        switch (program.displayMode()) {
+          case DISABLED -> " (Hidden from applicants and Trusted Intermediaries) ";
+          case HIDDEN_IN_INDEX -> " (Hidden from applicants) ";
+          case PUBLIC -> " (Publicly visible) ";
+          case SELECT_TI, TI_ONLY -> " ";
+        };
 
     Optional<String> maybeUniversalQuestionsText =
         generateUniversalQuestionText(program, universalQuestionIds);
@@ -451,8 +452,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             new LinkElement()
                 .setText("Edit")
                 .setHref(
-                    controllers.admin.routes.AdminProgramController.edit(
-                            program.id(), ProgramEditStatus.EDIT.name())
+                    routes.AdminProgramController.edit(program.id(), ProgramEditStatus.EDIT.name())
                         .url())
                 .asAnchorText())
         .withClass("pt-2");
@@ -464,14 +464,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             span(" - "),
             new LinkElement()
                 .setText("Edit")
-                .setHref(
-                    controllers.admin.routes.AdminQuestionController.edit(question.getId()).url())
+                .setHref(routes.AdminQuestionController.edit(question.getId()).url())
                 .asAnchorText())
         .withClass("pt-2");
   }
 
   private ButtonTag renderNewProgramButton() {
-    String link = controllers.admin.routes.AdminProgramController.newOne().url();
+    String link = routes.AdminProgramController.newOne().url();
     ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
@@ -512,7 +511,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       maybeRenderManageProgramAdminsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageTranslationsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageApplications(draftProgram.get()).ifPresent(draftRowExtraActions::add);
-      draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
+      maybeRenderExportProgramLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
 
       draftRow =
           Optional.of(
@@ -537,9 +536,14 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
+
+        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+          maybeRenderManageTranslationsLink(activeProgram.get())
+              .ifPresent(activeRowExtraActions::add);
+        }
       }
       maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
-      activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
+      maybeRenderExportProgramLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
 
       activeRow =
           Optional.of(
@@ -561,12 +565,18 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   Optional<String> generateUniversalQuestionText(
       ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
-    int countMissingUniversalQuestionIds =
-        getCountMissingUniversalQuestions(program, universalQuestionIds);
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      // External programs don't have questions, thus universal question are not applied to them
+      return Optional.empty();
+    }
+
     int countAllUniversalQuestions = universalQuestionIds.size();
     if (countAllUniversalQuestions == 0) {
       return Optional.empty();
     }
+
+    int countMissingUniversalQuestionIds =
+        getCountMissingUniversalQuestions(program, universalQuestionIds);
     String text =
         countMissingUniversalQuestionIds == 0
             ? "all"
@@ -592,11 +602,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
-    String editLink =
-        controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
+    String editLink = routes.AdminProgramBlocksController.index(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
-      editLink = controllers.admin.routes.AdminProgramController.newVersionFrom(program.id()).url();
+      editLink = routes.AdminProgramController.newVersionFrom(program.id()).url();
       editLinkId = "program-new-version-link-" + program.id();
     }
 
@@ -608,8 +617,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
-    String viewLink =
-        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLink = routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
     String viewLinkId = "program-view-link-" + program.id();
 
     ButtonTag button =
@@ -701,11 +709,17 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of(asRedirectElement(button, adminLink));
   }
 
-  private ButtonTag renderExportProgramLink(ProgramDefinition program) {
+  private Optional<ButtonTag> maybeRenderExportProgramLink(ProgramDefinition program) {
+    // External programs cannot be exported/imported
+    ProgramType programType = program.programType();
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     String adminLink = routes.AdminExportController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Export program", Icons.DOWNLOAD)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return asRedirectElement(button, adminLink);
+    return Optional.of(asRedirectElement(button, adminLink));
   }
 }

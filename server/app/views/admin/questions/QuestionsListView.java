@@ -37,6 +37,7 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -64,15 +65,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -106,7 +110,8 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index(Optional.empty())
                                 .url(),
-                            /* isPrimaryButton= */ true)),
+                            /* isPrimaryButton= */ true,
+                            settingsManifest)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
@@ -688,6 +693,12 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
+    if (isActive
+        && isEditable
+        && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+      Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
+      maybeTranslationLink.ifPresent(extraActions::add);
+    }
     // Add Archive option only if current question is draft or it's active, but
     // there is no draft version of the question.
     if (isEditable) {
@@ -727,7 +738,8 @@ public final class QuestionsListView extends BaseHtmlView {
                                 "absolute",
                                 "right-0",
                                 "w-56",
-                                "z-50")
+                                "z-50",
+                                "border-gray-200")
                             .with(extraActions.build())));
 
     return Pair.of(result, modals.build());
@@ -772,8 +784,8 @@ public final class QuestionsListView extends BaseHtmlView {
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
-    switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
-      case PENDING_DELETION:
+    return switch (activeAndDraftQuestions.getDeletionStatus(definition.getName())) {
+      case PENDING_DELETION -> {
         String restoreLink =
             controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
         ButtonTag unarchiveButton =
@@ -782,8 +794,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
-        return Pair.of(unarchiveButton, Optional.empty());
-      case DELETABLE:
+        yield Pair.of(unarchiveButton, Optional.empty());
+      }
+      case DELETABLE -> {
         String archiveLink =
             controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
         ButtonTag archiveButton =
@@ -792,8 +805,9 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
-        return Pair.of(archiveButton, Optional.empty());
-      default:
+        yield Pair.of(archiveButton, Optional.empty());
+      }
+      case NOT_ACTIVE, NOT_DELETABLE -> {
         DivTag modalHeader =
             div()
                 .withClasses("p-2", "border", "border-gray-400", "bg-gray-200", "text-sm")
@@ -812,7 +826,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
-        return Pair.of(cantArchiveButton, maybeModal);
-    }
+        yield Pair.of(cantArchiveButton, maybeModal);
+      }
+    };
   }
 }

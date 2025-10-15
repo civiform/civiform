@@ -161,6 +161,8 @@ public abstract class AnswerData {
         return applicantQuestion().createDateQuestion();
       case PHONE:
         return applicantQuestion().createPhoneQuestion();
+      case MAP:
+        return applicantQuestion().createMapQuestion();
       case NAME:
         return applicantQuestion().createNameQuestion();
       case ID:
@@ -172,6 +174,7 @@ public abstract class AnswerData {
       case ADDRESS:
         return applicantQuestion().createAddressQuestion();
       case DROPDOWN:
+      case YES_NO:
       case RADIO_BUTTON:
         return applicantQuestion().createSingleSelectQuestion();
       case FILEUPLOAD:

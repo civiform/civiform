@@ -3,26 +3,18 @@ package controllers.geo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.junit.Before;
 import org.junit.Test;
+import play.test.WithApplication;
 import services.Address;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 
-public class AddressSuggestionJsonSerializerTest {
-  private Config config;
-  private AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
-
-  @Before
-  public void setup() {
-    config = ConfigFactory.load();
-    addressSuggestionJsonSerializer = new AddressSuggestionJsonSerializer(config);
-  }
-
+public class AddressSuggestionJsonSerializerTest extends WithApplication {
   @Test
-  public void serializingAndDeserializingANode() throws Exception {
+  public void serializingAndDeserializingANode() {
+    AddressSuggestionJsonSerializer addressSuggestionJsonSerializer =
+        instanceOf(AddressSuggestionJsonSerializer.class);
+
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -49,9 +41,9 @@ public class AddressSuggestionJsonSerializerTest {
 
     String serializedSuggestions = addressSuggestionJsonSerializer.serialize(suggestions);
 
-    ImmutableList<AddressSuggestion> deserialzedSuggestions =
+    ImmutableList<AddressSuggestion> deserializedSuggestions =
         addressSuggestionJsonSerializer.deserialize(serializedSuggestions);
 
-    assertThat(deserialzedSuggestions).isEqualTo(suggestions);
+    assertThat(deserializedSuggestions).isEqualTo(suggestions);
   }
 }

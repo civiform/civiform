@@ -1115,6 +1115,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
                 .setAcls(new ProgramAcls())
                 .setCategories(ImmutableList.of())
                 .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+                .setBridgeDefinitions(ImmutableMap.of())
                 .build());
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");

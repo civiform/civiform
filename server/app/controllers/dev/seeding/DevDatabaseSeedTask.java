@@ -37,13 +37,16 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -91,10 +94,10 @@ public final class DevDatabaseSeedTask {
   private final QuestionService questionService;
   private final ProgramService programService;
   private final StatusService statusService;
-  private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
+  private final CategoryTranslationFileParser categoryTranslationFileParser;
 
   @Inject
   public DevDatabaseSeedTask(
@@ -103,14 +106,14 @@ public final class DevDatabaseSeedTask {
       StatusService statusService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
-      Environment environment) {
+      CategoryTranslationFileParser categoryTranslationFileParser) {
     this.questionService = checkNotNull(questionService);
     this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
-    this.environment = checkNotNull(environment);
+    this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
   }
 
   /**
@@ -372,8 +375,7 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
-    List<CategoryModel> categories = parser.createCategoryModelList();
+    List<CategoryModel> categories = categoryTranslationFileParser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(
@@ -420,6 +422,43 @@ public final class DevDatabaseSeedTask {
       if (transaction.isActive()) {
         transaction.end();
       }
+    }
+  }
+
+  /** Seed the specified program with {@code count} number of empty applications. */
+  public void seedApplications(String programSlug, int count) {
+    try {
+      // Find the program by slug
+      long programId = programService.getActiveProgramId(programSlug).toCompletableFuture().join();
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+
+      for (int i = 0; i < count; i++) {
+        inSerializableTransaction(
+            () -> {
+              // Create a new guest applicant for each application
+              ApplicantModel applicant = new ApplicantModel();
+              applicant.save();
+
+              // Create guest account
+              AccountModel account = new AccountModel();
+              account.save();
+
+              applicant.setAccount(account);
+              applicant.save();
+
+              account.setApplicants(ImmutableList.of(applicant));
+              account.save();
+
+              // Create the application
+              ApplicationModel.create(
+                  applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+            },
+            1);
+      }
+      logger.info("Created {} applications for program \"{}\"", count, programSlug);
+    } catch (ProgramNotFoundException e) {
+      logger.error("Program not found: {}", programSlug, e);
+      throw new RuntimeException("Program not found: " + programSlug, e);
     }
   }
 
