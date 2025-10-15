@@ -843,6 +843,7 @@ label.uploadedFiles=Uploaded Files
 validation.idTooLong=Must contain at most {0} characters.
 validation.idTooShort=Must contain at least {0} characters.
 validation.numberRequired=Must contain only numbers.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
