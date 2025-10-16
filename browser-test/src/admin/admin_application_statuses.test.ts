@@ -1015,5 +1015,51 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
     })
+    test('Trusted Intermediary application shows correct Submitted By name', async ({
+      page,
+
+      adminPrograms,
+
+      applicantQuestions,
+    }) => {
+      await test.step('login as test user and submit application', async () => {
+        await loginAsTestUser(page)
+
+        await applicantQuestions.clickApplyProgramButton(
+          programWithStatusesName,
+        )
+
+        await applicantQuestions.submitFromReviewPage()
+
+        await logout(page)
+      })
+
+      await test.step('login as TI and submit second application', async () => {
+        await loginAsTrustedIntermediary(page)
+
+        await applicantQuestions.clickApplyProgramButton(
+          programWithStatusesName,
+        )
+
+        await applicantQuestions.submitFromReviewPage()
+
+        await logout(page)
+      })
+
+      await test.step('view applications and verify Submitted By column', async () => {
+        await loginAsProgramAdmin(page)
+
+        await adminPrograms.viewApplications(programWithStatusesName)
+
+        const row =
+          await adminPrograms.getApplicationsTableRow('Test User Name')
+
+        const submittedBy = row.locator('td:nth-child(5)')
+
+        await expect(submittedBy).toHaveText(
+          'Trusted Intermediary Display Name',
+        )
+      })
+    })
   }
 })
