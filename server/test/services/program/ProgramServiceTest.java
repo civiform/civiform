@@ -3,8 +3,8 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,15 +39,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.i18n.Lang;
 import play.inject.BindingKey;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.ProgramBlockValidationFactory;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
@@ -63,7 +64,6 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
-import services.TranslationLocales;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -263,6 +263,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void isTranslationComplete_complete_returnsTrue() throws Exception {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
     ProgramModel programModel =
         ProgramBuilder.newDraftProgram("test program", "description")
             .withLocalizedName(Locale.CHINESE, "测试项目")
@@ -270,12 +271,20 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
             .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
             .withBlock("Screen 1", "Screen 1 description")
-            //.withLocalizedName(Locale.CHINESE, "屏幕 1")
-            //.withLocalizedDescription(Locale.CHINESE, "屏幕 1 描述")
             .build();
     ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
 
-    // The program has translations for all fields, so it should be complete.
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
   }
 
