@@ -275,6 +275,7 @@ public enum MessageKey {
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
+  ID_VALIDATION_NUMBER_REQUIRED_V2("validation.numberRequired.v2"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
@@ -312,12 +313,17 @@ public enum MessageKey {
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
   MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_ARIA_LABEL_PREVIOUS_PAGE("map.ariaLabelPreviousPage"), // North Star only
+  MAP_ARIA_LABEL_NEXT_PAGE("map.ariaLabelNextPage"), // North Star only
+  MAP_ARIA_LABEL_PAGINATION_LIST("map.ariaLabelPaginationList"), // North Star only
   MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
   MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
+  MAP_GO_TO_PAGE("map.goToPage"), // North Star only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
   MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_PAGINATION_STATUS("map.paginationStatus"), // North Star only
   MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
   MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
   MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
@@ -337,6 +343,7 @@ public enum MessageKey {
   MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
   MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
+  MAP_SELECTED_BUTTON_TEXT("map.mapSelectedButtonText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

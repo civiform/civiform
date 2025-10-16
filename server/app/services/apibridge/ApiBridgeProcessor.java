@@ -4,9 +4,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.apibridge.ApiBridgeServiceDto.BridgeRequest;
 import static services.apibridge.ApiBridgeServiceDto.IProblemDetail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -15,6 +22,7 @@ import models.ApiBridgeConfigurationModel;
 import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import repository.ApiBridgeConfigurationRepository;
 import services.ErrorAnd;
+import services.JsonUtils;
 import services.applicant.ApplicantData;
 
 /** Processor to call all the api bridge endpoints */
@@ -23,19 +31,24 @@ public final class ApiBridgeProcessor {
   private final ApiBridgeService apiBridgeService;
   private final ApiBridgeConfigurationRepository apiBridgeConfigurationRepository;
   private final ApiBridgeExecutionContext apiBridgeExecutionContext;
+  private final ObjectMapper mapper;
   private final RequestPayloadMapper requestPayloadMapper;
   private final ResponsePayloadMapper responsePayloadMapper;
+  private final JsonSchemaFactory jsonSchemaFactory =
+      JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
 
   @Inject
   public ApiBridgeProcessor(
       ApiBridgeService apiBridgeService,
       ApiBridgeConfigurationRepository apiBridgeConfigurationRepository,
       ApiBridgeExecutionContext apiBridgeExecutionContext,
+      ObjectMapper mapper,
       RequestPayloadMapper requestPayloadMapper,
       ResponsePayloadMapper responsePayloadMapper) {
     this.apiBridgeService = checkNotNull(apiBridgeService);
     this.apiBridgeConfigurationRepository = checkNotNull(apiBridgeConfigurationRepository);
     this.apiBridgeExecutionContext = checkNotNull(apiBridgeExecutionContext);
+    this.mapper = checkNotNull(mapper);
     this.requestPayloadMapper = checkNotNull(requestPayloadMapper);
     this.responsePayloadMapper = checkNotNull(responsePayloadMapper);
   }
@@ -91,12 +104,19 @@ public final class ApiBridgeProcessor {
       ApplicantData applicantData,
       ApiBridgeDefinition bridgeDefinition,
       ApiBridgeConfigurationModel bridgeConfig) {
+
+    ImmutableMap<String, Object> requestPayload =
+        requestPayloadMapper.map(
+            applicantData, bridgeConfig.requestSchema(), bridgeDefinition.inputFields());
+
+    // Not at a point in the application where all requisite input fields are populated so we
+    // do not attempt to call the api bridge and just return early.
+    if (!isRequestValid(requestPayload, bridgeConfig.requestSchema())) {
+      return CompletableFuture.completedFuture(applicantData);
+    }
+
     return apiBridgeService
-        .bridge(
-            bridgeConfig.getFullHostUrlWithPath(),
-            new BridgeRequest(
-                requestPayloadMapper.map(
-                    applicantData, bridgeConfig.requestSchema(), bridgeDefinition.inputFields())))
+        .bridge(bridgeConfig.getFullHostUrlWithPath(), new BridgeRequest(requestPayload))
         .thenApplyAsync(
             response -> handleResponse(applicantData, bridgeDefinition, bridgeConfig, response),
             apiBridgeExecutionContext);
@@ -108,15 +128,8 @@ public final class ApiBridgeProcessor {
       ApiBridgeDefinition bridgeDefinition,
       ApiBridgeConfigurationModel bridgeConfig,
       ErrorAnd<ApiBridgeServiceDto.BridgeResponse, IProblemDetail> response) {
-    if (response.isError()) {
-      String errorMessage =
-          response.getErrors().stream()
-              .map(IProblemDetail::asErrorMessage)
-              .collect(Collectors.joining("\n"));
 
-      log.error(errorMessage);
-      throw new ApiBridgeProcessingException("An error occurred calling. " + errorMessage);
-    }
+    validateResponse(bridgeConfig, response);
 
     var newApplicantData = new ApplicantData();
     newApplicantData.mergeFrom(applicantData);
@@ -129,5 +142,43 @@ public final class ApiBridgeProcessor {
             bridgeDefinition.outputFields());
 
     return newApplicantData;
+  }
+
+  /** Validate payload against the json schema definition */
+  private boolean isRequestValid(ImmutableMap<String, Object> payload, String schema) {
+    JsonSchema jsonSchema = jsonSchemaFactory.getSchema(schema);
+    var validationMessages =
+        jsonSchema.validate(JsonUtils.writeValueAsString(mapper, payload), InputFormat.JSON);
+    return validationMessages.isEmpty();
+  }
+
+  /** Check response for server errors and data validation errors */
+  private void validateResponse(
+      ApiBridgeConfigurationModel bridgeConfig,
+      ErrorAnd<ApiBridgeServiceDto.BridgeResponse, IProblemDetail> response) {
+    if (response.isError()) {
+      String errorMessage =
+          response.getErrors().stream()
+              .map(IProblemDetail::asErrorMessage)
+              .collect(Collectors.joining("\n"));
+
+      log.error(errorMessage);
+      throw new ApiBridgeProcessingException("An error occurred calling endpoint.");
+    }
+
+    JsonSchema jsonSchema = jsonSchemaFactory.getSchema(bridgeConfig.responseSchema());
+    Set<ValidationMessage> validationMessages =
+        jsonSchema.validate(
+            JsonUtils.writeValueAsString(mapper, response.getResult().payload()), InputFormat.JSON);
+
+    if (!validationMessages.isEmpty()) {
+      String errorMessage =
+          validationMessages.stream()
+              .map(ValidationMessage::getMessage)
+              .collect(Collectors.joining("\n"));
+
+      log.error(errorMessage);
+      throw new ApiBridgeProcessingException("Response payload does not match schema.");
+    }
   }
 }

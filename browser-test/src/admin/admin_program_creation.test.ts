@@ -331,6 +331,24 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
+  test('program confirmation preview shows empty lines and markdown formatting', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+
+    await expect(
+      page.locator('#program-confirmation-message-preview'),
+    ).toBeVisible()
+    await validateScreenshot(
+      page,
+      'program-description-page-with-external-programs-feature',
+    )
+  })
+
   // TODO(#10363): Remove test once external program cards feature is rolled out
   test('program details page screenshot', async ({page, adminPrograms}) => {
     await disableFeatureFlag(page, 'external_program_cards_enabled')

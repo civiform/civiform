@@ -212,4 +212,10 @@ export class AdminPredicates {
   async expectCondition(conditionId: number) {
     await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
   }
+
+  async expectNoAddConditionButton() {
+    await expect(
+      this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeHidden()
+  }
 }

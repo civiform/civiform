@@ -1060,13 +1060,18 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditVisibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
+    } else {
+      await this.expectEditVisibilityPredicatePage(blockName)
+    }
   }
 
   async goToEditBlockEligibilityPredicatePage(
