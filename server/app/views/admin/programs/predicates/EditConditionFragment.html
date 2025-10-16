@@ -1,8 +1,9 @@
 <th:block
-  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, operatorNodeTypeList, questions)"
+  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, hxEditSubconditionEndpoint, operatorNodeTypeList, questionOptions, scalarOptions, operatorOptions)"
 >
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
+    th:data-testid="|condition-${conditionId}|"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
@@ -37,7 +38,8 @@
         Condition is true if
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          name="condition-{$conditionId}-nodeType"
+          th:name="|condition-${conditionId}-nodeType|"
+          autofocus
         >
           <option
             th:each="nodeType : ${operatorNodeTypeList}"
@@ -48,7 +50,7 @@
         of the following are true:
       </div>
       <div
-        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, 1, ${questions})}"
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, 1, ${questionOptions}, ${scalarOptions}, ${operatorOptions}, ${hxEditSubconditionEndpoint}, false)}"
       ></div>
     </div>
 
