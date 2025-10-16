@@ -9,8 +9,8 @@ import {
   CF_PAGINATION_HIDDEN,
   CF_SELECTED_LOCATION_MESSAGE,
   CF_SELECTED_LOCATIONS_CONTAINER,
-  DATA_FEATURE_ID_ATTR,
-  DATA_MAP_ID_ATTR,
+  DATA_FEATURE_ID,
+  DATA_MAP_ID,
   getMessages,
   localizeString,
   MapData,
@@ -77,14 +77,14 @@ export const updateSelectedLocations = (mapId: string): void => {
       if (input && label) {
         const originalId = input.id
         const selectedId = `selected-${originalId}`
-        const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID_ATTR)
+        const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID)
 
         input.id = selectedId
         label.htmlFor = selectedId
-        input.setAttribute(DATA_MAP_ID_ATTR, mapId)
+        input.setAttribute(DATA_MAP_ID, mapId)
 
         if (featureId) {
-          input.setAttribute(DATA_FEATURE_ID_ATTR, featureId)
+          input.setAttribute(DATA_FEATURE_ID, featureId)
         }
       }
 
@@ -134,7 +134,7 @@ export const selectLocationsFromMap = (
   if (!locationsListContainer) return
 
   const targetCheckbox = locationsListContainer.querySelector(
-    `[${DATA_FEATURE_ID_ATTR}="${featureId}"]`,
+    `[${DATA_FEATURE_ID}="${featureId}"]`,
   )
   if (targetCheckbox) {
     const checkboxInputElement = targetCheckbox.querySelector(
@@ -170,7 +170,7 @@ const updateAlertVisibility = (mapId: string): void => {
     ) as HTMLInputElement
 
     if (input && input.checked) {
-      const featureId = checkbox.getAttribute(DATA_FEATURE_ID_ATTR)
+      const featureId = checkbox.getAttribute(DATA_FEATURE_ID)
       if (featureId) {
         const feature = mapData.geoJson.features.find(
           (feature) => String(feature.id) === featureId,
