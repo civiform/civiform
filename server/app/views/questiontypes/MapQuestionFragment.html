@@ -114,6 +114,8 @@
                       locationName=${feature.properties().get(mapQuestion.getNameValue())},
                       locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
                       locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                      locationTag=${mapQuestion.getTagSetting()},
+                      ariaLabelForNewTabs=#{link.opensNewTabSr},
                       featureId=${feature.id}"
           th:data-feature-id="${featureId}"
           class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
@@ -148,6 +150,13 @@
               target="_blank"
               th:text="#{map.locationLinkText}"
             ></a>
+            <div>
+              <span
+                th:if="${feature.properties().get(locationTag.settingKey()) == locationTag.settingValue()}"
+                class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
+                th:text="${locationTag.settingDisplayName()}"
+              ></span>
+            </div>
           </label>
         </div>
         <div
@@ -278,6 +287,18 @@
       class="cf-selected-locations-message"
     ></p>
     <div
+      class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
+      th:data-map-id="${mapId}"
+      role="alert"
+    >
+      <div class="usa-alert__body">
+        <p
+          class="usa-alert__text"
+          th:text="${mapQuestion.getTagSetting().settingText()}"
+        ></p>
+      </div>
+    </div>
+    <div
       class="cf-selected-locations-container"
       data-testid="selected-locations-list"
       th:data-map-id="${mapId}"
@@ -304,6 +325,16 @@
       target="_blank"
       th:text="#{map.locationLinkText}"
     ></a>
+    <div
+      th:if="${mapQuestion.getTagSetting() != null && mapQuestion.getTagSetting().settingText() != null}"
+      name="cf-popup-tag"
+      class="padding-top-2"
+    >
+      <span
+        class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
+        th:text="${mapQuestion.getTagSetting().settingDisplayName()}"
+      ></span>
+    </div>
     <button
       type="button"
       name="cf-select-location-button"
@@ -349,6 +380,9 @@
         nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
         addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
+        tagGeoJsonKey: /*[[${mapQuestion.getTagSetting().settingKey()}]]*/ '',
+        tagGeoJsonValue:
+          /*[[${mapQuestion.getTagSetting().settingValue()}]]*/ '',
       },
     }
   </script>
