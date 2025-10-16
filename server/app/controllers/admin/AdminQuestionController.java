@@ -527,22 +527,22 @@ public final class AdminQuestionController extends CiviFormController {
     ImmutableSet.Builder<QuestionSetting> newSettingsListBuilder = ImmutableSet.builder();
 
     for (QuestionSetting updatedQuestionSetting : updatedQuestionSettings) {
-      // Find an existing setting with the same value and type
-      Optional<QuestionSetting> maybeExistingSettingWithSameValue =
+      // Find an existing setting with the same key and type
+      Optional<QuestionSetting> maybeExistingSettingWithSameKey =
           existingSettings.stream()
               .filter(
                   existingSetting ->
-                      existingSetting.settingValue().equals(updatedQuestionSetting.settingValue())
+                      existingSetting.settingKey().equals(updatedQuestionSetting.settingKey())
                           && existingSetting
                               .settingType()
                               .equals(updatedQuestionSetting.settingType()))
               .findFirst();
 
-      if (maybeExistingSettingWithSameValue.isPresent()
+      if (maybeExistingSettingWithSameKey.isPresent()
           && updatedQuestionSetting.localizedSettingDisplayName().isPresent()) {
-        // If there's an existing setting with the same value and type, preserve its translations
+        // If there's an existing setting with the same key and type, preserve its translations
         // and update the default locale text
-        QuestionSetting existingSetting = maybeExistingSettingWithSameValue.get();
+        QuestionSetting existingSetting = maybeExistingSettingWithSameKey.get();
         String updatedDefaultText =
             updatedQuestionSetting.localizedSettingDisplayName().get().getDefault();
 
@@ -567,7 +567,7 @@ public final class AdminQuestionController extends CiviFormController {
                   .build());
         }
       } else {
-        // If there's no existing setting with the same value, treat it as a new setting
+        // If there's no existing setting with the same key, treat it as a new setting
         newSettingsListBuilder.add(updatedQuestionSetting);
       }
     }
