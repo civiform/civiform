@@ -843,6 +843,7 @@ label.uploadedFiles=Mga Na-upload na File
 validation.idTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga character.
 validation.idTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
