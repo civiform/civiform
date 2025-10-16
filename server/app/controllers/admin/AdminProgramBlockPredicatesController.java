@@ -161,6 +161,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
                 .operatorScalarMap(getOperatorScalarMap())
+                .hasAvailableQuestions(!predicateQuestions.isEmpty())
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
       }
