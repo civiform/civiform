@@ -843,6 +843,7 @@ label.uploadedFiles=የተሰቀሉ ፋይሎች
 validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
 validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
 validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
