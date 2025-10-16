@@ -843,6 +843,7 @@ label.uploadedFiles=Archivos subidos
 validation.idTooLong=Debe tener menos de {0} caracteres.
 validation.idTooShort=Debe tener más de {0} caracteres.
 validation.numberRequired=Solo debe contener números.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
