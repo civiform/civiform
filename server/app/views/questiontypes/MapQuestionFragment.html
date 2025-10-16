@@ -114,7 +114,6 @@
                       locationName=${feature.properties().get(mapQuestion.getNameValue())},
                       locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
                       locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
-                      locationTag=${mapQuestion.getTagSetting()},
                       ariaLabelForNewTabs=#{link.opensNewTabSr},
                       featureId=${feature.id}"
           th:data-feature-id="${featureId}"
@@ -150,11 +149,11 @@
               target="_blank"
               th:text="#{map.locationLinkText}"
             ></a>
-            <div>
+            <div th:if="${mapQuestion.hasTagSetting()}">
               <span
-                th:if="${feature.properties().get(locationTag.settingKey()) == locationTag.settingValue()}"
+                th:if="${feature.properties().get(mapQuestion.getTagKey()) == mapQuestion.getTagValue()}"
                 class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
-                th:text="${locationTag.settingDisplayName()}"
+                th:text="${mapQuestion.getTagDisplayName()}"
               ></span>
             </div>
           </label>
@@ -287,15 +286,13 @@
       class="cf-selected-locations-message"
     ></p>
     <div
+      th:if="${mapQuestion.hasTagSetting()}"
       class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
       th:data-map-id="${mapId}"
       role="alert"
     >
       <div class="usa-alert__body">
-        <p
-          class="usa-alert__text"
-          th:text="${mapQuestion.getTagSetting().settingText()}"
-        ></p>
+        <p class="usa-alert__text" th:text="${mapQuestion.getTagText()}"></p>
       </div>
     </div>
     <div
@@ -326,13 +323,13 @@
       th:text="#{map.locationLinkText}"
     ></a>
     <div
-      th:if="${mapQuestion.getTagSetting() != null && mapQuestion.getTagSetting().settingText() != null}"
+      th:if="${mapQuestion.hasTagSetting()}"
       name="cf-popup-tag"
       class="padding-top-2"
     >
       <span
         class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
-        th:text="${mapQuestion.getTagSetting().settingDisplayName()}"
+        th:text="${mapQuestion.getTagDisplayName()}"
       ></span>
     </div>
     <button
@@ -380,9 +377,8 @@
         nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
         addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
         detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
-        tagGeoJsonKey: /*[[${mapQuestion.getTagSetting().settingKey()}]]*/ '',
-        tagGeoJsonValue:
-          /*[[${mapQuestion.getTagSetting().settingValue()}]]*/ '',
+        tagGeoJsonKey: /*[[${mapQuestion.getTagKey()}]]*/ '',
+        tagGeoJsonValue: /*[[${mapQuestion.getTagValue()}]]*/ '',
       },
     }
   </script>
