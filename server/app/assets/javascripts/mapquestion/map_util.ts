@@ -49,8 +49,6 @@ export const CF_MAP_QUESTION_TAG_ALERT = 'cf-map-question-tag-alert'
 export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
 export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
-export const DATA_FEATURE_ID_ATTR = 'data-feature-id'
-export const DATA_MAP_ID_ATTR = 'data-map-id'
 
 // FILTERS
 export const CF_APPLY_FILTERS_BUTTON = 'cf-apply-filters-button'
