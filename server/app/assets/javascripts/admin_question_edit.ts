@@ -208,10 +208,20 @@ class AdminQuestionEdit {
       const tagContainer = document.querySelector(
         '.map-tag-setting-container',
       ) as HTMLDivElement
-      const input = tagContainer.querySelector('.cf-tag-display-name-input') as HTMLInputElement
-      const textarea = tagContainer.querySelector('.cf-tag-textarea') as HTMLTextAreaElement
-      const select = tagContainer.querySelector('.cf-tag-key-select') as HTMLSelectElement
-      input.value = ''
+      const displayNameInput = tagContainer.querySelector(
+        '.cf-tag-display-name-input',
+      ) as HTMLInputElement
+      const valueInput = tagContainer.querySelector(
+        '.cf-tag-value-input',
+      ) as HTMLInputElement
+      const textarea = tagContainer.querySelector(
+        '.cf-tag-textarea',
+      ) as HTMLTextAreaElement
+      const select = tagContainer.querySelector(
+        '.cf-tag-key-select',
+      ) as HTMLSelectElement
+      displayNameInput.value = ''
+      valueInput.value = ''
       textarea.value = ''
       select.selectedIndex = 0
       tagContainer.classList.add('hidden')

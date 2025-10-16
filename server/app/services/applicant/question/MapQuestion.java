@@ -101,6 +101,30 @@ public final class MapQuestion extends AbstractQuestion {
         .orElse(null);
   }
 
+  public boolean hasTagSetting() {
+    return getTagSetting() != null;
+  }
+
+  public String getTagKey() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingKey() : "";
+  }
+
+  public String getTagValue() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingValue() : "";
+  }
+
+  public String getTagDisplayName() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingDisplayName() : "";
+  }
+
+  public String getTagText() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingText() : "";
+  }
+
   public Path getSelectionPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.SELECTIONS);
   }
