@@ -19,6 +19,7 @@ class AdminQuestionEdit {
 
     this.addDateValidationHandlers()
     this.addMapFilterButtonHandler()
+    this.addMapTagButtonHandlers()
   }
 
   addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
@@ -186,6 +187,44 @@ class AdminQuestionEdit {
 
     document.body.addEventListener('htmx:afterRequest', () => {
       this.updateAddFilterButtonState()
+    })
+  }
+
+  addMapTagButtonHandlers() {
+    addEventListenerToElements('#add-map-tag-button', 'click', (event) => {
+      const target = event.target as HTMLButtonElement
+      target.classList.add('hidden')
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      tagContainer.classList.remove('hidden')
+      const deleteButton = document.getElementById(
+        'delete-map-tag-button',
+      ) as HTMLButtonElement
+      deleteButton.classList.remove('hidden')
+    })
+
+    addEventListenerToElements('#delete-map-tag-button', 'click', () => {
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      const inputs = tagContainer.querySelectorAll('input')
+      const textareas = tagContainer.querySelectorAll('textarea')
+      const selects = tagContainer.querySelectorAll('select')
+      inputs.forEach((input) => {
+        input.value = ''
+      })
+      textareas.forEach((textarea) => {
+        textarea.value = ''
+      })
+      selects.forEach((select) => {
+        select.selectedIndex = 0
+      })
+      tagContainer.classList.add('hidden')
+      const addButton = document.getElementById(
+        'add-map-tag-button',
+      ) as HTMLButtonElement
+      addButton.classList.remove('hidden')
     })
   }
 }

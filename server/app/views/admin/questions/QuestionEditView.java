@@ -567,6 +567,7 @@ public final class QuestionEditView extends BaseHtmlView {
         mapQuestionForm.getLocationAddress(),
         mapQuestionForm.getLocationDetailsUrl(),
         mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
         possibleKeys);
   }
 
