@@ -1,22 +1,27 @@
 import {
-  CF_LOCATIONS_LIST_CONTAINER,
-  CF_LOCATION_CHECKBOX,
-  CF_SELECTED_LOCATIONS_CONTAINER,
-  CF_NO_SELECTIONS_MESSAGE,
   CF_FILTER_HIDDEN,
-  CF_PAGINATION_HIDDEN,
-  mapQuerySelector,
-  DATA_FEATURE_ID_ATTR,
-  DATA_MAP_ID_ATTR,
+  CF_LOCATION_CHECKBOX,
   CF_LOCATION_CHECKBOX_INPUT,
+  CF_LOCATIONS_LIST_CONTAINER,
+  CF_MAP_QUESTION_ALERT_HIDDEN,
+  CF_MAP_QUESTION_TAG_ALERT,
+  CF_NO_SELECTIONS_MESSAGE,
+  CF_PAGINATION_HIDDEN,
   CF_SELECTED_LOCATION_MESSAGE,
-  localizeString,
+  CF_SELECTED_LOCATIONS_CONTAINER,
+  DATA_FEATURE_ID,
+  DATA_MAP_ID,
   getMessages,
+  localizeString,
+  MapData,
+  mapQuerySelector,
+  queryLocationCheckboxes,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
   // Initial update so the previously saved locations get displayed as selected
   updateSelectedLocations(mapId)
+  updateAlertVisibility(mapId)
 }
 
 export const updateSelectedLocations = (mapId: string): void => {
@@ -72,14 +77,14 @@ export const updateSelectedLocations = (mapId: string): void => {
       if (input && label) {
         const originalId = input.id
         const selectedId = `selected-${originalId}`
-        const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID_ATTR)
+        const featureId = originalCheckbox.getAttribute(DATA_FEATURE_ID)
 
         input.id = selectedId
         label.htmlFor = selectedId
-        input.setAttribute(DATA_MAP_ID_ATTR, mapId)
+        input.setAttribute(DATA_MAP_ID, mapId)
 
         if (featureId) {
-          input.setAttribute(DATA_FEATURE_ID_ATTR, featureId)
+          input.setAttribute(DATA_FEATURE_ID, featureId)
         }
       }
 
@@ -87,6 +92,7 @@ export const updateSelectedLocations = (mapId: string): void => {
     })
   }
   updateSelectionCountForMap(mapId)
+  updateAlertVisibility(mapId)
 }
 
 const updateSelectionCountForMap = (mapId: string): void => {
@@ -128,7 +134,7 @@ export const selectLocationsFromMap = (
   if (!locationsListContainer) return
 
   const targetCheckbox = locationsListContainer.querySelector(
-    `[${DATA_FEATURE_ID_ATTR}="${featureId}"]`,
+    `[${DATA_FEATURE_ID}="${featureId}"]`,
   )
   if (targetCheckbox) {
     const checkboxInputElement = targetCheckbox.querySelector(
@@ -138,5 +144,51 @@ export const selectLocationsFromMap = (
       checkboxInputElement.checked = isSelected
       updateSelectedLocations(mapId)
     }
+  }
+}
+
+const updateAlertVisibility = (mapId: string): void => {
+  const mapData = window.app?.data?.maps?.[mapId] as MapData
+  const alert = mapQuerySelector(mapId, CF_MAP_QUESTION_TAG_ALERT)
+
+  if (!mapData || !alert) return
+
+  const {tagGeoJsonKey, tagGeoJsonValue} = mapData.settings
+
+  // If no tag is configured, keep alert hidden
+  if (!tagGeoJsonKey || !tagGeoJsonValue) {
+    alert.classList.add(CF_MAP_QUESTION_ALERT_HIDDEN)
+    return
+  }
+
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+
+  let hasTaggedLocation: boolean = false
+  for (const checkbox of Array.from(locationCheckboxes)) {
+    const input = checkbox.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement
+
+    if (input && input.checked) {
+      const featureId = checkbox.getAttribute(DATA_FEATURE_ID)
+      if (featureId) {
+        const feature = mapData.geoJson.features.find(
+          (feature) => String(feature.id) === featureId,
+        )
+        if (feature && feature.properties) {
+          const propertyValue = feature.properties[tagGeoJsonKey] as string
+          if (propertyValue === tagGeoJsonValue) {
+            hasTaggedLocation = true
+            break
+          }
+        }
+      }
+    }
+  }
+
+  if (hasTaggedLocation) {
+    alert.classList.remove(CF_MAP_QUESTION_ALERT_HIDDEN)
+  } else {
+    alert.classList.add(CF_MAP_QUESTION_ALERT_HIDDEN)
   }
 }

@@ -15,6 +15,7 @@ public record MapQuestionSettingsPartialViewModel(
     MapQuestionForm.Setting locationAddress,
     MapQuestionForm.Setting locationDetailsUrl,
     List<MapQuestionForm.Setting> filters,
+    MapQuestionForm.Setting locationTag,
     ImmutableList<String> possibleKeys)
     implements BaseViewModel {
 
@@ -27,6 +28,7 @@ public record MapQuestionSettingsPartialViewModel(
         MapQuestionForm.Setting.emptySetting(),
         MapQuestionForm.Setting.emptySetting(),
         MapQuestionForm.Setting.emptyFilters(),
+        MapQuestionForm.Setting.emptySetting(),
         possibleKeys);
   }
 
