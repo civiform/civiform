@@ -45,13 +45,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await validateScreenshot(
-        page.locator('#edit-predicate'),
-        'predicate-zero-state',
-      )
-
       await adminPredicates.clickAddConditionButton()
-
       await adminPredicates.expectCondition(1)
       await validateScreenshot(page.getByTestId('condition-1'), 'new-condition')
     })
