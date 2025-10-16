@@ -121,7 +121,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editVisibility(fakeRequest(), program.id, 543L);
+    Result result =
+        controller.editVisibility(fakeRequest(), program.id, /* blockDefinitionId= */ 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -133,7 +134,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
+    Result result =
+        controller.editEligibility(fakeRequest(), program.id, /* blockDefinitionId= */ 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -142,7 +144,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void updateEligibilityMessage_withInvalidBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, 543L);
+    Result result =
+        controller.updateEligibilityMessage(
+            fakeRequest(), program.id, /* blockDefinitionId= */ 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -171,7 +175,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withFirstBlock_displaysEmptyList() {
-    Result result = controller.editVisibility(fakeRequest(), programWithThreeBlocks.id, 1L);
+    Result result =
+        controller.editVisibility(
+            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -185,7 +191,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void editEligibility_withFirstBlock_displaysFirstBlock() {
-    Result result = controller.editEligibility(fakeRequest(), programWithThreeBlocks.id, 1L);
+    Result result =
+        controller.editEligibility(
+            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -197,7 +205,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withThirdBlock_displaysQuestionsFromFirstAndSecondBlock() {
-    Result result = controller.editVisibility(fakeRequest(), programWithThreeBlocks.id, 3L);
+    Result result =
+        controller.editVisibility(
+            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 3L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -251,7 +261,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
-            1L,
+            /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -265,7 +275,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
-            1L,
+            /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -280,7 +290,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
-            3L,
+            /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -299,7 +309,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
-            /* blockDefinition= */ 1L,
+            /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -313,7 +323,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
-            /* blockDefinition= */ 1L,
+            /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
@@ -327,7 +337,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
-            3L,
+            /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -354,7 +364,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
             programWithThreeBlocks.id,
-            3L,
+            /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -386,7 +396,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
             programWithThreeBlocks.id,
-            3L,
+            /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
