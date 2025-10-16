@@ -22,6 +22,7 @@ import {
   CF_POPUP_CONTENT_LOCATION_ADDRESS,
   CF_POPUP_CONTENT_LOCATION_LINK,
   CF_POPUP_CONTENT_LOCATION_NAME,
+  CF_POPUP_CONTENT_TAG,
   CF_POPUP_CONTENT_TEMPLATE,
   CF_SELECTED_LOCATIONS_CONTAINER,
   CF_SELECT_LOCATION_BUTTON_CLICKED,
@@ -129,6 +130,8 @@ const createPopupContent = (
   const name: string = properties[settings.nameGeoJsonKey] as string
   const address: string = properties[settings.addressGeoJsonKey] as string
   const detailsUrl: string = properties[settings.detailsUrlGeoJsonKey] as string
+  const tagKey: string = settings.tagGeoJsonKey as string
+  const tagValue: string = settings.tagGeoJsonValue as string
   const featureId: string = properties.originalId as string
 
   if (!featureId) {
@@ -167,6 +170,15 @@ const createPopupContent = (
       popupContent.appendChild(linkElement)
     } catch {
       console.warn('Invalid URL format, skipping link:', detailsUrl)
+    }
+  }
+
+  if (tagKey && tagValue && properties[tagKey] === tagValue) {
+    const tagElement = templateContent
+      .namedItem(CF_POPUP_CONTENT_TAG)
+      ?.cloneNode(true) as HTMLElement
+    if (tagElement) {
+      popupContent.appendChild(tagElement)
     }
   }
 
