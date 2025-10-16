@@ -843,6 +843,7 @@ label.uploadedFiles=Загруженные файлы
 validation.idTooLong=Максимально допустимое число символов: {0}.
 validation.idTooShort=Минимально допустимое число символов: {0}.
 validation.numberRequired=Допускаются только цифры.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
