@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -15,6 +14,7 @@ import forms.admin.BlockEligibilityMessageForm;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import lombok.Builder;
 import org.pac4j.play.java.Secure;
@@ -25,7 +25,6 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
-import services.JsonUtils;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -81,14 +80,20 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
-  private final ObjectMapper mapper;
 
+  /**
+   * Contains data for rendering a simple HTML option element with no additional data attributes.
+   */
   @Builder
   public record OptionElement(String value, String displayText, boolean selected) {}
 
+  /**
+   * Contains data for rendering an HTML option element with additional data attributes required for
+   * {@link Scalar} options.
+   */
   @Builder
   public record ScalarOptionElement(
-      String value, String displayText, String type, boolean selected) {}
+      String value, String displayText, String scalarType, boolean selected) {}
 
   @Inject
   public AdminProgramBlockPredicatesController(
@@ -105,8 +110,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      SettingsManifest settingsManifest,
-      ObjectMapper objectMapper) {
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
@@ -120,7 +124,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.mapper = checkNotNull(objectMapper);
   }
 
   /**
@@ -148,16 +151,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
       ImmutableList<QuestionDefinition> predicateQuestions =
-          getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, predicateUseCase);
+          getAvailablePredicateQuestionDefinitions(
+              programDefinition, blockDefinitionId, predicateUseCase);
 
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
-        String operatorScalarsJson = JsonUtils.writeValueAsString(mapper, getOperatorScalarMap());
         EditPredicatePageViewModel model =
             EditPredicatePageViewModel.builder()
                 .programDefinition(programDefinition)
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
-                .operatorScalarsJson(operatorScalarsJson)
+                .operatorScalarMap(getOperatorScalarMap())
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
       }
@@ -177,6 +180,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       long programId, long blockDefinitionId, PredicateUseCase predicateUseCase)
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
     ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+    return getAvailablePredicateQuestionDefinitions(
+        programDefinition, blockDefinitionId, predicateUseCase);
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
     return switch (predicateUseCase) {
       case ELIGIBILITY ->
           programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
@@ -191,7 +203,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * scalar.
    */
   @VisibleForTesting
-  ImmutableMap<String, ImmutableList<String>> getOperatorScalarMap() {
+  static ImmutableMap<String, ImmutableList<String>> getOperatorScalarMap() {
     return Arrays.stream(Operator.values())
         .collect(
             ImmutableMap.toImmutableMap(
@@ -590,8 +602,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
 
   /**
-   * Get the selected question from the request, defaulting to the first available question there is
-   * none or if it can't be parsed.
+   * Get the selected question from the request. Returns an empty optional if there is none or if it
+   * can't be parsed.
    */
   private Optional<QuestionDefinition> getSelectedQuestion(
       Request request,
@@ -655,30 +667,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         return ImmutableList.of();
       }
     }
-    ImmutableList.Builder<ScalarOptionElement> scalarOptionsBuilder =
-        new ImmutableList.Builder<ScalarOptionElement>();
-    if (!scalars.isEmpty()) {
-      Scalar firstScalar = scalars.get(0);
-      scalarOptionsBuilder.add(
-          ScalarOptionElement.builder()
-              .value(firstScalar.name())
-              .displayText(firstScalar.toDisplayString())
-              .type(firstScalar.toScalarType().name())
-              .selected(true)
-              .build());
-    }
-
-    scalars.stream()
-        .skip(1)
-        .forEach(
-            scalar ->
-                scalarOptionsBuilder.add(
-                    ScalarOptionElement.builder()
-                        .value(scalar.name())
-                        .displayText(scalar.toDisplayString())
-                        .type(scalar.toScalarType().name())
-                        .selected(false)
-                        .build()));
+    ImmutableList.Builder<ScalarOptionElement> scalarOptionsBuilder = new ImmutableList.Builder<>();
+    AtomicBoolean isFirst = new AtomicBoolean(true);
+    scalars.forEach(
+        scalar ->
+            scalarOptionsBuilder.add(
+                ScalarOptionElement.builder()
+                    .value(scalar.name())
+                    .displayText(scalar.toDisplayString())
+                    .scalarType(scalar.toScalarType().name())
+                    .selected(isFirst.getAndSet(false))
+                    .build()));
 
     return scalarOptionsBuilder.build();
   }

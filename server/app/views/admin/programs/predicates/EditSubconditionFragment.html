@@ -55,7 +55,7 @@
             th:each="scalar : ${scalarOptions}"
             th:value="${scalar.value()}"
             th:text="${scalar.displayText()}"
-            th:data-type="${scalar.type()}"
+            th:data-type="${scalar.scalarType()}"
             th:selected="${scalar.selected()}"
           ></option>
         </select>

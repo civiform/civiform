@@ -5,6 +5,9 @@ export class AdminPredicateEdit {
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'subcondition-container' element in this swap
     if (event.target.classList.contains('subcondition-container')) {
+      // Remove existing listeners and bind to new ones after the swap
+      // replaces the html to ensure there's only one per element instead of
+      // appending after each swap.
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-scalar-select')
         .forEach((dropdown: HTMLSelectElement) => {
@@ -37,11 +40,11 @@ export class AdminPredicateEdit {
   private static handleScalarChange(scalarDropdown: HTMLSelectElement) {
     // Get the type of scalar currently selected.
     const selectedScalarType =
-      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type!
+      scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type
     const selectedScalarValue =
       scalarDropdown.options[scalarDropdown.options.selectedIndex].value
 
-    AdminPredicateEdit.filterOperators(
+    this.filterOperators(
       scalarDropdown,
       selectedScalarType,
       selectedScalarValue,
@@ -56,7 +59,7 @@ export class AdminPredicateEdit {
    */
   private static filterOperators(
     scalarDropdown: HTMLSelectElement,
-    selectedScalarType: string | null,
+    selectedScalarType: string | null | undefined,
     selectedScalarValue: string | null,
   ) {
     const operatorDropdownId = scalarDropdown.getAttribute(
@@ -88,8 +91,7 @@ export class AdminPredicateEdit {
     // If the currently selected operator is now hidden, reset the selection.
     if (
       operatorDropdown.selectedOptions.length === 0 ||
-      (operatorDropdown.selectedOptions.length > 0 &&
-        operatorDropdown.selectedOptions[0].hidden)
+      operatorDropdown.selectedOptions[0].hidden
     ) {
       const newSelectedOption = Array.from(operatorDropdown.options).find(
         (option) => !option.hidden,
@@ -108,7 +110,7 @@ export class AdminPredicateEdit {
    * @return {boolean} If the operator should be hidden.
    */
   private static shouldHideOperator(
-    selectedScalarType: string | null,
+    selectedScalarType: string | null | undefined,
     selectedScalarValue: string | null,
     operatorOption: HTMLOptionElement,
   ): boolean {

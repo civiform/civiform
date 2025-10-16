@@ -3,6 +3,7 @@ package views.admin.programs.predicates;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
 import lombok.Builder;
 import services.program.BlockDefinition;
@@ -17,7 +18,7 @@ public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
     PredicateUseCase predicateUseCase,
-    String operatorScalarsJson)
+    ImmutableMap<String, ImmutableList<String>> operatorScalarMap)
     implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {

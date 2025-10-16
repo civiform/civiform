@@ -119,9 +119,8 @@
     window.app = window.app || {}
     window.app.data = window.app.data || {}
     window.app.data.predicate = window.app.data.predicate || {}
-    window.app.data.predicate.operator_scalars = JSON.parse(
-      /*[[${model.operatorScalarsJson()}]]*/ '{}',
-    )
+    window.app.data.predicate.operator_scalars =
+      /*[[${model.operatorScalarMap()}]]*/ {}
 
     document.body.addEventListener('htmx:afterSwap', function (event) {
       window.app.scripts.AdminPredicateEdit.onHtmxAfterSwap(event)
