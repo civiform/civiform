@@ -18,7 +18,8 @@ public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
     PredicateUseCase predicateUseCase,
-    ImmutableMap<String, ImmutableList<String>> operatorScalarMap)
+    ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
+    boolean hasAvailableQuestions)
     implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {

@@ -22,7 +22,7 @@
           th:data-scalar-target-id="${scalarDropDownId}"
           hx-swap="outerHTML"
           th:hx-post="${hxEditSubconditionEndpoint}"
-          th:hx-vals='&apos;{ "conditionId": "&apos; + ${conditionId} + &apos;", "subconditionId": "&apos; + ${subconditionId} + &apos;" }&apos;'
+          th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}" }|'
           th:hx-target="${'closest div[class*=subcondition-container]'}"
         >
           <option th:selected="${!hasSelectedQuestion}">-Select-</option>

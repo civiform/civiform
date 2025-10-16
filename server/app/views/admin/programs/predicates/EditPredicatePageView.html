@@ -85,13 +85,13 @@
             of the following are true:
           </p>
         </div>
-        <th:block th:unless="${model.questions.isEmpty()}">
+        <th:block th:if="${model.hasAvailableQuestions}">
           <div
             th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
           ></div>
         </th:block>
       </form>
-      <th:block th:if="${model.questions.isEmpty()}">
+      <th:block th:unless="${model.hasAvailableQuestions}">
         <div
           th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
         ></div>
