@@ -120,7 +120,6 @@
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
           <input
-            data-testid="display-name-input"
             class="usa-input cf-tag-display-name-input"
             name="locationTag.displayName"
             th:value="${displayName}"
@@ -133,8 +132,7 @@
           >
           </label>
           <textarea
-            data-testid="display-name-input"
-            class="usa-textarea"
+            class="usa-textarea cf-tag-textarea"
             name="locationTag.alertText"
             th:text="${alertText}"
             id="tag-alertText"
