@@ -9,7 +9,7 @@
     class="usa-button usa-button--outline zero-top-margin"
     aria-label="Add condition"
     th:hx-post="${hxEditConditionEndpoint}"
-    th:hx-vals="'{ &quot;conditionId&quot;: &quot;' + ${nextConditionId} + '&quot; }'"
+    th:hx-vals='|{"conditionId": "${nextConditionId}"}|'
     hx-swap="outerHTML"
   >
     <cf:icon type="icon-add" />

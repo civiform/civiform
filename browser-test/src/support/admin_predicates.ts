@@ -227,12 +227,7 @@ export class AdminPredicates {
   ) {
     await this.page
       .getByLabel('Question', {
-        id:
-          'condition-' +
-          conditionId +
-          '-subcondition-' +
-          subconditionId +
-          '-question',
+        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
       })
       .selectOption(questionText)
 

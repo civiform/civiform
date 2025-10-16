@@ -41,9 +41,9 @@ import views.admin.programs.predicates.EditSubconditionPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
-  private static Request EDIT_CONDITION_REQUEST =
+  private static final Request EDIT_CONDITION_REQUEST =
       fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build();
-  private static Request EDIT_SUBCONDITION_REQUEST =
+  private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
           .bodyForm(ImmutableMap.of("conditionId", "1", "subconditionId", "1"))
           .build();
@@ -69,8 +69,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
-            settingsManifest,
-            instanceOf(ObjectMapper.class));
+            settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
@@ -301,7 +300,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
-            1L,
+            /* blockDefinition= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -315,7 +314,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
             programWithThreeBlocks.id,
-            1L,
+            /* blockDefinition= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);

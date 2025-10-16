@@ -3,7 +3,7 @@
 >
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
-    th:data-testid="${'condition-' + conditionId}"
+    th:data-testid="|condition-${conditionId}|"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
@@ -38,7 +38,7 @@
         Condition is true if
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="${'condition-' + conditionId + '-nodeType'}"
+          th:name="|condition-${conditionId}-nodeType|"
           autofocus
         >
           <option
