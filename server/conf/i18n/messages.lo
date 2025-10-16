@@ -843,6 +843,7 @@ label.uploadedFiles=ໄຟລ໌ທີ່ອັບໂຫຼດແລ້ວ
 validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
 validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
 validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
