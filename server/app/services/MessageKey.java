@@ -275,6 +275,7 @@ public enum MessageKey {
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
+  ID_VALIDATION_NUMBER_REQUIRED_V2("validation.numberRequired.v2"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
