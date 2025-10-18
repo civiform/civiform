@@ -80,4 +80,5 @@ public class DateQuestionRendererTest {
 
     assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
+
 }
