@@ -56,7 +56,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       OidcConfiguration oidcConfiguration,
       String clientId,
       OidcClientProviderParams params,
-      IdentityProviderType identityProviderType) {
+      IdentityProviderType identityProviderType,
+      SettingsManifest settingsManifest) {
     super(oidcConfiguration);
 
     checkNotNull(params.configuration());
@@ -68,7 +69,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     this.clientId = clientId;
     this.accountRepositoryProvider = params.accountRepositoryProvider();
     this.identityProviderType = identityProviderType;
-    this.settingsManifest = new SettingsManifest(params.configuration());
+    this.settingsManifest = settingsManifest;
   }
 
   /** Helper function for retriving values from the application.conf, */

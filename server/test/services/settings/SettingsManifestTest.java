@@ -98,7 +98,7 @@ public class SettingsManifestTest {
                       true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))));
-  private SettingsManifest testManifest = new SettingsManifest(SECTIONS, CONFIG);
+  private SettingsManifest testManifest = new SettingsManifest(SECTIONS, CONFIG, null);
 
   @Test
   public void gettingSections() {

@@ -74,7 +74,7 @@ public class EsriTestHelper {
 
   private static final Clock CLOCK = Clock.system(ZoneId.of("America/Los_Angeles"));
   private static final Config CONFIG = ConfigFactory.load();
-  private static final SettingsManifest SETTINGS_MANIFEST = new SettingsManifest(CONFIG);
+  private static final SettingsManifest SETTINGS_MANIFEST = new SettingsManifest(CONFIG, null);
 
   private static final EsriServiceAreaValidationConfig ESRI_SERVICE_AREA_VALIDATION_CONFIG =
       new EsriServiceAreaValidationConfig(CONFIG);
