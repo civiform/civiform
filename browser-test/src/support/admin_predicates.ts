@@ -218,4 +218,10 @@ export class AdminPredicates {
       this.page.getByRole('button', {name: 'Add condition'}),
     ).toBeHidden()
   }
+
+  async expectHtmxError() {
+    await expect(
+      this.page.getByText('We are experiencing a system error'),
+    ).toBeVisible()
+  }
 }

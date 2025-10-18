@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {waitForHtmxReady} from '../support/wait'
 
 test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
@@ -212,6 +213,68 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.expectNoAddConditionButton()
       await validateScreenshot(page, 'no-available-visibility-questions')
+    })
+  })
+
+  test('Bad HTMX request', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Create and edit an eligibility predicate'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'predicate-q'
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Add first predicate', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Submit bad HTMX request', async () => {
+      // Reformat the request URL to produce an HTMX failure
+      await page.route('**/hx/editCondition', async (route, request) => {
+        const newUrl = request
+          .url()
+          .toString()
+          .replace('ELIGIBILITY', 'BLAHBLAHBLAH')
+        const headers = {
+          ...request.headers(),
+          'hx-current-url': newUrl,
+        }
+        await route.continue({
+          url: newUrl,
+          headers,
+        })
+      })
+
+      await adminPredicates.clickAddConditionButton()
+
+      // Check that the correct alert is added to the DOM
+      await waitForHtmxReady(page)
+      await adminPredicates.expectHtmxError()
+      await validateScreenshot(
+        page.locator('.usa-alert--warning'),
+        'htmx-alert-failed-request',
+      )
     })
   })
 })
