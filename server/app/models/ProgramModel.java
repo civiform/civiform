@@ -192,7 +192,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.categories = definition.categories();
+    this.categories.addAll(definition.categories());
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
@@ -244,7 +244,7 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
-    this.categories = categories;
+    this.categories.addAll(categories);
     this.applicationSteps = applicationSteps;
     this.bridgeDefinitions = ImmutableMap.of();
   }
@@ -269,7 +269,17 @@ public class ProgramModel extends BaseModel {
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
-    categories = programDefinition.categories();
+
+    // Categories have to be cleared here before re-adding them from the
+    // programDefinition otherwise duplicate key constraint violations occur.
+    // This started after play-ebean v8.3.0 and ebean v15.1.0 when a fix
+    // to the ebean agent started correctly looking for unsupported list
+    // types initializations. We only need to clear here and not in the
+    // constructors because ebean will have automatically initialized
+    // this to a new list which will be empty.
+    categories.clear();
+    categories.addAll(programDefinition.categories());
+
     applicationSteps = programDefinition.applicationSteps();
     bridgeDefinitions = programDefinition.bridgeDefinitions();
 
