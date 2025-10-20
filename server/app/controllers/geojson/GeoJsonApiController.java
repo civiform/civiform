@@ -69,21 +69,21 @@ public final class GeoJsonApiController {
               if (rootCause instanceof MalformedURLException) {
                 return badRequest(
                         div(errorMessage)
-                            .withClasses("text-red-500", "text-base py-2")
+                            .withClass("text-red-500")
                             .withId("geoJsonURL-errors")
                             .toString())
                     .as(Http.MimeTypes.HTML);
               } else if (rootCause instanceof GeoJsonAccessException) {
                 return forbidden(
                         div(errorMessage)
-                            .withClasses("text-red-500", "text-base py-2")
+                            .withClass("text-red-500")
                             .withId("geoJsonURL-errors")
                             .toString())
                     .as(Http.MimeTypes.HTML);
               } else if (rootCause instanceof GeoJsonNotFoundException) {
                 return notFound(
                         div(errorMessage)
-                            .withClasses("text-red-500", "text-base py-2")
+                            .withClass("text-red-500")
                             .withId("geoJsonURL-errors")
                             .toString())
                     .as(Http.MimeTypes.HTML);
@@ -91,7 +91,7 @@ public final class GeoJsonApiController {
                 return internalServerError(
                         div("GeoJSON unable to be retrieved. Please try re-entering the endpoint"
                                 + " URL.")
-                            .withClasses("text-red-500", "text-base py-2")
+                            .withClass("text-red-500")
                             .withId("geoJsonURL-errors")
                             .toString())
                     .as(Http.MimeTypes.HTML);
