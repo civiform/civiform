@@ -332,6 +332,7 @@ public enum MessageKey {
   MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
   MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
+  MAP_LOCATION_LINK_TEXT_SR("map.locationLinkTextSr"), // North Star only
   MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only

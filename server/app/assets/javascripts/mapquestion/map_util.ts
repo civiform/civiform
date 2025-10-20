@@ -11,6 +11,7 @@ export interface MapSettings {
 
 export interface MapMessages {
   readonly locationsCount: string
+  readonly locationLinkTextSr: string
   readonly locationsSelectedCount: string
   readonly mapRegionAltText: string
   readonly goToPage: string
