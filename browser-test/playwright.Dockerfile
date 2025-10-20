@@ -39,13 +39,13 @@ WORKDIR $PROJECT_DIR
 # get re-downloaded every time code changes.
 COPY package.json package-lock.json ${PROJECT_DIR}/
 
-RUN npm install && \
+RUN npm ci && \
     npx playwright install --with-deps chromium
 
 COPY . ${PROJECT_DIR}
 
 # Re-run, to install from cache after overwriting it.
-RUN npm install && \
+RUN npm ci && \
     npx playwright install --with-deps chromium
 
 ENTRYPOINT ["/bin/bash"]

@@ -18,7 +18,7 @@ RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
 # Below we pre-install nodejs depdendencies for various
 # TS codebases we have. We need all dependencies in order to
 # run type-based checks with eslint. For each directory that
-# contains package.json we run npm install and save resulted `node_modules`
+# contains package.json we run `npm ci` and save resulted `node_modules`
 # directory as volume.
 ENV FORMATTER_DIR=/code/formatter
 ENV BROWSER_TEST_DIR=/code/browser-test
@@ -30,11 +30,11 @@ COPY browser-test/package.json browser-test/package-lock.json $BROWSER_TEST_DIR/
 COPY server/package.json server/package-lock.json $SERVER_DIR/
 
 RUN cd $FORMATTER_DIR && \
-    npm install && \
+    npm ci && \
     cd $BROWSER_TEST_DIR && \
-    npm install && \
+    npm ci && \
     cd $SERVER_DIR && \
-    npm install
+    npm ci
 
 WORKDIR $SERVER_DIR
 

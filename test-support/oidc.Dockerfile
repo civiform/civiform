@@ -5,5 +5,5 @@ WORKDIR /usr/app
 ADD test_oidc_provider.js oidc.js
 ADD package.json package.json
 ADD package-lock.json package-lock.json
-RUN npm install
+RUN npm ci
 CMD ["node", "oidc.js"]

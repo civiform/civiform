@@ -166,7 +166,7 @@ else
   else
     echo "Run eslint on /server"
     cd server
-    npm install --silent
+    npm ci --silent
 
     # The eslint_app_file_list array should not be surrounded by quotes, in this case
     # we want word splitting to occur so eslint will operate in each file. If
@@ -181,7 +181,7 @@ else
   else
     echo "Run eslint on /browser-test"
     cd browser-test
-    npm install --silent
+    npm ci --silent
 
     # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
     # we want word splitting to occur so eslint will operate in each file. If
