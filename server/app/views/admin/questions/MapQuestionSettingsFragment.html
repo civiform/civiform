@@ -67,7 +67,7 @@
       <h4 class="font-body-2xs" th:text="#{map.addTagSubtitle}"></h4>
     </legend>
     <div
-      th:class="|map-tag-setting-container ${selectedKey != null ? '' : 'hidden'}|"
+      th:class="|map-tag-setting-container ${selectedKey != '' ? '' : 'hidden'}|"
     >
       <div
         class="display-flex flex-justify tag-input"
@@ -83,7 +83,7 @@
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
           <select
-            data-testid="key-select"
+            data-testid="tag-key-select"
             class="usa-select cf-tag-key-select"
             name="locationTag.key"
             id="tag-key"
@@ -93,7 +93,7 @@
               th:each="key : ${possibleKeys}"
               th:value="${key}"
               th:text="${key}"
-              th:selected="${selectedKey != null && key == selectedKey}"
+              th:selected="${selectedKey != '' && key == selectedKey}"
             ></option>
           </select>
           <label
@@ -105,7 +105,7 @@
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
           <input
-            data-testid="value-input"
+            data-testid="tag-value-input"
             class="usa-input cf-tag-value-input"
             name="locationTag.value"
             th:value="${value}"
@@ -120,6 +120,7 @@
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
           <input
+            data-testid="tag-display-name-input"
             class="usa-input cf-tag-display-name-input"
             name="locationTag.displayName"
             th:value="${displayName}"
@@ -132,6 +133,7 @@
           >
           </label>
           <textarea
+            data-testid="tag-text-input"
             class="usa-textarea cf-tag-textarea"
             name="locationTag.alertText"
             th:text="${alertText}"
@@ -151,7 +153,8 @@
     <button
       id="add-map-tag-button"
       type="button"
-      th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 map-tag-setting-container ${selectedKey != null ? 'hidden' : ''}|"
+      role="button"
+      th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 ${selectedKey != '' ? 'hidden' : ''}|"
       th:inline="text"
     >
       <cf:icon type="icon-add" />[[#{map.addTagButton}]]

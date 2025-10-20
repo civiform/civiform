@@ -187,6 +187,7 @@ class AdminQuestionEdit {
 
     document.body.addEventListener('htmx:afterRequest', () => {
       this.updateAddFilterButtonState()
+      this.addMapTagButtonHandlers()
     })
   }
 
