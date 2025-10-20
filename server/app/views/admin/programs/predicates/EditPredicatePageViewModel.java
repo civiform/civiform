@@ -3,20 +3,23 @@ package views.admin.programs.predicates;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
+import lombok.Builder;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateUseCase;
-import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramHeader;
 
+@Builder
 public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
     PredicateUseCase predicateUseCase,
-    ImmutableList<QuestionDefinition> questions)
+    ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
+    boolean hasAvailableQuestions)
     implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {
