@@ -147,6 +147,7 @@
               th:href="${locationUrl}"
               class="usa-link usa-link--external cf-location-checkbox-link"
               target="_blank"
+              th:aria-label="#{map.locationLinkTextSr(${locationName})}"
               th:text="#{map.locationLinkText}"
             ></a>
             <div th:if="${mapQuestion.hasTagSetting()}">
@@ -362,6 +363,8 @@
       mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
       mapSelectLocationButtonText:
         /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
+      locationLinkTextSr:
+        /*[[#{map.locationLinkTextSr}]]*/ 'View more details for {0}',
     }
     window.app.data.iconUrls = {
       locationIcon: /*[[${locationIcon}]]*/ '',

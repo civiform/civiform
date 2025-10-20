@@ -167,6 +167,9 @@ const createPopupContent = (
         .namedItem(CF_POPUP_CONTENT_LOCATION_LINK)
         ?.cloneNode(true) as HTMLAnchorElement
       linkElement.href = detailsUrl
+      linkElement.ariaLabel = localizeString(getMessages().locationLinkTextSr, [
+        name,
+      ])
       popupContent.appendChild(linkElement)
     } catch {
       console.warn('Invalid URL format, skipping link:', detailsUrl)
