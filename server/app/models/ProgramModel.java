@@ -192,7 +192,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.categories = definition.categories();
+    this.categories.addAll(definition.categories());
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
@@ -244,7 +244,7 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
-    this.categories = categories;
+    this.categories.addAll(categories);
     this.applicationSteps = applicationSteps;
     this.bridgeDefinitions = ImmutableMap.of();
   }
@@ -269,7 +269,12 @@ public class ProgramModel extends BaseModel {
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
-    categories = programDefinition.categories();
+
+    // Ebean requires that we use its data structure, so clear the existing values then set the new
+    // values.
+    categories.clear();
+    categories.addAll(programDefinition.categories());
+
     applicationSteps = programDefinition.applicationSteps();
     bridgeDefinitions = programDefinition.bridgeDefinitions();
 

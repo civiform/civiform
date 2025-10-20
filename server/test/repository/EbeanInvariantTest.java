@@ -270,14 +270,9 @@ public class EbeanInvariantTest extends ResetPostgres {
     assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
   }
 
-  /**
-   * While we don't use batch mode often, be careful about its semantics.
-   *
-   * <p>In a previous test we see that IDs aren't auto loaded when it is on, and here we see that
-   * enabling batches is sticky for the entire transaction beyond when it is set.
-   */
+  /** Batch mode is scoped to the transaction it is set in. */
   @Test
-  public void transaction_innerBatchModeEnablesForEntireTransaction() {
+  public void transaction_innerBatchModeEnablesForInnerTransactionOnly() {
     try (Transaction outerTransaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       // Not set as expected.
@@ -294,24 +289,19 @@ public class EbeanInvariantTest extends ResetPostgres {
         innerTransaction.commit();
       }
 
-      // WARNING: Batch mode is on out here too, somewhat unexpectedly.
-      assertThat(outerTransaction.isBatchMode()).isTrue();
+      // Batch mode is off still in the outer transaction as expected.
+      assertThat(outerTransaction.isBatchMode()).isFalse();
+
+      // The batch IDs are available in the outer transaction.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
 
       var account = new AccountModel();
-      account.insert();
-      // In batch mode we don't get IDs without a refresh.
-      assertNull(account.id);
-
-      // Turn off batch mode, which flushes the batch.
-      outerTransaction.setBatchMode(false);
-
-      account = new AccountModel();
       account.insert();
       // Outside of batch mode we now get IDs.
       assertNotNull(account.id);
 
-      // All 3 are present in the DB.
-      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(3);
+      // Both are present in the DB.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(2);
     }
   }
 
