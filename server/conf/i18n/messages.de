@@ -923,16 +923,14 @@ option.maybe=Maybe
 
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
-# Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
 map.ariaLabelPaginationList=Pagination for map locations
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Go to previous page of map locations
 # Header for the section showing available locations
 map.availableLocations=Available locations
-# Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
@@ -943,24 +941,26 @@ map.locationLinkText=View more details
 map.locationsCount=Displaying {0} of {1} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
+# Alt text for map region
+map.mapRegionAltText=Interactive map displaying locations
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Selected
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No locations have been selected.
 # Sr only message displayed when page has changed
 map.paginationStatus=Now displaying page {0} of {1}.
 # Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
-# Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
-# Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
-# Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -972,24 +972,34 @@ map.addFilterButton=Add filter
 map.addFiltersSubtitle=Select up to six filters to make available to applicants.
 # Title for filters section
 map.addFiltersTitle=Filters
+# Button for adding a tag
+map.addTagButton=Add tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+# Title for tag section
+map.addTagTitle=Tag
 # Label for display name field
 map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
 map.locationAddressLabel=Address key
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
-# Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
-# Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
-# Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+# Label for setting text field
+map.settingTextLabel=Alert text
+# Label for value field
+map.valueLabel=Value
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
