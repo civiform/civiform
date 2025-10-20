@@ -25,7 +25,7 @@ ENV PROJECT_LOC="${PROJECT_HOME}/${PROJECT_NAME}"
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
     npm install -g npm && \
-    npm install && \
+    npm ci && \
     sbt addCustomAssets && \
     sbt update && \
     sbt dist && \

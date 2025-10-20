@@ -59,7 +59,7 @@ RUN sbt update --allow-empty
 # Do this before the rest of the server code, so they don't
 # get re-downloaded every time code changes.
 COPY "${PROJECT_NAME}"/package* .
-RUN npm install
+RUN npm ci
 
 # Copy over the remainder of the server code
 # Everything below here is re-run whenever any file changes.
