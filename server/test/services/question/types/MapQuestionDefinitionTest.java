@@ -270,6 +270,34 @@ public class MapQuestionDefinitionTest extends WithApplication {
                   MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
                   Optional.of(LocalizedStrings.of(Locale.US, "Test Filter 7")))),
           ImmutableSet.of(CiviFormError.of("Question cannot have more than six filters"))
+        },
+        new Object[] {
+          ImmutableSet.of(
+              QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+              QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+              QuestionSetting.create(
+                  "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
+              QuestionSetting.create(
+                  "",
+                  MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+                  Optional.of(LocalizedStrings.of(Locale.US, "Test Tag")),
+                  Optional.of("value"),
+                  Optional.of(LocalizedStrings.of(Locale.US, "Test Text")))),
+          ImmutableSet.of(CiviFormError.of("Tag key cannot be empty"))
+        },
+        new Object[] {
+          ImmutableSet.of(
+              QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+              QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+              QuestionSetting.create(
+                  "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
+              QuestionSetting.create(
+                  "tag",
+                  MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+                  Optional.of(LocalizedStrings.of(Locale.US, "")),
+                  Optional.of("value"),
+                  Optional.of(LocalizedStrings.of(Locale.US, "Test Text")))),
+          ImmutableSet.of(CiviFormError.of("Tag display name cannot be empty"))
         });
   }
 

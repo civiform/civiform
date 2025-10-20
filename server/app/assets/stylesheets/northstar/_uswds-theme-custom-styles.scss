@@ -724,6 +724,11 @@ main {
   display: none;
 }
 
+// Map question tag alert - display when tagged locations are selected
+.cf-map-question-tag-alert-hidden {
+  display: none;
+}
+
 .usa-button.cf-apply-filters-button,
 .usa-button.cf-reset-filters-button {
   margin-top: 0.5rem;

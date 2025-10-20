@@ -44,6 +44,12 @@ type QuestionParams = {
   locationAddressKey?: string
   locationDetailsUrlKey?: string
   filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  tag?: {
+    key?: string | null
+    displayName?: string | null
+    value?: string | null
+    text?: string | null
+  }
   displayMode?: QuestionDisplayMode | null
 }
 
@@ -838,6 +844,7 @@ export class AdminQuestions {
     locationAddressKey = 'address',
     locationDetailsUrlKey = 'website',
     filters = null,
+    tag = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -898,6 +905,29 @@ export class AdminQuestions {
             .nth(i)
             .fill(filter.displayName)
         }
+      }
+    }
+
+    // Configure tag if provided
+    if (tag != null) {
+      await this.page.getByRole('button', {name: 'Add tag'}).click()
+      if (tag.key != null) {
+        await this.page
+          .locator('select[name^="filters["]')
+          .nth(0)
+          .selectOption({value: tag.key})
+      }
+      if (tag.displayName != null) {
+        await this.page
+          .locator('input[name*="displayName"]')
+          .nth(0)
+          .fill(tag.displayName)
+      }
+      if (tag.value != null) {
+        await this.page.locator('input[name*="value"]').nth(0).fill(tag.value)
+      }
+      if (tag.text != null) {
+        await this.page.locator('input[name*="text"]').nth(0).fill(tag.text)
       }
     }
 
