@@ -33,6 +33,7 @@ import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
+import views.admin.programs.predicates.FailedRequestPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -53,6 +54,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
             instanceOf(EditConditionPartialView.class),
+            instanceOf(FailedRequestPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
@@ -73,7 +75,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   @Parameters({"true", "false"})
-  public void editVisibility_withNonExistantProgram_notFound(boolean expandedFormLogicEnabled) {
+  public void editVisibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
     when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
         .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
@@ -85,7 +87,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   @Parameters({"true", "false"})
-  public void editEligibility_withNonExistantProgram_notFound(boolean expandedFormLogicEnabled) {
+  public void editEligibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
     when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
         .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
@@ -96,7 +98,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void updateEligibilityMessage_withNonExistantProgram_notFound() {
+  public void updateEligibilityMessage_withNonExistentProgram_notFound() {
     assertThatThrownBy(
             () -> controller.updateEligibilityMessage(fakeRequest(), 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(controllers.admin.NotChangeableException.class)
@@ -278,5 +280,65 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(content).contains("What is your address?");
     assertThat(content).contains("Select your favorite ice cream flavor");
     assertThat(content).doesNotContain("What is your favorite color?");
+  }
+
+  @Test
+  public void hxEditCondition_noForm_returnsOkAndDisplaysAlert() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditCondition(
+            fakeRequestBuilder().build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("We are experiencing a system error");
+  }
+
+  @Test
+  public void hxEditCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditCondition(
+            fakeRequest(),
+            /* programId= */ 1,
+            /* blockDefinitionId= */ 3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("We are experiencing a system error");
+  }
+
+  @Test
+  public void hxEditCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditCondition(
+            fakeRequest(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 543L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("We are experiencing a system error");
+  }
+
+  @Test
+  public void hxEditCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditCondition(
+            fakeRequest(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 3L,
+            /* predicateUseCase= */ "RANDOM_USE_CASE");
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("We are experiencing a system error");
   }
 }
