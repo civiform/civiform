@@ -270,13 +270,8 @@ public class ProgramModel extends BaseModel {
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
 
-    // Categories have to be cleared here before re-adding them from the
-    // programDefinition otherwise duplicate key constraint violations occur.
-    // This started after play-ebean v8.3.0 and ebean v15.1.0 when a fix
-    // to the ebean agent started correctly looking for unsupported list
-    // types initializations. We only need to clear here and not in the
-    // constructors because ebean will have automatically initialized
-    // this to a new list which will be empty.
+    // Ebean requires that we use its data structure, so clear the existing values then set the new
+    // values.
     categories.clear();
     categories.addAll(programDefinition.categories());
 

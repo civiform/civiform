@@ -270,7 +270,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
   }
 
-  /** While we don't use batch mode often, be careful about its semantics. */
+  /** Batch mode is scoped to the transaction it is set in. */
   @Test
   public void transaction_innerBatchModeEnablesForInnerTransactionOnly() {
     try (Transaction outerTransaction =
@@ -289,8 +289,11 @@ public class EbeanInvariantTest extends ResetPostgres {
         innerTransaction.commit();
       }
 
-      // WARNING: Batch mode is off here now.
+      // Batch mode is off still in the outer transaction as expected.
       assertThat(outerTransaction.isBatchMode()).isFalse();
+
+      // The batch IDs are available in the outer transaction.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
 
       var account = new AccountModel();
       account.insert();
