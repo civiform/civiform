@@ -544,8 +544,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalArgumentException e) {
-      // TODO(#11618): Render error alert.
-      return notFound();
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
     }
   }
 
@@ -561,7 +561,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Form<EditSubconditionCommand> form =
         formFactory.form(EditSubconditionCommand.class).bindFromRequest(request);
     if (form.hasErrors()) {
-      // TODO(#11618): Render error alert.
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
     }
 
     try {
