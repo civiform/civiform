@@ -83,7 +83,11 @@
     </div>
   </div>
   <!-- Toggle button for mobile to switch between map and list view; default to list view -->
-  <div class="toggle-buttons-container" th:data-map-id="${mapId}">
+  <div
+    th:if="${!isPreview}"
+    class="toggle-buttons-container"
+    th:data-map-id="${mapId}"
+  >
     <button
       class="usa-button usa-button--base cf-switch-to-map-view-button"
       type="button"
