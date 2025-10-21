@@ -85,8 +85,8 @@ public final class InternalServerError extends BaseHtmlView {
 
   /** Get either the IT email address or the support email address */
   private String getEmailAddress(Http.RequestHeader requestHeader) {
-    Optional<String> itEmail =
-        settingsManifest.getItEmailAddress(requestHeader).filter(email -> !email.isBlank());
-    return itEmail.or(() -> settingsManifest.getSupportEmailAddress(requestHeader)).orElse("");
+    Optional<String> supportEmail =
+        settingsManifest.getSupportEmailAddress(requestHeader).filter(email -> !email.isBlank());
+    return supportEmail.or(() -> settingsManifest.getItEmailAddress(requestHeader)).orElse("");
   }
 }
