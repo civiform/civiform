@@ -14,9 +14,11 @@ public record EditConditionPartialViewModel(
     long blockId,
     PredicateUseCase predicateUseCase,
     long conditionId,
+    String selectedQuestionType,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
-    ImmutableList<OptionElement> operatorOptions)
+    ImmutableList<OptionElement> operatorOptions,
+    ImmutableList<OptionElement> valueOptions)
     implements EditPredicateBaseViewModel {
 
   public String hxEditConditionEndpoint() {
