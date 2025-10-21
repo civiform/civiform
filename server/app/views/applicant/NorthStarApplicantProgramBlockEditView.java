@@ -280,7 +280,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                                   params.block().hasErrors(),
                                   ordinalErrorCount.get()));
                   if (question.getType().equals(QuestionType.MAP)) {
-                    paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
+                    Optional<FeatureCollection> geoJsonData = getQuestionGeoJsonData(question);
+                    if (geoJsonData.isPresent()) {
+                      paramsBuilder.setGeoJson(getQuestionGeoJsonData(question).get());
+                    }
                   }
 
                   if (params.block().isFileUpload()) {
@@ -295,7 +298,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                 }));
   }
 
-  private FeatureCollection getQuestionGeoJsonData(ApplicantQuestion question) {
+  private Optional<FeatureCollection> getQuestionGeoJsonData(ApplicantQuestion question) {
     String geoJsonEndpoint =
         ((MapValidationPredicates) question.getQuestionDefinition().getValidationPredicates())
             .geoJsonEndpoint();
@@ -307,11 +310,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             .join();
 
     if (maybeExistingGeoJsonDataRow.isEmpty()) {
-      // TODO(#11078): Failure state for missing GeoJSON data
-      throw new IllegalStateException(
-          String.format(
-              "No GeoJSON data found for %s question.",
-              question.getQuestionDefinition().getName()));
+      return Optional.empty();
     }
 
     FeatureCollection geoJson = maybeExistingGeoJsonDataRow.get().getGeoJson();
@@ -332,7 +331,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                 })
             .collect(Collectors.toList());
 
-    return new FeatureCollection(geoJson.type(), geoJsonWithUpdatedProperties);
+    return Optional.of(new FeatureCollection(geoJson.type(), geoJsonWithUpdatedProperties));
   }
 
   private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {

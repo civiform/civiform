@@ -13,376 +13,400 @@
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
-  <!--/* Title and Help Text */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-  ></div>
-
-  <!--/* Display errors */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${mapQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
-  ></div>
-
-  <div class="padding-bottom-2">
-    <h3 class="font-family-serif" th:text="#{map.availableLocations}"></h3>
+  <!-- only show the map if we have geojson data to populate ut -->
+  <div th:if="questionRendererParams.geoJson.isPresent()">
+    <!--/* Title and Help Text */-->
     <div
-      th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
-      class="text-gray-50"
-      th:text="#{map.selectLocations(${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
-  </div>
-  <!-- Filters -->
-  <div
-    th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
-    th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
-  >
-    <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
-      <legend
-        class="usa-legend text-bold"
-        th:text="#{map.filterLegendText}"
-      ></legend>
-      <div
-        th:each="filter, i : ${mapQuestion.getFilters()}"
-        class="grid-col flex-align-self-end cf-map-question-filter"
-      >
-        <label
-          class="usa-label margin-top-1"
-          th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
-          th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
-        ></label>
-        <select
-          class="usa-select"
-          th:data-filter-key="${filter.settingKey()}"
-          th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
-          th:data-map-id="${mapId}"
-        >
-          <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-          <option
-            th:each="option : ${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingKey()) : {}}"
-            th:value="${option}"
-            th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
-          ></option>
-        </select>
-      </div>
-    </fieldset>
 
-    <!-- Apply filters buttons -->
-    <div class="margin-bottom-2">
-      <button
-        type="button"
-        class="usa-button margin-top-1 cf-apply-filters-button"
-        th:data-map-id="${mapId}"
-        th:text="#{map.applyFiltersButtonText}"
-      ></button>
-      <button
-        type="button"
-        class="usa-button usa-button--outline cf-reset-filters-button"
-        th:data-map-id="${mapId}"
-        th:text="#{map.resetFiltersButtonText}"
-      ></button>
-    </div>
-  </div>
-
-  <div class="grid-row grid-gap padding-1">
+    <!--/* Display errors */-->
     <div
-      class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0"
-    >
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${mapQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+    ></div>
+
+    <div class="padding-bottom-2">
+      <h3 class="font-family-serif" th:text="#{map.availableLocations}"></h3>
       <div
-        th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
-        class="text-ink margin-bottom-1 cf-location-count"
-        th:data-map-id="${mapId}"
-        th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
+        th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
+        class="text-gray-50"
+        th:text="#{map.selectLocations(${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()})}"
       ></div>
-      <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
-      <input
-        type="checkbox"
-        class="hidden"
-        value=""
-        th:name="${mapQuestion.getSelectionPathAsArray()}"
-        checked
-      />
-      <div
-        th:if="${questionRendererParams.geoJson().isPresent()}"
-        class="cf-locations-list"
-        th:data-map-id="${mapId}"
-        role="group"
-        aria-label="Location selection"
-      >
+    </div>
+    <!-- Filters -->
+    <div
+      th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+      th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
+    >
+      <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
+        <legend
+          class="usa-legend text-bold"
+          th:text="#{map.filterLegendText}"
+        ></legend>
         <div
-          th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
-          th:with="locationId='location-' + ${iterator.index},
-                      locationName=${feature.properties().get(mapQuestion.getNameValue())},
-                      locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
-                      locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
-                      ariaLabelForNewTabs=#{link.opensNewTabSr},
-                      featureId=${feature.id}"
-          th:data-feature-id="${featureId}"
-          class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
+          th:each="filter, i : ${mapQuestion.getFilters()}"
+          class="grid-col flex-align-self-end cf-map-question-filter"
         >
-          <input
-            class="usa-checkbox__input cf-location-checkbox-input"
-            th:id="${locationId}"
-            th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
-            th:name="${mapQuestion.getSelectionPathAsArray()}"
-            th:checked="${mapQuestion.locationIsSelected(featureId)}"
-            th:data-map-id="${mapId}"
-            th:data-feature-id="${featureId}"
-            type="checkbox"
-          />
           <label
-            class="usa-checkbox__label cf-location-checkbox-label"
-            th:for="${locationId}"
+            class="usa-label margin-top-1"
+            th:for="'filter' + ${i.index + 1} + '-' + ${mapId}"
+            th:utext="${filter.formattedSettingDisplayName(ariaLabelForNewTabs)}"
+          ></label>
+          <select
+            class="usa-select"
+            th:data-filter-key="${filter.settingKey()}"
+            th:id="'filter' + ${i.index + 1} + '-' + ${mapId}"
+            th:data-map-id="${mapId}"
           >
-            <div
-              class="text-bold cf-location-checkbox-name"
-              th:text="${locationName}"
-            ></div>
-            <div
-              class="cf-location-checkbox-address"
-              th:if="${locationAddress}"
-              th:text="${locationAddress}"
-            ></div>
-            <a
-              th:if="${locationUrl && locationUrl != ''}"
-              th:href="${locationUrl}"
-              class="usa-link usa-link--external cf-location-checkbox-link"
-              target="_blank"
-              th:aria-label="#{map.locationLinkTextSr(${locationName})}"
-              th:text="#{map.locationLinkText}"
-            ></a>
-            <div th:if="${mapQuestion.hasTagSetting()}">
-              <span
-                th:if="${feature.properties().get(mapQuestion.getTagKey()) == mapQuestion.getTagValue()}"
-                class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
-                th:text="${mapQuestion.getTagDisplayName()}"
-              ></span>
-            </div>
-          </label>
+            <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+            <option
+              th:each="option : ${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().getPossibleValuesForKey(filter.settingKey()) : {}}"
+              th:value="${option}"
+              th:text="${option == 'true' ? 'Yes' : (option == 'false' ? 'No' : option)}"
+            ></option>
+          </select>
         </div>
-        <div
-          th:if="${!questionRendererParams.geoJson().isPresent()}"
-          class="square-mobile"
-        ></div>
-      </div>
-      <nav
-        th:if="${questionRendererParams.geoJson().isPresent()}"
-        tabindex="-1"
-        th:aria-label="#{map.ariaLabelPaginationList}"
-        class="usa-pagination flex-justify-end cf-pagination"
-        th:data-map-id="${mapId}"
-      >
-        <div
-          aria-live="polite"
-          aria-atomic="true"
-          class="sr-only cf-pagination-status"
+      </fieldset>
+
+      <!-- Apply filters buttons -->
+      <div class="margin-bottom-2">
+        <button
+          type="button"
+          class="usa-button margin-top-1 cf-apply-filters-button"
           th:data-map-id="${mapId}"
-        ></div>
-        <ul class="usa-pagination__list cf-pagination-list">
-          <li
-            class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
-          >
-            <button
-              type="button"
-              class="usa-button--unstyled usa-pagination__link usa-pagination__previous-page"
-              name="cf-map-question-pagination-previous-button"
-              th:aria-label="#{map.ariaLabelPreviousPage}"
-              th:data-map-id="${mapId}"
-            >
-              <cf:icon
-                type="icon-navigate_before"
-                class="usa-icon"
-                name="cf-map-question-pagination-previous-button"
-                th:data-map-id="${mapId}"
-              />
-              <span
-                class="usa-pagination__link-text"
-                name="cf-map-question-pagination-previous-button"
-                th:data-map-id="${mapId}"
-                th:text="#{button.previousScreen}"
-              ></span>
-            </button>
-          </li>
-          <!--/* Page buttons will be dynamically populated here from templates below */-->
-          <li
-            class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-next-button"
-          >
-            <button
-              type="button"
-              class="usa-button--unstyled usa-pagination__link usa-pagination__next-page"
-              name="cf-map-question-pagination-next-button"
-              th:aria-label="#{map.ariaLabelNextPage}"
-              th:data-map-id="${mapId}"
-            >
-              <span
-                class="usa-pagination__link-text"
-                name="cf-map-question-pagination-next-button"
-                th:data-map-id="${mapId}"
-                th:text="#{button.nextPage}"
-              ></span>
-              <cf:icon
-                type="icon-navigate_next"
-                class="usa-icon"
-                name="cf-map-question-pagination-next-button"
-                th:data-map-id="${mapId}"
-              />
-            </button>
-          </li>
-        </ul>
-      </nav>
+          th:text="#{map.applyFiltersButtonText}"
+        ></button>
+        <button
+          type="button"
+          class="usa-button usa-button--outline cf-reset-filters-button"
+          th:data-map-id="${mapId}"
+          th:text="#{map.resetFiltersButtonText}"
+        ></button>
+      </div>
+    </div>
 
-      <!--/* Templates for pagination button elements */-->
-      <template class="cf-pagination-button-template" th:data-map-id="${mapId}">
-        <li
-          class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
+    <div class="grid-row grid-gap padding-1">
+      <div
+        class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0"
+      >
+        <div
+          th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
+          class="text-ink margin-bottom-1 cf-location-count"
+          th:data-map-id="${mapId}"
+          th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
+        ></div>
+        <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
+        <input
+          type="checkbox"
+          class="hidden"
+          value=""
+          th:name="${mapQuestion.getSelectionPathAsArray()}"
+          checked
+        />
+        <div
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          class="cf-locations-list"
+          th:data-map-id="${mapId}"
+          role="group"
+          aria-label="Location selection"
         >
-          <button
-            type="button"
-            class="usa-button--unstyled usa-pagination__button cf-map-question-pagination-button"
-            name="cf-map-question-pagination-button"
-          ></button>
-        </li>
-      </template>
-      <template
-        class="cf-pagination-overflow-template"
+          <div
+            th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
+            th:with="locationId='location-' + ${iterator.index},
+                        locationName=${feature.properties().get(mapQuestion.getNameValue())},
+                        locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
+                        locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
+                        ariaLabelForNewTabs=#{link.opensNewTabSr},
+                        featureId=${feature.id}"
+            th:data-feature-id="${featureId}"
+            class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
+          >
+            <input
+              class="usa-checkbox__input cf-location-checkbox-input"
+              th:id="${locationId}"
+              th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
+              th:name="${mapQuestion.getSelectionPathAsArray()}"
+              th:checked="${mapQuestion.locationIsSelected(featureId)}"
+              th:data-map-id="${mapId}"
+              th:data-feature-id="${featureId}"
+              type="checkbox"
+            />
+            <label
+              class="usa-checkbox__label cf-location-checkbox-label"
+              th:for="${locationId}"
+            >
+              <div
+                class="text-bold cf-location-checkbox-name"
+                th:text="${locationName}"
+              ></div>
+              <div
+                class="cf-location-checkbox-address"
+                th:if="${locationAddress}"
+                th:text="${locationAddress}"
+              ></div>
+              <a
+                th:if="${locationUrl && locationUrl != ''}"
+                th:href="${locationUrl}"
+                class="usa-link usa-link--external cf-location-checkbox-link"
+                target="_blank"
+                th:aria-label="#{map.locationLinkTextSr(${locationName})}"
+                th:text="#{map.locationLinkText}"
+              ></a>
+              <div th:if="${mapQuestion.hasTagSetting()}">
+                <span
+                  th:if="${feature.properties().get(mapQuestion.getTagKey()) == mapQuestion.getTagValue()}"
+                  class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
+                  th:text="${mapQuestion.getTagDisplayName()}"
+                ></span>
+              </div>
+            </label>
+          </div>
+          <div
+            th:if="${!questionRendererParams.geoJson().isPresent()}"
+            class="square-mobile"
+          ></div>
+        </div>
+        <nav
+          th:if="${questionRendererParams.geoJson().isPresent()}"
+          tabindex="-1"
+          th:aria-label="#{map.ariaLabelPaginationList}"
+          class="usa-pagination flex-justify-end cf-pagination"
+          th:data-map-id="${mapId}"
+        >
+          <div
+            aria-live="polite"
+            aria-atomic="true"
+            class="sr-only cf-pagination-status"
+            th:data-map-id="${mapId}"
+          ></div>
+          <ul class="usa-pagination__list cf-pagination-list">
+            <li
+              class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-previous-button"
+            >
+              <button
+                type="button"
+                class="usa-button--unstyled usa-pagination__link usa-pagination__previous-page"
+                name="cf-map-question-pagination-previous-button"
+                th:aria-label="#{map.ariaLabelPreviousPage}"
+                th:data-map-id="${mapId}"
+              >
+                <cf:icon
+                  type="icon-navigate_before"
+                  class="usa-icon"
+                  name="cf-map-question-pagination-previous-button"
+                  th:data-map-id="${mapId}"
+                />
+                <span
+                  class="usa-pagination__link-text"
+                  name="cf-map-question-pagination-previous-button"
+                  th:data-map-id="${mapId}"
+                  th:text="#{button.previousScreen}"
+                ></span>
+              </button>
+            </li>
+            <!--/* Page buttons will be dynamically populated here from templates below */-->
+            <li
+              class="usa-pagination__item usa-pagination__arrow cf-map-question-pagination-next-button"
+            >
+              <button
+                type="button"
+                class="usa-button--unstyled usa-pagination__link usa-pagination__next-page"
+                name="cf-map-question-pagination-next-button"
+                th:aria-label="#{map.ariaLabelNextPage}"
+                th:data-map-id="${mapId}"
+              >
+                <span
+                  class="usa-pagination__link-text"
+                  name="cf-map-question-pagination-next-button"
+                  th:data-map-id="${mapId}"
+                  th:text="#{button.nextPage}"
+                ></span>
+                <cf:icon
+                  type="icon-navigate_next"
+                  class="usa-icon"
+                  name="cf-map-question-pagination-next-button"
+                  th:data-map-id="${mapId}"
+                />
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!--/* Templates for pagination button elements */-->
+        <template
+          class="cf-pagination-button-template"
+          th:data-map-id="${mapId}"
+        >
+          <li
+            class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
+          >
+            <button
+              type="button"
+              class="usa-button--unstyled usa-pagination__button cf-map-question-pagination-button"
+              name="cf-map-question-pagination-button"
+            ></button>
+          </li>
+        </template>
+        <template
+          class="cf-pagination-overflow-template"
+          th:data-map-id="${mapId}"
+        >
+          <li
+            class="usa-pagination__item usa-pagination__overflow cf-pagination-item"
+            aria-label="ellipsis indicating non-visible pages"
+          >
+            <span>…</span>
+          </li>
+        </template>
+      </div>
+
+      <!-- Map container -->
+      <div class="grid-col-12 desktop:grid-col-6">
+        <!-- TODO(#11150): Add map question preview functionality -->
+        <div
+          th:id="${mapId}"
+          class="cf-map-container width-full height-full maxh-viewport bg-base-lighter"
+          data-testid="map-container"
+        >
+          <div th:if="${isPreview}" class="square-mobile"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Selected locations section -->
+    <div class="margin-top-3">
+      <h3
+        class="font-family-serif"
+        th:text="#{map.selectedLocationsHeading}"
+      ></h3>
+      <p
+        th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
+        th:with="totalLocationsSelected=0,
+              maxLocationSelectionsAllowed=${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}"
+        th:text="#{map.locationsSelectedCount(${totalLocationsSelected}, ${maxLocationSelectionsAllowed})}"
+        class="cf-selected-locations-message"
+        th:data-map-id="${mapId}"
+      ></p>
+      <p
+        th:if="${isPreview}"
+        th:text="#{map.noSelectionsMessage}"
+        class="cf-selected-locations-message"
+      ></p>
+      <div
+        th:if="${mapQuestion.hasTagSetting()}"
+        class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
+        th:data-map-id="${mapId}"
+        role="alert"
+      >
+        <div class="usa-alert__body">
+          <p class="usa-alert__text" th:text="${mapQuestion.getTagText()}"></p>
+        </div>
+      </div>
+      <div
+        class="cf-selected-locations-container"
+        data-testid="selected-locations-list"
         th:data-map-id="${mapId}"
       >
-        <li
-          class="usa-pagination__item usa-pagination__overflow cf-pagination-item"
-          aria-label="ellipsis indicating non-visible pages"
-        >
-          <span>…</span>
-        </li>
-      </template>
-    </div>
-
-    <!-- Map container -->
-    <div class="grid-col-12 desktop:grid-col-6">
-      <!-- TODO(#11150): Add map question preview functionality -->
-      <div
-        th:id="${mapId}"
-        class="cf-map-container width-full height-full maxh-viewport bg-base-lighter"
-        data-testid="map-container"
-      >
-        <div th:if="${isPreview}" class="square-mobile"></div>
+        <!-- Selected locations will be dynamically populated here -->
       </div>
     </div>
-  </div>
-  <!-- Selected locations section -->
-  <div class="margin-top-3">
-    <h3
-      class="font-family-serif"
-      th:text="#{map.selectedLocationsHeading}"
-    ></h3>
-    <p
-      th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
-      th:with="totalLocationsSelected=0,
-            maxLocationSelectionsAllowed=${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}"
-      th:text="#{map.locationsSelectedCount(${totalLocationsSelected}, ${maxLocationSelectionsAllowed})}"
-      class="cf-selected-locations-message"
+    <!-- Template for when there are no selections -->
+    <template
+      class="text-base-dark cf-no-selections-message"
       th:data-map-id="${mapId}"
-    ></p>
-    <p
-      th:if="${isPreview}"
       th:text="#{map.noSelectionsMessage}"
-      class="cf-selected-locations-message"
-    ></p>
-    <div
-      th:if="${mapQuestion.hasTagSetting()}"
-      class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
-      th:data-map-id="${mapId}"
-      role="alert"
+    ></template>
+    <!-- Hidden template for popups -->
+    <template class="cf-popup-content-template" th:data-map-id="${mapId}">
+      <div
+        id="cf-popup-content-location-name"
+        class="text-bold font-serif-sm padding-bottom-2"
+      ></div>
+      <div id="cf-popup-content-location-address" class="font-sans-sm"></div>
+      <a
+        id="cf-popup-content-location-link"
+        class="font-sans-sm usa-link usa-link--external"
+        target="_blank"
+        th:text="#{map.locationLinkText}"
+      ></a>
+      <div
+        th:if="${mapQuestion.hasTagSetting()}"
+        name="cf-popup-tag"
+        class="padding-top-2"
+      >
+        <span
+          class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
+          th:text="${mapQuestion.getTagDisplayName()}"
+        ></span>
+      </div>
+      <button
+        type="button"
+        name="cf-select-location-button"
+        class="usa-button usa-button--secondary margin-top-1"
+        th:data-feature-id="${featureId}"
+        th:text="#{map.selectLocationButtonText}"
+      ></button>
+    </template>
+
+    <script
+      th:if="${questionRendererParams.geoJson().isPresent()}"
+      th:inline="javascript"
+      th:nonce="${cspNonce}"
     >
+      window.app = window.app || {}
+      window.app.data = window.app.data || {}
+      window.app.data.maxLocationSelections =
+        /*[[${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent() ? mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt() : null}]]*/ null
+      window.app.data.messages = {
+        locationsCount:
+          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
+        locationsSelectedCount:
+          /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
+        mapRegionAltText:
+          /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
+        goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
+        paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
+        mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
+        mapSelectLocationButtonText:
+          /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
+        locationLinkTextSr:
+          /*[[#{map.locationLinkTextSr}]]*/ 'View more details for {0}',
+      }
+      window.app.data.iconUrls = {
+        locationIcon: /*[[${locationIcon}]]*/ '',
+        selectedLocationIcon: /*[[${selectedLocationIcon}]]*/ '',
+      }
+
+      window.app.data.maps = window.app.data.maps || {}
+
+      id = /*[[${mapId}]]*/ 'id'
+      window.app.data.maps[id] = {
+        geoJson: /*[[${questionRendererParams.geoJson().get()}]]*/ {},
+        settings: {
+          nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
+          addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
+          detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
+          tagGeoJsonKey: /*[[${mapQuestion.getTagKey()}]]*/ '',
+          tagGeoJsonValue: /*[[${mapQuestion.getTagValue()}]]*/ '',
+        },
+      }
+    </script>
+  </div>
+  <!-- if no geojson data, display warning alert -->
+  <div th:unless="${questionRendererParams.geoJson().isPresent()}">
+    <div class="usa-alert usa-alert--warning">
       <div class="usa-alert__body">
-        <p class="usa-alert__text" th:text="${mapQuestion.getTagText()}"></p>
+        <h4 class="usa-alert__heading"></h4>
+        <p class="usa-alert__text">
+          We're sorry we are unable to display this question at this time.
+          Please try returning to this application at a later time.
+        </p>
+        <p>
+          In the meantime, return to the
+          <a class="usa-link" href="javascript:void(0);">homepage</a>
+          or <a class="usa-link" href="javascript:void(0);">contact us</a>
+          and we'll point you in the right direction.
+        </p>
       </div>
     </div>
-    <div
-      class="cf-selected-locations-container"
-      data-testid="selected-locations-list"
-      th:data-map-id="${mapId}"
-    >
-      <!-- Selected locations will be dynamically populated here -->
-    </div>
   </div>
-  <!-- Template for when there are no selections -->
-  <template
-    class="text-base-dark cf-no-selections-message"
-    th:data-map-id="${mapId}"
-    th:text="#{map.noSelectionsMessage}"
-  ></template>
-  <!-- Hidden template for popups -->
-  <template class="cf-popup-content-template" th:data-map-id="${mapId}">
-    <div
-      id="cf-popup-content-location-name"
-      class="text-bold font-serif-sm padding-bottom-2"
-    ></div>
-    <div id="cf-popup-content-location-address" class="font-sans-sm"></div>
-    <a
-      id="cf-popup-content-location-link"
-      class="font-sans-sm usa-link usa-link--external"
-      target="_blank"
-      th:text="#{map.locationLinkText}"
-    ></a>
-    <div
-      th:if="${mapQuestion.hasTagSetting()}"
-      name="cf-popup-tag"
-      class="padding-top-2"
-    >
-      <span
-        class="usa-tag bg-warning-lighter text-no-uppercase text-ink"
-        th:text="${mapQuestion.getTagDisplayName()}"
-      ></span>
-    </div>
-    <button
-      type="button"
-      name="cf-select-location-button"
-      class="usa-button usa-button--secondary margin-top-1"
-      th:data-feature-id="${featureId}"
-      th:text="#{map.selectLocationButtonText}"
-    ></button>
-  </template>
-
-  <script
-    th:if="${questionRendererParams.geoJson().isPresent()}"
-    th:inline="javascript"
-    th:nonce="${cspNonce}"
-  >
-    window.app = window.app || {}
-    window.app.data = window.app.data || {}
-    window.app.data.maxLocationSelections =
-      /*[[${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent() ? mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt() : null}]]*/ null
-    window.app.data.messages = {
-      locationsCount:
-        /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
-      locationsSelectedCount:
-        /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
-      mapRegionAltText:
-        /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
-      goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
-      paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
-      mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
-      mapSelectLocationButtonText:
-        /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
-      locationLinkTextSr:
-        /*[[#{map.locationLinkTextSr}]]*/ 'View more details for {0}',
-    }
-    window.app.data.iconUrls = {
-      locationIcon: /*[[${locationIcon}]]*/ '',
-      selectedLocationIcon: /*[[${selectedLocationIcon}]]*/ '',
-    }
-
-    window.app.data.maps = window.app.data.maps || {}
-
-    id = /*[[${mapId}]]*/ 'id'
-    window.app.data.maps[id] = {
-      geoJson: /*[[${questionRendererParams.geoJson().get()}]]*/ {},
-      settings: {
-        nameGeoJsonKey: /*[[${mapQuestion.getNameValue()}]]*/ '',
-        addressGeoJsonKey: /*[[${mapQuestion.getAddressValue()}]]*/ '',
-        detailsUrlGeoJsonKey: /*[[${mapQuestion.getDetailsUrlValue()}]]*/ '',
-        tagGeoJsonKey: /*[[${mapQuestion.getTagKey()}]]*/ '',
-        tagGeoJsonValue: /*[[${mapQuestion.getTagValue()}]]*/ '',
-      },
-    }
-  </script>
 </div>
