@@ -746,11 +746,14 @@ main {
   .cf-map-container.cf-toggle-hidden,
   .cf-locations-list,
   .cf-locations-list.cf-toggle-hidden,
-  .cf-pagination,
-  .cf-pagination.cf-toggle-hidden,
   .cf-location-count,
   .cf-location-count.cf-toggle-hidden {
     display: block;
+  }
+
+  .cf-pagination,
+  .cf-pagination.cf-toggle-hidden {
+    display: flex;
   }
 }
 
