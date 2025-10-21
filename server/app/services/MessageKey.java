@@ -347,6 +347,8 @@ public enum MessageKey {
   MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
   MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
   MAP_SETTING_TEXT_LABEL("map.settingTextLabel"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW("map.switchToListView"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_VALUE_LABEL("map.valueLabel"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),

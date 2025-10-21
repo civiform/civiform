@@ -67,7 +67,7 @@
     </fieldset>
 
     <!-- Apply filters buttons -->
-    <div class="margin-bottom-2">
+    <div class="tablet:margin-bottom-2">
       <button
         type="button"
         class="usa-button margin-top-1 cf-apply-filters-button"
@@ -82,14 +82,34 @@
       ></button>
     </div>
   </div>
-
+  <!-- Toggle button for mobile to switch between map and list view; default to list view -->
+  <div class="toggle-buttons-container" th:data-map-id="${mapId}">
+    <button
+      class="usa-button usa-button--base cf-switch-to-map-view-button"
+      type="button"
+      th:data-map-id="${mapId}"
+      name="cf-switch-to-map-view-button"
+    >
+      <cf:icon type="icon-map" /><span th:text="#{map.switchToMapView}"></span>
+    </button>
+    <button
+      class="usa-button usa-button--base cf-toggle-hidden cf-switch-to-list-view-button"
+      type="button"
+      th:data-map-id="${mapId}"
+      name="cf-switch-to-list-view-button"
+    >
+      <cf:icon type="icon-list" /><span
+        th:text="#{map.switchToListView}"
+      ></span>
+    </button>
+  </div>
   <div class="grid-row grid-gap padding-1">
     <div
-      class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0"
+      class="grid-col-12 desktop:grid-col-6 margin-bottom-3 desktop:margin-bottom-0 order-2 desktop:order-1"
     >
       <div
         th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
-        class="text-ink margin-bottom-1 cf-location-count"
+        class="text-ink margin-bottom-1 margin-top-1 tablet:margin-top-3 desktop:margin-top-0 cf-location-count"
         th:data-map-id="${mapId}"
         th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
       ></div>
@@ -255,11 +275,11 @@
     </div>
 
     <!-- Map container -->
-    <div class="grid-col-12 desktop:grid-col-6">
+    <div class="grid-col-12 desktop:grid-col-6 order-1 desktop:order-2">
       <!-- TODO(#11150): Add map question preview functionality -->
       <div
         th:id="${mapId}"
-        class="cf-map-container width-full height-full maxh-viewport bg-base-lighter"
+        class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-3 tablet:margin-top-0"
         data-testid="map-container"
       >
         <div th:if="${isPreview}" class="square-mobile"></div>

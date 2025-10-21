@@ -59,6 +59,11 @@ export const CF_RESET_FILTERS_BUTTON = 'cf-reset-filters-button'
 // PAGINATION
 export const CF_PAGINATION_HIDDEN = 'cf-pagination-hidden'
 
+// VIEW TOGGLE
+export const CF_TOGGLE_HIDDEN = 'cf-toggle-hidden'
+export const CF_SWITCH_TO_LIST_VIEW_BUTTON = 'cf-switch-to-list-view-button'
+export const CF_SWITCH_TO_MAP_VIEW_BUTTON = 'cf-switch-to-map-view-button'
+
 // MAP DEFAULTS
 export const DEFAULT_LOCATION_ICON = 'locationMarkerIcon'
 export const DEFAULT_MAP_CENTER_POINT: LngLatLike = [-122.3321, 47.6062]

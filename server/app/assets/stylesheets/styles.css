@@ -34,7 +34,7 @@
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline) {
+  .usa-button:not(.usa-button--outline, .usa-button--base) {
     background-color: #005ea2;
   }
 
