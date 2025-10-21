@@ -19,9 +19,11 @@ public record EditSubconditionPartialViewModel(
     PredicateUseCase predicateUseCase,
     long conditionId,
     long subconditionId,
+    String selectedQuestionType,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
-    ImmutableList<OptionElement> operatorOptions)
+    ImmutableList<OptionElement> operatorOptions,
+    ImmutableList<OptionElement> valueOptions)
     implements BaseViewModel {
   public String hxEditSubconditionEndpoint() {
     return routes.AdminProgramBlockPredicatesController.hxEditSubcondition(

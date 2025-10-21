@@ -26,6 +26,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.ProgramService;
 import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateUseCase;
@@ -70,6 +71,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
+            instanceOf(EsriServiceAreaValidationConfig.class),
             settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
@@ -440,6 +442,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(content).contains("service area");
     assertThat(content)
         .doesNotContain(ImmutableList.of("street", "first name", "date", "currency"));
+    // Verify that values are populated
+    assertThat(content).contains("Seattle");
   }
 
   @Test
