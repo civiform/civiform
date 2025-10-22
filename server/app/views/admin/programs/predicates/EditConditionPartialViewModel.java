@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.AdminProgramBlockPredicatesController.OptionElement;
 import controllers.admin.AdminProgramBlockPredicatesController.ScalarOptionElement;
 import controllers.admin.routes;
+import java.util.Optional;
 import lombok.Builder;
 import services.program.predicate.PredicateUseCase;
 
@@ -14,7 +15,7 @@ public record EditConditionPartialViewModel(
     long blockId,
     PredicateUseCase predicateUseCase,
     long conditionId,
-    String selectedQuestionType,
+    Optional<String> selectedQuestionType,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
