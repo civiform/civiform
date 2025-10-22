@@ -80,4 +80,4 @@ __pycache__/
 dependency-tree.txt
 server/dependency-tree.txt
 dependencies-compile.graphml
-server/dependencies-compile.graphml
+server/dependencies-compile.graphmltest-results/
