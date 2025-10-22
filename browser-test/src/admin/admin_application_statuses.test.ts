@@ -1036,7 +1036,7 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
       })
 
       await test.step('login as TI and submit second application', async () => {
-        await loginAsTrustedIntermediary(page)
+        await loginAsProgramAdmin(page)
 
         await applicantQuestions.clickApplyProgramButton(
           programWithStatusesName,
@@ -1052,8 +1052,9 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
 
         await adminPrograms.viewApplications(programWithStatusesName)
 
-        const row =
-          await adminPrograms.getApplicationsTableRow('Test User Name')
+        const row = page
+          .locator('tbody tr', {hasText: 'Test User Name'})
+          .first()
 
         const submittedBy = row.locator('td:nth-child(5)')
 
