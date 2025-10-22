@@ -267,6 +267,199 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     })
   })
 
+  test(`Create number predicate`, async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+
+    const programName =
+      'Create and edit an eligibility predicate with number question'
+    const questionText = 'how many burritos have you eaten today?'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'number-q'
+      await adminQuestions.addNumberQuestion({
+        questionName: questionName,
+        questionText: questionText,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Add new condition', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Entering text in number question applies filtering', async () => {
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        questionText,
+      )
+
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'EQUAL_TO',
+      )
+
+      const inputElementLocator = page.locator(
+        '#condition-1-subcondition-1-value',
+      )
+
+      await expect(inputElementLocator).not.toHaveAttribute('hidden')
+      await inputElementLocator.pressSequentially('123,abc4,,')
+      await expect(inputElementLocator).toHaveValue('123,4,')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'values-with-number-question-selected',
+      )
+    })
+
+    await test.step('Selecting a multiple value operator shows hint text', async () => {
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'IN',
+      )
+
+      const hintTextElementLocator = page.locator(
+        '#condition-1-subcondition-1-valueHintText',
+      )
+
+      await expect(hintTextElementLocator).not.toHaveAttribute('hidden')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'value-hint-text',
+      )
+    })
+
+    await test.step('Selecting the between operator populates multiple values', async () => {
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'BETWEEN',
+      )
+
+      const secondInputElementLocator = page.locator(
+        '#condition-1-subcondition-1-secondValue',
+      )
+
+      await expect(secondInputElementLocator).not.toHaveAttribute('hidden')
+      await secondInputElementLocator.pressSequentially('123,abc4,,')
+      await expect(secondInputElementLocator).toHaveValue('123,4,')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'multiple-values-with-number-question-selected',
+      )
+    })
+  })
+
+  test(`Create currency predicate`, async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+
+    const programName =
+      'Create and edit an eligibility predicate with number question'
+    const questionText = 'how much should a house cost?'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'currency-q'
+      await adminQuestions.addCurrencyQuestion({
+        questionName: questionName,
+        questionText: questionText,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Add new condition', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Entering text in number question applies filtering', async () => {
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        questionText,
+      )
+
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'EQUAL_TO',
+      )
+
+      const inputElementLocator = page.locator(
+        '#condition-1-subcondition-1-value',
+      )
+
+      await expect(inputElementLocator).not.toHaveAttribute('hidden')
+      await inputElementLocator.pressSequentially('3.50')
+      await expect(inputElementLocator).toHaveValue('3.50')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'values-with-currency-question-selected',
+      )
+    })
+
+    await test.step('Selecting the between operator populates multiple values', async () => {
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'BETWEEN',
+      )
+
+      const secondInputElementLocator = page.locator(
+        '#condition-1-subcondition-1-secondValue',
+      )
+
+      await expect(secondInputElementLocator).not.toHaveAttribute('hidden')
+      await secondInputElementLocator.pressSequentially('4.75')
+      await expect(secondInputElementLocator).toHaveValue('4.75')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'multiple-values-with-currency-question-selected',
+      )
+    })
+  })
+
   test('No available questions on screen', async ({
     page,
     adminQuestions,
