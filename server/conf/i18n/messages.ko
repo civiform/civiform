@@ -961,6 +961,10 @@ map.selectLocationButtonText=Select location
 map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Switch to map view
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Switch to list view
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
 
