@@ -4,7 +4,7 @@ Please explain the changes you made here.
 
 ## Release notes
 
-Remove this section if the title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
+Remove this section if the feature is still under development or if title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
 
 When the Release engineer creates Release Notes, they will not look for this section for Under Development tagged PRs, and will use it if present for all other PRs included in the Release Notes.
 
