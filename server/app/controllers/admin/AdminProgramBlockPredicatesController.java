@@ -538,6 +538,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .blockId(blockDefinitionId)
                   .predicateUseCase(useCase)
                   .conditionId(form.get().getConditionId())
+                  .selectedQuestionType(Optional.empty())
                   .questionOptions(
                       getQuestionOptions(
                           availableQuestions, /* selectedQuestion= */ Optional.empty()))
@@ -591,9 +592,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .conditionId(conditionId)
                   .subconditionId(subconditionId)
                   .selectedQuestionType(
-                      selectedQuestion
-                          .map(question -> question.getQuestionType().getLabel())
-                          .orElse(QuestionType.NULL_QUESTION.getLabel()))
+                      selectedQuestion.map(question -> question.getQuestionType().getLabel()))
                   .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
                   .scalarOptions(
                       selectedQuestion
