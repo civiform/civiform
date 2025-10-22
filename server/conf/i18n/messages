@@ -688,6 +688,14 @@ content.disabledProgramInfo=We''re sorry, the program you are trying to access h
 # Button text on a button that takes the user back to the home page.
 button.homePage=Back to homepage
 
+#--------------------------------------------------------------------------------------------------------------#
+# PROGRAM EDIT - text for Admin program edit view #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+# Text to bridge multiple input fields together
+content.multipleInputBridge=and
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

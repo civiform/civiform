@@ -16,6 +16,7 @@ public record EditConditionPartialViewModel(
     PredicateUseCase predicateUseCase,
     long conditionId,
     Optional<String> selectedQuestionType,
+    Optional<String> selectedOperator,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
@@ -32,5 +33,21 @@ public record EditConditionPartialViewModel(
     return routes.AdminProgramBlockPredicatesController.hxEditSubcondition(
             programId, blockId, predicateUseCase.name())
         .url();
+  }
+
+  public EditSubconditionPartialViewModel emptySubconditionViewModel() {
+    return EditSubconditionPartialViewModel.builder()
+        .programId(programId)
+        .blockId(blockId)
+        .predicateUseCase(predicateUseCase)
+        .conditionId(conditionId)
+        .subconditionId(1L)
+        .selectedQuestionType(Optional.empty())
+        .selectedOperator(Optional.empty())
+        .questionOptions(questionOptions)
+        .scalarOptions(scalarOptions)
+        .operatorOptions(operatorOptions)
+        .valueOptions(valueOptions)
+        .build();
   }
 }
