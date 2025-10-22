@@ -298,6 +298,33 @@ if (isLocalDevEnvironment()) {
           )
         })
       })
+
+      test('toggle between map and list view', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        await test.step('Set viewport to mobile size', async () => {
+          // The size of a Google Pixel 7
+          await page.setViewportSize({width: 412, height: 915})
+        })
+
+        await test.step('Take screenshot of list view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-list')
+        })
+
+        await test.step('Switch to map view', async () => {
+          const switchToMapViewButton = page.getByText('Switch to map view')
+          await switchToMapViewButton.click()
+        })
+
+        await test.step('Take screenshot of map view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-map')
+        })
+      })
     })
 
     test.describe('multiple map questions', () => {

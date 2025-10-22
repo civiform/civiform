@@ -26,6 +26,7 @@ import {
   CF_POPUP_CONTENT_TEMPLATE,
   CF_SELECTED_LOCATIONS_CONTAINER,
   CF_SELECT_LOCATION_BUTTON_CLICKED,
+  CF_TOGGLE_HIDDEN,
   DATA_FEATURE_ID,
   DATA_MAP_ID,
   DEFAULT_LOCATION_ICON,
@@ -41,6 +42,9 @@ import {
   MapSettings,
   mapQuerySelector,
   SELECTED_LOCATION_ICON,
+  CF_LOCATION_COUNT,
+  CF_SWITCH_TO_LIST_VIEW_BUTTON,
+  CF_SWITCH_TO_MAP_VIEW_BUTTON,
 } from './map_util'
 
 export const init = (): void => {
@@ -394,6 +398,44 @@ const setupEventListenersForMap = (
       }
 
       updateSelectedLocations(mapId)
+    })
+  }
+
+  const locationCount = mapQuerySelector(mapId, CF_LOCATION_COUNT)
+  const switchToListButton = mapQuerySelector(
+    mapId,
+    CF_SWITCH_TO_LIST_VIEW_BUTTON,
+  ) as HTMLButtonElement
+  const switchToMapButton = mapQuerySelector(
+    mapId,
+    CF_SWITCH_TO_MAP_VIEW_BUTTON,
+  ) as HTMLButtonElement
+
+  if (!locationsListContainer || !paginationNav || !locationCount) {
+    return
+  }
+
+  if (switchToListButton) {
+    switchToListButton.addEventListener('click', () => {
+      // Switch to list view
+      switchToListButton.classList.add(CF_TOGGLE_HIDDEN)
+      switchToMapButton?.classList.remove(CF_TOGGLE_HIDDEN)
+      mapContainer.classList.add(CF_TOGGLE_HIDDEN)
+      locationsListContainer.classList.remove(CF_TOGGLE_HIDDEN)
+      paginationNav.classList.remove(CF_TOGGLE_HIDDEN)
+      locationCount.classList.remove(CF_TOGGLE_HIDDEN)
+    })
+  }
+
+  if (switchToMapButton) {
+    switchToMapButton.addEventListener('click', () => {
+      // Switch to map view
+      switchToMapButton.classList.add(CF_TOGGLE_HIDDEN)
+      switchToListButton?.classList.remove(CF_TOGGLE_HIDDEN)
+      mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
+      locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
+      paginationNav.classList.add(CF_TOGGLE_HIDDEN)
+      locationCount.classList.add(CF_TOGGLE_HIDDEN)
     })
   }
 }
