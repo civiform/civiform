@@ -539,11 +539,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .predicateUseCase(useCase)
                   .conditionId(form.get().getConditionId())
                   .selectedQuestionType(Optional.empty())
+                  .selectedOperator(Optional.empty())
                   .questionOptions(
                       getQuestionOptions(
                           availableQuestions, /* selectedQuestion= */ Optional.empty()))
                   .scalarOptions(ImmutableList.of())
-                  .operatorOptions(getOperatorOptions())
+                  .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
                   .build()))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
@@ -582,7 +583,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       long conditionId = form.get().getConditionId();
       long subconditionId = form.get().getSubconditionId();
       Optional<QuestionDefinition> selectedQuestion =
-          getSelectedQuestion(request, conditionId, subconditionId, availableQuestions);
+          getSelectedQuestionOptional(request, conditionId, subconditionId, availableQuestions);
+      Optional<Scalar> selectedScalar =
+          getSelectedScalarOptional(request, conditionId, subconditionId);
+      Optional<Operator> selectedOperator =
+          getSelectedOperatorOptional(request, conditionId, subconditionId);
+
       return ok(editSubconditionPartialView.render(
               request,
               EditSubconditionPartialViewModel.builder()
@@ -593,12 +599,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .subconditionId(subconditionId)
                   .selectedQuestionType(
                       selectedQuestion.map(question -> question.getQuestionType().getLabel()))
+                  .selectedOperator(selectedOperator.map(operator -> operator.toJsonPathOperator()))
                   .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
                   .scalarOptions(
                       selectedQuestion
-                          .map(question -> getScalarOptionsForQuestion(question))
+                          .map(question -> getScalarOptionsForQuestion(question, selectedScalar))
                           .orElse(ImmutableList.of()))
-                  .operatorOptions(getOperatorOptions())
+                  .operatorOptions(getOperatorOptions(selectedOperator))
                   .valueOptions(
                       selectedQuestion
                           .map(question -> getValueOptionsForQuestion(question))
@@ -617,7 +624,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * Get the selected question from the request. Returns an empty optional if there is none or if it
    * can't be parsed.
    */
-  private Optional<QuestionDefinition> getSelectedQuestion(
+  private Optional<QuestionDefinition> getSelectedQuestionOptional(
       Request request,
       long conditionId,
       long subconditionId,
@@ -636,6 +643,45 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
     return selectedQuestionId.flatMap(
         id -> availableQuestions.stream().filter(q -> q.getId() == id).findFirst());
+  }
+
+  /**
+   * Get the selected scalar option from the request. Returns an empty optional if there is none or if
+   * it can't be parsed.
+   */
+  private Optional<Scalar> getSelectedScalarOptional(
+      Request request, long conditionId, long subconditionId) {
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+    String scalarValue =
+        formData.get(
+            String.format("condition-%d-subcondition-%d-scalar", conditionId, subconditionId));
+    if (scalarValue != null) {
+      try {
+        return Optional.of(Scalar.valueOf(scalarValue));
+      } catch (IllegalArgumentException e) {
+        // continue with empty optional
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Get the selected operator from the request. Returns an empty optional if there is none or if it
+   * can't be parsed.
+   */
+  private Optional<Operator> getSelectedOperatorOptional(Request request, long conditionId, long subconditionId) {
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+    String operatorValue =
+        formData.get(
+            String.format("condition-%d-subcondition-%d-operator", conditionId, subconditionId));
+    if (operatorValue != null) {
+      try {
+        return Optional.of(Operator.valueOf(operatorValue));
+      } catch (IllegalArgumentException e) {
+        // continue with empty optional
+      }
+    }
+    return Optional.empty();
   }
 
   /**
@@ -664,7 +710,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * selected by default.
    */
   private ImmutableList<ScalarOptionElement> getScalarOptionsForQuestion(
-      QuestionDefinition question) {
+      QuestionDefinition question,
+      Optional<Scalar> selectedScalar) {
     ImmutableList<Scalar> scalars = ImmutableList.of();
     if (question.isAddress()) {
       scalars = ImmutableList.of(Scalar.SERVICE_AREAS);
@@ -679,6 +726,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         return ImmutableList.of();
       }
     }
+
+    // Check that the selected scalar is valid for this question.
+    Optional<Scalar> validSelectedScalar = scalars.stream()
+        .filter(scalar -> selectedScalar.isPresent() && scalar.equals(selectedScalar.get()))
+        .findFirst();  
+          
+    // Iterate through the scalars and mark one as selected.
+    // If the currently selected scalar is present and valid, use that value.
+    // Otherwise, select the first scalar by default.
     ImmutableList.Builder<ScalarOptionElement> scalarOptionsBuilder = new ImmutableList.Builder<>();
     AtomicBoolean isFirst = new AtomicBoolean(true);
     scalars.forEach(
@@ -688,7 +744,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .value(scalar.name())
                     .displayText(scalar.toDisplayString())
                     .scalarType(scalar.toScalarType().name())
-                    .selected(isFirst.getAndSet(false))
+                    .selected(validSelectedScalar.isPresent()
+                        ? scalar.equals(validSelectedScalar.get())
+                        : isFirst.getAndSet(false))
                     .build()));
 
     return scalarOptionsBuilder.build();
@@ -721,13 +779,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * will be filtered and marked hidden on the client based on the associated {@link Scalar}
    * dropdown.
    */
-  private ImmutableList<OptionElement> getOperatorOptions() {
+  private ImmutableList<OptionElement> getOperatorOptions(Optional<Operator> selectedOperator) {
     return Arrays.stream(Operator.values())
         .map(
             operator -> {
               return OptionElement.builder()
                   .value(operator.name())
                   .displayText(operator.toDisplayString())
+                  .selected(
+                      selectedOperator.isPresent()
+                          && operator.equals(selectedOperator.get()))
                   .build();
             })
         .collect(ImmutableList.toImmutableList());

@@ -7,6 +7,7 @@ import controllers.admin.routes;
 import java.util.Optional;
 import lombok.Builder;
 import services.program.predicate.PredicateUseCase;
+import services.program.predicate.Operator;
 import views.admin.BaseViewModel;
 
 /**
@@ -21,6 +22,7 @@ public record EditSubconditionPartialViewModel(
     long conditionId,
     long subconditionId,
     Optional<String> selectedQuestionType,
+    Optional<String> selectedOperator,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
