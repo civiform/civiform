@@ -696,7 +696,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
 
   /**
-   * Returns a list of {@link OptionElement}s representing all possible Values for the predicate,
+   * Returns a list of {@link OptionElement}s representing all possible Values for the condition,
    * depending on question type.
    */
   private ImmutableList<OptionElement> getValueOptionsForQuestion(QuestionDefinition question) {
