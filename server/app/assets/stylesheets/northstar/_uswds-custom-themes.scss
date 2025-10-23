@@ -25,7 +25,8 @@
   .usa-button--outline,
   .usa-button--unstyled,
   .usa-button--base,
-  .usa-modal__close
+  .usa-modal__close,
+  :disabled
 ) {
   background-color: var(--primary);
 }
@@ -34,7 +35,8 @@
     .usa-button--outline,
     .usa-button--unstyled,
     .usa-button--base,
-    .usa-modal__close
+    .usa-modal__close,
+    :disabled
   ) {
   background-color: var(--primary-dark);
 }
