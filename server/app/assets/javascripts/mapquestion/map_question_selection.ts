@@ -1,6 +1,5 @@
 import {
   CF_FILTER_HIDDEN,
-  CF_LOCATION_CHECKBOX,
   CF_LOCATION_CHECKBOX_INPUT,
   CF_LOCATIONS_LIST_CONTAINER,
   CF_MAP_QUESTION_ALERT_HIDDEN,
@@ -38,14 +37,14 @@ export const updateSelectedLocations = (mapId: string): void => {
 
   const locationCheckboxes = queryLocationCheckboxes(mapId)
 
-  const selectedCheckboxes = Array.from(
-    locationCheckboxes
-  ).filter((checkbox) => {
-    const input = checkbox.querySelector(
-      'input[type="checkbox"]',
-    ) as HTMLInputElement
-    return input && input.checked
-  })
+  const selectedCheckboxes = Array.from(locationCheckboxes).filter(
+    (checkbox) => {
+      const input = checkbox.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement
+      return input && input.checked
+    },
+  )
 
   const selectedLocationsContainer = mapQuerySelector(
     mapId,

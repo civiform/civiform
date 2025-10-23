@@ -507,14 +507,17 @@ const updatePopupButtonState = (
 
 const updateOpenPopupButtons = (mapId: string): void => {
   // Find open popup button (there will be 0 or 1)
-  const popupButton = mapQuerySelector(mapId, CF_POPUP_CONTENT_BUTTON) as HTMLButtonElement;
+  const popupButton = mapQuerySelector(
+    mapId,
+    CF_POPUP_CONTENT_BUTTON,
+  ) as HTMLButtonElement
   if (!popupButton) {
     console.log('returning')
     return
   }
 
   const maxReached = hasReachedMaxSelections(mapId)
-  
+
   const isSelectedButton = popupButton.classList.contains(
     CF_SELECT_LOCATION_BUTTON_CLICKED,
   )
