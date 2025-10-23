@@ -36,6 +36,12 @@ public record EditPredicatePageViewModel(
         .url();
   }
 
+  public String updatePredicateEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.updatePredicate(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
+  }
+
   public String blockName() {
     return blockDefinition.name();
   }
