@@ -12,10 +12,12 @@ import {
   DATA_FEATURE_ID,
   DATA_MAP_ID,
   getMessages,
+  hasReachedMaxSelections,
   localizeString,
   MapData,
   mapQuerySelector,
   queryLocationCheckboxes,
+  selectionCounts,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
@@ -34,8 +36,10 @@ export const updateSelectedLocations = (mapId: string): void => {
     return
   }
 
+  const locationCheckboxes = queryLocationCheckboxes(mapId)
+
   const selectedCheckboxes = Array.from(
-    mapLocationsContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`),
+    locationCheckboxes
   ).filter((checkbox) => {
     const input = checkbox.querySelector(
       'input[type="checkbox"]',
@@ -93,6 +97,23 @@ export const updateSelectedLocations = (mapId: string): void => {
   }
   updateSelectionCountForMap(mapId)
   updateAlertVisibility(mapId)
+
+  // Disable unchecked checkboxes if max selections reached
+  const atMaxSelections = hasReachedMaxSelections(mapId)
+
+  locationCheckboxes.forEach((checkbox) => {
+    const input = checkbox.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement
+    if (input) {
+      // Only disable unchecked checkboxes when max is reached
+      if (atMaxSelections && !input.checked) {
+        input.disabled = true
+      } else {
+        input.disabled = false
+      }
+    }
+  })
 }
 
 const updateSelectionCountForMap = (mapId: string): void => {
@@ -107,6 +128,8 @@ const updateSelectionCountForMap = (mapId: string): void => {
 
   const count =
     selectedLocationsListContainer.querySelectorAll(`.usa-checkbox`).length
+
+  selectionCounts.set(mapId, count)
 
   const countText = mapQuerySelector(
     mapId,
