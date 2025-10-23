@@ -25,5 +25,9 @@ public record Feature(
     if (!type.equalsIgnoreCase("Feature")) {
       throw new IllegalArgumentException("Invalid type for Feature: " + type);
     }
+
+    if (properties.isEmpty()) {
+      throw new IllegalArgumentException("Properties objects are required.");
+    }
   }
 }
