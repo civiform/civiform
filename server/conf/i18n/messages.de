@@ -967,6 +967,10 @@ map.switchToMapView=Switch to map view
 map.switchToListView=Switch to list view
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.contactUs = contact us
+map.homepage = homepage
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
