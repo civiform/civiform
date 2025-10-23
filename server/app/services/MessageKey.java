@@ -352,6 +352,9 @@ public enum MessageKey {
   MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_VALUE_LABEL("map.valueLabel"), // North Star only
+  MAP_GEO_JSON_ERROR_TEXT("map.geoJsonErrorText"), // North Star only
+  MAP_HOMEPAGE("map.homepage"), // North Star only
+  MAP_CONTACT_US("map.contactUs"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
