@@ -5,7 +5,6 @@ interface Window {
       AdminPredicateEdit: AdminPredicateEdit
     }
     data: {
-      maxLocationSelections: number
       messages: object
       iconUrls: {
         locationIcon: string

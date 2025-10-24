@@ -135,7 +135,8 @@ const updateSelectionCountForMap = (mapId: string): void => {
     CF_SELECTED_LOCATION_MESSAGE,
   ) as HTMLElement | null
 
-  const maxLocationSelections = window.app?.data?.maxLocationSelections
+  const mapData = window.app?.data?.maps?.[mapId] as MapData
+  const maxLocationSelections = mapData.settings.maxLocationSelections
   if (countText && maxLocationSelections) {
     countText.textContent = localizeString(
       getMessages().locationsSelectedCount,

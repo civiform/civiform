@@ -7,6 +7,7 @@ export interface MapSettings {
   readonly detailsUrlGeoJsonKey: string
   readonly tagGeoJsonKey?: string
   readonly tagGeoJsonValue?: string
+  readonly maxLocationSelections?: string
 }
 
 export interface MapMessages {
@@ -135,7 +136,8 @@ export const getMessages = (): MapMessages => {
 }
 
 export const hasReachedMaxSelections = (mapId: string): boolean => {
-  const maxLocationSelections = window.app?.data?.maxLocationSelections
+  const mapData = window.app?.data?.maps?.[mapId] as MapData
+  const maxLocationSelections = Number(mapData.settings.maxLocationSelections)
 
   const selectionCount = selectionCounts.get(mapId) || 0
   return selectionCount >= maxLocationSelections
