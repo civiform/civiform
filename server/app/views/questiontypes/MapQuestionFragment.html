@@ -137,7 +137,7 @@
         >
           <div
             th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
-            th:with="locationId='location-' + ${iterator.index},
+            th:with="locationId='location-' + ${mapId} + ${iterator.index},
                       locationName=${feature.properties().get(mapQuestion.getNameValue())},
                       locationAddress=${feature.properties().get(mapQuestion.getAddressValue())},
                       locationUrl=${feature.properties().get(mapQuestion.getDetailsUrlValue())},
