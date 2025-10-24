@@ -200,6 +200,73 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     })
   })
 
+  test(`Create service area predicate`, async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    // This test is separated out because address questions have special logic
+    // for populating the value options.
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    const programName =
+      'Create and edit an eligibility predicate with address question'
+    const questionText = 'address question'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'address-q'
+      await adminQuestions.addAddressQuestion({
+        questionName: questionName,
+        questionText: questionText,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Trigger address correction toggle and add new condition', async () => {
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+
+      await adminPrograms.clickAddressCorrectionToggle()
+      await expect(adminPrograms.getAddressCorrectionToggle()).toHaveValue(
+        'true',
+      )
+
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Choosing a question updates value options', async () => {
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        questionText,
+      )
+      await expect(
+        page
+          .getByLabel('Value(s)', {id: 'condition-1-subcondition-1-value'})
+          .locator(`option[value="Seattle"]`),
+      ).not.toHaveAttribute('hidden')
+
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'values-with-address-question-selected',
+      )
+    })
+  })
+
   test('No available questions on screen', async ({
     page,
     adminQuestions,
