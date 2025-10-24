@@ -512,7 +512,6 @@ const updateOpenPopupButtons = (mapId: string): void => {
     CF_POPUP_CONTENT_BUTTON,
   ) as HTMLButtonElement
   if (!popupButton) {
-    console.log('returning')
     return
   }
 
