@@ -225,7 +225,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     try {
       PredicateDefinition predicateDefinition =
-          predicateGenerator.generatePredicateDefinition(
+          predicateGenerator.legacyGeneratePredicateDefinition(
               programService.getFullProgramDefinition(programId),
               formFactory.form().bindFromRequest(request),
               roQuestionService);
@@ -402,7 +402,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       EligibilityDefinition eligibility =
           EligibilityDefinition.builder()
               .setPredicate(
-                  predicateGenerator.generatePredicateDefinition(
+                  predicateGenerator.legacyGeneratePredicateDefinition(
                       programService.getFullProgramDefinition(programId),
                       formFactory.form().bindFromRequest(request),
                       roQuestionService))
@@ -502,6 +502,57 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             .url();
     return redirect(indexUrl)
         .flashing(toastType.toString().toLowerCase(Locale.getDefault()), toastMessage);
+  }
+
+  /** POST endpoint for updating predicates. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updatePredicate(
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+      return notFound("Expanded form logic is not enabled.");
+    }
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    ReadOnlyQuestionService roQuestionService =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    try {
+      PredicateDefinition predicateDefinition =
+          predicateGenerator.generatePredicateDefinition(
+              programService.getFullProgramDefinition(programId),
+              formFactory.form().bindFromRequest(request),
+              roQuestionService);
+
+      switch (PredicateUseCase.valueOf(predicateUseCase)) {
+        case ELIGIBILITY ->
+            programService.setBlockEligibilityDefinition(
+                programId,
+                blockDefinitionId,
+                Optional.of(
+                    EligibilityDefinition.builder().setPredicate(predicateDefinition).build()));
+        case VISIBILITY ->
+            programService.setBlockVisibilityPredicate(
+                programId, blockDefinitionId, Optional.of(predicateDefinition));
+      }
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (IllegalPredicateOrderingException
+        | QuestionNotFoundException
+        | ProgramQuestionDefinitionNotFoundException
+        | EligibilityNotValidForProgramTypeException e) {
+      // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
+          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
+    }
+
+    // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+    return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
+        .flashing(
+            FlashKey.SUCCESS,
+            String.format("Saved %s condition", predicateUseCase.toLowerCase(Locale.ROOT)));
   }
 
   /** HTMX partial that renders a card for editing a condition within a predicate. */
