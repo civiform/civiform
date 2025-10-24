@@ -7,6 +7,7 @@ export interface MapSettings {
   readonly detailsUrlGeoJsonKey: string
   readonly tagGeoJsonKey?: string
   readonly tagGeoJsonValue?: string
+  readonly maxLocationSelections?: string
 }
 
 export interface MapMessages {
@@ -87,6 +88,9 @@ export const DEFAULT_MAP_STYLE: StyleSpecification = {
   layers: [{id: 'osm', type: 'raster', source: 'osm'}],
 }
 
+// Track the number of selected locations for each map
+export const selectionCounts = new Map<string, number>()
+
 // Query elements within a specific map container
 export const mapQuerySelector = (
   mapId: string,
@@ -106,12 +110,13 @@ export const localizeString = (message: string, params: string[] = []) => {
   return message
 }
 
-export const queryLocationCheckboxes = (mapId: string) => {
+export const queryLocationCheckboxes = (
+  mapId: string,
+): NodeListOf<HTMLElement> => {
   const locationsListContainer = mapQuerySelector(
     mapId,
     CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!locationsListContainer) return []
+  ) as HTMLElement
 
   return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
 }
@@ -119,7 +124,7 @@ export const queryLocationCheckboxes = (mapId: string) => {
 export const getVisibleCheckboxes = (mapId: string) => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   return Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = (checkbox as HTMLElement) || null
+    const checkboxElement = checkbox || null
     return (
       checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
@@ -128,4 +133,12 @@ export const getVisibleCheckboxes = (mapId: string) => {
 
 export const getMessages = (): MapMessages => {
   return window.app?.data?.messages as MapMessages
+}
+
+export const hasReachedMaxSelections = (mapId: string): boolean => {
+  const mapData = window.app?.data?.maps?.[mapId] as MapData
+  const maxLocationSelections = Number(mapData.settings.maxLocationSelections)
+
+  const selectionCount = selectionCounts.get(mapId) || 0
+  return selectionCount >= maxLocationSelections
 }

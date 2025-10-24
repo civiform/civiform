@@ -844,7 +844,7 @@ export class AdminQuestions {
     locationAddressKey = 'address',
     locationDetailsUrlKey = 'website',
     filters = null,
-    tag = null,
+    tag = {},
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
