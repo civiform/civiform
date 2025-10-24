@@ -1,5 +1,6 @@
 <th:block
-  th:fragment="predicateValues(questionType, valueOptions, valueInputId, hasSelectedQuestion)"
+  th:fragment="predicateValues(questionType, valueOptions, baseId, hasSelectedQuestion)"
+  th:with="valueInputId=${baseId + '-value'}, secondValueInputId=${baseId + '-secondValue'}, secondValueInputGroupId=${baseId + '-secondValueGroup'}, valueInputHintId=${baseId + '-valueHintText'}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
@@ -22,6 +23,72 @@
             th:selected="${valueOption.selected()}"
           ></option>
         </select>
+      </th:block>
+      <th:block th:case="'Currency'">
+        <div class="usa-input-group">
+          <div class="usa-input-prefix">$</div>
+          <input
+            class="usa-input"
+            inputmode="decimal"
+            type="currency"
+            th:id="${valueInputId}"
+            th:name="${valueInputId}"
+            aria-required="false"
+            aria-invalid="false"
+          />
+        </div>
+
+        <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+          <span
+            class="margin-left-1"
+            th:text="#{content.multipleInputBridge}"
+          ></span>
+          <div class="usa-input-group">
+            <div class="usa-input-prefix">$</div>
+            <input
+              class="usa-input"
+              inputmode="decimal"
+              type="currency"
+              th:id="${secondValueInputId}"
+              th:name="${secondValueInputId}"
+              aria-required="false"
+              aria-invalid="false"
+            />
+          </div>
+        </div>
+      </th:block>
+      <th:block th:case="'Number'">
+        <div
+          class="usa-hint"
+          th:id="${valueInputHintId}"
+          th:text="#{content.multipleValuesInputHint}"
+        ></div>
+        <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
+        <input
+          class="usa-input"
+          inputmode="text"
+          th:id="${valueInputId}"
+          th:name="${valueInputId}"
+          numeric-input
+          aria-required="false"
+          aria-invalid="false"
+        />
+
+        <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+          <span
+            class="margin-left-1"
+            th:text="#{content.multipleInputBridge}"
+          ></span>
+          <input
+            class="usa-input"
+            inputmode="text"
+            th:id="${secondValueInputId}"
+            th:name="${secondValueInputId}"
+            numeric-input
+            aria-required="false"
+            aria-invalid="false"
+          />
+        </div>
       </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
       <th:block th:case="*">

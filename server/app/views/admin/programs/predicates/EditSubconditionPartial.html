@@ -1,5 +1,5 @@
 <!--/*@thymesVar id="model" type="views.admin.programs.predicates.EditSubconditionPartialViewModel"*/-->
 
 <div
-  th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.conditionId}, ${model.subconditionId}, ${model.selectedQuestionType}, ${model.questionOptions()}, ${model.scalarOptions()}, ${model.operatorOptions()}, ${model.valueOptions()}, ${model.hxEditSubconditionEndpoint()}, ${model.hasSelectedQuestion()})}"
+  th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model})}"
 ></div>

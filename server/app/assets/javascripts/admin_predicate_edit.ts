@@ -2,6 +2,10 @@ import {HtmxAfterSwapEvent} from './htmx_request'
 import {addEventListenerToElements} from './util'
 
 export class AdminPredicateEdit {
+  // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
+  static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
+  static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
+
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'subcondition-container' element in this swap
     if (event.target.classList.contains('subcondition-container')) {
@@ -14,10 +18,30 @@ export class AdminPredicateEdit {
           dropdown.removeEventListener('change', this.onScalarDropdownChange)
           dropdown.addEventListener('change', this.onScalarDropdownChange)
         })
+      document
+        .querySelectorAll<HTMLSelectElement>('.cf-predicate-operator-select')
+        .forEach((dropdown: HTMLSelectElement) => {
+          dropdown.removeEventListener('change', this.onOperatorDropdownChange)
+          dropdown.addEventListener('change', this.onOperatorDropdownChange)
+        })
+      document
+        .querySelectorAll<HTMLInputElement>('.cf-predicate-value-input input')
+        .forEach((input: HTMLInputElement) => {
+          input.removeEventListener('input', this.onValueInput)
+          input.addEventListener('input', this.onValueInput)
+        })
 
       // Trigger change to update operators based on the current scalar selected.
       Array.from(
         document.querySelectorAll('.cf-predicate-scalar-select select'),
+      ).forEach((el) => {
+        const event = new CustomEvent('change', {bubbles: true})
+        el.dispatchEvent(event)
+      })
+
+      // Trigger change to update values inputs based on the current scalar selected.
+      Array.from(
+        document.querySelectorAll('.cf-predicate-operator-select select'),
       ).forEach((el) => {
         const event = new CustomEvent('change', {bubbles: true})
         el.dispatchEvent(event)
@@ -31,10 +55,19 @@ export class AdminPredicateEdit {
       'change',
       AdminPredicateEdit.onScalarDropdownChange,
     )
+    addEventListenerToElements(
+      '.cf-predicate-operator-select',
+      'change',
+      AdminPredicateEdit.onOperatorDropdownChange,
+    )
   }
 
   private static onScalarDropdownChange(event: Event): void {
     AdminPredicateEdit.handleScalarChange(event.target as HTMLSelectElement)
+  }
+
+  private static onValueInput(event: Event) {
+    AdminPredicateEdit.filterInputValue(event.target as HTMLInputElement)
   }
 
   private static handleScalarChange(scalarDropdown: HTMLSelectElement) {
@@ -49,6 +82,118 @@ export class AdminPredicateEdit {
       selectedScalarType,
       selectedScalarValue,
     )
+  }
+
+  private static onOperatorDropdownChange(event: Event): void {
+    AdminPredicateEdit.handleOperatorChange(event.target as HTMLSelectElement)
+  }
+
+  private static handleOperatorChange(operatorDropdown: HTMLSelectElement) {
+    // Get the type of operator currently selected.
+    const selectedOperatorValue =
+      operatorDropdown.options[operatorDropdown.options.selectedIndex].value
+
+    AdminPredicateEdit.manageValueInputVisibility(
+      operatorDropdown,
+      selectedOperatorValue,
+    )
+  }
+
+  /**
+   * Manage visibility of value elements, depending on the currently selected operator.
+   *    @param {HTMLSelectElement} operatorDropdown: The operator select element.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   */
+  private static manageValueInputVisibility(
+    operatorDropdown: HTMLSelectElement,
+    selectedOperatorValue: string | null,
+  ) {
+    if (!selectedOperatorValue) {
+      return
+    }
+
+    // Get the second value input group associated with this operator.
+    const valueBaseId = operatorDropdown.getAttribute('data-value-base-id')
+    AdminPredicateEdit.manageSecondValueInputVisibility(
+      valueBaseId,
+      selectedOperatorValue,
+    )
+    AdminPredicateEdit.manageValueInputHintVisibility(
+      valueBaseId,
+      selectedOperatorValue,
+    )
+  }
+
+  /**
+   * Hide or show the second value input, depending on the currently selected operator.
+   *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   */
+  private static manageSecondValueInputVisibility(
+    valueBaseId: string | null,
+    selectedOperatorValue: string,
+  ) {
+    if (!valueBaseId) {
+      return
+    }
+    const secondValueInputGroupId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
+    const secondValueInputGroup = document.getElementById(
+      secondValueInputGroupId,
+    )
+    if (!secondValueInputGroup) {
+      return
+    }
+
+    // Show or hide the second value input based on the selected operator.
+    // Currently only the BETWEEN operator requires a second value.
+    if (selectedOperatorValue === 'BETWEEN') {
+      secondValueInputGroup.hidden = false
+    } else {
+      secondValueInputGroup.hidden = true
+    }
+  }
+
+  /**
+   * Hide or show the hint text for multiple values input, depending on the operator type
+   * selected.
+   *    @param {string} valueBaseId: The base ID for the value field. Used to find the hint element.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   */
+  private static manageValueInputHintVisibility(
+    valueBaseId: string | null,
+    selectedOperatorValue: string,
+  ) {
+    if (!valueBaseId) {
+      return
+    }
+    const valueInputHintId =
+      valueBaseId + AdminPredicateEdit.VALUE_INPUT_HINT_ID_SUFFIX
+    const valueInputHint = document.getElementById(valueInputHintId)
+    if (!valueInputHint) {
+      return
+    }
+
+    // Show or hide the value input hint based on the selected operator.
+    if (selectedOperatorValue === 'IN' || selectedOperatorValue === 'NOT_IN') {
+      valueInputHint.hidden = false
+    } else {
+      valueInputHint.hidden = true
+    }
+  }
+
+  /**
+   * Filter the values for each input, depending on the type of input expected.
+   *    @param {HTMLInputElement} input The element to filter the value for.
+   */
+  private static filterInputValue(input: HTMLInputElement) {
+    // If an input has been marked as numeric, filter input to only:
+    // a: numbers 0-9
+    // b: commas
+    // This regex also filters out multiple commas in a row.
+    if (input.hasAttribute('numeric-input')) {
+      input.value = input.value.replace(/[^0-9,]|(?<=,),/g, '')
+    }
   }
 
   /**

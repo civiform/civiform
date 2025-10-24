@@ -181,6 +181,8 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
+  CONTENT_MULTIPLE_INPUT_BRIDGE("content.multipleInputBridge"),
+  CONTENT_MULTIPLE_VALUES_INPUT_HINT("content.multipleValuesInputHint"),
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),

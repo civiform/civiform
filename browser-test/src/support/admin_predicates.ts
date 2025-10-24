@@ -239,4 +239,18 @@ export class AdminPredicates {
 
     await waitForHtmxReady(this.page)
   }
+
+  async selectOperator(
+    conditionId: number,
+    subconditionId: number,
+    operatorValue: string,
+  ) {
+    await this.page
+      .getByLabel('State', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      })
+      .selectOption(`${operatorValue}`)
+
+    await waitForHtmxReady(this.page)
+  }
 }
