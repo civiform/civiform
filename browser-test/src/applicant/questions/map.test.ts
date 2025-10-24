@@ -98,11 +98,19 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        const locationCheckboxes = page.getByRole('checkbox')
+        const locationsList = page.getByTestId('locations-list')
+        const locationCheckboxes = locationsList.getByRole('checkbox')
 
         await test.step('Select first location checkbox', async () => {
           await locationCheckboxes.first().check()
           await expect(locationCheckboxes.first()).toBeChecked()
+        })
+
+        await test.step('Confirm the rest of the checkboxes are disabled', async () => {
+          const restOfCheckboxes = (await locationCheckboxes.all()).slice(1)
+          for (const checkbox of restOfCheckboxes) {
+            await expect(checkbox).toBeDisabled()
+          }
         })
 
         await test.step('Verify location appears in selected list', async () => {
@@ -127,6 +135,12 @@ if (isLocalDevEnvironment()) {
           await locationCheckboxes.first().uncheck()
           await expect(locationCheckboxes.first()).not.toBeChecked()
         })
+
+        await test.step('Confirm all the checkboxes are enabled', async () => {
+          for (const checkbox of await locationCheckboxes.all()) {
+            await expect(checkbox).toBeEnabled()
+          }
+        })
       })
 
       test('select locations from map popups', async ({
@@ -149,7 +163,7 @@ if (isLocalDevEnvironment()) {
           await mapCanvas.click()
         })
 
-        await test.step('Check for popup select buttons', async () => {
+        await test.step('Click popup select buttons', async () => {
           const selectButtons = page.getByRole('button', {
             name: /select.*location/i,
           })
@@ -157,13 +171,28 @@ if (isLocalDevEnvironment()) {
           expect(selectButtonsCount).toBe(1)
           await selectButtons.first().click()
 
+          const selectButtonAfter = page.getByRole('button', {
+            name: /selected/i,
+          })
+          await expect(selectButtonAfter).toBeVisible()
+        })
+
+        await test.step('Confirm location is selected all the other checkboxes are disabled', async () => {
           const selectedLocationsList = page.getByTestId(
             'selected-locations-list',
           )
-          const checkboxes = selectedLocationsList.getByRole('checkbox')
-          const checkboxCount = await checkboxes.count()
-          expect(checkboxCount).toBeGreaterThan(0)
-          await expect(checkboxes.first()).toBeChecked()
+          const selectedCheckboxes = selectedLocationsList.getByRole('checkbox')
+          const selectedCheckboxCount = await selectedCheckboxes.count()
+          expect(selectedCheckboxCount).toBeGreaterThan(0)
+          await expect(selectedCheckboxes.first()).toBeChecked()
+
+          const locationsList = page.getByTestId('locations-list')
+          const allLocationCheckboxes = await locationsList
+            .getByRole('checkbox')
+            .all()
+          for (const checkbox of allLocationCheckboxes) {
+            await expect(checkbox).toBeDisabled()
+          }
         })
       })
 
