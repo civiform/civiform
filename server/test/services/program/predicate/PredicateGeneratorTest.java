@@ -91,7 +91,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -149,7 +149,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -207,7 +207,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -262,7 +262,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -320,7 +320,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -373,7 +373,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -426,7 +426,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -479,7 +479,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
@@ -530,7 +530,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -588,7 +588,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -641,7 +641,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -694,7 +694,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -754,7 +754,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -847,7 +847,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        .isEqualTo(PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .containsExactlyInAnyOrder(
@@ -936,7 +936,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.checkboxApplicantKitchenTools().id));

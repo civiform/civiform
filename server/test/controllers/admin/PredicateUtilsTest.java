@@ -139,11 +139,11 @@ public class PredicateUtilsTest {
             "My Test Block", predicate, ImmutableList.of());
 
     assertThat(readablePredicate.heading())
-        .isEqualTo("Applicant is eligible if any of the following is true:");
+        .isEqualTo("Applicant is eligible if any of the following are true:");
     assertThat(readablePredicate.formattedHtmlHeading().toString())
         .isEqualTo(
             """
-            Applicant is <strong>eligible</strong> if <strong>any</strong> of the following is \
+            Applicant is <strong>eligible</strong> if <strong>any</strong> of the following are \
             true:""");
     assertThat(readablePredicate.conditionList()).isPresent();
     assertThat(readablePredicate.conditionList().get().size()).isEqualTo(2);

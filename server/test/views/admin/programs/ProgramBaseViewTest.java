@@ -213,12 +213,12 @@ public class ProgramBaseViewTest {
     assertThat(result.render())
         .contains(
             """
-            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following are \
             true:</p>""");
     assertThat(result.render())
         .contains(
             """
-            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
+            Block_name is <strong>hidden</strong> if <strong>any</strong> of the following are \
             true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
             date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
             <strong>&quot;applicant email address&quot;</strong> email is equal to \
