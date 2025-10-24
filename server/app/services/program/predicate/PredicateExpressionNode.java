@@ -106,6 +106,16 @@ public abstract class PredicateExpressionNode {
     };
   }
 
+  @JsonIgnore
+  @Memoized
+  public ImmutableList<PredicateExpressionNode> getChildren() {
+    return switch (getType()) {
+      case OR -> getOrNode().children();
+      case AND -> getAndNode().children();
+      case LEAF_ADDRESS_SERVICE_AREA, LEAF_OPERATION -> ImmutableList.of();
+    };
+  }
+
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     return node().toDisplayString(questions);
   }
