@@ -91,7 +91,7 @@ public final class PredicateGenerator {
         legacyGetLeafNodes(programDefinition, predicateForm, roQuestionService);
 
     return switch (detectFormat(leafNodes)) {
-      case OR_OF_SINGLE_LAYER_ANDS ->
+      case MULTIPLE_CONDITIONS ->
           PredicateDefinition.create(
               PredicateExpressionNode.create(
                   OrNode.create(
@@ -111,7 +111,7 @@ public final class PredicateGenerator {
                           .map(PredicateExpressionNode::create)
                           .collect(toImmutableList()))),
               predicateAction);
-      case SINGLE_QUESTION -> {
+      case SINGLE_CONDITION -> {
         LeafExpressionNode singleQuestionNode =
             leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
 
@@ -516,8 +516,8 @@ public final class PredicateGenerator {
   private static PredicateDefinition.PredicateFormat detectFormat(
       Multimap<Integer, LeafExpressionNode> leafNodes) {
     return leafNodes.size() > 1
-        ? PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS
-        : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
+        ? PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS
+        : PredicateDefinition.PredicateFormat.SINGLE_CONDITION;
   }
 
   /**

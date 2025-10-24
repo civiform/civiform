@@ -869,7 +869,7 @@ public class VersionRepositoryTest extends ResetPostgres {
                 .get()
                 .predicate()
                 .predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
   }
 
   @Test

@@ -762,7 +762,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     )
     let predicateDisplay = await page.innerText('.cf-display-predicate')
     expect(predicateDisplay).toContain(
-      'Applicant is eligible if any of the following is true:',
+      'Applicant is eligible if any of the following are true:',
     )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
@@ -857,7 +857,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       'visibility-predicates-multi-values-multi-questions-predicate-saved',
     )
     expect(predicateDisplay).toContain(
-      'Screen 2 is hidden if any of the following is true:',
+      'Screen 2 is hidden if any of the following are true:',
     )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
