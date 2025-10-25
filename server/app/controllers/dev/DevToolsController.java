@@ -56,6 +56,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programCache;
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
+  private final AsyncCacheApi settingsCache;
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
@@ -74,7 +75,8 @@ public class DevToolsController extends Controller {
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
       @NamedCache("full-program-definition") AsyncCacheApi programDefCache,
-      @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache) {
+      @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache,
+      @NamedCache("civiform-settings") AsyncCacheApi settingsCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
@@ -87,6 +89,7 @@ public class DevToolsController extends Controller {
     this.programCache = checkNotNull(programCache);
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
+    this.settingsCache = checkNotNull(settingsCache);
     this.clock = checkNotNull(clock);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -256,12 +259,18 @@ public class DevToolsController extends Controller {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
     }
+
     if (settingsManifest.getProgramCacheEnabled()) {
       programCache.removeAll().toCompletableFuture().join();
       versionsByProgramCache.removeAll().toCompletableFuture().join();
     }
+
     if (settingsManifest.getQuestionCacheEnabled()) {
       programDefCache.removeAll().toCompletableFuture().join();
+    }
+
+    if (settingsManifest.getSettingsCacheEnabled()) {
+      settingsCache.removeAll().toCompletableFuture().join();
     }
   }
 
