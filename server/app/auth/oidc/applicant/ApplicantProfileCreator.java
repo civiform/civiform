@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.settings.SettingsManifest;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -40,8 +41,9 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames) {
-    super(configuration, client, params);
+      StandardClaimsAttributeNames standardClaimsAttributeNames,
+      SettingsManifest settingsManifest) {
+    super(configuration, client, params, settingsManifest);
     this.standardClaimsAttributeNames = checkNotNull(standardClaimsAttributeNames);
   }
 

@@ -5,6 +5,7 @@ import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import services.settings.SettingsManifest;
 
 /*
  * Login.gov (https://developers.login.gov/oidc/) OIDC provider using the PKCE method.
@@ -31,8 +33,9 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
           .build();
 
   @Inject
-  public LoginGovClientProvider(OidcClientProviderParams params) {
-    super(params);
+  public LoginGovClientProvider(
+      OidcClientProviderParams params, Provider<SettingsManifest> settingsManifestProvider) {
+    super(params, settingsManifestProvider);
   }
 
   @Override
@@ -43,7 +46,8 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, settingsManifest);
   }
 
   @Override

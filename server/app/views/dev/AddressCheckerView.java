@@ -67,6 +67,7 @@ public class AddressCheckerView extends BaseHtmlView {
                                 BaseStyles.LINK_TEXT, "hover:" + BaseStyles.LINK_HOVER_TEXT))
                     .withClasses("mb-8"),
                 h1("Address Checker").withClasses("mb-4"),
+                h2("zzz: " + settingsManifest.getSampleFlagEnabled()),
                 renderUrls(request),
                 div()
                     .withClasses("grid", "grid-cols-1", "md:grid-cols-2", "gap-8")

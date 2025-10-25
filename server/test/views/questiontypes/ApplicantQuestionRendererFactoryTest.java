@@ -51,7 +51,7 @@ public class ApplicantQuestionRendererFactoryTest {
                 new GenericS3FileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()), null)));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -80,7 +80,9 @@ public class ApplicantQuestionRendererFactoryTest {
                 new GenericS3FileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()),
+                  null
+                  )));
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
