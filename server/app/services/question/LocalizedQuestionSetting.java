@@ -13,24 +13,38 @@ public abstract class LocalizedQuestionSetting {
 
   /** Create a LocalizedQuestionSetting. */
   public static LocalizedQuestionSetting create(
-      String settingValue, SettingType settingType, String settingDisplayName, Locale locale) {
+      String settingKey,
+      SettingType settingType,
+      String settingDisplayName,
+      String settingValue,
+      String settingText,
+      Locale locale) {
     return new AutoValue_LocalizedQuestionSetting(
-        settingValue, settingType, settingDisplayName, locale);
+        settingKey, settingType, settingDisplayName, settingValue, settingText, locale);
   }
 
   /**
-   * The value identifying this setting within the question used that is provided by CiviForm Admins
-   * during question creation.
+   * The key identifying this setting that is provided by CiviForm Admins during question creation.
+   * For map questions, this maps to a key in the GeoJSON feature's properties object.
    *
-   * @return a string (e.g. 'name' or 'address'
+   * @return a string (e.g. 'name' or 'address')
    */
-  public abstract String settingValue();
+  public abstract String settingKey();
 
   /** Identifier indicating how this setting will be used. */
   public abstract SettingType settingType();
 
   /** The text string to display to the user. */
   public abstract String settingDisplayName();
+
+  /**
+   * The value for this setting. For map questions, this maps to a specific value in the GeoJSON
+   * feature's properties object.
+   */
+  public abstract String settingValue();
+
+  /** Additional text to display to the user for this setting. */
+  public abstract String settingText();
 
   /** Sanitized HTML for the option that processes Markdown. */
   public String formattedSettingDisplayName(String ariaLabelForNewTabs) {

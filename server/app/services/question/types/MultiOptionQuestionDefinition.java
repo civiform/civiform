@@ -216,12 +216,55 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
+   * Get only the options that should be displayed to applicants in answer forms.
+   *
+   * <p>This filters options based on the {@code displayInAnswerOptions} field. Options without this
+   * field set (legacy options) are included by default for backward compatibility.
+   *
+   * @return a list of options that should be shown to applicants for selection
+   */
+  public ImmutableList<QuestionOption> getDisplayableOptions() {
+    return this.questionOptions.stream()
+        .filter(
+            option ->
+                option.displayInAnswerOptions().isEmpty() || option.displayInAnswerOptions().get())
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Get displayable options localized for the given locale, or default locale if not available.
+   *
+   * <p>This is similar to {@link #getOptionsForLocaleOrDefault(Locale)} but only returns options
+   * that should be displayed to applicants (filters by displayInAnswerOptions field).
+   *
+   * @param locale the desired locale for option text
+   * @return localized displayable options
+   */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptionsForLocaleOrDefault(
+      Locale locale) {
+    return getDisplayableOptions().stream()
+        .map(option -> option.localizeOrDefault(locale))
+        .collect(toImmutableList());
+  }
+
+  /**
    * Get the admin names of the question's options.
    *
    * @return a list of option admin names.
    */
   public ImmutableList<String> getOptionAdminNames() {
     return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
+  }
+
+  /**
+   * Get admin names of only the options that should be displayed to applicants.
+   *
+   * @return a list of displayable option admin names.
+   */
+  public ImmutableList<String> getDisplayableOptionAdminNames() {
+    return getDisplayableOptions().stream()
+        .map(QuestionOption::adminName)
+        .collect(toImmutableList());
   }
 
   /**

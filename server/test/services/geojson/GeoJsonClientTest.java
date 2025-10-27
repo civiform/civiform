@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.MalformedURLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import junitparams.JUnitParamsRunner;
@@ -48,12 +49,12 @@ public class GeoJsonClientTest extends WithApplication {
         assertThrows(
             CompletionException.class,
             () -> geoJsonClient.fetchAndSaveGeoJson("test").toCompletableFuture().join());
-    assertTrue(e.getCause() instanceof GeoJsonProcessingException);
-    assertEquals("Invalid GeoJSON endpoint", e.getCause().getMessage());
+    assertTrue(e.getCause() instanceof MalformedURLException);
+    assertEquals("Not a valid URL, try retyping", e.getCause().getMessage());
   }
 
   @Test
-  public void fetchAndSaveGeoJson_apiErrorResponse() {
+  public void fetchAndSaveGeoJson_apiAccessExceptionResponse() {
     when(wsResponse.getStatus()).thenReturn(403);
 
     RuntimeException e =
@@ -61,7 +62,20 @@ public class GeoJsonClientTest extends WithApplication {
             CompletionException.class,
             () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
 
-    assertTrue(e.getCause() instanceof GeoJsonProcessingException);
+    assertTrue(e.getCause() instanceof GeoJsonAccessException);
+    assertEquals("Please provide a publicly accessible URL", e.getCause().getMessage());
+  }
+
+  @Test
+  public void fetchAndSaveGeoJson_apiNotFoundExceptionResponse() {
+    when(wsResponse.getStatus()).thenReturn(404);
+
+    RuntimeException e =
+        assertThrows(
+            CompletionException.class,
+            () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
+
+    assertTrue(e.getCause() instanceof GeoJsonNotFoundException);
     assertEquals("Failed to fetch GeoJSON", e.getCause().getMessage());
   }
 

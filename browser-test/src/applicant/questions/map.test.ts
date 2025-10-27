@@ -10,7 +10,10 @@ import {
 } from '../../support'
 import {Page} from 'playwright'
 
-const EXPECTED_LOCATION_COUNT = 5
+// number of locations expected to be visible per page
+const EXPECTED_LOCATION_COUNT = 6
+// number of locations in the mock data
+const TOTAL_LOCATION_COUNT = 7
 
 // map question tests rely on mock web services so they will only work in local dev environments
 if (isLocalDevEnvironment()) {
@@ -81,7 +84,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Verify location count is displayed', async () => {
           const locationCount = page.getByText(
-            `Displaying ${EXPECTED_LOCATION_COUNT} of ${EXPECTED_LOCATION_COUNT} locations`,
+            `Displaying ${TOTAL_LOCATION_COUNT} of ${TOTAL_LOCATION_COUNT} locations`,
           )
           await expect(locationCount).toBeVisible()
         })
@@ -134,16 +137,16 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        await test.step('Click on map to trigger popups', async () => {
-          const mapContainer = page.getByTestId('map-container')
-          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
-          await mapCanvas.click()
-        })
-
         await test.step('Dismiss attribution control to avoid overlap', async () => {
           // Close the MapLibre attribution control so it doesn't cover popups
           const attributionButton = page.getByLabel('Toggle attribution')
           await attributionButton.click()
+        })
+
+        await test.step('Click on map to trigger popups', async () => {
+          const mapContainer = page.getByTestId('map-container')
+          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+          await mapCanvas.click()
         })
 
         await test.step('Check for popup select buttons', async () => {
@@ -193,7 +196,7 @@ if (isLocalDevEnvironment()) {
             /Displaying \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
+          await expect(locationCount).toHaveText('Displaying 2 of 7 locations')
         })
 
         await test.step('Reset filters', async () => {
@@ -206,6 +209,120 @@ if (isLocalDevEnvironment()) {
           const firstFilter = filterSelects.first()
           const selectedValue = firstFilter
           await expect(selectedValue).toHaveValue('')
+        })
+      })
+
+      test('paginate map question locations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const checkboxes = locationsList.getByRole('checkbox')
+        await test.step('Verify initial locations list state', async () => {
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
+        })
+
+        await test.step('Go to next page', async () => {
+          const nextButton = page.getByText('Next')
+          await nextButton.click()
+          const checkboxes = locationsList.getByRole('checkbox')
+          await expect(checkboxes).toHaveCount(1)
+        })
+
+        const previousButton = page.getByText('Previous', {exact: true})
+        await test.step('Go back to previous page', async () => {
+          await expect(previousButton).toBeVisible()
+          await previousButton.click()
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
+        })
+      })
+
+      test('pin icon and popup button state changes on selection', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName, true)
+
+        const mapContainer = page.getByTestId('map-container')
+        const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const selectedLocationsList = page.getByTestId(
+          'selected-locations-list',
+        )
+
+        // Dismiss attribution control to avoid overlap with popups
+        await page.getByLabel('Toggle attribution').click()
+
+        await test.step('Select location and verify pin changes color', async () => {
+          await locationsList.getByRole('checkbox').first().check()
+          await validateScreenshot(mapContainer, 'map-with-selected-pin')
+          await locationsList.getByRole('checkbox').first().uncheck()
+        })
+
+        await test.step('Verify popup button states', async () => {
+          await mapCanvas.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-unselected')
+          const selectButton = page.getByRole('button', {
+            name: /select.*location/i,
+          })
+
+          await selectButton.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-selected')
+
+          await expect(selectedLocationsList.getByRole('checkbox')).toHaveCount(
+            1,
+          )
+        })
+
+        await test.step('Unselect and verify select button returns to default', async () => {
+          await selectedLocationsList
+            .locator('input[type="checkbox"]')
+            .first()
+            .click()
+
+          await expect(
+            page.getByText('No locations have been selected.'),
+          ).toBeVisible()
+
+          await validateScreenshot(
+            mapContainer,
+            'map-popup-button-unselected-after-unselect',
+          )
+        })
+      })
+
+      test('toggle between map and list view', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        await test.step('Set viewport to mobile size', async () => {
+          // The size of a Google Pixel 7
+          await page.setViewportSize({width: 412, height: 915})
+        })
+
+        await test.step('Take screenshot of list view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-list')
+        })
+
+        await test.step('Switch to map view', async () => {
+          const switchToMapViewButton = page.getByText('Switch to map view')
+          await switchToMapViewButton.click()
+        })
+
+        await test.step('Take screenshot of map view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-map')
         })
       })
     })

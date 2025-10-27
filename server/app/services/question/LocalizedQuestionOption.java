@@ -45,6 +45,14 @@ public abstract class LocalizedQuestionOption {
     return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false, ariaLabelForNewTabs);
   }
 
+  /**
+   * Sanitized HTML for the option that processes Markdown with custom option text. This overload is
+   * used for Yes/No questions where the option text comes from i18n translations.
+   */
+  public String formattedOptionText(String optionText, String ariaLabelForNewTabs) {
+    return TextFormatter.formatTextToSanitizedHTML(optionText, false, false, ariaLabelForNewTabs);
+  }
+
   /** Returns the message key for yes/no question options. Only applicable to yes/no questions. */
   public String getYesNoOptionMessageKey() {
     try {

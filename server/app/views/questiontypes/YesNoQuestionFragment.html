@@ -27,7 +27,7 @@
     <div
       class="usa-radio cf-multi-option-question-option"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}, translatedText=#{${option.getYesNoOptionMessageKey()}}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}, ariaLabelForNewTabs=#{link.opensNewTabSr}, translatedText=#{${option.getYesNoOptionMessageKey()}}"
       th:if="${option.displayInAnswerOptions().isPresent() && option.displayInAnswerOptions().get()}"
     >
       <div
@@ -38,7 +38,7 @@
             ${singleSelectQuestion.optionIsSelected(option)},
             ${!question.isOptional()},
             ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
-            ${option.formattedOptionText(translatedText)})}"
+            ${option.formattedOptionText(translatedText, ariaLabelForNewTabs)})}"
       ></div>
     </div>
   </fieldset>

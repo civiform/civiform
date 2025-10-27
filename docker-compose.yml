@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   localstack:
-    image: localstack/localstack:4.8.0@sha256:fe24345d30a3cdc3cead7d88ebbdf39ae480fa3fe4de1765b98a9a066b8515cf
+    image: localstack/localstack:4.9.2@sha256:59373b4a27dba3ec15c4db0b7455f0cb68c8a42300e2cbbe362b440f9a131697
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
@@ -41,7 +41,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.10@sha256:b477759d38be47671d54a054d832791f8ddb9f0eaf6faf51ed17516087793a66
+    image: postgres:16.10@sha256:bf65e4ffaf1c29a9d03a481f921f0a239b363011eaa4c918cf3284ff77fdda33
     restart: always
     expose:
       - '5432'

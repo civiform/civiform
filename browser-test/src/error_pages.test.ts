@@ -58,37 +58,13 @@ test.describe(
         ).toBeAttached()
       })
 
-      await test.step('Updating the support email address updates the error page when IT email is unset', async () => {
+      await test.step('Updating the support email address updates the error page', async () => {
         await loginAsAdmin(page)
         await adminSettings.gotoAdminSettings()
         await adminSettings.setStringSetting(
           'SUPPORT_EMAIL_ADDRESS',
           'support@email.com',
         )
-        await adminSettings.saveChanges()
-        await page.goto('/error?exceptionId=1')
-        await expect(
-          page.getByRole('link', {
-            name: 'support@email.com',
-          }),
-        ).toBeAttached()
-      })
-
-      await test.step('Updating the IT email address updates the error page when both are set', async () => {
-        await adminSettings.gotoAdminSettings()
-        await adminSettings.setStringSetting('IT_EMAIL_ADDRESS', 'it@email.com')
-        await adminSettings.saveChanges()
-        await page.goto('/error?exceptionId=1')
-        await expect(
-          page.getByRole('link', {
-            name: 'it@email.com',
-          }),
-        ).toBeAttached()
-      })
-
-      await test.step('Removing the IT email address updates the error page with fallback to support', async () => {
-        await adminSettings.gotoAdminSettings()
-        await adminSettings.setStringSetting('IT_EMAIL_ADDRESS', '')
         await adminSettings.saveChanges()
         await page.goto('/error?exceptionId=1')
         await expect(

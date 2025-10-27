@@ -94,7 +94,7 @@
     <div id="filters">
       <div th:each="filter, i : ${model.filters}">
         <div
-          th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+          th:insert="~{admin/questions/MapQuestionSettingsFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
         ></div>
       </div>
     </div>
@@ -112,4 +112,15 @@
   >
     <cf:icon type="icon-add" />[[#{map.addFilterButton}]]
   </button>
+  <th:block
+    th:with="tagKey=${model.locationTag != null ? model.locationTag.key : null},
+            tagValue=${model.locationTag != null ? model.locationTag.value : null},
+            tagDisplayName=${model.locationTag != null ? model.locationTag.displayName : null},
+            tagText=${model.locationTag != null ? model.locationTag.alertText : null}"
+  >
+    <div
+      th:replace="~{admin/questions/MapQuestionSettingsFragment :: tagInput(${model.possibleKeys}, ${tagKey}, ${tagValue}, ${tagDisplayName}, ${tagText})}"
+    ></div>
+  </th:block>
 </div>
+<div id="geoJsonURL-errors" hx-swap-oob="true"></div>

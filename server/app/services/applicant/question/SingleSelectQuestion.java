@@ -58,9 +58,12 @@ public final class SingleSelectQuestion extends AbstractQuestion {
 
     Long selectedValue = optionalSelectedValue.get();
 
-    // Validate the long is in the set of allowed Question options.
+    // Validate the long is in the set of allowed Question options that are displayable to
+    // applicants.
+    // This prevents submission of options that have been removed/hidden by admins.
     boolean validSelection =
-        getQuestionDefinition().getOptions().stream().anyMatch(o -> selectedValue.equals(o.id()));
+        getQuestionDefinition().getDisplayableOptions().stream()
+            .anyMatch(o -> selectedValue.equals(o.id()));
 
     if (!validSelection) {
       return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
@@ -134,6 +137,16 @@ public final class SingleSelectQuestion extends AbstractQuestion {
   /** Get options in the specified locale. */
   public ImmutableList<LocalizedQuestionOption> getOptions(Locale locale) {
     return getQuestionDefinition().getOptionsForLocaleOrDefault(locale);
+  }
+
+  /** Get displayable options in the applicant's preferred locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions() {
+    return getDisplayableOptions(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  /** Get displayable options in the specified locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions(Locale locale) {
+    return getQuestionDefinition().getDisplayableOptionsForLocaleOrDefault(locale);
   }
 
   @Override
