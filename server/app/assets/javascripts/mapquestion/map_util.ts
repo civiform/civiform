@@ -137,6 +137,11 @@ export const getMessages = (): MapMessages => {
 
 export const hasReachedMaxSelections = (mapId: string): boolean => {
   const mapData = window.app?.data?.maps?.[mapId] as MapData
+
+  if (!mapData.settings.maxLocationSelections) {
+    return false
+  }
+
   const maxLocationSelections = Number(mapData.settings.maxLocationSelections)
 
   const selectionCount = selectionCounts.get(mapId) || 0
