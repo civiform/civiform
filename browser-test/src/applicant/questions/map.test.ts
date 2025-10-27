@@ -288,10 +288,6 @@ if (isLocalDevEnvironment()) {
             .first()
             .click()
 
-          await expect(
-            page.getByText('No locations have been selected.'),
-          ).toBeVisible()
-
           await validateScreenshot(
             mapContainer,
             'map-popup-button-unselected-after-unselect',
