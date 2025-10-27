@@ -48,6 +48,7 @@ export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
 export const CF_MAP_QUESTION_ALERT_HIDDEN = 'cf-map-question-tag-alert-hidden'
 export const CF_MAP_QUESTION_TAG_ALERT = 'cf-map-question-tag-alert'
 export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
+export const CF_SELECTIONS_MESSAGE = 'cf-selections-message'
 export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
 

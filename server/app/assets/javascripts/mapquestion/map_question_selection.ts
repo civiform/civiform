@@ -6,6 +6,7 @@ import {
   CF_MAP_QUESTION_ALERT_HIDDEN,
   CF_MAP_QUESTION_TAG_ALERT,
   CF_NO_SELECTIONS_MESSAGE,
+  CF_SELECTIONS_MESSAGE,
   CF_PAGINATION_HIDDEN,
   CF_SELECTED_LOCATION_MESSAGE,
   CF_SELECTED_LOCATIONS_CONTAINER,
@@ -53,7 +54,16 @@ export const updateSelectedLocations = (mapId: string): void => {
     CF_NO_SELECTIONS_MESSAGE,
   ) as HTMLTemplateElement | null
 
-  if (!selectedLocationsContainer || !noSelectionsTemplate) {
+  const selectionsTemplate = mapQuerySelector(
+    mapId,
+    CF_SELECTIONS_MESSAGE,
+  ) as HTMLTemplateElement | null
+
+  if (
+    !selectedLocationsContainer ||
+    !noSelectionsTemplate ||
+    !selectionsTemplate
+  ) {
     return
   }
   if (selectedCheckboxes.length === 0) {
@@ -62,6 +72,8 @@ export const updateSelectedLocations = (mapId: string): void => {
     selectedLocationsContainer.appendChild(noSelectionsElement)
   } else {
     selectedLocationsContainer.textContent = ''
+    const selectionsElement = selectionsTemplate.content.cloneNode(true)
+    selectedLocationsContainer.appendChild(selectionsElement)
     selectedCheckboxes.forEach((originalCheckbox) => {
       const selectedLocation = originalCheckbox.cloneNode(true) as HTMLElement
       selectedLocation.classList.remove(CF_FILTER_HIDDEN)

@@ -304,14 +304,6 @@
         th:text="#{map.selectedLocationsHeading}"
       ></h3>
       <p
-        th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
-        th:with="totalLocationsSelected=0,
-            maxLocationSelectionsAllowed=${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}"
-        th:text="#{map.locationsSelectedCount(${totalLocationsSelected}, ${maxLocationSelectionsAllowed})}"
-        class="cf-selected-locations-message"
-        th:data-map-id="${mapId}"
-      ></p>
-      <p
         th:if="${isPreview}"
         th:text="#{map.noSelectionsMessage}"
         class="cf-selected-locations-message"
@@ -340,6 +332,20 @@
       th:data-map-id="${mapId}"
       th:text="#{map.noSelectionsMessage}"
     ></template>
+    <!-- Template for when there are selections and max locations set -->
+    <template
+      class="text-base-dark cf-selections-message"
+      th:data-map-id="${mapId}"
+    >
+      <p
+        class="cf-selected-locations-message"
+        th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
+        th:with="totalLocationsSelected=1,
+            maxLocationSelectionsAllowed=${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}"
+        th:text="#{map.locationsSelectedCount(${totalLocationsSelected}, ${maxLocationSelectionsAllowed})}"
+        th:data-map-id="${mapId}"
+      ></p>
+    </template>
     <!-- Hidden template for popups -->
     <template class="cf-popup-content-template" th:data-map-id="${mapId}">
       <div
