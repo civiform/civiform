@@ -284,9 +284,11 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
 
-    referencingProgramAndModal
-        .getLeft()
-        .with(generateTranslationCompleteText(latestDefinition).orElse(div()));
+    if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+      referencingProgramAndModal
+          .getLeft()
+          .with(generateTranslationCompleteText(latestDefinition).orElse(div()));
+    }
 
     modals.addAll(referencingProgramAndModal.getRight());
 
