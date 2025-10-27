@@ -29,17 +29,17 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 1.0)),
-                  Map.of("name", "Feature 1.1"),
+                  Map.of("name", "Feature 1.1", "prop1", "value1", "prop2", "value2"),
                   "1"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 2.0)),
-                  Map.of("name", "Feature 1.2"),
+                  Map.of("name", "Feature 1.2", "prop1", "value1", "prop2", "value2"),
                   "2"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(2.0, 3.0)),
-                  Map.of("name", "Feature 1.3"),
+                  Map.of("name", "Feature 1.3", "prop1", "value1", "prop2", "value2"),
                   "3")));
 
   private static final FeatureCollection testFeatureCollection2 =
@@ -49,17 +49,17 @@ public class GeoJsonDataRepositoryTest extends ResetPostgres {
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 1.0)),
-                  Map.of("name", "Feature 2.1"),
+                  Map.of("name", "Feature 2.1", "prop1", "value1", "prop2", "value2"),
                   "1"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 2.0)),
-                  Map.of("name", "Feature 2.2"),
+                  Map.of("name", "Feature 2.2", "prop1", "value1", "prop2", "value2"),
                   "2"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(2.0, 3.0)),
-                  Map.of("name", "Feature 2.3"),
+                  Map.of("name", "Feature 2.3", "prop1", "value1", "prop2", "value2"),
                   "3")));
 
   @Before
