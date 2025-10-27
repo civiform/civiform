@@ -346,7 +346,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await expect(hintTextElementLocator).not.toHaveAttribute('hidden')
 
       await validateScreenshot(
-        page.getByTestId('condition-1'),
+        page.locator('#condition-1-subcondition-1-valueHintText'),
         'value-hint-text',
       )
     })

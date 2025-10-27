@@ -1,13 +1,14 @@
+<!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditConditionPartialViewModel"*/-->
 <th:block th:fragment="editCondition(model)">
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
-    th:data-testid="|condition-${model.conditionId()}|"
+    th:data-testid="|condition-${model.conditionId}|"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
         <div
           class="usa-card__heading font-heading-sm"
-          th:text="|Condition ${model.conditionId()}|"
+          th:text="|Condition ${model.conditionId}|"
         ></div>
         <button
           type="button"
@@ -36,7 +37,7 @@
         Condition is true if
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="|condition-${model.conditionId()}-nodeType|"
+          th:name="|condition-${model.conditionId}-nodeType|"
           autofocus
         >
           <option
@@ -58,6 +59,6 @@
     </div>
   </div>
   <div
-    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId() + 1}, ${model.hxEditConditionEndpoint()})}"
+    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
   ></div>
 </th:block>

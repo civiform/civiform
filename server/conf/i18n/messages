@@ -689,13 +689,13 @@ content.disabledProgramInfo=We''re sorry, the program you are trying to access h
 button.homePage=Back to homepage
 
 #--------------------------------------------------------------------------------------------------------------#
-# PROGRAM EDIT - text for Admin program edit view #
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
-# Text to bridge multiple input fields together
-content.multipleInputBridge=and
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=and
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

@@ -1,3 +1,4 @@
+<!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditSubconditionPartialViewModel"*/-->
 <th:block th:fragment="editSubcondition(model)">
   <div class="subcondition-container">
     <!-- Define input ids in the expected format: 
@@ -8,7 +9,7 @@
     -->
     <div
       class="border-left-05 border-base-lighter padding-left-3"
-      th:with="questionDropdownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-question'}, scalarDropDownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-scalar'},operatorDropdownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-operator'}, baseId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId}"
+      th:with="questionDropdownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-question'}, scalarDropDownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-scalar'},operatorDropdownId=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId + '-operator'}"
     >
       <div class="usa-form-group margin-top-2">
         <label class="usa-label" th:for="${questionDropdownId}"
@@ -68,7 +69,8 @@
           th:id="${operatorDropdownId}"
           th:name="${operatorDropdownId}"
           th:disabled="${!model.hasSelectedQuestion}"
-          th:data-value-base-id="${baseId}"
+          th:data-condition-id="${model.conditionId}"
+          th:data-subcondition-id="${model.subconditionId}"
         >
           <option
             th:selected="${!model.hasSelectedQuestion}"
@@ -85,7 +87,7 @@
         </select>
       </div>
       <div
-        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.selectedQuestionType}, ${model.valueOptions}, ${baseId}, ${model.hasSelectedQuestion})}"
+        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.selectedQuestionType}, ${model.valueOptions}, ${model.conditionId}, ${model.subconditionId}, ${model.hasSelectedQuestion})}"
       ></div>
       <div class="width-full display-inline-block">
         <a

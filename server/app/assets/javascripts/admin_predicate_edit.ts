@@ -39,7 +39,7 @@ export class AdminPredicateEdit {
         el.dispatchEvent(event)
       })
 
-      // Trigger change to update values inputs based on the current scalar selected.
+      // Trigger change to update values inputs based on the current operator selected.
       Array.from(
         document.querySelectorAll('.cf-predicate-operator-select select'),
       ).forEach((el) => {
@@ -113,7 +113,14 @@ export class AdminPredicateEdit {
     }
 
     // Get the second value input group associated with this operator.
-    const valueBaseId = operatorDropdown.getAttribute('data-value-base-id')
+    const conditionId = operatorDropdown.getAttribute('data-condition-id')
+    const subconditionId =
+      operatorDropdown.getAttribute('data-subcondition-id')
+    if (!conditionId || !subconditionId) {
+      return
+    }
+    // Construct a "base ID" for the value elements.
+    const valueBaseId = `condition-${conditionId}-subcondition-${subconditionId}`
     AdminPredicateEdit.manageSecondValueInputVisibility(
       valueBaseId,
       selectedOperatorValue,
@@ -126,16 +133,13 @@ export class AdminPredicateEdit {
 
   /**
    * Hide or show the second value input, depending on the currently selected operator.
-   *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element.
+   *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element. Format: condition-<conditionId>-subcondition-<subconditionId>
    *    @param {string} selectedOperatorValue: The currently selected operator.
    */
   private static manageSecondValueInputVisibility(
-    valueBaseId: string | null,
+    valueBaseId: string,
     selectedOperatorValue: string,
   ) {
-    if (!valueBaseId) {
-      return
-    }
     const secondValueInputGroupId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
     const secondValueInputGroup = document.getElementById(
@@ -157,16 +161,13 @@ export class AdminPredicateEdit {
   /**
    * Hide or show the hint text for multiple values input, depending on the operator type
    * selected.
-   *    @param {string} valueBaseId: The base ID for the value field. Used to find the hint element.
+   *    @param {string} valueBaseId: The base ID for the value field. Used to find the hint element. Format: condition-<conditionId>-subcondition-<subconditionId>
    *    @param {string} selectedOperatorValue: The currently selected operator.
    */
   private static manageValueInputHintVisibility(
-    valueBaseId: string | null,
+    valueBaseId: string,
     selectedOperatorValue: string,
   ) {
-    if (!valueBaseId) {
-      return
-    }
     const valueInputHintId =
       valueBaseId + AdminPredicateEdit.VALUE_INPUT_HINT_ID_SUFFIX
     const valueInputHint = document.getElementById(valueInputHintId)
