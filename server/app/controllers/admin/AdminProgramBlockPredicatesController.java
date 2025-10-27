@@ -215,7 +215,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                         .collect(ImmutableList.toImmutableList())));
   }
 
-  /** POST endpoint for updating show-hide configurations. */
+  /**
+   * POST endpoint for updating show-hide configurations.
+   *
+   * <p>TODO(#11764): Clean this up once expanded form logic is fully rolled out and this endpoint
+   * is unused in favor of updatePredicate.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
@@ -390,7 +395,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for updating eligibility configurations. */
+  /**
+   * POST endpoint for updating eligibility configurations. TODO(#11764): Clean this up once
+   * expanded form logic is fully rolled out and this endpoint is unused in favor of
+   * updatePredicate.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);

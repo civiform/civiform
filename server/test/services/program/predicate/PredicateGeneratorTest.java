@@ -952,6 +952,53 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
+  public void legacy_invalidServiceArea_throws() {
+    // Scalar is service area but question is not address question
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format(
+                    "question-%d-scalar", testQuestionBank.numberApplicantJugglingNumber().id),
+                Scalar.SERVICE_AREAS.name(),
+                String.format(
+                    "question-%d-operator", testQuestionBank.addressApplicantAddress().id),
+                Operator.IN_SERVICE_AREA.name(),
+                String.format(
+                    "group-1-question-%d-predicateValue",
+                    testQuestionBank.addressApplicantAddress().id),
+                "seattle"));
+
+    assertThatThrownBy(
+            () ->
+                predicateGenerator.legacyGeneratePredicateDefinition(
+                    programDefinition, form, readOnlyQuestionService))
+        .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
+  public void invalidServiceArea_throws() {
+    // Scalar is service area but question is not address question
+    DynamicForm form =
+        buildForm(
+            getExpandedFormBuilder("HIDE_BLOCK")
+                .put(
+                    "condition-1-subcondition-1-question",
+                    testQuestionBank.numberApplicantJugglingNumber().id.toString())
+                .put("condition-1-subcondition-1-scalar", Scalar.SERVICE_AREAS.name())
+                .put("condition-1-subcondition-1-operator", Operator.IN_SERVICE_AREA.name())
+                .put("condition-1-subcondition-1-value", "seattle")
+                .build());
+
+    assertThatThrownBy(
+            () ->
+                predicateGenerator.generatePredicateDefinition(
+                    programDefinition, form, readOnlyQuestionService))
+        .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
   public void legacy_invalidQuestionId() {
     DynamicForm form =
         buildForm(
