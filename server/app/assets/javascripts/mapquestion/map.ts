@@ -435,7 +435,6 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
-      locationCount.classList.add(CF_TOGGLE_HIDDEN)
     })
   }
 }
