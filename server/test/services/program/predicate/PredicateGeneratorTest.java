@@ -2,6 +2,10 @@ package services.program.predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -20,6 +24,7 @@ import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.FakeReadOnlyQuestionService;
 import support.ProgramBuilder;
@@ -28,6 +33,7 @@ import support.TestQuestionBank;
 @RunWith(JUnitParamsRunner.class)
 public class PredicateGeneratorTest extends ResetPostgres {
   private FormFactory formFactory;
+  private SettingsManifest settingsManifest;
   private PredicateGenerator predicateGenerator;
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
   private ProgramDefinition programDefinition =
@@ -51,6 +57,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
   public void setUp() {
     formFactory = instanceOf(FormFactory.class);
     predicateGenerator = instanceOf(PredicateGenerator.class);
+    settingsManifest = mock(SettingsManifest.class);
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
   }
 
   @Test
@@ -86,7 +94,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -144,7 +152,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -202,7 +210,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -257,7 +265,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -315,7 +323,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -368,7 +376,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -421,7 +429,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -474,7 +482,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -525,7 +533,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -583,7 +591,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -636,7 +644,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -689,7 +697,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -749,7 +757,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -842,7 +850,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -931,7 +939,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     PredicateDefinition predicateDefinition =
         expandedFormLogicEnabled
             ? predicateGenerator.generatePredicateDefinition(
-                programDefinition, form, readOnlyQuestionService)
+                programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest())
             : predicateGenerator.legacyGeneratePredicateDefinition(
                 programDefinition, form, readOnlyQuestionService);
 
@@ -994,7 +1002,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -1037,7 +1049,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(QuestionNotFoundException.class);
   }
 
@@ -1082,7 +1098,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -1123,7 +1143,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -1168,7 +1192,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -1208,7 +1236,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -1253,7 +1285,11 @@ public class PredicateGeneratorTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 predicateGenerator.generatePredicateDefinition(
-                    programDefinition, form, readOnlyQuestionService))
+                    programDefinition,
+                    form,
+                    readOnlyQuestionService,
+                    settingsManifest,
+                    fakeRequest()))
         .isInstanceOf(BadRequestException.class);
   }
 
