@@ -126,7 +126,8 @@ public class GeoJsonClientTest extends WithApplication {
                 "coordinates": [102.0, 0.5]
               },
               "properties": {
-                "name": "Example Point"
+                "name": "Example Point",
+                "testProperty": "Test"
               }
             }
         """
@@ -163,7 +164,9 @@ public class GeoJsonClientTest extends WithApplication {
                 "coordinates": [102.0, 0.5]
               },
               "properties": {
-                "name": "Valid Feature"
+                "name": "Valid Feature",
+                "address": "Address",
+                "isValid": "true"
               }
             },
             {
@@ -172,7 +175,9 @@ public class GeoJsonClientTest extends WithApplication {
                 "type": "Point",
                 "coordinates": [103.0, 1.5]
               },
-              "properties": {}
+              "properties": {
+                "name": "Invalid Feature"
+              }
             }
           ]
         }

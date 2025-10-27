@@ -26,7 +26,7 @@ public record Feature(
       throw new IllegalArgumentException("Invalid type for Feature: " + type);
     }
 
-    if (properties.isEmpty()) {
+    if (properties.size() < 3) {
       throw new IllegalArgumentException("Properties objects are required.");
     }
   }

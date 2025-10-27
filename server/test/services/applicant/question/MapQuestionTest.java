@@ -60,7 +60,7 @@ public class MapQuestionTest extends ResetPostgres {
   }
 
   @Test
-  public void createLocationJson_withEmptyName_usesUnknownLocation() {
+  public void createLocationJson_withEmptyName_usesEmptyLocationName() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(mapQuestionDefinition, applicant, applicantData, Optional.empty());
     MapQuestion mapQuestion = applicantQuestion.createMapQuestion();
