@@ -98,7 +98,9 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        const locationsList = page.getByTestId('locations-list')
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
         const locationCheckboxes = locationsList.getByRole('checkbox')
 
         await test.step('Select first location checkbox', async () => {
@@ -187,6 +189,7 @@ if (isLocalDevEnvironment()) {
           await expect(selectedCheckboxes.first()).toBeChecked()
 
           const locationsList = page.getByTestId('locations-list')
+          console.log(locationsList)
           const allLocationCheckboxes = await locationsList
             .getByRole('checkbox')
             .all()
