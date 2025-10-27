@@ -134,7 +134,8 @@ export class AdminPredicateEdit {
 
   /**
    * Manage filtering of value input types, depending on the currently selected operator and question type.
-   * E.g. for CSV operators, we want to use a text input to allow comma-separated values.
+   * Some question types require different input types for certain operators.
+   * E.g. date questions use date inputs for most operators, but use number inputs for age-based operators.
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
    */
@@ -143,22 +144,31 @@ export class AdminPredicateEdit {
     valueBaseId: string,
   ) {
     const valueInputId = valueBaseId + AdminPredicateEdit.VALUE_INPUT_ID_SUFFIX
+    const secondValueInputId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_ID_SUFFIX
     const valueInput = document.getElementById(valueInputId) as HTMLElement
+    const secondValueInput = document.getElementById(
+      secondValueInputId,
+    )
+
     if (!valueInput) {
       return
     }
 
-    // Update the value input types based on the selected operator and question type
-    const csvOperators = ['IN', 'NOT_IN']
-    if (csvOperators.includes(selectedOperatorValue)) {
-      valueInput.setAttribute('type', 'text')
-      valueInput.setAttribute('inputmode', 'text')
-    } else if (
-      !csvOperators.includes(selectedOperatorValue) &&
-      valueInput.hasAttribute('number-value')
-    ) {
-      valueInput.setAttribute('type', 'number')
-      valueInput.setAttribute('inputmode', 'decimal')
+    // Number question types
+    // Use number inputs for single values, text inputs for CSV
+    if (valueInput.hasAttribute('number-value')) {
+      this.setNumberQuestionValueInputType(selectedOperatorValue, valueInput)
+    }
+
+    // Date question types
+    // Use number inputs for age-based operator, date inputs for all others
+    if (valueInput.hasAttribute('date-value')) {
+      this.setDateQuestionValueInputType(
+        selectedOperatorValue,
+        valueInput,
+        secondValueInput,
+      )
     }
   }
 
@@ -191,8 +201,11 @@ export class AdminPredicateEdit {
     }
 
     // Show or hide the second value input based on the selected operator.
-    // Currently only the BETWEEN operator requires a second value.
-    if (selectedOperatorValue === 'BETWEEN') {
+    // Currently only BETWEEN operators require a second value.
+    if (
+      selectedOperatorValue === 'BETWEEN' ||
+      selectedOperatorValue === 'AGE_BETWEEN'
+    ) {
       secondValueInputGroup.hidden = false
       secondValueInput.ariaDisabled = 'false'
     } else {
@@ -317,6 +330,49 @@ export class AdminPredicateEdit {
         (operatorOption.value === 'EQUAL_TO' ||
           operatorOption.value === 'NOT_EQUAL_TO'))
     )
+  }
+
+  /**
+   * Set the input type for number question value inputs based on the selected operator.
+   * For CSV operators (IN, NOT_IN), we use a text input to allow comma-separated values.
+   * For all other operators, we use a number input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} valueInput: The value input element to set the type for.
+   */
+  private static setNumberQuestionValueInputType(
+    selectedOperatorValue: string,
+    valueInput: HTMLElement,
+  ) {
+    const csvOperators = ['IN', 'NOT_IN']
+    if (csvOperators.includes(selectedOperatorValue)) {
+      valueInput.setAttribute('type', 'text')
+      valueInput.setAttribute('inputmode', 'text')
+    } else {
+      valueInput.setAttribute('type', 'number')
+      valueInput.setAttribute('inputmode', 'decimal')
+    }
+  }
+
+  /**
+   * Set the input type for date question value inputs based on the selected operator.
+   * For age-based operators, we use a number input. For all other operators, we use a date input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} valueInput: The value input element to set the type for.
+   *    @param {HTMLElement | null} secondValueInput: The second value input element to set the type for, if it exists.
+   */
+  private static setDateQuestionValueInputType(
+    selectedOperatorValue: string,
+    valueInput: HTMLElement,
+    secondValueInput: HTMLElement | null,
+  ) {
+    const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
+    if (ageOperators.includes(selectedOperatorValue)) {
+      valueInput.setAttribute('type', 'number')
+      secondValueInput?.setAttribute('type', 'number')
+    } else {
+      valueInput.setAttribute('type', 'date')
+      secondValueInput?.setAttribute('type', 'date')
+    }
   }
 }
 

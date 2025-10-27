@@ -25,6 +25,11 @@
           th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Date'">
+        <div
+          th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
       <th:block th:case="*">
         <div
@@ -98,6 +103,39 @@
         currency-value
       />
     </div>
+  </div>
+</th:block>
+
+<!-- Date question type -->
+<th:block
+  th:fragment="dateValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+>
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <input
+    class="usa-input"
+    inputmode="numeric"
+    th:id="${valueInputId}"
+    th:name="${valueInputId}"
+    aria-required="true"
+    aria-invalid="false"
+    date-value
+  />
+
+  <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+    <span class="margin-left-1" th:text="#{content.and}"></span>
+    <input
+      class="usa-input"
+      inputmode="numeric"
+      th:id="${secondValueInputId}"
+      th:name="${secondValueInputId}"
+      aria-required="true"
+      aria-invalid="false"
+      date-value
+    />
   </div>
 </th:block>
 
