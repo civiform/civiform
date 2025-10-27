@@ -91,9 +91,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
             .build();
     QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
-        .contains(
-            CiviFormError.of("Map question must have valid GeoJSON"),
-            CiviFormError.of("Maximum location selections cannot be empty"));
+        .contains(CiviFormError.of("Map question must have valid GeoJSON"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
@@ -102,11 +100,9 @@ public class MapQuestionDefinitionTest extends WithApplication {
         // Valid cases.
         new Object[] {OptionalInt.of(1), Optional.<String>empty()},
         new Object[] {OptionalInt.of(2), Optional.<String>empty()},
+        new Object[] {OptionalInt.empty(), Optional.<String>empty()},
 
         // Error cases.
-        new Object[] {
-          OptionalInt.empty(), Optional.of("Maximum location selections cannot be empty")
-        },
         new Object[] {
           OptionalInt.of(0), Optional.of("Maximum location selections cannot be less than 1")
         });
