@@ -8,6 +8,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.BlockEligibilityMessageForm;
@@ -530,7 +531,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           predicateGenerator.generatePredicateDefinition(
               programService.getFullProgramDefinition(programId),
               formFactory.form().bindFromRequest(request),
-              roQuestionService);
+              roQuestionService,
+              settingsManifest,
+              request);
 
       switch (PredicateUseCase.valueOf(predicateUseCase)) {
         case ELIGIBILITY ->
@@ -551,7 +554,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (IllegalPredicateOrderingException
         | QuestionNotFoundException
         | ProgramQuestionDefinitionNotFoundException
-        | EligibilityNotValidForProgramTypeException e) {
+        | EligibilityNotValidForProgramTypeException
+        | BadRequestException e) {
       // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
