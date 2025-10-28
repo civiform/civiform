@@ -305,7 +305,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.expectCondition(1)
     })
 
-    await test.step('Entering text in number question applies filtering', async () => {
+    await test.step('Selecting a single value operator sets input type to number', async () => {
       await adminPredicates.selectQuestion(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,

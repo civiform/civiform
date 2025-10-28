@@ -109,6 +109,8 @@ export class AdminPredicateEdit {
 
   /**
    * Manage visibility of value elements, depending on the currently selected operator.
+   * This is used for showing/hiding the second value input for operators that require two values (e.g. BETWEEN),
+   * and for showing/hiding the hint text for CSV input operators (e.g. IN, NOT_IN).
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
    */
@@ -162,6 +164,7 @@ export class AdminPredicateEdit {
 
   /**
    * Hide or show the second value input, depending on the currently selected operator.
+   * For operators requring two values (e.g. BETWEEN), show the second value input. Otherwise, the second value input is hidden and disabled.
    *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element. Format: condition-<conditionId>-subcondition-<subconditionId>
    *    @param {string} selectedOperatorValue: The currently selected operator.
    */
@@ -200,7 +203,7 @@ export class AdminPredicateEdit {
 
   /**
    * Hide or show the hint text for multiple values input, depending on the operator type
-   * selected.
+   * selected. Currently only the IN and NOT_IN operators use this hint.
    *    @param {string} valueBaseId: The base ID for the value field. Used to find the hint element. Format: condition-<conditionId>-subcondition-<subconditionId>
    *    @param {string} selectedOperatorValue: The currently selected operator.
    */
