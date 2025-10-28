@@ -29,6 +29,12 @@
               class="usa-button"
               th:text="#{button.startApp}"
             ></a>
+            <a
+              th:if="${isLoginOnly and isGuest}"
+              th:href="${actionUrl}"
+              class="usa-button"
+              th:text="#{link.createAccountFromOverview}"
+            ></a>
 
             <!--*/ Application steps */-->
             <div class="usa-prose section" data-testId="steps-and-alerts">
