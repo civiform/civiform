@@ -28,6 +28,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
+import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -81,6 +82,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -111,6 +113,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
@@ -125,6 +128,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
   }
 
   /**
@@ -598,6 +602,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .blockId(blockDefinitionId)
                   .predicateUseCase(useCase)
                   .conditionId(form.get().getConditionId())
+                  .selectedQuestionType(Optional.empty())
                   .questionOptions(
                       getQuestionOptions(
                           availableQuestions, /* selectedQuestion= */ Optional.empty()))
@@ -642,7 +647,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       long subconditionId = form.get().getSubconditionId();
       Optional<QuestionDefinition> selectedQuestion =
           getSelectedQuestion(request, conditionId, subconditionId, availableQuestions);
-
       return ok(editSubconditionPartialView.render(
               request,
               EditSubconditionPartialViewModel.builder()
@@ -651,12 +655,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .predicateUseCase(useCase)
                   .conditionId(conditionId)
                   .subconditionId(subconditionId)
+                  .selectedQuestionType(
+                      selectedQuestion.map(question -> question.getQuestionType().getLabel()))
                   .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
                   .scalarOptions(
                       selectedQuestion
                           .map(question -> getScalarOptionsForQuestion(question))
                           .orElse(ImmutableList.of()))
                   .operatorOptions(getOperatorOptions())
+                  .valueOptions(
+                      selectedQuestion
+                          .map(question -> getValueOptionsForQuestion(question))
+                          .orElse(ImmutableList.of()))
                   .build()))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
@@ -746,6 +756,28 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .build()));
 
     return scalarOptionsBuilder.build();
+  }
+
+  /**
+   * Returns a list of {@link OptionElement}s representing all possible Values for the condition,
+   * depending on question type.
+   */
+  private ImmutableList<OptionElement> getValueOptionsForQuestion(QuestionDefinition question) {
+    AtomicBoolean isFirst = new AtomicBoolean(true);
+    if (question.isAddress()) {
+      return esriServiceAreaValidationConfig.getImmutableMap().entrySet().stream()
+          .map(
+              entry -> {
+                return OptionElement.builder()
+                    .value(entry.getKey())
+                    .displayText(entry.getValue().getLabel())
+                    .selected(isFirst.getAndSet(false))
+                    .build();
+              })
+          .collect(ImmutableList.toImmutableList());
+    } else {
+      return ImmutableList.of();
+    }
   }
 
   /**

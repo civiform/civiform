@@ -1,11 +1,12 @@
 <th:block
-  th:fragment="editSubcondition(conditionId, subconditionId, questionOptions, scalarOptions, operatorOptions, hxEditSubconditionEndpoint, hasSelectedQuestion)"
+  th:fragment="editSubcondition(conditionId, subconditionId, questionType, questionOptions, scalarOptions, operatorOptions, valueOptions, hxEditSubconditionEndpoint, hasSelectedQuestion)"
 >
   <div class="subcondition-container">
     <!-- Define input ids in the expected format: 
     questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
     scalarDropdownId:   conditionId-<conditionId>-subconditionId-<subconditionId>-scalar
     operatorDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-operator 
+    valueInputId:       conditionId-<conditionId>-subconditionId-<subconditionId>-value
     -->
     <div
       class="border-left-05 border-base-lighter padding-left-3"
@@ -84,25 +85,9 @@
           ></option>
         </select>
       </div>
-      <div class="usa-form-group margin-top-2 cf-predicate-value-input">
-        <label class="usa-label" th:for="${valueInputId}"
-          >Value(s)<span class="usa-hint--required">*</span></label
-        >
-        <select
-          class="usa-select"
-          th:id="${valueInputId}"
-          th:name="${valueInputId}"
-          th:disabled="${!hasSelectedQuestion}"
-        >
-          <option
-            th:selected="${!hasSelectedQuestion}"
-            th:hidden="${hasSelectedQuestion}"
-          >
-            -Select-
-          </option>
-        </select>
-      </div>
-
+      <div
+        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${questionType}, ${valueOptions}, ${valueInputId}, ${hasSelectedQuestion})}"
+      ></div>
       <div class="width-full display-inline-block">
         <a
           href="#"
