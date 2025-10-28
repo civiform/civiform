@@ -16,7 +16,10 @@ public final class PredicateUtils {
   public static ReadablePredicate getReadablePredicateDescription(
       String blockName,
       PredicateDefinition predicate,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      boolean expandedFormLogicEnabled) {
+    String headingSuffix =
+        expandedFormLogicEnabled ? "conditions are true:" : "of the following is true:";
     return switch (predicate.predicateFormat()) {
       case SINGLE_QUESTION ->
           ReadablePredicate.create(
@@ -52,9 +55,10 @@ public final class PredicateUtils {
               /* conditionList= */ Optional.empty(),
               /* formattedHtmlConditionList= */ Optional.empty());
         }
-        String heading = headingPrefix + " any of the following is true:";
+        String rootNodeTypeDisplay = predicate.rootNode().getType().toDisplayString();
+        String heading = headingPrefix + " " + rootNodeTypeDisplay + " " + headingSuffix;
         UnescapedText formattedHtmlHeading =
-            join(formattedHtmlHeadingPrefix, strong("any"), "of the following is true:");
+            join(formattedHtmlHeadingPrefix, strong(rootNodeTypeDisplay), headingSuffix);
         ImmutableList<String> conditionList =
             andNodes.stream()
                 .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
