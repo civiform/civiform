@@ -658,6 +658,8 @@ content.youCanPrint=You can print this confirmation for your records.
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=You''ve submitted your {0} application
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=To access your application later, you must create an account
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=You can check your application status and quickly
 alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Sign in to an existing account
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=You must log in to apply for this program
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
