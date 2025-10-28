@@ -1,6 +1,6 @@
 <th:block
   th:fragment="predicateValues(questionType, valueOptions, conditionId, subconditionId, hasSelectedQuestion)"
-  th:with="valueInputId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-value'}, secondValueInputId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-secondValue'}, secondValueInputGroupId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-secondValueGroup'}, valueInputHintId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-valueHintText'}"
+  th:with="subconditionPrefix=${'condition-' + conditionId + '-subcondition-' + subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
