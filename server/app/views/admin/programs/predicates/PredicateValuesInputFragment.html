@@ -60,6 +60,7 @@
       th:value="${valueOption.value()}"
       th:text="${valueOption.displayText()}"
       th:selected="${valueOption.selected()}"
+      address-value
     ></option>
   </select>
 </th:block>
@@ -78,6 +79,7 @@
       th:name="${valueInputId}"
       aria-required="true"
       aria-invalid="false"
+      currency-value
     />
   </div>
 
@@ -91,8 +93,9 @@
         type="currency"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
-        aria-required="false"
+        aria-required="true"
         aria-invalid="false"
+        currency-value
       />
     </div>
   </div>
@@ -110,24 +113,26 @@
   <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
   <input
     class="usa-input"
-    inputmode="text"
+    type="number"
+    inputmode="decimal"
     th:id="${valueInputId}"
     th:name="${valueInputId}"
-    numeric-input
     aria-required="true"
     aria-invalid="false"
+    number-value
   />
 
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
     <span class="margin-left-1" th:text="#{content.and}"></span>
     <input
       class="usa-input"
-      inputmode="text"
+      type="number"
+      inputmode="decimal"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
-      numeric-input
-      aria-required="false"
+      aria-required="true"
       aria-invalid="false"
+      number-value
     />
   </div>
 </th:block>
@@ -140,6 +145,7 @@
     th:id="${valueInputId}"
     th:name="${valueInputId}"
     th:disabled="${!hasSelectedQuestion}"
+    unknown-value
   >
     <option
       th:selected="${!hasSelectedQuestion}"

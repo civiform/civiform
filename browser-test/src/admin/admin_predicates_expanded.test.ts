@@ -323,8 +323,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(inputElementLocator).not.toHaveAttribute('hidden')
-      await inputElementLocator.pressSequentially('123,abc4,,')
-      await expect(inputElementLocator).toHaveValue('123,4,')
+      await expect(inputElementLocator).toHaveAttribute('type', 'number')
+      await inputElementLocator.fill('1234')
+      await expect(inputElementLocator).toHaveValue('1234')
 
       await validateScreenshot(
         page.getByTestId('condition-1'),
@@ -332,7 +333,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
-    await test.step('Selecting a multiple value operator shows hint text', async () => {
+    await test.step('Selecting a multiple value operator shows hint text and changes input type', async () => {
       await adminPredicates.selectOperator(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,
@@ -342,8 +343,15 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       const hintTextElementLocator = page.locator(
         '#condition-1-subcondition-1-valueHintText',
       )
+      const inputElementLocator = page.locator(
+        '#condition-1-subcondition-1-value',
+      )
 
       await expect(hintTextElementLocator).not.toHaveAttribute('hidden')
+
+      await expect(inputElementLocator).toHaveAttribute('type', 'text')
+      await inputElementLocator.fill('123abc,')
+      await expect(inputElementLocator).toHaveValue('123abc,')
 
       await validateScreenshot(
         page.locator('#condition-1-subcondition-1-valueHintText'),
@@ -357,14 +365,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* subconditionId= */ 1,
         'BETWEEN',
       )
+      await waitForHtmxReady(page)
 
+      const inputElementLocator = page.locator(
+        '#condition-1-subcondition-1-value',
+      )
       const secondInputElementLocator = page.locator(
         '#condition-1-subcondition-1-secondValue',
       )
 
       await expect(secondInputElementLocator).not.toHaveAttribute('hidden')
-      await secondInputElementLocator.pressSequentially('123,abc4,,')
-      await expect(secondInputElementLocator).toHaveValue('123,4,')
+      await inputElementLocator.fill('1000')
+      await secondInputElementLocator.fill('1234')
+
+      await expect(secondInputElementLocator).toHaveValue('1234')
 
       await validateScreenshot(
         page.getByTestId('condition-1'),
@@ -429,7 +443,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(inputElementLocator).not.toHaveAttribute('hidden')
-      await inputElementLocator.pressSequentially('3.50')
+      await inputElementLocator.fill('3.50')
       await expect(inputElementLocator).toHaveValue('3.50')
 
       await validateScreenshot(
@@ -450,7 +464,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(secondInputElementLocator).not.toHaveAttribute('hidden')
-      await secondInputElementLocator.pressSequentially('4.75')
+      await secondInputElementLocator.fill('4.75')
       await expect(secondInputElementLocator).toHaveValue('4.75')
 
       await validateScreenshot(

@@ -3,7 +3,9 @@ import {addEventListenerToElements} from './util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
+  static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
+  static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
   static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
@@ -23,12 +25,6 @@ export class AdminPredicateEdit {
         .forEach((dropdown: HTMLSelectElement) => {
           dropdown.removeEventListener('change', this.onOperatorDropdownChange)
           dropdown.addEventListener('change', this.onOperatorDropdownChange)
-        })
-      document
-        .querySelectorAll<HTMLInputElement>('.cf-predicate-value-input input')
-        .forEach((input: HTMLInputElement) => {
-          input.removeEventListener('input', this.onValueInput)
-          input.addEventListener('input', this.onValueInput)
         })
 
       // Trigger change to update operators based on the current scalar selected.
@@ -66,10 +62,6 @@ export class AdminPredicateEdit {
     AdminPredicateEdit.handleScalarChange(event.target as HTMLSelectElement)
   }
 
-  private static onValueInput(event: Event) {
-    AdminPredicateEdit.filterInputValue(event.target as HTMLInputElement)
-  }
-
   private static handleScalarChange(scalarDropdown: HTMLSelectElement) {
     // Get the type of scalar currently selected.
     const selectedScalarType =
@@ -92,35 +84,42 @@ export class AdminPredicateEdit {
     // Get the type of operator currently selected.
     const selectedOperatorValue =
       operatorDropdown.options[operatorDropdown.options.selectedIndex].value
-
-    AdminPredicateEdit.manageValueInputVisibility(
-      operatorDropdown,
-      selectedOperatorValue,
-    )
-  }
-
-  /**
-   * Manage visibility of value elements, depending on the currently selected operator.
-   *    @param {HTMLSelectElement} operatorDropdown: The operator select element.
-   *    @param {string} selectedOperatorValue: The currently selected operator.
-   */
-  private static manageValueInputVisibility(
-    operatorDropdown: HTMLSelectElement,
-    selectedOperatorValue: string | null,
-  ) {
     if (!selectedOperatorValue) {
       return
     }
 
     // Get the second value input group associated with this operator.
     const conditionId = operatorDropdown.getAttribute('data-condition-id')
-    const subconditionId =
-      operatorDropdown.getAttribute('data-subcondition-id')
+    const subconditionId = operatorDropdown.getAttribute('data-subcondition-id')
     if (!conditionId || !subconditionId) {
       return
     }
     // Construct a "base ID" for the value elements.
     const valueBaseId = `condition-${conditionId}-subcondition-${subconditionId}`
+
+    AdminPredicateEdit.manageValueInputVisibility(
+      selectedOperatorValue,
+      valueBaseId,
+    )
+    AdminPredicateEdit.manageValueInputFiltering(
+      selectedOperatorValue,
+      valueBaseId,
+    )
+  }
+
+  /**
+   * Manage visibility of value elements, depending on the currently selected operator.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
+   */
+  private static manageValueInputVisibility(
+    selectedOperatorValue: string,
+    valueBaseId: string,
+  ) {
+    if (!selectedOperatorValue) {
+      return
+    }
+
     AdminPredicateEdit.manageSecondValueInputVisibility(
       valueBaseId,
       selectedOperatorValue,
@@ -132,6 +131,36 @@ export class AdminPredicateEdit {
   }
 
   /**
+   * Manage filtering of value input types, depending on the currently selected operator and question type.
+   * E.g. for CSV operators, we want to use a text input to allow comma-separated values.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
+   */
+  private static manageValueInputFiltering(
+    selectedOperatorValue: string,
+    valueBaseId: string,
+  ) {
+    const valueInputId = valueBaseId + AdminPredicateEdit.VALUE_INPUT_ID_SUFFIX
+    const valueInput = document.getElementById(valueInputId) as HTMLElement
+    if (!valueInput) {
+      return
+    }
+
+    // Update the value input types based on the selected operator and question type
+    const csvOperators = ['IN', 'NOT_IN']
+    if (csvOperators.includes(selectedOperatorValue)) {
+      valueInput.setAttribute('type', 'text')
+      valueInput.setAttribute('inputmode', 'text')
+    } else if (
+      !csvOperators.includes(selectedOperatorValue) &&
+      valueInput.hasAttribute('number-value')
+    ) {
+      valueInput.setAttribute('type', 'number')
+      valueInput.setAttribute('inputmode', 'decimal')
+    }
+  }
+
+  /**
    * Hide or show the second value input, depending on the currently selected operator.
    *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element. Format: condition-<conditionId>-subcondition-<subconditionId>
    *    @param {string} selectedOperatorValue: The currently selected operator.
@@ -140,6 +169,7 @@ export class AdminPredicateEdit {
     valueBaseId: string,
     selectedOperatorValue: string,
   ) {
+    // Get the input group (for visibility -- this is the surrounding div)
     const secondValueInputGroupId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
     const secondValueInputGroup = document.getElementById(
@@ -149,12 +179,22 @@ export class AdminPredicateEdit {
       return
     }
 
+    // Get the second value input (for enabling/disabling on the form)
+    const secondValueInputId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_ID_SUFFIX
+    const secondValueInput = document.getElementById(secondValueInputId)
+    if (!secondValueInput) {
+      return
+    }
+
     // Show or hide the second value input based on the selected operator.
     // Currently only the BETWEEN operator requires a second value.
     if (selectedOperatorValue === 'BETWEEN') {
       secondValueInputGroup.hidden = false
+      secondValueInput.ariaDisabled = 'false'
     } else {
       secondValueInputGroup.hidden = true
+      secondValueInput.ariaDisabled = 'true'
     }
   }
 
@@ -182,21 +222,6 @@ export class AdminPredicateEdit {
       valueInputHint.hidden = true
     }
   }
-
-  /**
-   * Filter the values for each input, depending on the type of input expected.
-   *    @param {HTMLInputElement} input The element to filter the value for.
-   */
-  private static filterInputValue(input: HTMLInputElement) {
-    // If an input has been marked as numeric, filter input to only:
-    // a: numbers 0-9
-    // b: commas
-    // This regex also filters out multiple commas in a row.
-    if (input.hasAttribute('numeric-input')) {
-      input.value = input.value.replace(/[^0-9,]|(?<=,),/g, '')
-    }
-  }
-
   /**
    * Filter the operators available for each scalar type based on the current scalar selected.
    *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
