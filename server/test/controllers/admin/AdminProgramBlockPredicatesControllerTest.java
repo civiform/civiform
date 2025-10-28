@@ -225,7 +225,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_activeProgram_throws() {
+  public void updateVisibility_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.updateVisibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
@@ -238,6 +238,23 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.updateEligibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void update_activeProgram_throws() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () ->
+                controller.updatePredicate(
+                    fakeRequest(), programId, /* blockDefinitionId= */ 1, "VISIBILITY"))
+        .isInstanceOf(NotChangeableException.class);
+
+    assertThatThrownBy(
+            () ->
+                controller.updatePredicate(
+                    fakeRequest(), programId, /* blockDefinitionId= */ 1, "ELIGIBILITY"))
         .isInstanceOf(NotChangeableException.class);
   }
 
