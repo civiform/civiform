@@ -658,6 +658,8 @@ content.youCanPrint=기록을 위해 이 확인 페이지를 인쇄할 수 있�
 heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} 신청을 제출했습니다.
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=To access your application later, you must create an account
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드세요
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=계정에 정보를 저장하면 신청 상태를
 alert.noProgramsAvailable=현재 이용할 수 있는 모든 프로그램의 신청을 시작했거나 신청서를 제출했습니다.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=기존 계정에 로그인
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=You must log in to apply for this program
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
