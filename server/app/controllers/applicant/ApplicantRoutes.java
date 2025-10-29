@@ -1,15 +1,16 @@
 package controllers.applicant;
 
 import auth.CiviFormProfile;
-import auth.ProfileFactory;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
 import java.util.Optional;
 import play.api.mvc.Call;
 
 /**
- * Class that computes routes for applicant actions. The route for an applicant may be different
- * from that for a TI taking action on behalf of an applicant.
+ * Computes routes for applicant actions.
+ *
+ * <p>Routes for TIs will differ from Applicants, they will contain the applicants ID in the route.
+ * Applicants store their ID in their profile (which is not managed here).
  */
 public final class ApplicantRoutes {
   private static final Counter APPLICANT_ID_IN_PROFILE_COUNT =
@@ -19,23 +20,6 @@ public final class ApplicantRoutes {
           .labelNames("existence")
           .register();
 
-  // There are two cases where we want to use the URL that contains the applicant id:
-  // - TIs performing actions on behalf of applicants.
-  // - The applicant has a profile that does /not/ (yet) include the applicant id.
-  //   This case will eventually go away once existing profiles have expired and been replaced.
-  private boolean includeApplicantIdInRoute(CiviFormProfile profile) {
-    boolean isTi = profile.isTrustedIntermediary();
-    boolean applicantIdInProfile =
-        profile.getProfileData().containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-
-    // Count the occurrences so we know when it is safe to remove the special-case code for
-    // migration.
-    String existence = applicantIdInProfile ? "present" : "absent";
-    APPLICANT_ID_IN_PROFILE_COUNT.labels(existence).inc();
-
-    return isTi || !applicantIdInProfile;
-  }
-
   /**
    * Returns the route corresponding to the applicant index action.
    *
@@ -44,7 +28,7 @@ public final class ApplicantRoutes {
    * @return Route for the index action.
    */
   public Call index(CiviFormProfile profile, long applicantId) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
           applicantId, /* categories= */ ImmutableList.of());
     } else {
@@ -84,7 +68,7 @@ public final class ApplicantRoutes {
    * @return Route for the program view action
    */
   public Call show(CiviFormProfile profile, long applicantId, String programSlug) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
           applicantId, programSlug);
     } else {
@@ -106,7 +90,7 @@ public final class ApplicantRoutes {
    * @return Route for the applicant edit action
    */
   public Call edit(CiviFormProfile profile, long applicantId, long programId) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
           applicantId, Long.toString(programId), /* isFromUrlCall= */ false);
     } else {
@@ -124,7 +108,7 @@ public final class ApplicantRoutes {
    */
   public Call review(CiviFormProfile profile, long applicantId, long programId) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramReviewController.reviewWithApplicantId(
           applicantId, programIdStr, /* isFromUrlCall= */ false);
     }
@@ -152,7 +136,7 @@ public final class ApplicantRoutes {
    * @return Route for the applicant submit action
    */
   public Call submit(CiviFormProfile profile, long applicantId, long programId) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId, programId);
     } else {
       return routes.ApplicantProgramReviewController.submit(programId);
@@ -176,7 +160,7 @@ public final class ApplicantRoutes {
       String blockId,
       Optional<String> questionName) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
           applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
@@ -215,7 +199,7 @@ public final class ApplicantRoutes {
       String blockId,
       Optional<String> questionName) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
           applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
@@ -260,7 +244,7 @@ public final class ApplicantRoutes {
       String blockId,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
           applicantId,
           programId,
@@ -308,7 +292,7 @@ public final class ApplicantRoutes {
       int previousBlockIndex,
       boolean inReview) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
           applicantId, programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
     }
@@ -329,7 +313,7 @@ public final class ApplicantRoutes {
   public Call addFile(
       CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
           applicantId, programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
     }
@@ -355,7 +339,7 @@ public final class ApplicantRoutes {
       String fileKey,
       boolean inReview) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
           applicantId, programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
     }
@@ -383,7 +367,7 @@ public final class ApplicantRoutes {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
     String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
           applicantId,
           programIdStr,
@@ -419,7 +403,7 @@ public final class ApplicantRoutes {
       String blockId,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
-    if (includeApplicantIdInRoute(profile)) {
+    if (profile.isTrustedIntermediary()) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId,
           programId,
