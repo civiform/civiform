@@ -13,13 +13,6 @@ import play.api.mvc.Call;
  * Applicants store their ID in their profile (which is not managed here).
  */
 public final class ApplicantRoutes {
-  private static final Counter APPLICANT_ID_IN_PROFILE_COUNT =
-      Counter.build()
-          .name("applicant_id_in_profile")
-          .help("Count of profiles that contain applicant id")
-          .labelNames("existence")
-          .register();
-
   /**
    * Returns the route corresponding to the applicant index action.
    *
