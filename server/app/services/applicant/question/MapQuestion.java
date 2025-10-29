@@ -105,6 +105,10 @@ public final class MapQuestion extends AbstractQuestion {
     return getTagSetting() != null;
   }
 
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
+  }
+
   public String getTagKey() {
     LocalizedQuestionSetting tag = getTagSetting();
     return tag != null ? tag.settingKey() : "";
