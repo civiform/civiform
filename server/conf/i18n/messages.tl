@@ -658,6 +658,8 @@ content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga 
 heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=To access your application later, you must create an account
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikas
 alert.noProgramsAvailable=Nagsimula o nagsumite ka ng application para sa lahat ng programang available sa panahong ito.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=You must log in to apply for this program
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
