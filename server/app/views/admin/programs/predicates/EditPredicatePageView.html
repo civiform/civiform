@@ -37,7 +37,12 @@
         </p>
       </div>
 
-      <form class="usa-form">
+      <form
+        id="predicate-form"
+        class="usa-form"
+        th:action="${model.updatePredicateEndpoint()}"
+        method="post"
+      >
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -55,7 +60,6 @@
                 class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
                 name="predicateAction"
               >
-                <option value>Select</option>
                 <option
                   th:each="action : ${model.visibilityActions()}"
                   th:text="${action.toDisplayString()}"
@@ -104,7 +108,9 @@
 
     <div class="border-top border-base-lighter margin-y-2"></div>
 
-    <button type="submit" class="usa-button">Save and exit</button>
+    <button type="submit" class="usa-button" form="predicate-form">
+      Save and exit
+    </button>
     <button type="submit" class="usa-button usa-button--outline">Cancel</button>
   </div>
 </th:block>

@@ -3,11 +3,9 @@
   <label
     for="maxLocationSelections"
     class="usa-label text-base-dark margin-top-0"
-    th:inline="text"
-  >
-    [[#{map.maxLocationSelectionsLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span> </label
-  ><input
+    th:text="#{map.maxLocationSelectionsLabel}"
+  ></label>
+  <input
     class="usa-input"
     name="maxLocationSelections"
     id="maxLocationSelections"
