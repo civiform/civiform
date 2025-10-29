@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
-import io.prometheus.client.Counter;
 import java.util.Optional;
 import play.api.mvc.Call;
 
