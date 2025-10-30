@@ -465,6 +465,15 @@ definitions:
                       type: "string"
                     question_type:
                       type: "string"
+                sample_map_question:
+                  type: "object"
+                  properties:
+                    question_type:
+                      type: "string"
+                    selections:
+                      type: "array"
+                      items:
+                        type: "string"
                 sample_name_question:
                   type: "object"
                   properties:
