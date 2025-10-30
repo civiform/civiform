@@ -1,6 +1,5 @@
 package views.applicant;
 
-import auth.CiviFormProfile;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
@@ -37,8 +36,6 @@ import views.NorthStarBaseView;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
-
-import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
@@ -88,13 +85,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
-    context.setVariable("isLogin",        applicationParams.isLoginOnly());
-    boolean isTi = applicationParams.profile().isTrustedIntermediary();
-    boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
-    context.setVariable("isGuest", isGuest);
-
-    String actionUrl = applicantRoutes.edit(applicationParams.profile(), applicationParams.applicantId(), applicationParams.programId()).url();
-    context.setVariable("actionUrl", actionUrl);
     String pageTitle =
         pageTitleWithBlockProgress(
             applicationParams.programTitle(),
