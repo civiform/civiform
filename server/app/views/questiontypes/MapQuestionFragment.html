@@ -316,7 +316,7 @@
         class="cf-selected-locations-message"
       ></p>
       <div
-        th:if="${mapQuestion.hasTagSetting()}"
+        th:if="${mapQuestion.hasTagText()}"
         class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
         th:data-map-id="${mapId}"
         role="alert"
