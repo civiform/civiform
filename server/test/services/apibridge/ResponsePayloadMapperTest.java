@@ -3,15 +3,16 @@ package services.apibridge;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.LocalDate;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.ResetPostgres;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.Currency;
@@ -19,7 +20,7 @@ import services.applicant.question.Scalar;
 import services.question.YesNoQuestionOption;
 
 @RunWith(JUnitParamsRunner.class)
-public class ResponsePayloadMapperTest {
+public class ResponsePayloadMapperTest extends ResetPostgres {
   private static final String schema =
       """
       {
@@ -69,8 +70,12 @@ public class ResponsePayloadMapperTest {
       }
       """;
 
-  private final ResponsePayloadMapper responsePayloadMapper =
-      new ResponsePayloadMapper(new ObjectMapper());
+  private ResponsePayloadMapper responsePayloadMapper;
+
+  @Before
+  public void setup() {
+    responsePayloadMapper = instanceOf(ResponsePayloadMapper.class);
+  }
 
   private Object[] validStringValues() {
     return new Object[] {

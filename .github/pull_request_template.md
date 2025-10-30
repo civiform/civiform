@@ -4,7 +4,9 @@ Please explain the changes you made here.
 
 ## Release notes
 
-Remove this section if the title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
+Remove this section if the feature is still under development or if title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
+
+When the Release engineer creates Release Notes, they will not look for this section for Under Development tagged PRs, and will use it if present for all other PRs included in the Release Notes.
 
 ### Checklist
 
@@ -51,7 +53,7 @@ Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
 - [ ] Manually evaluated tab order
-- [ ] Manually tested with a screen reader if the feature is applicant-facing. See [screen reader testing](https://github.com/civiform/civiform/wiki/Testing#screen-reader-testing)
+- [ ] Performed manual accessibility tests for any applicant-facing changes or any new admin-facing features. See [manual-accessibility-testing](https://github.com/civiform/civiform/wiki/Accessibility#manual-accessibility-testing)
 - [ ] Manually tested with a right-to-left language
 
 #### New Features

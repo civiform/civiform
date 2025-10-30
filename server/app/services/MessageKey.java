@@ -148,6 +148,7 @@ public enum MessageKey {
   CONTACT_INFO_LABEL("label.contactInfo"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_ADMIN_FOOTER_PROMPT("content.adminFooterPrompt"),
+  CONTENT_AND("content.and"),
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_BLOCK_PROGRESS_LABEL("content.blockProgressLabel"),
@@ -184,6 +185,7 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
+  CONTENT_MULTIPLE_VALUES_INPUT_HINT("content.multipleValuesInputHint"),
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),
@@ -278,6 +280,7 @@ public enum MessageKey {
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
+  ID_VALIDATION_NUMBER_REQUIRED_V2("validation.numberRequired.v2"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
@@ -314,26 +317,50 @@ public enum MessageKey {
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
-  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
-  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
-  MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
-  MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
-  MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
-  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
-  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
-  MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
-  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
-  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
-  MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_ADD_FILTER_BUTTON("map.addFilterButton"), // North Star only
   MAP_ADD_FILTERS_SUBTITLE("map.addFiltersSubtitle"), // North Star only
   MAP_ADD_FILTERS_TITLE("map.addFiltersTitle"), // North Star only
+  MAP_ADD_TAG_BUTTON("map.addTagButton"), // North star only
+  MAP_ADD_TAG_SUBTITLE("map.addTagSubtitle"), // North Star only
+  MAP_ADD_TAG_TITLE("map.addTagTitle"), // North Star only
+  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_ARIA_LABEL_NEXT_PAGE("map.ariaLabelNextPage"), // North Star only
+  MAP_ARIA_LABEL_PAGINATION_LIST("map.ariaLabelPaginationList"), // North Star only
+  MAP_ARIA_LABEL_PREVIOUS_PAGE("map.ariaLabelPreviousPage"), // North Star only
+  MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
   MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
+  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
+  MAP_GO_TO_PAGE("map.goToPage"), // North Star only
   MAP_KEY_LABEL("map.keyLabel"), // North Star only
+  MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
   MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
+  MAP_LOCATION_LINK_TEXT_SR("map.locationLinkTextSr"), // North Star only
+  MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
+  MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
+  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_PAGINATION_STATUS("map.paginationStatus"), // North Star only
+  MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
+  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
+  MAP_SELECTED_BUTTON_TEXT("map.mapSelectedButtonText"), // North Star only
+  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
+  MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
+  MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
+  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
+  MAP_SETTING_TEXT_LABEL("map.settingTextLabel"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW("map.switchToListView"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
+  MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
+  MAP_VALUE_LABEL("map.valueLabel"), // North Star only
+  MAP_GEO_JSON_ERROR_TEXT("map.geoJsonErrorText"), // North Star only
+  MAP_HOMEPAGE("map.homepage"), // North Star only
+  MAP_CONTACT_US("map.contactUs"), // North Star only
+  MAP_MAP_PREVIEW_TEXT("map.mapPreviewText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),

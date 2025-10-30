@@ -68,6 +68,11 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export enum PredicateType {
+  ELIGIBILITY = 'eligibility',
+  VISIBILITY = 'visibility',
+}
+
 export enum ProgramCategories {
   CHILDCARE = 'Childcare',
   ECONOMIC = 'Economic',
@@ -116,6 +121,40 @@ export enum ProgramHeaderButton {
 
 export enum NotificationPreference {
   EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
+}
+
+/**
+ * Our support classes try do excessive amounts of navigation in an attempt
+ * to aid the test writer. This make trying to do a simple action on a page
+ * often return to the list page and drill back into the expected location
+ * prior to performing the simple action. This adds excessive time to a
+ * test.
+ *
+ * This enum is to allow for a targeted way to skip some of that navigation
+ * if you are already on the page where you expect to be without fully rewriting
+ * a lot of code or duplicating existing function which will add extra confusion
+ * on which method to call.
+ *
+ * Functions that use this should always set the default value to {@link DEFAULT} so that
+ * the existing functionality is maintained.
+ */
+export enum NavigationOption {
+  /**
+   * Existing behavior. Support methods go out of there way to make sure they are on
+   * the exact part of the page before executing the action. This may add extra
+   * navigation steps.
+   */
+  PERFORM_DETAILED_NAVIGATION,
+  /**
+   * Support methods assume you are already where you expect to be and immediately perform
+   * the action
+   */
+  SKIP_EXCESSIVE_NAVIGATION,
+  /**
+   * Default option points to {@link PERFORM_DETAILED_NAVIGATION}, the way the old code
+   * works. This will allow changing the default at a later point if needed.
+   */
+  DEFAULT = PERFORM_DETAILED_NAVIGATION,
 }
 
 export interface QuestionSpec {
@@ -1021,25 +1060,35 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditVisibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
+    } else {
+      await this.expectEditVisibilityPredicatePage(blockName)
+    }
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditEligibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
+    } else {
+      await this.expectEditEligibilityPredicatePage(blockName)
+    }
   }
 
   async goToProgramDescriptionPage(
@@ -1131,6 +1180,12 @@ export class AdminPrograms {
     )
   }
 
+  async expectEditPredicatePage(predicateType: PredicateType) {
+    await expect(
+      this.page.getByText('Edit ' + predicateType + ' conditions'),
+    ).toBeVisible()
+  }
+
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
@@ -1156,8 +1211,11 @@ export class AdminPrograms {
     programName: string,
     blockName: string,
     questionNames: string[] = [],
+    navigationOption: NavigationOption = NavigationOption.DEFAULT,
   ) {
-    await this.goToBlockInProgram(programName, blockName)
+    if (navigationOption == NavigationOption.PERFORM_DETAILED_NAVIGATION) {
+      await this.goToBlockInProgram(programName, blockName)
+    }
 
     for (const questionName of questionNames) {
       await this.page.click(
@@ -1276,6 +1334,12 @@ export class AdminPrograms {
     await this.page.click('#delete-block-button')
     await waitForPageJsLoad(this.page)
     await this.gotoAdminProgramsPage()
+  }
+
+  async removeCurrentBlock() {
+    await clickAndWaitForModal(this.page, 'block-delete-modal')
+    await this.page.click('#delete-block-button')
+    await waitForPageJsLoad(this.page)
   }
 
   private async waitForQuestionBankAnimationToFinish() {

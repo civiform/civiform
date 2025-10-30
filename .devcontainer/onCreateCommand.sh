@@ -7,6 +7,9 @@
 sudo apt update
 sudo apt install -y tmux
 
+# Make sure npm is up to date
+npm install -g npm
+
 # Install Graphite
 npm install -g @withgraphite/graphite-cli@stable
 

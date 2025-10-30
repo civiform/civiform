@@ -35,7 +35,7 @@ class Playwright:
             cmd = f'npx playwright show-report "{path}"'
             subprocess.run(cmd, shell=True)
         except Exception as error:
-            print("Unable to run Playwright. Try running `npm install` from the `browser-test` directory.")
+            print("Unable to run Playwright. Try running `npm ci` from the `browser-test` directory.")
             print(f"Tried running Playwright point at this path: {path}")
             print(error)
             exit(1)

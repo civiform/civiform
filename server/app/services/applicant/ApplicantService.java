@@ -65,6 +65,7 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.apibridge.ApiBridgeProcessor;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -128,6 +129,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
+  private final ApiBridgeProcessor apiBridgeProcessor;
 
   @Inject
   public ApplicantService(
@@ -148,6 +150,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
+      ApiBridgeProcessor apiBridgeProcessor,
       SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
@@ -175,6 +178,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
+    this.apiBridgeProcessor = checkNotNull(apiBridgeProcessor);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -278,7 +282,8 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -302,7 +307,8 @@ public final class ApplicantService {
         updateMap,
         updates,
         addressServiceAreaValidationEnabled,
-        forceUpdate);
+        forceUpdate,
+        apiBridgeEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -312,7 +318,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -356,7 +363,8 @@ public final class ApplicantService {
                               programDefinition,
                               updates,
                               serviceAreaUpdate,
-                              forceUpdate);
+                              forceUpdate,
+                              apiBridgeEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -367,7 +375,8 @@ public final class ApplicantService {
                   programDefinition,
                   updates,
                   Optional.empty(),
-                  forceUpdate);
+                  forceUpdate,
+                  apiBridgeEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -383,7 +392,8 @@ public final class ApplicantService {
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -409,6 +419,24 @@ public final class ApplicantService {
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
+
+      if (apiBridgeEnabled) {
+        return apiBridgeProcessor
+            .callApiBridgeEndpoints(
+                applicant.getApplicantData(), programDefinition.bridgeDefinitions())
+            .thenComposeAsync(
+                updatedApplicantData -> {
+                  applicant.setApplicantData(updatedApplicantData);
+
+                  return accountRepository
+                      .updateApplicant(applicant)
+                      .thenApplyAsync(
+                          (finishedSaving) -> roApplicantProgramService,
+                          classLoaderExecutionContext.current());
+                },
+                classLoaderExecutionContext.current());
+      }
+
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
@@ -1320,6 +1348,7 @@ public final class ApplicantService {
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
                   && settingsManifest.getExternalProgramCardsEnabled(request)
+                  // TODO(#11579): North star clean up
                   && settingsManifest.getNorthStarApplicantUi())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
@@ -1953,39 +1982,36 @@ public final class ApplicantService {
    * formdata
    */
   public CompletionStage<ImmutableMap<String, String>> resetAddressCorrectionWhenAddressChanged(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              Optional<ApplicantQuestion> addressQuestionMaybe =
-                  blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
+    Optional<ApplicantQuestion> addressQuestionMaybe =
+        blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
 
-              if (addressQuestionMaybe.isEmpty()) {
-                return CompletableFuture.completedFuture(formData);
-              }
+    if (addressQuestionMaybe.isEmpty()) {
+      return CompletableFuture.completedFuture(formData);
+    }
 
-              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+    AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
 
-              if (addressQuestion.hasChanges(formData)) {
-                return CompletableFuture.completedFuture(
-                    new ImmutableMap.Builder<String, String>()
-                        .putAll(formData)
-                        .put(addressQuestion.getCorrectedPath().toString(), "")
-                        .put(addressQuestion.getLatitudePath().toString(), "")
-                        .put(addressQuestion.getLongitudePath().toString(), "")
-                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
-                        .build());
-              }
+    if (addressQuestion.hasChanges(formData)) {
+      return CompletableFuture.completedFuture(
+          new ImmutableMap.Builder<String, String>()
+              .putAll(formData)
+              .put(addressQuestion.getCorrectedPath().toString(), "")
+              .put(addressQuestion.getLatitudePath().toString(), "")
+              .put(addressQuestion.getLongitudePath().toString(), "")
+              .put(addressQuestion.getWellKnownIdPath().toString(), "")
+              .build());
+    }
 
-              return CompletableFuture.completedFuture(formData);
-            });
+    return CompletableFuture.completedFuture(formData);
   }
 
   /**
@@ -1994,42 +2020,37 @@ public final class ApplicantService {
    * calculate the country code.
    */
   public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              // Get a writeable map so the existing paths can be replaced
-              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+    // Get a writeable map so the existing paths can be replaced
+    Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
-                if (applicantQuestion.getType() != QuestionType.PHONE) {
-                  continue;
-                }
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+      if (applicantQuestion.getType() != QuestionType.PHONE) {
+        continue;
+      }
 
-                PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+      PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
-                Optional<String> phoneNumber =
-                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+      Optional<String> phoneNumber =
+          Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
 
-                PhoneValidationResult result =
-                    PhoneValidationUtils.determineCountryCode(phoneNumber);
+      PhoneValidationResult result = PhoneValidationUtils.determineCountryCode(phoneNumber);
 
-                if (result.isValid()) {
-                  newFormData.put(
-                      phoneQuestion.getCountryCodePath().toString(),
-                      result.getCountryCode().orElse(""));
-                }
-              }
+      if (result.isValid()) {
+        newFormData.put(
+            phoneQuestion.getCountryCodePath().toString(), result.getCountryCode().orElse(""));
+      }
+    }
 
-              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
-            });
+    return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
   }
 
   /**
@@ -2038,60 +2059,56 @@ public final class ApplicantService {
    * differences are not reflected in the database.
    */
   public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              // Get a writeable map so the existing paths can be replaced
-              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+    // Get a writeable map so the existing paths can be replaced
+    Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
-                if (applicantQuestion.getType() != QuestionType.DATE) {
-                  continue;
-                }
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+      if (applicantQuestion.getType() != QuestionType.DATE) {
+        continue;
+      }
 
-                DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+      DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
-                String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
-                String yearValue = formData.get(dateQuestion.getYearPath().toString());
-                String monthValue = formData.get(dateQuestion.getMonthPath().toString());
-                String dayValue = formData.get(dateQuestion.getDayPath().toString());
-                // Whether at least one of the three values is present and non-empty.
-                boolean hasMemorableDateValue =
-                    !(yearValue == null || yearValue.isEmpty())
-                        || !(monthValue == null || monthValue.isEmpty())
-                        || !(dayValue == null || dayValue.isEmpty());
+      String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+      String yearValue = formData.get(dateQuestion.getYearPath().toString());
+      String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+      String dayValue = formData.get(dateQuestion.getDayPath().toString());
+      // Whether at least one of the three values is present and non-empty.
+      boolean hasMemorableDateValue =
+          !(yearValue == null || yearValue.isEmpty())
+              || !(monthValue == null || monthValue.isEmpty())
+              || !(dayValue == null || dayValue.isEmpty());
 
-                // If the value in the single input is not present or empty, and there is at least
-                // one memorable date value, convert to a date.
-                if ((singleDateValue == null || singleDateValue.isEmpty())
-                    && hasMemorableDateValue) {
-                  // Note: If a memorable date input value is not present, replace it with a
-                  // placeholder. This will fail to parse as a date without throwing a
-                  // NullPointerException when building the date string.
-                  String dateString =
-                      String.format(
-                          "%s-%s-%s",
-                          yearValue,
-                          monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
-                          dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
-                  newFormData.put(dateQuestion.getDatePath().toString(), dateString);
-                }
-                // Remove the 3 individual paths, so they won't be stored.
-                newFormData.remove(dateQuestion.getYearPath().toString());
-                newFormData.remove(dateQuestion.getMonthPath().toString());
-                newFormData.remove(dateQuestion.getDayPath().toString());
-              }
+      // If the value in the single input is not present or empty, and there is at least
+      // one memorable date value, convert to a date.
+      if ((singleDateValue == null || singleDateValue.isEmpty()) && hasMemorableDateValue) {
+        // Note: If a memorable date input value is not present, replace it with a
+        // placeholder. This will fail to parse as a date without throwing a
+        // NullPointerException when building the date string.
+        String dateString =
+            String.format(
+                "%s-%s-%s",
+                yearValue,
+                monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
+                dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
+        newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+      }
+      // Remove the 3 individual paths, so they won't be stored.
+      newFormData.remove(dateQuestion.getYearPath().toString());
+      newFormData.remove(dateQuestion.getMonthPath().toString());
+      newFormData.remove(dateQuestion.getDayPath().toString());
+    }
 
-              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
-            });
+    return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
   }
 
   /**

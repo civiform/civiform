@@ -138,7 +138,8 @@ else
   # The prettier_file_list array should not be surrounded by quotes, in this case
   # we want word splitting to occur so prettier will operate in each file. If
   # quoted it gets treated as a single path.
-  npx prettier \
+  npx --silent \
+    prettier \
     --write \
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
@@ -165,12 +166,12 @@ else
   else
     echo "Run eslint on /server"
     cd server
-    npm install --silent
+    npm ci --silent
 
     # The eslint_app_file_list array should not be surrounded by quotes, in this case
     # we want word splitting to occur so eslint will operate in each file. If
     # quoted it gets treated as a single path.
-    npx eslint --fix ${eslint_app_file_list[@]}
+    npx --silent eslint --fix ${eslint_app_file_list[@]}
 
     cd ..
   fi
@@ -180,12 +181,12 @@ else
   else
     echo "Run eslint on /browser-test"
     cd browser-test
-    npm install --silent
+    npm ci --silent
 
     # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
     # we want word splitting to occur so eslint will operate in each file. If
     # quoted it gets treated as a single path.
-    npx eslint --fix ${eslint_browsertest_file_list[@]}
+    npx --silent eslint --fix ${eslint_browsertest_file_list[@]}
 
     cd ..
   fi

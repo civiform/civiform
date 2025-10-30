@@ -1,9 +1,14 @@
 package controllers.geojson;
 
 import static j2html.TagCreator.div;
+import static play.mvc.Results.badRequest;
+import static play.mvc.Results.forbidden;
+import static play.mvc.Results.internalServerError;
+import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import java.net.MalformedURLException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -13,7 +18,9 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.geojson.GeoJsonAccessException;
 import services.geojson.GeoJsonClient;
+import services.geojson.GeoJsonNotFoundException;
 import views.admin.questions.MapQuestionSettingsPartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 
@@ -51,11 +58,44 @@ public final class GeoJsonApiController {
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
-              String errorMessage = "An error occurred trying to retrieve GeoJSON";
+              Throwable rootCause = ex;
+              while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+                rootCause = rootCause.getCause();
+              }
+              String errorMessage =
+                  String.format(
+                      "Error: GeoJSON unable to be retrieved - %s", rootCause.getMessage());
 
-              // TODO(#11125): Implement error state.
-              return ok(div(errorMessage).withClass("text-red-500").toString())
-                  .as(Http.MimeTypes.HTML);
+              if (rootCause instanceof MalformedURLException) {
+                return badRequest(
+                        div(errorMessage)
+                            .withClasses("text-red-500", "text-base py-2")
+                            .withId("geoJsonURL-errors")
+                            .toString())
+                    .as(Http.MimeTypes.HTML);
+              } else if (rootCause instanceof GeoJsonAccessException) {
+                return forbidden(
+                        div(errorMessage)
+                            .withClasses("text-red-500", "text-base py-2")
+                            .withId("geoJsonURL-errors")
+                            .toString())
+                    .as(Http.MimeTypes.HTML);
+              } else if (rootCause instanceof GeoJsonNotFoundException) {
+                return notFound(
+                        div(errorMessage)
+                            .withClasses("text-red-500", "text-base py-2")
+                            .withId("geoJsonURL-errors")
+                            .toString())
+                    .as(Http.MimeTypes.HTML);
+              } else {
+                return internalServerError(
+                        div("GeoJSON unable to be retrieved. Please try re-entering the endpoint"
+                                + " URL.")
+                            .withClasses("text-red-500", "text-base py-2")
+                            .withId("geoJsonURL-errors")
+                            .toString())
+                    .as(Http.MimeTypes.HTML);
+              }
             });
   }
 }

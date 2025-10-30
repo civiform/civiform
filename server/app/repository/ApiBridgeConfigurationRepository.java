@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.Optional;
@@ -38,6 +39,28 @@ public final class ApiBridgeConfigurationRepository {
                 .find(ApiBridgeConfigurationModel.class)
                 .setLabel("ApiBridgeConfigurationRepository.findAll")
                 .setProfileLocation(queryProfileLocationBuilder.create("findAll"))
+                .findList()
+                .stream()
+                .collect(ImmutableList.toImmutableList()),
+        dbExecutionContext);
+  }
+
+  /**
+   * Returns all {@link ApiBridgeConfigurationModel} records asynchronously that are enabled
+   * filtered on the requested admin names.
+   */
+  public CompletionStage<ImmutableList<ApiBridgeConfigurationModel>> findAllEnabledByAdminNames(
+      ImmutableSet<String> adminNames) {
+    return supplyAsync(
+        () ->
+            database
+                .find(ApiBridgeConfigurationModel.class)
+                .setLabel("ApiBridgeConfigurationRepository.findAllEnabledByAdminNames")
+                .setProfileLocation(
+                    queryProfileLocationBuilder.create("findAllEnabledByAdminNames"))
+                .where()
+                .in("adminName", adminNames)
+                .eq("enabled", true)
                 .findList()
                 .stream()
                 .collect(ImmutableList.toImmutableList()),

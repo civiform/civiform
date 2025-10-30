@@ -24,12 +24,14 @@ import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.YesNoQuestionOption;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -1658,6 +1660,100 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenYesNoQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerYesNoQuestion(testQuestionBank.doesApplicantHaveDogYesNo(), YesNoQuestionOption.YES)
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_has_a_dog",
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : "yes"
+        }""");
+  }
+
+  @Test
+  public void export_whenYesNoQuestionIsRepeated_answersAreCorrectlyNested() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersRepeatedQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("taylor"))
+        .answerYesNoQuestion(
+            testQuestionBank.doesApplicantHaveDogYesNo(), "taylor", YesNoQuestionOption.YES)
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        """
+        {
+          "entities" : [ {
+            "applicant_has_a_dog" : {
+              "question_type" : "SINGLE_SELECT",
+              "selection" : "yes"
+            },
+            "entity_name" : "taylor"
+          } ],
+          "question_type" : "ENUMERATOR"
+        }""");
+  }
+
+  @Test
+  public void export_whenYesNoQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_has_a_dog",
+        """
+        {
+          "question_type" : "SINGLE_SELECT",
+          "selection" : null
+        }""");
+  }
+
+  @Test
   public void export_whenTextQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
     var fakeProgram =
@@ -2239,7 +2335,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   public void export_whenQuestionIsRemovedFromProgram_itIsStillInResponseForAllApplications()
       throws ProgramNotFoundException,
           ProgramNeedsABlockException,
-          IllegalPredicateOrderingException {
+          IllegalPredicateOrderingException,
+          ProgramBlockDefinitionNotFoundException {
     var programService = instanceOf(ProgramService.class);
     createFakeQuestions();
 

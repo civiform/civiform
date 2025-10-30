@@ -28,6 +28,7 @@ import services.applications.ProgramAdminApplicationService;
 import services.geo.ServiceAreaInclusion;
 import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
@@ -39,6 +40,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
+import services.question.YesNoQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -649,7 +651,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         ProgramModel program, QuestionModel questionToRemove)
         throws ProgramNotFoundException,
             ProgramNeedsABlockException,
-            IllegalPredicateOrderingException {
+            IllegalPredicateOrderingException,
+            ProgramBlockDefinitionNotFoundException {
       ProgramDefinition draft = programService.newDraftOf(program.id);
       var blockToDelete =
           draft.blockDefinitions().stream()
@@ -1223,6 +1226,25 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getQuestionDefinition()
               .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, YesNoQuestionOption optionId) {
+      return answerYesNoQuestion(question, null, optionId);
+    }
+
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, String repeatedEntityName, YesNoQuestionOption optionId) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
+      Path answerPath =
+          question
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId.getId());
       applicant.save();
       return this;
     }

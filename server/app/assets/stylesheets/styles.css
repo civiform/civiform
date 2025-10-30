@@ -34,7 +34,7 @@
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline) {
+  .usa-button:not(.usa-button--outline, .usa-button--base) {
     background-color: #005ea2;
   }
 
@@ -42,6 +42,10 @@
   .usa-button.usa-button--unstyled {
     background-color: white;
     color: #005ea2;
+  }
+
+  .add-map-filter.usa-button.usa-button--outline:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
   }
 
   .usa-button.usa-modal__close {
@@ -228,6 +232,11 @@
 
   .row-element:hover {
     background-color: #f7fafc;
+  }
+
+  /* Fix pagination current page button color specificity issue */
+  .usa-pagination .usa-current:visited {
+    color: #fff;
   }
 
 }

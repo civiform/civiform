@@ -18,6 +18,8 @@ class AdminQuestionEdit {
     }
 
     this.addDateValidationHandlers()
+    this.addMapFilterButtonHandler()
+    this.addMapTagButtonHandlers()
   }
 
   addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
@@ -167,6 +169,67 @@ class AdminQuestionEdit {
           document.getElementById(idPrefix + '-year') as HTMLInputElement
         ).value = ''
       }
+    })
+  }
+
+  updateAddFilterButtonState = () => {
+    const filterCount = document.querySelectorAll('.filter-input').length
+    const addButton = document.getElementById(
+      'add-map-filter-button',
+    ) as HTMLButtonElement
+    if (addButton) {
+      addButton.disabled = filterCount >= 6
+    }
+  }
+
+  addMapFilterButtonHandler() {
+    this.updateAddFilterButtonState()
+
+    document.body.addEventListener('htmx:afterRequest', () => {
+      this.updateAddFilterButtonState()
+      this.addMapTagButtonHandlers()
+    })
+  }
+
+  addMapTagButtonHandlers() {
+    addEventListenerToElements('#add-map-tag-button', 'click', (event) => {
+      const target = event.target as HTMLButtonElement
+      target.classList.add('hidden')
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      tagContainer.classList.remove('hidden')
+      const deleteButton = document.getElementById(
+        'delete-map-tag-button',
+      ) as HTMLButtonElement
+      deleteButton.classList.remove('hidden')
+    })
+
+    addEventListenerToElements('#delete-map-tag-button', 'click', () => {
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      const displayNameInput = tagContainer.querySelector(
+        '.cf-tag-display-name-input',
+      ) as HTMLInputElement
+      const valueInput = tagContainer.querySelector(
+        '.cf-tag-value-input',
+      ) as HTMLInputElement
+      const textarea = tagContainer.querySelector(
+        '.cf-tag-textarea',
+      ) as HTMLTextAreaElement
+      const select = tagContainer.querySelector(
+        '.cf-tag-key-select',
+      ) as HTMLSelectElement
+      displayNameInput.value = ''
+      valueInput.value = ''
+      textarea.value = ''
+      select.selectedIndex = 0
+      tagContainer.classList.add('hidden')
+      const addButton = document.getElementById(
+        'add-map-tag-button',
+      ) as HTMLButtonElement
+      addButton.classList.remove('hidden')
     })
   }
 }

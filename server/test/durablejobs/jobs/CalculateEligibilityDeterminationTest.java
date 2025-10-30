@@ -184,7 +184,14 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     applicantService
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicationModel application =

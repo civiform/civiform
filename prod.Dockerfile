@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1@sha256:dabfc0969b935b2080555ace70ee69a5261af8a8f1b4df97b9e7fbcf6722eddf
+# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
 # For production images, use the adoptium.net official JRE & JDK docker images.
-FROM --platform=linux/amd64 eclipse-temurin:17.0.16_8-jdk-alpine@sha256:c0dfec8fb4aec4adad2d00d267c5cb5348465d77f087e455d2905fb180ce27d2 AS stage1
+FROM --platform=linux/amd64 eclipse-temurin:17.0.16_8-jdk-alpine@sha256:eb42bc053cbff0d750d76fa0705b6faec2677131a1358d0bafcc844051b8872c AS stage1
 
 ARG SBT_VERSION
 ENV SBT_VERSION="${SBT_VERSION}"
@@ -25,7 +25,7 @@ ENV PROJECT_LOC="${PROJECT_HOME}/${PROJECT_NAME}"
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
     npm install -g npm && \
-    npm install && \
+    npm ci && \
     sbt addCustomAssets && \
     sbt update && \
     sbt dist && \
@@ -34,7 +34,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM --platform=linux/amd64 eclipse-temurin:17.0.16_8-jre-alpine@sha256:fc47f4a190b599de0835d98830976f5938588b4c17b07f19dba903d5b29f666e AS stage2
+FROM --platform=linux/amd64 eclipse-temurin:17.0.16_8-jre-alpine@sha256:e7ed585b34913e0a780e0282330183a0ea14ad6b929362d02aea1156b43262bf AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.

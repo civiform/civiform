@@ -1,7 +1,6 @@
 package services.applicant.question;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -9,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import services.MessageKey;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
@@ -77,21 +77,56 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String getNameValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
   }
 
   public String getAddressValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
   }
 
   public String getDetailsUrlValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+  }
+
+  public LocalizedQuestionSetting getTagSetting() {
+    return getSetting(
+            applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
+            MapSettingType.LOCATION_TAG_GEO_JSON_KEY)
+        .orElse(null);
+  }
+
+  public boolean hasTagSetting() {
+    return getTagSetting() != null;
+  }
+
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
+  }
+
+  public String getTagKey() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingKey() : "";
+  }
+
+  public String getTagValue() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingValue() : "";
+  }
+
+  public String getTagDisplayName() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingDisplayName() : "";
+  }
+
+  public String getTagText() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingText() : "";
   }
 
   public Path getSelectionPath() {
@@ -131,9 +166,11 @@ public final class MapQuestion extends AbstractQuestion {
 
   private Optional<Map<String, String>> parseLocationJson(String jsonString) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
+      //  Creating an instance of ObjectMapper is a heavy-ish operation so it should be done in the
+      // constructor but that's not possible here, so using the same settings as the global
+      // ObjectMapper for consistency
       TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
-      return Optional.of(mapper.readValue(jsonString, typeRef));
+      return Optional.of(ObjectMapperSingleton.instance().readValue(jsonString, typeRef));
     } catch (Exception e) {
       return Optional.empty();
     }
@@ -145,18 +182,32 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String createLocationJson(String featureId, String locationName) {
-    return String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", featureId, locationName);
+    if (locationName == null) {
+      locationName = "Unknown Location";
+    }
+    MapSelection selection = MapSelection.create(featureId, locationName);
+    try {
+      return ObjectMapperSingleton.instance().writeValueAsString(selection);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to serialize MapSelection to JSON", e);
+    }
   }
 
   private ImmutableSet<LocalizedQuestionSetting> getSettings(Locale locale) {
     return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
   }
 
-  private String getSettingValue(Locale locale, MapSettingType settingType) {
+  private String getSettingKey(Locale locale, MapSettingType settingType) {
     return getSettings(locale).stream()
         .filter(setting -> setting.settingType() == settingType)
         .findFirst()
-        .map(LocalizedQuestionSetting::settingValue)
+        .map(LocalizedQuestionSetting::settingKey)
         .orElse("");
+  }
+
+  private Optional<LocalizedQuestionSetting> getSetting(Locale locale, MapSettingType settingType) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingType() == settingType)
+        .findFirst();
   }
 }

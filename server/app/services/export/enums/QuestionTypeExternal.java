@@ -32,7 +32,7 @@ public enum QuestionTypeExternal {
       case CHECKBOX -> QuestionTypeExternal.MULTI_SELECT;
       case CURRENCY -> QuestionTypeExternal.CURRENCY;
       case DATE -> QuestionTypeExternal.DATE;
-      case DROPDOWN, RADIO_BUTTON -> QuestionTypeExternal.SINGLE_SELECT;
+      case DROPDOWN, RADIO_BUTTON, YES_NO -> QuestionTypeExternal.SINGLE_SELECT;
       case EMAIL -> QuestionTypeExternal.EMAIL;
       case ENUMERATOR -> QuestionTypeExternal.ENUMERATOR;
       case FILEUPLOAD -> QuestionTypeExternal.FILE_UPLOAD;

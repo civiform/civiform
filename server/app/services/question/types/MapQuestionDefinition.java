@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.OptionalInt;
 import services.CiviFormError;
+import services.question.MapSettingType;
+import services.question.QuestionSetting;
 
 public final class MapQuestionDefinition extends QuestionDefinition {
   public MapQuestionDefinition(@JsonProperty("config") QuestionDefinitionConfig config) {
@@ -37,12 +39,65 @@ public final class MapQuestionDefinition extends QuestionDefinition {
 
     if (maxLocationSelections.isPresent()) {
       if (maxLocationSelections.getAsInt() < 1) {
-        errors.add(CiviFormError.of("Max location selections cannot be less than 1"));
+        errors.add(CiviFormError.of("Maximum location selections cannot be less than 1"));
       }
     }
 
-    // TODO(#11199): Add validation for required fields (location name, address, details URL), num
-    // of filters, and require display names for each filter
+    // Validate settings in a single pass
+    ImmutableSet<QuestionSetting> settings = getQuestionSettings().orElse(ImmutableSet.of());
+    boolean hasNameKey = false;
+    boolean hasAddressKey = false;
+    boolean hasDetailsUrlKey = false;
+    int filterCount = 0;
+
+    for (QuestionSetting setting : settings) {
+      boolean isValidSetting = setting.settingKey() != null && !setting.settingKey().isEmpty();
+
+      switch ((MapSettingType) setting.settingType()) {
+        case LOCATION_NAME_GEO_JSON_KEY -> {
+          if (isValidSetting) hasNameKey = true;
+        }
+        case LOCATION_ADDRESS_GEO_JSON_KEY -> {
+          if (isValidSetting) hasAddressKey = true;
+        }
+        case LOCATION_DETAILS_URL_GEO_JSON_KEY -> {
+          if (isValidSetting) hasDetailsUrlKey = true;
+        }
+        case LOCATION_TAG_GEO_JSON_KEY -> {
+          if (!isValidSetting) {
+            errors.add(CiviFormError.of("Tag key cannot be empty"));
+          }
+          if (setting.localizedSettingDisplayName().isEmpty()
+              || setting.localizedSettingDisplayName().get().getDefault().isEmpty()) {
+            errors.add(CiviFormError.of("Tag display name cannot be empty"));
+          }
+        }
+        case LOCATION_FILTER_GEO_JSON_KEY -> {
+          filterCount++;
+          if (!isValidSetting) {
+            errors.add(CiviFormError.of("Filter key cannot be empty"));
+          }
+          if (setting.localizedSettingDisplayName().isEmpty()
+              || setting.localizedSettingDisplayName().get().getDefault().isEmpty()) {
+            errors.add(CiviFormError.of("Filter display name cannot be empty"));
+          }
+        }
+      }
+    }
+
+    if (!hasNameKey) {
+      errors.add(CiviFormError.of("Name key cannot be empty"));
+    }
+    if (!hasAddressKey) {
+      errors.add(CiviFormError.of("Address key cannot be empty"));
+    }
+    if (!hasDetailsUrlKey) {
+      errors.add(CiviFormError.of("View more details URL key cannot be empty"));
+    }
+    if (filterCount > 6) {
+      errors.add(CiviFormError.of("Question cannot have more than six filters"));
+    }
+
     return errors.build();
   }
 

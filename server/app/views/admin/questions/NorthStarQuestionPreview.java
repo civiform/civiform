@@ -80,7 +80,8 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
     context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
-
+    context.setVariable("isPreview", true);
+    context.setVariable("homeUrl", index(params, applicantRoutes));
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
@@ -91,6 +92,12 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE);
     return paramsBuilder.build();
+  }
+
+  // used to find the homepage for a given user
+  private String index(Params params, ApplicantRoutes routes) {
+    // index() does the TI evaluation.
+    return routes.index(params.profile(), params.applicantId()).url();
   }
 
   @AutoValue

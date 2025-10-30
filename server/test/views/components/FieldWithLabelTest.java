@@ -357,6 +357,23 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void renderFieldWithSubLabel_hasSubLabel() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label")
+            .setSubLabelText("sub test");
+
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    // Should use the regular INPUT_LABEL class which includes pointer-events-none
+    assertThat(rendered)
+        .contains(
+            "<p class=\"text-xs text-gray-500 pb-3 text-base px-1\"><span>sub test</span></p>");
+  }
+
+  @Test
   public void renderFieldWithLabelWithTooltip_usesTooltipLabelClass() {
     FieldWithLabel fieldWithLabel =
         FieldWithLabel.input()
