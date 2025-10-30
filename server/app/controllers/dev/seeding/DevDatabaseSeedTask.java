@@ -11,6 +11,7 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_D
 import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.MAP_QUESTION_DEFINITION_BAD_KEYS;
 import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
@@ -98,6 +99,7 @@ public final class DevDatabaseSeedTask {
   private final CategoryRepository categoryRepository;
   private final Database database;
   private final CategoryTranslationFileParser categoryTranslationFileParser;
+  private final services.geojson.GeoJsonClient geoJsonClient;
 
   @Inject
   public DevDatabaseSeedTask(
@@ -106,7 +108,8 @@ public final class DevDatabaseSeedTask {
       StatusService statusService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
-      CategoryTranslationFileParser categoryTranslationFileParser) {
+      CategoryTranslationFileParser categoryTranslationFileParser,
+      services.geojson.GeoJsonClient geoJsonClient) {
     this.questionService = checkNotNull(questionService);
     this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
@@ -114,6 +117,21 @@ public final class DevDatabaseSeedTask {
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
     this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
+    this.geoJsonClient = checkNotNull(geoJsonClient);
+  }
+
+  /** Seeds GeoJSON data for map questions to ensure they can be created successfully. */
+  private void seedGeoJsonData() {
+    try {
+      // Fetch and store GeoJSON data for the mock endpoint used by MAP_QUESTION_DEFINITION
+      geoJsonClient
+          .fetchAndSaveGeoJson("http://mock-web-services:8000/geojson/data")
+          .toCompletableFuture()
+          .join();
+      logger.info("GeoJSON data seeded for map questions");
+    } catch (RuntimeException e) {
+      logger.error("Failed to seed GeoJSON data", e);
+    }
   }
 
   /**
@@ -121,6 +139,9 @@ public final class DevDatabaseSeedTask {
    * inserting the definitions in if any aren't found.
    */
   public ImmutableList<QuestionDefinition> seedQuestions() {
+    // Seed GeoJSON data before creating questions to ensure map questions can be created
+    seedGeoJsonData();
+
     ImmutableList<QuestionDefinition> sampleQuestionDefinitions =
         SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS;
     ImmutableSet<String> sampleQuestionNames =
@@ -147,6 +168,39 @@ public final class DevDatabaseSeedTask {
             },
             1);
       }
+    }
+    return questionDefinitions.build();
+  }
+
+  /**
+   * Ensures that all questions in {@link SampleQuestionDefinitions} are present in the database,
+   * inserting the definitions in if any aren't found.
+   */
+  public ImmutableList<QuestionDefinition> seedMapQuestionWithBadKeys() {
+    // Seed GeoJSON data before creating questions to ensure map questions can be created
+    seedGeoJsonData();
+
+    QuestionDefinition sampleQuestionDefinition = MAP_QUESTION_DEFINITION_BAD_KEYS;
+    ImmutableSet<String> sampleQuestionNames = ImmutableSet.of(sampleQuestionDefinition.getName());
+    ImmutableMap<String, QuestionDefinition> existingSampleQuestions =
+        questionService.getExistingQuestions(sampleQuestionNames);
+    if (existingSampleQuestions.size() < sampleQuestionNames.size()) {
+      // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
+      versionRepository.getDraftVersionOrCreate();
+    }
+
+    ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
+    if (existingSampleQuestions.containsKey(sampleQuestionDefinition.getName())) {
+      logger.info(
+          "Sample question \"{}\" exists at server start", sampleQuestionDefinition.getName());
+      questionDefinitions.add(existingSampleQuestions.get(sampleQuestionDefinition.getName()));
+    } else {
+      inSerializableTransaction(
+          () -> {
+            Optional<QuestionDefinition> question = createQuestion(sampleQuestionDefinition);
+            question.ifPresent(questionDefinitions::add);
+          },
+          1);
     }
     return questionDefinitions.build();
   }

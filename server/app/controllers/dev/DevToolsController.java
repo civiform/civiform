@@ -120,12 +120,26 @@ public class DevToolsController extends Controller {
     return seedQuestionsInternal() ? ok() : internalServerError();
   }
 
+  public Result seedMapQuestionWithBadKeysHeadless() {
+    return seedMapQuestionWithBadKeysInternal() ? ok() : internalServerError();
+  }
+
   private boolean seedQuestionsInternal() {
     try {
       devDatabaseSeedTask.seedQuestions();
       return true;
     } catch (RuntimeException ex) {
       logger.error("Failed to seed questions", ex);
+      return false;
+    }
+  }
+
+  private boolean seedMapQuestionWithBadKeysInternal() {
+    try {
+      devDatabaseSeedTask.seedMapQuestionWithBadKeys();
+      return true;
+    } catch (RuntimeException ex) {
+      logger.error("Failed to seed map question with bad keys", ex);
       return false;
     }
   }

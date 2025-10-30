@@ -6,8 +6,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import play.i18n.Lang;
 import services.LocalizedStrings;
+import services.question.MapSettingType;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
@@ -16,6 +18,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.MapQuestionDefinition;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -278,6 +281,53 @@ public final class SampleQuestionDefinitions {
                           "help text",
                           Lang.forCode("ar").toLocale(),
                           "نص المساعدة")))
+              .setValidationPredicates(
+                  MapValidationPredicates.builder()
+                      .setGeoJsonEndpoint("http://mock-web-services:8000/geojson/data")
+                      .setMaxLocationSelections(2)
+                      .build())
+              .setQuestionSettings(
+                  ImmutableSet.of(
+                      QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+                      QuestionSetting.create(
+                          "address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+                      QuestionSetting.create(
+                          "website", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY)))
+              .build());
+
+  @VisibleForTesting
+  public static final MapQuestionDefinition MAP_QUESTION_DEFINITION_BAD_KEYS =
+      new MapQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Map Question")
+              .setDescription("description")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "Select locations",
+                          Lang.forCode("ar").toLocale(),
+                          "حدد المواقع")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
+              .setValidationPredicates(
+                  MapValidationPredicates.builder()
+                      .setGeoJsonEndpoint("http://mock-web-services:8000/geojson/data")
+                      .setMaxLocationSelections(2)
+                      .build())
+              .setQuestionSettings(
+                  ImmutableSet.of(
+                      QuestionSetting.create(
+                          "invalidNameKey", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+                      QuestionSetting.create(
+                          "invalidAddressKey", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+                      QuestionSetting.create(
+                          "invalidUrlKey", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY)))
               .build());
 
   @VisibleForTesting
@@ -510,6 +560,7 @@ public final class SampleQuestionDefinitions {
           ENUMERATOR_QUESTION_DEFINITION,
           FILE_UPLOAD_QUESTION_DEFINITION,
           ID_QUESTION_DEFINITION,
+          MAP_QUESTION_DEFINITION,
           NAME_QUESTION_DEFINITION,
           NUMBER_QUESTION_DEFINITION,
           PHONE_QUESTION_DEFINITION,

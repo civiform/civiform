@@ -22,6 +22,15 @@ export class Seeding {
     })
   }
 
+  async seedMapQuestionWithBadKeys() {
+    await test.step('Seed map question with bad keys', async () => {
+      const response = await this.request.post(
+        '/dev/seedMapQuestionWithBadKeysHeadless',
+      )
+      await expect(response).toBeOK()
+    })
+  }
+
   async clearDatabase() {
     await test.step('Clear database', async () => {
       const response = await this.request.post('/dev/seed/clearHeadless')
