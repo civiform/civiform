@@ -337,15 +337,15 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* label= */ "Send Program Admins an email notification every time an"
                             + " application is submitted"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-          fieldset(
-            legend("Login only applications").withClass("text-gray-600"),
-            buildUSWDSCheckboxOption(
-              /* id= */ "login-only-applications",
-              /* name= */ "loginOnly",
-              /* isChecked= */ loginOnly,
-              /* isDisabled= */ false,
-              /* label= */ "Is program available to only logged in applicants"))
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            fieldset(
+                    legend("Login only applications").withClass("text-gray-600"),
+                    buildUSWDSCheckboxOption(
+                        /* id= */ "login-only-applications",
+                        /* name= */ "loginOnly",
+                        /* isChecked= */ loginOnly,
+                        /* isDisabled= */ false,
+                        /* label= */ "Is program available to only logged in applicants"))
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
             h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
             // Program long description
             FieldWithLabel.textArea()
@@ -739,17 +739,17 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildUSWDSCheckboxOption(
-    String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
+      String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
     return div(
-      input()
-        .withId(id)
-        .withClasses("usa-checkbox__input usa-checkbox__input--tile")
-        .withType("checkbox")
-        .withName(name)
-        .withCondChecked(isChecked)
-        .withCondDisabled(isDisabled),
-      label(label).withFor(id).withClasses("usa-checkbox__label"))
-      .withClasses("usa-checkbox");
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 
   private DivTag buildUSWDSCheckboxOption(
