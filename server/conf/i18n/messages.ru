@@ -694,6 +694,14 @@ content.disabledProgramInfo=К сожалению, программа, кото�
 # Button text on a button that takes the user back to the home page.
 button.homePage=Вернуться на главную страницу
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=and
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
