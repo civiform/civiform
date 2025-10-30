@@ -327,6 +327,7 @@ public enum MessageKey {
   MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
   MAP_GO_TO_PAGE("map.goToPage"), // North Star only
   MAP_KEY_LABEL("map.keyLabel"), // North Star only
+  MAP_KEY_NOT_FOUND_ERROR("map.keyNotFoundError"), // North Star only
   MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
   MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
   MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
