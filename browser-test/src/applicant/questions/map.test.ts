@@ -409,13 +409,22 @@ if (isLocalDevEnvironment()) {
           await expect(locationsLists).toHaveCount(2)
         })
 
-        await test.step('Select from first map only', async () => {
+        await test.step('Select from first map', async () => {
           const firstMapCheckboxes = locationsLists
             .first()
             .getByRole('checkbox')
 
           await firstMapCheckboxes.first().check()
           await expect(firstMapCheckboxes.first()).toBeChecked()
+        })
+
+        await test.step('Select from second map', async () => {
+          const secondMapCheckboxes = locationsLists
+            .nth(1)
+            .getByRole('checkbox')
+
+          await secondMapCheckboxes.nth(1).check()
+          await expect(secondMapCheckboxes.nth(1)).toBeChecked()
         })
 
         await test.step('Verify selections are independent', async () => {
@@ -425,13 +434,27 @@ if (isLocalDevEnvironment()) {
               checked: true,
             })
 
-          // Should have exactly one checked box in the first map
-          await expect(firstMapCheckedBoxes).toHaveCount(1)
+          const secondMapCheckedBoxes = locationsLists
+            .nth(1)
+            .getByRole('checkbox', {
+              checked: true,
+            })
 
-          // Second map checkboxes should remain unchecked
+          // Each map should have exactly one checked box
+          await expect(firstMapCheckedBoxes).toHaveCount(1)
+          await expect(secondMapCheckedBoxes).toHaveCount(1)
+
+          // first map should have the first location checked
+          const firstMapContainer = locationsLists.first()
+          const firstMapCheckboxes = firstMapContainer.getByRole('checkbox')
+          await expect(firstMapCheckboxes.first()).toBeChecked()
+          await expect(firstMapCheckboxes.nth(1)).not.toBeChecked()
+
+          // Second map should have the second location checked
           const secondMapContainer = locationsLists.nth(1)
           const secondMapCheckboxes = secondMapContainer.getByRole('checkbox')
           await expect(secondMapCheckboxes.first()).not.toBeChecked()
+          await expect(secondMapCheckboxes.nth(1)).toBeChecked()
         })
       })
     })
