@@ -145,6 +145,7 @@ public enum MessageKey {
   CONTACT_INFO_LABEL("label.contactInfo"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_ADMIN_FOOTER_PROMPT("content.adminFooterPrompt"),
+  CONTENT_AND("content.and"),
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_BLOCK_PROGRESS_LABEL("content.blockProgressLabel"),
@@ -181,6 +182,7 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
+  CONTENT_MULTIPLE_VALUES_INPUT_HINT("content.multipleValuesInputHint"),
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),

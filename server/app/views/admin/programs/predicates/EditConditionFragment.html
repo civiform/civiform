@@ -1,15 +1,14 @@
-<th:block
-  th:fragment="editCondition(conditionId, hxEditConditionEndpoint, hxEditSubconditionEndpoint, questionType, operatorNodeTypeList, questionOptions, scalarOptions, operatorOptions, valueOptions)"
->
+<!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditConditionPartialViewModel"*/-->
+<th:block th:fragment="editCondition(model)">
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
-    th:data-testid="|condition-${conditionId}|"
+    th:data-testid="|condition-${model.conditionId}|"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
         <div
           class="usa-card__heading font-heading-sm"
-          th:text="|Condition ${conditionId}|"
+          th:text="|Condition ${model.conditionId}|"
         ></div>
         <button
           type="button"
@@ -38,11 +37,11 @@
         Condition is true if
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="|condition-${conditionId}-nodeType|"
+          th:name="|condition-${model.conditionId}-nodeType|"
           autofocus
         >
           <option
-            th:each="nodeType : ${operatorNodeTypeList}"
+            th:each="nodeType : ${model.operatorNodeTypes()}"
             th:text="${nodeType.toDisplayString()}"
             th:value="${nodeType.name()}"
           ></option>
@@ -50,7 +49,7 @@
         of the following are true:
       </div>
       <div
-        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, 1, ${questionType}, ${questionOptions}, ${scalarOptions}, ${operatorOptions}, ${valueOptions}, ${hxEditSubconditionEndpoint}, false)}"
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.emptySubconditionViewModel()})}"
       ></div>
     </div>
 
@@ -60,6 +59,6 @@
     </div>
   </div>
   <div
-    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${conditionId + 1}, ${hxEditConditionEndpoint})}"
+    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
   ></div>
 </th:block>
