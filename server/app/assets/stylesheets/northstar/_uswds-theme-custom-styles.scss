@@ -695,8 +695,14 @@ main {
 }
 
 // Custom height for map question map container
+@include at-media('desktop') {
+  .cf-map-container {
+    min-height: 698px;
+  }
+}
+
 .cf-map-container {
-  min-height: 698px;
+  min-height: 400px;
 }
 
 .maplibregl-popup-content {
