@@ -292,10 +292,15 @@
         <!-- TODO(#11150): Add map question preview functionality -->
         <div
           th:id="${mapId}"
-          class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-0 tablet:margin-top-3 tablet:margin-top-0"
+          class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-3 tablet:margin-top-0 display-flex flex-align-center flex-justify-center"
           data-testid="map-container"
         >
-          <div th:if="${isPreview}" class="square-mobile"></div>
+          <div
+            th:if="${isPreview}"
+            class="square-mobile display-flex flex-align-center flex-justify-center"
+          >
+            <p th:text="#{map.mapPreviewText}"></p>
+          </div>
         </div>
       </div>
     </div>
