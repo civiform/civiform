@@ -136,7 +136,7 @@ lazy val root = (project in file("."))
       "com.networknt" % "json-schema-validator" % "1.5.9",
 
       // Logstash to write JSON formatted log lines with logback
-      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
+      "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
