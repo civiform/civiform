@@ -1024,6 +1024,8 @@ map.maxLocationSelectionsLabel=Maximum location selections
 map.settingTextLabel=Alert text
 # Label for value field
 map.valueLabel=Value
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Map will display here
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
