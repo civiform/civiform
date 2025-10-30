@@ -3,6 +3,8 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,11 +41,14 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
 import play.inject.BindingKey;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.ProgramBlockValidationFactory;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
@@ -71,6 +76,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
+  private TranslationLocales translationLocales;
 
   @Before
   public void setProgramServiceImpl() {
@@ -78,7 +84,18 @@ public class ProgramServiceTest extends ResetPostgres {
         new BindingKey<>(SyncCacheApi.class)
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
-    ps = instanceOf(ProgramService.class);
+    translationLocales = mock(TranslationLocales.class);
+    ps =
+        new ProgramService(
+            instanceOf(repository.ProgramRepository.class),
+            instanceOf(services.question.QuestionService.class),
+            instanceOf(repository.AccountRepository.class),
+            instanceOf(repository.VersionRepository.class),
+            instanceOf(repository.CategoryRepository.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ProgramBlockValidationFactory.class),
+            instanceOf(repository.ApplicationStatusesRepository.class),
+            translationLocales); // Inject the mock
   }
 
   @Before
@@ -223,6 +240,52 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition activeProgramDef = activePrograms.get(0);
     assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
     assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void isTranslationComplete_noTranslatableLocales_returnsTrue() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of());
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
+    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+
+    assertThat(isComplete).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_incomplete_returnsFalse() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
+    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+
+    assertThat(isComplete).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_complete_returnsTrue() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
   }
 
   @Test
