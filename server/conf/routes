@@ -217,11 +217,6 @@ GET     /programs/:programParam                                                 
 GET     /programs/:programSlug/disabled                                                                                           controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programSlug: String)
 
 # Program methods for TI actions on behalf of applicants.
-#
-# Also: Program methods for applicants (legacy). Maintained for now
-# because some applicants will have profiles in the sessions that
-# do not yet contain the applicant id, so we maintain these routes
-# during migration.
 GET     /applicants/:applicantId/programs                                                                                         controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long, categories: java.util.List[String])
 GET     /applicants/:applicantId/programs/:programName                                                                            controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programName: String)
 GET     /applicants/:applicantId/programs/:programParam/edit                                                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programParam: String, isFromUrlCall: Boolean ?= true)
