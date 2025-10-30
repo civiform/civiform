@@ -147,9 +147,7 @@ export class AdminPredicateEdit {
     const secondValueInputId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_ID_SUFFIX
     const valueInput = document.getElementById(valueInputId) as HTMLElement
-    const secondValueInput = document.getElementById(
-      secondValueInputId,
-    )
+    const secondValueInput = document.getElementById(secondValueInputId)
 
     if (!valueInput) {
       return
@@ -366,9 +364,13 @@ export class AdminPredicateEdit {
     secondValueInput: HTMLElement | null,
   ) {
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
+    const csvAgeOperators = ['IN', 'NOT_IN']
     if (ageOperators.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'number')
       secondValueInput?.setAttribute('type', 'number')
+    } else if (csvAgeOperators.includes(selectedOperatorValue)) {
+      valueInput.setAttribute('type', 'text')
+      valueInput.setAttribute('inputmode', 'text')
     } else {
       valueInput.setAttribute('type', 'date')
       secondValueInput?.setAttribute('type', 'date')
