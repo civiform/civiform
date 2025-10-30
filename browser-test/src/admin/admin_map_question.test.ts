@@ -210,42 +210,45 @@ test.describe('Create and edit map question', () => {
       })
     })
 
-    test('Map question with invalid keys shows error', async ({
-      page,
-      adminQuestions,
-      seeding,
-    }) => {
-      await test.step('Seed database with sample questions', async () => {
-        await loginAsAdmin(page)
-        await seeding.seedMapQuestionWithBadKeys()
+    // only run locally because it relies on mock geojson data which only exists locally
+    if (isLocalDevEnvironment()) {
+      test('Map question with invalid keys shows error', async ({
+        page,
+        adminQuestions,
+        seeding,
+      }) => {
+        await test.step('Seed database with sample questions', async () => {
+          await loginAsAdmin(page)
+          await seeding.seedMapQuestionWithBadKeys()
+        })
+
+        await test.step('Navigate to edit Sample Map Question', async () => {
+          await adminQuestions.gotoQuestionEditPage('Sample Map Question')
+          await waitForPageJsLoad(page)
+        })
+
+        await test.step('Verify error messages appear for invalid keys', async () => {
+          const errorMessages = page.getByText('Error: Key not found')
+          await expect(errorMessages).toHaveCount(3)
+          await validateScreenshot(page, 'map-q-missing-key-error-message')
+        })
+
+        await test.step('Change keys to valid values', async () => {
+          const nameKeySelect = page.getByLabel('Name key')
+          await nameKeySelect.selectOption({value: 'name'})
+
+          const addressKeySelect = page.getByLabel('Address key')
+          await addressKeySelect.selectOption({value: 'address'})
+
+          const urlKeySelect = page.getByLabel('View more details URL key')
+          await urlKeySelect.selectOption({value: 'website'})
+        })
+
+        await test.step('Verify errors disappear after selecting valid keys', async () => {
+          const errorMessages = page.getByText('Error: Key not found')
+          await expect(errorMessages).toHaveCount(0)
+        })
       })
-
-      await test.step('Navigate to edit Sample Map Question', async () => {
-        await adminQuestions.gotoQuestionEditPage('Sample Map Question')
-        await waitForPageJsLoad(page)
-      })
-
-      await test.step('Verify error messages appear for invalid keys', async () => {
-        const errorMessages = page.getByText('Error: Key not found')
-        await expect(errorMessages).toHaveCount(3)
-        await validateScreenshot(page, 'map-q-missing-key-error-message')
-      })
-
-      await test.step('Change keys to valid values', async () => {
-        const nameKeySelect = page.getByLabel('Name key')
-        await nameKeySelect.selectOption({value: 'name'})
-
-        const addressKeySelect = page.getByLabel('Address key')
-        await addressKeySelect.selectOption({value: 'address'})
-
-        const urlKeySelect = page.getByLabel('View more details URL key')
-        await urlKeySelect.selectOption({value: 'website'})
-      })
-
-      await test.step('Verify errors disappear after selecting valid keys', async () => {
-        const errorMessages = page.getByText('Error: Key not found')
-        await expect(errorMessages).toHaveCount(0)
-      })
-    })
+    }
   }
 })

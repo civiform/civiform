@@ -145,6 +145,10 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "id" : "12345",
         "question_type" : "ID"
       },
+      "sample_map_question" : {
+        "question_type" : "MAP",
+        "selections" : [ "feature_123", "feature_456" ]
+      },
       "sample_name_question" : {
         "first_name" : "Homer",
         "last_name" : "Simpson",
