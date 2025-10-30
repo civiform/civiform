@@ -63,8 +63,14 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
+  const popupContent = mapQuerySelector(mapId, 'open-popup') as HTMLElement
+  let openPopupFeatureId = null
+  if (popupContent) {
+    openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
+  }
+
   locationCheckboxContainers.forEach((container) => {
-    const containerElement = (container as HTMLElement) || null
+    const containerElement = container || null
     if (!containerElement) return
 
     const featureId = containerElement.getAttribute(DATA_FEATURE_ID)
@@ -77,9 +83,12 @@ const applyLocationFilters = (
       containerElement.classList.remove(CF_FILTER_HIDDEN)
     } else {
       containerElement.classList.add(CF_FILTER_HIDDEN)
+      if (featureId == openPopupFeatureId) {
+        const popup = popupContent.parentElement?.parentElement
+        if (popup) popup.remove()
+      }
     }
   })
-
   updateLocationCountForMap(mapId)
   resetPagination(mapId)
 }
@@ -87,7 +96,7 @@ const applyLocationFilters = (
 const updateLocationCountForMap = (mapId: string): void => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = (checkbox as HTMLElement) || null
+    const checkboxElement = checkbox || null
     return (
       checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
