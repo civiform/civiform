@@ -20,14 +20,14 @@
           th:replace="~{::currencyValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
-      <th:block th:case="'Number'">
-        <div
-          th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
-        ></div>
-      </th:block>
       <th:block th:case="'Date'">
         <div
           th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Number'">
+        <div
+          th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
