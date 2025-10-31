@@ -377,11 +377,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       PredicateDefinition existingPredicate) {
     PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
     return switch (format) {
-      case SINGLE_QUESTION ->
+      case SINGLE_CONDITION ->
           ImmutableList.of(
               PredicateExpressionNode.create(
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
-      case OR_OF_SINGLE_LAYER_ANDS -> existingPredicate.rootNode().getOrNode().children();
+      case MULTIPLE_CONDITIONS -> existingPredicate.rootNode().getOrNode().children();
       default ->
           throw new IllegalArgumentException(
               String.format("Unrecognized predicate format: %s", format));

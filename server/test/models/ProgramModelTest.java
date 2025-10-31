@@ -276,7 +276,7 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
     assertThat(block.eligibilityDefinition().get().predicate().predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
