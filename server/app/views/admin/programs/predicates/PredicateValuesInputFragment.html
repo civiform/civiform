@@ -27,6 +27,11 @@
           th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Email'">
+        <div
+          th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Number'">
         <div
           th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
@@ -178,6 +183,25 @@
       />
     </div>
   </div>
+</th:block>
+
+<!-- Email question type -->
+<th:block th:fragment="emailValuesInput(valueInputId, valueInputHintId)">
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <input
+    class="usa-input"
+    type="email"
+    inputmode="text"
+    th:id="${valueInputId}"
+    th:name="${valueInputId}"
+    aria-required="true"
+    aria-invalid="false"
+    email-value
+  />
 </th:block>
 
 <!-- Number question type -->

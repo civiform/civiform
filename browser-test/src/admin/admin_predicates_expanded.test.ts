@@ -272,6 +272,16 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         },
       ],
       [
+        QuestionType.EMAIL,
+        {
+          questionName: 'email-q',
+          questionText: 'email question text',
+          firstValue: 'email@fake-email.gov',
+          defaultInputType: 'email',
+          defaultInputMode: 'text',
+        },
+      ],
+      [
         QuestionType.NUMBER,
         {
           questionName: 'number-q',
@@ -319,6 +329,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     for (const questionType of [
       QuestionType.CURRENCY,
       QuestionType.DATE,
+      QuestionType.EMAIL,
       QuestionType.NUMBER,
     ]) {
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
@@ -471,7 +482,11 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
-    for (const questionType of [QuestionType.NUMBER, QuestionType.DATE]) {
+    for (const questionType of [
+      QuestionType.DATE,
+      QuestionType.EMAIL,
+      QuestionType.NUMBER,
+    ]) {
       await test.step('refresh page and re-add condition', async () => {
         await page.reload()
         await adminPredicates.clickAddConditionButton()

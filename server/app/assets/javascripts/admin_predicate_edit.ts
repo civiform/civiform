@@ -195,6 +195,18 @@ export class AdminPredicateEdit {
         csvInputContainer!,
       )
     }
+
+    // Email question types
+    // Use email inputs for single values, text inputs for CSV
+    if (valueInput.hasAttribute('email-value')) {
+      this.setEmailQuestionValueInputType(selectedOperatorValue, valueInput)
+    }
+
+    // Number question types
+    // Use number inputs for single values, text inputs for CSV
+    if (valueInput.hasAttribute('number-value')) {
+      this.setNumberQuestionValueInputType(selectedOperatorValue, valueInput)
+    }
   }
 
   /**
@@ -458,6 +470,22 @@ export class AdminPredicateEdit {
         child.removeAttribute('disabled')
         child.hidden = false
       }
+    }
+  }
+
+  /**
+   * Set the input type for email question value inputs based on the selected operator.
+   * For CSV operators, uses normal text input. Otherwise, email input.
+   */
+  private static setEmailQuestionValueInputType(
+    selectedOperatorValue: string,
+    valueInput: HTMLElement,
+  ) {
+    const csvOperators = ['IN', 'NOT_IN']
+    if (csvOperators.includes(selectedOperatorValue)) {
+      valueInput.setAttribute('type', 'text')
+    } else {
+      valueInput.setAttribute('type', 'email')
     }
   }
 }
