@@ -104,6 +104,7 @@ class AzureUploadController {
       containerName: this.getValueFromInputLabel('containerName'),
       file: files[0],
       fileName: this.getValueFromInputLabel('fileName'),
+      csrfToken: this.getValueFromInputLabel('csrfToken'),
     }
   }
   /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -118,6 +119,7 @@ class AzureUploadController {
     redirectUrl.searchParams.set('key', azureUploadProps.fileName)
     redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
     redirectUrl.searchParams.set('blockBlobUrlString', blockBlobUrlString)
+    redirectUrl.searchParams.set('csrfToken', azureUploadProps.csrfToken)
   }
 }
 /* eslint-enable  @typescript-eslint/no-explicit-any */
