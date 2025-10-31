@@ -89,7 +89,6 @@ public class ProgramModelTest extends ResetPostgres {
                 ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
-            .setLoginOnly(false)
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
@@ -124,7 +123,6 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().programType())
         .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
     assertThat(found.getProgramDefinition().eligibilityIsGating()).isEqualTo(false);
-    assertThat(found.getProgramDefinition().loginOnly()).isEqualTo(false);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
     assertThat(found.getCategories()).isInstanceOf(ImmutableList.class);
