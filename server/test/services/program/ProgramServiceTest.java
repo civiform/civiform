@@ -1266,6 +1266,7 @@ public class ProgramServiceTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
+        /* loginOnly= */ false,
         ProgramType.COMMON_INTAKE_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
