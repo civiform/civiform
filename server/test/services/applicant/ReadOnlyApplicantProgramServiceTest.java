@@ -1112,6 +1112,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
+                .setLoginOnly(false)
                 .setAcls(new ProgramAcls())
                 .setCategories(ImmutableList.of())
                 .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))

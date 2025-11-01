@@ -69,6 +69,12 @@ public abstract class AnswerData {
    */
   public abstract boolean eligibilityIsGating();
 
+  /**
+   * True if the program can only be applied by logged in applicants. If false, program can be
+   * applied by both guest and non-guest applicants.
+   */
+  public abstract boolean loginOnly();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -126,6 +132,8 @@ public abstract class AnswerData {
     public abstract Builder setIsEligible(boolean isEligible);
 
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
+
+    public abstract Builder setLoginOnly(boolean loginOnly);
 
     public abstract Builder setAnswerText(String answerText);
 

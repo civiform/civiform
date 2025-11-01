@@ -635,6 +635,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             version,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));

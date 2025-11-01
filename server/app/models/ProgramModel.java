@@ -67,6 +67,9 @@ public class ProgramModel extends BaseModel {
   /** The program's display mode. */
   @Constraints.Required private String displayMode;
 
+  /** If the program is for logged in applicants only. */
+  @Constraints.Required private Boolean loginOnly;
+
   /** The notification preferences for this program */
   @Constraints.Required
   private @DbArray List<ProgramNotificationPreference> notificationPreferences;
@@ -188,6 +191,7 @@ public class ProgramModel extends BaseModel {
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.displayMode = definition.displayMode().getValue();
+    this.loginOnly = definition.loginOnly();
     this.notificationPreferences = new ArrayList<>(definition.notificationPreferences());
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
@@ -228,6 +232,7 @@ public class ProgramModel extends BaseModel {
       VersionModel associatedVersion,
       ProgramType programType,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramAcls programAcls,
       ImmutableList<CategoryModel> categories,
       ImmutableList<ApplicationStep> applicationSteps) {
@@ -247,6 +252,7 @@ public class ProgramModel extends BaseModel {
     this.versions.add(associatedVersion);
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
+    this.loginOnly = loginOnly;
     this.acls = programAcls;
 
     // Ebeans needs to manage the collection so add categories instead of
@@ -273,6 +279,7 @@ public class ProgramModel extends BaseModel {
     notificationPreferences = new ArrayList<>(programDefinition.notificationPreferences());
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
+    loginOnly = programDefinition.loginOnly();
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
@@ -310,6 +317,7 @@ public class ProgramModel extends BaseModel {
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
+            .setLoginOnly(loginOnly)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
             .setApplicationSteps(ImmutableList.copyOf(applicationSteps))
