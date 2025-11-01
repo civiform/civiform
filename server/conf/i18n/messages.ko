@@ -698,10 +698,60 @@ button.homePage=홈페이지로 돌아가기
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Back to edit {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=program settings
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Screen is
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Applicant is eligible if
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=conditions are true:
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Condition is true if
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=sub-conditions are true:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Question
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Field
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=State
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=Value(s)
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Select -
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
 content.and=and
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Add condition
+# Button to remove a condition from the form
+button.predicateDeleteCondition=Delete condition
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Add sub-condition
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=Delete sub-condition
+# Link to go back to the top of the page
+link.backToTop=Back to top
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=Save and exit
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
