@@ -29,6 +29,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import repository.ResetPostgres;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -38,7 +39,7 @@ import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
 
 @RunWith(JUnitParamsRunner.class)
-public class QuestionConfigTest {
+public class QuestionConfigTest extends ResetPostgres {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
@@ -276,5 +277,32 @@ public class QuestionConfigTest {
     Pattern noPattern = Pattern.compile("name=\"displayedOptionIds\\[\\]\"[^>]*value=\"0\"");
     Matcher noMatcher = noPattern.matcher(result);
     assertThat(noMatcher.results().count()).isEqualTo(2);
+  }
+
+  @Test
+  public void mapQuestionForm_withInvalidFilterKey_showsError() {
+    MapQuestionSettingsPartialViewModel model =
+        MapQuestionSettingsPartialViewModel.builder()
+            .maxLocationSelections(OptionalInt.of(5))
+            .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
+            .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
+            .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
+            .filters(
+                ImmutableList.of(new MapQuestionForm.Setting("invalidKey", "Invalid Filter")))
+            .locationTag(MapQuestionForm.Setting.emptySetting())
+            .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
+            .build();
+    MapQuestionSettingsPartialView view =
+        new MapQuestionSettingsPartialView(
+            instanceOf(TemplateEngine.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(SettingsManifest.class));
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).contains("Error: Key not found. Please select a different key.");
   }
 }

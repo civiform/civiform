@@ -239,7 +239,7 @@ class AdminQuestionEdit {
    * Removes error message and error classes from wrapper when a key is changed.
    */
   addMapKeyErrorHandler() {
-    document.addEventListener('change', (event: Event) => {
+    addEventListenerToElements('[data-key-select]', 'change', (event: Event) => {
       const target = event.target as HTMLElement
       if (target.hasAttribute('data-key-select')) {
         const dataKeyFieldContainer = target.closest('[data-key-field]')
