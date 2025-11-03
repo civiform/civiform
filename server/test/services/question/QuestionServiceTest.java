@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -432,5 +433,52 @@ public class QuestionServiceTest extends ResetPostgres {
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingOptionTranslation_returnsFalse() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(2L, "admin name", LocalizedStrings.of(Locale.US, "two"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_allOptionsTranslated_returnsTrue() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(
+                        2L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "two", Locale.FRANCE, "deux"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
   }
 }

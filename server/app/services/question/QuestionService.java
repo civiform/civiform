@@ -30,6 +30,7 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -467,6 +468,15 @@ public final class QuestionService {
       if (!questionDefinition.getQuestionHelpText().isEmpty()
           && !questionDefinition.getQuestionHelpText().hasTranslationFor(locale)) {
         return false;
+      }
+      if (questionDefinition.getQuestionType().isMultiOptionType()) {
+        MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+            (MultiOptionQuestionDefinition) questionDefinition;
+        for (services.question.QuestionOption option : multiOptionQuestionDefinition.getOptions()) {
+          if (!option.optionText().hasTranslationFor(locale)) {
+            return false;
+          }
+        }
       }
     }
     return true;

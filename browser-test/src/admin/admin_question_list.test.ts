@@ -527,6 +527,10 @@ test.describe('Translation tag shows up as expected', () => {
       await adminQuestions.gotoAdminQuestionsPage()
       await expect(page.getByText('Translation Incomplete')).toBeHidden()
       await expect(page.getByText('Translation Complete')).toBeVisible()
+      await validateScreenshot(
+        page.locator('.cf-question-bank-element'),
+        'question-translation-complete',
+      )
     })
   })
 })
