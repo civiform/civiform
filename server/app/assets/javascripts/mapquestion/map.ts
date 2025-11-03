@@ -46,6 +46,7 @@ import {
   CF_SWITCH_TO_LIST_VIEW_BUTTON,
   CF_SWITCH_TO_MAP_VIEW_BUTTON,
   hasReachedMaxSelections,
+  POPUP_LAYER,
 } from './map_util'
 
 export const init = (): void => {
@@ -148,7 +149,9 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
-  popupContent.classList.add('flex', 'flex-column', 'padding-4')
+  popupContent.classList.add('flex', 'flex-column', 'padding-4', POPUP_LAYER)
+  popupContent.setAttribute('data-map-id', mapId)
+  popupContent.setAttribute('data-feature-id', featureId)
   if (name) {
     const nameElement = templateContent
       .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
@@ -487,7 +490,7 @@ const updatePopupButtonState = (
   if (!mapContainer) return
 
   const popupButton = mapContainer.querySelector(
-    `[data-map-id="${mapId}"][data-feature-id="${featureId}"]`,
+    `[data-map-id="${mapId}"][data-feature-id="${featureId}"][name=${CF_POPUP_CONTENT_BUTTON}]`,
   ) as HTMLButtonElement
   if (!popupButton) return
 
