@@ -111,6 +111,61 @@ export const localizeString = (message: string, params: string[] = []) => {
   return message
 }
 
+/**
+ * Calculates the center point of a GeoJSON FeatureCollection by finding
+ * the geographic center of all Point features' bounding box.
+ *
+ * @param geoJson - The FeatureCollection containing Point features
+ * @returns The center point as [longitude, latitude], or null if no valid points exist
+ */
+export const calculateMapCenter = (
+  geoJson: FeatureCollection,
+): LngLatLike | null => {
+  if (!geoJson.features || geoJson.features.length === 0) {
+    return null
+  }
+
+  const coordinates: number[][] = []
+
+  // Extract coordinates from all Point features
+  geoJson.features.forEach((feature) => {
+    if (feature.geometry?.type === 'Point') {
+      const coords = feature.geometry.coordinates
+      if (
+        Array.isArray(coords) &&
+        coords.length >= 2 &&
+        typeof coords[0] === 'number' &&
+        typeof coords[1] === 'number'
+      ) {
+        coordinates.push(coords)
+      }
+    }
+  })
+
+  if (coordinates.length === 0) {
+    return null
+  }
+
+  // Calculate bounding box
+  let minLng = coordinates[0][0]
+  let maxLng = coordinates[0][0]
+  let minLat = coordinates[0][1]
+  let maxLat = coordinates[0][1]
+
+  coordinates.forEach(([lng, lat]) => {
+    minLng = Math.min(minLng, lng)
+    maxLng = Math.max(maxLng, lng)
+    minLat = Math.min(minLat, lat)
+    maxLat = Math.max(maxLat, lat)
+  })
+
+  // Calculate center point
+  const centerLng = (minLng + maxLng) / 2
+  const centerLat = (minLat + maxLat) / 2
+
+  return [centerLng, centerLat]
+}
+
 export const queryLocationCheckboxes = (
   mapId: string,
 ): NodeListOf<HTMLElement> => {
