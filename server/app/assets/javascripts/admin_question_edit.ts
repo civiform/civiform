@@ -239,21 +239,25 @@ class AdminQuestionEdit {
    * Removes error message and error classes from wrapper when a key is changed.
    */
   addMapKeyErrorHandler() {
-    addEventListenerToElements('[data-key-select]', 'change', (event: Event) => {
-      const target = event.target as HTMLElement
-      if (target.hasAttribute('data-key-select')) {
-        const dataKeyFieldContainer = target.closest('[data-key-field]')
+    addEventListenerToElements(
+      '[data-key-select]',
+      'change',
+      (event: Event) => {
+        const target = event.target as HTMLElement
+        if (target.hasAttribute('data-key-select')) {
+          const dataKeyFieldContainer = target.closest('[data-key-field]')
 
-        const errorMessage =
-          dataKeyFieldContainer?.querySelector('[data-key-error]')
-        errorMessage?.remove()
+          const errorMessage =
+            dataKeyFieldContainer?.querySelector('[data-key-error]')
+          errorMessage?.remove()
 
-        dataKeyFieldContainer?.classList.remove(
-          'cf-question-field-with-error',
-          'padding-left-105',
-        )
-      }
-    })
+          dataKeyFieldContainer?.classList.remove(
+            'cf-question-field-with-error',
+            'padding-left-105',
+          )
+        }
+      },
+    )
   }
 }
 

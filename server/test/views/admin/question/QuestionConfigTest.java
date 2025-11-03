@@ -287,8 +287,7 @@ public class QuestionConfigTest extends ResetPostgres {
             .locationName(new MapQuestionForm.Setting("name_key", "Location Name"))
             .locationAddress(new MapQuestionForm.Setting("address_key", "Location Address"))
             .locationDetailsUrl(new MapQuestionForm.Setting("url_key", "Details URL"))
-            .filters(
-                ImmutableList.of(new MapQuestionForm.Setting("invalidKey", "Invalid Filter")))
+            .filters(ImmutableList.of(new MapQuestionForm.Setting("invalidKey", "Invalid Filter")))
             .locationTag(MapQuestionForm.Setting.emptySetting())
             .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
             .build();
