@@ -906,6 +906,7 @@ label.uploadedFiles=Uploaded Files
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Must contain at most {0} characters.
 validation.idTooShort=Must contain at least {0} characters.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Must contain only numbers.
 validation.numberRequired.v2=Must contain only numbers 0-9.
 
