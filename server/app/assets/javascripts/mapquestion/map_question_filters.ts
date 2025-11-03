@@ -9,6 +9,7 @@ import {
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
+  POPUP_LAYER,
   MapData,
   mapQuerySelector,
   CF_FILTER_HIDDEN,
@@ -63,7 +64,7 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
-  const popupContent = mapQuerySelector(mapId, 'open-popup') as HTMLElement
+  const popupContent = mapQuerySelector(mapId, POPUP_LAYER) as HTMLElement
   let openPopupFeatureId = null
   if (popupContent) {
     openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
