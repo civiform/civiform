@@ -34,22 +34,31 @@ export const initFilters = (
     }
   })
 
-  mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
-    'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap),
-  )
+  const applyFiltersButton = mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)
+  if (applyFiltersButton) {
+    applyFiltersButton.addEventListener('click', () => {
+      const isPressed =
+        applyFiltersButton.getAttribute('aria-pressed') === 'true'
+      applyFiltersButton.setAttribute('aria-pressed', (!isPressed).toString())
+      applyLocationFilters(mapId, mapElement, featureMap)
+    })
+  }
 
-  mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
-    'click',
-    () => {
+  const resetFiltersButton = mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)
+
+  if (resetFiltersButton) {
+    resetFiltersButton.addEventListener('click', () => {
       queryMapSelectOptions(mapId).forEach((selectOption) => {
         const selectOptionElement = (selectOption as HTMLSelectElement) || null
         if (!selectOptionElement) return
         selectOptionElement.value = ''
       })
+      const isPressed =
+        resetFiltersButton.getAttribute('aria-pressed') === 'true'
+      resetFiltersButton.setAttribute('aria-pressed', (!isPressed).toString())
       applyLocationFilters(mapId, mapElement, featureMap, true)
-    },
-  )
+    })
+  }
 }
 
 const applyLocationFilters = (
