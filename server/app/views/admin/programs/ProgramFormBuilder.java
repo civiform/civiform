@@ -344,7 +344,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* name= */ "loginOnly",
                         /* isChecked= */ loginOnly,
                         /* isDisabled= */ false,
-                        /* label= */ "Is program available to only logged in applicants"))
+                        /* label= */ "Require applicants to log in to apply to this program"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
             h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
             // Program long description
