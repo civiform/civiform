@@ -8,10 +8,10 @@ import play.api.mvc.Call;
 /**
  * Class that computes routes for applicant actions.
  *
- * <p>Routes for TIs and CiviForm Admins previewing programs will differ from
- * Applicants, they will contain the applicants ID in the route.
+ * <p>Routes for TIs and CiviForm Admins previewing programs will differ from Applicants, they will
+ * contain the applicants ID in the route.
  *
- * Applicants store their ID in their profile (which is not managed here).
+ * <p>Applicants store their ID in their profile (which is not managed here).
  */
 public final class ApplicantRoutes {
   // There are two cases where we want to use the URL that contains the applicant id:
