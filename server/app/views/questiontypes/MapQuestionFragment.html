@@ -34,7 +34,7 @@
     </div>
     <!-- Filters -->
     <div
-      th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+      th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
       th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
     >
       <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
@@ -44,7 +44,7 @@
         ></legend>
         <div
           th:each="filter, i : ${mapQuestion.getFilters()}"
-          class="grid-col flex-align-self-end cf-map-question-filter"
+          class="tablet:grid-col mobile:width-full flex-align-self-end cf-map-question-filter"
         >
           <label
             class="usa-label margin-top-1"
