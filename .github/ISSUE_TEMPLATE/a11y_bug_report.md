@@ -5,13 +5,14 @@ title: ''
 labels: bug, a11y, needs-triage
 assignees: ''
 ---
+
 Before reporting a bug, please check the list of known accessibility issues on the [a11y issue board](https://github.com/orgs/civiform/projects/1/views/52).
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 **WCAG Success Criterion**
-If possible, link to the WCAG Success Criterion that the bug breaks.  Select from [this list](https://www.w3.org/TR/WCAG21/).
+If possible, link to the WCAG Success Criterion that the bug breaks. Select from [this list](https://www.w3.org/TR/WCAG21/).
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -22,7 +23,7 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.  You can draw from our [dev wiki accessibility testing guidance](https://github.com/civiform/civiform/wiki/Accessibility).
+A clear and concise description of what you expected to happen. You can draw from our [dev wiki accessibility testing guidance](https://github.com/civiform/civiform/wiki/Accessibility).
 
 **Screenshots**
 If applicable, add a screenshot video to demonstrate the problem.
