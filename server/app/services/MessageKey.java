@@ -533,10 +533,7 @@ public enum MessageKey {
   SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
-  SESSION_EXTENDED_ERROR("session.extended.error"),
-
-  // Untranslated string for translation infrastructure testing.
-  TRANSLATION_UNTRANSLATED("translation.untranslated");
+  SESSION_EXTENDED_ERROR("session.extended.error");
 
   private final String keyName;
 
