@@ -1979,8 +1979,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantRoutes(applicantRoutes)
         .setProfile(profile)
         .setBlockList(roApplicantProgramService.getAllActiveBlocks())
-        .setEligibilityAlertSettings(eligibilityAlertSettings)
-        .setIsLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
+        .setEligibilityAlertSettings(eligibilityAlertSettings);
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(
