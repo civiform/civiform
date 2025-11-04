@@ -906,6 +906,7 @@ label.uploadedFiles=Faylasha lasoo Geliyay
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
 validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
 validation.numberRequired.v2=Must contain only numbers 0-9.
 
@@ -1056,6 +1057,8 @@ map.addTagTitle=Tag
 map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
