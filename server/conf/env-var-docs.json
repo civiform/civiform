@@ -633,7 +633,7 @@
         "required": true
       },
       "IT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "This email address receives error notifications from CiviForm when there is an internal server error or a durable job fails.",
         "type": "string"
       },

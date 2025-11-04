@@ -725,8 +725,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * This email address receives error notifications from CiviForm when there is an internal server
    * error or a durable job fails.
    */
-  public Optional<String> getItEmailAddress(RequestHeader request) {
-    return getString("IT_EMAIL_ADDRESS", request);
+  public Optional<String> getItEmailAddress() {
+    return getString("IT_EMAIL_ADDRESS");
   }
 
   /**
@@ -2033,7 +2033,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST",
                           "If this is a staging deployment, the application notification email is"
