@@ -906,6 +906,7 @@ label.uploadedFiles=Mga Na-upload na File
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga character.
 validation.idTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
 validation.numberRequired.v2=Must contain only numbers 0-9.
 
@@ -1056,6 +1057,8 @@ map.addTagTitle=Tag
 map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
