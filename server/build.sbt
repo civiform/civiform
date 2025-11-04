@@ -43,8 +43,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.36.2",
-      "software.amazon.awssdk" % "ses" % "2.36.2",
+      "software.amazon.awssdk" % "s3" % "2.37.4",
+      "software.amazon.awssdk" % "ses" % "2.37.4",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.51.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.52.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -133,7 +133,7 @@ lazy val root = (project in file("."))
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.35",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "1.5.9",
+      "com.networknt" % "json-schema-validator" % "2.0.0",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
