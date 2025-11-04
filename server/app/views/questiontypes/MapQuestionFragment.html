@@ -89,6 +89,13 @@
       class="toggle-buttons-container"
       th:data-map-id="${mapId}"
     >
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        data-switch-view-status
+        class="sr-only"
+        th:data-map-id="${mapId}"
+      ></div>
       <button
         class="usa-button usa-button--base cf-switch-to-map-view-button"
         type="button"
@@ -406,6 +413,8 @@
           /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
         locationLinkTextSr:
           /*[[#{map.locationLinkTextSr}]]*/ 'View more details for {0}',
+        switchViewUpdateSr:
+          /*[[#{map.switchViewUpdateSr}]]*/ 'View has been updated.',
       }
       window.app.data.iconUrls = {
         locationIcon: /*[[${locationIcon}]]*/ '',

@@ -435,6 +435,7 @@ const setupEventListenersForMap = (
       locationsListContainer.classList.remove(CF_TOGGLE_HIDDEN)
       paginationNav.classList.remove(CF_TOGGLE_HIDDEN)
       locationCount.classList.remove(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId)
     })
   }
 
@@ -446,6 +447,7 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId)
     })
   }
 }
@@ -524,4 +526,17 @@ const updateOpenPopupButtons = (mapId: string): void => {
   )
 
   popupButton.disabled = !isSelectedButton && maxReached
+}
+
+const updateViewStatus = (mapId: string): void => {
+  const statusElement = document.querySelector(
+    `[data-map-id=${mapId}][data-switch-view-status]`,
+  ) as HTMLElement
+  if (statusElement) {
+    statusElement.textContent = localizeString(getMessages().switchViewUpdateSr)
+    // Clear the text after announcement to prevent navigation to it
+    setTimeout(() => {
+      statusElement.textContent = ''
+    }, 1000)
+  }
 }
