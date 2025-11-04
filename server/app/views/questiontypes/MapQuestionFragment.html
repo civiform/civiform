@@ -136,6 +136,12 @@
           aria-label="Location selection"
         >
           <div
+            class="cf-filter-hidden text-gray-50 text-center"
+            data-no-results-found
+            th:data-map-id="${mapId}"
+            th:text="#{map.noResultsFound}"
+          ></div>
+          <div
             th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
             th:with="locationId='location-' + ${mapId} + ${iterator.index},
                       locationName=${feature.properties().get(mapQuestion.getNameValue())},

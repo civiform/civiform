@@ -345,6 +345,7 @@ public enum MessageKey {
   MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
   MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
+  MAP_NO_RESULTS_FOUND("map.noResultsFound"), // North Star only
   MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
   MAP_PAGINATION_STATUS("map.paginationStatus"), // North Star only
   MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
