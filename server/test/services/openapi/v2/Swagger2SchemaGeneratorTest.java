@@ -54,7 +54,6 @@ public class Swagger2SchemaGeneratorTest {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
-            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
             .setApplicationSteps(
@@ -253,7 +252,6 @@ definitions:
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
-            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
             .setApplicationSteps(
@@ -805,7 +803,6 @@ definitions:
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
-            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
             .setApplicationSteps(

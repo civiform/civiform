@@ -76,7 +76,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
-            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))

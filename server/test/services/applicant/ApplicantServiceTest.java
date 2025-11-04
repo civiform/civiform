@@ -3810,7 +3810,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
-                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
@@ -3895,7 +3894,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
-                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
