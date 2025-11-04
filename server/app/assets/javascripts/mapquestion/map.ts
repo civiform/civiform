@@ -533,7 +533,9 @@ const updateViewStatus = (mapId: string, toMapView: boolean = false): void => {
     `[data-map-id=${mapId}][data-switch-view-status]`,
   ) as HTMLElement
   if (statusElement) {
-    statusElement.textContent = toMapView ? localizeString(getMessages().switchToMapViewSr) : localizeString(getMessages().switchToListViewSr)
+    statusElement.textContent = toMapView
+      ? localizeString(getMessages().switchToMapViewSr)
+      : localizeString(getMessages().switchToListViewSr)
     // Clear the text after announcement to prevent navigation to it
     setTimeout(() => {
       statusElement.textContent = ''
