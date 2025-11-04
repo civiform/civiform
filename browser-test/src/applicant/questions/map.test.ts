@@ -217,7 +217,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Select a filter option', async () => {
           const firstFilter = filterSelects.first()
-          await firstFilter.selectOption({index: 1})
+          await firstFilter.selectOption({index: 2})
         })
 
         await test.step('Apply filters', async () => {
@@ -228,7 +228,21 @@ if (isLocalDevEnvironment()) {
             /Displaying \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 2 of 7 locations')
+          await expect(locationCount).toHaveText('Displaying 1 of 7 locations')
+        })
+
+        await test.step('Apply another filter', async () => {
+          await filterSelects.nth(1).selectOption({index: 2})
+          await applyButton.click()
+
+          const noResultsMessage = page.getByText(
+            'No results found. Please try adjusting your filters.',
+          )
+          await noResultsMessage.isVisible()
+          const locationsList = page.getByRole('group', {
+            name: 'Location selection',
+          })
+          await validateScreenshot(locationsList, 'map-filters-no-results')
         })
 
         await test.step('Reset filters', async () => {
@@ -476,7 +490,13 @@ if (isLocalDevEnvironment()) {
         locationNameKey: 'name',
         locationAddressKey: 'address',
         locationDetailsUrlKey: 'website',
-        filters: [{key: 'type', displayName: 'Type'}],
+        filters: [
+          {key: 'type', displayName: 'Type'},
+          {
+            key: 'requiresDirectEnrollment',
+            displayName: 'Requires Direct Enrollment',
+          },
+        ],
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['map-test-q'],
