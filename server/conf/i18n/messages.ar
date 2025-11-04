@@ -906,6 +906,7 @@ label.uploadedFiles=الملفات التي تم تحميلها
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=الحد الأقصى لعدد الأحرف في الإجابة هو {0}.
 validation.idTooShort=الحد الأدنى لعدد الأحرف في الإجابة هو {0}.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=يجب أن تتضمن الإجابة أرقامًا فقط.
 validation.numberRequired.v2=Must contain only numbers 0-9.
 
@@ -1056,6 +1057,8 @@ map.addTagTitle=Tag
 map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
