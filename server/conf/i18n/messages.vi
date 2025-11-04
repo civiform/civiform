@@ -1012,6 +1012,8 @@ map.locationsSelectedCount={0} of {1} maximum locations selected.
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
+# Message displayed when filter results return no locations
+map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Chưa chọn địa điểm nào.
 # Sr only message displayed when page has changed
