@@ -368,7 +368,9 @@ export class AdminPredicateEdit {
     if (ageOperators.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'number')
       secondValueInput?.setAttribute('type', 'number')
-    } else if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
+    } else if (
+      AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)
+    ) {
       valueInput.setAttribute('type', 'text')
       valueInput.setAttribute('inputmode', 'text')
     } else {
