@@ -150,10 +150,10 @@
                       ariaLabelForNewTabs=#{link.opensNewTabSr},
                       featureId=${feature.id}"
             th:data-feature-id="${featureId}"
-            class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
+            class="usa-checkbox cf-location-checkbox"
           >
             <input
-              class="usa-checkbox__input cf-location-checkbox-input"
+              class="usa-checkbox__input usa-checkbox__input--tile cf-location-checkbox-input"
               th:id="${locationId}"
               th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
               th:name="${mapQuestion.getSelectionPathAsArray()}"
