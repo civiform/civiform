@@ -198,13 +198,13 @@ export class AdminPredicateEdit {
 
     // Email question types
     // Use email inputs for single values, text inputs for CSV
-    if (valueInput.hasAttribute('email-value')) {
+    if (valueInput.hasAttribute('data-email-value')) {
       this.setEmailQuestionValueInputType(selectedOperatorValue, valueInput)
     }
 
     // Number question types
     // Use number inputs for single values, text inputs for CSV
-    if (valueInput.hasAttribute('number-value')) {
+    if (valueInput.hasAttribute('data-number-value')) {
       this.setNumberQuestionValueInputType(selectedOperatorValue, valueInput)
     }
   }
@@ -259,7 +259,7 @@ export class AdminPredicateEdit {
     }
 
     // Show or hide the value input hint based on the selected operator.
-    if (selectedOperatorValue === 'IN' || selectedOperatorValue === 'NOT_IN') {
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInputHint.hidden = false
     } else {
       valueInputHint.hidden = true
@@ -481,8 +481,7 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueInput: HTMLElement,
   ) {
-    const csvOperators = ['IN', 'NOT_IN']
-    if (csvOperators.includes(selectedOperatorValue)) {
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'text')
     } else {
       valueInput.setAttribute('type', 'email')
