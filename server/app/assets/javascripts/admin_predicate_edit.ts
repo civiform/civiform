@@ -8,6 +8,8 @@ export class AdminPredicateEdit {
   static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
   static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
 
+  static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
+
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'subcondition-container' element in this swap
     if (event.target.classList.contains('subcondition-container')) {
@@ -155,13 +157,13 @@ export class AdminPredicateEdit {
 
     // Number question types
     // Use number inputs for single values, text inputs for CSV
-    if (valueInput.hasAttribute('number-value')) {
+    if (valueInput.hasAttribute('data-number-value')) {
       this.setNumberQuestionValueInputType(selectedOperatorValue, valueInput)
     }
 
     // Date question types
     // Use number inputs for age-based operator, date inputs for all others
-    if (valueInput.hasAttribute('date-value')) {
+    if (valueInput.hasAttribute('data-date-value')) {
       this.setDateQuestionValueInputType(
         selectedOperatorValue,
         valueInput,
@@ -341,8 +343,7 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueInput: HTMLElement,
   ) {
-    const csvOperators = ['IN', 'NOT_IN']
-    if (csvOperators.includes(selectedOperatorValue)) {
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'text')
       valueInput.setAttribute('inputmode', 'text')
     } else {
@@ -364,11 +365,10 @@ export class AdminPredicateEdit {
     secondValueInput: HTMLElement | null,
   ) {
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
-    const csvAgeOperators = ['IN', 'NOT_IN']
     if (ageOperators.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'number')
       secondValueInput?.setAttribute('type', 'number')
-    } else if (csvAgeOperators.includes(selectedOperatorValue)) {
+    } else if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInput.setAttribute('type', 'text')
       valueInput.setAttribute('inputmode', 'text')
     } else {

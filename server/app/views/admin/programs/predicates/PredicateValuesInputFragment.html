@@ -82,9 +82,9 @@
       type="currency"
       th:id="${valueInputId}"
       th:name="${valueInputId}"
-      aria-required="true"
+      required
       aria-invalid="false"
-      currency-value
+      data-currency-value
     />
   </div>
 
@@ -98,9 +98,9 @@
         type="currency"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
-        aria-required="true"
+        required
         aria-invalid="false"
-        currency-value
+        data-currency-value
       />
     </div>
   </div>
@@ -120,9 +120,9 @@
     inputmode="numeric"
     th:id="${valueInputId}"
     th:name="${valueInputId}"
-    aria-required="true"
+    required
     aria-invalid="false"
-    date-value
+    data-date-value
   />
 
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
@@ -132,9 +132,9 @@
       inputmode="numeric"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
-      aria-required="true"
+      required
       aria-invalid="false"
-      date-value
+      data-date-value
     />
   </div>
 </th:block>
@@ -155,9 +155,9 @@
     inputmode="decimal"
     th:id="${valueInputId}"
     th:name="${valueInputId}"
-    aria-required="true"
+    required
     aria-invalid="false"
-    number-value
+    data-number-value
   />
 
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
@@ -168,9 +168,9 @@
       inputmode="decimal"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
-      aria-required="true"
+      required
       aria-invalid="false"
-      number-value
+      data-number-value
     />
   </div>
 </th:block>
@@ -183,7 +183,7 @@
     th:id="${valueInputId}"
     th:name="${valueInputId}"
     th:disabled="${!hasSelectedQuestion}"
-    unknown-value
+    data-unknown-value
   >
     <option
       th:selected="${!hasSelectedQuestion}"
