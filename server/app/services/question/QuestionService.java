@@ -45,17 +45,20 @@ public final class QuestionService {
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final TransactionManager transactionManager;
   private final GeoJsonDataRepository geoJsonDataRepository;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public QuestionService(
       QuestionRepository questionRepository,
       Provider<VersionRepository> versionRepositoryProvider,
       TransactionManager transactionManager,
-      GeoJsonDataRepository geoJsonDataRepository) {
+      GeoJsonDataRepository geoJsonDataRepository,
+      TranslationLocales translationLocales) {
     this.questionRepository = checkNotNull(questionRepository);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
     this.transactionManager = checkNotNull(transactionManager);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /**
@@ -453,8 +456,7 @@ public final class QuestionService {
         .getAllQuestions();
   }
 
-  public boolean isTranslationComplete(
-      TranslationLocales translationLocales, QuestionDefinition questionDefinition) {
+  public boolean isTranslationComplete(QuestionDefinition questionDefinition) {
     ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
     if (supportedLanguages.isEmpty()) {
       return true;
