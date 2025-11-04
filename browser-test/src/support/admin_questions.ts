@@ -587,6 +587,7 @@ export class AdminQuestions {
     type: QuestionType | QuestionTypeLegacy,
     questionName: string,
     questionText?: string,
+    questionOptions?: {adminName: string; text: string}[],
   ) {
     switch (type) {
       case QuestionType.ADDRESS:
@@ -598,12 +599,14 @@ export class AdminQuestions {
       case QuestionType.CHECKBOX:
         await this.addCheckboxQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-            {adminName: 'op4_admin', text: 'op4'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+                {adminName: 'op4_admin', text: 'op4'},
+              ],
           questionText: questionText,
         })
         break
@@ -622,11 +625,13 @@ export class AdminQuestions {
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+              ],
           questionText: questionText,
         })
         break
@@ -648,11 +653,13 @@ export class AdminQuestions {
       case QuestionType.RADIO:
         await this.addRadioButtonQuestion({
           questionName,
-          options: [
-            {adminName: 'one_admin', text: 'one'},
-            {adminName: 'two_admin', text: 'two'},
-            {adminName: 'three_admin', text: 'three'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'one_admin', text: 'one'},
+                {adminName: 'two_admin', text: 'two'},
+                {adminName: 'three_admin', text: 'three'},
+              ],
           questionText: questionText,
         })
         break
