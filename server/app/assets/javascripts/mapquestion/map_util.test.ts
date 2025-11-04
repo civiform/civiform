@@ -83,7 +83,7 @@ describe('calculateMapCenter', () => {
 
     const result = calculateMapCenter(geoJson)
 
-    // Expected center: [(-122.3321 + -122.3233) / 2, (47.6062 + 47.5979) / 2]
+    // Expected centroid (average): [(-122.3321 + -122.3233) / 2, (47.6062 + 47.5979) / 2]
     // = [-122.3277, 47.60205]
     expect(result).not.toBeNull()
     const [lng, lat] = result as [number, number]
@@ -168,15 +168,97 @@ describe('calculateMapCenter', () => {
 
     const result = calculateMapCenter(geoJson)
 
-    // Calculate expected bounding box center:
-    // minLng: -122.3985, maxLng: -122.2619
-    // minLat: 47.5223, maxLat: 47.6677
-    // center: [(-122.3985 + -122.2619) / 2, (47.5223 + 47.6677) / 2]
-    // = [-122.3302, 47.595]
+    // Calculate expected centroid (average of all points):
+    // Sum of longitudes: -856.3332, average: -122.3333
+    // Sum of latitudes: 333.3169, average: 47.6167
     expect(result).not.toBeNull()
     const [lng, lat] = result as [number, number]
-    expect(lng).toBeCloseTo(-122.3302, 5)
-    expect(lat).toBeCloseTo(47.595, 5)
+    expect(lng).toBeCloseTo(-122.3333, 4)
+    expect(lat).toBeCloseTo(47.6167, 4)
+  })
+
+  it('demonstrates outlier resistance with centroid approach', () => {
+    // 10 locations clustered in New York City area (~-74° longitude)
+    // 1 outlier location in Los Angeles (~-118° longitude)
+    const geoJson: FeatureCollection = {
+      type: 'FeatureCollection',
+      features: [
+        // 10 NYC locations (clustered around -74.0, 40.7)
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-74.006, 40.7128]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9857, 40.758]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9712, 40.7831]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-74.0134, 40.7049]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9626, 40.7614]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-74.006, 40.7489]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9808, 40.7648]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9937, 40.7295]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-74.0028, 40.7411]},
+          properties: {},
+        },
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-73.9903, 40.7359]},
+          properties: {},
+        },
+        // 1 outlier in Los Angeles
+        {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [-118.2437, 34.0522]},
+          properties: {},
+        },
+      ],
+    }
+
+    const result = calculateMapCenter(geoJson)
+
+    // With centroid (average), the outlier has limited impact:
+    // 10 NYC points average ~-74.0, 1 LA point at -118.2
+    // Centroid longitude ≈ (-74.0*10 + -118.2) / 11 ≈ -78.02
+    // This keeps the center much closer to the NYC cluster
+    //
+    // With bounding box approach, center would be:
+    // (min: -118.2, max: -73.96) / 2 ≈ -96.08 (middle of Kansas!)
+    expect(result).not.toBeNull()
+    const [lng, lat] = result as [number, number]
+    // Center should be closer to NYC (~-74°) than to the midpoint with LA
+    expect(lng).toBeGreaterThan(-80) // Much closer to NYC than Kansas
+    expect(lng).toBeLessThan(-74) // But still pulled slightly west by LA outlier
+    expect(lat).toBeGreaterThan(39) // Latitude should also be closer to NYC
+    expect(lat).toBeLessThan(41)
   })
 
   it('ignores invalid coordinates', () => {

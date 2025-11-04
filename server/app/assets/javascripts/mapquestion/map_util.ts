@@ -113,7 +113,11 @@ export const localizeString = (message: string, params: string[] = []) => {
 
 /**
  * Calculates the center point of a GeoJSON FeatureCollection by finding
- * the geographic center of all Point features' bounding box.
+ * the geographic centroid (average position) of all Point features.
+ *
+ * Uses centroid calculation instead of bounding box to provide better
+ * resistance to outlier data points. A single erroneous location will
+ * have less impact on the center than with min/max bounding box approach.
  *
  * @param geoJson - The FeatureCollection containing Point features
  * @returns The center point as [longitude, latitude], or null if no valid points exist
@@ -146,22 +150,12 @@ export const calculateMapCenter = (
     return null
   }
 
-  // Calculate bounding box
-  let minLng = coordinates[0][0]
-  let maxLng = coordinates[0][0]
-  let minLat = coordinates[0][1]
-  let maxLat = coordinates[0][1]
-
-  coordinates.forEach(([lng, lat]) => {
-    minLng = Math.min(minLng, lng)
-    maxLng = Math.max(maxLng, lng)
-    minLat = Math.min(minLat, lat)
-    maxLat = Math.max(maxLat, lat)
-  })
-
-  // Calculate center point
-  const centerLng = (minLng + maxLng) / 2
-  const centerLat = (minLat + maxLat) / 2
+  // Calculate centroid (average of all coordinates)
+  const sumLng = coordinates.reduce((sum, [lng]) => sum + lng, 0)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const sumLat = coordinates.reduce((sum, [_lang, lat]) => sum + lat, 0)
+  const centerLng = sumLng / coordinates.length
+  const centerLat = sumLat / coordinates.length
 
   return [centerLng, centerLat]
 }
