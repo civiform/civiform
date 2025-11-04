@@ -77,21 +77,56 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String getNameValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
   }
 
   public String getAddressValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
   }
 
   public String getDetailsUrlValue() {
-    return getSettingValue(
+    return getSettingKey(
         applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
         MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+  }
+
+  public LocalizedQuestionSetting getTagSetting() {
+    return getSetting(
+            applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
+            MapSettingType.LOCATION_TAG_GEO_JSON_KEY)
+        .orElse(null);
+  }
+
+  public boolean hasTagSetting() {
+    return getTagSetting() != null;
+  }
+
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
+  }
+
+  public String getTagKey() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingKey() : "";
+  }
+
+  public String getTagValue() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingValue() : "";
+  }
+
+  public String getTagDisplayName() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingDisplayName() : "";
+  }
+
+  public String getTagText() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingText() : "";
   }
 
   public Path getSelectionPath() {
@@ -147,6 +182,9 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String createLocationJson(String featureId, String locationName) {
+    if (locationName == null) {
+      locationName = "Unknown Location";
+    }
     MapSelection selection = MapSelection.create(featureId, locationName);
     try {
       return ObjectMapperSingleton.instance().writeValueAsString(selection);
@@ -159,11 +197,17 @@ public final class MapQuestion extends AbstractQuestion {
     return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
   }
 
-  private String getSettingValue(Locale locale, MapSettingType settingType) {
+  private String getSettingKey(Locale locale, MapSettingType settingType) {
     return getSettings(locale).stream()
         .filter(setting -> setting.settingType() == settingType)
         .findFirst()
-        .map(LocalizedQuestionSetting::settingValue)
+        .map(LocalizedQuestionSetting::settingKey)
         .orElse("");
+  }
+
+  private Optional<LocalizedQuestionSetting> getSetting(Locale locale, MapSettingType settingType) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingType() == settingType)
+        .findFirst();
   }
 }

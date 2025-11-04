@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -23,11 +24,13 @@ import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
 import services.Path;
+import services.TranslationLocales;
 import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -448,5 +451,34 @@ public final class QuestionService {
     return getReadOnlyVersionedQuestionService(
             optionalPreviousVersion.get(), versionRepositoryProvider.get())
         .getAllQuestions();
+  }
+
+  public boolean isTranslationComplete(
+      TranslationLocales translationLocales, QuestionDefinition questionDefinition) {
+    ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
+    if (supportedLanguages.isEmpty()) {
+      return true;
+    }
+
+    for (Locale locale : supportedLanguages) {
+      if (!questionDefinition.getQuestionText().isEmpty()
+          && !questionDefinition.getQuestionText().hasTranslationFor(locale)) {
+        return false;
+      }
+      if (!questionDefinition.getQuestionHelpText().isEmpty()
+          && !questionDefinition.getQuestionHelpText().hasTranslationFor(locale)) {
+        return false;
+      }
+      if (questionDefinition.getQuestionType().isMultiOptionType()) {
+        MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+            (MultiOptionQuestionDefinition) questionDefinition;
+        for (services.question.QuestionOption option : multiOptionQuestionDefinition.getOptions()) {
+          if (!option.optionText().hasTranslationFor(locale)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 }

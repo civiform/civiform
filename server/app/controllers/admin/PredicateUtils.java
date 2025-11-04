@@ -16,16 +16,19 @@ public final class PredicateUtils {
   public static ReadablePredicate getReadablePredicateDescription(
       String blockName,
       PredicateDefinition predicate,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      boolean expandedFormLogicEnabled) {
+    String headingSuffix =
+        expandedFormLogicEnabled ? "conditions are true:" : "of the following is true:";
     return switch (predicate.predicateFormat()) {
-      case SINGLE_QUESTION ->
+      case SINGLE_CONDITION ->
           ReadablePredicate.create(
               /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
               /* formattedHtmlHeading= */ predicate.toDisplayFormattedHtml(
                   blockName, questionDefinitions),
               /* conditionList= */ Optional.empty(),
               /* formattedHtmlConditionList= */ Optional.empty());
-      case OR_OF_SINGLE_LAYER_ANDS -> {
+      case MULTIPLE_CONDITIONS -> {
         String headingPrefix =
             predicate.getPredicateSubject(blockName)
                 + " is "
@@ -35,33 +38,18 @@ public final class PredicateUtils {
                 predicate.getPredicateSubject(blockName),
                 "is",
                 predicate.action().toDisplayFormattedHtml());
-        ImmutableList<PredicateExpressionNode> andNodes =
-            predicate.rootNode().getOrNode().children();
-        if (andNodes.size() == 1) {
-          String heading =
-              headingPrefix
-                  + " "
-                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions);
-          UnescapedText formattedHeading =
-              join(
-                  formattedHtmlHeadingPrefix,
-                  andNodes.get(0).getAndNode().toDisplayFormattedHtml(questionDefinitions));
-          yield ReadablePredicate.create(
-              heading,
-              formattedHeading,
-              /* conditionList= */ Optional.empty(),
-              /* formattedHtmlConditionList= */ Optional.empty());
-        }
-        String heading = headingPrefix + " any of the following is true:";
+        ImmutableList<PredicateExpressionNode> childNodes = predicate.rootNode().getChildren();
+        String rootNodeTypeDisplay = predicate.rootNode().getType().toDisplayString();
+        String heading = headingPrefix + " " + rootNodeTypeDisplay + " " + headingSuffix;
         UnescapedText formattedHtmlHeading =
-            join(formattedHtmlHeadingPrefix, strong("any"), "of the following is true:");
+            join(formattedHtmlHeadingPrefix, strong(rootNodeTypeDisplay), headingSuffix);
         ImmutableList<String> conditionList =
-            andNodes.stream()
-                .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
+            childNodes.stream()
+                .map(childNode -> childNode.toDisplayString(questionDefinitions))
                 .collect(ImmutableList.toImmutableList());
         ImmutableList<UnescapedText> formattedHtmlConditionList =
-            andNodes.stream()
-                .map(andNode -> andNode.getAndNode().toDisplayFormattedHtml(questionDefinitions))
+            childNodes.stream()
+                .map(childNode -> childNode.toDisplayFormattedHtml(questionDefinitions))
                 .collect(ImmutableList.toImmutableList());
         yield ReadablePredicate.create(
             heading,

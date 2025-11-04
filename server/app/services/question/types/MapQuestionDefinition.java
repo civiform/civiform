@@ -41,8 +41,6 @@ public final class MapQuestionDefinition extends QuestionDefinition {
       if (maxLocationSelections.getAsInt() < 1) {
         errors.add(CiviFormError.of("Maximum location selections cannot be less than 1"));
       }
-    } else {
-      errors.add(CiviFormError.of("Maximum location selections cannot be empty"));
     }
 
     // Validate settings in a single pass
@@ -53,7 +51,7 @@ public final class MapQuestionDefinition extends QuestionDefinition {
     int filterCount = 0;
 
     for (QuestionSetting setting : settings) {
-      boolean isValidSetting = setting.settingValue() != null && !setting.settingValue().isEmpty();
+      boolean isValidSetting = setting.settingKey() != null && !setting.settingKey().isEmpty();
 
       switch ((MapSettingType) setting.settingType()) {
         case LOCATION_NAME_GEO_JSON_KEY -> {
@@ -64,6 +62,15 @@ public final class MapQuestionDefinition extends QuestionDefinition {
         }
         case LOCATION_DETAILS_URL_GEO_JSON_KEY -> {
           if (isValidSetting) hasDetailsUrlKey = true;
+        }
+        case LOCATION_TAG_GEO_JSON_KEY -> {
+          if (!isValidSetting) {
+            errors.add(CiviFormError.of("Tag key cannot be empty"));
+          }
+          if (setting.localizedSettingDisplayName().isEmpty()
+              || setting.localizedSettingDisplayName().get().getDefault().isEmpty()) {
+            errors.add(CiviFormError.of("Tag display name cannot be empty"));
+          }
         }
         case LOCATION_FILTER_GEO_JSON_KEY -> {
           filterCount++;

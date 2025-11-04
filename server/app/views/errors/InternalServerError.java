@@ -65,7 +65,8 @@ public final class InternalServerError extends BaseHtmlView {
 
   private UnescapedText buildAdditionalInfo(
       Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
-    String emailAddress = getEmailAddress(requestHeader);
+    // Support email address is required and should never be blank
+    String emailAddress = settingsManifest.getSupportEmailAddress(requestHeader).orElse("");
     String emailLinkHref =
         String.format("mailto:%s?body=[CiviForm Error ID: %s]", emailAddress, exceptionId);
     ATag emailAction =
@@ -81,12 +82,5 @@ public final class InternalServerError extends BaseHtmlView {
     String sanitizedDescription =
         TextFormatter.sanitizeHtml(String.format(descriptionText, emailAction.render()));
     return rawHtml(sanitizedDescription);
-  }
-
-  /** Get either the IT email address or the support email address */
-  private String getEmailAddress(Http.RequestHeader requestHeader) {
-    Optional<String> itEmail =
-        settingsManifest.getItEmailAddress(requestHeader).filter(email -> !email.isBlank());
-    return itEmail.or(() -> settingsManifest.getSupportEmailAddress(requestHeader)).orElse("");
   }
 }

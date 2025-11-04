@@ -2,16 +2,16 @@
   th:hx-target="this"
   th:fragment="addCondition(nextConditionId, hxEditConditionEndpoint)"
   class="margin-top-2"
+  id="condition-container"
 >
-  <input type="hidden" name="conditionId" th:value="${nextConditionId}" />
   <button
     type="button"
     class="usa-button usa-button--outline zero-top-margin"
-    aria-label="Add condition"
     th:hx-post="${hxEditConditionEndpoint}"
+    th:hx-vals='|{"conditionId": "${nextConditionId}"}|'
     hx-swap="outerHTML"
   >
     <cf:icon type="icon-add" />
-    Add condition
+    [[#{button.predicateAddCondition}]]
   </button>
 </div>

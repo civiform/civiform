@@ -2,9 +2,9 @@ interface Window {
   app: {
     scripts: {
       AdminProgramApiBridge: AdminProgramApiBridge
+      AdminPredicateEdit: AdminPredicateEdit
     }
     data: {
-      maxLocationSelections: number
       messages: object
       iconUrls: {
         locationIcon: string
@@ -19,6 +19,11 @@ interface Window {
         }
       }
       questionType: QuestionType
+      predicate: {
+        operator_scalars: {
+          [key: string]: Array<string>
+        }
+      }
     }
   }
 }

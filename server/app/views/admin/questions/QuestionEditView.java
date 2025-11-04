@@ -491,6 +491,7 @@ public final class QuestionEditView extends BaseHtmlView {
               .setFieldName("geoJsonEndpoint")
               .setId("geoJsonURL")
               .setLabelText("GeoJSON Endpoint URL")
+              .setSubLabelText("URL must be entered in order to configure question settings below.")
               .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
               .setRequired(true)
               // GeoJSON endpoint can only be added upon question creation
@@ -566,6 +567,7 @@ public final class QuestionEditView extends BaseHtmlView {
         mapQuestionForm.getLocationAddress(),
         mapQuestionForm.getLocationDetailsUrl(),
         mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
         possibleKeys);
   }
 

@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16.10@sha256:b477759d38be47671d54a054d832791f8ddb9f0eaf6faf51ed17516087793a66
+    image: postgres:16.10@sha256:4eb532412200f7fbbf15d62ee0d96e020a9eae9eaed76066692474a7371c4d83
     restart: always
     ports:
       - 5432:5432
