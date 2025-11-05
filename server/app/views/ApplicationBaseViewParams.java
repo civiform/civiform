@@ -42,7 +42,7 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract long programId();
 
-  public abstract boolean isLoginOnly();
+  public abstract boolean loginOnly();
 
   public abstract Block block();
 
@@ -96,7 +96,7 @@ public abstract class ApplicationBaseViewParams {
 
     public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-    public abstract Builder setIsLoginOnly(boolean isLoginOnly);
+    public abstract Builder setLoginOnly(boolean loginOnly);
 
     public abstract Builder setApplicantStorageClient(
         ApplicantStorageClient applicantStorageClient);
