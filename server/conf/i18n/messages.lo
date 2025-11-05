@@ -1164,6 +1164,3 @@ session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດ�
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
-
-# Untranslated string for translation infrastructure testing.
-translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.

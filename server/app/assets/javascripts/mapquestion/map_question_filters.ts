@@ -36,7 +36,10 @@ export const initFilters = (
 
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap),
+    () => {
+      applyLocationFilters(mapId, mapElement, featureMap)
+      locationFocus(mapId)
+    },
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -48,8 +51,17 @@ export const initFilters = (
         selectOptionElement.value = ''
       })
       applyLocationFilters(mapId, mapElement, featureMap, true)
+      locationFocus(mapId)
     },
   )
+}
+
+const locationFocus = (mapId: string): void => {
+  const locationCount = mapQuerySelector(
+    mapId,
+    CF_LOCATION_COUNT,
+  ) as HTMLElement
+  locationCount.focus()
 }
 
 const applyLocationFilters = (

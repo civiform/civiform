@@ -92,6 +92,15 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         'condition-with-question-selected',
       )
     })
+
+    await test.step('Add a subcondition', async () => {
+      await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
+      await adminPredicates.expectSubcondition(1, 2)
+      await validateScreenshot(
+        page.getByTestId('condition-1'),
+        'condition-with-multiple-subconditions',
+      )
+    })
   })
 
   test('Create and edit an eligibility predicate', async ({
