@@ -480,7 +480,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   Optional<DomContent> generateTranslationCompleteText(QuestionDefinition questionDefinition) {
-    if (questionService.isTranslationComplete(translationLocales, questionDefinition)) {
+    if (questionService.isTranslationComplete(questionDefinition)) {
       return Optional.of(
           div(text("Translation complete"), Icons.svg(Icons.CHECK).withClasses("h-4 w-4"))
               .withClasses("flex", "items-center", "gap-1"));
