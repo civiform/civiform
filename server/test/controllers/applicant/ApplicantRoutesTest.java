@@ -32,6 +32,14 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CIVIFORM
   }
 
+  private static String getRoleForAdmin(ADMIN_TYPE adminType) {
+    return switch (adminType) {
+        case TI -> Role.ROLE_TI.toString();
+        case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+      };
+  }
+
+
   @Before
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
@@ -55,12 +63,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testIndexRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedIndexUrl = String.format("/applicants/%d/programs", APPLICANT_ID);
@@ -85,12 +88,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testShowRoute_forAdminTypesWithProgramSlug(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
@@ -117,12 +115,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
@@ -150,12 +143,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
@@ -189,12 +177,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testSubmitRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedSubmitUrl =
@@ -225,12 +208,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
@@ -266,12 +244,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockReviewUrl =
@@ -313,12 +286,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
@@ -381,12 +349,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedConfirmAddressUrl =
@@ -437,12 +400,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testPreviousOrReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
@@ -575,12 +533,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedUpdateFileUrl =
@@ -642,12 +595,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    String role =
-        switch (adminType) {
-          case TI -> Role.ROLE_TI.toString();
-          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-        };
-    profileData.addRole(role);
+    profileData.addRole(getRoleForAdmin(adminType));
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedUpdateBlockUrl =
