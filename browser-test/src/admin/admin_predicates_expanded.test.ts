@@ -327,10 +327,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         await waitForHtmxReady(page)
 
         const inputElementLocator = page.locator(
-          '#condition-1-subcondition-1-value',
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
         )
         const secondInputElementLocator = page.locator(
-          '#condition-1-subcondition-1-secondValue',
+          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
         )
 
         await expect(inputElementLocator).toBeVisible()
@@ -383,10 +383,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         await waitForHtmxReady(page)
 
         const inputElementLocator = page.locator(
-          '#condition-1-subcondition-1-value',
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
         )
         const secondInputElementLocator = page.locator(
-          '#condition-1-subcondition-1-secondValue',
+          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
         )
 
         await expect(inputElementLocator).toBeVisible()
@@ -444,15 +444,14 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       const inputElementLocator = page.locator(
-        '#condition-1-subcondition-1-value',
+        '#condition-1-subcondition-1-value[type="number"]',
       )
       const secondInputElementLocator = page.locator(
-        '#condition-1-subcondition-1-secondValue',
+        '#condition-1-subcondition-1-secondValue[type="number"]',
       )
 
-      await expect(secondInputElementLocator).not.toHaveAttribute('hidden')
-      await expect(inputElementLocator).toHaveAttribute('type', 'number')
-      await expect(secondInputElementLocator).toHaveAttribute('type', 'number')
+      await expect(secondInputElementLocator).toBeVisible()
+      await expect(secondInputElementLocator).toBeVisible()
       await inputElementLocator.fill('18')
       await secondInputElementLocator.fill('25')
 
@@ -488,7 +487,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           '#condition-1-subcondition-1-valueHintText',
         )
         const inputElementLocator = page.locator(
-          '#condition-1-subcondition-1-value',
+          '#condition-1-subcondition-1-value[type="text"]',
         )
 
         await expect(valueHintTextLocator).toBeVisible()

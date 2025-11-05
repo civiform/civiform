@@ -1,5 +1,5 @@
 import {HtmxAfterSwapEvent} from './htmx_request'
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
@@ -145,29 +145,27 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueBaseId: string,
   ) {
-    const valueInputId = valueBaseId + AdminPredicateEdit.VALUE_INPUT_ID_SUFFIX
-    const secondValueInputId =
-      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_ID_SUFFIX
-    const valueInput = document.getElementById(valueInputId) as HTMLElement
-    const secondValueInput = document.getElementById(secondValueInputId)
+    const secondValueGroupId = valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
 
-    if (!valueInput) {
-      return
+    const primaryInputDiv = assertNotNull(document.querySelector('[data-default-input-type][data-first-input]')) as HTMLElement
+    const csvInputDiv = assertNotNull(document.querySelector('[data-csv-input-type]')) as HTMLElement
+    const primaryInput = assertNotNull(primaryInputDiv.querySelector('input.usa-input'))
+
+    if (primaryInput.hasAttribute('data-number-value')) {
+      this.setNumberQuestionVisibleInput(selectedOperatorValue, primaryInputDiv, csvInputDiv)
     }
 
-    // Number question types
-    // Use number inputs for single values, text inputs for CSV
-    if (valueInput.hasAttribute('data-number-value')) {
-      this.setNumberQuestionValueInputType(selectedOperatorValue, valueInput)
-    }
-
-    // Date question types
-    // Use number inputs for age-based operator, date inputs for all others
-    if (valueInput.hasAttribute('data-date-value')) {
+    if (primaryInput.hasAttribute('data-date-value')) {
+      const ageInputDiv = assertNotNull(document.querySelector('[data-age-input-type][data-first-input]')) as HTMLElement
+      const secondDateValueInput = assertNotNull(document.querySelector(`#${secondValueGroupId} [data-default-input-type]`)) as HTMLElement
+      const secondAgeValueInput = assertNotNull(document.querySelector(`#${secondValueGroupId} [data-age-input-type]`)) as HTMLElement
       this.setDateQuestionValueInputType(
         selectedOperatorValue,
-        valueInput,
-        secondValueInput,
+        primaryInputDiv,
+        ageInputDiv,
+        secondDateValueInput,
+        secondAgeValueInput,
+        csvInputDiv
       )
     }
   }
@@ -339,17 +337,23 @@ export class AdminPredicateEdit {
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {HTMLElement} valueInput: The value input element to set the type for.
    */
-  private static setNumberQuestionValueInputType(
+  private static setNumberQuestionVisibleInput(
     selectedOperatorValue: string,
-    valueInput: HTMLElement,
+    numericInput: HTMLElement,
+    csvInput: HTMLElement
   ) {
+    let hiddenElements = []
+    let shownElements = []
     if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
-      valueInput.setAttribute('type', 'text')
-      valueInput.setAttribute('inputmode', 'text')
+      hiddenElements = [numericInput]
+      shownElements = [csvInput]
     } else {
-      valueInput.setAttribute('type', 'number')
-      valueInput.setAttribute('inputmode', 'decimal')
+      hiddenElements = [csvInput]
+      shownElements = [numericInput]
     }
+
+    this.disableAndHide(hiddenElements)
+    this.enableAndShow(shownElements)
   }
 
   /**
@@ -361,21 +365,46 @@ export class AdminPredicateEdit {
    */
   private static setDateQuestionValueInputType(
     selectedOperatorValue: string,
-    valueInput: HTMLElement,
-    secondValueInput: HTMLElement | null,
-  ) {
+    dateValueInput: HTMLElement,
+    ageValueInput: HTMLElement,
+    secondDateValueInput: HTMLElement,
+    secondAgeValueInput: HTMLElement,
+    csvInput: HTMLElement,
+  ) {    
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
+
+    let hiddenElements : HTMLElement[] = []
+    let shownElements : HTMLElement[] = []
     if (ageOperators.includes(selectedOperatorValue)) {
-      valueInput.setAttribute('type', 'number')
-      secondValueInput?.setAttribute('type', 'number')
+      hiddenElements = [dateValueInput, secondDateValueInput, csvInput]
+      shownElements = [ageValueInput, secondAgeValueInput]
     } else if (
       AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)
     ) {
-      valueInput.setAttribute('type', 'text')
-      valueInput.setAttribute('inputmode', 'text')
+      hiddenElements = [dateValueInput, ageValueInput]
+      shownElements = [csvInput]
     } else {
-      valueInput.setAttribute('type', 'date')
-      secondValueInput?.setAttribute('type', 'date')
+      hiddenElements = [ageValueInput, secondAgeValueInput, csvInput]
+      shownElements = [dateValueInput, secondDateValueInput]
+    }
+
+    this.disableAndHide(hiddenElements)
+    this.enableAndShow(shownElements)
+  }
+  
+  /** Hide the given HTMLElements from display and set ariaDisabled to true. */
+  private static disableAndHide(elements : HTMLElement[]) {
+    for (const element of elements) {
+      element.setAttribute('disabled', 'disabled')
+      element.hidden = true
+    }
+  }
+
+  /** Show and enable the given HTMLElements for display */
+  private static enableAndShow(elements: HTMLElement[]) {
+    for (const element of elements) {
+      element.removeAttribute('disabled')
+      element.hidden = false
     }
   }
 }
