@@ -46,6 +46,7 @@ import {
   CF_SWITCH_TO_LIST_VIEW_BUTTON,
   CF_SWITCH_TO_MAP_VIEW_BUTTON,
   hasReachedMaxSelections,
+  POPUP_LAYER,
 } from './map_util'
 
 export const init = (): void => {
@@ -148,7 +149,9 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
-  popupContent.classList.add('flex', 'flex-column', 'padding-4')
+  popupContent.classList.add('flex', 'flex-column', 'padding-4', POPUP_LAYER)
+  popupContent.setAttribute('data-map-id', mapId)
+  popupContent.setAttribute('data-feature-id', featureId)
   if (name) {
     const nameElement = templateContent
       .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
@@ -432,6 +435,7 @@ const setupEventListenersForMap = (
       locationsListContainer.classList.remove(CF_TOGGLE_HIDDEN)
       paginationNav.classList.remove(CF_TOGGLE_HIDDEN)
       locationCount.classList.remove(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId)
     })
   }
 
@@ -443,6 +447,7 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId, true)
     })
   }
 }
@@ -487,7 +492,7 @@ const updatePopupButtonState = (
   if (!mapContainer) return
 
   const popupButton = mapContainer.querySelector(
-    `[data-map-id="${mapId}"][data-feature-id="${featureId}"]`,
+    `[data-map-id="${mapId}"][data-feature-id="${featureId}"][name=${CF_POPUP_CONTENT_BUTTON}]`,
   ) as HTMLButtonElement
   if (!popupButton) return
 
@@ -521,4 +526,19 @@ const updateOpenPopupButtons = (mapId: string): void => {
   )
 
   popupButton.disabled = !isSelectedButton && maxReached
+}
+
+const updateViewStatus = (mapId: string, toMapView: boolean = false): void => {
+  const statusElement = document.querySelector(
+    `[data-map-id=${mapId}][data-switch-view-status]`,
+  ) as HTMLElement
+  if (statusElement) {
+    statusElement.textContent = toMapView
+      ? localizeString(getMessages().switchToMapViewSr)
+      : localizeString(getMessages().switchToListViewSr)
+    // Clear the text after announcement to prevent navigation to it
+    setTimeout(() => {
+      statusElement.textContent = ''
+    }, 1000)
+  }
 }

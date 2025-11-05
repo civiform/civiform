@@ -19,6 +19,8 @@ export interface MapMessages {
   readonly paginationStatus: string
   readonly mapSelectedButtonText: string
   readonly mapSelectLocationButtonText: string
+  readonly switchToMapViewSr: string
+  readonly switchToListViewSr: string
 }
 
 export interface MapData {
@@ -75,6 +77,7 @@ export const DEFAULT_MAP_ZOOM = 8
 export const LOCATIONS_LAYER = 'locations-layer'
 export const LOCATIONS_SOURCE = 'locations'
 export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
+export const POPUP_LAYER = 'open-popup'
 
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
