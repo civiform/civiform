@@ -989,7 +989,7 @@ option.maybe=Laga yaabaa
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=
 # Aria label for pagination list
 map.ariaLabelPaginationList=Pagination for map locations
 # Aria label for previous page pagination button
@@ -1029,7 +1029,7 @@ map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=
+map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
