@@ -24,7 +24,7 @@
           th:data-scalar-target-id="${scalarDropDownId}"
           hx-swap="outerHTML"
           th:hx-post="${model.hxEditSubconditionEndpoint()}"
-          th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${model.subconditionId}" }|'
+          th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${model.subconditionId}"}|'
           th:hx-target="${'closest div[class*=subcondition-container]'}"
           autofocus
         >
