@@ -689,6 +689,12 @@ public final class ProgramService {
             return false;
           }
         }
+        for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+          if (!questionService.isTranslationComplete(
+              translationLocales, question.getQuestionDefinition())) {
+            return false;
+          }
+        }
       }
     }
 
