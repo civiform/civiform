@@ -92,7 +92,8 @@ it is around the label */
 }
 
 // Checkbox question in the applicant form
-.cf-checkbox-question-input {
+.cf-checkbox-question-input,
+.cf-location-checkbox-input {
   @include u-height('full');
   @include u-width('full');
   @include u-maxw('mobile-lg');
