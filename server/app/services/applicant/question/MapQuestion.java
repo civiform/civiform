@@ -105,6 +105,10 @@ public final class MapQuestion extends AbstractQuestion {
     return getTagSetting() != null;
   }
 
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
+  }
+
   public String getTagKey() {
     LocalizedQuestionSetting tag = getTagSetting();
     return tag != null ? tag.settingKey() : "";
@@ -178,6 +182,9 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String createLocationJson(String featureId, String locationName) {
+    if (locationName == null) {
+      locationName = "Unknown Location";
+    }
     MapSelection selection = MapSelection.create(featureId, locationName);
     try {
       return ObjectMapperSingleton.instance().writeValueAsString(selection);

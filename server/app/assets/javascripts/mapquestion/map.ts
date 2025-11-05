@@ -45,6 +45,8 @@ import {
   CF_LOCATION_COUNT,
   CF_SWITCH_TO_LIST_VIEW_BUTTON,
   CF_SWITCH_TO_MAP_VIEW_BUTTON,
+  hasReachedMaxSelections,
+  POPUP_LAYER,
 } from './map_util'
 
 export const init = (): void => {
@@ -147,7 +149,9 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
-  popupContent.classList.add('flex', 'flex-column', 'padding-4')
+  popupContent.classList.add('flex', 'flex-column', 'padding-4', POPUP_LAYER)
+  popupContent.setAttribute('data-map-id', mapId)
+  popupContent.setAttribute('data-feature-id', featureId)
   if (name) {
     const nameElement = templateContent
       .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
@@ -201,6 +205,11 @@ const createPopupContent = (
     }
     buttonElement.setAttribute('data-feature-id', featureId)
     buttonElement.setAttribute(DATA_MAP_ID, mapId)
+
+    if (hasReachedMaxSelections(mapId) && !properties.selected) {
+      buttonElement.disabled = true
+    }
+
     popupContent.appendChild(buttonElement)
   }
 
@@ -374,6 +383,7 @@ const setupEventListenersForMap = (
       }
 
       updateSelectedLocations(mapId)
+      updateOpenPopupButtons(mapId)
     })
   }
 
@@ -398,6 +408,7 @@ const setupEventListenersForMap = (
       }
 
       updateSelectedLocations(mapId)
+      updateOpenPopupButtons(mapId)
     })
   }
 
@@ -424,6 +435,7 @@ const setupEventListenersForMap = (
       locationsListContainer.classList.remove(CF_TOGGLE_HIDDEN)
       paginationNav.classList.remove(CF_TOGGLE_HIDDEN)
       locationCount.classList.remove(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId)
     })
   }
 
@@ -435,7 +447,7 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
-      locationCount.classList.add(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId, true)
     })
   }
 }
@@ -480,8 +492,8 @@ const updatePopupButtonState = (
   if (!mapContainer) return
 
   const popupButton = mapContainer.querySelector(
-    `[data-map-id="${mapId}"][data-feature-id="${featureId}"]`,
-  )
+    `[data-map-id="${mapId}"][data-feature-id="${featureId}"][name=${CF_POPUP_CONTENT_BUTTON}]`,
+  ) as HTMLButtonElement
   if (!popupButton) return
 
   if (isSelected) {
@@ -489,8 +501,44 @@ const updatePopupButtonState = (
     popupButton.textContent = localizeString(
       getMessages().mapSelectedButtonText,
     )
+    popupButton.disabled = false
   } else {
     popupButton.classList.remove(CF_SELECT_LOCATION_BUTTON_CLICKED)
     popupButton.textContent = getMessages().mapSelectLocationButtonText
+    popupButton.disabled = hasReachedMaxSelections(mapId)
+  }
+}
+
+const updateOpenPopupButtons = (mapId: string): void => {
+  // Find open popup button (there will be 0 or 1)
+  const popupButton = mapQuerySelector(
+    mapId,
+    CF_POPUP_CONTENT_BUTTON,
+  ) as HTMLButtonElement
+  if (!popupButton) {
+    return
+  }
+
+  const maxReached = hasReachedMaxSelections(mapId)
+
+  const isSelectedButton = popupButton.classList.contains(
+    CF_SELECT_LOCATION_BUTTON_CLICKED,
+  )
+
+  popupButton.disabled = !isSelectedButton && maxReached
+}
+
+const updateViewStatus = (mapId: string, toMapView: boolean = false): void => {
+  const statusElement = document.querySelector(
+    `[data-map-id=${mapId}][data-switch-view-status]`,
+  ) as HTMLElement
+  if (statusElement) {
+    statusElement.textContent = toMapView
+      ? localizeString(getMessages().switchToMapViewSr)
+      : localizeString(getMessages().switchToListViewSr)
+    // Clear the text after announcement to prevent navigation to it
+    setTimeout(() => {
+      statusElement.textContent = ''
+    }, 1000)
   }
 }

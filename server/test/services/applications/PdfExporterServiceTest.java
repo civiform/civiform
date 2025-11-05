@@ -76,7 +76,9 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
 
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(
-            fakeProgram.getProgramDefinition(), getFakeQuestionDefinitions());
+            fakeProgram.getProgramDefinition(),
+            getFakeQuestionDefinitions(),
+            /* expandedFormLogicEnabled= */ true);
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();

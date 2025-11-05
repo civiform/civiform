@@ -36,17 +36,17 @@ public class MapQuestionDefinitionTest extends WithApplication {
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 1.0)),
-                  Map.of("name", "Feature 1.1"),
+                  Map.of("name", "Feature 1.1", "prop1", "value1", "prop2", "value2"),
                   "1"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(1.0, 2.0)),
-                  Map.of("name", "Feature 1.2"),
+                  Map.of("name", "Feature 1.2", "prop1", "value1", "prop2", "value2"),
                   "2"),
               new Feature(
                   "Feature",
                   new Geometry("Point", List.of(2.0, 3.0)),
-                  Map.of("name", "Feature 1.3"),
+                  Map.of("name", "Feature 1.3", "prop1", "value1", "prop2", "value2"),
                   "3")));
   private final String endpoint = "http://example.com/geo.json";
 
@@ -91,9 +91,7 @@ public class MapQuestionDefinitionTest extends WithApplication {
             .build();
     QuestionDefinition question = new MapQuestionDefinition(config);
     assertThat(question.validate())
-        .contains(
-            CiviFormError.of("Map question must have valid GeoJSON"),
-            CiviFormError.of("Maximum location selections cannot be empty"));
+        .contains(CiviFormError.of("Map question must have valid GeoJSON"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
@@ -102,11 +100,9 @@ public class MapQuestionDefinitionTest extends WithApplication {
         // Valid cases.
         new Object[] {OptionalInt.of(1), Optional.<String>empty()},
         new Object[] {OptionalInt.of(2), Optional.<String>empty()},
+        new Object[] {OptionalInt.empty(), Optional.<String>empty()},
 
         // Error cases.
-        new Object[] {
-          OptionalInt.empty(), Optional.of("Maximum location selections cannot be empty")
-        },
         new Object[] {
           OptionalInt.of(0), Optional.of("Maximum location selections cannot be less than 1")
         });

@@ -7,6 +7,7 @@ export interface MapSettings {
   readonly detailsUrlGeoJsonKey: string
   readonly tagGeoJsonKey?: string
   readonly tagGeoJsonValue?: string
+  readonly maxLocationSelections?: string
 }
 
 export interface MapMessages {
@@ -18,6 +19,8 @@ export interface MapMessages {
   readonly paginationStatus: string
   readonly mapSelectedButtonText: string
   readonly mapSelectLocationButtonText: string
+  readonly switchToMapViewSr: string
+  readonly switchToListViewSr: string
 }
 
 export interface MapData {
@@ -48,6 +51,7 @@ export const CF_LOCATIONS_LIST_CONTAINER = 'cf-locations-list'
 export const CF_MAP_QUESTION_ALERT_HIDDEN = 'cf-map-question-tag-alert-hidden'
 export const CF_MAP_QUESTION_TAG_ALERT = 'cf-map-question-tag-alert'
 export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
+export const CF_SELECTIONS_MESSAGE = 'cf-selections-message'
 export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
 
@@ -73,6 +77,7 @@ export const DEFAULT_MAP_ZOOM = 8
 export const LOCATIONS_LAYER = 'locations-layer'
 export const LOCATIONS_SOURCE = 'locations'
 export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
+export const POPUP_LAYER = 'open-popup'
 
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
@@ -86,6 +91,9 @@ export const DEFAULT_MAP_STYLE: StyleSpecification = {
   },
   layers: [{id: 'osm', type: 'raster', source: 'osm'}],
 }
+
+// Track the number of selected locations for each map
+export const selectionCounts = new Map<string, number>()
 
 // Query elements within a specific map container
 export const mapQuerySelector = (
@@ -106,12 +114,13 @@ export const localizeString = (message: string, params: string[] = []) => {
   return message
 }
 
-export const queryLocationCheckboxes = (mapId: string) => {
+export const queryLocationCheckboxes = (
+  mapId: string,
+): NodeListOf<HTMLElement> => {
   const locationsListContainer = mapQuerySelector(
     mapId,
     CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!locationsListContainer) return []
+  ) as HTMLElement
 
   return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
 }
@@ -119,7 +128,7 @@ export const queryLocationCheckboxes = (mapId: string) => {
 export const getVisibleCheckboxes = (mapId: string) => {
   const locationCheckboxes = queryLocationCheckboxes(mapId)
   return Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = (checkbox as HTMLElement) || null
+    const checkboxElement = checkbox || null
     return (
       checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
     )
@@ -128,4 +137,17 @@ export const getVisibleCheckboxes = (mapId: string) => {
 
 export const getMessages = (): MapMessages => {
   return window.app?.data?.messages as MapMessages
+}
+
+export const hasReachedMaxSelections = (mapId: string): boolean => {
+  const mapData = window.app?.data?.maps?.[mapId] as MapData
+
+  if (!mapData.settings.maxLocationSelections) {
+    return false
+  }
+
+  const maxLocationSelections = Number(mapData.settings.maxLocationSelections)
+
+  const selectionCount = selectionCounts.get(mapId) || 0
+  return selectionCount >= maxLocationSelections
 }
