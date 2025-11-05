@@ -145,27 +145,46 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueBaseId: string,
   ) {
-    const secondValueGroupId = valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
+    const secondValueGroupId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
 
-    const primaryInputDiv = assertNotNull(document.querySelector('[data-default-input-type][data-first-input]')) as HTMLElement
-    const csvInputDiv = assertNotNull(document.querySelector('[data-csv-input-type]')) as HTMLElement
-    const primaryInput = assertNotNull(primaryInputDiv.querySelector('input.usa-input'))
+    const primaryInputDiv = assertNotNull(
+      document.querySelector('[data-default-input-type][data-first-input]'),
+    ) as HTMLElement
+    const csvInputDiv = assertNotNull(
+      document.querySelector('[data-csv-input-type]'),
+    ) as HTMLElement
+    const primaryInput = assertNotNull(
+      primaryInputDiv.querySelector('input.usa-input'),
+    )
 
     if (primaryInput.hasAttribute('data-number-value')) {
-      this.setNumberQuestionVisibleInput(selectedOperatorValue, primaryInputDiv, csvInputDiv)
+      this.setNumberQuestionVisibleInput(
+        selectedOperatorValue,
+        primaryInputDiv,
+        csvInputDiv,
+      )
     }
 
     if (primaryInput.hasAttribute('data-date-value')) {
-      const ageInputDiv = assertNotNull(document.querySelector('[data-age-input-type][data-first-input]')) as HTMLElement
-      const secondDateValueInput = assertNotNull(document.querySelector(`#${secondValueGroupId} [data-default-input-type]`)) as HTMLElement
-      const secondAgeValueInput = assertNotNull(document.querySelector(`#${secondValueGroupId} [data-age-input-type]`)) as HTMLElement
+      const ageInputDiv = assertNotNull(
+        document.querySelector('[data-age-input-type][data-first-input]'),
+      ) as HTMLElement
+      const secondDateValueInput = assertNotNull(
+        document.querySelector(
+          `#${secondValueGroupId} [data-default-input-type]`,
+        ),
+      ) as HTMLElement
+      const secondAgeValueInput = assertNotNull(
+        document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
+      ) as HTMLElement
       this.setDateQuestionValueInputType(
         selectedOperatorValue,
         primaryInputDiv,
         ageInputDiv,
         secondDateValueInput,
         secondAgeValueInput,
-        csvInputDiv
+        csvInputDiv,
       )
     }
   }
@@ -340,7 +359,7 @@ export class AdminPredicateEdit {
   private static setNumberQuestionVisibleInput(
     selectedOperatorValue: string,
     numericInput: HTMLElement,
-    csvInput: HTMLElement
+    csvInput: HTMLElement,
   ) {
     let hiddenElements = []
     let shownElements = []
@@ -370,11 +389,11 @@ export class AdminPredicateEdit {
     secondDateValueInput: HTMLElement,
     secondAgeValueInput: HTMLElement,
     csvInput: HTMLElement,
-  ) {    
+  ) {
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
 
-    let hiddenElements : HTMLElement[] = []
-    let shownElements : HTMLElement[] = []
+    let hiddenElements: HTMLElement[] = []
+    let shownElements: HTMLElement[] = []
     if (ageOperators.includes(selectedOperatorValue)) {
       hiddenElements = [dateValueInput, secondDateValueInput, csvInput]
       shownElements = [ageValueInput, secondAgeValueInput]
@@ -391,9 +410,9 @@ export class AdminPredicateEdit {
     this.disableAndHide(hiddenElements)
     this.enableAndShow(shownElements)
   }
-  
+
   /** Hide the given HTMLElements from display and set ariaDisabled to true. */
-  private static disableAndHide(elements : HTMLElement[]) {
+  private static disableAndHide(elements: HTMLElement[]) {
     for (const element of elements) {
       element.setAttribute('disabled', 'disabled')
       element.hidden = true
