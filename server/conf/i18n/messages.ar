@@ -1032,6 +1032,10 @@ map.selectOptionPlaceholderText=- Select -
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=View has been switched to map
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
