@@ -356,8 +356,8 @@ public enum MessageKey {
   MAP_SETTING_TEXT_LABEL("map.settingTextLabel"), // North Star only
   MAP_SWITCH_TO_LIST_VIEW("map.switchToListView"), // North Star only
   MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
-  MAP_SWITCH_TO_MAP_VIEW_SR("map.map.switchToMapViewSr"), // North Star only
-  MAP_SWITCH_TO_LIST_VIEW_SR("map.map.switchToListViewSr"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW_SR("map.switchToMapViewSr"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW_SR("map.switchToListViewSr"), // North Star only
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_VALUE_LABEL("map.valueLabel"), // North Star only
   MAP_GEO_JSON_ERROR_TEXT("map.geoJsonErrorText"), // North Star only
