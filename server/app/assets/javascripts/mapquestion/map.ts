@@ -48,6 +48,8 @@ import {
   hasReachedMaxSelections,
   calculateMapCenter,
   POPUP_LAYER,
+  FOCUS_LAYER,
+  FOCUS_SOURCE,
 } from './map_util'
 
 export const init = (): void => {
@@ -264,6 +266,204 @@ const addPopupsToMap = (
   })
 }
 
+const initKeyboardNavigation = (
+  mapId: string,
+  map: MapLibreMap,
+  settings: MapSettings,
+): void => {
+  let focusedFeatureIndex = -1
+  let iconNavigationMode = false
+  const canvas = map.getCanvas()
+
+  // Create ARIA live region for mode announcements
+  const mapContainer = document.getElementById(mapId)
+  const liveRegion = document.createElement('div')
+  liveRegion.setAttribute('aria-live', 'polite')
+  liveRegion.setAttribute('aria-atomic', 'true')
+  liveRegion.setAttribute('class', 'usa-sr-only')
+  liveRegion.setAttribute('data-map-id', mapId)
+  liveRegion.setAttribute('data-navigation-status', '')
+  if (mapContainer) {
+    mapContainer.appendChild(liveRegion)
+  }
+
+  const announceMode = (message: string): void => {
+    liveRegion.textContent = message
+  }
+
+  // Add focus indicator layer
+  map.addSource(FOCUS_SOURCE, {
+    type: 'geojson',
+    data: {
+      type: 'FeatureCollection',
+      features: [],
+    },
+  })
+
+  map.addLayer({
+    id: FOCUS_LAYER,
+    type: 'circle',
+    source: FOCUS_SOURCE,
+    paint: {
+      'circle-radius': 20,
+      'circle-color': 'transparent',
+      'circle-stroke-width': 3,
+      'circle-stroke-color': '#005ea2',
+    },
+  })
+
+  const getVisibleFeatures = (): Feature[] => {
+    const source = map.getSource(LOCATIONS_SOURCE) as GeoJSONSource
+    if (!source) return []
+
+    const allFeatures = map.querySourceFeatures(LOCATIONS_SOURCE)
+    return allFeatures.filter((feature) => feature.geometry.type === 'Point')
+  }
+
+  const updateFocusIndicator = (feature: Feature | null): void => {
+    const focusSource = map.getSource(FOCUS_SOURCE) as GeoJSONSource
+    if (!focusSource) return
+
+    if (feature && feature.geometry.type === 'Point') {
+      focusSource.setData({
+        type: 'FeatureCollection',
+        features: [feature],
+      })
+
+      // Pan to the focused feature
+      const coords = feature.geometry.coordinates as [number, number]
+      map.easeTo({
+        center: coords,
+        duration: 300,
+      })
+    } else {
+      focusSource.setData({
+        type: 'FeatureCollection',
+        features: [],
+      })
+    }
+  }
+
+  const openPopupForFeature = (feature: Feature): void => {
+    if (feature.geometry.type !== 'Point') return
+
+    const geometry = feature.geometry
+    const properties = feature.properties
+    const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
+
+    const popup = new Popup().setLngLat(coordinates)
+
+    const popupContentTemplate = mapQuerySelector(
+      mapId,
+      CF_POPUP_CONTENT_TEMPLATE,
+    ) as HTMLTemplateElement
+    if (!popupContentTemplate) {
+      console.warn(`Map popup template not found for map: ${mapId}`)
+      return
+    }
+
+    const popupContent = createPopupContent(
+      mapId,
+      popupContentTemplate.content.children,
+      settings,
+      properties,
+    )
+    if (popupContent) {
+      popup.setDOMContent(popupContent)
+    }
+
+    popup.addTo(map)
+  }
+
+  const enterIconNavigationMode = (): void => {
+    const features = getVisibleFeatures()
+    if (features.length === 0) {
+      announceMode('No locations available to navigate.')
+      return
+    }
+
+    iconNavigationMode = true
+    focusedFeatureIndex = 0
+    updateFocusIndicator(features[focusedFeatureIndex])
+
+    // Disable map's default keyboard navigation
+    map.keyboard.disable()
+
+    announceMode(
+      `Icon navigation mode activated. Use arrow keys to navigate between ${features.length} locations. Press Space or Enter to open details, Escape to exit.`,
+    )
+  }
+
+  const exitIconNavigationMode = (): void => {
+    iconNavigationMode = false
+    focusedFeatureIndex = -1
+    updateFocusIndicator(null)
+
+    // Re-enable map's default keyboard navigation
+    map.keyboard.enable()
+
+    announceMode(
+      'Icon navigation mode deactivated. Use arrow keys to pan the map.',
+    )
+  }
+
+  canvas.addEventListener('keydown', (e: KeyboardEvent) => {
+    const features = getVisibleFeatures()
+
+    // If not in icon navigation mode, Enter activates it
+    if (!iconNavigationMode) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        enterIconNavigationMode()
+      }
+      // Let other keys pass through for normal map navigation
+      return
+    }
+
+    // In icon navigation mode, handle arrow keys and other controls
+    if (features.length === 0) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        e.preventDefault()
+        focusedFeatureIndex = (focusedFeatureIndex + 1) % features.length
+        updateFocusIndicator(features[focusedFeatureIndex])
+        break
+
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        e.preventDefault()
+        focusedFeatureIndex =
+          focusedFeatureIndex <= 0
+            ? features.length - 1
+            : focusedFeatureIndex - 1
+        updateFocusIndicator(features[focusedFeatureIndex])
+        break
+
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        if (focusedFeatureIndex >= 0 && focusedFeatureIndex < features.length) {
+          openPopupForFeature(features[focusedFeatureIndex])
+        }
+        break
+
+      case 'Escape':
+        e.preventDefault()
+        exitIconNavigationMode()
+        break
+    }
+  })
+
+  // Clear focus and exit mode when canvas loses focus
+  canvas.addEventListener('blur', () => {
+    if (iconNavigationMode) {
+      exitIconNavigationMode()
+    }
+  })
+}
+
 const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   if (!mapData.settings || !mapData.geoJson) {
     throw new Error(
@@ -276,7 +476,8 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   const map = createMap(mapId, geoJson)
 
   const canvas: HTMLCanvasElement = map.getCanvas()
-  canvas.setAttribute('aria-label', getMessages().mapRegionAltText)
+  const ariaLabel = `${getMessages().mapRegionAltText}. Press Enter to navigate between location icons. Use arrow keys to pan the map.`
+  canvas.setAttribute('aria-label', ariaLabel)
 
   // Add focus styles to the map container when the canvas is focused
   const mapContainer = document.getElementById(mapId)
@@ -293,6 +494,7 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
   map.on('load', () => {
     addLocationsToMap(mapId, map, geoJson)
     addPopupsToMap(mapId, map, settings)
+    initKeyboardNavigation(mapId, map, settings)
 
     map.on('mouseenter', LOCATIONS_LAYER, (): void => {
       const canvas = map.getCanvas()

@@ -78,6 +78,8 @@ export const LOCATIONS_LAYER = 'locations-layer'
 export const LOCATIONS_SOURCE = 'locations'
 export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
 export const POPUP_LAYER = 'open-popup'
+export const FOCUS_LAYER = 'focus-indicator-layer'
+export const FOCUS_SOURCE = 'focus-indicator'
 
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
