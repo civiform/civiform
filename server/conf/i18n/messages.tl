@@ -1163,6 +1163,18 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 banner.guestBannerText=Pagkatapos mong mag-apply, {0} para protektahan ang iyong data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinute=1 hour and 1 minute
+banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinute={0} hours and 1 minute
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} minutes
+banner.hours={0} hours
+banner.hour=1 hour
+banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
