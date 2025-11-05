@@ -368,6 +368,7 @@ public final class ProgramService {
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
+   * @param loginOnly true if only logged in applicants can apply to the program.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link
    *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
@@ -388,6 +389,7 @@ public final class ProgramService {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -440,6 +442,7 @@ public final class ProgramService {
             versionRepository.getDraftVersionOrCreate(),
             programType,
             eligibilityIsGating,
+            loginOnly,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
@@ -541,6 +544,7 @@ public final class ProgramService {
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
+   * @param loginOnly true if an applicant must be logged in before applying to a program.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
@@ -562,6 +566,7 @@ public final class ProgramService {
       String displayMode,
       List<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -624,6 +629,7 @@ public final class ProgramService {
             .setNotificationPreferences(notificationPreferencesAsEnums)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
+            .setLoginOnly(loginOnly)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)

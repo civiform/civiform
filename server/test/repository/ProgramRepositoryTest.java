@@ -271,6 +271,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -291,6 +292,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -317,6 +319,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
