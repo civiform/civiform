@@ -27,10 +27,9 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static final int CURRENT_BLOCK_INDEX = 7;
   private Clock clock;
 
-  // Class to hold counter values.
-  static class Counts {
-    double present = 0;
-    double absent = 0;
+  public enum ADMIN_TYPE {
+    TI,
+    CIVIFORM
   }
 
   @Before
@@ -52,13 +51,20 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testIndexRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testIndexRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedIndexUrl = String.format("/applicants/%d/programs", APPLICANT_ID);
-    assertThat(new ApplicantRoutes().index(tiProfile, APPLICANT_ID).url())
+    assertThat(new ApplicantRoutes().index(adminProfile, APPLICANT_ID).url())
         .isEqualTo(expectedIndexUrl);
   }
 
@@ -75,14 +81,21 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testShowRoute_forTrustedIntermediaryWithProgramSlug() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testShowRoute_forAdminTypesWithProgramSlug(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
         String.format("/applicants/%d/programs/%s", APPLICANT_ID, PROGRAM_SLUG);
-    assertThat(new ApplicantRoutes().show(tiProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+    assertThat(new ApplicantRoutes().show(adminProfile, APPLICANT_ID, PROGRAM_SLUG).url())
         .isEqualTo(expectedEditUrl);
   }
 
@@ -100,15 +113,22 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testEditRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
         String.format(
             "/applicants/%d/programs/%d/edit?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().edit(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+    assertThat(new ApplicantRoutes().edit(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
   }
 
@@ -126,15 +146,22 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testReviewRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
         String.format(
             "/applicants/%d/programs/%d/review?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().review(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+    assertThat(new ApplicantRoutes().review(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
   }
 
@@ -158,14 +185,21 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testSubmitRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testSubmitRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedSubmitUrl =
         String.format("/applicants/%d/programs/%d/submit", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().submit(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+    assertThat(new ApplicantRoutes().submit(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedSubmitUrl);
   }
 
@@ -187,10 +221,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testBlockEditRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testBlockEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
         String.format(
@@ -198,7 +239,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
-                .blockEdit(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .blockEdit(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockEditUrl);
   }
@@ -221,10 +262,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testBlockReviewRoute_forTrustedIntermediary() {
+  @Parameters({"TI", "CIVIFORM"})
+  public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockReviewUrl =
         String.format(
@@ -232,7 +280,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
-                .blockReview(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .blockReview(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
   }
@@ -261,11 +309,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testBlockReviewRoute_forTrustedIntermediary(String inReview) {
+  @Parameters({"TI, true", "TI, false", "CIVIFORM, true", "CIVIFORM, false"})
+  public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedBlockReviewUrl =
@@ -275,7 +329,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
-                    tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
+                    adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
   }
@@ -312,17 +366,28 @@ public class ApplicantRoutesTest extends ResetPostgres {
         .isEqualTo(expectedConfirmAddressUrl);
   }
 
+  @Test
   @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, REVIEW_PAGE",
-    "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK",
+    "TI, true, PREVIOUS_BLOCK",
+    "TI, false, REVIEW_PAGE",
+    "TI, true, NEXT_BLOCK",
+    "TI, false, NEXT_BLOCK",
+    "CIVIFORM, true, PREVIOUS_BLOCK",
+    "CIVIFORM, false, REVIEW_PAGE",
+    "CIVIFORM, true, NEXT_BLOCK",
+    "CIVIFORM, false, NEXT_BLOCK"
   })
-  public void testConfirmAddressRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
+  public void testConfirmAddressRoute_forAdminTypes(
+      ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedConfirmAddressUrl =
         String.format(
@@ -331,7 +396,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .confirmAddress(
-                    tiProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     BLOCK_ID,
@@ -368,11 +433,17 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testPreviousOrReviewRoute_forTrustedIntermediary(String inReview) {
+  @Parameters({"TI, true", "TI, false", "CIVIFORM, true", "CIVIFORM, false"})
+  public void testPreviousOrReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
         String.format(
@@ -381,7 +452,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
-                    tiProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     CURRENT_BLOCK_INDEX,
@@ -459,8 +530,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, REVIEW_PAGE",
+    "true, REVIEW_PAGE",
+    "false, PREVIOUS_BLOCK",
     "true, NEXT_BLOCK",
     "false, NEXT_BLOCK",
   })
@@ -491,16 +562,26 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, PREVIOUS_BLOCK",
-    "true, REVIEW_PAGE",
-    "false, NEXT_BLOCK",
+    "TI, true, PREVIOUS_BLOCK",
+    "TI, false, PREVIOUS_BLOCK",
+    "TI, true, REVIEW_PAGE",
+    "TI, false, NEXT_BLOCK",
+    "CIVIFORM, true, PREVIOUS_BLOCK",
+    "CIVIFORM, false, PREVIOUS_BLOCK",
+    "CIVIFORM, true, REVIEW_PAGE",
+    "CIVIFORM, false, NEXT_BLOCK"
   })
-  public void testUpdateFileRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
+  public void testUpdateFileRoute_forAdminTypes(
+      ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedUpdateFileUrl =
         String.format(
@@ -509,7 +590,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .updateFile(
-                    tiProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     BLOCK_ID,
@@ -547,12 +628,27 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
-  public void testUpdateBlockRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
+  @Parameters({
+    "TI, true, REVIEW_PAGE",
+    "TI, false, REVIEW_PAGE",
+    "TI, true, NEXT_BLOCK",
+    "TI, false, NEXT_BLOCK",
+    "CIVIFORM, true, REVIEW_PAGE",
+    "CIVIFORM, false, REVIEW_PAGE",
+    "CIVIFORM, true, NEXT_BLOCK",
+    "CIVIFORM, false, NEXT_BLOCK"
+  })
+  public void testUpdateBlockRoute_forAdminTypes(
+      ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
     CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String role =
+        switch (adminType) {
+          case TI -> Role.ROLE_TI.toString();
+          case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+        };
+    profileData.addRole(role);
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedUpdateBlockUrl =
         String.format(
@@ -561,7 +657,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .updateBlock(
-                    tiProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     BLOCK_ID,
