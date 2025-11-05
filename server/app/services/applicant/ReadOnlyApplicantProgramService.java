@@ -269,6 +269,11 @@ public final class ReadOnlyApplicantProgramService {
     return hasAnsweredEligibilityQuestions() && hasGatingEligibilityEnabledOrEligible();
   }
 
+  /** Returns whether the program is available to only logged-in users. */
+  public boolean isProgramOnlyForLoggedInApplicants() {
+    return programDefinition.loginOnly();
+  }
+
   /** Returns whether eligibility is gating or the application is eligible. */
   private boolean hasGatingEligibilityEnabledOrEligible() {
     if (programDefinition.eligibilityIsGating()) {
