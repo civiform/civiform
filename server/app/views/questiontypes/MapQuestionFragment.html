@@ -118,6 +118,7 @@
           th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
           class="text-ink margin-bottom-1 margin-top-1 tablet:margin-top-3 desktop:margin-top-0 cf-location-count"
           th:data-map-id="${mapId}"
+          tabindex="-1"
           th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
         ></div>
         <!--/* Hidden input that we have checked to allow clearing data from a map question */-->

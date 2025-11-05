@@ -61,7 +61,6 @@ const locationFocus = (mapId: string): void => {
     mapId,
     CF_LOCATION_COUNT,
   ) as HTMLElement
-  locationCount?.setAttribute('tabindex', '-1')
   locationCount.focus()
 }
 
