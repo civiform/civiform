@@ -358,6 +358,8 @@ public enum MessageKey {
   MAP_SETTING_TEXT_LABEL("map.settingTextLabel"), // North Star only
   MAP_SWITCH_TO_LIST_VIEW("map.switchToListView"), // North Star only
   MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW_SR("map.switchToMapViewSr"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW_SR("map.switchToListViewSr"), // North Star only
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_VALUE_LABEL("map.valueLabel"), // North Star only
   MAP_GEO_JSON_ERROR_TEXT("map.geoJsonErrorText"), // North Star only
@@ -533,10 +535,7 @@ public enum MessageKey {
   SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
-  SESSION_EXTENDED_ERROR("session.extended.error"),
-
-  // Untranslated string for translation infrastructure testing.
-  TRANSLATION_UNTRANSLATED("translation.untranslated");
+  SESSION_EXTENDED_ERROR("session.extended.error");
 
   private final String keyName;
 

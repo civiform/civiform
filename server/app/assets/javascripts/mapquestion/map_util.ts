@@ -19,6 +19,8 @@ export interface MapMessages {
   readonly paginationStatus: string
   readonly mapSelectedButtonText: string
   readonly mapSelectLocationButtonText: string
+  readonly switchToMapViewSr: string
+  readonly switchToListViewSr: string
 }
 
 export interface MapData {

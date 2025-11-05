@@ -1061,11 +1061,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
-  /** Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled() {
-    return getBool("DATE_VALIDATION_ENABLED");
-  }
-
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
   public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
@@ -2328,12 +2323,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "Enables admin validation settings for date questions.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",

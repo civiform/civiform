@@ -51,11 +51,11 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.54.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.55.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.26.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.0",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
