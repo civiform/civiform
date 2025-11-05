@@ -212,26 +212,26 @@ public abstract class NorthStarBaseView {
 
   private static String getSessionDurationMessage(int sessionDurationMinutes, Messages messages) {
     int sessionDurationHours = sessionDurationMinutes / 60;
+    // The remaining minutes after accounting for whole hours.
+    int remainingSessionDurationMinutes = sessionDurationMinutes % 60;
     if (sessionDurationMinutes < 60) {
       return sessionDurationMinutes == 1
           ? messages.at(MessageKey.BANNER_MINUTE.getKeyName())
           : messages.at(
               MessageKey.BANNER_MINUTES.getKeyName(), String.valueOf(sessionDurationMinutes));
     }
-    if (sessionDurationMinutes % 60 == 0) {
+    // The session duration is a whole number of hours.
+    if (remainingSessionDurationMinutes == 0) {
       return sessionDurationHours == 1
           ? messages.at(MessageKey.BANNER_HOUR.getKeyName())
           : messages.at(MessageKey.BANNER_HOURS.getKeyName(), String.valueOf(sessionDurationHours));
     } else {
-      int remainingSessionDurationMinutes = sessionDurationMinutes % 60;
       if (sessionDurationHours == 1) {
-        if (remainingSessionDurationMinutes > 1) {
-          return messages.at(
-              MessageKey.BANNER_HOUR_AND_MINUTES.getKeyName(),
-              String.valueOf(remainingSessionDurationMinutes));
-        } else {
-          return messages.at(MessageKey.BANNER_HOUR_AND_MINUTE.getKeyName());
-        }
+        return sessionDurationMinutes == 1
+            ? messages.at(MessageKey.BANNER_HOUR_AND_MINUTE.getKeyName())
+            : messages.at(
+                MessageKey.BANNER_HOUR_AND_MINUTES.getKeyName(),
+                String.valueOf(remainingSessionDurationMinutes));
       }
       if (remainingSessionDurationMinutes == 1) {
         return messages.at(
