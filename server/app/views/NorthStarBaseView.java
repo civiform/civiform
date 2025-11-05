@@ -227,7 +227,7 @@ public abstract class NorthStarBaseView {
           : messages.at(MessageKey.BANNER_HOURS.getKeyName(), String.valueOf(sessionDurationHours));
     } else {
       if (sessionDurationHours == 1) {
-        return sessionDurationMinutes == 1
+        return remainingSessionDurationMinutes == 1
             ? messages.at(MessageKey.BANNER_HOUR_AND_MINUTE.getKeyName())
             : messages.at(
                 MessageKey.BANNER_HOUR_AND_MINUTES.getKeyName(),
@@ -238,7 +238,7 @@ public abstract class NorthStarBaseView {
             MessageKey.BANNER_HOURS_AND_MINUTE.getKeyName(), String.valueOf(sessionDurationHours));
       }
       return messages.at(
-          MessageKey.BANNER_HOUR_AND_MINUTES.getKeyName(),
+          MessageKey.BANNER_HOURS_AND_MINUTES.getKeyName(),
           String.valueOf(sessionDurationHours),
           String.valueOf(remainingSessionDurationMinutes));
     }

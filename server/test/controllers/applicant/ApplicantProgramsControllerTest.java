@@ -677,7 +677,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
@@ -701,6 +701,34 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(content)
         .contains("Your session will automatically expire after 1 hour and 30 minutes");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 2 hours and 10 minutes");
   }
 
   @Test
