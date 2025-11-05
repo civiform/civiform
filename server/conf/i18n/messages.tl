@@ -989,7 +989,7 @@ option.maybe=Siguro
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
 # Aria label for next page pagination button
-map.ariaLabelNextPage=
+map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
 map.ariaLabelPaginationList=Pagination for map locations
 # Aria label for previous page pagination button
