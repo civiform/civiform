@@ -1164,6 +1164,3 @@ session.extended.success=已成功延長工作階段
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=無法延長工作階段
-
-# Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
