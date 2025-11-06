@@ -156,9 +156,10 @@ export class AdminPredicateEdit {
     ) as HTMLElement
     const defaultInputField = assertNotNull(
       defaultInputContainer.querySelector('input.usa-input'),
-    )
-    const csvInputContainer =
-      document.querySelector('[data-csv-input-type]') as HTMLElement | null
+    ) as HTMLElement
+    const csvInputContainer = document.querySelector(
+      '[data-csv-input-type]',
+    ) as HTMLElement | null
 
     // For number question types
     // Depending on the current operator, hide/show the csv input
