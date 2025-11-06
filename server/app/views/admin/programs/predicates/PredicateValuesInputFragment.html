@@ -233,9 +233,7 @@
 </th:block>
 
 <!-- Multi-select question type -->
-<th:block
-  th:fragment="multiValuesInput(valueOptions, multiValueInputId)"
->
+<th:block th:fragment="multiValuesInput(valueOptions, multiValueInputId)">
   <fieldset class="usa-fieldset">
     <th:block th:each="valueOption, valueStat: ${valueOptions}">
       <div class="usa-checkbox">
