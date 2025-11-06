@@ -192,16 +192,29 @@
     th:id="${valueInputHintId}"
     th:text="#{content.multipleValuesInputHint}"
   ></div>
-  <input
-    class="usa-input"
-    type="email"
-    inputmode="text"
-    th:id="${valueInputId}"
-    th:name="${valueInputId}"
-    required
-    aria-invalid="false"
-    data-email-value
-  />
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="email"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-email-value
+    />
+  </div>
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
 </th:block>
 
 <!-- Number question type -->
