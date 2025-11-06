@@ -148,25 +148,32 @@ export class AdminPredicateEdit {
     const secondValueGroupId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
 
-    const primaryInputDiv = assertNotNull(
+    // Find the HTML elements that are shared across question types:
+    // defaultInput is the first input of the default input type (e.g. date-type for dates)
+    // csvInput is the text field for multi-value operators (IN, NOT_IN)
+    const defaultInputContainer = assertNotNull(
       document.querySelector('[data-default-input-type][data-first-input]'),
     ) as HTMLElement
-    const csvInputDiv = assertNotNull(
-      document.querySelector('[data-csv-input-type]'),
-    ) as HTMLElement
-    const primaryInput = assertNotNull(
-      primaryInputDiv.querySelector('input.usa-input'),
+    const defaultInputField = assertNotNull(
+      defaultInputContainer.querySelector('input.usa-input'),
     )
+    const csvInputContainer =
+      document.querySelector('[data-csv-input-type]') as HTMLElement | null
 
-    if (primaryInput.hasAttribute('data-number-value')) {
-      this.setNumberQuestionVisibleInput(
+    // For number question types
+    // Depending on the current operator, hide/show the csv input
+    if (defaultInputField.hasAttribute('data-number-value')) {
+      this.filterNumberQuestionVisibleInputs(
         selectedOperatorValue,
-        primaryInputDiv,
-        csvInputDiv,
+        defaultInputContainer,
+        csvInputContainer!,
       )
     }
 
-    if (primaryInput.hasAttribute('data-date-value')) {
+    // For date values
+    // Depending on the currently selected operator, filter visible input fields
+    // Date operators vs. age operators vs. csv operators use different input fields.
+    if (defaultInputField.hasAttribute('data-date-value')) {
       const ageInputDiv = assertNotNull(
         document.querySelector('[data-age-input-type][data-first-input]'),
       ) as HTMLElement
@@ -178,13 +185,13 @@ export class AdminPredicateEdit {
       const secondAgeValueInput = assertNotNull(
         document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
       ) as HTMLElement
-      this.setDateQuestionVisibleInput(
+      this.filterDateQuestionVisibleInputs(
         selectedOperatorValue,
-        primaryInputDiv,
+        defaultInputContainer,
         ageInputDiv,
         secondDateValueInput,
         secondAgeValueInput,
-        csvInputDiv,
+        csvInputContainer!,
       )
     }
   }
@@ -357,7 +364,7 @@ export class AdminPredicateEdit {
    *    @param {HTMLElement} defaultInput: The value input element to set the type for.
    *    @param {HTMLElement} csvInput: The text-format input for CSV values.
    */
-  private static setNumberQuestionVisibleInput(
+  private static filterNumberQuestionVisibleInputs(
     selectedOperatorValue: string,
     defaultInput: HTMLElement,
     csvInput: HTMLElement,
@@ -386,7 +393,7 @@ export class AdminPredicateEdit {
    *    @param {HTMLElement} secondAgeValueInput: The second (age-format) value input - only used for BETWEEN.
    *    @param {HTMLElement} csvInput: The text-format input for CSV values.
    */
-  private static setDateQuestionVisibleInput(
+  private static filterDateQuestionVisibleInputs(
     selectedOperatorValue: string,
     dateValueInput: HTMLElement,
     ageValueInput: HTMLElement,
