@@ -178,7 +178,7 @@ export class AdminPredicateEdit {
       const secondAgeValueInput = assertNotNull(
         document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
       ) as HTMLElement
-      this.setDateQuestionValueInputType(
+      this.setDateQuestionVisibleInput(
         selectedOperatorValue,
         primaryInputDiv,
         ageInputDiv,
@@ -386,7 +386,7 @@ export class AdminPredicateEdit {
    *    @param {HTMLElement} secondAgeValueInput: The second (age-format) value input - only used for BETWEEN.
    *    @param {HTMLElement} csvInput: The text-format input for CSV values.
    */
-  private static setDateQuestionValueInputType(
+  private static setDateQuestionVisibleInput(
     selectedOperatorValue: string,
     dateValueInput: HTMLElement,
     ageValueInput: HTMLElement,
