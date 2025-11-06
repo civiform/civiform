@@ -13,6 +13,9 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
+  loginAsTrustedIntermediary,
+  waitForPageJsLoad,
+  ClientInformation,
 } from '../support'
 
 test.describe('view program statuses', {tag: ['@northstar']}, () => {
@@ -978,6 +981,50 @@ test.describe('view program statuses', {tag: ['@northstar']}, () => {
             programWithStatusesName,
           )
         }
+      })
+    })
+    test('Trusted Intermediary application shows correct Submitted By name', async ({
+      page,
+
+      adminPrograms,
+
+      applicantQuestions,
+      tiDashboard,
+    }) => {
+      await test.step('Login as Trusted Intermediary', async () => {
+        await loginAsTrustedIntermediary(page)
+      })
+
+      await test.step('Create a new client', async () => {
+        await waitForPageJsLoad(page)
+        const client: ClientInformation = {
+          emailAddress: 'fake@sample.com',
+          firstName: 'first',
+          middleName: 'middle',
+          lastName: 'last',
+          dobDate: '2021-05-10',
+        }
+        await tiDashboard.createClient(client)
+        await tiDashboard.expectDashboardContainClient(client)
+        await tiDashboard.clickOnViewApplications()
+      })
+
+      await test.step('submit application', async () => {
+        await applicantQuestions.applyProgram(programWithStatusesName, true)
+        const otherTestUserEmail = 'other@example.com'
+        await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
+
+        await logout(page)
+      })
+
+      await test.step('view applications and verify Submitted By column', async () => {
+        await loginAsProgramAdmin(page)
+        await adminPrograms.viewApplications(programWithStatusesName)
+        const row = page.getByRole('row')
+        const firstRow = row.nth(1)
+        await expect(firstRow).toContainText('fake-trusted-intermediary')
       })
     })
   })
