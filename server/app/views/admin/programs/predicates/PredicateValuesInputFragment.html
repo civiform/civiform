@@ -19,7 +19,7 @@
       </th:block>
       <th:block th:case="'Checkbox'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${valueInputId}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Currency'">
@@ -34,7 +34,7 @@
       </th:block>
       <th:block th:case="'Dropdown'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${valueInputId}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Email'">
@@ -49,7 +49,7 @@
       </th:block>
       <th:block th:case="'Radio Button'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${valueInputId}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
@@ -234,7 +234,7 @@
 
 <!-- Multi-select question type -->
 <th:block
-  th:fragment="multiValuesInput(valueOptions, valueInputId, multiValueInputId)"
+  th:fragment="multiValuesInput(valueOptions, multiValueInputId)"
 >
   <fieldset class="usa-fieldset">
     <th:block th:each="valueOption, valueStat: ${valueOptions}">
@@ -243,7 +243,7 @@
           class="usa-checkbox__input usa-checkbox__input--tile"
           type="checkbox"
           th:value="${valueOption.value()}"
-          th:name="${valueInputId}"
+          th:name="${multiValueInputId + valueStat.count}"
           th:id="${multiValueInputId + valueStat.count}"
           data-multi-input-value
         />
