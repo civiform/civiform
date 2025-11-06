@@ -354,21 +354,22 @@ export class AdminPredicateEdit {
    * For CSV operators (IN, NOT_IN), we use a text input to allow comma-separated values.
    * For all other operators, we use a number input.
    *    @param {string} selectedOperatorValue: The currently selected operator.
-   *    @param {HTMLElement} valueInput: The value input element to set the type for.
+   *    @param {HTMLElement} defaultInput: The value input element to set the type for.
+   *    @param {HTMLElement} csvInput: The text-format input for CSV values.
    */
   private static setNumberQuestionVisibleInput(
     selectedOperatorValue: string,
-    numericInput: HTMLElement,
+    defaultInput: HTMLElement,
     csvInput: HTMLElement,
   ) {
     let hiddenElements = []
     let shownElements = []
     if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
-      hiddenElements = [numericInput]
+      hiddenElements = [defaultInput]
       shownElements = [csvInput]
     } else {
       hiddenElements = [csvInput]
-      shownElements = [numericInput]
+      shownElements = [defaultInput]
     }
 
     this.disableAndHide(hiddenElements)
@@ -376,11 +377,14 @@ export class AdminPredicateEdit {
   }
 
   /**
-   * Set the input type for date question value inputs based on the selected operator.
+   * Set the visible input field for date questions, depending on the selected operator.
    * For age-based operators, we use a number input. For all other operators, we use a date input.
    *    @param {string} selectedOperatorValue: The currently selected operator.
-   *    @param {HTMLElement} valueInput: The value input element to set the type for.
-   *    @param {HTMLElement | null} secondValueInput: The second value input element to set the type for, if it exists.
+   *    @param {HTMLElement} dateValueInput: The default (date-format) value input.
+   *    @param {HTMLElement} ageValueInput: The default (age-format)_value input.
+   *    @param {HTMLElement} secondDateValueInput: The second (date-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} secondAgeValueInput: The second (age-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} csvInput: The text-format input for CSV values.
    */
   private static setDateQuestionValueInputType(
     selectedOperatorValue: string,
