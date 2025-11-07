@@ -42,6 +42,16 @@
           th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId})}"
         ></div>
       </th:block>
+      <th:block th:case="'ID'">
+        <div
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Name'">
+        <div
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Number'">
         <div
           th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
@@ -52,10 +62,9 @@
           th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
-      <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
-      <th:block th:case="*">
+            <th:block th:case="'Text'">
         <div
-          th:replace="~{::emptyValuesInput(${valueInputId}, ${hasSelectedQuestion})}"
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
         ></div>
       </th:block>
     </th:block>
@@ -304,20 +313,22 @@
   </div>
 </th:block>
 
-<!-- Unknown question type -->
-<!--TODO (#11662): Remove this fragment once all valid question types have been added. -->
-<th:block th:fragment="emptyValuesInput(valueInputId, hasSelectedQuestion)">
-  <select
-    class="usa-select"
-    th:id="${valueInputId}"
-    th:name="${valueInputId}"
-    th:disabled="${!hasSelectedQuestion}"
-    data-unknown-value
-  >
-    <option
-      th:selected="${!hasSelectedQuestion}"
-      th:hidden="${hasSelectedQuestion}"
-      th:text="#{option.selectPlaceholder}"
-    ></option>
-  </select>
+<!-- Text input question type -->
+<th:block th:fragment="textValuesInput(valueInputId, valueInputHintId)">
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
 </th:block>
