@@ -240,14 +240,14 @@
         <input
           class="usa-checkbox__input usa-checkbox__input--tile"
           type="checkbox"
-          th:value="${valueOption.value()}"
-          th:name="${multiValueInputId + valueStat.count}"
-          th:id="${multiValueInputId + valueStat.count}"
+          th:value="${valueStat.count}"
+          th:name="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+          th:id="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
           data-multi-input-value
         />
         <label
           class="usa-checkbox__label"
-          th:for="${multiValueInputId + valueStat.count}"
+          th:for="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
           th:text="${valueOption.displayText()}"
         >
         </label>
