@@ -139,6 +139,13 @@ public final class ProfileFactory {
     return wrapProfileData(new CiviFormProfileData(account.id, clock));
   }
 
+  @VisibleForTesting
+  public CiviFormProfile wrapTi(AccountModel account) {
+    var data = new CiviFormProfileData(account.id, clock);
+    data.addRole(Role.ROLE_TI.toString());
+    return wrapProfileData(data);
+  }
+
   public CiviFormProfile wrap(ApplicantModel applicant) {
     CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id, clock);
     CiviFormProfile profile = wrapProfileData(profileData);

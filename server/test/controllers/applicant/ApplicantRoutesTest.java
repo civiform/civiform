@@ -34,11 +34,10 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   private static String getRoleForAdmin(ADMIN_TYPE adminType) {
     return switch (adminType) {
-        case TI -> Role.ROLE_TI.toString();
-        case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
-      };
+      case TI -> Role.ROLE_TI.toString();
+      case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+    };
   }
-
 
   @Before
   public void setup() {

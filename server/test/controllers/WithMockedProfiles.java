@@ -130,7 +130,7 @@ public class WithMockedProfiles {
     managedAccount.save();
     ti.setMemberOfGroup(group);
     ti.save();
-    CiviFormProfile profile = profileFactory.wrap(ti);
+    CiviFormProfile profile = profileFactory.wrapTi(ti);
     mockProfile(profile);
     return ti;
   }
