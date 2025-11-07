@@ -18,10 +18,12 @@ import support.ProgramBuilder;
 public class CiviFormProfileTest extends ResetPostgres {
 
   private ProfileFactory profileFactory;
+  private ProfileTestFactory profileTestFactory;
 
   @Before
   public void setupProfileData() {
     profileFactory = instanceOf(ProfileFactory.class);
+    profileTestFactory = instanceOf(ProfileTestFactory.class);
   }
 
   @Test
@@ -59,7 +61,7 @@ public class CiviFormProfileTest extends ResetPostgres {
     account.setApplicants(ImmutableList.of(one, two, three));
     account.save();
 
-    CiviFormProfile profile = profileFactory.wrap(account);
+    CiviFormProfile profile = profileTestFactory.wrap(account);
 
     profile.checkAuthorization(two.id).join();
   }
