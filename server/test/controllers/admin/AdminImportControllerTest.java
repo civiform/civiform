@@ -536,6 +536,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "https://www.example.com",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -614,6 +615,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "https://www.example.com",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -692,6 +694,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "desc",
               "externalLink" : "https://github.com/civiform/civiform",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
               "translations" : {
@@ -825,6 +828,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -1094,6 +1098,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           "adminDescription" : "",
           "externalLink" : "",
           "displayMode" : "PUBLIC",
+          "loginOnly" : false,
           "notificationPreferences" : [ ],
           "localizedName" : {
             "translations" : {
@@ -1424,6 +1429,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "admin description",
               "externalLink" : "https:usa.gov",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [],
               "localizedName" : {
               "translations" : {
@@ -1613,6 +1619,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           "adminDescription" : "desc",
           "externalLink" : "https://github.com/civiform/civiform",
           "displayMode" : "PUBLIC",
+          "loginOnly" : false,
           "notificationPreferences" : [ ],
           "localizedName" : {
             "translations" : {

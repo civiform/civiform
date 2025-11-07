@@ -96,6 +96,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setBridgeDefinitions(ImmutableMap.of())
+            .setLoginOnly(true)
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -130,6 +131,7 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "title"));
     assertThat(found.getProgramDefinition().applicationSteps().get(0).getDescription())
         .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
+    assertThat(found.getProgramDefinition().loginOnly()).isTrue();
 
     assertThat(
             found
@@ -194,6 +196,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -257,6 +260,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -272,7 +276,7 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
     assertThat(block.eligibilityDefinition().get().predicate().predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
@@ -379,6 +383,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -416,6 +421,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))

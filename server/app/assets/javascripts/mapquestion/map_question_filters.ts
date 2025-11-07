@@ -9,6 +9,7 @@ import {
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
+  POPUP_LAYER,
   MapData,
   mapQuerySelector,
   CF_FILTER_HIDDEN,
@@ -35,7 +36,10 @@ export const initFilters = (
 
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap),
+    () => {
+      applyLocationFilters(mapId, mapElement, featureMap)
+      locationFocus(mapId)
+    },
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -47,8 +51,17 @@ export const initFilters = (
         selectOptionElement.value = ''
       })
       applyLocationFilters(mapId, mapElement, featureMap, true)
+      locationFocus(mapId)
     },
   )
+}
+
+const locationFocus = (mapId: string): void => {
+  const locationCount = mapQuerySelector(
+    mapId,
+    CF_LOCATION_COUNT,
+  ) as HTMLElement
+  locationCount.focus()
 }
 
 const applyLocationFilters = (
@@ -63,8 +76,15 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
+  const popupContent = mapQuerySelector(mapId, POPUP_LAYER) as HTMLElement
+  let openPopupFeatureId = null
+  if (popupContent) {
+    openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
+  }
+
+  let visibleCount = 0
   locationCheckboxContainers.forEach((container) => {
-    const containerElement = (container as HTMLElement) || null
+    const containerElement = container || null
     if (!containerElement) return
 
     const featureId = containerElement.getAttribute(DATA_FEATURE_ID)
@@ -75,23 +95,39 @@ const applyLocationFilters = (
 
     if (matchesFilter) {
       containerElement.classList.remove(CF_FILTER_HIDDEN)
+      visibleCount++
     } else {
       containerElement.classList.add(CF_FILTER_HIDDEN)
+      if (featureId == openPopupFeatureId) {
+        const popup = popupContent.parentElement?.parentElement
+        if (popup) popup.remove()
+      }
     }
   })
 
-  updateLocationCountForMap(mapId)
+  updateLocationCountForMap(
+    mapId,
+    visibleCount,
+    locationCheckboxContainers.length,
+  )
   resetPagination(mapId)
 }
 
-const updateLocationCountForMap = (mapId: string): void => {
-  const locationCheckboxes = queryLocationCheckboxes(mapId)
-  const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = (checkbox as HTMLElement) || null
-    return (
-      checkboxElement && !checkboxElement.classList.contains(CF_FILTER_HIDDEN)
-    )
-  }).length
+const updateLocationCountForMap = (
+  mapId: string,
+  visibleCount: number,
+  totalCount: number,
+): void => {
+  const noResultsFoundDiv = document.querySelector(
+    `[data-map-id="${mapId}"][data-no-results-found]`,
+  )
+  if (noResultsFoundDiv) {
+    if (visibleCount === 0) {
+      noResultsFoundDiv.classList.remove(CF_FILTER_HIDDEN)
+    } else {
+      noResultsFoundDiv.classList.add(CF_FILTER_HIDDEN)
+    }
+  }
 
   const countText = mapQuerySelector(
     mapId,
@@ -100,7 +136,7 @@ const updateLocationCountForMap = (mapId: string): void => {
   if (countText) {
     countText.textContent = localizeString(getMessages().locationsCount, [
       visibleCount.toString(),
-      locationCheckboxes.length.toString(),
+      totalCount.toString(),
     ])
   }
 }
@@ -136,9 +172,9 @@ const getFilters = (mapId: string): {[key: string]: string} => {
 
 const buildMapFilterExpression = (filters: {
   [key: string]: string
-}): FilterSpecification | null => {
+}): FilterSpecification | undefined => {
   const filterCount = Object.keys(filters).length
-  if (filterCount === 0) return null
+  if (filterCount === 0) return undefined
 
   if (filterCount === 1) {
     const [key, value] = Object.entries(filters)[0]

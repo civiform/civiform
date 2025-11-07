@@ -75,6 +75,13 @@ export class AdminPredicates {
     await this.page.getByRole('button', {name: 'Add condition'}).click()
   }
 
+  async clickAddSubconditionButton(conditionId: number) {
+    await this.page
+      .getByRole('button', {name: 'Add sub-condition'})
+      .nth(conditionId - 1)
+      .click()
+  }
+
   async clickSaveConditionButton() {
     await this.page.getByRole('button', {name: 'Save condition'}).click()
   }
@@ -214,6 +221,14 @@ export class AdminPredicates {
     await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
   }
 
+  async expectSubcondition(conditionId: number, subconditionId: number) {
+    await expect(
+      this.page.getByLabel('Question', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
+      }),
+    ).toBeVisible()
+  }
+
   async expectNoAddConditionButton() {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
@@ -236,6 +251,20 @@ export class AdminPredicates {
         id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
       })
       .selectOption(questionText)
+
+    await waitForHtmxReady(this.page)
+  }
+
+  async selectOperator(
+    conditionId: number,
+    subconditionId: number,
+    operatorValue: string,
+  ) {
+    await this.page
+      .getByLabel('State', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      })
+      .selectOption(`${operatorValue}`)
 
     await waitForHtmxReady(this.page)
   }

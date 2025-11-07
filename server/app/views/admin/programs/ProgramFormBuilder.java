@@ -107,6 +107,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
+        program.getLoginOnly(),
         program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
@@ -131,6 +132,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .map(ProgramNotificationPreference::getValue)
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
+        program.loginOnly(),
         program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
@@ -160,6 +162,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
@@ -333,6 +336,15 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* isDisabled= */ disableEmailNotifications,
                         /* label= */ "Send Program Admins an email notification every time an"
                             + " application is submitted"))
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            fieldset(
+                    legend("Login only applications").withClass("text-gray-600"),
+                    buildUSWDSCheckboxOption(
+                        /* id= */ "login-only-applications",
+                        /* name= */ "loginOnly",
+                        /* isChecked= */ loginOnly,
+                        /* isDisabled= */ false,
+                        /* label= */ "Require applicants to log in to apply to this program"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
             h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
             // Program long description
@@ -724,6 +736,20 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .withCondDisabled(isDisabled),
             labelTag)
         .withClasses("usa-radio");
+  }
+
+  private DivTag buildUSWDSCheckboxOption(
+      String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 
   private DivTag buildUSWDSCheckboxOption(

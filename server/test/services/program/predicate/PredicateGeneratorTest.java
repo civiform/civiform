@@ -99,7 +99,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -157,7 +157,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -215,7 +215,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -270,7 +270,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -328,7 +328,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -381,7 +381,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -434,7 +434,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -487,7 +487,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
@@ -538,7 +538,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -596,7 +596,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -649,7 +649,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -702,7 +702,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -762,7 +762,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.dateApplicantBirthdate().id));
@@ -779,7 +779,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
 
   @Test
   @Parameters({"true", "false"})
-  public void multiQuestion_multiValue(boolean expandedFormLogicEnabled) throws Exception {
+  public void multiCondition_OR_multiSubcondition_AND(boolean expandedFormLogicEnabled)
+      throws Exception {
     DynamicForm form =
         expandedFormLogicEnabled
             ? buildForm(
@@ -855,7 +856,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        .isEqualTo(PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .containsExactlyInAnyOrder(
@@ -902,6 +903,208 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
+  public void multiCondition_AND_multiSubcondition_AND_OR() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.<String, String>builder()
+                .put("predicateAction", "SHOW_BLOCK")
+                .put("root-nodeType", "AND")
+                .put("condition-1-nodeType", "AND")
+                .put(
+                    "condition-1-subcondition-1-question",
+                    testQuestionBank.dateApplicantBirthdate().id.toString())
+                .put("condition-1-subcondition-1-scalar", "DATE")
+                .put("condition-1-subcondition-1-operator", "EQUAL_TO")
+                .put("condition-1-subcondition-1-value", "2023-01-01")
+                .put(
+                    "condition-1-subcondition-2-question",
+                    testQuestionBank.numberApplicantJugglingNumber().id.toString())
+                .put("condition-1-subcondition-2-scalar", "NUMBER")
+                .put("condition-1-subcondition-2-operator", "EQUAL_TO")
+                .put("condition-1-subcondition-2-value", "1")
+                .put("condition-2-nodeType", "OR")
+                .put(
+                    "condition-2-subcondition-1-question",
+                    testQuestionBank.dateApplicantBirthdate().id.toString())
+                .put("condition-2-subcondition-1-scalar", "DATE")
+                .put("condition-2-subcondition-1-operator", "EQUAL_TO")
+                .put("condition-2-subcondition-1-value", "2023-02-02")
+                .put(
+                    "condition-2-subcondition-2-question",
+                    testQuestionBank.numberApplicantJugglingNumber().id.toString())
+                .put("condition-2-subcondition-2-scalar", "NUMBER")
+                .put("condition-2-subcondition-2-operator", "EQUAL_TO")
+                .put("condition-2-subcondition-2-value", "2")
+                .build());
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest());
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .containsExactlyInAnyOrder(
+            testQuestionBank.numberApplicantJugglingNumber().id,
+            testQuestionBank.dateApplicantBirthdate().id);
+
+    assertThat(predicateDefinition.rootNode().getType()).isEqualTo(PredicateExpressionNodeType.AND);
+    assertThat(predicateDefinition.rootNode().getAndNode().children())
+        .containsExactlyInAnyOrder(
+            PredicateExpressionNode.create(
+                AndNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
+                                .setScalar(Scalar.DATE)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                                .build()),
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.numberApplicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(PredicateValue.of(1))
+                                .build())))),
+            PredicateExpressionNode.create(
+                OrNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
+                                .setScalar(Scalar.DATE)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-02-02"))
+                                .build()),
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.numberApplicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(PredicateValue.of(2))
+                                .build())))));
+  }
+
+  @Test
+  public void singleCondition_AND_multiSubcondition_OR() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.<String, String>builder()
+                .put("predicateAction", "SHOW_BLOCK")
+                .put("root-nodeType", "AND")
+                .put("condition-1-nodeType", "OR")
+                .put(
+                    "condition-1-subcondition-1-question",
+                    testQuestionBank.dateApplicantBirthdate().id.toString())
+                .put("condition-1-subcondition-1-scalar", "DATE")
+                .put("condition-1-subcondition-1-operator", "EQUAL_TO")
+                .put("condition-1-subcondition-1-value", "2023-01-01")
+                .put(
+                    "condition-1-subcondition-2-question",
+                    testQuestionBank.numberApplicantJugglingNumber().id.toString())
+                .put("condition-1-subcondition-2-scalar", "NUMBER")
+                .put("condition-1-subcondition-2-operator", "EQUAL_TO")
+                .put("condition-1-subcondition-2-value", "1")
+                .build());
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest());
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .containsExactlyInAnyOrder(
+            testQuestionBank.numberApplicantJugglingNumber().id,
+            testQuestionBank.dateApplicantBirthdate().id);
+
+    assertThat(predicateDefinition.rootNode().getType()).isEqualTo(PredicateExpressionNodeType.AND);
+    assertThat(predicateDefinition.rootNode().getAndNode().children())
+        .containsExactly(
+            PredicateExpressionNode.create(
+                OrNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
+                                .setScalar(Scalar.DATE)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                                .build()),
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.numberApplicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(PredicateValue.of(1))
+                                .build())))));
+  }
+
+  @Test
+  public void multiCondition_OR_singleSubcondition_AND() throws Exception {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.<String, String>builder()
+                .put("predicateAction", "SHOW_BLOCK")
+                .put("root-nodeType", "OR")
+                .put("condition-1-nodeType", "AND")
+                .put(
+                    "condition-1-subcondition-1-question",
+                    testQuestionBank.dateApplicantBirthdate().id.toString())
+                .put("condition-1-subcondition-1-scalar", "DATE")
+                .put("condition-1-subcondition-1-operator", "EQUAL_TO")
+                .put("condition-1-subcondition-1-value", "2023-01-01")
+                .put("condition-2-nodeType", "AND")
+                .put(
+                    "condition-2-subcondition-1-question",
+                    testQuestionBank.numberApplicantJugglingNumber().id.toString())
+                .put("condition-2-subcondition-1-scalar", "NUMBER")
+                .put("condition-2-subcondition-1-operator", "EQUAL_TO")
+                .put("condition-2-subcondition-1-value", "1")
+                .build());
+
+    PredicateDefinition predicateDefinition =
+        predicateGenerator.generatePredicateDefinition(
+            programDefinition, form, readOnlyQuestionService, settingsManifest, fakeRequest());
+
+    assertThat(predicateDefinition.predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS);
+    assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
+    assertThat(predicateDefinition.getQuestions())
+        .containsExactlyInAnyOrder(
+            testQuestionBank.numberApplicantJugglingNumber().id,
+            testQuestionBank.dateApplicantBirthdate().id);
+
+    assertThat(predicateDefinition.rootNode().getType()).isEqualTo(PredicateExpressionNodeType.OR);
+    assertThat(predicateDefinition.rootNode().getOrNode().children())
+        .containsExactly(
+            PredicateExpressionNode.create(
+                AndNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.dateApplicantBirthdate().id)
+                                .setScalar(Scalar.DATE)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                                .build())))),
+            PredicateExpressionNode.create(
+                AndNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            LeafOperationExpressionNode.builder()
+                                .setQuestionId(testQuestionBank.numberApplicantJugglingNumber().id)
+                                .setScalar(Scalar.NUMBER)
+                                .setOperator(Operator.EQUAL_TO)
+                                .setComparedValue(PredicateValue.of(1))
+                                .build())))));
+  }
+
+  @Test
   @Parameters({"true", "false"})
   public void multiselect(boolean expandedFormLogicEnabled) throws Exception {
     DynamicForm form =
@@ -944,7 +1147,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 programDefinition, form, readOnlyQuestionService);
 
     assertThat(predicateDefinition.predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
         .isEqualTo(ImmutableList.of(testQuestionBank.checkboxApplicantKitchenTools().id));
