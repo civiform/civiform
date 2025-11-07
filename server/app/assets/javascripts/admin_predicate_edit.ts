@@ -389,7 +389,7 @@ export class AdminPredicateEdit {
    * For age-based operators, we use a number input. For all other operators, we use a date input.
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {HTMLElement} dateValueInput: The default (date-format) value input.
-   *    @param {HTMLElement} ageValueInput: The default (age-format)_value input.
+   *    @param {HTMLElement} ageValueInput: The default (age-format) value input.
    *    @param {HTMLElement} secondDateValueInput: The second (date-format) value input - only used for BETWEEN.
    *    @param {HTMLElement} secondAgeValueInput: The second (age-format) value input - only used for BETWEEN.
    *    @param {HTMLElement} csvInput: The text-format input for CSV values.
