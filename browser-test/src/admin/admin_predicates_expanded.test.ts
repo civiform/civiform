@@ -321,7 +321,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.DATE,
       QuestionType.NUMBER,
     ]) {
-      await test.step(`Select ${questionType.valueOf().toLowerCase()} question and validate single-value operator behavior`, async () => {
+      await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
@@ -359,7 +359,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.getByTestId('condition-1'),
-          `single-value-with-${questionType.valueOf().toLowerCase()}-question-selected`,
+          `single-value-with-${questionType}-question-selected`,
         )
       })
 
@@ -377,7 +377,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.DATE,
       QuestionType.NUMBER,
     ]) {
-      await test.step(`Select ${questionType.valueOf().toLowerCase()} question and validate BETWEEN operator behavior`, async () => {
+      await test.step(`Select ${questionType} question and validate BETWEEN operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
@@ -427,7 +427,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.getByTestId('condition-1'),
-          `multiple-values-with-${questionType.valueOf().toLowerCase()}-question-selected`,
+          `multiple-values-with-${questionType}-question-selected`,
         )
       })
 
@@ -478,7 +478,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         await adminPredicates.expectCondition(1)
       })
 
-      await test.step(`Select ${questionType.valueOf().toLowerCase()} question and validate CSV operator behavior`, async () => {
+      await test.step(`Select ${questionType} question and validate CSV operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
