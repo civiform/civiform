@@ -326,7 +326,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         {
           questionName: 'name-q',
           questionText: 'name question text',
-          firstValue: 'Alvin',
+          firstValue: 'Keanu',
           defaultInputType: 'text',
           defaultInputMode: 'text',
         },
