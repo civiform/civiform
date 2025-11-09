@@ -1,5 +1,5 @@
 import {addEventListenerToElements, assertNotNull, formatText} from './util'
-import * as DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify'
 
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =

@@ -4,7 +4,7 @@ import {
   YesNoOptionValue,
 } from './admin_yes_no_question_option'
 import {assertNotNull, formatText, formatTextHtml} from './util'
-import * as DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify'
 
 // This doesn't include all the possible question types, just the ones we need to
 // handle specially in the preview controller.
