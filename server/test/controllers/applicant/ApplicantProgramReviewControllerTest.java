@@ -38,7 +38,6 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantProgramSummaryView;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
@@ -72,7 +71,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantIneligibleView.class),
-            instanceOf(IneligibleBlockView.class),
             instanceOf(PreventDuplicateSubmissionView.class),
             instanceOf(ProfileUtils.class),
             settingsManifest,
