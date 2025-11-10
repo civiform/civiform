@@ -216,7 +216,7 @@ GET     /programs/:programParam                                                 
 # Display error page if the program that the user is trying to access is disabled.
 GET     /programs/:programSlug/disabled                                                                                           controllers.applicant.ApplicantProgramsController.showInfoDisabledProgram(request: Request, programSlug: String)
 
-# Program methods for TI actions on behalf of applicants.
+# Program methods for TI actions on behalf of applicants, and CiviForm Admins previewing programs.
 GET     /applicants/:applicantId/programs                                                                                         controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long, categories: java.util.List[String])
 GET     /applicants/:applicantId/programs/:programName                                                                            controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programName: String)
 GET     /applicants/:applicantId/programs/:programParam/edit                                                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programParam: String, isFromUrlCall: Boolean ?= true)
