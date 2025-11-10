@@ -22,6 +22,11 @@
           th:replace="~{::currencyValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Date'">
+        <div
+          th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Number'">
         <div
           th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
@@ -78,9 +83,9 @@
       type="currency"
       th:id="${valueInputId}"
       th:name="${valueInputId}"
-      aria-required="true"
+      required
       aria-invalid="false"
-      currency-value
+      data-currency-value
     />
   </div>
 
@@ -94,9 +99,82 @@
         type="currency"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
-        aria-required="true"
+        required
         aria-invalid="false"
-        currency-value
+        data-currency-value
+      />
+    </div>
+  </div>
+</th:block>
+
+<!-- Date question type -->
+<!-- Support both number and date inputs for age vs. date-based operators -->
+<th:block
+  th:fragment="dateValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+>
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="date"
+      inputmode="numeric"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-date-value
+    />
+  </div>
+  <div data-age-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="number"
+      inputmode="numeric"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+  <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+
+  <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+    <span class="margin-left-1" th:text="#{content.and}"></span>
+    <div data-default-input-type>
+      <input
+        class="usa-input"
+        type="date"
+        inputmode="numeric"
+        th:id="${secondValueInputId}"
+        th:name="${secondValueInputId}"
+        required
+        aria-invalid="false"
+      />
+    </div>
+    <div data-age-input-type>
+      <input
+        class="usa-input"
+        type="number"
+        inputmode="numeric"
+        th:id="${secondValueInputId}"
+        th:name="${secondValueInputId}"
+        required
+        aria-invalid="false"
       />
     </div>
   </div>
@@ -111,17 +189,30 @@
     th:id="${valueInputHintId}"
     th:text="#{content.multipleValuesInputHint}"
   ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="number"
+      inputmode="decimal"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-number-value
+    />
+  </div>
   <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
-  <input
-    class="usa-input"
-    type="number"
-    inputmode="decimal"
-    th:id="${valueInputId}"
-    th:name="${valueInputId}"
-    aria-required="true"
-    aria-invalid="false"
-    number-value
-  />
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
 
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
     <span class="margin-left-1" th:text="#{content.and}"></span>
@@ -131,9 +222,8 @@
       inputmode="decimal"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
-      aria-required="true"
+      required
       aria-invalid="false"
-      number-value
     />
   </div>
 </th:block>
@@ -146,7 +236,7 @@
     th:id="${valueInputId}"
     th:name="${valueInputId}"
     th:disabled="${!hasSelectedQuestion}"
-    unknown-value
+    data-unknown-value
   >
     <option
       th:selected="${!hasSelectedQuestion}"
