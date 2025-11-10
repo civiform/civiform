@@ -626,7 +626,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         await adminPredicates.expectCondition(1)
       })
 
-      await test.step(`Select ${questionType.valueOf().toLowerCase()} question and validate multi-select operator behavior`, async () => {
+      await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
@@ -641,10 +641,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         await waitForHtmxReady(page)
 
         const checkboxLabelLocators: Locator[] = [
-          page.locator('label[for="condition-1-subcondition-1-values1"]'),
-          page.locator('label[for="condition-1-subcondition-1-values2"]'),
-          page.locator('label[for="condition-1-subcondition-1-values3"]'),
-          page.locator('label[for="condition-1-subcondition-1-values4"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[1]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[2]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[3]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[4]"]'),
         ]
 
         for (let i = 0; i < checkboxLabelLocators.length; i++) {
@@ -659,7 +659,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
         await validateScreenshot(
           page.getByTestId('condition-1'),
-          `multiselect-with-${questionType.valueOf().toLowerCase()}-question-selected`,
+          `multiselect-with-${questionType}-question-selected`,
         )
       })
     }
