@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import controllers.WithMockedProfiles;
 import controllers.geo.AddressSuggestionJsonSerializer;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -321,8 +322,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void editWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
+
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant =
+        adminAccount.getApplicants().stream()
+            .max(Comparator.comparing(ApplicantModel::getWhenCreated))
+            .orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()

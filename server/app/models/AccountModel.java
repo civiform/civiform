@@ -91,10 +91,6 @@ public class AccountModel extends BaseModel {
     return applicants;
   }
 
-  public Optional<ApplicantModel> newestApplicant() {
-    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
-  }
-
   public AccountModel setApplicants(List<ApplicantModel> applicants) {
     this.applicants = applicants;
     return this;
@@ -191,10 +187,11 @@ public class AccountModel extends BaseModel {
   }
 
   /**
-   * Returns the name, as a string, of the most-recently created Applicant associated with this
-   * Account. Or the email if no name is associated with the applicant. There is no particular
-   * reason for an Account to have more than one Applicant - this was a capability we built but did
-   * not use - so the ordering is somewhat arbitrary / unnecessary.
+   * Returns the name, as a string, of the oldest created Applicant associated with this Account. Or
+   * the email if no name is associated with the applicant.
+   *
+   * <p>We select the oldest as the system endeavors to have 1 applicant per Account however Guests
+   * logging in currently create the situation of additional ones and they will be newer. (link)
    */
   public String getApplicantDisplayName() {
     return this.getApplicants().stream()
