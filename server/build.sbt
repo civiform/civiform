@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.9.0",
+      "com.jayway.jsonpath" % "json-path" % "2.10.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.20.1",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.20.1",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.20.1",
