@@ -1048,7 +1048,7 @@ map.homepage = homepage
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=
 # Subtitle text for adding filters
 map.addFiltersSubtitle=Select up to six filters to make available to applicants.
 # Title for filters section
