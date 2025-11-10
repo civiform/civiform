@@ -1,5 +1,5 @@
-import MarkdownIt = require('markdown-it')
-import DOMPurify = require('dompurify')
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
 
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
