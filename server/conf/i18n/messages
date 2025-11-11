@@ -1163,6 +1163,18 @@ banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
 banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=end your session
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinute=1 hour and 1 minute
+banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinute={0} hours and 1 minute
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} minutes
+banner.hours={0} hours
+banner.hour=1 hour
+banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1239,6 +1251,3 @@ session.extended.success=Session successfully extended
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
-
-# Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.

@@ -922,12 +922,6 @@
         "description": "Enables suffix dropdown field in name question.",
         "type": "bool"
       },
-      "DATE_VALIDATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables admin validation settings for date questions.",
-        "type": "bool",
-        "required": false
-      },
       "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Remove the CSV/JSON/PDF download capability for Program Admins.",

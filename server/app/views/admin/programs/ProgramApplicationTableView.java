@@ -474,7 +474,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             .with(th("Name").withScope("col"))
             .condWith(hasEligibilityEnabled, th("Eligibility").withScope("col"))
             .condWith(displayStatus, th("Status").withScope("col"))
-            .with(th("Submission date").withScope("col")));
+            .with(th("Submission date").withScope("col"))
+            .with(th("Submitted by").withScope("col")));
   }
 
   private TrTag renderApplicationRowItem(
@@ -519,7 +520,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
-        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE));
+        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE))
+        .with(td(application.getSubmitterEmail().orElse("")).withClass("cf-submitted-by"));
   }
 
   private ATag renderApplicationLink(String text, ApplicationModel application) {

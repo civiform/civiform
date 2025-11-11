@@ -1,5 +1,5 @@
 import {HtmxAfterSwapEvent} from './htmx_request'
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
@@ -7,6 +7,8 @@ export class AdminPredicateEdit {
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
   static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
   static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
+
+  static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'subcondition-container' element in this swap
@@ -134,7 +136,8 @@ export class AdminPredicateEdit {
 
   /**
    * Manage filtering of value input types, depending on the currently selected operator and question type.
-   * E.g. for CSV operators, we want to use a text input to allow comma-separated values.
+   * Some question types require different input types for certain operators.
+   * E.g. date questions use date inputs for most operators, but use number inputs for age-based operators.
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
    */
@@ -142,23 +145,58 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueBaseId: string,
   ) {
-    const valueInputId = valueBaseId + AdminPredicateEdit.VALUE_INPUT_ID_SUFFIX
-    const valueInput = document.getElementById(valueInputId) as HTMLElement
-    if (!valueInput) {
-      return
+    const secondValueGroupId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
+
+    // Find the HTML elements that are shared across question types:
+    // defaultInput is the first input of the default input type (e.g. date-type for dates)
+    // csvInput is the text field for multi-value operators (IN, NOT_IN)
+    const defaultInputContainer = assertNotNull(
+      document.querySelector('[data-default-input-type][data-first-input]'),
+    ) as HTMLElement
+    const defaultInputField = assertNotNull(
+      defaultInputContainer.querySelector('input.usa-input'),
+    ) as HTMLElement
+    const csvInputContainer = document.querySelector(
+      '[data-csv-input-type]',
+    ) as HTMLElement | undefined
+
+    // For question types that support CSV operators
+    // Depending on the current operator, hide/show the csv input
+    if (
+      defaultInputField.hasAttribute('data-email-value') ||
+      defaultInputField.hasAttribute('data-number-value')
+    ) {
+      this.filterCsvQuestionVisibleInputs(
+        selectedOperatorValue,
+        defaultInputContainer,
+        csvInputContainer!,
+      )
     }
 
-    // Update the value input types based on the selected operator and question type
-    const csvOperators = ['IN', 'NOT_IN']
-    if (csvOperators.includes(selectedOperatorValue)) {
-      valueInput.setAttribute('type', 'text')
-      valueInput.setAttribute('inputmode', 'text')
-    } else if (
-      !csvOperators.includes(selectedOperatorValue) &&
-      valueInput.hasAttribute('number-value')
-    ) {
-      valueInput.setAttribute('type', 'number')
-      valueInput.setAttribute('inputmode', 'decimal')
+    // For date values
+    // Depending on the currently selected operator, filter visible input fields
+    // Date operators vs. age operators vs. csv operators use different input fields.
+    if (defaultInputField.hasAttribute('data-date-value')) {
+      const ageInputContainer = assertNotNull(
+        document.querySelector('[data-age-input-type][data-first-input]'),
+      ) as HTMLElement
+      const secondDateInputContainer = assertNotNull(
+        document.querySelector(
+          `#${secondValueGroupId} [data-default-input-type]`,
+        ),
+      ) as HTMLElement
+      const secondAgeInputContainer = assertNotNull(
+        document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
+      ) as HTMLElement
+      this.filterDateQuestionVisibleInputs(
+        selectedOperatorValue,
+        defaultInputContainer,
+        ageInputContainer,
+        secondDateInputContainer,
+        secondAgeInputContainer,
+        csvInputContainer!,
+      )
     }
   }
 
@@ -182,22 +220,15 @@ export class AdminPredicateEdit {
       return
     }
 
-    // Get the second value input (for enabling/disabling on the form)
-    const secondValueInputId =
-      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_ID_SUFFIX
-    const secondValueInput = document.getElementById(secondValueInputId)
-    if (!secondValueInput) {
-      return
-    }
-
     // Show or hide the second value input based on the selected operator.
-    // Currently only the BETWEEN operator requires a second value.
-    if (selectedOperatorValue === 'BETWEEN') {
-      secondValueInputGroup.hidden = false
-      secondValueInput.ariaDisabled = 'false'
+    // Currently only BETWEEN operators require a second value.
+    if (
+      selectedOperatorValue === 'BETWEEN' ||
+      selectedOperatorValue === 'AGE_BETWEEN'
+    ) {
+      AdminPredicateEdit.enableAndShowAll([secondValueInputGroup])
     } else {
-      secondValueInputGroup.hidden = true
-      secondValueInput.ariaDisabled = 'true'
+      AdminPredicateEdit.disableAndHideAll([secondValueInputGroup])
     }
   }
 
@@ -219,7 +250,7 @@ export class AdminPredicateEdit {
     }
 
     // Show or hide the value input hint based on the selected operator.
-    if (selectedOperatorValue === 'IN' || selectedOperatorValue === 'NOT_IN') {
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInputHint.hidden = false
     } else {
       valueInputHint.hidden = true
@@ -317,6 +348,120 @@ export class AdminPredicateEdit {
         (operatorOption.value === 'EQUAL_TO' ||
           operatorOption.value === 'NOT_EQUAL_TO'))
     )
+  }
+
+  /**
+   * Set the input type for question value inputs based on the selected operator, between default and CSV.
+   * For CSV operators (IN, NOT_IN), we use a text input to allow comma-separated values.
+   * For all other operators, we use a number input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} defaultInput: The value input element to set the type for.
+   *    @param {HTMLElement} csvInputContainer: The text-format input for CSV values.
+   */
+  private static filterCsvQuestionVisibleInputs(
+    selectedOperatorValue: string,
+    defaultInput: HTMLElement,
+    csvInputContainer: HTMLElement,
+  ) {
+    let hiddenElements = []
+    let shownElements = []
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
+      hiddenElements = [defaultInput]
+      shownElements = [csvInputContainer]
+    } else {
+      hiddenElements = [csvInputContainer]
+      shownElements = [defaultInput]
+    }
+
+    this.disableAndHideAll(hiddenElements)
+    this.enableAndShowAll(shownElements)
+  }
+
+  /**
+   * Set the visible input field for date questions, depending on the selected operator.
+   * For age-based operators, we use a number input. For all other operators, we use a date input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} dateInputContainer: The default (date-format) value input.
+   *    @param {HTMLElement} ageInputContainer: The default (age-format) value input.
+   *    @param {HTMLElement} secondDateInputContainer: The second (date-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} secondAgeInputContainer: The second (age-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} csvInputContainer: The text-format input for CSV values.
+   */
+  private static filterDateQuestionVisibleInputs(
+    selectedOperatorValue: string,
+    dateInputContainer: HTMLElement,
+    ageInputContainer: HTMLElement,
+    secondDateInputContainer: HTMLElement,
+    secondAgeInputContainer: HTMLElement,
+    csvInputContainer: HTMLElement,
+  ) {
+    const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
+
+    let hiddenElements: HTMLElement[] = []
+    let shownElements: HTMLElement[] = []
+    if (ageOperators.includes(selectedOperatorValue)) {
+      hiddenElements = [
+        dateInputContainer,
+        secondDateInputContainer,
+        csvInputContainer,
+      ]
+      shownElements =
+        selectedOperatorValue === 'AGE_BETWEEN'
+          ? [ageInputContainer, secondAgeInputContainer]
+          : [ageInputContainer]
+    } else if (
+      AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)
+    ) {
+      hiddenElements = [dateInputContainer, ageInputContainer]
+      shownElements = [csvInputContainer]
+    } else {
+      hiddenElements = [
+        ageInputContainer,
+        secondAgeInputContainer,
+        csvInputContainer,
+      ]
+      shownElements =
+        selectedOperatorValue === 'BETWEEN'
+          ? [dateInputContainer, secondDateInputContainer]
+          : [dateInputContainer]
+    }
+
+    this.disableAndHideAll(hiddenElements)
+    this.enableAndShowAll(shownElements)
+  }
+
+  /**
+   * Hide the given HTMLElements from display and set disabled to true.
+   * Also hides and all child elements, if present.
+   */
+  private static disableAndHideAll(elements: HTMLElement[]) {
+    for (const element of elements) {
+      element.setAttribute('disabled', 'disabled')
+      element.hidden = true
+
+      const children: HTMLElement[] = Array.from(element.querySelectorAll('*'))
+      for (const child of children) {
+        child.setAttribute('disabled', 'disabled')
+        child.hidden = true
+      }
+    }
+  }
+
+  /**
+   * Show and enable the given HTMLElements for display
+   * Also shows and enables all child elements, if present.
+   */
+  private static enableAndShowAll(elements: HTMLElement[]) {
+    for (const element of elements) {
+      element.removeAttribute('disabled')
+      element.hidden = false
+
+      const children: HTMLElement[] = Array.from(element.querySelectorAll('*'))
+      for (const child of children) {
+        child.removeAttribute('disabled')
+        child.hidden = false
+      }
+    }
   }
 }
 

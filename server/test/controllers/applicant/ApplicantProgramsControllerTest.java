@@ -674,4 +674,196 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
   }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 1 hour and 30 minutes");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 2 hours and 10 minutes");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(1));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 1 minute");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(5));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 5 minutes");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(121));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 2 hours and 1 minute");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(60));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 1 hour");
+  }
+
+  @Test
+  public void
+      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(120));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 2 hours");
+  }
 }

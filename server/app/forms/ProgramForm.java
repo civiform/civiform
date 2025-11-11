@@ -22,6 +22,7 @@ public final class ProgramForm {
   // marked as the common intake form.
   private Boolean confirmedChangeCommonIntakeForm;
   private Boolean eligibilityIsGating;
+  private Boolean loginOnly;
   private List<Long> tiGroups;
   private List<Long> categories;
   private List<Map<String, String>> applicationSteps;
@@ -39,6 +40,7 @@ public final class ProgramForm {
     programTypeValue = "default";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
+    loginOnly = false;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
     applicationSteps = new ArrayList<>();
@@ -142,6 +144,14 @@ public final class ProgramForm {
 
   public void setEligibilityIsGating(boolean eligibilityIsGating) {
     this.eligibilityIsGating = eligibilityIsGating;
+  }
+
+  public boolean getLoginOnly() {
+    return loginOnly;
+  }
+
+  public void setLoginOnly(boolean loginOnly) {
+    this.loginOnly = loginOnly;
   }
 
   public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {

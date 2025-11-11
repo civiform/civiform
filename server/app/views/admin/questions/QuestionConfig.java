@@ -114,12 +114,8 @@ public final class QuestionConfig {
                 .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
                 .getContainer());
       case DATE:
-        return settingsManifest.getDateValidationEnabled()
-            ? Optional.of(
-                config
-                    .addDateQuestionConfig((DateQuestionForm) questionForm, messages)
-                    .getContainer())
-            : Optional.empty();
+        return Optional.of(
+            config.addDateQuestionConfig((DateQuestionForm) questionForm, messages).getContainer());
       case MAP: // fallthrough intended - MAP question configuration is handled in
         // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options

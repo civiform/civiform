@@ -52,7 +52,6 @@ public class QuestionConfigTest extends ResetPostgres {
     settingsManifest = mock(SettingsManifest.class);
     request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
     playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
-    when(settingsManifest.getDateValidationEnabled()).thenReturn(true);
     when(playThymeleafContextFactory.create(request))
         .thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
@@ -192,16 +191,6 @@ public class QuestionConfigTest extends ResetPostgres {
     assertThat(result).contains("\"optionIds[]\" value=\"0\"");
     assertThat(result).contains("\"optionIds[]\" value=\"2\"");
     assertThat(result).contains("\"optionIds[]\" value=\"3\"");
-  }
-
-  @Test
-  public void buildDateConfig_dateValidationDisabled_isEmpty() throws Exception {
-    when(settingsManifest.getDateValidationEnabled()).thenReturn(false);
-    QuestionForm questionForm = QuestionFormBuilder.create(QuestionType.DATE);
-
-    Optional<DivTag> maybeConfig =
-        QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
-    assertThat(maybeConfig).isEmpty();
   }
 
   @Test

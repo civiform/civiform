@@ -1164,6 +1164,3 @@ session.extended.success=세션이 연장되었습니다
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=세션을 연장할 수 없습니다
-
-# Untranslated string for translation infrastructure testing.
-translation.untranslated=이 문자열은 번역 인프라 실험을 위해 번역되지 않은 상태로 유지됩니다.
