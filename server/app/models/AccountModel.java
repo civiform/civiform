@@ -91,8 +91,17 @@ public class AccountModel extends BaseModel {
     return applicants;
   }
 
+  /**
+   * Returns the representative applicant for the Account.
+   *
+   * <p>Accounts ideally have 1 Applicant but Guests are merged into an Account when they log in;
+   * through at least Nov 2025. The Oldest Applicant is used as it contains the more longevity.
+   *
+   * <p>More info:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
+   */
   public Optional<ApplicantModel> newestApplicant() {
-    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
+    return applicants.stream().min(Comparator.comparing(ApplicantModel::getWhenCreated));
   }
 
   public AccountModel setApplicants(List<ApplicantModel> applicants) {
