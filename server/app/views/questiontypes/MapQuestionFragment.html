@@ -350,6 +350,12 @@
       >
         <!-- Selected locations will be dynamically populated here -->
       </div>
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        class="sr-only cf-max-location-status"
+        th:data-map-id="${mapId}"
+      ></div>
     </div>
     <!-- Template for when there are no selections -->
     <template
@@ -428,6 +434,8 @@
           /*[[#{map.switchToMapViewSr}]]*/ 'Switched to map view.',
         switchToListViewSr:
           /*[[#{map.switchToListViewSr}]]*/ 'Switched to list view.',
+        maxLocationsSelectedSr:
+          /*[[#{map.maxLocationsSelectedSr}]]*/ ' Maximum of {0} locations selected. Deselect a location to choose a different one.',
       }
       window.app.data.iconUrls = {
         locationIcon: /*[[${locationIcon}]]*/ '',

@@ -18,6 +18,7 @@ import {
   mapQuerySelector,
   queryLocationCheckboxes,
   selectionCounts,
+  CF_MAX_LOCATION_STATUS,
 } from './map_util'
 
 export const initLocationSelection = (mapId: string): void => {
@@ -125,6 +126,23 @@ export const updateSelectedLocations = (mapId: string): void => {
       }
     }
   })
+
+  if (atMaxSelections) {
+    const mapData = window.app?.data?.maps?.[mapId] as MapData
+    const maxLocationSelections = mapData.settings.maxLocationSelections
+    const maxLocationStatus = mapQuerySelector(mapId, CF_MAX_LOCATION_STATUS)
+
+    if (maxLocationStatus && maxLocationSelections) {
+      maxLocationStatus.textContent = localizeString(
+        getMessages().maxLocationsSelectedSr,
+        [maxLocationSelections],
+      )
+      // Clear the text after announcement to prevent navigation to it
+      setTimeout(() => {
+        maxLocationStatus.textContent = ''
+      }, 5000)
+    }
+  }
 }
 
 const updateSelectionCountForMap = (mapId: string): void => {
