@@ -126,7 +126,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
-    await test.step('Edit eligibility predicate', async () => {
+    await test.step('Validate eligibility null state', async () => {
       // Edit eligibility predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
@@ -134,6 +134,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toBeVisible()
+      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toContainText('Applicant is always eligible')
+      await validateScreenshot(
+        page.locator('#edit-predicate'),
+        'eligibility-predicate-null-state',
+      )
+    })
+
+    await test.step('Add condition', async () => {
       await adminPredicates.clickAddConditionButton()
 
       await adminPredicates.expectCondition(1)
@@ -190,6 +204,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toBeVisible()
+      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toContainText('This screen is always shown')
+      await validateScreenshot(
+        page.locator('#edit-predicate'),
+        'visibility-predicate-null-state',
+      )
+    })
+
+    await test.step('Add condition', async () => {
       await adminPredicates.clickAddConditionButton()
 
       await adminPredicates.expectCondition(1)

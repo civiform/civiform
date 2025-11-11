@@ -1,7 +1,11 @@
 import {HtmxAfterSwapEvent} from './htmx_request'
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
+  // Set in server/app/views/admin/programs/EditPredicatePageView.html
+  static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
+  static NODE_OPERATOR_SELECT_NULL_STATE_ID =
+    'predicate-operator-node-select-null-state'
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
   static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
@@ -43,6 +47,7 @@ export class AdminPredicateEdit {
         el.dispatchEvent(event)
       })
     }
+    AdminPredicateEdit.showNodeOperatorSelectOrNullState()
   }
 
   onPageLoad(): void {
@@ -105,6 +110,31 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  /**
+   * Depending on whether the user has added conditions in the predicate screen:
+   *    * If yes, then show the normal "Applicant is eligible / Screen is visible if any/all conditions are true" text
+   *    * If no, show the null state text.
+   */
+  private static showNodeOperatorSelectOrNullState(): void {
+    const nodeOperatorSelect = document.getElementById(
+      AdminPredicateEdit.NODE_OPERATOR_SELECT_ID,
+    )
+    if (nodeOperatorSelect) {
+      const nodeOperatorSelectNullState = assertNotNull(
+        document.getElementById(
+          AdminPredicateEdit.NODE_OPERATOR_SELECT_NULL_STATE_ID,
+        ),
+      )
+      if (document.querySelector('[data-testid="condition-1"]')) {
+        nodeOperatorSelect.hidden = false
+        nodeOperatorSelectNullState.hidden = true
+      } else {
+        nodeOperatorSelect.hidden = true
+        nodeOperatorSelectNullState.hidden = false
+      }
+    }
   }
 
   /**
