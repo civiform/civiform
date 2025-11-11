@@ -91,6 +91,10 @@ public class AccountModel extends BaseModel {
     return applicants;
   }
 
+  public Optional<ApplicantModel> newestApplicant() {
+    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
+  }
+
   public AccountModel setApplicants(List<ApplicantModel> applicants) {
     this.applicants = applicants;
     return this;

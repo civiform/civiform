@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.oidc.IdTokens;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Duration;
@@ -200,5 +201,41 @@ public class AccountModelTest extends ResetPostgres {
     TimeUnit.MILLISECONDS.sleep(5);
     userAccount.save();
     assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+  }
+
+  @Test
+  public void getApplicantDisplayName_getsOldest() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
+    account.save();
+
+    // Display name order is reversed.
+    assertThat(account.getApplicantDisplayName()).isEqualTo("Applicant, Older");
+  }
+
+  @Test
+  public void newestApplicant() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    account.setApplicants(ImmutableList.of(applicantOlder, applicantNewer));
+    account.save();
+
+    Optional<ApplicantModel> newestOptTest = account.newestApplicant();
+    assertThat(newestOptTest).isPresent();
+    assertThat(newestOptTest.get().id).isEqualTo(applicantNewer.id);
   }
 }
