@@ -215,7 +215,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void reviewWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -268,7 +268,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")
         .withBlock()

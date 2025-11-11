@@ -100,7 +100,7 @@ public class AccountModel extends BaseModel {
    * <p>More info:
    * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
-  public Optional<ApplicantModel> newestApplicant() {
+  public Optional<ApplicantModel> representativeApplicant() {
     return applicants.stream().min(Comparator.comparing(ApplicantModel::getWhenCreated));
   }
 

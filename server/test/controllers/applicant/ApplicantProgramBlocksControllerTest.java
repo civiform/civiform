@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import controllers.WithMockedProfiles;
 import controllers.geo.AddressSuggestionJsonSerializer;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -324,10 +323,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void editWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
 
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant =
-        adminAccount.getApplicants().stream()
-            .max(Comparator.comparing(ApplicantModel::getWhenCreated))
-            .orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -803,7 +799,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void previousWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -883,7 +879,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -2014,7 +2010,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void updateFileWithApplicantId_civiformAdminAccessToDraftProgram_works() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -2549,7 +2545,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void addFileWithApplicantId_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -3063,7 +3059,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void removeFileWithApplicantId_civiformAdminAccessToDraftProgram_redirects() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
@@ -3513,7 +3509,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void confirmAddress_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()

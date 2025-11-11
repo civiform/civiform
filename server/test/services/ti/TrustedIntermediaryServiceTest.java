@@ -292,7 +292,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .get();
     assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
         .isEqualTo("2011-11-11");
-    assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
+    assertThat(account.representativeApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2011-11-11");
     assertThat(account.getEmailAddress()).isNull();
@@ -329,7 +329,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
     assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
-    assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
+    assertThat(account.representativeApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
   }

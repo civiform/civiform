@@ -222,7 +222,7 @@ public class AccountModelTest extends ResetPostgres {
   }
 
   @Test
-  public void newestApplicant() {
+  public void representativeApplicant() {
     ApplicantModel applicantOlder = new ApplicantModel();
     applicantOlder.setUserName("Older Applicant");
     applicantOlder.save();
@@ -231,11 +231,12 @@ public class AccountModelTest extends ResetPostgres {
     applicantNewer.save();
 
     AccountModel account = new AccountModel();
-    account.setApplicants(ImmutableList.of(applicantOlder, applicantNewer));
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
     account.save();
 
-    Optional<ApplicantModel> newestOptTest = account.newestApplicant();
+    Optional<ApplicantModel> newestOptTest = account.representativeApplicant();
     assertThat(newestOptTest).isPresent();
-    assertThat(newestOptTest.get().id).isEqualTo(applicantNewer.id);
+    assertThat(newestOptTest.get().id).isEqualTo(applicantOlder.id);
   }
 }

@@ -532,7 +532,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void editWithApplicantId_whenCiviformAdminAccessToDraftProgram_success() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
+    long adminApplicantId = adminAccount.representativeApplicant().orElseThrow().id;
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Result result =
         controller
