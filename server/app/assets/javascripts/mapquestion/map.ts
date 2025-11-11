@@ -46,6 +46,7 @@ import {
   CF_SWITCH_TO_LIST_VIEW_BUTTON,
   CF_SWITCH_TO_MAP_VIEW_BUTTON,
   hasReachedMaxSelections,
+  calculateMapCenter,
   POPUP_LAYER,
 } from './map_util'
 
@@ -65,12 +66,14 @@ export const init = (): void => {
   })
 }
 
-const createMap = (mapId: string) => {
+const createMap = (mapId: string, geoJson: FeatureCollection) => {
+  const calculatedCenter = calculateMapCenter(geoJson)
+  const center = calculatedCenter || DEFAULT_MAP_CENTER_POINT
+
   return new MapLibreMap({
     container: mapId,
     style: DEFAULT_MAP_STYLE,
-    // TODO(#11095): Allow configurable center point
-    center: DEFAULT_MAP_CENTER_POINT,
+    center: center,
     zoom: DEFAULT_MAP_ZOOM,
   })
 }
@@ -270,7 +273,7 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
 
   const settings: MapSettings = mapData.settings
   const geoJson: FeatureCollection = mapData.geoJson
-  const map = createMap(mapId)
+  const map = createMap(mapId, geoJson)
 
   const canvas: HTMLCanvasElement = map.getCanvas()
   canvas.setAttribute('aria-label', getMessages().mapRegionAltText)
@@ -447,6 +450,7 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
+      locationCount.classList.add(CF_TOGGLE_HIDDEN)
       updateViewStatus(mapId, true)
     })
   }

@@ -34,7 +34,7 @@
     </div>
     <!-- Filters -->
     <div
-      th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+      th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
       th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
     >
       <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
@@ -44,7 +44,8 @@
         ></legend>
         <div
           th:each="filter, i : ${mapQuestion.getFilters()}"
-          class="grid-col flex-align-self-end cf-map-question-filter"
+          class="mobile:width-full flex-align-self-end cf-map-question-filter"
+          th:classappend="${mapQuestion.getFilters().size() > 3} ? 'tablet:grid-col-4' : 'tablet:grid-col'"
         >
           <label
             class="usa-label margin-top-1"
@@ -125,6 +126,7 @@
           th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
           class="text-ink margin-bottom-1 margin-top-1 tablet:margin-top-3 desktop:margin-top-0 cf-location-count"
           th:data-map-id="${mapId}"
+          tabindex="-1"
           th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
         ></div>
         <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
@@ -158,7 +160,7 @@
                       featureId=${feature.id}"
             th:data-feature-id="${featureId}"
             th:data-testid="location-checkbox"
-            class="usa-checkbox cf-location-checkbox"
+            class="usa-checkbox cf-location-checkbox position-relative"
           >
             <input
               class="usa-checkbox__input usa-checkbox__input--tile cf-location-checkbox-input"
