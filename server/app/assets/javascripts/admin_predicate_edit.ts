@@ -161,10 +161,13 @@ export class AdminPredicateEdit {
       '[data-csv-input-type]',
     ) as HTMLElement | undefined
 
-    // For number question types
+    // For question types that support CSV operators
     // Depending on the current operator, hide/show the csv input
-    if (defaultInputField.hasAttribute('data-number-value')) {
-      this.filterNumberQuestionVisibleInputs(
+    if (
+      defaultInputField.hasAttribute('data-email-value') ||
+      defaultInputField.hasAttribute('data-number-value')
+    ) {
+      this.filterCsvQuestionVisibleInputs(
         selectedOperatorValue,
         defaultInputContainer,
         csvInputContainer!,
@@ -247,7 +250,7 @@ export class AdminPredicateEdit {
     }
 
     // Show or hide the value input hint based on the selected operator.
-    if (selectedOperatorValue === 'IN' || selectedOperatorValue === 'NOT_IN') {
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       valueInputHint.hidden = false
     } else {
       valueInputHint.hidden = true
@@ -348,14 +351,14 @@ export class AdminPredicateEdit {
   }
 
   /**
-   * Set the input type for number question value inputs based on the selected operator.
+   * Set the input type for question value inputs based on the selected operator, between default and CSV.
    * For CSV operators (IN, NOT_IN), we use a text input to allow comma-separated values.
    * For all other operators, we use a number input.
    *    @param {string} selectedOperatorValue: The currently selected operator.
    *    @param {HTMLElement} defaultInput: The value input element to set the type for.
    *    @param {HTMLElement} csvInputContainer: The text-format input for CSV values.
    */
-  private static filterNumberQuestionVisibleInputs(
+  private static filterCsvQuestionVisibleInputs(
     selectedOperatorValue: string,
     defaultInput: HTMLElement,
     csvInputContainer: HTMLElement,
