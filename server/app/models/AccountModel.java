@@ -191,7 +191,9 @@ public class AccountModel extends BaseModel {
    * the email if no name is associated with the applicant.
    *
    * <p>We select the oldest as the system endeavors to have 1 applicant per Account however Guests
-   * logging in currently create the situation of additional ones and they will be newer. (link)
+   * logging in currently create the situation of additional ones that will be newer. As of Nov 2025
+   * work is being done to make the oldest Applicant the source of truth. See:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
   public String getApplicantDisplayName() {
     return this.getApplicants().stream()
