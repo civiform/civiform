@@ -312,6 +312,26 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         },
       ],
       [
+        QuestionType.ID,
+        {
+          questionName: 'id-q',
+          questionText: 'id question text',
+          firstValue: 'A123456-ID',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
+        },
+      ],
+      [
+        QuestionType.NAME,
+        {
+          questionName: 'name-q',
+          questionText: 'name question text',
+          firstValue: 'Keanu',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
+        },
+      ],
+      [
         QuestionType.NUMBER,
         {
           questionName: 'number-q',
@@ -334,6 +354,16 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
             {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
             {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
           ],
+        },
+      ],
+      [
+        QuestionType.TEXT,
+        {
+          questionName: 'text-q',
+          questionText: 'text question text',
+          firstValue: 'apple',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
         },
       ],
     ])
@@ -375,7 +405,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.CURRENCY,
       QuestionType.DATE,
       QuestionType.EMAIL,
+      QuestionType.ID,
+      QuestionType.NAME,
       QuestionType.NUMBER,
+      QuestionType.TEXT,
     ]) {
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
@@ -397,9 +430,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         const secondInputElementLocator = page.locator(
           `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
         )
+        const valueHintTextLocator = page.locator(
+          '#condition-1-subcondition-1-valueHintText',
+        )
 
         await expect(inputElementLocator).toBeVisible()
         await expect(secondInputElementLocator).toBeHidden()
+        await expect(valueHintTextLocator).toBeHidden()
 
         await expect(inputElementLocator).toHaveAttribute(
           'type',
@@ -453,9 +490,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         const secondInputElementLocator = page.locator(
           `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
         )
+        const valueHintTextLocator = page.locator(
+          '#condition-1-subcondition-1-valueHintText',
+        )
 
         await expect(inputElementLocator).toBeVisible()
         await expect(secondInputElementLocator).toBeVisible()
+        await expect(valueHintTextLocator).toBeHidden()
 
         await expect(inputElementLocator).toHaveAttribute(
           'type',
@@ -530,7 +571,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     for (const questionType of [
       QuestionType.DATE,
       QuestionType.EMAIL,
+      QuestionType.ID,
+      QuestionType.NAME,
       QuestionType.NUMBER,
+      QuestionType.TEXT,
     ]) {
       await test.step('refresh page and re-add condition', async () => {
         await page.reload()
