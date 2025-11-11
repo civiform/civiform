@@ -28,30 +28,30 @@ lazy val root = (project in file("."))
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.20.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.20.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.20.0",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.20.0",
+      "com.jayway.jsonpath" % "json-path" % "2.10.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.20.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.20.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.20.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.20.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.26.0",
+      "org.commonmark" % "commonmark" % "0.27.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.27.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.37.4",
-      "software.amazon.awssdk" % "ses" % "2.37.4",
+      "software.amazon.awssdk" % "s3" % "2.38.2",
+      "software.amazon.awssdk" % "ses" % "2.38.2",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.55.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.56.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.2.2",
+      "org.pac4j" % "pac4j-core" % "6.3.0",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.2.2",
+      "org.pac4j" % "pac4j-http" % "6.3.0",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.2.2",
+      "org.pac4j" % "pac4j-oidc" % "6.3.0",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.2.2",
+      "org.pac4j" % "pac4j-saml" % "6.3.0",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.17",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.18",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -129,7 +129,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.39",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.40",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.35",
 
       // JSON Schema validation
@@ -305,8 +305,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.20.0",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.20.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.20"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
