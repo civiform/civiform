@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -59,6 +60,7 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -230,9 +232,9 @@ public class ProgramServiceTest extends ResetPostgres {
         .buildDefinition();
 
     ImmutableList<ProgramDefinition> draftPrograms =
-        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+        ps.getInUseActiveAndDraftPrograms().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
-        ps.getInUseActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+        ps.getInUseActiveAndDraftPrograms().getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
@@ -286,6 +288,63 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_questionTranslation_incomplete_returnsFalse() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    services.question.QuestionService questionService =
+        mock(services.question.QuestionService.class);
+    ReadOnlyQuestionService readOnlyQuestionService = mock(ReadOnlyQuestionService.class);
+    when(questionService.getReadOnlyQuestionService())
+        .thenReturn(CompletableFuture.completedFuture(readOnlyQuestionService));
+
+    ProgramService psWithMock =
+        new ProgramService(
+            instanceOf(repository.ProgramRepository.class),
+            questionService,
+            instanceOf(repository.AccountRepository.class),
+            instanceOf(repository.VersionRepository.class),
+            instanceOf(repository.CategoryRepository.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ProgramBlockValidationFactory.class),
+            instanceOf(repository.ApplicationStatusesRepository.class),
+            translationLocales);
+
+    QuestionDefinition question =
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+    when(readOnlyQuestionService.getQuestionDefinition(question.getId())).thenReturn(question);
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .withQuestionDefinition(question, true)
+            .build();
+
+    ProgramDefinition programDefinition =
+        psWithMock.getFullProgramDefinition(program).toCompletableFuture().join();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+
+    when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);
+
+    assertThat(psWithMock.isTranslationComplete(programDefinition)).isFalse();
+
+    when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(true);
+
+    assertThat(psWithMock.isTranslationComplete(programDefinition)).isTrue();
   }
 
   @Test

@@ -178,10 +178,11 @@ public final class ProgramService {
 
   /**
    * Get the data object about the non-disabled programs that are in the active or draft version
-   * without the full question definitions attached to the programs.
+   * with the full question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getInUseActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsUnsynced(versionRepository);
+  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
+    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
+        this, versionRepository);
   }
 
   /** Checks if there is any disabled program in active or draft version. */
@@ -690,8 +691,9 @@ public final class ProgramService {
           }
         }
         for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-          if (!questionService.isTranslationComplete(
-              translationLocales, question.getQuestionDefinition())) {
+          if (!question.hasQuestionDefinition()
+              || !questionService.isTranslationComplete(
+                  translationLocales, question.getQuestionDefinition())) {
             return false;
           }
         }
