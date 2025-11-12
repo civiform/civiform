@@ -716,9 +716,9 @@ content.predicateApplicantIsEligible=Applicant is eligible if
 content.predicateConditionsAreTrue=conditions are true:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=Totoo ang kondisyon kung
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=totoo ang mga sub-kondisyon:
 
 # Label for select option dropdown to choose a question
 label.predicateQuestion=Question
