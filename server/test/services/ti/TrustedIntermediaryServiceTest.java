@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.TiClientInfoForm;
 import io.ebean.Model;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -105,7 +104,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     "1850-07-07, Date of Birth should be less than 150 years ago",
     "20-20-20, Please enter a date in the correct format"
   })
-  public void addClient_withMissingDob(String dob, String wantError) {
+  public void addClient_withDobError(String dob, String wantError) {
     var clientData = new HashMap<>(CLIENT_DATA);
     clientData.put("dob", dob);
     Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(clientData);
@@ -186,8 +185,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .filter(acct -> acct.getApplicantDisplayName().equals(wantName))
             .findFirst()
             .orElseThrow();
-    assertThat(account.getApplicants().get(0).getDateOfBirth().map(LocalDate::toString))
-        .hasValue("2022-07-07");
+    assertThat(account.getApplicants().get(0).getDateOfBirth().orElseThrow().toString())
+        .isEqualTo("2022-07-07");
     assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().orElseThrow().toString()).isEqualTo("2022-07-07");
@@ -206,11 +205,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(returnedForm).isEqualTo(form);
     AccountModel account = repo.lookupAccountByEmail(CLIENT_DATA.get("emailAddress")).orElseThrow();
 
-    assertThat(account.getApplicants().get(0).getDateOfBirth().orElseThrow().toString())
-        .isEqualTo("2022-07-07");
-    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
-    assertThat(applicant.getDateOfBirth().map(LocalDate::toString)).hasValue("2022-07-07");
+    assertThat(applicant.getDateOfBirth().orElseThrow().toString()).isEqualTo("2022-07-07");
+    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
   }
 
   @Test
