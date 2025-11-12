@@ -91,7 +91,7 @@ content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod n
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Gumawa ng account
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=Log in ng aplikante
 # The text on the button in the login drop down an admin clicks to log in to their session.
 button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
@@ -711,9 +711,9 @@ link.programSettings=program settings
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateScreenIs=Screen is
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=Karapat-dapat ang aplikante kung
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=totoo ang mga kondisyon:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Totoo ang kondisyon kung
@@ -721,35 +721,35 @@ content.predicateConditionIsTrueIf=Totoo ang kondisyon kung
 content.predicateSubconditionsAreTrue=totoo ang mga sub-kondisyon:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=Tanong
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Field
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=Katayuan
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=(Mga) value
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=- Pumili -
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
 content.and=and
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=Magdagdag ng kondisyon
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=I-delete ang kondisyon
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=Magdagdag ng sub-kondisyon
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Delete sub-condition
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=Bumalik sa itaas
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Save and exit
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa mga naunang screen kung saan magtatakda ng kondisyon sa visibility para sa screen na ito.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
 
@@ -908,7 +908,7 @@ validation.idTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga characte
 validation.idTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Dapat maglaman lamang ng mga numerong 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -987,21 +987,21 @@ option.maybe=Siguro
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Mag-apply ng mga filter
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=Pumunta sa susunod na page ng mga lokasyon sa mapa
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=Pahinasyon para sa mga lokasyon sa mapa
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=Pumunta sa nakaraang page ng mga lokasyon sa mapa
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=Mga available na lokasyon
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=Mga filter
 # Aria label for pagination buttons
 map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Tingnan ang higit pang detalye
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
@@ -1011,15 +1011,15 @@ map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Alt text for map region
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=Napili
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=Walang nakitang mga resulta. Pakisubukang ayusin ang mga filter mo.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Walang piniling lokasyon.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Ipinapakita ngayon ang page {0} ng {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=I-clear ang mga filter
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Mga piniling lokasyon
 # Placeholder text for map question select button in popups
@@ -1027,17 +1027,17 @@ map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Pumili -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=Lumipat sa view ng listahan
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Mangyaring pumili ng hindi hihigit sa {0} na lokasyon.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
@@ -1048,11 +1048,11 @@ map.homepage = homepage
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=Magdagdag ng filter
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Pumili ng hanggang anim na filter para gawing available sa mga aplikante.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=Mga filter
 # Button for adding a tag
 map.addTagButton=Add tag
 # Subtitle text for adding a tag
@@ -1060,7 +1060,7 @@ map.addTagSubtitle=Add a tag to be displayed on certain locations where a select
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=Pangalan na ipapakita
 # Label for key field
 map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
@@ -1068,15 +1068,15 @@ map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Key ng address
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=URL key para sa tingnan ang higit pang detalye 
 # Help text for location name field
 map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Key ng pangalan
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
@@ -1164,17 +1164,17 @@ banner.guestBannerText=Pagkatapos mong mag-apply, {0} para protektahan ang iyong
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=Awtomatikong mag-e-expire ang session mo pagkatapos ng {0} mula sa simula ng session mo, kaya paki-log in o isumite ang aplikasyon mo bago ang oras na iyon para maiwasang mawala ang iyong progreso.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hour and {0} minutes
-banner.hourAndMinute=1 hour and 1 minute
+banner.hourAndMinute=1 na oras at 1 na minuto
 banner.hoursAndMinutes={0} hours and {1} minutes
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hoursAndMinute={0} na oras at 1 na minuto
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
 banner.hours={0} hours
 banner.hour=1 hour
-banner.minute=1 minute
+banner.minute=1 na minuto
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
