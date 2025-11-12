@@ -1,0 +1,35 @@
+/*
+----------------------------------------
+USWDS styles to maintain tailwind parity
+----------------------------------------
+Customize styles here to replace the styling previously added by tailwind.
+*/
+
+@use 'uswds-core' as *;
+
+/*
+Removes the default spacing and border for appropriate elements.
+*/
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+}
+
+/*
+Reset links to optimize for opt-in styling instead of opt-out.
+*/
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
