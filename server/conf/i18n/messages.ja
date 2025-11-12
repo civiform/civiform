@@ -987,7 +987,7 @@ option.maybe=おそらく
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=フィルターを適用
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
@@ -997,17 +997,17 @@ map.ariaLabelPreviousPage=Go to previous page of map locations
 # Header for the section showing available locations
 map.availableLocations=Available locations
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=フィルター
 # Aria label for pagination buttons
 map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=さらに詳細を表示
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount={0}/{1} の場所を表示
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=最大{1}カ所のうち、{0}カ所を選択しています。
 # Alt text for map region
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
@@ -1019,15 +1019,15 @@ map.noSelectionsMessage=場所が選択されていません。
 # Sr only message displayed when page has changed
 map.paginationStatus=Now displaying page {0} of {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=フィルターをクリア
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=選択された場所
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=場所を選択
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- 選択 -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
@@ -1037,7 +1037,7 @@ map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=最大で{0}カ所を選択してください。
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
@@ -1048,11 +1048,11 @@ map.homepage = homepage
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=フィルターを追加
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=応募者が利用できるように、最大6個のフィルターを選択してください。
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=フィルター
 # Button for adding a tag
 map.addTagButton=Add tag
 # Subtitle text for adding a tag
@@ -1060,9 +1060,9 @@ map.addTagSubtitle=Add a tag to be displayed on certain locations where a select
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=表示名
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=キー
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
@@ -1072,7 +1072,7 @@ map.locationAddressLabel=Address key
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=さらに詳細を表示 URLキー
 # Help text for location name field
 map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
