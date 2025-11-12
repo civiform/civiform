@@ -669,9 +669,9 @@ alert.noProgramsAvailable=Вы создали или подали заявки �
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Войти с существующим аккаунтом
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=Чтобы подать заявку на участие в этой программе, необходимо войти в систему
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=Войдите в систему или создайте учетную запись, чтобы продолжить работу с этим приложением.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -713,45 +713,45 @@ content.predicateScreenIs=Экран
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=Заявитель соответствует требованиям, если
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=выполняются следующие условия:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=Условие выполняется, если
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=выполняются подусловия:
 
 # Label for select option dropdown to choose a question
 label.predicateQuestion=Вопрос
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=Поле
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=Состояние
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=Значение(я)
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=- Выберите -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=Введите список значений, разделённых запятыми. Например, "item1,item2,item3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
-content.and=and
+content.and=и
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=Добавить условие
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=Удалить условие
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=Добавить подусловие
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=Удалить подусловие
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=В начало страницы
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Save and exit
+button.saveAndExit=Сохранить и выйти
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=На предыдущих экранах нет доступных вопросов, с помощью которых можно задать условие видимости для этого экрана.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=На этом экране нет доступных вопросов, с помощью которых можно задать условие соответствия требованиям.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -987,7 +987,7 @@ option.maybe=Возможно
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Применить фильтры
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
@@ -999,11 +999,11 @@ map.availableLocations=Available locations
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=Перейти на страницу {0} с метоположениями на карте
 # Link text for location details URLs
 map.locationLinkText=View more details
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Показано мест: {0} из {1}.
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
@@ -1011,9 +1011,9 @@ map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Alt text for map region
 map.mapRegionAltText=Интерактивная карта с отображением местоположений
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=Выбрано
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=Результаты не найдены. Попробуйте настроить фильтры.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Места не выбраны.
 # Sr only message displayed when page has changed
@@ -1039,9 +1039,9 @@ map.switchToListViewSr=Вид переключен на список
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Выберите не более {0} местоположений.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = К сожалению, в данный момент мы не можем отобразить этот вопрос. Попробуйте вернуться к этому заявлению позже. А пока вернитесь к {0} или {1}, и мы подскажем вам верное направление.
+map.contactUs = связаться с нами
+map.homepage = домашняя страница
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -1058,7 +1058,7 @@ map.addTagButton=Добавить тег
 # Subtitle text for adding a tag
 map.addTagSubtitle=Добавьте тег, который будет отображаться в определённых местоположениях, где выбранный ключ соответствует определённому значению. При выборе заявителем хотя бы одного из этих местоположений можно отображать оповещение в области "Выбранные местоположения".
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=Тег
 # Label for display name field
 map.displayNameLabel=Отображаемое имя
 # Label for key field
@@ -1080,9 +1080,9 @@ map.locationNameLabel=Ключ имени
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=Текст оповещения
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=Значение
 # Text on a grey square that indicates where a map will appear once a question has been published
 map.mapPreviewText=Карта будет отображаться здесь
 
@@ -1174,7 +1174,7 @@ banner.hoursAndMinute={0} час. и 1 мин.
 banner.minutes={0} мин.
 banner.hours={0} час.
 banner.hour=1 час
-banner.minute=1 minute
+banner.minute=1 мин.
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
