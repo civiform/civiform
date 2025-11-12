@@ -659,7 +659,7 @@ heading.nextSteps=ما هي خطواتي التالية؟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=لقد أرسلت طلبك للانضمام إلى "{0}"
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=للوصول إلى طلبك لاحقًا، يجب عليك إنشاء حساب
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=للوصول إلى طلبك لاحقًا، يُرجى إنشاء حساب
 # Description text in an alert that explains how creating an account can help the user
@@ -669,9 +669,9 @@ alert.noProgramsAvailable=لقد بدأت أو قدمت طلبًا لجميع ا
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=تسجيل الدخول إلى حساب حالي
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=يجب عليك تسجيل الدخول للتقديم على هذا البرنامج
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=يرجى تسجيل الدخول أو إنشاء حساب للمتابعة في هذا الطلب.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -699,10 +699,10 @@ button.homePage=الرجوع إلى الصفحة الرئيسية
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=العودة لتحرير {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=اضبط متى يتم عرض هذه الشاشة أو إخفاؤها للمتقدمين بناءً على إجاباتهم في الشاشات السابقة.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=أضف شروط الأهلية لتحديد ما إذا كان المتقدم مؤهلًا للبرنامج بناءً على إجاباته في هذه الشاشة. المتقدمون الذين لا يستوفون الحد الأدنى من المتطلبات سيتم منعهم من إرسال الطلب. يمكنك تغيير ذلك من خلال
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
@@ -731,9 +731,9 @@ label.predicateValue=Value(s)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Select -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=أدخل قائمة من القيم مفصولة بفواصل، مثل: "العنصر 1، العنصر 2، العنصر 3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
-content.and=and
+content.and=و
 
 # Button to append form fields for configuring a new condition
 button.predicateAddCondition=Add condition
@@ -1003,7 +1003,7 @@ map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
 map.locationLinkText=View more details
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=عرض مزيد من التفاصيل لـ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=جارٍ عرض مواقع جغرافية عددها {0} من {1}
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
@@ -1025,13 +1025,13 @@ map.selectedLocationsHeading=المواقع الجغرافية التي تم ا�
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=اختر ما يصل إلى {0} مواقع
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=التبديل إلى عرض الخريطة
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=التبديل إلى عرض القائمة
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
@@ -1039,9 +1039,9 @@ map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = نأسف لعدم قدرتنا على عرض هذا السؤال في الوقت الحالي. يرجى المحاولة لاحقًا بالعودة إلى هذا النموذج. في هذه الأثناء، يمكنك العودة إلى {0} أو {1} وسنوجهك إلى الوجهة الصحيحة.
+map.contactUs = اتصل بنا
+map.homepage = الصفحة الرئيسية
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -1066,7 +1066,7 @@ map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=اختر المفتاح الذي يمثل عنوان الموقع.
 # Label for location address key field
 map.locationAddressLabel=Address key
 # Help text for location details URL field
@@ -1074,7 +1074,7 @@ map.locationDetailsUrlHelpText=Select which key represents the location details 
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=اختر المفتاح الذي يمثل اسم الموقع.
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
@@ -1082,9 +1082,9 @@ map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
 map.settingTextLabel=Alert text
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=القيمة
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=سيتم عرض الخريطة هنا
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
