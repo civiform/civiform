@@ -1,21 +1,26 @@
-package views.admin.programs;
+package views.admin.programs.predicates;
 
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
+import lombok.Builder;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateAction;
-import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateUseCase;
-import views.admin.BaseViewModel;
+import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramHeader;
 
-public record ProgramPredicatesEditPageViewModel(
+@Builder
+public record EditPredicatePageViewModel(
     ProgramDefinition programDefinition,
     BlockDefinition blockDefinition,
-    PredicateUseCase predicateUseCase)
-    implements BaseViewModel {
+    PredicateUseCase predicateUseCase,
+    ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
+    boolean hasAvailableQuestions)
+    implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {
     return new ProgramHeader(programDefinition, DRAFT);
@@ -31,6 +36,12 @@ public record ProgramPredicatesEditPageViewModel(
         .url();
   }
 
+  public String updatePredicateEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.updatePredicate(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
+  }
+
   public String blockName() {
     return blockDefinition.name();
   }
@@ -43,7 +54,9 @@ public record ProgramPredicatesEditPageViewModel(
     return PredicateAction.ELIGIBLE_BLOCK;
   }
 
-  public ImmutableList<PredicateExpressionNodeType> operatorNodeTypes() {
-    return ImmutableList.of(PredicateExpressionNodeType.AND, PredicateExpressionNodeType.OR);
+  public String hxEditConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
   }
 }

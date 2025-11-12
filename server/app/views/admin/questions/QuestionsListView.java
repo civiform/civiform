@@ -10,6 +10,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.auto.value.AutoValue;
@@ -36,6 +37,7 @@ import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
+import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.AlertComponent;
@@ -66,17 +68,20 @@ public final class QuestionsListView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
   private final SettingsManifest settingsManifest;
+  private final QuestionService questionService;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
       ViewUtils viewUtils,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      QuestionService questionService) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionService = checkNotNull(questionService);
   }
 
   /**
@@ -278,6 +283,13 @@ public final class QuestionsListView extends BaseHtmlView {
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
+
+    if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+      referencingProgramAndModal
+          .getLeft()
+          .with(generateTranslationCompleteText(latestDefinition).orElse(div()));
+    }
+
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -465,6 +477,17 @@ public final class QuestionsListView extends BaseHtmlView {
     }
     return Pair.of(
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
+  }
+
+  Optional<DomContent> generateTranslationCompleteText(QuestionDefinition questionDefinition) {
+    if (questionService.isTranslationComplete(translationLocales, questionDefinition)) {
+      return Optional.of(
+          div(text("Translation complete"), Icons.svg(Icons.CHECK).withClasses("h-4 w-4"))
+              .withClasses("flex", "items-center", "gap-1"));
+    }
+    return Optional.of(
+        div(text("Translation incomplete"), Icons.svg(Icons.CLOSE).withClasses("h-4 w-4"))
+            .withClasses("flex", "items-center", "gap-1"));
   }
 
   private static String formatReferencingProgramsText(

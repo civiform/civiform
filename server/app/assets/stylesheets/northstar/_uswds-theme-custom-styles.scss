@@ -91,8 +91,9 @@ it is around the label */
   height: 85%;
 }
 
-// Checkbox question in the applicant form
-.cf-checkbox-question-input {
+// Checkboxes in the checkbox and map question types in the applicant form
+.cf-checkbox-question-input,
+.cf-location-checkbox-input {
   @include u-height('full');
   @include u-width('full');
   @include u-maxw('mobile-lg');
@@ -694,41 +695,15 @@ main {
   }
 }
 
-// Map question custom styles
-// Custom height for map question location container
-.cf-locations-list {
-  height: 400px;
-  scroll-behavior: smooth;
-}
-
-// Ensure locations column matches map height exactly
-.cf-locations-column {
-  height: 400px;
-
-  // Custom scrollbar styling to remove background
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: color('gray-50');
-    border-radius: units('05');
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: color('gray-60');
-  }
-}
-
 // Custom height for map question map container
+@include at-media('desktop') {
+  .cf-map-container {
+    min-height: 698px;
+  }
+}
+
 .cf-map-container {
-  height: 400px;
   min-height: 400px;
-  max-height: 400px;
 }
 
 .maplibregl-popup-content {
@@ -747,6 +722,70 @@ main {
 }
 
 // Map question filtering - hide filtered out locations
-.cf-location-hidden {
+.cf-filter-hidden {
   display: none;
+}
+
+// Map question pagination - hide locations not on current page
+.cf-pagination-hidden {
+  display: none;
+}
+
+// Map question tag alert - display when tagged locations are selected
+.cf-map-question-tag-alert-hidden {
+  display: none;
+}
+
+// Map question responsive behavior
+@include at-media-max('tablet') {
+  .cf-toggle-hidden {
+    display: none;
+  }
+}
+
+@include at-media('tablet') {
+  .toggle-buttons-container {
+    display: none;
+  }
+
+  // Ensure components are always visible on tablet and above, even if cf-toggle-hidden is present
+  .cf-map-container,
+  .cf-map-container.cf-toggle-hidden,
+  .cf-locations-list,
+  .cf-locations-list.cf-toggle-hidden,
+  .cf-location-count,
+  .cf-location-count.cf-toggle-hidden {
+    display: block;
+  }
+
+  .cf-pagination,
+  .cf-pagination.cf-toggle-hidden {
+    display: flex;
+  }
+}
+
+.usa-button.cf-apply-filters-button,
+.usa-button.cf-reset-filters-button {
+  margin-top: 0.5rem;
+}
+
+// Custom pagination item for higher accessibility standards than USWDS default
+.usa-pagination__item.cf-pagination-item {
+  height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.usa-button.usa-button--secondary.cf-select-location-button-clicked {
+  background-color: color('primary-darker');
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
+      no-repeat center;
+    background-size: contain;
+  }
 }

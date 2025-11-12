@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.UnescapedText;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -16,9 +19,12 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 
+@RunWith(JUnitParamsRunner.class)
 public class PredicateUtilsTest {
   @Test
-  public void getReadablePredicateDescription_singleQuestion_headingOnly() {
+  @Parameters({"true", "false"})
+  public void getReadablePredicateDescription_singleQuestion_headingOnly(
+      boolean expandedFormLogicEnabled) {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -31,7 +37,7 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of());
+            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
 
     assertThat(readablePredicate.heading())
         .isEqualTo("My Test Block is shown if number is greater than or equal to 1000");
@@ -45,7 +51,9 @@ public class PredicateUtilsTest {
   }
 
   @Test
-  public void getReadablePredicateDescription_singleAnd_headingOnly() {
+  @Parameters({"true", "false"})
+  public void getReadablePredicateDescription_singleAnd_headingOnly(
+      boolean expandedFormLogicEnabled) {
     ImmutableList<PredicateExpressionNode> andStatements =
         ImmutableList.of(
             PredicateExpressionNode.create(
@@ -76,7 +84,7 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of());
+            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
 
     assertThat(readablePredicate.heading())
         .isEqualTo(
@@ -94,7 +102,9 @@ public class PredicateUtilsTest {
   }
 
   @Test
-  public void getReadablePredicateDescription_multipleAnds_headingAndConditionList() {
+  @Parameters({"true", "false"})
+  public void getReadablePredicateDescription_multipleAnds_headingAndConditionList(
+      boolean expandedFormLogicEnabled) {
     // number == 4 && text == "four"
     ImmutableList<PredicateExpressionNode> andStatements1 =
         ImmutableList.of(
@@ -136,15 +146,24 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of());
+            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
 
-    assertThat(readablePredicate.heading())
-        .isEqualTo("Applicant is eligible if any of the following is true:");
-    assertThat(readablePredicate.formattedHtmlHeading().toString())
-        .isEqualTo(
-            """
-            Applicant is <strong>eligible</strong> if <strong>any</strong> of the following is \
-            true:""");
+    if (expandedFormLogicEnabled) {
+      assertThat(readablePredicate.heading())
+          .isEqualTo("Applicant is eligible if any conditions are true:");
+      assertThat(readablePredicate.formattedHtmlHeading().toString())
+          .isEqualTo(
+              """
+Applicant is <strong>eligible</strong> if <strong>any</strong> conditions are true:""");
+    } else {
+      assertThat(readablePredicate.heading())
+          .isEqualTo("Applicant is eligible if any of the following is true:");
+      assertThat(readablePredicate.formattedHtmlHeading().toString())
+          .isEqualTo(
+              """
+              Applicant is <strong>eligible</strong> if <strong>any</strong> of the \
+              following is true:""");
+    }
     assertThat(readablePredicate.conditionList()).isPresent();
     assertThat(readablePredicate.conditionList().get().size()).isEqualTo(2);
     assertThat(readablePredicate.conditionList().get().get(0))

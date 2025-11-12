@@ -1,4 +1,4 @@
-package views.admin.programs;
+package views.admin.programs.predicates;
 
 import auth.ProfileUtils;
 import com.google.inject.Inject;
@@ -8,16 +8,17 @@ import org.thymeleaf.TemplateEngine;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
+import views.admin.programs.ProgramPredicateConfigureView;
+import views.admin.programs.ProgramPredicatesEditView;
 
 /**
- * Page view for rendering ProgramPredicatesEditPageView.html. This page is used for editing
- * predciates of a block in a program and replaces {@link ProgramPredicatesEditView} and {@link
+ * Page view for rendering EditPredicatePageView.html. This page is used for editing predicates of a
+ * block in a program and replaces {@link ProgramPredicatesEditView} and {@link
  * ProgramPredicateConfigureView}.
  */
-public class ProgramPredicatesEditPageView
-    extends AdminLayoutBaseView<ProgramPredicatesEditPageViewModel> {
+public class EditPredicatePageView extends AdminLayoutBaseView<EditPredicatePageViewModel> {
   @Inject
-  public ProgramPredicatesEditPageView(
+  public EditPredicatePageView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
@@ -34,7 +35,7 @@ public class ProgramPredicatesEditPageView
 
   @Override
   protected String pageTemplate() {
-    return "admin/programs/ProgramPredicatesEditPageView.html";
+    return "admin/programs/predicates/EditPredicatePageView.html";
   }
 
   @Override

@@ -41,7 +41,7 @@ public class MapRefreshJobTest extends ResetPostgres {
                 new Feature(
                     "Feature",
                     new Geometry("Point", List.of(-122.0, 37.0)),
-                    Map.of("name", "Different Test Location"),
+                    Map.of("name", "Different Test Location", "prop1", "value1", "prop2", "value2"),
                     "test-different")));
 
     geoJsonData.setGeoJson(differentData);

@@ -377,11 +377,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       PredicateDefinition existingPredicate) {
     PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
     return switch (format) {
-      case SINGLE_QUESTION ->
+      case SINGLE_CONDITION ->
           ImmutableList.of(
               PredicateExpressionNode.create(
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
-      case OR_OF_SINGLE_LAYER_ANDS -> existingPredicate.rootNode().getOrNode().children();
+      case MULTIPLE_CONDITIONS -> existingPredicate.rootNode().getOrNode().children();
       default ->
           throw new IllegalArgumentException(
               String.format("Unrecognized predicate format: %s", format));
@@ -698,8 +698,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
       // localized.
+      // Only show options that are displayable to applicants (displayInAnswerOptions=true).
+      // This ensures eligibility/visibility conditions only use options that admins have enabled.
       ImmutableList<QuestionOption> options =
-          ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
+          ((MultiOptionQuestionDefinition) questionDefinition).getDisplayableOptions();
 
       ImmutableSet<String> currentlyCheckedValues =
           assertLeafOperationNode(maybeLeafNode)

@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isHermeticTestEnvironment,
   loginAsAdmin,
@@ -13,6 +14,10 @@ import {
 } from '../support'
 
 test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'expanded_form_logic_enabled')
+  })
+
   test('add a hide predicate', async ({
     page,
     adminQuestions,

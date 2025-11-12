@@ -1,72 +1,40 @@
 <!-- TODO(#11161): Update styling to match design specifications -->
 <div id="geoJsonOutput">
-  <label for="maxLocationSelections" th:inline="text">
-    [[#{map.maxLocationSelectionsLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span> </label
-  ><input
+  <label
+    for="maxLocationSelections"
+    class="usa-label text-base-dark margin-top-0"
+    th:text="#{map.maxLocationSelectionsLabel}"
+  ></label>
+  <input
     class="usa-input"
     name="maxLocationSelections"
     id="maxLocationSelections"
     type="number"
-    th:value="${model.maxLocationSelections.isPresent() && model.maxLocationSelections.getAsInt()}"
+    th:value="${model.maxLocationSelections.isPresent() ? model.maxLocationSelections.getAsInt() : ''}"
   />
-  <label class="usa-label" for="locationName.key" th:inline="text">
-    [[#{map.locationNameLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
-  </label>
-  <select class="usa-select" name="locationName.key" id="locationName.key">
-    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-    <option
-      th:each="key: ${model.possibleKeys}"
-      th:value="${key}"
-      th:text="${key}"
-      th:selected="${key == model.locationName.key}"
-    ></option>
-  </select>
-  <label class="usa-label" for="locationAddress.key" th:inline="text">
-    [[#{map.locationAddressLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
-  </label>
-  <select
-    class="usa-select"
-    name="locationAddress.key"
-    id="locationAddress.key"
-  >
-    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-    <option
-      th:each="key: ${model.possibleKeys}"
-      th:value="${key}"
-      th:text="${key}"
-      th:selected="${key == model.locationAddress.key}"
-    ></option>
-  </select>
-  <label class="usa-label" for="locationDetailsUrl.key" th:inline="text">
-    [[#{map.locationDetailsUrlLabel}]]
-    <span title="required" class="usa-hint usa-hint--required">*</span>
-  </label>
-  <select
-    class="usa-select"
-    name="locationDetailsUrl.key"
-    id="locationDetailsUrl.key"
-  >
-    <option value th:text="#{map.selectOptionPlaceholderText}"></option>
-    <option
-      th:each="key: ${model.possibleKeys}"
-      th:value="${key}"
-      th:text="${key}"
-      th:selected="${key == model.locationDetailsUrl.key}"
-    ></option>
-  </select>
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationName', ${model.locationName}, ${model.possibleKeys}, 'map.locationNameLabel', 'map.locationNameHelpText')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationAddress', ${model.locationAddress}, ${model.possibleKeys}, 'map.locationAddressLabel', 'map.locationAddressHelpText')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationDetailsUrl', ${model.locationDetailsUrl}, ${model.possibleKeys}, 'map.locationDetailsUrlLabel', 'map.locationDetailsUrlHelpText')}"
+  ></div>
 
-  <div th:text="#{map.addFiltersTitle}"></div>
-  <div th:text="#{map.addFiltersSubtitle}"></div>
-  <div id="filters">
-    <div th:each="filter, i : ${model.filters}">
-      <div
-        th:insert="~{admin/questions/MapQuestionSettingsFilterFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
-      ></div>
+  <fieldset class="usa-fieldset margin-top-3">
+    <legend class="usa-legend text-base-dark margin-top-105">
+      <h3 class="font-body-sm" th:text="#{map.addFiltersTitle}"></h3>
+      <h4 class="font-body-2xs" th:text="#{map.addFiltersSubtitle}"></h4>
+    </legend>
+    <div id="filters">
+      <div th:each="filter, i : ${model.filters}">
+        <div
+          th:insert="~{admin/questions/MapQuestionSettingsFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+        ></div>
+      </div>
     </div>
-  </div>
+  </fieldset>
   <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
   <button
     th:hx-post="${model.hxAddMapQuestionFilterEndpoint}"
@@ -75,7 +43,20 @@
     hx-target="#filters"
     id="add-map-filter-button"
     type="button"
-    class="add-map-filter usa-button usa-button--outline"
-    th:text="#{map.addFilterButton}"
-  ></button>
+    class="add-map-filter usa-button usa-button--outline margin-top-3"
+    th:inline="text"
+  >
+    <cf:icon type="icon-add" />[[#{map.addFilterButton}]]
+  </button>
+  <th:block
+    th:with="tagKey=${model.locationTag != null ? model.locationTag.key : null},
+            tagValue=${model.locationTag != null ? model.locationTag.value : null},
+            tagDisplayName=${model.locationTag != null ? model.locationTag.displayName : null},
+            tagText=${model.locationTag != null ? model.locationTag.alertText : null}"
+  >
+    <div
+      th:replace="~{admin/questions/MapQuestionSettingsFragment :: tagInput(${model.possibleKeys}, ${tagKey}, ${tagValue}, ${tagDisplayName}, ${tagText})}"
+    ></div>
+  </th:block>
 </div>
+<div id="geoJsonURL-errors" hx-swap-oob="true"></div>

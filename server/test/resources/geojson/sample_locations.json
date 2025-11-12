@@ -14,7 +14,8 @@
         "type": "library",
         "hours": "Mon-Thu: 10am-8pm, Fri-Sat: 10am-6pm, Sun: 12pm-6pm",
         "phone": "(206) 386-4636",
-        "website": "https://spl.org"
+        "website": "https://spl.org",
+        "requiresDirectEnrollment": "false"
       }
     },
     {
@@ -30,7 +31,8 @@
         "type": "community_center",
         "hours": "Mon-Fri: 8am-6pm",
         "phone": "(206) 233-0042",
-        "website": "https://idcommunity.org"
+        "website": "https://idcommunity.org",
+        "requiresDirectEnrollment": "false"
       }
     },
     {
@@ -46,7 +48,8 @@
         "type": "health_center",
         "hours": "Mon-Fri: 7am-7pm, Sat: 8am-4pm",
         "phone": "(206) 296-4600",
-        "website": "https://kingcounty.gov/depts/health"
+        "website": "https://kingcounty.gov/depts/health",
+        "requiresDirectEnrollment": "false"
       }
     },
     {
@@ -62,7 +65,8 @@
         "type": "community_center",
         "hours": "Mon-Fri: 9am-9pm, Sat-Sun: 10am-6pm",
         "phone": "(206) 684-4093",
-        "website": "https://seattle.gov/parks"
+        "website": "https://seattle.gov/parks",
+        "requiresDirectEnrollment": "false"
       }
     },
     {
@@ -78,7 +82,42 @@
         "type": "library",
         "hours": "Tue-Wed: 10am-8pm, Thu-Fri: 12pm-6pm, Sat: 10am-6pm",
         "phone": "(206) 684-4063",
-        "website": "https://spl.org/locations/university-branch"
+        "website": "https://spl.org/locations/university-branch",
+        "requiresDirectEnrollment": "true"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "rainier-beach-pool",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.2619, 47.5223]
+      },
+      "properties": {
+        "name": "Rainier Beach Pool",
+        "address": "8825 Rainier Ave S, Seattle, WA 98118",
+        "type": "recreation_center",
+        "hours": "Mon-Fri: 6am-9pm, Sat-Sun: 8am-6pm",
+        "phone": "(206) 386-1944",
+        "website": "https://seattle.gov/parks/aquatics",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "magnolia-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3985, 47.6417]
+      },
+      "properties": {
+        "name": "Magnolia Community Center",
+        "address": "2550 34th Ave W, Seattle, WA 98199",
+        "type": "community_center",
+        "hours": "Mon-Fri: 9am-9pm, Sat: 9am-5pm",
+        "phone": "(206) 386-4235",
+        "website": "https://seattle.gov/parks",
+        "requiresDirectEnrollment": "true"
       }
     }
   ]

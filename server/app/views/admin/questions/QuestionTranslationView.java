@@ -225,13 +225,13 @@ public final class QuestionTranslationView extends TranslationFormView {
       return Optional.empty();
     }
 
-    ImmutableList.Builder<DomContent> filterFieldsBuilder = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> settingFieldsBuilder = ImmutableList.builder();
     settings.forEach(
         setting -> {
           if (setting.settingType().equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)) {
             LocalizedStrings localizedStrings =
                 setting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
-            filterFieldsBuilder.add(
+            settingFieldsBuilder.add(
                 fieldWithDefaultLocaleTextHint(
                     FieldWithLabel.input()
                         .setFieldName("filters[]")
@@ -240,9 +240,31 @@ public final class QuestionTranslationView extends TranslationFormView {
                         .getInputTag(),
                     localizedStrings));
           }
+
+          if (setting.settingType().equals(MapSettingType.LOCATION_TAG_GEO_JSON_KEY)) {
+            LocalizedStrings localizedDisplayNameStrings =
+                setting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
+            LocalizedStrings localizedTextStrings =
+                setting.localizedSettingText().orElse(LocalizedStrings.of());
+            settingFieldsBuilder.add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName("tagDisplayName")
+                        .setLabelText("Tag display name")
+                        .setValue(localizedDisplayNameStrings.maybeGet(toUpdate).orElse(""))
+                        .getInputTag(),
+                    localizedDisplayNameStrings));
+            settingFieldsBuilder.add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.textArea()
+                        .setFieldName("tagText")
+                        .setLabelText("Tag text")
+                        .setValue(localizedTextStrings.maybeGet(toUpdate).orElse(""))
+                        .getTextareaTag(),
+                    localizedTextStrings));
+          }
         });
 
-    return Optional.of(
-        fieldSetForFields(legend("Filter display names"), filterFieldsBuilder.build()));
+    return Optional.of(fieldSetForFields(legend("Settings"), settingFieldsBuilder.build()));
   }
 }

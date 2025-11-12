@@ -496,7 +496,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ApplicantData applicantData = sampleDataContext.getApplicantData();
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createMultiSelectQuestion().getOptions();
+          applicantQuestion.createMultiSelectQuestion().getDisplayableOptions();
 
       // Add up to two options to the sample data.
       if (questionOptions.size() > 0) {
@@ -659,7 +659,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createSingleSelectQuestion().getOptions();
+          applicantQuestion.createSingleSelectQuestion().getDisplayableOptions();
 
       if (questionOptions.size() != 0) {
         LocalizedQuestionOption firstOption = questionOptions.get(0);

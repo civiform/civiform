@@ -19,6 +19,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
@@ -26,6 +27,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramSlugHandler programSlugHandler;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramPreviewController(
@@ -34,12 +36,14 @@ public final class AdminProgramPreviewController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       VersionRepository versionRepository,
-      ProgramSlugHandler programSlugHandler) {
+      ProgramSlugHandler programSlugHandler,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -65,7 +69,9 @@ public final class AdminProgramPreviewController extends CiviFormController {
             roQuestionService -> {
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateProgramPreviewPdf(
-                      program, roQuestionService.getAllQuestions());
+                      program,
+                      roQuestionService.getAllQuestions(),
+                      settingsManifest.getExpandedFormLogicEnabled(request));
               return ok(pdf.getByteArray())
                   .as("application/pdf")
                   .withHeader(

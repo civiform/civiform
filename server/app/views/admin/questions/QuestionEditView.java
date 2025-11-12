@@ -289,6 +289,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
+        .attr("hx-ext", "response-targets")
         .withClasses(
             "border-gray-400",
             "border-r",
@@ -475,21 +476,6 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    if (questionType.equals(QuestionType.MAP)) {
-      formTag.with(
-          FieldWithLabel.input()
-              .setFieldName("geoJsonEndpoint")
-              .setLabelText("GeoJSON Endpoint")
-              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-              .setRequired(true)
-              // GeoJSON endpoint can only be added upon question creation
-              .setReadOnly(!forCreate)
-              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
-              .setAttribute("hx-target", "#geoJsonOutput")
-              .setAttribute("hx-trigger", "change delay:1s")
-              .getInputTag());
-    }
-
     formTag.with(
         FieldWithLabel.textArea()
             .setFieldName("questionDescription")
@@ -498,6 +484,25 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
+
+    if (questionType.equals(QuestionType.MAP)) {
+      formTag.with(
+          FieldWithLabel.input()
+              .setFieldName("geoJsonEndpoint")
+              .setId("geoJsonURL")
+              .setLabelText("GeoJSON Endpoint URL")
+              .setSubLabelText("URL must be entered in order to configure question settings below.")
+              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .setRequired(true)
+              // GeoJSON endpoint can only be added upon question creation
+              .setReadOnly(!forCreate)
+              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
+              .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-target-error", "#geoJsonURL-errors")
+              .setAttribute("hx-swap", "outerHTML")
+              .setAttribute("hx-trigger", "input changed delay:300ms")
+              .getInputTag());
+    }
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
@@ -562,6 +567,7 @@ public final class QuestionEditView extends BaseHtmlView {
         mapQuestionForm.getLocationAddress(),
         mapQuestionForm.getLocationDetailsUrl(),
         mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
         possibleKeys);
   }
 

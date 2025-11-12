@@ -26,6 +26,7 @@ public class MapQuestionForm extends QuestionForm {
   @Setter private Setting locationAddress;
   @Setter private Setting locationDetailsUrl;
   @Setter private ArrayList<Setting> filters;
+  @Setter private Setting locationTag;
 
   /**
    * Simple class for MAP question settings. Used for form processing and gets converted to {@link
@@ -35,16 +36,29 @@ public class MapQuestionForm extends QuestionForm {
   @Setter
   public static final class Setting {
     private String key;
+    private String value;
     private String displayName;
+    private String alertText;
 
     public Setting() {
       this.key = "";
+      this.value = "";
       this.displayName = "";
+      this.alertText = "";
     }
 
     public Setting(String key, String displayName) {
       this.key = key;
+      this.value = "";
       this.displayName = displayName;
+      this.alertText = "";
+    }
+
+    public Setting(String key, String value, String displayName, String alertText) {
+      this.key = key;
+      this.value = value;
+      this.displayName = displayName;
+      this.alertText = alertText;
     }
 
     public static Setting emptySetting() {
@@ -115,6 +129,7 @@ public class MapQuestionForm extends QuestionForm {
     this.locationAddress = Setting.emptySetting();
     this.locationDetailsUrl = Setting.emptySetting();
     this.filters = new ArrayList<>(Setting.emptyFilters());
+    this.locationTag = Setting.emptySetting();
   }
 
   private void setFormWithQuestionSettings(ImmutableSet<QuestionSetting> settings) {
@@ -126,6 +141,8 @@ public class MapQuestionForm extends QuestionForm {
         getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
 
     this.filters = new ArrayList<>(getFiltersFromQuestionSettings(settings));
+    this.locationTag =
+        getSettingFromQuestionSettings(settings, MapSettingType.LOCATION_TAG_GEO_JSON_KEY);
   }
 
   /** Converts {@link QuestionSetting} back to form {@link Setting} for editing. */
@@ -133,7 +150,17 @@ public class MapQuestionForm extends QuestionForm {
       ImmutableSet<QuestionSetting> settings, MapSettingType type) {
     return settings.stream()
         .filter(setting -> setting.settingType().equals(type))
-        .map(setting -> new Setting(setting.settingValue(), ""))
+        .map(
+            setting ->
+                new Setting(
+                    setting.settingKey(),
+                    setting.settingValue().orElse(""),
+                    setting.localizedSettingDisplayName().isPresent()
+                        ? setting.localizedSettingDisplayName().get().getDefault()
+                        : "",
+                    setting.localizedSettingText().isPresent()
+                        ? setting.localizedSettingText().get().getDefault()
+                        : ""))
         .findFirst()
         .orElse(new Setting());
   }
@@ -146,7 +173,7 @@ public class MapQuestionForm extends QuestionForm {
         .map(
             setting ->
                 new Setting(
-                    setting.settingValue(),
+                    setting.settingKey(),
                     setting.localizedSettingDisplayName().isPresent()
                         ? setting.localizedSettingDisplayName().get().getDefault()
                         : ""))
@@ -166,6 +193,16 @@ public class MapQuestionForm extends QuestionForm {
     builder.add(
         QuestionSetting.create(
             getLocationDetailsUrl().getKey(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY));
+
+    if (getLocationTag() != null && !getLocationTag().getKey().isEmpty()) {
+      builder.add(
+          QuestionSetting.create(
+              getLocationTag().getKey(),
+              MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+              Optional.of(LocalizedStrings.withDefaultValue(getLocationTag().getDisplayName())),
+              Optional.of(getLocationTag().getValue()),
+              Optional.of(LocalizedStrings.withDefaultValue(getLocationTag().getAlertText()))));
+    }
 
     getFilters()
         .forEach(

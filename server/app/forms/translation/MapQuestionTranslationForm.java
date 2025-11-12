@@ -21,10 +21,14 @@ public class MapQuestionTranslationForm extends QuestionTranslationForm {
 
   // These will be in the same order as the filter settings.
   private List<String> filters;
+  private String tagDisplayName;
+  private String tagText;
 
   public MapQuestionTranslationForm() {
     super();
     this.filters = new ArrayList<>();
+    this.tagDisplayName = "";
+    this.tagText = "";
   }
 
   @Override
@@ -48,6 +52,22 @@ public class MapQuestionTranslationForm extends QuestionTranslationForm {
                 .setLocalizedSettingDisplayName(Optional.of(updatedTranslations))
                 .build());
         i++;
+      } else if (setting.settingType().equals(MapSettingType.LOCATION_TAG_GEO_JSON_KEY)) {
+        LocalizedStrings updatedDisplayNameTranslations =
+            setting
+                .localizedSettingDisplayName()
+                .orElse(LocalizedStrings.of())
+                .updateTranslation(updatedLocale, this.tagDisplayName);
+        LocalizedStrings updatedTextTranslations =
+            setting
+                .localizedSettingText()
+                .orElse(LocalizedStrings.of())
+                .updateTranslation(updatedLocale, this.tagText);
+        updatedSettingsBuilder.add(
+            setting.toBuilder()
+                .setLocalizedSettingDisplayName(Optional.of(updatedDisplayNameTranslations))
+                .setLocalizedSettingText(Optional.of(updatedTextTranslations))
+                .build());
       } else {
         updatedSettingsBuilder.add(setting);
       }

@@ -80,6 +80,28 @@ test.describe(
           /* mobileScreenshot= */ false,
         )
       })
+
+      test('options translate to Spanish', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await selectApplicantLanguageNorthstar(page, 'es-US')
+
+        // Verify Spanish translations are shown
+        await expect(page.getByText('Sí', {exact: true})).toBeVisible()
+        await expect(page.getByText('No', {exact: true})).toBeVisible()
+        await expect(page.getByText('Tal vez', {exact: true})).toBeVisible()
+        await expect(page.getByText('No lo sé', {exact: true})).toBeVisible()
+
+        // Verify English text is not shown
+        await expect(page.getByText('Yes', {exact: true})).toBeHidden()
+        await expect(page.getByText('Maybe', {exact: true})).toBeHidden()
+        await expect(page.getByText('Not sure', {exact: true})).toBeHidden()
+      })
     })
 
     test.describe('yes/no question with options not displayed to applicant', () => {

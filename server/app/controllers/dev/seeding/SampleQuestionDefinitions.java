@@ -377,7 +377,7 @@ public final class SampleQuestionDefinitions {
                            * Welcome to this __test program__.
                            * It contains one of every question type.
 
-                          ## What are the eligibility requirements?
+                          _What are_ the eligibility requirements?
                           Please go [here](https://www.example.com) for more information""",
                           Lang.forCode("ar").toLocale(),
                           """

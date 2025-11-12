@@ -28,10 +28,12 @@ public abstract class PredicateDefinition {
 
   /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
   public enum PredicateFormat {
-    // A single leaf node.
-    SINGLE_QUESTION,
-    // A top level OR with only AND child nodes, each AND node's children are all leaf nodes.
-    OR_OF_SINGLE_LAYER_ANDS;
+    // A root AND/OR node with only one child node. This child node may itself have children but the
+    // root node has only one child and can be rendered in one line as a single statement.
+    SINGLE_CONDITION,
+    // A root AND/OR node with multiple child nodes. This may be rendered as a list with an item for
+    // each child condition.
+    MULTIPLE_CONDITIONS;
   }
 
   @JsonCreator
@@ -43,13 +45,9 @@ public abstract class PredicateDefinition {
 
   /** Determines what {@link PredicateFormat} a given predicate expression tree is. */
   public static PredicateFormat detectPredicateFormat(PredicateExpressionNode rootNode) {
-    return switch (rootNode.getType()) {
-      case OR -> PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
-      case LEAF_ADDRESS_SERVICE_AREA, LEAF_OPERATION -> PredicateFormat.SINGLE_QUESTION;
-      default ->
-          throw new IllegalStateException(
-              String.format("Unsupported predicate expression format: %s", rootNode));
-    };
+    return rootNode.getChildren().size() > 1
+        ? PredicateFormat.MULTIPLE_CONDITIONS
+        : PredicateFormat.SINGLE_CONDITION;
   }
 
   @JsonProperty("rootNode")

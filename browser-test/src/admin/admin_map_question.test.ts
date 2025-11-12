@@ -63,7 +63,7 @@ test.describe('Create and edit map question', () => {
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Add up to six filters to make available to applicants.',
+            'Select up to six filters to make available to applicants.',
           ),
         ).toBeVisible()
 
@@ -95,6 +95,53 @@ test.describe('Create and edit map question', () => {
 
         const addFilterButton = page.getByRole('button', {name: 'Add filter'})
         await expect(addFilterButton).toBeDisabled()
+      })
+
+      await test.step('Add a tag', async () => {
+        const tagButton = page.getByRole('button', {name: 'Add tag'})
+        await tagButton.click()
+
+        const tagKeySelect = page.getByTestId('tag-key-select')
+        const tagDisplayInput = page.getByTestId('tag-display-name-input')
+        const tagValueInput = page.getByTestId('tag-value-input')
+        const tagTextInput = page.getByTestId('tag-text-input')
+
+        await expect(tagKeySelect).toBeVisible()
+        await expect(tagDisplayInput).toBeVisible()
+        await expect(tagValueInput).toBeVisible()
+        await expect(tagTextInput).toBeVisible()
+
+        await expect(
+          tagKeySelect.locator('option[value="name"]'),
+        ).toBeAttached()
+        await expect(
+          tagKeySelect.locator('option[value="address"]'),
+        ).toBeAttached()
+
+        await tagKeySelect.selectOption({value: 'requiresDirectEnrollment'})
+        await tagDisplayInput.fill('Requires direct enrollment')
+        await tagValueInput.fill('true')
+        await tagTextInput.fill(
+          'You selected a location that requires direct enrollment!',
+        )
+      })
+
+      await test.step('Delete the tag', async () => {
+        const deleteTagButton = page.getByRole('button', {
+          name: 'Delete tag',
+        })
+        await expect(deleteTagButton).toBeVisible()
+        await deleteTagButton.click()
+        await expect(deleteTagButton).toBeHidden()
+
+        const tagKeySelect = page.getByTestId('tag-key-select')
+        const tagDisplayInput = page.getByTestId('tag-display-name-input')
+        const tagValueInput = page.getByTestId('tag-value-input')
+        const tagTextInput = page.getByTestId('tag-text-input')
+        await expect(tagKeySelect).toBeHidden()
+        await expect(tagDisplayInput).toBeHidden()
+        await expect(tagValueInput).toBeHidden()
+        await expect(tagTextInput).toBeHidden()
       })
     })
 

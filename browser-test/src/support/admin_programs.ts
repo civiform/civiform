@@ -68,6 +68,11 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export enum PredicateType {
+  ELIGIBILITY = 'eligibility',
+  VISIBILITY = 'visibility',
+}
+
 export enum ProgramCategories {
   CHILDCARE = 'Childcare',
   ECONOMIC = 'Economic',
@@ -1055,25 +1060,35 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditVisibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
+    } else {
+      await this.expectEditVisibilityPredicatePage(blockName)
+    }
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
+    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
-    await this.expectEditEligibilityPredicatePage(blockName)
+    if (expandedFormLogicEnabled) {
+      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
+    } else {
+      await this.expectEditEligibilityPredicatePage(blockName)
+    }
   }
 
   async goToProgramDescriptionPage(
@@ -1163,6 +1178,12 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain(
       'Eligibility condition for ' + blockName,
     )
+  }
+
+  async expectEditPredicatePage(predicateType: PredicateType) {
+    await expect(
+      this.page.getByText('Edit ' + predicateType + ' conditions'),
+    ).toBeVisible()
   }
 
   async expectSuccessToast(successToastMessage: string) {

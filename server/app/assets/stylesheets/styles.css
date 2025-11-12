@@ -34,7 +34,7 @@
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline) {
+  .usa-button:not(.usa-button--outline, .usa-button--base) {
     background-color: #005ea2;
   }
 
@@ -232,6 +232,11 @@
 
   .row-element:hover {
     background-color: #f7fafc;
+  }
+
+  /* Fix pagination current page button color specificity issue */
+  .usa-pagination .usa-current:visited {
+    color: #fff;
   }
 
 }

@@ -5,6 +5,12 @@
   <meta name="civiform-build-tag" th:content="${civiformImageTag}" />
   <meta th:if="${addNoIndexMetaTag}" name="robots" content="noindex" />
   <link th:if="${favicon}" rel="icon" th:href="${favicon}" />
+  <link th:if="${favicon}" rel="apple-touch-icon" th:href="${favicon}" />
+  <link
+    th:if="${favicon}"
+    rel="apple-touch-icon-precomposed.png"
+    th:href="${favicon}"
+  />
   <meta name="htmx-config" th:content='|{"inlineStyleNonce":"${cspNonce}"}|' />
   <!--/* Best practice: add ❤️ every time you touch this file :) */-->
   <meta
