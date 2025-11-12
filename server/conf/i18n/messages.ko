@@ -659,7 +659,7 @@ heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} 신청을 제출했습니다.
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=나중에 지원서에 접근하려면 계정을 생성해야 합니다
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드세요
 # Description text in an alert that explains how creating an account can help the user
@@ -702,30 +702,30 @@ button.homePage=홈페이지로 돌아가기
 link.backToEditProgramBlock={0} 편집으로 돌아가기
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=이전 화면의 질문에 대한 응답에 따라 지원자에게 이 화면을 표시하거나 숨길 시점을 설정하세요.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.predicateEligibilityDescription=이 화면의 질문에 대한 응답에 따라 지원자의 프로그램 지원 자격 충족 여부를 결정할 조건을 추가하세요. 최소 조건을 충족하지 못하는 지원자는 지원서를 제출하지 못하도록 차단됩니다. 이 설정은 다음에서 변경할 수 있습니다.
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=프로그램 설정
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=화면이
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=다음의 경우 지원자가 자격 조건을 충족함
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=조건이 참임:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=다음의 경우 조건이 참임
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=하위 조건이 참임:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=질문
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=필드
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=상태
 # Label for an input field to enter a value or multiple values.
 label.predicateValue=값
 # Placeholder text for select option dropdown
@@ -742,14 +742,14 @@ button.predicateDeleteCondition=조건 삭제
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=하위 조건 추가
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=하위 조건 삭제
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=맨 위로 돌아가기
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=저장하고 종료
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=이전 화면에는 이 화면의 표시 조건을 설정하는 데 사용할 질문이 없습니다.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=이 화면에는 자격 조건을 설정하는 데 사용할 질문이 없습니다.
 
@@ -1035,7 +1035,7 @@ map.switchToListView=목록 보기로 전환
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=지도 보기로 전환되었습니다
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=목록 보기로 전환되었습니다
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=최대 {0}개 위치를 선택해 주세요.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
@@ -1167,7 +1167,7 @@ banner.endYourSession=세션을 종료
 banner.sessionExpiration=세션 시작 {0} 후 세션이 자동으로 만료되니 진행 상황이 손실되지 않도록 만료되기 전에 로그인하거나 지원서를 제출해 주세요.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1시간 {0}분
-banner.hourAndMinute=1 hour and 1 minute
+banner.hourAndMinute=1시간 1분
 banner.hoursAndMinutes={0}시간 {1}분
 banner.hoursAndMinute={0}시간 1분
 # Amount of time in hours or minutes for the session expiration message.
