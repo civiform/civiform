@@ -190,7 +190,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .with(
                 p(numResultsText),
                 div()
-                    .withClasses("mt-6", "border", "rounded-md", "divide-y")
+                    .withClasses("mt-6", "border", "rounded-md", "divide-y", "border-gray-200")
                     .with(statusTagsAndModals.stream().map(Pair::getLeft))
                     .condWith(
                         statuses.isEmpty(),

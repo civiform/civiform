@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
@@ -16,6 +17,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.applicant.routes;
 import forms.ProgramForm;
@@ -33,13 +35,20 @@ import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import models.TrustedIntermediaryGroupModel;
 import modules.MainModule;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import services.AlertType;
+import services.MessageKey;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
+import views.AlertComponent.HeadingLevel;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -53,7 +62,7 @@ import views.style.BaseStyles;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
-abstract class ProgramFormBuilder extends BaseHtmlView {
+public class ProgramFormBuilder extends BaseHtmlView {
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
   // Names of form fields.
@@ -67,16 +76,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final String baseUrl;
   private final AccountRepository accountRepository;
   private final CategoryRepository categoryRepository;
+  private final Messages messages;
 
+  @Inject
   ProgramFormBuilder(
       Config configuration,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository,
-      CategoryRepository categoryRepository) {
+      CategoryRepository categoryRepository,
+      MessagesApi messagesApi) {
     this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
+    this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   /** Builds the form using program form data. */
@@ -94,6 +107,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
+        program.getLoginOnly(),
         program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
@@ -118,6 +132,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(ProgramNotificationPreference::getValue)
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
+        program.loginOnly(),
         program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
@@ -147,6 +162,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
@@ -157,6 +173,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
+    // TODO(#11581): North star clean up
     boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
@@ -170,188 +187,215 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
 
-    formTag.with(
-        requiredFieldsExplanationContent(),
-        h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
-        // Program name
-        FieldWithLabel.input()
-            .setId("program-display-name-input")
-            .setFieldName("localizedDisplayName")
-            .setLabelText("Program name")
-            .setRequired(true)
-            .setValue(displayName)
-            .getInputTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Short description
-        FieldWithLabel.textArea()
-            .setId("program-display-short-description-textarea")
-            .setFieldName("localizedShortDescription")
-            .setLabelText(
-                "Short description of this program for the public. Maximum 100 characters.")
-            .setMaxLength(100)
-            .setRequired(true)
-            .setValue(shortDescription)
-            .getTextareaTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program slug
-        iffElse(
-            isExternalProgramCardsEnabled,
-            buildProgramSlugFieldForExternalProgramsFeature(
-                adminName, programEditStatus, programType),
-            buildProgramSlugField(adminName, programEditStatus)),
-        // Admin description
-        FieldWithLabel.textArea()
-            .setId("program-description-textarea")
-            .setFieldName("adminDescription")
-            .setLabelText("Program note for administrative use only")
-            .setValue(adminDescription)
-            .getTextareaTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program type
-        buildProgramTypeFieldset(programType, programEditStatus, isExternalProgramCardsEnabled),
-        // Program Eligibility
-        fieldset(
-                legend("Program eligibility gating")
-                    .withClass("text-gray-600")
-                    .with(ViewUtils.requiredQuestionIndicator()),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-eligibility-gating",
-                    /* name= */ ELIGIBILITY_FIELD_NAME,
-                    /* value= */ String.valueOf(true),
-                    /* isChecked= */ eligibilityIsGating && !disableProgramEligibility,
-                    /* isDisabled= */ disableProgramEligibility,
-                    /* label= */ "Only allow residents to submit applications if they meet all"
-                        + " eligibility requirements",
-                    /* description= */ Optional.empty()),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-eligibility-not-gating",
-                    /* name= */ ELIGIBILITY_FIELD_NAME,
-                    /* value= */ String.valueOf(false),
-                    /* isChecked= */ !eligibilityIsGating && !disableProgramEligibility,
-                    /* isDisabled= */ disableProgramEligibility,
-                    /* label= */ "Allow residents to submit applications even if they don't meet"
-                        + " eligibility requirements",
-                    /* description= */ Optional.empty()))
-            .withId("program-eligibility")
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program categories
-        iff(
-            !categoryOptions.isEmpty(),
-            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
-        // Program visibility
-        fieldset(
-                legend("Program visibility")
-                    .withClass("text-gray-600")
-                    .with(ViewUtils.requiredQuestionIndicator()),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-display-mode-public",
-                    /* name= */ DISPLAY_MODE_FIELD_NAME,
-                    /* value= */ DisplayMode.PUBLIC.getValue(),
-                    /* isChecked= */ displayMode.equals(DisplayMode.PUBLIC.getValue()),
-                    /* isDisabled */ false,
-                    /* label= */ "Publicly visible",
-                    /* description= */ Optional.empty()),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-display-mode-hidden",
-                    /* name= */ DISPLAY_MODE_FIELD_NAME,
-                    /* value= */ DisplayMode.HIDDEN_IN_INDEX.getValue(),
-                    /* isChecked= */ displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
-                    /* isDisabled= */ false,
-                    /* label= */ "Hide from applicants. Only individuals with the unique"
-                        + " program link can access this program",
-                    /* description= */ Optional.empty()),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-display-mode-ti-only",
-                    /* name= */ DISPLAY_MODE_FIELD_NAME,
-                    /* value= */ DisplayMode.TI_ONLY.getValue(),
-                    /* isChecked= */ displayMode.equals(DisplayMode.TI_ONLY.getValue()),
-                    /* isDisabled= */ false,
-                    /* label= */ "Trusted intermediaries only",
-                    /* description= */ Optional.empty()),
-                buildUSWDSRadioOption(
-                    "program-display-mode-select-ti-only",
-                    /* name= */ DISPLAY_MODE_FIELD_NAME,
-                    /* value= */ DisplayMode.SELECT_TI.getValue(),
-                    /* isChecked= */ displayMode.equals(DisplayMode.SELECT_TI.getValue()),
-                    /* isDisabled= */ false,
-                    /* label= */ " Visible to selected trusted intermediaries only",
-                    /* description= */ Optional.empty()),
-                showTiSelectionList(
-                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                buildUSWDSRadioOption(
-                    /* id= */ "program-display-mode-disabled",
-                    /* name= */ DISPLAY_MODE_FIELD_NAME,
-                    /* value= */ DisplayMode.DISABLED.getValue(),
-                    /* isChecked= */ displayMode.equals(DisplayMode.DISABLED.getValue()),
-                    /* isDisabled= */ false,
-                    /* label= */ "Disabled",
-                    /* description= */ Optional.empty()))
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program external link
-        FieldWithLabel.input()
-            .setId("program-external-link-input")
-            .setFieldName("externalLink")
-            .setLabelText("Link to program website")
-            .setValue(externalLink)
-            .setRequired(isExternalProgram)
-            .setDisabled(disableExternalLink)
-            .setReadOnly(disableExternalLink)
-            .setAttribute(
-                "data-northstar-enabled",
-                String.valueOf(settingsManifest.getNorthStarApplicantUi()))
-            .getInputTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Email notifications
-        fieldset(
-                legend("Email notifications").withClass("text-gray-600"),
-                buildUSWDSCheckboxOption(
-                    /* id= */ "notification-preferences-email",
-                    /* name= */ NOTIFICATIONS_PREFERENCES_FIELD_NAME,
-                    /* value= */ ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                        .getValue(),
-                    /* isChecked= */ notificationPreferences.contains(
-                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                .getValue())
-                        && !disableEmailNotifications,
-                    /* isDisabled= */ disableEmailNotifications,
-                    /* label= */ "Send Program Admins an email notification every time an"
-                        + " application is submitted"))
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
-        // Program long description
-        FieldWithLabel.textArea()
-            .setId("program-display-description-textarea")
-            .setFieldName("localizedDisplayDescription")
-            .setLabelText("Long program description")
-            .setMarkdownSupported(true)
-            .setValue(displayDescription)
-            .setDisabled(disableLongDescription)
-            .setReadOnly(disableLongDescription)
-            .getTextareaTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        // Application steps
-        div()
-            .with(
-                buildApplicationStepDiv(0, applicationSteps, disableApplicationSteps),
-                buildApplicationStepDiv(1, applicationSteps, disableApplicationSteps),
-                buildApplicationStepDiv(2, applicationSteps, disableApplicationSteps),
-                buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
-                buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
-        h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
-        // Confirmation message
-        FieldWithLabel.textArea()
-            .setId("program-confirmation-message-textarea")
-            .setFieldName("localizedConfirmationMessage")
-            .setLabelText(
-                "A custom message that will be shown on the confirmation page after an application"
-                    + " has been submitted. You can use this message to explain next steps of the"
-                    + " application process and/or highlight other programs to apply for.")
-            .setMarkdownSupported(true)
-            .setValue(confirmationScreen)
-            .setDisabled(disableConfirmationMessage)
-            .setReadOnly(disableConfirmationMessage)
-            .getTextareaTag());
+    formTag
+        .with(
+            requiredFieldsExplanationContent(),
+            h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
+            // Program name
+            FieldWithLabel.input()
+                .setId("program-display-name-input")
+                .setFieldName("localizedDisplayName")
+                .setLabelText("Program name")
+                .setRequired(true)
+                .setValue(displayName)
+                .getInputTag()
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+            // Short description
+            FieldWithLabel.textArea()
+                .setId("program-display-short-description-textarea")
+                .setFieldName("localizedShortDescription")
+                .setLabelText(
+                    "Short description of this program for the public. Maximum 100 characters.")
+                .setMaxLength(100)
+                .setRequired(true)
+                .setValue(shortDescription)
+                .getTextareaTag()
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+            // Program slug
+            iffElse(
+                isExternalProgramCardsEnabled,
+                buildProgramSlugFieldForExternalProgramsFeature(
+                    adminName, programEditStatus, programType),
+                buildProgramSlugField(adminName, programEditStatus)),
+            // Admin description
+            FieldWithLabel.textArea()
+                .setId("program-description-textarea")
+                .setFieldName("adminDescription")
+                .setLabelText("Program note for administrative use only")
+                .setValue(adminDescription)
+                .getTextareaTag()
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+            // Program type
+            buildProgramTypeFieldset(programType, programEditStatus, isExternalProgramCardsEnabled),
+            // Program Eligibility
+            fieldset(
+                    legend("Program eligibility gating")
+                        .withClass("text-gray-600")
+                        .with(ViewUtils.requiredQuestionIndicator()),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-eligibility-gating",
+                        /* name= */ ELIGIBILITY_FIELD_NAME,
+                        /* value= */ String.valueOf(true),
+                        /* isChecked= */ eligibilityIsGating && !disableProgramEligibility,
+                        /* isDisabled= */ disableProgramEligibility,
+                        /* label= */ "Only allow residents to submit applications if they meet all"
+                            + " eligibility requirements",
+                        /* description= */ Optional.empty()),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-eligibility-not-gating",
+                        /* name= */ ELIGIBILITY_FIELD_NAME,
+                        /* value= */ String.valueOf(false),
+                        /* isChecked= */ !eligibilityIsGating && !disableProgramEligibility,
+                        /* isDisabled= */ disableProgramEligibility,
+                        /* label= */ "Allow residents to submit applications even if they don't"
+                            + " meet eligibility requirements",
+                        /* description= */ Optional.empty()))
+                .withId("program-eligibility")
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            // Program categories
+            iff(
+                !categoryOptions.isEmpty(),
+                showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
+            // Program visibility
+            fieldset(
+                    legend("Program visibility")
+                        .withClass("text-gray-600")
+                        .with(ViewUtils.requiredQuestionIndicator()),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-display-mode-public",
+                        /* name= */ DISPLAY_MODE_FIELD_NAME,
+                        /* value= */ DisplayMode.PUBLIC.getValue(),
+                        /* isChecked= */ displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                        /* isDisabled */ false,
+                        /* label= */ "Publicly visible",
+                        /* description= */ Optional.empty()),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-display-mode-hidden",
+                        /* name= */ DISPLAY_MODE_FIELD_NAME,
+                        /* value= */ DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                        /* isChecked= */ displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                        /* isDisabled= */ false,
+                        /* label= */ "Hide from applicants. Only individuals with the unique"
+                            + " program link can access this program",
+                        /* description= */ Optional.empty()),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-display-mode-ti-only",
+                        /* name= */ DISPLAY_MODE_FIELD_NAME,
+                        /* value= */ DisplayMode.TI_ONLY.getValue(),
+                        /* isChecked= */ displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                        /* isDisabled= */ false,
+                        /* label= */ "Trusted intermediaries only",
+                        /* description= */ Optional.empty()),
+                    buildUSWDSRadioOption(
+                        "program-display-mode-select-ti-only",
+                        /* name= */ DISPLAY_MODE_FIELD_NAME,
+                        /* value= */ DisplayMode.SELECT_TI.getValue(),
+                        /* isChecked= */ displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                        /* isDisabled= */ false,
+                        /* label= */ " Visible to selected trusted intermediaries only",
+                        /* description= */ Optional.empty()),
+                    showTiSelectionList(
+                        selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                    buildUSWDSRadioOption(
+                        /* id= */ "program-display-mode-disabled",
+                        /* name= */ DISPLAY_MODE_FIELD_NAME,
+                        /* value= */ DisplayMode.DISABLED.getValue(),
+                        /* isChecked= */ displayMode.equals(DisplayMode.DISABLED.getValue()),
+                        /* isDisabled= */ false,
+                        /* label= */ "Disabled",
+                        /* description= */ Optional.empty()))
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            // Program external link
+            FieldWithLabel.input()
+                .setId("program-external-link-input")
+                .setFieldName("externalLink")
+                .setLabelText("Link to program website")
+                .setValue(externalLink)
+                .setRequired(isExternalProgram)
+                .setDisabled(disableExternalLink)
+                .setReadOnly(disableExternalLink)
+                .setAttribute(
+                    "data-northstar-enabled",
+                    // TODO(#11581): North star clean up
+                    String.valueOf(settingsManifest.getNorthStarApplicantUi()))
+                .getInputTag()
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+            // Email notifications
+            fieldset(
+                    legend("Email notifications").withClass("text-gray-600"),
+                    buildUSWDSCheckboxOption(
+                        /* id= */ "notification-preferences-email",
+                        /* name= */ NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                        /* value= */ ProgramNotificationPreference
+                            .EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                            .getValue(),
+                        /* isChecked= */ notificationPreferences.contains(
+                                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                    .getValue())
+                            && !disableEmailNotifications,
+                        /* isDisabled= */ disableEmailNotifications,
+                        /* label= */ "Send Program Admins an email notification every time an"
+                            + " application is submitted"))
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            fieldset(
+                    legend("Login only applications").withClass("text-gray-600"),
+                    buildUSWDSCheckboxOption(
+                        /* id= */ "login-only-applications",
+                        /* name= */ "loginOnly",
+                        /* isChecked= */ loginOnly,
+                        /* isDisabled= */ false,
+                        /* label= */ "Require applicants to log in to apply to this program"))
+                .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
+            // Program long description
+            FieldWithLabel.textArea()
+                .setId("program-display-description-textarea")
+                .setFieldName("localizedDisplayDescription")
+                .setLabelText("Long program description")
+                .setMarkdownSupported(true)
+                .setValue(displayDescription)
+                .setDisabled(disableLongDescription)
+                .setReadOnly(disableLongDescription)
+                .getTextareaTag()
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+            h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
+            // Application steps
+            div()
+                .with(
+                    buildApplicationStepDiv(0, applicationSteps, disableApplicationSteps),
+                    buildApplicationStepDiv(1, applicationSteps, disableApplicationSteps),
+                    buildApplicationStepDiv(2, applicationSteps, disableApplicationSteps),
+                    buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
+                    buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
+            h2("Confirmation message").withClasses("mt-6", "mb-2", "font-semibold"),
+            h3("Current confirmation message preview:")
+                .withClasses("pt-1", "font-semibold", "ml-4"),
+            AlertComponent.renderFullAlert(
+                    AlertType.SUCCESS,
+                    /* text= */ "",
+                    /* title= */ Optional.empty(),
+                    /* hidden= */ false,
+                    /* headingLevel= */ HeadingLevel.H3,
+                    /* classes...= */ "mb-2",
+                    "ml-4")
+                .withId("program-confirmation-message-preview"),
+            // Confirmation message
+            FieldWithLabel.textArea()
+                .setId("program-confirmation-message-textarea")
+                .setFieldName("localizedConfirmationMessage")
+                .setLabelText(
+                    "A custom message that will be shown on the confirmation page after an"
+                        + " application has been submitted. You can use this message to explain"
+                        + " next steps of the application process and/or highlight other programs"
+                        + " to apply for.")
+                .setMarkdownSupported(true)
+                .setValue(confirmationScreen)
+                .setDisabled(disableConfirmationMessage)
+                .setReadOnly(disableConfirmationMessage)
+                .addReferenceClass("pt-3")
+                .getTextareaTag())
+        .withData(
+            "default-confirmation-message", messages.at(MessageKey.CONTENT_CONFIRMED.getKeyName()));
 
     formTag.with(createSubmitButton(programEditStatus));
     return formTag;
@@ -692,6 +736,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withCondDisabled(isDisabled),
             labelTag)
         .withClasses("usa-radio");
+  }
+
+  private DivTag buildUSWDSCheckboxOption(
+      String id, String name, Boolean isChecked, Boolean isDisabled, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 
   private DivTag buildUSWDSCheckboxOption(

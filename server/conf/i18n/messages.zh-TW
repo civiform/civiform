@@ -1,333 +1,746 @@
-# Messages for Traditional Chinese (中文（繁體）)
-# Exported from translatewiki.net
-# Author: Kly
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=登出
+#  This appears before applicants select their preferred language.
 label.selectLanguage=請選取您偏好的語言。
 button.untranslatedSubmit=提交
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
 footer.aboutCiviform=關於 CiviForm
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=如需技術支援，請洽詢
+# Text in the footer telling users that this is an official website of the specified Civic entity.
 footer.officialWebsiteOf=「{0}」官方網站
+# Text on a link that will scroll to the top of the page
 footer.returnToTop=返回頁首
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
 footer.technicalSupport=如需技術支援服務，請傳送電子郵件至 {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
 footer.technicalSupport.v2=如需技術支援，請傳送電子郵件至 {0}
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
 guest=訪客
+# Clicking this button shows a dropdown menu to change the display language
 button.languages=選取語言
+# Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=選擇語言
+# A label on the button that opens the header menu shown on mobile
 header.menu=選單
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=結束工作階段
+# Message for screen readers as part of aria label to let user know about an informational alert.
 heading.informationAriaLabelPrefix=注意事項：{0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=成功：{0}
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=您的工作階段已結束。
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=您是訪客使用者
+# Message with user's name to show who you are logged in as.
 header.userName=目前登入身分：{0}
+# Error message to answer a required question
 validation.isRequired=這是必答問題。
+# Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=請輸入有效內容。
+# Error message announced to screen reader when there are errors on the current page.
 validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
+# Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
 content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=標有星號 ({0}) 的欄位是必填欄位。
 content.optional=(選用)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
 button.close=關閉
+# Button text that will navigate the applicant to a page where they can review previous answers
 button.review=檢查
+# Button text that will go back to the previous page.
 button.goBack=返回
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
+# Aria-label for the primary navigation
 label.primaryNavigation=主要導覽
+# Aria-label for agency identifier
 label.agencyIdentifier=代理商 ID
+# Aria-label for guest session alert
 label.guestSessionAlert=僅供參考的訪客工作階段警告
+# Link to skip to the main content of the page
 link.skipToMainContent=跳至主要內容
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
 title.login=登錄
+# Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=請使用「{0}」帳戶登入
+# The text on the button an applicant clicks to create an account.
 button.createAnAccount=建立帳戶
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
+# The text on the button an applicant clicks to log in to their session.
 button.login=登入
+# The text on the button an applicant clicks to sign in to their session.
 button.signIn=登入
+# Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=還沒有帳戶嗎？
+# The text between creating a new account, and becoming a guest
 content.or=或
+# The text on the button for applicants to create a new account.
 button.createAccount=建立帳戶
+# The text on the button for guests to log in to their session.
 button.guestLogin=繼續以訪客身分使用
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
 content.loginDisabledPrompt=目前無法登入帳戶
+# The words leading up to the admin login anchor
 content.adminLoginPrompt=需要其他協助嗎？
+# Asking whether the user is an administrator for the program
 content.adminFooterPrompt=您是管理員嗎？
+# The text on the anchor for admins to log in to their session.
 link.adminLogin=管理員登入
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=已上傳檔案：{0}
+# Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=選取檔案
+# Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
+# 2 or greater, representing the maximum number of files.
 input.multipleFileUploadHint=選取一或多個檔案 (最多可選取 {0} 個)
+# Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=選取一或多個檔案
+# The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=刪除
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
 button.keepFile=繼續
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=儲存並繼續
+# The button text for navigating to the previous screen in the form.
 button.previousScreen=上一個畫面
+# The label on a button that will navigate the user to the previous section of the form.
 button.back=返回
+# The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=確認並提交
+# The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=略過
+# The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0}/{1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
+# An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請進度
+# Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=查看並提交
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=很抱歉，這項計畫尚未完整翻譯成您偏好的語言。
+# A link that logs out a guest user after they submit an application.
 link.allDone=我完成了
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=申請其他計畫
+# A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=建立或登入帳戶
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=首頁
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
 link.applicationForProgram=「{0}」的申請書
+# Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=移除檔案
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr=移除「{0}」檔案
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=您尚未答完這個頁面的問題。仍要離開並返回上一頁嗎？
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
 modal.errorSaving.review.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接前往確認頁面？
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
 modal.errorSaving.previous.content=您填寫的資訊有誤。要留在這個頁面並修正回答，還是不儲存回答，直接返回上一個問題頁面？
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
 modal.errorSaving.review.noSaveButton=不儲存回答，繼續前往確認頁面
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
 modal.errorSaving.previous.noSaveButton=不儲存回答，返回上一個問題頁面
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=留在這個頁面並修正回答
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=本頁面上的部分回答需要修正
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
 modal.errorSaving.content.review=申請書的這個頁面有錯誤，或者部分欄位尚未填寫。如果繼續前往確認頁面，而不先更正錯誤，則您在本頁面上輸入的所有資訊都將遺失。
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
 modal.errorSaving.content.previous=申請書的這個頁面有錯誤，或者部分欄位尚未填寫。如果繼續返回上一頁，而不先更正錯誤，則您在本頁面上輸入的所有資訊都將遺失。
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
 modal.errorSaving.continueButton.review=不儲存回答，繼續前往確認頁面
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
 modal.errorSaving.continueButton.previous=不儲存回答，繼續返回上一頁
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
 modal.errorSaving.fixButton=留在這個頁面並修正回答
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
 button.apply=申請
+# The text read for screen readers.
 button.applySr=申請「{0}」
+# The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=編輯
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=編輯已提交的「{0}」申請資料
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=繼續申請「{0}」
+# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
+# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=開始填寫問卷調查
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=查看及申請
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=查看及申請「{0}」
+# The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=在新分頁中查看
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
 button.viewInNewTabSr=在新分頁中查看「{0}」
+# The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHerePreScreenerSr=按這裡開始填寫「{0}」
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr=編輯您針對「{0}」提交的資訊
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continuePreScreenerSr=繼續填寫「{0}」
+# Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
+# Text for applicants to understand the section is for finding programs
 content.findPrograms=尋找可加入的計畫
+# Long form description of the CiviForm site shown to the applicant.
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
+# Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
+# Main home page heading
 heading.homepage=在這裡申請政府協助
+# Main home page heading, updated to be more generic
 heading.homepage.v2=線上申請政府計畫
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# Main home page intro text
 content.homepageIntro=如要取得食物、交通運輸、兒童照護、公用事業和其他領域的相關協助，請在下方點按任一選項。請注意，您一次只能申請一項計畫。
+# Main home page intro text, updated to be more generic
 content.homepageIntro.v2=瀏覽您可能符合資格的服務。CiviForm 會重複使用您的資訊，協助您快速找到這類服務。
+# The label for the program filter buttons
 label.programFilters=計畫篩選條件
+# The label for the program filter checkboxes
 label.programFilters.v2=您需要哪個領域的協助？
+# The button to apply program filters
 button.applySelections=套用所選篩選條件
+# The button to clear program filter selections
 button.clearSelections=清除所選篩選條件
+# Link text to read more about a program.
 link.programDetails=計畫詳情
+# The same text, read for screen readers.
 link.programDetailsSr=「{0}」計畫詳細資訊 (在新分頁中開啟)
+# The title of the page for the list of programs.
 title.programs=計畫與服務
+# The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=踏出第一步
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=所有計畫 ({0})
+# For the badge on the program list index denoting the current status of an application
 title.status=狀態
+# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=進行中
+# Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=未開始
+# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=尋找服務
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=我的申請書 ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection.v2=我的申請書
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=其他計畫和服務 ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
 title.availableProgramsSection=計畫和服務
+# Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=此部分已填寫完畢
+# Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=已提交
+# Alert banner when an application was successfully saved, with the ID of the application.
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
+# Alert banner when an application was already completed
 toast.programCompleted=已完成申請。
+# Informational tag on an in-progress application card
 label.inProgress=尚未提交
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
 label.submitted=已提交
+# Informational tag on a submitted application card. The parameter is the date of the submission.
 label.submittedOn=已於 {0}提交
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn=已於 {1}{0}
+# Title of the external program modal that opens when a user clicks on an external program card.
 title.externalProgramModal=這會開啟其他網站
+# Content of the external program modal that opens when a user clicks on an external program card.
 content.externalProgramModal=如要前往計畫的網站，以便查看更多資訊及完成申請程序，請點選「繼續」
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
 banner.acctDeleteError=無法刪除這個帳戶。
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
 banner.acctDeleteErrorReason=這個帳戶有尚未填寫完畢的申請書，因此無法刪除。
+# Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=已成功更新客戶資訊。
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
 banner.clientAcctDeleted=已成功刪除「{0}」的客戶帳戶。
+# Message when a user successfully creates a client account.
 banner.newClientCreated=已成功建立新客戶。
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
 banner.viewApplication=您目前在為「{0}」提出申請。您要幫忙提出申請的是其他客戶嗎？
+
+
+# Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=新增客戶
+# Button that brings the user back to the list of their clients.
 button.backToClientList=返回客戶清單
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
 button.backToEditing=返回編輯頁面
+# Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=取消
+# Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=清除搜尋字詞
+# Button for a user to delete their client's account
 button.deleteAcct=刪除帳戶
+# Button option when asked if the user is sure they want to delete an account.
 button.keepAcct=保留帳戶
+# Button to navigate to the next page.
 button.nextPage=繼續
+# Button to save information that has been entered.
 button.save=儲存
+# Button to execute a search to filter a client list.
 button.search=搜尋
+# Button to select a client.
 button.select=選取
+# Button to start an application on behalf of a client.
 button.startApp=開始申請
+# Button to view the applications belonging to an applicant.
 button.viewApplications=查看申請書
+# Button to view and add clients
 button.viewAndAddClients=查看並新增客戶
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=新客戶「{0}」已加入客戶清單。現在可以開始為這個客戶提交申請書了。
+# The tooltip of the email input field.
 content.emailTooltip=新增客戶的電子郵件地址，讓客戶接收相關快訊，掌握最新申請狀態。如未提供電子郵件地址，您或您的社區機構必須負責向客戶說明最新情況。
+# For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted=已提交 {0} 份申請書
+# Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=已提交 1 份申請書
+# Some explanation text on the confirmation modal when deleting a client.
 content.warning=這個客戶沒有任何申請書提交記錄，因此不會遺失任何申請書。
+# Shows there is no email address connected to the account.
 content.noEmailAddress=(無電子郵件地址)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=尚未登入
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
 content.noApplications=已登入但尚未提交任何申請書
+# The status of an organization member showing the date of the last application that they submitted for a client.
 content.lastApplicationDate=上次提交申請書的日期：{0}
+# Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=確定要刪除這個客戶的帳戶嗎？
+
+# Header for the page with the Organization Members table.
 header.acctSettings=帳戶設定
+# Tab label for getting to the client list page
 header.clientList=客戶清單
+# Label for search
 header.search=搜尋
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=帳戶狀態
+# Label above the phone number for each client on the client list.
 label.contactInfo=聯絡資訊
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
 label.day=日
+# Label above the birth date input field when creating or editing a client
 label.dob=出生日期
+# Example above the 3 birth date input fields (Month, Day, Year).
 label.dobExample=例如：1986 年 1 月 28 日
+# Label above the "Email" column of the community-based organization members table.
 label.email=電子郵件地址
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
 label.errorDOB=必須輸入出生日期
+# Validation error message below first name input when the TI clicks on save without filling out the field.
 label.errorFirstName=必須輸入名字
+# Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=必須輸入姓氏
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
 label.errorEmailInUseForClientCreate=這個電子郵件地址已有人使用。如果申請者已經有帳戶，就無法建立申請者。
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
 label.errorEmailInUseForClientEdit=這個電子郵件地址已有人使用。如果申請者已經有帳戶，就無法更新申請者。
+# The label above the dropdown select field for the month of the client birth date.
 label.month=月
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
 label.name=姓名
+# Example above the name input field for the client search.
 label.nameExample=例如：王、小明或王小明
+# Label above the text input field for notes about a client.
 label.notes=附註
+# Label above the phone number input field when creating or editing a client.
 label.phoneNum=電話號碼
+# The label above the Date of Birth search input for the client search.
 label.searchByDob=依出生日期搜尋
+# The label above the name search field of the client search.
 label.searchByName=依姓名搜尋
+# The label above the input field for the year of the client birth date.
 label.year=年
+# Label showing the user when there is no name
 label.unnamedUser=不具名使用者
-link.edit=編輯
+
+# Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=選取新客戶
+
+# This is the header above the list of clients and the client search.
 title.allClients=所有客戶
+# This is the heading above a new client creation form.
 title.createClient=建立新客戶
+# This is the heading above the client editing form.
 title.editClient=編輯客戶資訊
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=目前顯示 {0} 個客戶
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=目前顯示 1 個客戶
+# This is the heading above an unfiltered list of clients.
 title.displayingAllClients=目前顯示所有客戶
+# This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=機構成員
+# HTML document title for the trusted intermediary dashboard page
 title.tiDashboard=信任的中介服務 - 管理客戶 - CiviForm
+# HTML document title for the trusted intermediary account settings page
 title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
 button.submit=提交
+# Submit application button
 button.submitApplication=提交申請書
+# Continue application button
 button.continue=繼續
+# Button text on a button that will allow the user to start filling out a section of questions.
 button.start=開始
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
 content.reviewPageIntro=選取下方步驟可開始申請計畫。您可以儲存申請書，以便日後隨時回來繼續填寫。
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=不符合資格
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=編輯
 link.answer=回答問題
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=已於 {0}回答
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=回答以下問題：{0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=編輯「{0}」
+# Title for the summary of the pre-screener page
 title.preScreenerSummary=福利預先篩選表單摘要
+# Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=開始填寫
 title.programSummary=計畫申請摘要
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - 計畫簡介
+# Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=申請方式
+# Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=申請「{0}」計畫
+# The text on the button that takes users to the account creation form.
 link.createAccountFromOverview=使用帳戶申請計畫
+# The link that directs users to the start of the application without creating an account.
 link.startAsGuest=以訪客身分申請計畫
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Tab title for ineligible page
 title.ineligible=不符合計畫資格
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
 title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
+# Section heading
 heading.eligibilityCriteria=進一步瞭解資格規定
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0}。
 content.eligibilityCriteria.v3=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0} (在新分頁中開啟)。
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
+# Text shown on a webpage when the applicant is ineligible for a program.
 content.changeAnswersForEligibility.v2=如果您認為結果有誤，請返回上一頁編輯回覆。您也可以返回首頁申請其他計畫。
+# Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=返回並編輯
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=編輯回覆
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
 toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=您可能符合資格
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayQualifyTi=您的客戶可能符合資格
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
 tag.mayNotQualify=您可能不符合資格
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=您的客戶可能不符合資格
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+
+# Error when there was an exception while submitting the application
 banner.errorSavingApplication=儲存申請書時發生錯誤
+
+# Alert title when applicant may be eligible for a program
 alert.eligibility_applicant_eligible_title=您可能符合這項計畫的資格
+# Alert text when applicant may be eligible for a program
 alert.eligibility_applicant_eligible_text=根據您的回答，您可能符合這項計畫的資格。
+
+# Alert title when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_title=您可能不符合這項計畫的資格
+# Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=根據您的回答，您可能不符合這項計畫的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+# Alert text when applicant may not be eligible for a program (new version for North Star)
 alert.eligibilityApplicantNotEligibleTextShort=根據您對下列問題的回覆，您可能不符合這項計畫的資格。
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=您可能符合這項計畫的資格
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_text=申請書中新增或更新的問題可能會影響您的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_title=您可能不再符合這項計畫的資格
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_text=申請書中新增或更新的問題可能會影響您的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when TI client may be eligible for a program
 alert.eligibility_ti_eligible_title=您的客戶可能符合這項計畫的資格
+# Alert text when TI client may be eligible for a program
 alert.eligibility_ti_eligible_text=根據您的回答，您的客戶可能符合這項計畫的資格。
+
+# Alert title when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_title=您的客戶可能不符合這項計畫的資格
+# Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=根據您的回答，您的客戶可能不符合這項計畫的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+# Alert text when TI client may not be eligible for a program (new version for North Star)
 alert.eligibilityTiNotEligibleTextShort=根據您對下列問題的回覆，您的客戶可能不符合這項計畫的資格。
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=您的客戶可能符合這項計畫的資格
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_text=申請書中新增或更新的問題可能會影響您客戶的回答或合格狀態。請查看下方所有問題。
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_title=您的客戶可能不再符合這項計畫的資格
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=申請書中新增或更新的問題可能會影響您客戶的回答或合格狀態。請查看下方所有問題。
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=根據您對其他申請書的回覆，您可能符合這項計畫的資格。
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
 alert.likelyIneligible=根據您對其他申請書的回覆，您可能不符合這項計畫的資格。
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
 alert.clientLikelyEligible=根據您的客戶對其他申請書的回覆，對方可能符合這項計畫的資格。
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
 alert.clientLikelyIneligible=根據您的客戶對其他申請書的回覆，對方可能不符合這項計畫的資格。
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
 title.applicationConfirmation=申請確認
+# A confirmation message that shows after an applicant has submitted their application.
 content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料，申請編號為 {1}。
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=建立或登入帳戶
+# The title of a pop-up informing an applicant to sign in before continuing with the application
 title.signInModal=使用帳戶登入
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=建立帳戶後，您就能查看申請書狀態、變更申請書，以及快速申請其他計畫。
-content.pleaseCreateAccount=登入您的 {0} 帳號或建立帳號來儲存您的資訊。您可以隨時返回完成後續的申請。如果您還沒有帳號，登入頁面可讓您註冊，並且您不會遺失任何已輸入的資料。
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
+content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請參加其他計畫。
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。登入之後，您就可以申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
+# A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.preScreenerConfirmation=您可能有資格參加的計畫
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=您的客戶可能有資格參加的計畫
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
+# A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=根據您的回覆，您可能符合下列計畫的資格：
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
 content.preScreenerConfirmationTi.v2=根據您的回覆，您的客戶可能符合下列計畫的資格：
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.preScreenerNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=下載申請書
 button.downloadPdf=下載 PDF
+# A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
+# Heading above a section showing the user's name, confirmation number, and date
 heading.yourSubmissionInformation=您的申請書詳情
+# Text above the name of the person who submitted this application
 heading.applicantName=此申請書的提交者
+# Text above the confirmation number of the application
 heading.confirmationNumber=確認編號
+# Text above the date submitted of the application
 heading.dateSubmitted=提交日期
+# Text above a message telling the user they can print this page
 heading.forYourRecords=記錄確認頁面
+# Text above a button to print this page
 content.youCanPrint=您可以列印本記錄確認頁面。
+# Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=後續步驟
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=您已提交「{0}」的申請書
+# Informational "alert" title to encourage the user to create an account
 alert.createAccount=如果想在之後存取申請書，請建立帳戶
+# Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=只要在帳戶中儲存相關資訊，就能查看申請書狀態，還可以快速申請其他計畫。
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
 alert.noProgramsAvailable=您已開始申請或已申請過目前適用的所有計畫。
+# Hyperlink to log in to an existing account
 content.loginToExistingAccount=登入現有帳戶
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
 title.noChangesToSave=沒有可儲存的「{0}」修改內容
 content.noChanges=您尚未修改申請書。要繼續編輯嗎？
 button.continueEditing=繼續編輯
 button.exitApplication=結束申請程序
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
 title.programNotAvailable=這項計畫已停用
+# Info stating program disabled and see home page for other options.
 content.disabledProgramInfo=很抱歉，您嘗試存取的計畫已停用。如要尋找其他計畫，請返回首頁。
+# Button text on a button that takes the user back to the home page.
 button.homePage=返回首頁
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=公寓、套房等 (選填)
 label.city=城市
 label.state=州
 label.selectState=請選取州
 label.street=地址
 label.zipcode=郵遞區號
+
+# Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=請輸入有效的街道名稱和號碼。
 validation.cityRequired=請輸入城市。
 validation.currencyMisformatted=請使用下列其中一種貨幣格式：1000 1,000 1000.30 1,000.30
 validation.stateRequired=請輸入州別。
 validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
 validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=確認地址
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=找不到您輸入的地址。
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=請檢查地址的拼字是否正確無誤，或是從我們提供的清單中選擇其他地址。
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=請檢查地址的拼字是否正確無誤。如果有誤，請編輯地址以便繼續操作。
+# Heading for showing the user the address they provided earlier
 content.addressEntered=您輸入的地址：
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=建議的地址：
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=建議的地址：
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=確認地址
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=選擇一個選項：
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
 label.countryCode=國家/地區
 label.phoneNumber=輸入電話號碼
 validation.phoneNumberRequired=必須提供電話號碼
@@ -335,159 +748,419 @@ validation.phoneCountryCodeRequired=必須選取國家/地區
 validation.phoneNumberMustContainNumbersOnly=電話號碼不得包含非數字字元
 validation.invalidPhoneNumberProvided=這個電話號碼無效
 validation.phoneMustBeLocalToCountry=您提供的電話號碼不屬於您選取的國家/地區
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
 validation.invalidDateFormat=日期的格式不正確，請重新輸入
+# Date cannot be over specified years in past.
 validation.dateBeyondAllowablePast=請輸入過去 {0} 年內的日期
+# Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=請輸入未來 {0} 年內的日期
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
 validation.futureDateRequired=必須輸入今天以後的日期
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
 validation.dateTooFarInPast=必須輸入 {0}以後的日期
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
 validation.pastDateRequired=必須輸入今天以前的日期
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
 validation.dateTooFarInFuture=必須輸入 {0}以前的日期
+# Validation error shown when the user enters a date that is before or after the allowed date range.
 validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
 validation.currentDateRequired=請輸入今天的日期
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.February=02 - 2 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.March=03 - 3 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.April=04 - 4 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.May=05 - 5 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.June=06 - 6 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.July=07 - 7 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.August=08 - 8 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.September=09 - 9 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.October=10 - 10 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.November=11 - 11 月
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.December=12 - 12 月
+# A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=選取
+# An error message that appears when the user tries to search by date without completing all the fields.
 error.incompleteDate=錯誤：請輸入年月日。
+# An error message that appears when the user tries to enter a date of birth that is in the future.
 validation.dobNotInPast=出生日期必須是過去的日期
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
 validation.impossibleDob=出生日期必須是過去 150 年內的日期
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
 button.addEntity=新增「{0}」
+# Text on a button an applicant would click to delete an entity
 button.removeEntity=移除「{0}」
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=確定要移除這個{0}嗎？點選「檢查」、「上一個」或「下一個」後，系統會儲存這項變更，且所有與這個{0}相關聯的資料將會遺失。
 validation.entityNameRequired=請每行輸入一個值。
+# Validation error that shows when an applicant uses a duplicate entity name
 validation.duplicateEntityName=每行輸入的值不可重複。
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
 validation.tooManyEntities=最多只能輸入 {0} 個值。
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
 validation.tooFewEntities=請至少輸入 {0} 個值。
 placeholder.entityName=「{0}」名稱
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=請選取檔案。
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
 button.chooseFile=選擇檔案
+# Text shown on a tag while a file is uploading.
 label.uploading=上傳中
+# Label applied to a list of uploaded files
 label.uploadedFiles=上傳的檔案
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=長度不可超過 {0} 個字元。
 validation.idTooShort=長度不可少於 {0} 個字元。
 validation.numberRequired=只能輸入數字。
+validation.numberRequired.v2=Must contain only numbers 0-9.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
 validation.tooFewSelections=請至少選取 {0} 項。
+# Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=最多只能選取 {0} 個選項。
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
 label.firstName=名字
 label.lastName=姓氏
 label.middleName=中間名
+# Label for name suffix field in name question
 label.nameSuffix=後綴
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=名字
 placeholder.lastName=姓氏
 placeholder.middleName=中間名
+# Placeholder for name suffix field in name question
 placeholder.nameSuffix=後綴
+
+# Option Junior for the name suffix dropdown
 option.junior=小
+# Option Senior for the name suffix dropdown
 option.senior=大
+# Option the first for the name suffix dropdown
 option.first=一世
+# Option the second for the name suffix dropdown
 option.second=二世
+# Option the third for the name suffix dropdown
 option.third=三世
+# Option the forth for the name suffix dropdown
 option.forth=四世
+# Option the fifth for the name suffix dropdown
 option.fifth=五世
+
+# Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=請輸入名字。
 validation.lastNameRequired=請輸入姓氏。
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=數字不得大於 {0}。
 validation.numberTooSmall=數字不得小於 {0}。
 validation.numberNonInteger=數字必須為正整數，而且只含 0 到 9 的數值字元。
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=長度不可超過 {0} 個字元。
 validation.textTooShort=長度不可少於 {0} 個字元。
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
 option.yes=是
 option.no=否
 option.notSure=不確定
 option.maybe=或許
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Go to next page of map locations
+# Aria label for pagination list
+map.ariaLabelPaginationList=Pagination for map locations
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Go to previous page of map locations
+# Header for the section showing available locations
+map.availableLocations=Available locations
+# Legend text for the map filters section
 map.filterLegendText=Filters
+# Aria label for pagination buttons
+map.goToPage=Go to page {0} of map locations
+# Link text for location details URLs
 map.locationLinkText=View more details
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr=View more details for {0}
+# Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
+# Alt text for map region
+map.mapRegionAltText=Interactive map displaying locations
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Selected
+# Message displayed when no locations have been selected yet
 map.noSelectionsMessage=尚未選取任何地點。
+# Sr only message displayed when page has changed
+map.paginationStatus=Now displaying page {0} of {1}.
+# Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
-map.selectLocationButtonText=Select location
+# Heading for the section showing selected locations
 map.selectedLocationsHeading=選取的地點
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
+# Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Switch to map view
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Switch to list view
+# Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.contactUs = contact us
+map.homepage = homepage
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Add filter
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+# Title for filters section
+map.addFiltersTitle=Filters
+# Button for adding a tag
+map.addTagButton=Add tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+# Title for tag section
+map.addTagTitle=Tag
+# Label for display name field
+map.displayNameLabel=Display name
+# Label for key field
+map.keyLabel=Key
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
+# Label for location address key field
+map.locationAddressLabel=Address key
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=View more details URL key
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
+# Label for location name key field
+map.locationNameLabel=Name key
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Maximum location selections
+# Label for setting text field
+map.settingTextLabel=Alert text
+# Label for value field
+map.valueLabel=Value
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=多選題不得留空。
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字母、數字、底線和破折號。
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
+# The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=發生錯誤
+# The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=很抱歉，系統發生內部錯誤。
+# Additional information about the error that is shown to the user in small font
 error.internalServerDescription=請前往 %s 向技術支援團隊尋求協助，並提供以下錯誤 ID：{0}。
+# A button redirecting the user to the homepage
 error.internalServerHomeButton=前往首頁
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=錯誤代碼：{0}
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=前往 {0} 登入 CiviForm
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=如要管理您的客戶，請前往 {0}。
+# Subject of the email sent to an applicant when the status of their application has changed
 email.applicationUpdateSubject=您的「{0}」申請書狀態有新異動
+# Subject of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateSubject=您代替申請者「{1}」提出的「{0}」計畫申請書狀態有新異動
+# Body of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀態已變更為「{2}」。
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
 banner.title=這是官方政府網站。
 banner.link=以下說明判斷方式
 banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
 banner.httpsSectionHeader=安全的 .gov 網站會使用 HTTPS
 banner.httpsSectionContent=如果看到鎖頭圖示 ( {0} ) 或 https://，表示您已安全地連線至 .gov 網站。請務必只在安全的官方網站上分享私密資訊。
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
 banner.notForProductionBannerLine1=這個網站僅供測試使用，請勿在網站中輸入個人資訊。
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往 {0}。
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
 banner.guestBannerText=申請完成後，請{0}，確保您的資料安全。
+# A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=兒童保育
+
+# A tag used to filter the list of programs down to those that are related to economy.
 category.tag.economic=經濟
+
+# A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=教育
+
+# A tag used to filter the list of programs down to those that are related to employment.
 category.tag.employment=就業
+
+# A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=食物
+
+# A tag used to filter the list of programs down to those that have a general purpose.
 category.tag.general=一般
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
 category.tag.healthcare=醫療照護
+
+# A tag used to filter the list of programs down to those that are related to housing.
 category.tag.housing=住宅
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=網際網路
+
+# A tag used to filter the list of programs down to those that are related to the military.
 category.tag.military=軍人
+
+# A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=訓練
+
+# A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=交通運輸
+
+# A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=公用事業
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=退伍軍人
+
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=類別
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=工作階段閒置警告
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=由於閒置過久，您的工作階段即將結束。要延長工作階段嗎？
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=工作階段時間長度警告
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=基於時間長度限制，您的工作階段即將結束。請儲存工作，並視需要重新登入。
+
+# Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=延長工作階段
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=已成功延長工作階段
+
+# Error message shown when there was a problem extending the user's session
 session.extended.error=無法延長工作階段
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.
-
-button.adminLogin=Administrator log in
-
-button.applicantLogin=Applicant log in
-
-map.addFilterButton=Add filter
-
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
-
-map.addFiltersTitle=Filters
-
-map.displayNameLabel=Display name
-
-map.keyLabel=Key
-
-map.locationAddressLabel=Address key
-
-map.locationDetailsUrlLabel=View more details URL key
-
-map.locationNameLabel=Name key
-
-map.mapRegionAltText=Interactive map displaying locations
-
-map.maxLocationSelectionsLabel=Maximum location selections

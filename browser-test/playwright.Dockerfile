@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1@sha256:dabfc0969b935b2080555ace70ee69a5261af8a8f1b4df97b9e7fbcf6722eddf
-FROM ubuntu:24.04@sha256:9cbed754112939e914291337b5e554b07ad7c392491dba6daf25eef1332a22e8
+# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
+FROM ubuntu:24.04@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252
 
 RUN apt-get update -y && \
     apt-get install -y ca-certificates curl gnupg && \
@@ -39,13 +39,13 @@ WORKDIR $PROJECT_DIR
 # get re-downloaded every time code changes.
 COPY package.json package-lock.json ${PROJECT_DIR}/
 
-RUN npm install && \
+RUN npm ci && \
     npx playwright install --with-deps chromium
 
 COPY . ${PROJECT_DIR}
 
 # Re-run, to install from cache after overwriting it.
-RUN npm install && \
+RUN npm ci && \
     npx playwright install --with-deps chromium
 
 ENTRYPOINT ["/bin/bash"]

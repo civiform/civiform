@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.apibridge.ApiBridgeServiceDto.CompatibilityLevel;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.ApiBridgeConfigurationModel;
 import org.junit.Before;
@@ -37,6 +38,29 @@ public class ApiBridgeConfigurationRepositoryTest extends ResetPostgres {
 
     var model = repo.findAll().toCompletableFuture().join();
     assertThat(model).hasSize(3);
+  }
+
+  @Test
+  public void findAllEnabledByAdminNames_succeeds() {
+    repo.insert(createBridgeConfigurationModel().setAdminName("admin-name-1"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel().setAdminName("admin-name-2").setUrlPath("urlPath2"))
+        .toCompletableFuture()
+        .join();
+    repo.insert(
+            createBridgeConfigurationModel()
+                .setAdminName("admin-name-3")
+                .setUrlPath("urlPath3")
+                .setEnabled(false))
+        .toCompletableFuture()
+        .join();
+
+    var adminNames = ImmutableSet.of("admin-name-1", "admin-name-2", "admin-name-3");
+
+    var model = repo.findAllEnabledByAdminNames(adminNames).toCompletableFuture().join();
+    assertThat(model).hasSize(2);
   }
 
   @Test

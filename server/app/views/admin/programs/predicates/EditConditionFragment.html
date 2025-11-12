@@ -1,0 +1,59 @@
+<!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditConditionPartialViewModel"*/-->
+<th:block th:fragment="editCondition(model)">
+  <div
+    class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
+    th:data-testid="|condition-${model.conditionId}|"
+  >
+    <div class="usa-card__header">
+      <div class="display-flex flex-justify flex-align-center">
+        <div
+          class="usa-card__heading font-heading-sm"
+          th:text="|Condition ${model.conditionId}|"
+        ></div>
+        <button
+          type="button"
+          class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="#b50909"
+            stroke-width="1%"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+          >
+            <path
+              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+            ></path>
+          </svg>
+          [[#{button.predicateDeleteCondition}]]
+        </button>
+      </div>
+    </div>
+    <div class="usa-card__body font-body-xs">
+      <div class="border-top border-base-lighter margin-y-2"></div>
+      <div class="font-body-xs">
+        [[#{content.predicateConditionIsTrueIf}]]
+        <select
+          class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
+          th:name="|condition-${model.conditionId}-nodeType|"
+          autofocus
+        >
+          <option
+            th:each="nodeType : ${model.operatorNodeTypes()}"
+            th:text="${nodeType.toDisplayString()}"
+            th:value="${nodeType.name()}"
+          ></option>
+        </select>
+        [[#{content.predicateSubconditionsAreTrue}]]
+      </div>
+      <div
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.emptySubconditionViewModel()})}"
+      ></div>
+    </div>
+  </div>
+  <div
+    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
+  ></div>
+</th:block>

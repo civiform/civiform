@@ -9,22 +9,22 @@ import {
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
+  POPUP_LAYER,
   MapData,
   mapQuerySelector,
-  CF_LOCATIONS_LIST_CONTAINER,
-  CF_LOCATION_CHECKBOX,
-  CF_LOCATION_HIDDEN,
+  CF_FILTER_HIDDEN,
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
-  MapMessages,
   localizeString,
+  queryLocationCheckboxes,
+  getMessages,
 } from './map_util'
+import {resetPagination} from './map_question_pagination'
 
 export const initFilters = (
   mapId: string,
   mapElement: MapLibreMap,
-  messages: MapMessages,
   mapData: MapData,
 ): void => {
   const featureMap = new Map<string, Feature>()
@@ -36,7 +36,10 @@ export const initFilters = (
 
   mapQuerySelector(mapId, CF_APPLY_FILTERS_BUTTON)?.addEventListener(
     'click',
-    () => applyLocationFilters(mapId, mapElement, featureMap, messages),
+    () => {
+      applyLocationFilters(mapId, mapElement, featureMap)
+      locationFocus(mapId)
+    },
   )
 
   mapQuerySelector(mapId, CF_RESET_FILTERS_BUTTON)?.addEventListener(
@@ -47,16 +50,24 @@ export const initFilters = (
         if (!selectOptionElement) return
         selectOptionElement.value = ''
       })
-      applyLocationFilters(mapId, mapElement, featureMap, messages, true)
+      applyLocationFilters(mapId, mapElement, featureMap, true)
+      locationFocus(mapId)
     },
   )
+}
+
+const locationFocus = (mapId: string): void => {
+  const locationCount = mapQuerySelector(
+    mapId,
+    CF_LOCATION_COUNT,
+  ) as HTMLElement
+  locationCount.focus()
 }
 
 const applyLocationFilters = (
   mapId: string,
   map: MapLibreMap,
   featureMap: Map<string, Feature>,
-  messages: MapMessages,
   reset?: boolean,
 ): void => {
   const filters = reset ? {} : getFilters(mapId)
@@ -65,8 +76,15 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
+  const popupContent = mapQuerySelector(mapId, POPUP_LAYER) as HTMLElement
+  let openPopupFeatureId = null
+  if (popupContent) {
+    openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
+  }
+
+  let visibleCount = 0
   locationCheckboxContainers.forEach((container) => {
-    const containerElement = (container as HTMLElement) || null
+    const containerElement = container || null
     if (!containerElement) return
 
     const featureId = containerElement.getAttribute(DATA_FEATURE_ID)
@@ -76,35 +94,49 @@ const applyLocationFilters = (
     const matchesFilter = featureMatchesFilters(matchingFeature, filters)
 
     if (matchesFilter) {
-      containerElement.classList.remove(CF_LOCATION_HIDDEN)
+      containerElement.classList.remove(CF_FILTER_HIDDEN)
+      visibleCount++
     } else {
-      containerElement.classList.add(CF_LOCATION_HIDDEN)
+      containerElement.classList.add(CF_FILTER_HIDDEN)
+      if (featureId == openPopupFeatureId) {
+        const popup = popupContent.parentElement?.parentElement
+        if (popup) popup.remove()
+      }
     }
   })
 
-  updateLocationCountForMap(mapId, messages)
+  updateLocationCountForMap(
+    mapId,
+    visibleCount,
+    locationCheckboxContainers.length,
+  )
+  resetPagination(mapId)
 }
 
 const updateLocationCountForMap = (
   mapId: string,
-  messages: MapMessages,
+  visibleCount: number,
+  totalCount: number,
 ): void => {
-  const locationCheckboxes = queryLocationCheckboxes(mapId)
-  const visibleCount = Array.from(locationCheckboxes).filter((checkbox) => {
-    const checkboxElement = (checkbox as HTMLElement) || null
-    return (
-      checkboxElement && !checkboxElement.classList.contains(CF_LOCATION_HIDDEN)
-    )
-  }).length
+  const noResultsFoundDiv = document.querySelector(
+    `[data-map-id="${mapId}"][data-no-results-found]`,
+  )
+  if (noResultsFoundDiv) {
+    if (visibleCount === 0) {
+      noResultsFoundDiv.classList.remove(CF_FILTER_HIDDEN)
+    } else {
+      noResultsFoundDiv.classList.add(CF_FILTER_HIDDEN)
+    }
+  }
 
   const countText = mapQuerySelector(
     mapId,
     CF_LOCATION_COUNT,
   ) as HTMLElement | null
   if (countText) {
-    countText.textContent = localizeString(messages.locationsCount, [
+    countText.textContent = localizeString(getMessages().locationsCount, [
       visibleCount.toString(),
-      locationCheckboxes.length.toString(),
+      totalCount.toString(),
     ])
   }
 }
@@ -140,9 +172,9 @@ const getFilters = (mapId: string): {[key: string]: string} => {
 
 const buildMapFilterExpression = (filters: {
   [key: string]: string
-}): FilterSpecification | null => {
+}): FilterSpecification | undefined => {
   const filterCount = Object.keys(filters).length
-  if (filterCount === 0) return null
+  if (filterCount === 0) return undefined
 
   if (filterCount === 1) {
     const [key, value] = Object.entries(filters)[0]
@@ -158,14 +190,4 @@ const buildMapFilterExpression = (filters: {
 
 const queryMapSelectOptions = (mapId: string): NodeListOf<Element> => {
   return document.querySelectorAll(`select[${DATA_MAP_ID}="${mapId}"]`)
-}
-
-const queryLocationCheckboxes = (mapId: string) => {
-  const locationsListContainer = mapQuerySelector(
-    mapId,
-    CF_LOCATIONS_LIST_CONTAINER,
-  ) as HTMLElement | null
-  if (!locationsListContainer) return []
-
-  return locationsListContainer.querySelectorAll(`.${CF_LOCATION_CHECKBOX}`)
 }

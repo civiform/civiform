@@ -39,11 +39,17 @@ type QuestionParams = {
   maxDateYear?: number | null
   // Map question parameters
   geoJsonEndpoint?: string
-  maxLocationSelections?: string | null
-  locationNameKey?: string | null
-  locationAddressKey?: string | null
-  locationDetailsUrlKey?: string | null
+  maxLocationSelections?: string
+  locationNameKey?: string
+  locationAddressKey?: string
+  locationDetailsUrlKey?: string
   filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  tag?: {
+    key?: string | null
+    displayName?: string | null
+    value?: string | null
+    text?: string | null
+  }
   displayMode?: QuestionDisplayMode | null
 }
 
@@ -580,11 +586,13 @@ export class AdminQuestions {
   async addQuestionForType(
     type: QuestionType | QuestionTypeLegacy,
     questionName: string,
+    questionText?: string,
   ) {
     switch (type) {
       case QuestionType.ADDRESS:
         await this.addAddressQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.CHECKBOX:
@@ -596,18 +604,20 @@ export class AdminQuestions {
             {adminName: 'op3_admin', text: 'op3'},
             {adminName: 'op4_admin', text: 'op4'},
           ],
+          questionText: questionText,
         })
         break
       case QuestionType.CURRENCY:
         await this.addCurrencyQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.DATE:
-        await this.addDateQuestion({questionName})
+        await this.addDateQuestion({questionName, questionText: questionText})
         break
       case QuestionType.MAP:
-        await this.addMapQuestion({questionName})
+        await this.addMapQuestion({questionName, questionText: questionText})
         break
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
@@ -617,20 +627,22 @@ export class AdminQuestions {
             {adminName: 'op2_admin', text: 'op2'},
             {adminName: 'op3_admin', text: 'op3'},
           ],
+          questionText: questionText,
         })
         break
       case QuestionType.EMAIL:
-        await this.addEmailQuestion({questionName})
+        await this.addEmailQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ID:
-        await this.addIdQuestion({questionName})
+        await this.addIdQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NAME:
-        await this.addNameQuestion({questionName})
+        await this.addNameQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NUMBER:
         await this.addNumberQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.RADIO:
@@ -641,19 +653,22 @@ export class AdminQuestions {
             {adminName: 'two_admin', text: 'two'},
             {adminName: 'three_admin', text: 'three'},
           ],
+          questionText: questionText,
         })
         break
       case QuestionType.TEXT:
-        await this.addTextQuestion({questionName})
+        await this.addTextQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ENUMERATOR:
         await this.addEnumeratorQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.FILE_UPLOAD:
         await this.addFileUploadQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       default:
@@ -834,10 +849,11 @@ export class AdminQuestions {
     universal = false,
     geoJsonEndpoint = 'http://mock-web-services:8000/geojson/data',
     maxLocationSelections = '1',
-    locationNameKey = null,
-    locationAddressKey = null,
-    locationDetailsUrlKey = null,
+    locationNameKey = 'name',
+    locationAddressKey = 'address',
+    locationDetailsUrlKey = 'website',
     filters = null,
+    tag = {},
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -869,22 +885,16 @@ export class AdminQuestions {
         .fill(maxLocationSelections)
     }
 
-    // Configure location settings if provided
-    if (locationNameKey != null) {
-      await this.page
-        .getByLabel('Name key')
-        .selectOption({value: locationNameKey})
-    }
-    if (locationAddressKey != null) {
-      await this.page
-        .getByLabel('Address key')
-        .selectOption({value: locationAddressKey})
-    }
-    if (locationDetailsUrlKey != null) {
-      await this.page
-        .getByLabel('View more details URL key')
-        .selectOption({value: locationDetailsUrlKey})
-    }
+    // Configure location settings
+    await this.page
+      .getByLabel('Name key')
+      .selectOption({value: locationNameKey})
+    await this.page
+      .getByLabel('Address key')
+      .selectOption({value: locationAddressKey})
+    await this.page
+      .getByLabel('View more details URL key')
+      .selectOption({value: locationDetailsUrlKey})
 
     // Configure filters if provided
     if (filters != null) {
@@ -904,6 +914,29 @@ export class AdminQuestions {
             .nth(i)
             .fill(filter.displayName)
         }
+      }
+    }
+
+    // Configure tag if provided
+    if (tag != null) {
+      await this.page.getByRole('button', {name: 'Add tag'}).click()
+      if (tag.key != null) {
+        await this.page
+          .locator('select[name^="filters["]')
+          .nth(0)
+          .selectOption({value: tag.key})
+      }
+      if (tag.displayName != null) {
+        await this.page
+          .locator('input[name*="displayName"]')
+          .nth(0)
+          .fill(tag.displayName)
+      }
+      if (tag.value != null) {
+        await this.page.locator('input[name*="value"]').nth(0).fill(tag.value)
+      }
+      if (tag.text != null) {
+        await this.page.locator('input[name*="text"]').nth(0).fill(tag.text)
       }
     }
 

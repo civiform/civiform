@@ -5,7 +5,7 @@ services:
   # container name in their /etc/hosts file for the web brower to load the auth url.
   # EG: 127.0.0.1 dev-oidc
   dev-oidc:
-    image: quay.io/keycloak/keycloak:26.3@sha256:2b32a51a31e8d780d9fa9a69a59ead69975263c61b5dd13559090e22aa26f100
+    image: quay.io/keycloak/keycloak:26.4@sha256:c6459d5fae1b759f5d667ebdc6237ab3121379c3494e213898569014ede1846d
     ports:
       - 3390:3390
     environment:
@@ -32,10 +32,6 @@ services:
 
   civiform:
     image: civiform-dev
-    links:
-      - 'db:database'
-      - 'mock-web-services'
-      - 'dev-oidc'
     depends_on:
       - dev-oidc
     expose:

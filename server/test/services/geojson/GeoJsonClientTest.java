@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.MalformedURLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import junitparams.JUnitParamsRunner;
@@ -31,7 +32,7 @@ public class GeoJsonClientTest extends WithApplication {
   public void setUp() throws Exception {
     WSClient wsClient = mock(WSClient.class);
     GeoJsonDataRepository geoJsonDataRepository = mock(GeoJsonDataRepository.class);
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = instanceOf(ObjectMapper.class);
 
     geoJsonClient = new GeoJsonClient(wsClient, geoJsonDataRepository, objectMapper);
 
@@ -48,12 +49,12 @@ public class GeoJsonClientTest extends WithApplication {
         assertThrows(
             CompletionException.class,
             () -> geoJsonClient.fetchAndSaveGeoJson("test").toCompletableFuture().join());
-    assertTrue(e.getCause() instanceof GeoJsonProcessingException);
-    assertEquals("Invalid GeoJSON endpoint", e.getCause().getMessage());
+    assertTrue(e.getCause() instanceof MalformedURLException);
+    assertEquals("Not a valid URL, try retyping", e.getCause().getMessage());
   }
 
   @Test
-  public void fetchAndSaveGeoJson_apiErrorResponse() {
+  public void fetchAndSaveGeoJson_apiAccessExceptionResponse() {
     when(wsResponse.getStatus()).thenReturn(403);
 
     RuntimeException e =
@@ -61,7 +62,20 @@ public class GeoJsonClientTest extends WithApplication {
             CompletionException.class,
             () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
 
-    assertTrue(e.getCause() instanceof GeoJsonProcessingException);
+    assertTrue(e.getCause() instanceof GeoJsonAccessException);
+    assertEquals("Please provide a publicly accessible URL", e.getCause().getMessage());
+  }
+
+  @Test
+  public void fetchAndSaveGeoJson_apiNotFoundExceptionResponse() {
+    when(wsResponse.getStatus()).thenReturn(404);
+
+    RuntimeException e =
+        assertThrows(
+            CompletionException.class,
+            () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
+
+    assertTrue(e.getCause() instanceof GeoJsonNotFoundException);
     assertEquals("Failed to fetch GeoJSON", e.getCause().getMessage());
   }
 
@@ -112,7 +126,8 @@ public class GeoJsonClientTest extends WithApplication {
                 "coordinates": [102.0, 0.5]
               },
               "properties": {
-                "name": "Example Point"
+                "name": "Example Point",
+                "testProperty": "Test"
               }
             }
         """
@@ -134,6 +149,37 @@ public class GeoJsonClientTest extends WithApplication {
         {
           "type": "FeatureCollection",
           "features": []
+        }
+        """
+      },
+      new Object[] {
+        """
+        {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [102.0, 0.5]
+              },
+              "properties": {
+                "name": "Valid Feature",
+                "address": "Address",
+                "isValid": "true"
+              }
+            },
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [103.0, 1.5]
+              },
+              "properties": {
+                "name": "Invalid Feature"
+              }
+            }
+          ]
         }
         """
       }

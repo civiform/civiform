@@ -69,6 +69,9 @@ GET     /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicat
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates                      controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/delete               controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage        controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase               controllers.admin.AdminProgramBlockPredicatesController.updatePredicate(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/editCondition                                                              controllers.admin.AdminProgramBlockPredicatesController.hxEditCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/editSubcondition                                                             controllers.admin.AdminProgramBlockPredicatesController.hxEditSubcondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                              controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
@@ -173,6 +176,10 @@ GET     /applicants/:applicantId/files/:fileKey                                c
 
 # Routes for handling GeoJSON
 POST    /admin/geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
+
+# Admin Tools
+GET     /admin/tools/urlChecker                                                controllers.admin.tools.AdminToolsController.urlTester(request: Request)
+POST    /admin/tools/urlChecker                                                controllers.admin.tools.AdminToolsController.hxTestUrl(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                                          controllers.Assets.versioned(file)
@@ -313,6 +320,8 @@ GET     /dev/feature/:flag/enable                           controllers.dev.Feat
 # Display user profile/session
 GET     /dev/profile                                        controllers.dev.ProfileController.index(request: Request)
 GET     /dev/session                                        controllers.dev.SessionDisplayController.index(request: Request)
+
+GET     /dev/component/catalog                              controllers.dev.ComponentCatalogController.index(request: Request)
 
 ## Prometheus metrics export
 GET     /metrics                                            controllers.monitoring.MetricsController.getMetrics()

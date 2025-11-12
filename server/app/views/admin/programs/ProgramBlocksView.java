@@ -510,7 +510,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
-            allQuestions);
+            allQuestions,
+            settingsManifest.getExpandedFormLogicEnabled(request));
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
@@ -521,7 +522,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions));
+                  allQuestions,
+                  settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
     // Precompute a map of questions to block ids that use the question in visibility conditions.
@@ -659,7 +661,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions,
+      boolean expandedFormLogicEnabled) {
     DivTag div =
         div()
             .withId("visibility-predicate")
@@ -682,7 +685,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.VISIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false));
+              /* expanded= */ false,
+              expandedFormLogicEnabled));
     }
   }
 
@@ -694,7 +698,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions,
+      boolean expandedFormLogicEnabled) {
     DivTag div =
         div()
             .withId("eligibility-predicate")
@@ -718,7 +723,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.ELIGIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false));
+              /* expanded= */ false,
+              /* expandedFormLogicEnabled= */ expandedFormLogicEnabled));
     }
   }
 

@@ -1,15 +1,15 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
-<!--/*@thymesVar id="model" type="views.admin.programs.ProgramPredicatesEditPageViewModel"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.predicates.EditPredicatePageViewModel"*/-->
 
 <th:block th:fragment="content">
   <th:block
     th:replace="~{admin/programs/ProgramHeaderFragment :: programHeader(${model.programHeader()})}"
   ></th:block>
 
-  <div class="padding-x-4 padding-y-3 usa-prose">
+  <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
     <a
       th:href="${model.blockEditUrl()}"
-      th:text="|Back to edit ${model.blockName()}|"
+      th:text="#{link.backToEditProgramBlock(${model.blockName()})}"
       class="usa-link padding-x-05"
     ></a>
 
@@ -24,20 +24,25 @@
       ></div>
       <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
         <p th:case="'VISIBILITY'" class="margin-top-05">
-          Add or remove conditions for when this screen is shown or hidden.
+          [[#{content.predicateVisibilityDescription}]]
         </p>
         <p th:case="'ELIGIBILITY'" class="margin-top-05">
-          You can add eligibility conditions to determine if an applicant
-          qualifies for the program. Applicants who do not meet the minimum
-          requirements will be blocked from submitting an application. You can
-          change this in the
-          <a th:href="${model.programEditUrl()}" class="usa-link"
-            >program settings</a
+          [[#{content.predicateEligibilityDescription}]]
+          <a
+            th:href="${model.programEditUrl()}"
+            class="usa-link"
+            th:text="#{link.programSettings}"
+          ></a
           >.
         </p>
       </div>
 
-      <form class="usa-form">
+      <form
+        id="predicate-form"
+        class="usa-form"
+        th:action="${model.updatePredicateEndpoint()}"
+        method="post"
+      >
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -50,12 +55,11 @@
         >
           <p>
             <th:block th:case="'VISIBILITY'">
-              This screen is
+              [[#{content.predicateScreenIs}]]
               <select
                 class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
                 name="predicateAction"
               >
-                <option value>Select</option>
                 <option
                   th:each="action : ${model.visibilityActions()}"
                   th:text="${action.toDisplayString()}"
@@ -64,7 +68,7 @@
               </select>
             </th:block>
             <th:block th:case="'ELIGIBILITY'">
-              Applicant is eligible when
+              [[#{content.predicateApplicantIsEligible}]]
               <input
                 type="hidden"
                 name="predicateAction"
@@ -82,19 +86,57 @@
                 th:value="${nodeType.name()}"
               ></option>
             </select>
-            of the following are true:
+            [[#{content.predicateConditionsAreTrue}]]
           </p>
         </div>
+        <th:block th:if="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+          ></div>
+        </th:block>
       </form>
+      <th:block th:unless="${model.hasAvailableQuestions}">
+        <div
+          th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
+        ></div>
+      </th:block>
     </div>
 
     <div class="usa-footer__return-to-top">
-      <a href="#" class="padding-x-05">Back to top</a>
+      <a href="#" class="padding-x-05" th:text="#{link.backToTop}"></a>
     </div>
 
-    <div class="cf-horizontal-separator margin-y-2"></div>
+    <div class="border-top border-base-lighter margin-y-2"></div>
 
-    <button type="submit" class="usa-button">Save and exit</button>
-    <button type="submit" class="usa-button usa-button--outline">Cancel</button>
+    <button
+      type="submit"
+      class="usa-button"
+      form="predicate-form"
+      th:text="#{button.saveAndExit}"
+    ></button>
+    <button
+      type="submit"
+      class="usa-button usa-button--outline"
+      th:text="#{button.cancel}"
+    ></button>
   </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <!--/* Store the operator scalar map for use on the client */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.predicate = window.app.data.predicate || {}
+    window.app.data.predicate.operator_scalars =
+      /*[[${model.operatorScalarMap()}]]*/ {}
+
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      window.app.scripts.AdminPredicateEdit.onHtmxAfterSwap(event)
+    })
+  </script>
 </th:block>

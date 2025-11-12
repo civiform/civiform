@@ -30,6 +30,7 @@ import play.Mode;
 import play.inject.Injector;
 import repository.DatabaseExecutionContext;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.apikey.ApiKeyService;
 import services.geojson.FeatureCollection;
 import services.program.ProgramType;
@@ -208,7 +209,7 @@ public class ResourceCreator {
 
   public GeoJsonDataModel insertGeoJsonData(DatabaseExecutionContext dbExecutionContext)
       throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = ObjectMapperSingleton.instance();
     FeatureCollection sampleData =
         objectMapper.readValue(
             getClass().getResourceAsStream("/geojson/sample_locations.json"),

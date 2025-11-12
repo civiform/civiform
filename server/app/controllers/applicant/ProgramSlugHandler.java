@@ -257,6 +257,7 @@ public final class ProgramSlugHandler {
               .findFirst();
     }
 
+    // TODO(#11582): North star clean up
     return settingsManifest.getNorthStarApplicantUi()
             && activeProgramDefinition.displayMode()
                 != DisplayMode.DISABLED // If the program is disabled,

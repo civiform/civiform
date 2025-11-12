@@ -365,9 +365,18 @@ button.usa-button.usa-button--unstyled.htmx-request {
   background-color: transparent;
 }
 
-// We currently disable USWDS border settings for backwards compatibility
-// with non USWDS pages. Once that override is removed, this can be
-// replaced with USWDS border styles.
-.cf-horizontal-separator {
-  border-top: 1px solid #dfe1e2;
+// Backwards compatibility after enabling USWDS to generate it's border options.
+// Remove after admin redesign
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+// Backwards compatibility after enabling USWDS to generate it's border options.
+// Remove after admin redesign
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
 }

@@ -4,7 +4,16 @@ import {
   YesNoOptionValue,
 } from './admin_yes_no_question_option'
 import {assertNotNull, formatText, formatTextHtml} from './util'
-import * as DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify'
+
+// This doesn't include all the possible question types, just the ones we need to
+// handle specially in the preview controller.
+export enum QuestionType {
+  MAP = 'Map',
+  YES_NO = 'Yes/No',
+  RADIO_BUTTON = 'Radio Button',
+  CHECKBOX = 'Checkbox',
+}
 
 export default class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -34,6 +43,14 @@ export default class PreviewController {
     '.cf-multi-option-input'
   private static readonly QUESTION_MULTI_OPTION_VALUE_CLASS =
     'cf-multi-option-value'
+  private static readonly QUESTION_MAP_FILTER_DISPLAY_NAME_INPUT_SELECTOR =
+    '.cf-display-name-input'
+  private static readonly QUESTION_MAP_FILTER_FIELDSET_SELECTOR =
+    '.cf-map-question-filter-fieldset'
+  private static readonly QUESTION_MAP_FILTER_SELECTOR =
+    '.cf-map-question-filter'
+  private static readonly QUESTION_MAP_FILTERS_CONTAINER_SELECTOR =
+    '.cf-map-question-filters-container'
 
   // These are defined in {@link ApplicantQuestionRendererFactory}.
   private static readonly DEFAULT_QUESTION_TEXT = 'Sample question text'
@@ -115,18 +132,25 @@ export default class PreviewController {
     )
 
     if (questionSettings && questionPreviewContainer) {
-      // YES/NO questions are the ONLY ones with displayedOptionIds[] checkboxes
-      const hasYesNoCheckboxes = questionSettings.querySelector(
-        '[name="displayedOptionIds[]"]',
-      )
-
-      if (hasYesNoCheckboxes) {
-        PreviewController.addYesNoCheckboxListeners()
-      } else {
-        PreviewController.addOptionObservers({
-          questionSettings,
-          questionPreviewContainer,
-        })
+      switch (window.app?.data?.questionType) {
+        case QuestionType.YES_NO: {
+          PreviewController.addYesNoCheckboxListeners()
+          break
+        }
+        case QuestionType.MAP: {
+          PreviewController.addFilterObservers({
+            questionSettings,
+            questionPreviewContainer,
+          })
+          break
+        }
+        case QuestionType.RADIO_BUTTON:
+        case QuestionType.CHECKBOX:
+          PreviewController.addOptionObservers({
+            questionSettings,
+            questionPreviewContainer,
+          })
+          break
       }
     }
   }
@@ -194,6 +218,63 @@ export default class PreviewController {
       characterDataOldValue: true,
     })
     syncOptionsToPreview()
+  }
+
+  private static addFilterObservers({
+    questionSettings,
+    questionPreviewContainer,
+  }: {
+    questionSettings: HTMLElement
+    questionPreviewContainer: HTMLElement
+  }) {
+    let currentFilterCount = PreviewController.getFilterCount(questionSettings)
+
+    const syncFiltersToPreview = () => {
+      PreviewController.updateFiltersList({
+        questionSettings,
+        questionPreviewContainer,
+      })
+
+      // Check if filter count has changed and reattach listeners if needed
+      const newFilterCount = PreviewController.getFilterCount(questionSettings)
+      const filterContainer = questionPreviewContainer.querySelector(
+        PreviewController.QUESTION_MAP_FILTERS_CONTAINER_SELECTOR,
+      )
+      if (newFilterCount === 0) {
+        filterContainer?.classList.add('hidden')
+        filterContainer?.setAttribute('aria-hidden', 'true')
+      } else {
+        filterContainer?.classList.remove('hidden')
+        filterContainer?.removeAttribute('aria-hidden')
+      }
+
+      if (newFilterCount !== currentFilterCount) {
+        currentFilterCount = newFilterCount
+        attachFilterListeners()
+      }
+    }
+
+    const attachFilterListeners = () => {
+      const filterInputs =
+        PreviewController.getFilterDisplayNames(questionSettings)
+      filterInputs.forEach((input) => {
+        input.removeEventListener('input', syncFiltersToPreview)
+        input.addEventListener('input', syncFiltersToPreview)
+      })
+    }
+
+    attachFilterListeners()
+
+    const mutationObserver = new MutationObserver(() => {
+      syncFiltersToPreview()
+    })
+
+    mutationObserver.observe(questionSettings, {
+      childList: true,
+      subtree: true,
+    })
+
+    syncFiltersToPreview()
   }
 
   private static addYesNoCheckboxListeners() {
@@ -295,6 +376,72 @@ export default class PreviewController {
 
       previewQuestionOptionContainer.appendChild(newPreviewOption)
     }
+  }
+
+  private static createFilterElement(
+    displayName: string,
+    index: number,
+  ): HTMLElement {
+    const filterId = `filter${index + 1}-preview`
+
+    const filterDiv = document.createElement('div')
+    filterDiv.className = 'grid-col flex-align-self-end cf-map-question-filter'
+
+    const label = document.createElement('label')
+    label.className = 'usa-label margin-top-1'
+    label.textContent = displayName
+    label.setAttribute('for', filterId)
+
+    const select = document.createElement('select')
+    select.className = 'usa-select'
+    select.id = filterId
+
+    const option = document.createElement('option')
+    option.value = ''
+    option.textContent = 'Select an option'
+    select.appendChild(option)
+
+    filterDiv.appendChild(label)
+    filterDiv.appendChild(select)
+
+    return filterDiv
+  }
+
+  private static updateFiltersList({
+    questionSettings,
+    questionPreviewContainer,
+  }: {
+    questionSettings: HTMLElement
+    questionPreviewContainer: HTMLElement
+  }) {
+    const configuredFilters = PreviewController.getFilterDisplayNames(
+      questionSettings,
+    ).map((element) => {
+      return (element as HTMLInputElement).value || 'Sample Display Name'
+    })
+
+    const mapFilterContainer = questionPreviewContainer.querySelector(
+      PreviewController.QUESTION_MAP_FILTER_FIELDSET_SELECTOR,
+    )
+    if (!mapFilterContainer) {
+      return
+    }
+
+    const existingPreviewFilters = Array.from(
+      mapFilterContainer.querySelectorAll(
+        PreviewController.QUESTION_MAP_FILTER_SELECTOR,
+      ),
+    )
+
+    existingPreviewFilters.forEach((div) => div.remove())
+
+    configuredFilters.forEach((displayName, index) => {
+      const newFilter = PreviewController.createFilterElement(
+        displayName,
+        index,
+      )
+      mapFilterContainer.appendChild(newFilter)
+    })
   }
 
   private static updateFromNewQuestionText(text: string) {
@@ -417,6 +564,18 @@ export default class PreviewController {
       ;(<HTMLElement>matchingElement).textContent =
         text + ' #' + (index + 1).toString()
     })
+  }
+
+  private static getFilterCount = (questionSettings: HTMLElement) => {
+    return questionSettings.querySelectorAll('.filter-input').length
+  }
+
+  private static getFilterDisplayNames = (questionSettings: HTMLElement) => {
+    return Array.from(
+      questionSettings.querySelectorAll(
+        PreviewController.QUESTION_MAP_FILTER_DISPLAY_NAME_INPUT_SELECTOR,
+      ),
+    )
   }
 }
 
