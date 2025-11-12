@@ -706,30 +706,30 @@ content.predicateVisibilityDescription=اضبط متى يتم عرض هذه ال
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=أضف شروط الأهلية لتحديد ما إذا كان المتقدم مؤهلًا للبرنامج بناءً على إجاباته في هذه الشاشة. المتقدمون الذين لا يستوفون الحد الأدنى من المتطلبات سيتم منعهم من إرسال الطلب. يمكنك تغيير ذلك من خلال
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=إعدادات البرنامج
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=الشاشة
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=يكون المتقدم مؤهلًا إذا كانت
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=الشروط صحيحة:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=يكون الشرط صحيح إذا كانت
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=الشروط الفرعية صحيحة:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=السؤال
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=الحقل
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=الحالة
 # Label for an input field to enter a value or multiple values.
 label.predicateValue=القيمة (القيم)
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=- اختر -
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=أدخل قائمة من القيم مفصولة بفواصل، مثل: "العنصر 1، العنصر 2، العنصر 3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
@@ -740,18 +740,18 @@ button.predicateAddCondition=إضافة شرط
 # Button to remove a condition from the form
 button.predicateDeleteCondition=حذف الشرط
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=إضافة شرط فرعي
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=حذف الشرط الفرعي
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=العودة إلى الأعلى
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Save and exit
+button.saveAndExit=حفظ وخروج
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=لا توجد أسئلة متاحة في الشاشات السابقة يمكن استخدامها لتعيين شرط الرؤية لهذه الشاشة.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=لا توجد أسئلة متاحة في هذه الشاشة يمكن استخدامها لتعيين شرط الأهلية.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -1013,7 +1013,7 @@ map.mapRegionAltText=خريطة تفاعلية تعرض المواقع
 # Text for map question selected button in popups
 map.mapSelectedButtonText=المحدد
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=لم يتم العثور على نتائج. يرجى محاولة تعديل عوامل التصفية الخاصة بك.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=لم يتم اختيار أي موقع جغرافي.
 # Sr only message displayed when page has changed
@@ -1033,7 +1033,7 @@ map.switchToMapView=التبديل إلى عرض الخريطة
 # Button text to switch from map view to list view on mobile
 map.switchToListView=التبديل إلى عرض القائمة
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=تم التبديل إلى عرض الخريطة
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=تم التبديل إلى عرض القائمة
 # Error message that indicates the applicant has selected too many locations
@@ -1164,10 +1164,10 @@ banner.guestBannerText=بعد إرسال الطلب، يُرجى {0} لحماي�
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=إنهاء الجلسة
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=ستنتهي جلستك تلقائيًا بعد {0} من بداية الجلسة، لذا يرجى تسجيل الدخول أو إرسال طلبك قبل ذلك لتجنب فقدان التقدم.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=ساعة واحدة و{0} دقيقة
-banner.hourAndMinute=1 hour and 1 minute
+banner.hourAndMinute=ساعة واحدة ودقيقة واحدة
 banner.hoursAndMinutes={0} ساعة و{1} دقيقة
 banner.hoursAndMinute={0} ساعة ودقيقة واحدة
 # Amount of time in hours or minutes for the session expiration message.
