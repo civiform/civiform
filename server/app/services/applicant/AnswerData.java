@@ -70,7 +70,7 @@ public abstract class AnswerData {
   public abstract boolean eligibilityIsGating();
 
   /**
-   * True if the program can be applied only by logged n applicants. If false, program can be
+   * True if the program can only be applied by logged in applicants. If false, program can be
    * applied by both guest and non-guest applicants.
    */
   public abstract boolean loginOnly();

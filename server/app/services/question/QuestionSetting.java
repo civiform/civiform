@@ -18,13 +18,14 @@ import services.TranslationNotFoundException;
 public abstract class QuestionSetting {
 
   /**
-   * The value identifying this setting within the question used that is provided by CiviForm Admins
-   * during question creation.
+   * The key identifying this setting within the question, provided by CiviForm Admins during
+   * question creation. For map questions, this maps to a GeoJSON property key (e.g., 'name',
+   * 'address', 'fullDayCare').
    *
-   * @return a string (e.g. 'name' or 'address'
+   * @return a string representing the setting key
    */
-  @JsonProperty("settingValue")
-  public abstract String settingValue();
+  @JsonProperty("settingKey")
+  public abstract String settingKey();
 
   /** Identifier indicating how this setting will be used, stored as string. */
   @JsonProperty("settingTypeString")
@@ -40,56 +41,109 @@ public abstract class QuestionSetting {
   public abstract Optional<LocalizedStrings> localizedSettingDisplayName();
 
   /**
+   * The value for this setting. For map questions, this maps to a specific GeoJSON property value
+   * (e.g., 'ccapASA' for a tag filter). Optional - only used for certain setting types like tags.
+   *
+   * @return an optional string representing the setting value
+   */
+  @JsonProperty("settingValue")
+  public abstract Optional<String> settingValue();
+
+  /**
+   * Additional text to display to the user for this setting, keyed by locale. Optional - only used
+   * for certain setting types.
+   */
+  @JsonProperty("localizedSettingText")
+  public abstract Optional<LocalizedStrings> localizedSettingText();
+
+  /**
    * Creates a QuestionSetting from JSON data during deserialization.
    *
-   * @param settingValue the value identifying this setting within the question
+   * @param settingKey the key identifying this setting within the question
    * @param settingTypeString identifier indicating how this setting will be used, as a string
    * @param localizedSettingDisplayName the display text for this setting, localized for different
    *     languages
+   * @param settingValue the value for this setting
+   * @param localizedSettingText additional text for this setting, localized for different languages
    * @return a new QuestionSetting instance
    */
   @JsonCreator
   public static QuestionSetting jsonCreator(
-      @JsonProperty("settingValue") String settingValue,
+      @JsonProperty("settingKey") String settingKey,
       @JsonProperty("settingTypeString") String settingTypeString,
       @JsonProperty("localizedSettingDisplayName")
-          Optional<LocalizedStrings> localizedSettingDisplayName) {
+          Optional<LocalizedStrings> localizedSettingDisplayName,
+      @JsonProperty("settingValue") Optional<String> settingValue,
+      @JsonProperty("localizedSettingText") Optional<LocalizedStrings> localizedSettingText) {
     return QuestionSetting.create(
-        settingValue, MapSettingType.valueOf(settingTypeString), localizedSettingDisplayName);
+        settingKey,
+        MapSettingType.valueOf(settingTypeString),
+        localizedSettingDisplayName,
+        settingValue,
+        localizedSettingText);
   }
 
   /**
    * Create a {@link QuestionSetting} with a display name.
    *
-   * @param settingValue the value identifying this setting within the question
+   * @param settingKey the key identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used, as a string
    * @param localizedSettingDisplayName the option's user-facing text (only required for FILTER
    *     settings)
    * @return the {@link QuestionSetting}
    */
   public static QuestionSetting create(
-      String settingValue,
+      String settingKey,
       SettingType settingType,
       Optional<LocalizedStrings> localizedSettingDisplayName) {
     return QuestionSetting.builder()
-        .setSettingValue(settingValue)
+        .setSettingKey(settingKey)
         .setSettingTypeString(settingType.toString())
         .setLocalizedSettingDisplayName(localizedSettingDisplayName)
+        .setSettingValue(Optional.empty())
+        .setLocalizedSettingText(Optional.empty())
         .build();
   }
 
   /**
    * Create a {@link QuestionSetting} without a display name.
    *
-   * @param settingValue the value identifying this setting within the question
+   * @param settingKey the key identifying this setting within the question
    * @param settingType identifier indicating how this setting will be used
    * @return the {@link QuestionSetting}
    */
-  public static QuestionSetting create(String settingValue, SettingType settingType) {
+  public static QuestionSetting create(String settingKey, SettingType settingType) {
     return QuestionSetting.builder()
-        .setSettingValue(settingValue)
+        .setSettingKey(settingKey)
         .setSettingTypeString(settingType.toString())
         .setLocalizedSettingDisplayName(Optional.empty())
+        .setSettingValue(Optional.empty())
+        .setLocalizedSettingText(Optional.empty())
+        .build();
+  }
+
+  /**
+   * Create a {@link QuestionSetting} with a display name, value, and additional text.
+   *
+   * @param settingKey the key identifying this setting within the question
+   * @param settingType identifier indicating how this setting will be used
+   * @param localizedSettingDisplayName the option's user-facing text
+   * @param settingValue the value for this setting
+   * @param localizedSettingText additional text for this setting
+   * @return the {@link QuestionSetting}
+   */
+  public static QuestionSetting create(
+      String settingKey,
+      SettingType settingType,
+      Optional<LocalizedStrings> localizedSettingDisplayName,
+      Optional<String> settingValue,
+      Optional<LocalizedStrings> localizedSettingText) {
+    return QuestionSetting.builder()
+        .setSettingKey(settingKey)
+        .setSettingTypeString(settingType.toString())
+        .setLocalizedSettingDisplayName(localizedSettingDisplayName)
+        .setSettingValue(settingValue)
+        .setLocalizedSettingText(localizedSettingText)
         .build();
   }
 
@@ -108,21 +162,28 @@ public abstract class QuestionSetting {
    * locale.
    */
   public LocalizedQuestionSetting localizeOrDefault(Locale locale) {
-    if (localizedSettingDisplayName().isEmpty()) {
-      // For non-localized settings, use empty string as display text
-      return LocalizedQuestionSetting.create(settingValue(), settingType(), "", locale);
+    String displayName = "";
+    String text = "";
+
+    if (localizedSettingDisplayName().isPresent()) {
+      try {
+        displayName = localizedSettingDisplayName().get().get(locale);
+      } catch (TranslationNotFoundException e) {
+        displayName = localizedSettingDisplayName().get().getDefault();
+        locale = LocalizedStrings.DEFAULT_LOCALE;
+      }
     }
 
-    try {
-      String localizedText = localizedSettingDisplayName().get().get(locale);
-      return LocalizedQuestionSetting.create(settingValue(), settingType(), localizedText, locale);
-    } catch (TranslationNotFoundException e) {
-      return LocalizedQuestionSetting.create(
-          settingValue(),
-          settingType(),
-          localizedSettingDisplayName().get().getDefault(),
-          LocalizedStrings.DEFAULT_LOCALE);
+    if (localizedSettingText().isPresent()) {
+      try {
+        text = localizedSettingText().get().get(locale);
+      } catch (TranslationNotFoundException e) {
+        text = localizedSettingText().get().getDefault();
+      }
     }
+
+    return LocalizedQuestionSetting.create(
+        settingKey(), settingType(), displayName, settingValue().orElse(""), text, locale);
   }
 
   public abstract Builder toBuilder();
@@ -138,11 +199,18 @@ public abstract class QuestionSetting {
     public abstract Builder setLocalizedSettingDisplayName(
         Optional<LocalizedStrings> localizedSettingDisplayName);
 
-    @JsonProperty("settingValue")
-    public abstract Builder setSettingValue(String settingValue);
+    @JsonProperty("settingKey")
+    public abstract Builder setSettingKey(String settingKey);
 
     @JsonProperty("settingTypeString")
     public abstract Builder setSettingTypeString(String settingTypeString);
+
+    @JsonProperty("settingValue")
+    public abstract Builder setSettingValue(Optional<String> settingValue);
+
+    @JsonProperty("localizedSettingText")
+    public abstract Builder setLocalizedSettingText(
+        Optional<LocalizedStrings> localizedSettingText);
 
     public abstract QuestionSetting build();
   }

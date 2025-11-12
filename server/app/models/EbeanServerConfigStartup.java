@@ -1,11 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.ebean.DatabaseBuilder;
 import io.ebean.event.ServerConfigStartup;
+import services.ObjectMapperSingleton;
 
 /**
  * Provides a Jackson {@link ObjectMapper} that understands how to (de)serialize Guava types and
@@ -15,9 +13,8 @@ import io.ebean.event.ServerConfigStartup;
 public class EbeanServerConfigStartup implements ServerConfigStartup {
   @Override
   public void onStart(DatabaseBuilder config) {
-    ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    // Use legacy serialization settings. (De)serialization errors may occur if changed.
+    ObjectMapper mapper = ObjectMapperSingleton.createLegacyCopy();
     config.objectMapper(mapper);
   }
 }

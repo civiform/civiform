@@ -90,6 +90,10 @@ title.login=Login
 content.loginPrompt=Please log in with your {0} account
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Ein Konto erstellen
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Administrator log in
 # The text on the button an applicant clicks to log in to their session.
 button.login=Anmelden
 # The text on the button an applicant clicks to sign in to their session.
@@ -419,7 +423,6 @@ label.year=Year
 # Label showing the user when there is no name
 label.unnamedUser=Unnamed user
 
-link.edit=Edit
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Select a new client
 
@@ -840,6 +843,7 @@ label.uploadedFiles=Uploaded Files
 validation.idTooLong=Must contain at most {0} characters.
 validation.idTooShort=Must contain at least {0} characters.
 validation.numberRequired=Must contain only numbers.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -919,26 +923,93 @@ option.maybe=Maybe
 
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Go to next page of map locations
+# Aria label for pagination list
+map.ariaLabelPaginationList=Pagination for map locations
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Go to previous page of map locations
+# Header for the section showing available locations
+map.availableLocations=Available locations
 # Legend text for the map filters section
 map.filterLegendText=Filters
+# Aria label for pagination buttons
+map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
 map.locationLinkText=View more details
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Displaying {0} of {1} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
+# Alt text for map region
+map.mapRegionAltText=Interactive map displaying locations
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Selected
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No locations have been selected.
+# Sr only message displayed when page has changed
+map.paginationStatus=Now displaying page {0} of {1}.
 # Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
-# Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Selected locations
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Switch to map view
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Switch to list view
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.contactUs = contact us
+map.homepage = homepage
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Add filter
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+# Title for filters section
+map.addFiltersTitle=Filters
+# Button for adding a tag
+map.addTagButton=Add tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+# Title for tag section
+map.addTagTitle=Tag
+# Label for display name field
+map.displayNameLabel=Display name
+# Label for key field
+map.keyLabel=Key
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
+# Label for location address key field
+map.locationAddressLabel=Address key
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=View more details URL key
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
+# Label for location name key field
+map.locationNameLabel=Name key
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Maximum location selections
+# Label for setting text field
+map.settingTextLabel=Alert text
+# Label for value field
+map.valueLabel=Value
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1093,6 +1164,3 @@ session.extended.success=Session successfully extended
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
-
-# Untranslated string for translation infrastructure testing.
-translation.untranslated=This string remains untranslated for translation infrastructure experiments.

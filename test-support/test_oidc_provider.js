@@ -161,9 +161,13 @@ oidc.Client.Schema.prototype.invalidate = function invalidate(message, code) {
   orig.call(this, message)
 }
 
-process.on('SIGINT', () => {
-  console.info('Interrupted')
-  process.exit(0)
+// Docker sends a SIGTERM, but handle them all just in case
+const signals = ['SIGTERM', 'SIGINT', 'SIGQUIT', 'SIGHUP']
+signals.forEach(signal => {
+  process.on(signal, () => {
+    console.info(`${signal} received. Shutting down.`)
+    process.exit(0)
+  })
 })
 
 // This will print any server errors out. Otherwise there's no visibility into what's going on.

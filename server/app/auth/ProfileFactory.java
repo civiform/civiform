@@ -57,6 +57,11 @@ public final class ProfileFactory {
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
+  @VisibleForTesting
+  Clock getClock() {
+    return clock;
+  }
+
   public CiviFormProfileData createNewApplicant() {
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
 
@@ -132,11 +137,6 @@ public final class ProfileFactory {
       p.addRole(role.toString());
     }
     return p;
-  }
-
-  @VisibleForTesting
-  public CiviFormProfile wrap(AccountModel account) {
-    return wrapProfileData(new CiviFormProfileData(account.id, clock));
   }
 
   public CiviFormProfile wrap(ApplicantModel applicant) {

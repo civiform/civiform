@@ -19,6 +19,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
+import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -105,7 +106,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     try {
       programService.removeQuestionsFromBlock(
           programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
-    } catch (IllegalPredicateOrderingException e) {
+    } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(
                   programId, blockDefinitionId))

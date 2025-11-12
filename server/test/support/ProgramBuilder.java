@@ -270,7 +270,7 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
-            /* oginOnly= */ false,
+            /* loginOnly= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));

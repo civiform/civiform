@@ -4,7 +4,9 @@ Please explain the changes you made here.
 
 ## Release notes
 
-Remove this section if the title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
+Remove this section if the feature is still under development or if title of the pull request can be used as the default release notes description. If more detail is needed to communicate to partners the scope of the PR's changes, use this release notes section (and remove this placeholder text).
+
+When the Release engineer creates Release Notes, they will not look for this section for Under Development tagged PRs, and will use it if present for all other PRs included in the Release Notes.
 
 ### Checklist
 
@@ -14,7 +16,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 
 - [ ] Added the correct label (see [docs](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-appropriate-labels) for more info): < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers)
-- [ ] Added an additional reviewer from `civiform/eng-admin` as FYI (if the primary reviewer is not an admin and this PR includes functionality changes)
+- [ ] Added an additional reviewer from `civiform/eng-admin` as FYI (if this PR includes functionality changes and neither you nor the primary reviewer is an admin)
 - [ ] Removed the release notes section if the title is sufficient for the release notes description, or put more details in that section.
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
@@ -51,7 +53,7 @@ Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
 - [ ] Manually evaluated tab order
-- [ ] Manually tested with a screen reader if the feature is applicant-facing. See [screen reader testing](https://github.com/civiform/civiform/wiki/Testing#screen-reader-testing)
+- [ ] Performed manual accessibility tests for any applicant-facing changes or any new admin-facing features. See [manual-accessibility-testing](https://github.com/civiform/civiform/wiki/Accessibility#manual-accessibility-testing)
 - [ ] Manually tested with a right-to-left language
 
 #### New Features

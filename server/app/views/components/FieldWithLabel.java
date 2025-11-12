@@ -72,6 +72,7 @@ public class FieldWithLabel {
   private String formId = "";
   private String id = "";
   private String labelText = "";
+  private Optional<String> subLabelText = Optional.empty();
   private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
@@ -203,6 +204,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
+    return this;
+  }
+
+  public FieldWithLabel setSubLabelText(String subLabelText) {
+    this.subLabelText = Optional.of(subLabelText);
     return this;
   }
 
@@ -643,6 +649,11 @@ public class FieldWithLabel {
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(labelTag)
+        .condWith(
+            subLabelText.isPresent(),
+            TagCreator.p()
+                .withClasses("text-xs", "text-gray-500", "pb-3", "text-base px-1")
+                .with(span(subLabelText.orElse(""))))
         .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .condWith(markdownSupported, buildMarkdownIndicator())
         .withClasses(

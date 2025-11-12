@@ -2,6 +2,7 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -470,4 +471,66 @@ test.describe('Admin question list', {tag: ['@northstar']}, () => {
     const questionBankNames = await adminPrograms.questionBankNames()
     expect(questionBankNames).toEqual(expectedQuestions)
   }
+})
+
+test.describe('Translation tag shows up as expected', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
+  })
+
+  const questionName = 'Question for translation tags'
+  const questionHelpText = 'Question help text'
+
+  test('Tag translation incomplete and complete shows up as expected', async ({
+    page,
+    adminQuestions,
+    adminTranslations,
+  }) => {
+    await test.step('Tag translation incomplete is visible', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({
+        questionName,
+        questionText: questionName,
+        helpText: questionHelpText,
+      })
+      await adminQuestions.gotoAdminQuestionsPage()
+      await expect(page.getByText('Translation Incomplete')).toBeVisible()
+      await expect(page.getByText('Translation Complete')).toBeHidden()
+    })
+
+    await test.step('Translate the question in all languages', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      const languages = [
+        'Amharic',
+        'Arabic',
+        'Traditional Chinese',
+        'French',
+        'Japanese',
+        'Korean',
+        'Lao',
+        'Russian',
+        'Somali',
+        'Spanish',
+        'Tagalog',
+        'Vietnamese',
+      ]
+      for (const language of languages) {
+        await adminTranslations.selectLanguage(language)
+        await adminTranslations.editQuestionTranslations(
+          `${language} question text `,
+          `${language} question help text`,
+        )
+      }
+    })
+
+    await test.step('Tag translation complete is visible', async () => {
+      await adminQuestions.gotoAdminQuestionsPage()
+      await expect(page.getByText('Translation Incomplete')).toBeHidden()
+      await expect(page.getByText('Translation Complete')).toBeVisible()
+      await validateScreenshot(
+        page.locator('.cf-question-bank-element'),
+        'question-translation-complete',
+      )
+    })
+  })
 })

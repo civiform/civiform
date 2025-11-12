@@ -6,10 +6,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -24,6 +20,7 @@ import java.util.UUID;
 import models.QuestionDisplayMode;
 import services.CiviFormError;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
@@ -130,15 +127,8 @@ public abstract class QuestionDefinition {
         name = "text"),
   })
   public abstract static class ValidationPredicates {
-    protected static final ObjectMapper mapper =
-        new ObjectMapper()
-            .registerModule(new GuavaModule())
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule());
-
-    static {
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
+    // Use legacy serialization settings. (De)serialization errors may occur if changed.
+    protected static final ObjectMapper mapper = ObjectMapperSingleton.createLegacyCopy();
 
     public String serializeAsString() {
       try {

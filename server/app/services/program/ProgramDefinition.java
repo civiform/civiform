@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel;
 import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import models.ApplicationStep;
 import models.CategoryModel;
@@ -264,6 +265,42 @@ public abstract class ProgramDefinition {
       }
     }
     return true;
+  }
+
+  /** Returns true if block has any questions used by an api bridge configuration */
+  public boolean blockHasQuestionsUsedByApiBridge(Long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByBlock =
+        getBlockDefinition(blockId).programQuestionDefinitions().stream()
+            .map(x -> x.getQuestionDefinition().getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByBlock::contains);
+  }
+
+  /** Returns true if any question id in the list is used by an api bridge configuration */
+  public boolean isQuestionsListUsedByApiBridge(ImmutableList<Long> questionIds) {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByProgram =
+        getAllQuestions().stream()
+            .filter(x -> questionIds.contains(x.getId()))
+            .map(x -> x.getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByProgram::contains);
   }
 
   /**

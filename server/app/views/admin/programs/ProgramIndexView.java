@@ -12,6 +12,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
@@ -19,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -34,6 +36,7 @@ import play.twirl.api.Content;
 import services.AlertType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.ActiveAndDraftQuestions;
@@ -521,6 +524,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setExtraRowActions(draftRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
+                  .setTranslationCompletionTag(generateTranslationCompleteText(draftProgram.get()))
                   .build());
     }
 
@@ -553,6 +557,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setExtraRowActions(activeRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
+                  .setTranslationCompletionTag(generateTranslationCompleteText(activeProgram.get()))
                   .build());
     }
 
@@ -585,6 +590,23 @@ public final class ProgramIndexView extends BaseHtmlView {
                 + " of "
                 + countAllUniversalQuestions;
     return Optional.of("Contains " + text + " universal questions ");
+  }
+
+  Optional<DomContent> generateTranslationCompleteText(ProgramDefinition programDefinition) {
+    try {
+      boolean isTranslationComplete = programService.isTranslationComplete(programDefinition);
+      if (isTranslationComplete == true) {
+        return Optional.of(
+            div(text("Translation complete"), Icons.svg(Icons.CHECK).withClasses("h-4 w-4"))
+                .withClasses("flex", "items-center", "gap-1"));
+      } else {
+        return Optional.of(
+            div(text("Translation incomplete"), Icons.svg(Icons.CLOSE).withClasses("h-4 w-4"))
+                .withClasses("flex", "items-center", "gap-1"));
+      }
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   Optional<ButtonTag> maybeRenderShareLink(ProgramDefinition program) {

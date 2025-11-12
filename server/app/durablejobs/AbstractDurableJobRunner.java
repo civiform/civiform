@@ -55,7 +55,8 @@ public abstract class AbstractDurableJobRunner {
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
     this.itEmailAddress =
         config.getString("it_email_address").isBlank()
-            ? config.getString("support_email_address")
+            // TODO(#11736): Set support_email_address as the fallback email
+            ? "civiform-dev@exygy.com"
             : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
 

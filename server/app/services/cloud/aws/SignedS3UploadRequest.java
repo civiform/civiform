@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import services.ObjectMapperSingleton;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
@@ -329,12 +327,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   @AutoValue
   abstract static class UploadPolicy {
-    private static final ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-
-    static {
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
+    // Use legacy serialization settings. (De)serialization errors may occur if changed.
+    private static final ObjectMapper mapper = ObjectMapperSingleton.createLegacyCopy();
 
     static Builder builder() {
       return new AutoValue_SignedS3UploadRequest_UploadPolicy.Builder();

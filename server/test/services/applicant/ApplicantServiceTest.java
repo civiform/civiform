@@ -210,7 +210,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            ImmutableMap.of(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -240,7 +246,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -254,7 +267,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -282,7 +302,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -292,7 +319,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -328,7 +362,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // First, save an answer.
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -342,7 +383,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // update should go through because
     // removing the required answer is invalid.
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -365,7 +413,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     // First, save an answer.
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -375,7 +429,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     // will fail.
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", updates, false, /* forceUpdate= */ true)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            /* forceUpdate= */ true,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -415,7 +475,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+            .stageAndUpdateIfValid(
+                applicant.id,
+                programDefinition.id(),
+                "1",
+                updates,
+                false,
+                false,
+                /* apiBridgeEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -462,7 +529,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -478,7 +552,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -502,7 +583,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -534,7 +622,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -556,7 +651,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -591,7 +693,35 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString()).contains("Alice", "Doe");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_withUpdates_apiBridgeEnabled_isOk() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ true)
         .toCompletableFuture()
         .join();
 
@@ -607,7 +737,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -656,7 +792,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -675,7 +818,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -691,7 +841,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -724,7 +881,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -749,7 +913,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -770,7 +941,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        badApplicantId, programDefinition.id(), "1", updates, false, false)
+                        badApplicantId,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -787,7 +964,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false, false)
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        badProgramId,
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -806,7 +990,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates, false, false)
+                        applicant.id,
+                        programDefinition.id(),
+                        badBlockId,
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -827,7 +1017,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false, false)
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -846,7 +1042,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false, false)
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -870,7 +1072,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), "1", updates, false, false)
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -915,7 +1123,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -940,7 +1154,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -960,7 +1180,13 @@ public class ApplicantServiceTest extends ResetPostgres {
       submitApplication_whenTiIsSubmittingForThemsleves_doesNotSaveTiEmailAsSubmitterEmail() {
     subject
         .stageAndUpdateIfValid(
-            tiApplicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            tiApplicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1014,7 +1240,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id, progDef.id(), "1", updates, false, false, /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1133,7 +1360,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, progDef.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id, progDef.id(), "1", updates, false, false, /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1173,7 +1401,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(blankApplicant.id, progDef.id(), "1", blankUpdates, false, false)
+        .stageAndUpdateIfValid(
+            blankApplicant.id,
+            progDef.id(),
+            "1",
+            blankUpdates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1243,7 +1478,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            firstProgram.id,
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1280,7 +1522,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1299,7 +1547,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             "1",
             applicationUpdates("Bob", "Elisa"),
             false,
-            false)
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1333,7 +1582,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1375,7 +1630,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1464,7 +1725,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1540,7 +1807,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1599,7 +1872,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1643,7 +1922,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1676,7 +1961,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            applicationUpdates(),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1727,7 +2018,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1765,7 +2063,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1823,7 +2128,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            true,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1897,7 +2209,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            true,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2563,7 +2882,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programForSubmitted.id,
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicationRepository
@@ -2592,7 +2918,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programForSubmitted.id, "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programForSubmitted.id,
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3477,6 +3810,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
+                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
@@ -3561,6 +3895,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
+                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
@@ -3737,7 +4072,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     subject
         .stageAndUpdateIfValid(
-            applicantId, programId, Long.toString(blockId), updates, false, false)
+            applicantId,
+            programId,
+            Long.toString(blockId),
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
   }
@@ -4301,7 +4642,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, programDefinition.id(), block.getId(), updates, true, false)
+            applicant.id,
+            programDefinition.id(),
+            block.getId(),
+            updates,
+            true,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -4370,7 +4717,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -4385,7 +4739,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -4412,7 +4773,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     Request request = fakeRequest();
@@ -4431,7 +4799,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false, false)
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicationModel eligibleApplication =

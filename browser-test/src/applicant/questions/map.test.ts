@@ -10,7 +10,10 @@ import {
 } from '../../support'
 import {Page} from 'playwright'
 
-const EXPECTED_LOCATION_COUNT = 5
+// number of locations expected to be visible per page
+const EXPECTED_LOCATION_COUNT = 6
+// number of locations in the mock data
+const TOTAL_LOCATION_COUNT = 7
 
 // map question tests rely on mock web services so they will only work in local dev environments
 if (isLocalDevEnvironment()) {
@@ -81,7 +84,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Verify location count is displayed', async () => {
           const locationCount = page.getByText(
-            `Displaying ${EXPECTED_LOCATION_COUNT} of ${EXPECTED_LOCATION_COUNT} locations`,
+            `Displaying ${TOTAL_LOCATION_COUNT} of ${TOTAL_LOCATION_COUNT} locations`,
           )
           await expect(locationCount).toBeVisible()
         })
@@ -95,20 +98,43 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        const locationCheckboxes = page.getByRole('checkbox')
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const locationCheckboxes =
+          locationsList.getByTestId('location-checkbox')
 
         await test.step('Select first location checkbox', async () => {
-          await locationCheckboxes.first().check()
-          await expect(locationCheckboxes.first()).toBeChecked()
+          const firstCheckbox = locationCheckboxes.first()
+          await firstCheckbox.getByTestId('location-checkbox-label').click()
+          await expect(
+            firstCheckbox.getByTestId('location-checkbox-input'),
+          ).toBeChecked()
+
+          const selectedLocationsList = page.getByTestId(
+            'selected-locations-list',
+          )
+          await expect(
+            selectedLocationsList.getByTestId('location-checkbox'),
+          ).toHaveCount(1)
         })
 
         await test.step('Verify location appears in selected list', async () => {
           const selectedLocationsList = page.getByTestId(
             'selected-locations-list',
           )
-          const selectedLocationsCheckboxes =
-            selectedLocationsList.getByRole('checkbox')
-          expect(await selectedLocationsCheckboxes.count()).toBeGreaterThan(0)
+          await expect(
+            selectedLocationsList.getByTestId('location-checkbox'),
+          ).toHaveCount(1)
+        })
+
+        await test.step('Confirm the rest of the checkboxes are disabled', async () => {
+          const restOfCheckboxes = (await locationCheckboxes.all()).slice(1)
+          for (const checkbox of restOfCheckboxes) {
+            await expect(
+              checkbox.getByTestId('location-checkbox-input'),
+            ).toBeDisabled()
+          }
         })
 
         await test.step('Verify no selections message is hidden', async () => {
@@ -121,8 +147,19 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Deselect the location', async () => {
-          await locationCheckboxes.first().uncheck()
-          await expect(locationCheckboxes.first()).not.toBeChecked()
+          const firstCheckbox = locationCheckboxes.first()
+          await firstCheckbox.getByTestId('location-checkbox-label').click()
+          await expect(
+            firstCheckbox.getByTestId('location-checkbox-input'),
+          ).not.toBeChecked()
+        })
+
+        await test.step('Confirm all the checkboxes are enabled', async () => {
+          for (const checkbox of await locationCheckboxes.all()) {
+            await expect(
+              checkbox.getByTestId('location-checkbox-input'),
+            ).toBeEnabled()
+          }
         })
       })
 
@@ -134,19 +171,19 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.applyProgram(programName, true)
         })
 
-        await test.step('Click on map to trigger popups', async () => {
-          const mapContainer = page.getByTestId('map-container')
-          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
-          await mapCanvas.click()
-        })
-
         await test.step('Dismiss attribution control to avoid overlap', async () => {
           // Close the MapLibre attribution control so it doesn't cover popups
           const attributionButton = page.getByLabel('Toggle attribution')
           await attributionButton.click()
         })
 
-        await test.step('Check for popup select buttons', async () => {
+        await test.step('Click on map to trigger popups', async () => {
+          const mapContainer = page.getByTestId('map-container')
+          const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+          await mapCanvas.click()
+        })
+
+        await test.step('Click popup select buttons', async () => {
           const selectButtons = page.getByRole('button', {
             name: /select.*location/i,
           })
@@ -154,13 +191,28 @@ if (isLocalDevEnvironment()) {
           expect(selectButtonsCount).toBe(1)
           await selectButtons.first().click()
 
+          const selectButtonAfter = page.getByRole('button', {
+            name: /selected/i,
+          })
+          await expect(selectButtonAfter).toBeVisible()
+        })
+
+        await test.step('Confirm location is selected all the other checkboxes are disabled', async () => {
           const selectedLocationsList = page.getByTestId(
             'selected-locations-list',
           )
-          const checkboxes = selectedLocationsList.getByRole('checkbox')
-          const checkboxCount = await checkboxes.count()
-          expect(checkboxCount).toBeGreaterThan(0)
-          await expect(checkboxes.first()).toBeChecked()
+          const selectedCheckboxes = selectedLocationsList.getByRole('checkbox')
+          const selectedCheckboxCount = await selectedCheckboxes.count()
+          expect(selectedCheckboxCount).toBeGreaterThan(0)
+          await expect(selectedCheckboxes.first()).toBeChecked()
+
+          const locationsList = page.getByTestId('locations-list')
+          const allLocationCheckboxes = await locationsList
+            .getByRole('checkbox')
+            .all()
+          for (const checkbox of allLocationCheckboxes) {
+            await expect(checkbox).toBeDisabled()
+          }
         })
       })
 
@@ -182,7 +234,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Select a filter option', async () => {
           const firstFilter = filterSelects.first()
-          await firstFilter.selectOption({index: 1})
+          await firstFilter.selectOption({index: 2})
         })
 
         await test.step('Apply filters', async () => {
@@ -193,7 +245,21 @@ if (isLocalDevEnvironment()) {
             /Displaying \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 2 of 5 locations')
+          await expect(locationCount).toHaveText('Displaying 1 of 7 locations')
+        })
+
+        await test.step('Apply another filter', async () => {
+          await filterSelects.nth(1).selectOption({index: 2})
+          await applyButton.click()
+
+          const noResultsMessage = page.getByText(
+            'No results found. Please try adjusting your filters.',
+          )
+          await noResultsMessage.isVisible()
+          const locationsList = page.getByRole('group', {
+            name: 'Location selection',
+          })
+          await validateScreenshot(locationsList, 'map-filters-no-results')
         })
 
         await test.step('Reset filters', async () => {
@@ -206,6 +272,123 @@ if (isLocalDevEnvironment()) {
           const firstFilter = filterSelects.first()
           const selectedValue = firstFilter
           await expect(selectedValue).toHaveValue('')
+        })
+      })
+
+      test('paginate map question locations', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const checkboxes = locationsList.getByRole('checkbox')
+        await test.step('Verify initial locations list state', async () => {
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
+        })
+
+        await test.step('Go to next page', async () => {
+          const nextButton = page.getByText('Next')
+          await nextButton.click()
+          const checkboxes = locationsList.getByRole('checkbox')
+          await expect(checkboxes).toHaveCount(1)
+        })
+
+        const previousButton = page.getByText('Previous', {exact: true})
+        await test.step('Go back to previous page', async () => {
+          await expect(previousButton).toBeVisible()
+          await previousButton.click()
+          await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
+        })
+      })
+
+      test('pin icon and popup button state changes on selection', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName, true)
+
+        const mapContainer = page.getByTestId('map-container')
+        const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
+        const locationsList = page.getByRole('group', {
+          name: 'Location selection',
+        })
+        const selectedLocationsList = page.getByTestId(
+          'selected-locations-list',
+        )
+
+        // Dismiss attribution control to avoid overlap with popups
+        await page.getByLabel('Toggle attribution').click()
+
+        await test.step('Select location and verify pin changes color', async () => {
+          const firstCheckbox = locationsList
+            .getByTestId('location-checkbox')
+            .first()
+          await firstCheckbox.getByTestId('location-checkbox-label').click()
+          await validateScreenshot(mapContainer, 'map-with-selected-pin')
+          await firstCheckbox.getByTestId('location-checkbox-label').click()
+        })
+
+        await test.step('Verify popup button states', async () => {
+          await mapCanvas.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-unselected')
+          const selectButton = page.getByRole('button', {
+            name: /select.*location/i,
+          })
+
+          await selectButton.click()
+          await validateScreenshot(mapContainer, 'map-popup-button-selected')
+
+          await expect(
+            selectedLocationsList.getByTestId('location-checkbox'),
+          ).toHaveCount(1)
+        })
+
+        await test.step('Unselect and verify select button returns to default', async () => {
+          const selectedCheckbox = selectedLocationsList
+            .getByTestId('location-checkbox')
+            .first()
+          await selectedCheckbox.getByTestId('location-checkbox-label').click()
+
+          await expect(
+            page.getByText('No locations have been selected.'),
+          ).toBeVisible()
+
+          await validateScreenshot(
+            mapContainer,
+            'map-popup-button-unselected-after-unselect',
+          )
+        })
+      })
+
+      test('toggle between map and list view', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Navigate to map question', async () => {
+          await applicantQuestions.applyProgram(programName, true)
+        })
+
+        await test.step('Set viewport to mobile size', async () => {
+          // The size of a Google Pixel 7
+          await page.setViewportSize({width: 412, height: 915})
+        })
+
+        await test.step('Take screenshot of list view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-list')
+        })
+
+        await test.step('Switch to map view', async () => {
+          const switchToMapViewButton = page.getByText('Switch to map view')
+          await switchToMapViewButton.click()
+        })
+
+        await test.step('Take screenshot of map view', async () => {
+          await validateScreenshot(page, 'map-question-mobile-view-map')
         })
       })
     })
@@ -260,13 +443,28 @@ if (isLocalDevEnvironment()) {
           await expect(locationsLists).toHaveCount(2)
         })
 
-        await test.step('Select from first map only', async () => {
+        await test.step('Select from first map', async () => {
           const firstMapCheckboxes = locationsLists
             .first()
-            .getByRole('checkbox')
+            .getByTestId('location-checkbox')
 
-          await firstMapCheckboxes.first().check()
-          await expect(firstMapCheckboxes.first()).toBeChecked()
+          const firstCheckbox = firstMapCheckboxes.first()
+          await firstCheckbox.getByTestId('location-checkbox-label').click()
+          await expect(
+            firstCheckbox.getByTestId('location-checkbox-input'),
+          ).toBeChecked()
+        })
+
+        await test.step('Select from second map', async () => {
+          const secondMapCheckboxes = locationsLists
+            .nth(1)
+            .getByTestId('location-checkbox')
+
+          const secondCheckbox = secondMapCheckboxes.nth(1)
+          await secondCheckbox.getByTestId('location-checkbox-label').click()
+          await expect(
+            secondCheckbox.getByTestId('location-checkbox-input'),
+          ).toBeChecked()
         })
 
         await test.step('Verify selections are independent', async () => {
@@ -276,13 +474,27 @@ if (isLocalDevEnvironment()) {
               checked: true,
             })
 
-          // Should have exactly one checked box in the first map
-          await expect(firstMapCheckedBoxes).toHaveCount(1)
+          const secondMapCheckedBoxes = locationsLists
+            .nth(1)
+            .getByRole('checkbox', {
+              checked: true,
+            })
 
-          // Second map checkboxes should remain unchecked
+          // Each map should have exactly one checked box
+          await expect(firstMapCheckedBoxes).toHaveCount(1)
+          await expect(secondMapCheckedBoxes).toHaveCount(1)
+
+          // first map should have the first location checked
+          const firstMapContainer = locationsLists.first()
+          const firstMapCheckboxes = firstMapContainer.getByRole('checkbox')
+          await expect(firstMapCheckboxes.first()).toBeChecked()
+          await expect(firstMapCheckboxes.nth(1)).not.toBeChecked()
+
+          // Second map should have the second location checked
           const secondMapContainer = locationsLists.nth(1)
           const secondMapCheckboxes = secondMapContainer.getByRole('checkbox')
           await expect(secondMapCheckboxes.first()).not.toBeChecked()
+          await expect(secondMapCheckboxes.nth(1)).toBeChecked()
         })
       })
     })
@@ -304,7 +516,13 @@ if (isLocalDevEnvironment()) {
         locationNameKey: 'name',
         locationAddressKey: 'address',
         locationDetailsUrlKey: 'website',
-        filters: [{key: 'type', displayName: 'Type'}],
+        filters: [
+          {key: 'type', displayName: 'Type'},
+          {
+            key: 'requiresDirectEnrollment',
+            displayName: 'Requires Direct Enrollment',
+          },
+        ],
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['map-test-q'],

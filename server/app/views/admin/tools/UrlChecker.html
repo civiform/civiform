@@ -1,0 +1,35 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.tools.UrlCheckerViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="margin-y-4">
+    <form
+      id="pageForm"
+      th:hx-post="${model.testUrlEndpoint()}"
+      hx-indicator="#submit"
+      hx-target="#results"
+    >
+      <h1 th:text="${templateGlobals.pageTitle()}"></h1>
+      <p class="usa-prose">
+        This form can be used to test if CiviForm is able to reach a URL.
+      </p>
+      <label for="url" class="usa-label">URL</label>
+      <div class="display-flex">
+        <input
+          id="url"
+          name="url"
+          type="text"
+          class="usa-input maxw-mobile"
+          required="required"
+        />
+        <button
+          id="submit"
+          type="submit"
+          class="usa-button margin-left-1 margin-top-1"
+        >
+          Check
+        </button>
+      </div>
+    </form>
+  </div>
+  <output for="url" form="pageForm" id="results"></output>
+</th:block>

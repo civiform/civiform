@@ -171,7 +171,7 @@ public final class JsonPathPredicateGenerator {
             node.scalar().name().toLowerCase(Locale.ROOT)));
   }
 
-  private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
+  public Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
     if (!questionsById.containsKey(node.questionId())) {
       // This means a predicate was incorrectly configured - we are depending upon a question that
       // does not appear anywhere in this program.
@@ -225,5 +225,9 @@ public final class JsonPathPredicateGenerator {
     }
 
     return predicateContext;
+  }
+
+  public QuestionDefinition getQuestionDefinition(long questionId) {
+    return questionsById.get(questionId);
   }
 }

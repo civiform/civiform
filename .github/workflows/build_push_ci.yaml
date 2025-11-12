@@ -37,7 +37,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
       - name: Check if we should push
@@ -61,7 +61,6 @@ jobs:
         version:
           [
             'formatter',
-            'localstack',
             'browser_test',
             'oidc',
             'mock-web-services',
@@ -71,11 +70,6 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
-            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
-          - version: localstack
-            image: 'civiform/civiform-localstack:latest'
-            script: 'bin/build-localstack-env'
-            file_pattern: 'localstack/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
@@ -121,7 +115,7 @@ jobs:
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3

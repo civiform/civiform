@@ -196,7 +196,11 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.categories = definition.categories();
+
+    // Ebeans needs to manage the collection so add categories instead of
+    // creating a new array instance
+    this.categories.addAll(definition.categories());
+
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
@@ -250,7 +254,11 @@ public class ProgramModel extends BaseModel {
     this.eligibilityIsGating = eligibilityIsGating;
     this.loginOnly = loginOnly;
     this.acls = programAcls;
-    this.categories = categories;
+
+    // Ebeans needs to manage the collection so add categories instead of
+    // creating a new array instance
+    this.categories.addAll(categories);
+
     this.applicationSteps = applicationSteps;
     this.bridgeDefinitions = ImmutableMap.of();
   }
@@ -276,7 +284,12 @@ public class ProgramModel extends BaseModel {
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
-    categories = programDefinition.categories();
+
+    // Ebeans needs to manage the collection. Behavior differs in the @PreUpdate
+    // from the constructors. Here we do create a new list instead of clearing
+    // and adding them so Ebeans can correctly see state changes to the entity.
+    // Yes, it's very confusing and poorly documented.
+    categories = new ArrayList<>(programDefinition.categories());
     applicationSteps = programDefinition.applicationSteps();
     bridgeDefinitions = programDefinition.bridgeDefinitions();
 

@@ -170,7 +170,8 @@ abstract class ProgramBaseView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       PredicateUseCase predicateUseCase,
       boolean includeEditFooter,
-      boolean expanded) {
+      boolean expanded,
+      boolean expandedFormLogicEnabled) {
     DivTag header =
         div()
             .with(
@@ -206,7 +207,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            blockName, predicateDefinition, questionDefinitions);
+            blockName, predicateDefinition, questionDefinitions, expandedFormLogicEnabled);
     DivTag content =
         div()
             .withId(predicateUseCase.name().toLowerCase(Locale.ROOT) + "-content")

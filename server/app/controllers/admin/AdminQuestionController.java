@@ -5,10 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.EnumeratorQuestionForm;
 import forms.MapFilterForm;
+import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -31,12 +33,14 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.QuestionSetting;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -432,6 +436,24 @@ public final class AdminQuestionController extends CiviFormController {
           (MultiOptionQuestionDefinition) currentQuestionDefinition,
           updatedQuestionOptions);
     }
+
+    if (questionForm instanceof MapQuestionForm) {
+      final ImmutableSet<QuestionSetting> updatedQuestionSettings;
+      try {
+        updatedQuestionSettings =
+            updatedQuestionDefinitionBuilder
+                .build()
+                .getQuestionSettings()
+                .orElse(ImmutableSet.of());
+      } catch (UnsupportedQuestionTypeException e) {
+        // Impossible - we checked the type above.
+        throw new RuntimeException(e);
+      }
+      updateDefaultLocalizationForSettings(
+          updatedQuestionDefinitionBuilder,
+          (MapQuestionDefinition) currentQuestionDefinition,
+          updatedQuestionSettings);
+    }
   }
 
   /** Update the default locale text for an enumerator question's entity type name. */
@@ -492,6 +514,89 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     updatedQuestionDefinitionBuilder.setQuestionOptions(newOptionsListBuilder.build());
+  }
+
+  /** Update the default locale text only for a question's settings. */
+  private void updateDefaultLocalizationForSettings(
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      MapQuestionDefinition currentQuestionDefinition,
+      ImmutableSet<QuestionSetting> updatedQuestionSettings) {
+
+    ImmutableSet<QuestionSetting> existingSettings =
+        currentQuestionDefinition.getQuestionSettings().orElse(ImmutableSet.of());
+    ImmutableSet.Builder<QuestionSetting> newSettingsListBuilder = ImmutableSet.builder();
+
+    for (QuestionSetting updatedQuestionSetting : updatedQuestionSettings) {
+      // Find an existing setting with the same key and type
+      Optional<QuestionSetting> maybeExistingSettingWithSameKey =
+          existingSettings.stream()
+              .filter(
+                  existingSetting ->
+                      existingSetting.settingKey().equals(updatedQuestionSetting.settingKey())
+                          && existingSetting
+                              .settingType()
+                              .equals(updatedQuestionSetting.settingType()))
+              .findFirst();
+
+      if (maybeExistingSettingWithSameKey.isPresent()) {
+        QuestionSetting existingSetting = maybeExistingSettingWithSameKey.get();
+
+        // Handle localizedSettingDisplayName
+        Optional<LocalizedStrings> updatedDisplayName =
+            updatedQuestionSetting.localizedSettingDisplayName();
+        Optional<LocalizedStrings> localizedDisplayName;
+        if (updatedDisplayName.isPresent()) {
+          LocalizedStrings existingDisplayName =
+              existingSetting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
+          if (existingSetting.localizedSettingDisplayName().isPresent()
+              && existingDisplayName.getDefault().equals(updatedDisplayName.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedDisplayName = Optional.of(existingDisplayName);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedDisplayName =
+                Optional.of(
+                    existingDisplayName.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedDisplayName.get().getDefault()));
+          }
+        } else {
+          localizedDisplayName = existingSetting.localizedSettingDisplayName();
+        }
+
+        // Handle localizedSettingText
+        Optional<LocalizedStrings> updatedText = updatedQuestionSetting.localizedSettingText();
+        Optional<LocalizedStrings> localizedText;
+        if (updatedText.isPresent()) {
+          LocalizedStrings existingText =
+              existingSetting.localizedSettingText().orElse(LocalizedStrings.of());
+          if (existingSetting.localizedSettingText().isPresent()
+              && existingText.getDefault().equals(updatedText.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedText = Optional.of(existingText);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedText =
+                Optional.of(
+                    existingText.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedText.get().getDefault()));
+          }
+        } else {
+          localizedText = existingSetting.localizedSettingText();
+        }
+
+        newSettingsListBuilder.add(
+            existingSetting.toBuilder()
+                .setLocalizedSettingDisplayName(localizedDisplayName)
+                .setLocalizedSettingText(localizedText)
+                .setSettingValue(updatedQuestionSetting.settingValue())
+                .build());
+      } else {
+        // If there's no existing setting with the same key, treat it as a new setting
+        newSettingsListBuilder.add(updatedQuestionSetting);
+      }
+    }
+
+    updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

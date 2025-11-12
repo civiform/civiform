@@ -14,15 +14,15 @@ fi
 
 if [[ $(docker ps --all --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
   echo "Removing containers and associated volumes for ${PROJECT}"
-  docker remove --force --volumes $(docker ps --all --quiet --filter=name="${PROJECT}") >/dev/null
+  docker container rm --force --volumes $(docker ps --all --quiet --filter=name="${PROJECT}") >/dev/null
 fi
 
 if [[ $(docker volume list --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
   echo "Removing all volumes for ${PROJECT}"
-  docker volume remove --force $(docker volume list --quiet --filter=name="${PROJECT}") >/dev/null
+  docker volume rm --force $(docker volume list --quiet --filter=name="${PROJECT}") >/dev/null
 fi
 
 if [[ $(docker network list --quiet --filter=name="${PROJECT}" | wc -c) -ne 0 ]]; then
   echo "Removing all networks for ${PROJECT}"
-  docker network remove --force $(docker network list --quiet --filter=name="${PROJECT}") >/dev/null
+  docker network rm --force $(docker network list --quiet --filter=name="${PROJECT}") >/dev/null
 fi

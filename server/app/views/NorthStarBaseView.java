@@ -91,6 +91,9 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    context.setVariable("locationIcon", assetsFinder.path("Images/uswds/icon-location_on.png"));
+    context.setVariable(
+        "selectedLocationIcon", assetsFinder.path("Images/uswds/icon-location_selected.png"));
     context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
     boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     context.setVariable("userIsAdmin", userIsAdmin);
@@ -162,6 +165,17 @@ public abstract class NorthStarBaseView {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
+    boolean sessionReplayProtectionEnabled = settingsManifest.getSessionReplayProtectionEnabled();
+    context.setVariable("sessionReplayProtectionEnabled", sessionReplayProtectionEnabled);
+    if (sessionReplayProtectionEnabled) {
+      int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
+      String sessionExpirationBanner =
+          messages.at(
+              MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
+              getSessionDurationMessage(sessionDurationMinutes, messages));
+      context.setVariable("sessionReplayBanner", sessionExpirationBanner);
+    }
+
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
 
@@ -194,6 +208,40 @@ public abstract class NorthStarBaseView {
     }
 
     return context;
+  }
+
+  private static String getSessionDurationMessage(int sessionDurationMinutes, Messages messages) {
+    int sessionDurationHours = sessionDurationMinutes / 60;
+    // The remaining minutes after accounting for whole hours.
+    int remainingSessionDurationMinutes = sessionDurationMinutes % 60;
+    if (sessionDurationMinutes < 60) {
+      return sessionDurationMinutes == 1
+          ? messages.at(MessageKey.BANNER_MINUTE.getKeyName())
+          : messages.at(
+              MessageKey.BANNER_MINUTES.getKeyName(), String.valueOf(sessionDurationMinutes));
+    }
+    // The session duration is a whole number of hours.
+    if (remainingSessionDurationMinutes == 0) {
+      return sessionDurationHours == 1
+          ? messages.at(MessageKey.BANNER_HOUR.getKeyName())
+          : messages.at(MessageKey.BANNER_HOURS.getKeyName(), String.valueOf(sessionDurationHours));
+    } else {
+      if (sessionDurationHours == 1) {
+        return remainingSessionDurationMinutes == 1
+            ? messages.at(MessageKey.BANNER_HOUR_AND_MINUTE.getKeyName())
+            : messages.at(
+                MessageKey.BANNER_HOUR_AND_MINUTES.getKeyName(),
+                String.valueOf(remainingSessionDurationMinutes));
+      }
+      if (remainingSessionDurationMinutes == 1) {
+        return messages.at(
+            MessageKey.BANNER_HOURS_AND_MINUTE.getKeyName(), String.valueOf(sessionDurationHours));
+      }
+      return messages.at(
+          MessageKey.BANNER_HOURS_AND_MINUTES.getKeyName(),
+          String.valueOf(sessionDurationHours),
+          String.valueOf(remainingSessionDurationMinutes));
+    }
   }
 
   private String getAccountIdentifier(

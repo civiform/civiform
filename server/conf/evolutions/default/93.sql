@@ -1,8 +1,8 @@
-# --- Allow programs to specify their display mode
+# --- Specificies if the program is available to logged in applicants only
 # --- !Ups
-ALTER TABLE programs
-ADD COLUMN login_only boolean DEFAULT FALSE NOT NULL;
+ALTER TABLE IF EXISTS programs
+ADD COLUMN IF NOT EXISTS login_only boolean DEFAULT FALSE NOT NULL;
 
 # --- !Downs
-ALTER TABLE programs
-DROP COLUMN login_only;
+ALTER TABLE IF EXISTS programs
+DROP COLUMN IF EXISTS login_only;

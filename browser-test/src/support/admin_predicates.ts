@@ -1,5 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
+import {waitForHtmxReady} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -72,6 +73,13 @@ export class AdminPredicates {
 
   async clickAddConditionButton() {
     await this.page.getByRole('button', {name: 'Add condition'}).click()
+  }
+
+  async clickAddSubconditionButton(conditionId: number) {
+    await this.page
+      .getByRole('button', {name: 'Add sub-condition'})
+      .nth(conditionId - 1)
+      .click()
   }
 
   async clickSaveConditionButton() {
@@ -207,5 +215,57 @@ export class AdminPredicates {
     await this.page.click(
       `button:has-text("This screen has ${predicateType} ")`,
     )
+  }
+
+  async expectCondition(conditionId: number) {
+    await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
+  }
+
+  async expectSubcondition(conditionId: number, subconditionId: number) {
+    await expect(
+      this.page.getByLabel('Question', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
+      }),
+    ).toBeVisible()
+  }
+
+  async expectNoAddConditionButton() {
+    await expect(
+      this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeHidden()
+  }
+
+  async expectHtmxError() {
+    await expect(
+      this.page.getByText('We are experiencing a system error'),
+    ).toBeVisible()
+  }
+
+  async selectQuestion(
+    conditionId: number,
+    subconditionId: number,
+    questionText: string,
+  ) {
+    await this.page
+      .getByLabel('Question', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
+      })
+      .selectOption(questionText)
+
+    await waitForHtmxReady(this.page)
+  }
+
+  async selectOperator(
+    conditionId: number,
+    subconditionId: number,
+    operatorValue: string,
+  ) {
+    await this.page
+      .getByLabel('State', {
+        id: `condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      })
+      .selectOption(`${operatorValue}`)
+
+    await waitForHtmxReady(this.page)
   }
 }

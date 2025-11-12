@@ -17,4 +17,4 @@ docker run --rm $interactive_flag \
   -v "$(pwd)/server:/usr/src/server" \
   --entrypoint /bin/bash \
   civiform/civiform-dev \
-  -c "npm install && npx jest -- $*"
+  -c "npm ci && npx jest -- $*"

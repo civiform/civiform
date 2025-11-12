@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16.10@sha256:b477759d38be47671d54a054d832791f8ddb9f0eaf6faf51ed17516087793a66
+    image: postgres:16.10@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
     restart: always
     ports:
       - 5432:5432
@@ -12,8 +12,6 @@ services:
     image: civiform:prod
     restart: always
     container_name: civiform_prod
-    links:
-      - 'db:database'
     ports:
       - 8888:9000
     environment:

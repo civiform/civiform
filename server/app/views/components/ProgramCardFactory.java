@@ -44,6 +44,7 @@ public final class ProgramCardFactory {
 
   public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
+    // TODO(#11581): North star clean up
     boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     String programTitleText = displayProgram.localizedName().getDefault();
@@ -68,7 +69,8 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ false,
-                  cardData.draftProgram().get()));
+                  cardData.draftProgram().get(),
+                  request));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -78,6 +80,7 @@ public final class ProgramCardFactory {
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
+                  request,
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
@@ -144,6 +147,7 @@ public final class ProgramCardFactory {
       boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
+      Http.Request request,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = isActive ? "Published on " : "Edited on ";
@@ -167,6 +171,9 @@ public final class ProgramCardFactory {
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
+
+    boolean isTranslationManagementImprovementEnabled =
+        settingsManifest.getTranslationManagementImprovementEnabled(request);
 
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
@@ -194,7 +201,11 @@ public final class ProgramCardFactory {
                             span(questionCount == 1 ? " question" : " questions"))
                         .condWith(
                             programRow.universalQuestionsText().isPresent(),
-                            p(programRow.universalQuestionsText().orElse("")))),
+                            p(programRow.universalQuestionsText().orElse("")))
+                        .condWith(
+                            programRow.translationCompletionTag().isPresent()
+                                && isTranslationManagementImprovementEnabled,
+                            p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -215,7 +226,8 @@ public final class ProgramCardFactory {
                                     "absolute",
                                     "right-0",
                                     "w-56",
-                                    "z-50")
+                                    "z-50",
+                                    "border-gray-200")
                                 .with(programRow.extraRowActions()))));
   }
 
@@ -315,6 +327,8 @@ public final class ProgramCardFactory {
 
       abstract Optional<String> universalQuestionsText();
 
+      abstract Optional<DomContent> translationCompletionTag();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -328,6 +342,8 @@ public final class ProgramCardFactory {
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setUniversalQuestionsText(Optional<String> v);
+
+        public abstract Builder setTranslationCompletionTag(Optional<DomContent> v);
 
         public abstract ProgramRow build();
       }

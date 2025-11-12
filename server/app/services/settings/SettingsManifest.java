@@ -725,8 +725,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * This email address receives error notifications from CiviForm when there is an internal server
    * error or a durable job fails.
    */
-  public Optional<String> getItEmailAddress(RequestHeader request) {
-    return getString("IT_EMAIL_ADDRESS", request);
+  public Optional<String> getItEmailAddress() {
+    return getString("IT_EMAIL_ADDRESS");
   }
 
   /**
@@ -1059,11 +1059,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
-  }
-
-  /** Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled() {
-    return getBool("DATE_VALIDATION_ENABLED");
   }
 
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
@@ -2033,7 +2028,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST",
                           "If this is a staging deployment, the application notification email is"
@@ -2328,12 +2323,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "Enables admin validation settings for date questions.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",

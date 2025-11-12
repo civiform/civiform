@@ -73,9 +73,18 @@ public enum MessageKey {
   BANNER_GUEST_BANNER_TEXT("banner.guestBannerText"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),
   BANNER_GOV_WEBSITE_SECTION_CONTENT("banner.govWebsiteSectionContent"),
+  BANNER_HOUR("banner.hour"),
+  BANNER_HOUR_AND_MINUTE("banner.hourAndMinute"),
+  BANNER_HOUR_AND_MINUTES("banner.hourAndMinutes"),
+  BANNER_HOURS("banner.hours"),
+  BANNER_HOURS_AND_MINUTE("banner.hoursAndMinute"),
+  BANNER_HOURS_AND_MINUTES("banner.hoursAndMinutes"),
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
+  BANNER_MINUTE("banner.minute"),
+  BANNER_MINUTES("banner.minutes"),
+  BANNER_SESSION_EXPIRATION("banner.sessionExpiration"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
@@ -124,6 +133,7 @@ public enum MessageKey {
   BUTTON_KEEP_ACCT("button.keepAcct"),
   BUTTON_KEEP_FILE("button.keepFile"),
   BUTTON_SAVE("button.save"),
+  BUTTON_SAVE_AND_EXIT("button.saveAndExit"),
   BUTTON_SEARCH("button.search"),
   BUTTON_SELECT("button.select"),
   BUTTON_SIGNIN("button.signIn"),
@@ -148,6 +158,7 @@ public enum MessageKey {
   CONTACT_INFO_LABEL("label.contactInfo"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_ADMIN_FOOTER_PROMPT("content.adminFooterPrompt"),
+  CONTENT_AND("content.and"),
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_BLOCK_PROGRESS_LABEL("content.blockProgressLabel"),
@@ -184,6 +195,7 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
+  CONTENT_MULTIPLE_VALUES_INPUT_HINT("content.multipleValuesInputHint"),
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
   CONTENT_NO_APPLICATIONS("content.noApplications"),
@@ -278,6 +290,7 @@ public enum MessageKey {
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
+  ID_VALIDATION_NUMBER_REQUIRED_V2("validation.numberRequired.v2"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INITIAL_LOGIN_MODAL_PROMPT("content.initialLoginModalPrompt"),
@@ -292,6 +305,8 @@ public enum MessageKey {
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),
+  LINK_BACK_TO_EDIT_PROGRAM_BLOCK("link.backToEditProgramBlock"),
+  LINK_BACK_TO_TOP("link.backToTop"),
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
   LINK_CREATE_ACCOUNT_FROM_OVERVIEW("link.createAccountFromOverview"), // North Star only
   LINK_EDIT("link.edit"),
@@ -307,6 +322,7 @@ public enum MessageKey {
   LABEL_STATUS_ON("label.statusOn"), // North Star only
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
+  LINK_PROGRAM_SETTINGS("link.programSettings"),
   LINK_REMOVE_FILE("link.removeFile"),
   LINK_REMOVE_FILE_SR("link.removeFileSr"), // North Star only
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
@@ -314,26 +330,54 @@ public enum MessageKey {
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
-  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
-  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
-  MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
-  MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
-  MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
-  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
-  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
-  MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
-  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
-  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
-  MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MAP_ADD_FILTER_BUTTON("map.addFilterButton"), // North Star only
   MAP_ADD_FILTERS_SUBTITLE("map.addFiltersSubtitle"), // North Star only
   MAP_ADD_FILTERS_TITLE("map.addFiltersTitle"), // North Star only
+  MAP_ADD_TAG_BUTTON("map.addTagButton"), // North star only
+  MAP_ADD_TAG_SUBTITLE("map.addTagSubtitle"), // North Star only
+  MAP_ADD_TAG_TITLE("map.addTagTitle"), // North Star only
+  MAP_APPLY_FILTERS_BUTTON_TEXT("map.applyFiltersButtonText"), // North Star only
+  MAP_ARIA_LABEL_NEXT_PAGE("map.ariaLabelNextPage"), // North Star only
+  MAP_ARIA_LABEL_PAGINATION_LIST("map.ariaLabelPaginationList"), // North Star only
+  MAP_ARIA_LABEL_PREVIOUS_PAGE("map.ariaLabelPreviousPage"), // North Star only
+  MAP_AVAILABLE_LOCATIONS("map.availableLocations"), // North Star only
   MAP_DISPLAY_NAME_LABEL("map.displayNameLabel"), // North Star only
+  MAP_FILTER_LEGEND_TEXT("map.filterLegendText"), // North Star only
+  MAP_GO_TO_PAGE("map.goToPage"), // North Star only
   MAP_KEY_LABEL("map.keyLabel"), // North Star only
+  MAP_KEY_NOT_FOUND_ERROR("map.keyNotFoundError"), // North Star only
+  MAP_LOCATION_ADDRESS_HELP_TEXT("map.locationAddressHelpText"), // North Star only
   MAP_LOCATION_ADDRESS_LABEL("map.locationAddressLabel"), // North Star only
+  MAP_LOCATION_DETAILS_URL_HELP_TEXT("map.locationDetailsUrlHelpText"), // North Star only
   MAP_LOCATION_DETAILS_URL_LABEL("map.locationDetailsUrlLabel"), // North Star only
+  MAP_LOCATION_LINK_TEXT("map.locationLinkText"), // North Star only
+  MAP_LOCATION_LINK_TEXT_SR("map.locationLinkTextSr"), // North Star only
+  MAP_LOCATION_NAME_HELP_TEXT("map.locationNameHelpText"), // North Star only
   MAP_LOCATION_NAME_LABEL("map.locationNameLabel"), // North Star only
+  MAP_LOCATIONS_COUNT("map.locationsCount"), // North Star only
+  MAP_LOCATIONS_SELECTED_COUNT("map.locationsSelectedCount"), // North Star only
   MAP_MAX_LOCATION_SELECTIONS_LABEL("map.maxLocationSelectionsLabel"), // North Star only
+  MAP_NO_RESULTS_FOUND("map.noResultsFound"), // North Star only
+  MAP_NO_SELECTIONS_MESSAGE("map.noSelectionsMessage"), // North Star only
+  MAP_PAGINATION_STATUS("map.paginationStatus"), // North Star only
+  MAP_REGION_ALT_TEXT("map.mapRegionAltText"), // North Star only
+  MAP_RESET_FILTERS_BUTTON_TEXT("map.resetFiltersButtonText"), // North Star only
+  MAP_SELECTED_BUTTON_TEXT("map.mapSelectedButtonText"), // North Star only
+  MAP_SELECTED_LOCATIONS_HEADING("map.selectedLocationsHeading"), // North Star only
+  MAP_SELECT_LOCATION_BUTTON_TEXT("map.selectLocationButtonText"), // North Star only
+  MAP_SELECT_LOCATIONS("map.selectLocations"), // North Star only
+  MAP_SELECT_OPTION_PLACEHOLDER_TEXT("map.selectOptionPlaceholderText"), // North Star only
+  MAP_SETTING_TEXT_LABEL("map.settingTextLabel"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW("map.switchToListView"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW("map.switchToMapView"), // North Star only
+  MAP_SWITCH_TO_MAP_VIEW_SR("map.switchToMapViewSr"), // North Star only
+  MAP_SWITCH_TO_LIST_VIEW_SR("map.switchToListViewSr"), // North Star only
+  MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
+  MAP_VALUE_LABEL("map.valueLabel"), // North Star only
+  MAP_GEO_JSON_ERROR_TEXT("map.geoJsonErrorText"), // North Star only
+  MAP_HOMEPAGE("map.homepage"), // North Star only
+  MAP_CONTACT_US("map.contactUs"), // North Star only
+  MAP_MAP_PREVIEW_TEXT("map.mapPreviewText"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
@@ -367,6 +411,7 @@ public enum MessageKey {
   NAME_PLACEHOLDER_SUFFIX("placeholder.nameSuffix"),
   NAME_VALIDATION_FIRST_REQUIRED("validation.firstNameRequired"),
   NAME_VALIDATION_LAST_REQUIRED("validation.lastNameRequired"),
+  OPTION_SELECT_PLACEHOLDER("option.selectPlaceholder"),
   OPTION_SUFFIX_JUNIOR("option.junior"),
   OPTION_SUFFIX_SENIOR("option.senior"),
   OPTION_SUFFIX_FIRST("option.first"),
@@ -398,6 +443,25 @@ public enum MessageKey {
   PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY("validation.phoneMustBeLocalToCountry"),
   PHONE_LABEL_COUNTRY_CODE("label.countryCode"),
   PHONE_LABEL_PHONE_NUMBER("label.phoneNumber"),
+  PREDICATE_ALERT_NO_AVAILABLE_QUESTIONS_ELIGIBILITY(
+      "alert.predicateNoAvailableQuestionsEligibility"),
+  PREDICATE_ALERT_NO_AVAILABLE_QUESTIONS_VISIBILITY(
+      "alert.predicateNoAvailableQuestionsVisibility"),
+  PREDICATE_BUTTON_ADD_CONDITION("button.predicateAddCondition"),
+  PREDICATE_BUTTON_DELETE_CONDITION("button.predicateDeleteCondition"),
+  PREDICATE_CONTENT_APPLICANT_IS_ELIGIBLE("content.predicateApplicantIsEligible"),
+  PREDICATE_CONTENT_CONDITIONS_ARE_TRUE("content.predicateConditionsAreTrue"),
+  PREDICATE_CONTENT_CONDITION_IS_TRUE_IF("content.predicateConditionIsTrueIf"),
+  PREDICATE_CONTENT_ELIGIBILITY_DESCRIPTION("content.predicateEligibilityDescription"),
+  PREDICATE_CONTENT_SCREEN_IS("content.predicateScreenIs"),
+  PREDICATE_CONTENT_SUBCONDITIONS_ARE_TRUE("content.predicateSubconditionsAreTrue"),
+  PREDICATE_CONTENT_VISIBILITY_DESCRIPTION("content.predicateVisibilityDescription"),
+  PREDICATE_LABEL_FIELD("label.predicateField"),
+  PREDICATE_LABEL_QUESTION("label.predicateQuestion"),
+  PREDICATE_LABEL_STATE("label.predicateState"),
+  PREDICATE_LABEL_VALUE("label.predicateValue"),
+  PREDICATE_LINK_ADD_SUBCONDITION("link.predicateAddSubcondition"),
+  PREDICATE_LINK_DELETE_SUBCONDITION("link.predicateDeleteSubcondition"),
   SEARCH_BY_DOB("label.searchByDob"),
   SEARCH_BY_NAME("label.searchByName"),
   MONTH_LABEL("label.month"),
@@ -483,10 +547,7 @@ public enum MessageKey {
   SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
   SESSION_EXTEND_BUTTON("session.extend.button"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
-  SESSION_EXTENDED_ERROR("session.extended.error"),
-
-  // Untranslated string for translation infrastructure testing.
-  TRANSLATION_UNTRANSLATED("translation.untranslated");
+  SESSION_EXTENDED_ERROR("session.extended.error");
 
   private final String keyName;
 

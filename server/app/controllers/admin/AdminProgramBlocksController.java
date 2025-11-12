@@ -22,6 +22,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockAdditionResult;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -232,10 +233,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       programService.deleteBlock(programId, blockId);
-    } catch (IllegalPredicateOrderingException e) {
+    } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
-    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+    } catch (ProgramNotFoundException
+        | ProgramNeedsABlockException
+        | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));

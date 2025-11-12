@@ -36,6 +36,7 @@ import services.geo.ServiceAreaState;
 import services.program.ProgramService;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.YesNoQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -1687,6 +1688,65 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
 
     assertThat(record.get("applicant favorite season (selection)")).isEmpty();
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_whenYesNoQuestionIsAnswered_columnIsPopulated()
+      throws Exception {
+    createFakeQuestions();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerYesNoQuestion(testQuestionBank.doesApplicantHaveDogYesNo(), YesNoQuestionOption.YES)
+        .submit();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("applicant has a dog (selection)"))
+        .isEqualTo(YesNoQuestionOption.YES.getAdminName());
+
+    // Assert exact set and order of question headers
+    Stream<String> resultHeaders =
+        record.getParser().getHeaderNames().stream().filter(h -> !metadataHeaders.contains(h));
+    assertThat(resultHeaders).containsExactly("applicant has a dog (selection)");
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_whenYesNoQuestionIsRepeated_columnIsPopulated()
+      throws Exception {
+    createFakeQuestions();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersRepeatedQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("taylor"))
+        .answerYesNoQuestion(
+            testQuestionBank.doesApplicantHaveDogYesNo(), "taylor", YesNoQuestionOption.YES)
+        .submit();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("applicant household members[0] - applicant has a dog (selection)"))
+        .isEqualTo(YesNoQuestionOption.YES.getAdminName());
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_whenYesNoQuestionIsNotAnswered_columnIsEmpty()
+      throws Exception {
+    createFakeQuestions();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(testQuestionBank.doesApplicantHaveDogYesNo())
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("applicant has a dog (selection)")).isEmpty();
   }
 
   @Test

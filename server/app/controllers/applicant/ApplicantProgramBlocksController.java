@@ -20,6 +20,7 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
+import helpers.Pair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -428,7 +429,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     blockId,
                     cleanForm(questionPathToValueMap),
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                    false),
+                    false,
+                    settingsManifest.getApiBridgeEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -564,6 +566,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 applicantRoutes,
                                 profile);
 
+                        // TODO(#11572): North star clean up
                         if (settingsManifest.getNorthStarApplicantUi()) {
                           final String programSlug;
                           try {
@@ -704,6 +707,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
+                // TODO(#11572): North star clean up
                 if (settingsManifest.getNorthStarApplicantUi()) {
                   final String programSlug;
                   try {
@@ -903,7 +907,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             blockId,
                             fileUploadQuestionFormData.build(),
                             settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                            /* forceUpdate= */ true);
+                            /* forceUpdate= */ true,
+                            settingsManifest.getApiBridgeEnabled(request));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1171,7 +1176,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         fileUploadQuestionFormData.build(),
                                         settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                             request),
-                                        false));
+                                        false,
+                                        settingsManifest.getApiBridgeEnabled(request)));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1300,7 +1306,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         fileUploadQuestionFormData.build(),
                                         settingsManifest.getEsriAddressServiceAreaValidationEnabled(
                                             request),
-                                        false));
+                                        false,
+                                        settingsManifest.getApiBridgeEnabled(request)));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1425,33 +1432,58 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                classLoaderExecutionContext.current())
+            .toCompletableFuture();
+
+    // Process the form data and make any necessary changes.
+    CompletableFuture<ImmutableMap<String, String>> formDataCompletableFuture =
+        CompletableFuture.allOf(
+                applicantStage.toCompletableFuture(), applicantProgramServiceCompletableFuture)
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
+            .thenComposeAsync(
                 v -> {
+                  ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                      applicantProgramServiceCompletableFuture.join();
+
+                  Optional<Block> optionalBlockBeforeUpdate =
+                      readOnlyApplicantProgramService.getActiveBlock(blockId);
+
                   DynamicForm form = formFactory.form().bindFromRequest(request);
                   ImmutableMap<String, String> formData = cleanForm(form.rawData());
-                  return applicantService.resetAddressCorrectionWhenAddressChanged(
-                      applicantId, programId, blockId, formData);
+
+                  // Wrap both values in a pair so they can be passed to the next stage.
+                  return applicantService
+                      .resetAddressCorrectionWhenAddressChanged(
+                          programId, optionalBlockBeforeUpdate, blockId, formData)
+                      .thenApply(
+                          updatedFormData ->
+                              new Pair<>(optionalBlockBeforeUpdate, updatedFormData));
                 },
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
-                    applicantService.setPhoneCountryCode(applicantId, programId, blockId, formData),
+                pair ->
+                    applicantService
+                        .setPhoneCountryCode(
+                            programId,
+                            /* blockMaybe= */ pair.left(),
+                            blockId,
+                            /* formData= */ pair.right())
+                        .thenApply(updatedFormData -> new Pair<>(pair.left(), updatedFormData)),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                formData ->
-                    applicantService.cleanDateQuestions(applicantId, programId, blockId, formData),
-                classLoaderExecutionContext.current())
-            .toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
-        applicantStage
-            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
-            .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                pair ->
+                    applicantService.cleanDateQuestions(
+                        programId,
+                        /* blockMaybe= */ pair.left(),
+                        blockId,
+                        /* formData= */ pair.right()),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1468,10 +1500,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
+
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
+
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
+
               ApplicantRequestedAction applicantRequestedAction =
                   applicantRequestedActionWrapper.getAction();
 
@@ -1494,7 +1529,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       blockId,
                       formData,
                       settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                      false)
+                      false,
+                      settingsManifest.getApiBridgeEnabled(request))
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(
@@ -1620,6 +1656,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
+            // TODO(#11572): North star clean up
             if (settingsManifest.getNorthStarApplicantUi()) {
               final String programSlug;
               try {
@@ -1710,6 +1747,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
+    // TODO(#11573): North star clean up
     if (settingsManifest.getNorthStarApplicantUi()) {
       return supplyAsync(
           () -> {
@@ -1844,6 +1882,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
               applicantRoutes,
               profile);
+      // TODO(#11574): North star clean up
       if (settingsManifest.getNorthStarApplicantUi()) {
         return CompletableFuture.completedFuture(
             ok(northStarAddressCorrectionBlockView.render(
@@ -1900,6 +1939,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
+      // TODO(#11571): North star clean up
       if (settingsManifest.getNorthStarApplicantUi()) {
         eligibilityAlertSettings =
             getNorthStarEligibilityAlertSettings(
@@ -1910,6 +1950,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 request,
                 profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                 !roApplicantProgramService.isApplicationNotEligible(),
+                // TODO(#11571): North star clean up
                 settingsManifest.getNorthStarApplicantUi(),
                 false,
                 programId,
@@ -1939,7 +1980,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProfile(profile)
         .setBlockList(roApplicantProgramService.getAllActiveBlocks())
         .setEligibilityAlertSettings(eligibilityAlertSettings)
-        .setIsLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
+        .setLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(
@@ -2031,6 +2072,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
+            // TODO(#11571): North star clean up
             settingsManifest.getNorthStarApplicantUi(),
             false,
             programId,
