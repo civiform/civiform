@@ -659,7 +659,7 @@ heading.nextSteps=Что мне нужно делать дальше?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Вы отправили заявку на участие в программе "{0}"
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=Чтобы получить доступ к вашей заявке позже, необходимо создать учётную запись
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Чтобы вернуться к заявке позже, создайте аккаунт
 # Description text in an alert that explains how creating an account can help the user
@@ -699,19 +699,19 @@ button.homePage=Вернуться на главную страницу
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=Вернуться к редактированию {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=Настройте, когда этот экран будет отображаться или скрываться для заявителей на основе ответов на вопросы на предыдущих экранах.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.predicateEligibilityDescription=Добавьте условия участия, чтобы определить, соответствует ли заявитель требованиям программы на основе ответов на вопросы на этом экране. Заявители, не соответствующие минимальным требованиям, не смогут подать заявку. Это можно изменить в
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=настройках программы
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=Экран
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=Заявитель соответствует требованиям, если
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=conditions are true:
 
@@ -721,7 +721,7 @@ content.predicateConditionIsTrueIf=Condition is true if
 content.predicateSubconditionsAreTrue=sub-conditions are true:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=Вопрос
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Field
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
@@ -908,7 +908,7 @@ validation.idTooLong=Максимально допустимое число си
 validation.idTooShort=Минимально допустимое число символов: {0}.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Допускаются только цифры.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Должно содержать только цифры от 0 до 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -991,7 +991,7 @@ map.applyFiltersButtonText=Apply filters
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=Нумерация страниц для местоположений на карте
 # Aria label for previous page pagination button
 map.ariaLabelPreviousPage=Go to previous page of map locations
 # Header for the section showing available locations
@@ -1009,7 +1009,7 @@ map.locationsCount=Показано мест: {0} из {1}.
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=Интерактивная карта с отображением местоположений
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
 # Message displayed when filter results return no locations
@@ -1017,7 +1017,7 @@ map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Места не выбраны.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Сейчас отображается страница {0} из {1}.
 # Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
 # Heading for the section showing selected locations
@@ -1025,19 +1025,19 @@ map.selectedLocationsHeading=Выбранные места
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=Выберите до {0} местоположений
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=Перейти к просмотру карты
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=Перейти к просмотру списка
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=Вид переключен на карту
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=Вид переключен на список
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Выберите не более {0} местоположений.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
@@ -1048,27 +1048,27 @@ map.homepage = homepage
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=Добавить фильтр
 # Subtitle text for adding filters
 map.addFiltersSubtitle=Select up to six filters to make available to applicants.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=Фильтры
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=Добавить тег
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=Добавьте тег, который будет отображаться в определённых местоположениях, где выбранный ключ соответствует определённому значению. При выборе заявителем хотя бы одного из этих местоположений можно отображать оповещение в области "Выбранные местоположения".
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=Отображаемое имя
 # Label for key field
 map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
-map.keyNotFoundError=Error: Key not found. Please select a different key.
+map.keyNotFoundError=Ошибка: ключ не найден. Выберите другой ключ.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Ключ адреса
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
@@ -1076,7 +1076,7 @@ map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
 map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Ключ имени
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
@@ -1084,7 +1084,7 @@ map.settingTextLabel=Alert text
 # Label for value field
 map.valueLabel=Value
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=Карта будет отображаться здесь
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1164,16 +1164,16 @@ banner.guestBannerText=После подачи заявки {0}, чтобы за
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=завершите сеанс
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=Ваш сеанс автоматически завершится через {0} с начала сеанса. Войдите в систему или отправьте заявку до этого времени, чтобы не потерять свой прогресс.
 # Phrases that combine hours and minutes for the session expiration message.
-banner.hourAndMinutes=1 hour and {0} minutes
-banner.hourAndMinute=1 hour and 1 minute
-banner.hoursAndMinutes={0} hours and {1} minutes
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hourAndMinutes=1 час и {0} мин.
+banner.hourAndMinute=1 час и 1 мин.
+banner.hoursAndMinutes={0} час. и {1} мин.
+banner.hoursAndMinute={0} час. и 1 мин.
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
-banner.hour=1 hour
+banner.minutes={0} мин.
+banner.hours={0} час.
+banner.hour=1 час
 banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
