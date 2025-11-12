@@ -164,7 +164,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     // The first form is successful
     assertThat(returnedForm1).isEqualTo(form);
     // The second form has the same emailAddress, so it errors
-    assertThat(returnedForm2.error("emailAddress").get().message())
+    assertThat(returnedForm2.error("emailAddress").orElseThrow().message())
         .isEqualTo(
             "Email address already in use. Cannot create applicant if an account already exists.");
   }
@@ -188,9 +188,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .orElseThrow();
     assertThat(account.getApplicants().get(0).getDateOfBirth().map(LocalDate::toString))
         .hasValue("2022-07-07");
-    assertThat(account.newestApplicant().map(a -> a.id)).hasValue(returnObject.getApplicantId());
+    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
-    assertThat(applicant.getDateOfBirth().map(LocalDate::toString)).hasValue("2022-07-07");
+    assertThat(applicant.getDateOfBirth().orElseThrow().toString()).isEqualTo("2022-07-07");
     assertThat(account.getEmailAddress()).isNull();
     assertThat(applicant.getEmailAddress()).isEmpty();
   }
@@ -206,9 +206,9 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(returnedForm).isEqualTo(form);
     AccountModel account = repo.lookupAccountByEmail(CLIENT_DATA.get("emailAddress")).orElseThrow();
 
-    assertThat(account.getApplicants().get(0).getDateOfBirth().map(LocalDate::toString))
-        .hasValue("2022-07-07");
-    assertThat(account.newestApplicant().map(a -> a.id)).hasValue(returnObject.getApplicantId());
+    assertThat(account.getApplicants().get(0).getDateOfBirth().orElseThrow().toString())
+        .isEqualTo("2022-07-07");
+    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().map(LocalDate::toString)).hasValue("2022-07-07");
   }
@@ -325,7 +325,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.accounts().size()).isEqualTo(tiGroup.getManagedAccounts().size());
-    assertThat(tiResult.errorMessage().get()).isEqualTo("Please enter a valid birth date.");
+    assertThat(tiResult.errorMessage().orElseThrow())
+        .isEqualTo("Please enter a " + "valid birth date.");
   }
 
   @Test
@@ -345,8 +346,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicantFinal = repo.lookupApplicantSync(applicant.id).orElseThrow();
 
     assertThat(accountFinal.getTiNote()).isEqualTo(CLIENT_DATA.get("tiNote"));
-    assertThat(applicantFinal.getDateOfBirth().map(LocalDate::toString))
-        .hasValue(CLIENT_DATA.get("dob"));
+    assertThat(applicantFinal.getDateOfBirth().orElseThrow().toString())
+        .isEqualTo(CLIENT_DATA.get("dob"));
     assertThat(applicantFinal.getPhoneNumber()).hasValue(CLIENT_DATA.get("phoneNumber"));
     assertThat(applicantFinal.getApplicantName()).hasValue("ClientLast, clientFirst");
     assertThat(accountFinal.getEmailAddress()).isEqualTo(CLIENT_DATA.get("emailAddress"));
@@ -368,7 +369,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, testAccount.id, messagesApi.preferred(requestBuilder.build()));
-    assertThat(returnForm.error("phoneNumber").get().message()).isEqualTo(wantErrorMsg);
+    assertThat(returnForm.error("phoneNumber").orElseThrow().message()).isEqualTo(wantErrorMsg);
   }
 
   @Test
@@ -399,7 +400,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<TiClientInfoForm> returnForm =
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
-    assertThat(returnForm.error("dob").get().message())
+    assertThat(returnForm.error("dob").orElseThrow().message())
         .isEqualTo("Date of Birth should be in the past");
     assertThat(applicant.getDateOfBirth()).isNotEmpty();
   }
