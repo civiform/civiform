@@ -91,9 +91,9 @@ content.loginPrompt=Войдите в свой аккаунт, зарегист�
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Создать аккаунт
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=Вход заявителя
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=Вход администратора
 # The text on the button an applicant clicks to log in to their session.
 button.login=Войти
 # The text on the button an applicant clicks to sign in to their session.
@@ -989,25 +989,25 @@ option.maybe=Возможно
 # Text for map question apply filters button
 map.applyFiltersButtonText=Применить фильтры
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=Перейти на предыдущую страницу с местоположениями на карте
 # Aria label for pagination list
 map.ariaLabelPaginationList=Нумерация страниц для местоположений на карте
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=Перейти на предыдущую страницу с местоположениями на карте
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=Доступные местоположения
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
 map.goToPage=Перейти на страницу {0} с метоположениями на карте
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Подробнее
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Показано мест: {0} из {1}.
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=Выбрано {0} из максимум {1} местоположений.
 # Alt text for map region
 map.mapRegionAltText=Интерактивная карта с отображением местоположений
 # Text for map question selected button in popups
@@ -1019,15 +1019,15 @@ map.noSelectionsMessage=Места не выбраны.
 # Sr only message displayed when page has changed
 map.paginationStatus=Сейчас отображается страница {0} из {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=Очистить фильтры
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Выбранные места
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=Выбрать местоположение
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Выберите до {0} местоположений
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Выбрать -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Перейти к просмотру карты
 # Button text to switch from map view to list view on mobile
@@ -1050,7 +1050,7 @@ map.homepage = домашняя страница
 # Button for adding a filter
 map.addFilterButton=Добавить фильтр
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Выберите до шести фильтров, которые будут доступны кандидатам.
 # Title for filters section
 map.addFiltersTitle=Фильтры
 # Button for adding a tag
@@ -1062,23 +1062,23 @@ map.addTagTitle=Тег
 # Label for display name field
 map.displayNameLabel=Отображаемое имя
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=Ключ
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Ошибка: ключ не найден. Выберите другой ключ.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=Выберите, какой ключ соответствует адресу местоположения.
 # Label for location address key field
 map.locationAddressLabel=Ключ адреса
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=Выберите, какой ключ представляет URL-адрес сведений о местоположении.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=Подробнее о URL-ключе
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=Выберите ключ, соответствующий названию местоположения.
 # Label for location name key field
 map.locationNameLabel=Ключ имени
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=Максимальное количество выбранных местоположений
 # Label for setting text field
 map.settingTextLabel=Текст оповещения
 # Label for value field
