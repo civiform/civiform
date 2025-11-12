@@ -987,7 +987,7 @@ option.maybe=Peut-être
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Appliquer les filtres
 # Aria label for next page pagination button
 map.ariaLabelNextPage=\nAller à la page suivante des emplacements de la carte
 # Aria label for pagination list
@@ -1001,7 +1001,7 @@ map.filterLegendText=Filtres
 # Aria label for pagination buttons
 map.goToPage=Accédez à la page {0} des emplacements de la carte
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Voir plus de détails
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Afficher plus de détails pour {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
@@ -1027,7 +1027,7 @@ map.selectLocationButtonText=Sélectionner un lieu
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Sélectionnez jusqu'à {0} emplacements
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Sélectionner -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Passer à l'affichage sous forme de carte
 # Button text to switch from map view to list view on mobile
@@ -1048,9 +1048,9 @@ map.homepage = page d'accueil
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=Ajouter un filtre
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Sélectionnez jusqu'à six filtres à mettre à la disposition des candidats.
 # Title for filters section
 map.addFiltersTitle=Filtres
 # Button for adding a tag
