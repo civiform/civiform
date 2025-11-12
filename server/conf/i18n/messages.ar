@@ -91,9 +91,9 @@ content.loginPrompt=يُرجى تسجيل الدخول باستخدام حساب
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=إنشاء حساب
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=تسجيل دخول المتقدم
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=تسجيل دخول المسؤول
 # The text on the button an applicant clicks to log in to their session.
 button.login=تسجيل الدخول
 # The text on the button an applicant clicks to sign in to their session.
@@ -723,11 +723,11 @@ content.predicateSubconditionsAreTrue=sub-conditions are true:
 # Label for select option dropdown to choose a question
 label.predicateQuestion=Question
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=الحقل
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=State
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=القيمة (القيم)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Select -
 # Hint text for providing multiple values in a single input field
@@ -736,9 +736,9 @@ content.multipleValuesInputHint=أدخل قائمة من القيم مفصولة
 content.and=و
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=إضافة شرط
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=حذف الشرط
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Add sub-condition
 # Link to remove a sub-condition from the form
@@ -908,7 +908,7 @@ validation.idTooLong=الحد الأقصى لعدد الأحرف في الإجا
 validation.idTooShort=الحد الأدنى لعدد الأحرف في الإجابة هو {0}.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=يجب أن تتضمن الإجابة أرقامًا فقط.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=يجب أن يحتوي فقط على الأرقام من 0 إلى 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -987,47 +987,47 @@ option.maybe=ربما
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=تطبيق عوامل التصفية
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=انتقل إلى الصفحة التالية من مواقع الخريطة
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=ترقيم الصفحات لمواقع الخريطة
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=انتقل إلى الصفحة السابقة من مواقع الخريطة
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=المواقع المتاحة
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=عوامل التصفية
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=انتقل إلى الصفحة {0} من مواقع الخريطة
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=عرض مزيد من التفاصيل
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=عرض مزيد من التفاصيل لـ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=جارٍ عرض مواقع جغرافية عددها {0} من {1}
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=تم تحديد {0} من {1} موقعًا كحد أقصى.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=خريطة تفاعلية تعرض المواقع
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=المحدد
 # Message displayed when filter results return no locations
 map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=لم يتم اختيار أي موقع جغرافي.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=يتم الآن عرض الصفحة {0} من {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=مسح عوامل التصفية
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=المواقع الجغرافية التي تم اختيارها
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=اختر الموقع
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=اختر ما يصل إلى {0} مواقع
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- اختر -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=التبديل إلى عرض الخريطة
 # Button text to switch from map view to list view on mobile
@@ -1035,9 +1035,9 @@ map.switchToListView=التبديل إلى عرض القائمة
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=تم التبديل إلى عرض القائمة
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=يرجى اختيار ما لا يزيد عن {0} مواقع.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = نأسف لعدم قدرتنا على عرض هذا السؤال في الوقت الحالي. يرجى المحاولة لاحقًا بالعودة إلى هذا النموذج. في هذه الأثناء، يمكنك العودة إلى {0} أو {1} وسنوجهك إلى الوجهة الصحيحة.
 map.contactUs = اتصل بنا
@@ -1048,39 +1048,39 @@ map.homepage = الصفحة الرئيسية
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=إضافة عامل تصفية
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=اختر ما يصل إلى ستة عوامل تصفية لتكون متاحة للمتقدمين.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=عوامل التصفية
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=إضافة وسم
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=أضف وسمًا ليظهر في مواقع معينة عندما يتطابق مفتاح محدد مع قيمة معينة. عند اختيار المتقدم لموقع واحد على الأقل من هذه المواقع، يمكنك عرض تنبيه اختياري في منطقة "المواقع المحددة".
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=الوسم
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=اسم العرض
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=المفتاح
 # Error message when a configured key is not found in the GeoJSON data
-map.keyNotFoundError=Error: Key not found. Please select a different key.
+map.keyNotFoundError=خطأ: لم يتم العثور على المفتاح. يرجى اختيار مفتاح آخر.
 # Help text for location address field
 map.locationAddressHelpText=اختر المفتاح الذي يمثل عنوان الموقع.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=مفتاح العنوان
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=اختر المفتاح الذي يمثل رابط تفاصيل الموقع.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=مفتاح رابط عرض المزيد من التفاصيل
 # Help text for location name field
 map.locationNameHelpText=اختر المفتاح الذي يمثل اسم الموقع.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=مفتاح الاسم
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=الحد الأقصى لاختيارات المواقع
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=نص التنبيه
 # Label for value field
 map.valueLabel=القيمة
 # Text on a grey square that indicates where a map will appear once a question has been published
@@ -1166,15 +1166,15 @@ banner.endYourSession=إنهاء الجلسة
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
 banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
 # Phrases that combine hours and minutes for the session expiration message.
-banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinutes=ساعة واحدة و{0} دقيقة
 banner.hourAndMinute=1 hour and 1 minute
-banner.hoursAndMinutes={0} hours and {1} minutes
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hoursAndMinutes={0} ساعة و{1} دقيقة
+banner.hoursAndMinute={0} ساعة ودقيقة واحدة
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
-banner.hour=1 hour
-banner.minute=1 minute
+banner.minutes={0} دقيقة
+banner.hours={0} ساعة
+banner.hour=ساعة واحدة
+banner.minute=دقيقة واحدة
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
