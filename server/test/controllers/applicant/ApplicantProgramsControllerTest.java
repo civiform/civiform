@@ -82,7 +82,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             settingsManifest,
             instanceOf(NorthStarProgramIndexView.class),
             instanceOf(NorthStarFilteredProgramsViewPartial.class),
-            instanceOf(MonitoringMetricCounters.class));
+            instanceOf(MonitoringMetricCounters.class),
+            instanceOf(play.data.FormFactory.class));
   }
 
   /**
@@ -865,5 +866,23 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.contentType()).hasValue("text/html");
     String content = contentAsString(result);
     assertThat(content).contains("Your session will automatically expire after 2 hours");
+  }
+
+  @Test
+  public void hxTrackClick_returnsOk() {
+    Map<String, String> formData = new HashMap<>();
+    formData.put("externalLink", "https://example.com/apply");
+    formData.put("programName", "Food Assistance Program");
+
+    Request request =
+        fakeRequestBuilder()
+            .method("POST")
+            .uri("/programs/hx/trackClick")
+            .bodyForm(formData)
+            .build();
+
+    Result result = controller.hxTrackClick(request);
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 }

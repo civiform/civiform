@@ -419,4 +419,8 @@ public final class ApplicantRoutes {
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
+
+  public Call hxTrackClick() {
+    return routes.ApplicantProgramsController.hxTrackClick();
+  }
 }

@@ -415,7 +415,7 @@
 </div>
 
 <div
-  th:fragment="externalProgramModal(externalLink, modalId)"
+  th:fragment="externalProgramModal(externalLink, modalId, programName)"
   th:id="${'modal-container-' + modalId}"
   class="display-none position-fixed height-viewport width-full z-100"
 >
@@ -443,11 +443,13 @@
           <ul class="usa-button-group">
             <li class="usa-button-group__item">
               <a
+                th:hx-post="${trackClickUrl}"
+                th:hx-vals='|{"externalLink": "${externalLink}", "programName": "${programName}"}|'
+                th:hx-headers='|{"CSRF-TOKEN":"${csrfToken}"}|'
+                hx-swap="none"
                 class="usa-button"
                 th:text="#{button.continue}"
-                th:href="${externalLink}"
-                target="_blank"
-                rel="noopener noreferrer"
+                th:data-external-link="${externalLink}"
                 data-close-modal
               ></a>
             </li>
