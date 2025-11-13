@@ -729,14 +729,14 @@ label.predicateState=State
 # Label for an input field to enter a value or multiple values.
 label.predicateValue=值
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=- 選擇 -
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=請輸入一串以逗點分開的值。例如：「項目 1，項目 2，項目 3」。
 # Text between two input fields that represent a range. For example, "between input1 and input2".
 content.and=and
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=新增條件
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Delete condition
 # Link to append form fields for configuring a new sub-condition within a condition
@@ -744,14 +744,14 @@ link.predicateAddSubcondition=新增次要條件
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Delete sub-condition
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=回到最上方
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Save and exit
+button.saveAndExit=儲存並離開
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=前一畫面沒有可使用的問題來設定此畫面的顯示條件。
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=此畫面沒有可使用的問題來設定資格條件。
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -987,7 +987,7 @@ option.maybe=或許
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=套用篩選條件
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
@@ -997,17 +997,17 @@ map.ariaLabelPreviousPage=前往前一頁的地圖位置
 # Header for the section showing available locations
 map.availableLocations=可使用的位置
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=篩選條件
 # Aria label for pagination buttons
 map.goToPage=前往第 {0} 頁的地圖位置
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=檢視更多詳細資訊
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=已選擇 {0} 個位置（上限為 {1}）
 # Alt text for map region
 map.mapRegionAltText=互動式地圖顯示位置
 # Text for map question selected button in popups
@@ -1019,15 +1019,15 @@ map.noSelectionsMessage=尚未選取任何地點。
 # Sr only message displayed when page has changed
 map.paginationStatus=現在顯示頁數 {0}/{1}。
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=清除篩選條件
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=選取的地點
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=選擇位置
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=最多選擇 {0} 個位置
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- 選擇 -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
@@ -1048,11 +1048,11 @@ map.homepage = homepage
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=新增篩選條件
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=選擇最多六項篩選條件給申請人使用。
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=篩選條件
 # Button for adding a tag
 map.addTagButton=新增標籤
 # Subtitle text for adding a tag
@@ -1076,7 +1076,7 @@ map.locationDetailsUrlLabel=檢視更多詳細資訊的 URL 鍵
 # Help text for location name field
 map.locationNameHelpText=選擇代表位置名稱的鍵。
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=姓名鍵
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=最多位置選擇數量
 # Label for setting text field
@@ -1171,7 +1171,7 @@ banner.hourAndMinute=1 hour and 1 minute
 banner.hoursAndMinutes={0} hours and {1} minutes
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
+banner.minutes={0} 分鐘
 banner.hours={0} 小時
 banner.hour=1 hour
 banner.minute=1 minute
