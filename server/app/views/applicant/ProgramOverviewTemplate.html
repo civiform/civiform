@@ -31,7 +31,7 @@
             ></a>
             <a
               th:if="${loginOnly and isGuest}"
-              th:href="${actionUrl}"
+              th:href="${createAccountLink}"
               class="usa-button"
               th:text="#{link.createAccountFromOverview}"
             ></a>

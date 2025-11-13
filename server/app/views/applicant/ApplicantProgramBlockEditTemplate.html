@@ -22,9 +22,11 @@
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
+      ></div>
+      <div
+        th:if="${applicationParams.loginOnly() and isGuest}"
+        class="grid-container"
       >
-      </div>
-      <div th:if="${applicationParams.loginOnly() and isGuest}" class="grid-container">
         <div
           th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview})}"
         ></div>
@@ -35,7 +37,10 @@
       ></div>
 
       <div class="grid-container">
-        <div th:if="${applicationParams.loginOnly() and !isGuest}" class="grid-row">
+        <div
+          th:if="${applicationParams.loginOnly() and !isGuest}"
+          class="grid-row"
+        >
           <div
             th:class="${applicationParams.block().hasMapQuestion() ? 'tablet:grid-col-12' : 'tablet:grid-col-8'}"
           >
