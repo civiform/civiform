@@ -93,7 +93,7 @@ button.createAnAccount=Tạo tài khoản
 # The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Applicant log in
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=Đăng nhập của quản trị viên
 # The text on the button an applicant clicks to log in to their session.
 button.login=Đăng nhập
 # The text on the button an applicant clicks to sign in to their session.
@@ -659,7 +659,7 @@ heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Bạn đã gửi đơn đăng ký {0}
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=Để truy cập đơn đăng ký của bạn sau này, bạn phải tạo một tài khoản
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Tạo tài khoản để bạn có thể truy cập vào đơn đăng ký sau này
 # Description text in an alert that explains how creating an account can help the user
@@ -669,9 +669,9 @@ alert.noProgramsAvailable=Bạn đã bắt đầu hoặc đã nộp đơn đăng
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=Bạn phải đăng nhập để nộp đơn cho chương trình này
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=Vui lòng đăng nhập hoặc tạo tài khoản để tiếp tục đơn đăng ký này.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -699,21 +699,21 @@ button.homePage=Quay lại trang chủ
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=Quay lại chỉnh sửa {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
 content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.predicateEligibilityDescription=Thêm các điều kiện xét duyệt để xác định xem ứng viên có đủ tiêu chuẩn tham gia chương trình hay không dựa trên câu trả lời cho các câu hỏi trên màn hình này. Những ứng viên không đáp ứng các yêu cầu tối thiểu sẽ bị chặn không cho nộp đơn đăng ký. Bạn có thể thay đổi điều này trong
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=cài đặt chương trình
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=Màn hình
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=Ứng viên đủ điều kiện nếu
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=các điều kiện là đúng:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Condition is true if
@@ -721,7 +721,7 @@ content.predicateConditionIsTrueIf=Condition is true if
 content.predicateSubconditionsAreTrue=sub-conditions are true:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=Câu hỏi
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Field
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
@@ -731,25 +731,25 @@ label.predicateValue=Value(s)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Select -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=Nhập danh sách các giá trị được phân tách bằng dấu phẩy. Ví dụ: "mục1,mục2,mục3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
-content.and=and
+content.and=và
 
 # Button to append form fields for configuring a new condition
 button.predicateAddCondition=Add condition
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=Xóa điều kiện
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Add sub-condition
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=Xóa điều kiện phụ
 # Link to go back to the top of the page
 link.backToTop=Back to top
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Save and exit
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=Không có câu hỏi nào ở các màn hình trước để dùng thiết lập điều kiện hiển thị cho màn hình này.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
 
@@ -999,21 +999,21 @@ map.availableLocations=Các vị trí hiện có
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=Đi tới trang {0} của các vị trí trên bản đồ
 # Link text for location details URLs
 map.locationLinkText=View more details
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=Xem thêm chi tiết cho {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Đang hiển thị {0}/{1} địa điểm
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=Bản đồ tương tác hiển thị các vị trí
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=Không tìm thấy kết quả. Vui lòng thử điều chỉnh bộ lọc của bạn.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Chưa chọn địa điểm nào.
 # Sr only message displayed when page has changed
@@ -1084,7 +1084,7 @@ map.settingTextLabel=Alert text
 # Label for value field
 map.valueLabel=Value
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=Bản đồ sẽ hiển thị ở đây
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1168,7 +1168,7 @@ banner.sessionExpiration=Your session will automatically expire after {0} from t
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hour and {0} minutes
 banner.hourAndMinute=1 hour and 1 minute
-banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinutes={0} giờ {1} phút
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
