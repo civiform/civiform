@@ -91,7 +91,7 @@ content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Tạo tài khoản
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=Đăng nhập của ứng viên
 # The text on the button in the login drop down an admin clicks to log in to their session.
 button.adminLogin=Đăng nhập của quản trị viên
 # The text on the button an applicant clicks to log in to their session.
@@ -716,9 +716,9 @@ content.predicateApplicantIsEligible=Ứng viên đủ điều kiện nếu
 content.predicateConditionsAreTrue=các điều kiện là đúng:
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=Điều kiện là đúng nếu
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=các điều kiện phụ là đúng:
 
 # Label for select option dropdown to choose a question
 label.predicateQuestion=Câu hỏi
@@ -727,7 +727,7 @@ label.predicateField=Trường dữ liệu
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=Trạng thái
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=(Các) giá trị
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Chọn -
 # Hint text for providing multiple values in a single input field
@@ -736,7 +736,7 @@ content.multipleValuesInputHint=Nhập danh sách các giá trị được phân
 content.and=và
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=Thêm điều kiện
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Xóa điều kiện
 # Link to append form fields for configuring a new sub-condition within a condition
@@ -751,7 +751,7 @@ button.saveAndExit=Lưu và thoát
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Không có câu hỏi nào ở các màn hình trước để dùng thiết lập điều kiện hiển thị cho màn hình này.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=Không có câu hỏi nào trên màn hình này để dùng thiết lập điều kiện xét duyệt.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -908,7 +908,7 @@ validation.idTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.idTooShort=Phải có ít nhất {0} ký tự.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Chỉ được chứa chữ số.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Chỉ được chứa các số từ 0 đến 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -1011,13 +1011,13 @@ map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
 # Alt text for map region
 map.mapRegionAltText=Bản đồ tương tác hiển thị các vị trí
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=Đã chọn
 # Message displayed when filter results return no locations
 map.noResultsFound=Không tìm thấy kết quả. Vui lòng thử điều chỉnh bộ lọc của bạn.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Chưa chọn địa điểm nào.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Hiện đang hiển thị trang {0} trên {1}.
 # Text for map question reset filters button
 map.resetFiltersButtonText=Xóa bộ lọc
 # Heading for the section showing selected locations
@@ -1029,7 +1029,7 @@ map.selectLocations=Chọn tối đa {0} vị trí
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Chọn -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=Chuyển sang chế độ xem bản đồ
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
@@ -1054,9 +1054,9 @@ map.addFiltersSubtitle=Chọn tối đa sáu bộ lọc để hiển thị cho �
 # Title for filters section
 map.addFiltersTitle=Bộ lọc
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=Thêm tag
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=Thêm một tag để hiển thị trên các vị trí nhất định khi một khóa được chọn khớp với một giá trị nhất định. Khi ứng viên chọn ít nhất một trong các vị trí này, có thể hiển thị một cảnh báo trong khu vực Vị trí đã chọn.
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
@@ -1064,7 +1064,7 @@ map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
-map.keyNotFoundError=Error: Key not found. Please select a different key.
+map.keyNotFoundError=Lỗi: Không tìm thấy khóa. Vui lòng chọn một khóa khác.
 # Help text for location address field
 map.locationAddressHelpText=Chọn khóa đại diện cho địa chỉ vị trí.
 # Label for location address key field
@@ -1074,15 +1074,15 @@ map.locationDetailsUrlHelpText=Chọn khóa đại diện cho URL chi tiết v�
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=Khóa URL xem thêm chi tiết
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=Chọn khóa đại diện cho tên vị trí.
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=Số vị trí được chọn tối đa
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=Văn bản cảnh báo
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=Giá trị
 # Text on a grey square that indicates where a map will appear once a question has been published
 map.mapPreviewText=Bản đồ sẽ hiển thị ở đây
 
@@ -1167,14 +1167,14 @@ banner.endYourSession=kết thúc phiên của bạn
 banner.sessionExpiration=Phiên của bạn sẽ tự động hết hạn sau {0} kể từ khi bắt đầu phiên nên bạn vui lòng đăng nhập hoặc nộp đơn đăng ký trước thời điểm đó để tránh mất tiến trình.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 giờ {0} phút
-banner.hourAndMinute=1 hour and 1 minute
+banner.hourAndMinute=1 giờ 1 phút
 banner.hoursAndMinutes={0} giờ {1} phút
 banner.hoursAndMinute={0} giờ 1 phút
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
-banner.hour=1 hour
-banner.minute=1 minute
+banner.minutes={0} phút
+banner.hours={0} giờ
+banner.hour=1 giờ
+banner.minute=1 phút
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
