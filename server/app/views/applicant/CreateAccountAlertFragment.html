@@ -5,7 +5,7 @@
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body">
-    <h2
+    <h2 th:if=""
       class="usa-alert__heading"
       th:text="#{alert.createAccount}"
       th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
@@ -28,7 +28,7 @@
     </div>
 
     <div class="text-medium-spacing"></div>
-    <p th:if="${!isLoginOnly}">
+    <p th:if="${!loginOnly}">
       <a
         class="usa-link"
         role="button"

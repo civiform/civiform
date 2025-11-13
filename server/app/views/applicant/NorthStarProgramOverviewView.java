@@ -101,7 +101,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
 
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
-    context.setVariable("isLoginOnly", programDefinition.loginOnly());
+    context.setVariable("loginOnly", programDefinition.loginOnly());
 
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();

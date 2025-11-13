@@ -88,7 +88,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
-    context.setVariable("isLogin",        applicationParams.isLoginOnly());
+    context.setVariable("isLogin",        applicationParams.loginOnly());
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
