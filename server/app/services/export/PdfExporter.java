@@ -393,6 +393,7 @@ public final class PdfExporter {
         document.add(new LineSeparator());
 
       }
+
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(
             document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);

@@ -31,7 +31,7 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
     TextQuestion textQuestion = applicantQuestion.createTextQuestion();
 
     FieldWithLabel textField =
-        FieldWithLabel.input()
+        FieldWithLabel.textArea()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
             .setAriaRequired(!isOptional)
@@ -43,7 +43,7 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
     if (params.autofocusSingleField()) {
       textField.focusOnInput();
-    }
+     }
 
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();
