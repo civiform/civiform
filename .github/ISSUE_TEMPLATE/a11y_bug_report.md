@@ -2,7 +2,7 @@
 name: A11y bug report
 about: Report an accessibility bug
 title: ''
-labels: bug, a11y, needs-triage
+labels: bug, a11y
 assignees: ''
 ---
 

@@ -81,6 +81,17 @@ public final class ActiveAndDraftPrograms {
         repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
+  /**
+   * Queries the existing active and draft versions of non-disabled programs and builds a
+   * snapshotted view of the program state. These programs will include the question definition,
+   * since ProgramService is provided.
+   */
+  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsSynced(
+      ProgramService service, VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        repository, Optional.of(service), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  }
+
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
       VersionRepository repository,
       Optional<ProgramService> service,
