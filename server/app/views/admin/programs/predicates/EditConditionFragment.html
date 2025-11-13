@@ -14,6 +14,9 @@
         <button
           type="button"
           class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+          th:hx-post="${model.hxDeleteConditionEndpoint()}"
+          hx-target="#predicate-conditions-list"
+          hx-swap="innerHTML"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -49,12 +52,16 @@
         </select>
         [[#{content.predicateSubconditionsAreTrue}]]
       </div>
-      <div
-        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.emptySubconditionViewModel()})}"
-      ></div>
+      <th:block th:each="subcondition: ${model.subconditions}">
+        <div
+          th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${subcondition})}"
+        ></div>
+      </th:block>
     </div>
   </div>
-  <div
-    th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
-  ></div>
+  <th:block th:unless="${model.disableRenderAddCondition}">
+    <div
+      th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
+    ></div>
+  </th:block>
 </th:block>
