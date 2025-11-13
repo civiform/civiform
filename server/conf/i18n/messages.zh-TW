@@ -711,19 +711,19 @@ link.programSettings=計劃設定
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateScreenIs=畫面
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=如滿足這些條件，則
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=申請人符合資格：
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=次要條件滿足
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateSubconditionsAreTrue=即代表條件滿足：
 
 # Label for select option dropdown to choose a question
 label.predicateQuestion=問題
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=欄位
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=狀態
 # Label for an input field to enter a value or multiple values.
@@ -742,7 +742,7 @@ button.predicateDeleteCondition=刪除條件
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=新增次要條件
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=刪除次要條件
 # Link to go back to the top of the page
 link.backToTop=回到最上方
 # Button to save the visibility or eligibility predicate and return to editing the program.
@@ -1060,15 +1060,15 @@ map.addTagSubtitle=新增要在特定位置顯示的標籤，以在所選鍵與�
 # Title for tag section
 map.addTagTitle=標籤
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=顯示名稱
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=鍵
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=錯誤：沒找到鍵，請選擇其他鍵。
 # Help text for location address field
 map.locationAddressHelpText=選擇代表位置地址的鍵。
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=地址鍵
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=選擇代表位置詳細訊 URL 的鍵。
 # Label for location detail URL key field
@@ -1084,7 +1084,7 @@ map.settingTextLabel=警告文字
 # Label for value field
 map.valueLabel=值
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=地圖會顯示於此
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
