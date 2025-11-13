@@ -113,7 +113,7 @@ public final class Block {
   /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */
   public ApplicantQuestion getEnumeratorQuestion() {
     if (isEnumerator()) {
-      return getQuestions().get(0);
+      return getVisibleQuestions().get(0);
     }
     throw new RuntimeException(
         "Only an enumerator block can have an enumeration question definition.");
@@ -181,11 +181,12 @@ public final class Block {
   }
 
   public boolean hasMapQuestion() {
-    return getQuestions().stream().anyMatch(question -> question.getType() == QuestionType.MAP);
+    return getVisibleQuestions().stream()
+        .anyMatch(question -> question.getType() == QuestionType.MAP);
   }
 
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
-    return getQuestions().stream()
+    return getVisibleQuestions().stream()
         .filter(question -> question.getQuestionDefinition().getId() == id)
         .findFirst()
         .orElseThrow(() -> new QuestionNotFoundException(id));
@@ -213,7 +214,7 @@ public final class Block {
    * present and whether they are answered or not.
    */
   public boolean containsStatic() {
-    return getQuestions().stream()
+    return getVisibleQuestions().stream()
         .map(ApplicantQuestion::getType)
         .anyMatch(type -> type.equals(QuestionType.STATIC));
   }
@@ -226,7 +227,7 @@ public final class Block {
     if (scalarsMemo.isEmpty()) {
       scalarsMemo =
           Optional.of(
-              getQuestions().stream()
+              getVisibleQuestions().stream()
                   .flatMap(question -> question.getContextualizedScalars().entrySet().stream())
                   .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
@@ -238,7 +239,7 @@ public final class Block {
    * failures to update the {@link ApplicantData}.
    */
   public boolean hasErrors() {
-    return getQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
+    return getVisibleQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
@@ -258,11 +259,11 @@ public final class Block {
    * AbstractQuestion#isAnswered()}.
    */
   private boolean isAnswered() {
-    return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
+    return getVisibleQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
   public int answeredQuestionsCount() {
-    return (int) getQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
+    return (int) getVisibleQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
   }
 
   /**
@@ -271,7 +272,7 @@ public final class Block {
    */
   public int answeredByUserQuestionsCount() {
     return (int)
-        getQuestions().stream()
+        getVisibleQuestions().stream()
             .filter(question -> !question.getType().equals(QuestionType.STATIC))
             .filter(ApplicantQuestion::isAnswered)
             .count();
@@ -283,7 +284,7 @@ public final class Block {
    */
   public int answerableQuestionsCount() {
     return (int)
-        getQuestions().stream()
+        getVisibleQuestions().stream()
             .filter(question -> !question.getType().equals(QuestionType.STATIC))
             .count();
   }
@@ -303,14 +304,14 @@ public final class Block {
    * AND each of its optional questions is answered or intentionally skipped.
    */
   private boolean isCompleteInProgram() {
-    return getQuestions().isEmpty()
-        || getQuestions().stream()
+    return getVisibleQuestions().isEmpty()
+        || getVisibleQuestions().stream()
             .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
   }
 
   /** Returns true if this block contains only optional questions and false otherwise. */
   public boolean hasOnlyOptionalQuestions() {
-    return getQuestions().stream().allMatch(ApplicantQuestion::isOptional);
+    return getVisibleQuestions().stream().allMatch(ApplicantQuestion::isOptional);
   }
 
   /**
@@ -324,7 +325,7 @@ public final class Block {
    */
   public boolean wasAnsweredInProgram(long programId) {
     return isAnsweredWithoutErrors()
-        && getQuestions().stream()
+        && getVisibleQuestions().stream()
             .anyMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
