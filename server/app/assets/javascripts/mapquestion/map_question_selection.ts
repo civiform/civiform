@@ -134,17 +134,15 @@ export const updateSelectedLocations = (mapId: string): void => {
   if (atMaxSelections) {
     const mapData = window.app?.data?.maps?.[mapId] as MapData
     const maxLocationSelections = mapData.settings.maxLocationSelections
-    
+
     if (maxLocationStatus && maxLocationSelections) {
-       let localizedString = localizeString(
+      let localizedString = localizeString(
         getMessages().maxLocationsSelectedSr,
         [maxLocationSelections],
       )
       // The content needs to be different or screen readers will not re-announce it.
-      if (locationOffset % 2 == 0){
-        
+      if (locationOffset % 2 == 0) {
         localizedString += '.'
-
       }
       maxLocationStatus.textContent = localizedString
       locationOffset++
