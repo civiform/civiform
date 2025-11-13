@@ -127,7 +127,7 @@ export class AdminPredicateEdit {
           AdminPredicateEdit.NODE_OPERATOR_SELECT_NULL_STATE_ID,
         ),
       )
-      if (document.querySelector('[data-testid="condition-1"]')) {
+      if (document.querySelector('#condition-1')) {
         nodeOperatorSelect.hidden = false
         nodeOperatorSelectNullState.hidden = true
       } else {
