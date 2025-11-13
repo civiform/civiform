@@ -989,13 +989,13 @@ option.maybe=Có thể
 # Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=Đi tới trang kế tiếp của các vị trí trên bản đồ
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=Phân trang cho các vị trí trên bản đồ
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=Đi tới trang trước của các vị trí trên bản đồ
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=Các vị trí hiện có
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
@@ -1007,7 +1007,7 @@ map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Đang hiển thị {0}/{1} địa điểm
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
 # Alt text for map region
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
@@ -1019,13 +1019,13 @@ map.noSelectionsMessage=Chưa chọn địa điểm nào.
 # Sr only message displayed when page has changed
 map.paginationStatus=Now displaying page {0} of {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=Xóa bộ lọc
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Địa điểm đã chọn
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=Chọn tối đa {0} vị trí
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
@@ -1037,7 +1037,7 @@ map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Vui lòng chọn tối đa {0} vị trí.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
@@ -1050,9 +1050,9 @@ map.homepage = homepage
 # Button for adding a filter
 map.addFilterButton=Add filter
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Chọn tối đa sáu bộ lọc để hiển thị cho ứng viên.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=Bộ lọc
 # Button for adding a tag
 map.addTagButton=Add tag
 # Subtitle text for adding a tag
@@ -1066,13 +1066,13 @@ map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=Chọn khóa đại diện cho địa chỉ vị trí.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Khóa địa chỉ
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=Chọn khóa đại diện cho URL chi tiết vị trí.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=Khóa URL xem thêm chi tiết
 # Help text for location name field
 map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
