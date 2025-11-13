@@ -669,7 +669,7 @@ alert.noProgramsAvailable=您已開始申請或已申請過目前適用的所有
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=登入現有帳戶
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=您必須登入才能申請這項計畫
 # Description text in an alert that explains why the user must log in to apply for the program
 alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
@@ -704,9 +704,9 @@ link.backToEditProgramBlock=Back to edit {0}
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
 content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.predicateEligibilityDescription=新增資格條件，以根據此畫面中問題的答覆，來決定申請人是否符合計畫資格。如申請人不符合最低申請條件，就會遭封鎖而無法提交申請。如要進行變更，請前往
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=計劃設定
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateScreenIs=Screen is
@@ -740,7 +740,7 @@ button.predicateAddCondition=Add condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Delete condition
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=新增次要條件
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Delete sub-condition
 # Link to go back to the top of the page
@@ -908,7 +908,7 @@ validation.idTooLong=長度不可超過 {0} 個字元。
 validation.idTooShort=長度不可少於 {0} 個字元。
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=只能輸入數字。
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=僅能包含數字 0-9。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -1009,7 +1009,7 @@ map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=互動式地圖顯示位置
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
 # Message displayed when filter results return no locations
@@ -1025,7 +1025,7 @@ map.selectedLocationsHeading=選取的地點
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=最多選擇 {0} 個位置
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
@@ -1033,13 +1033,13 @@ map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=檢視已切換至地圖
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=請選擇最多 {0} 個位置。
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.geoJsonErrorText = 很抱歉，我們目前無法顯示這項問題。請待會再嘗試回到這項申請。現在，請回到 {0} 或 {1}，我們會為您提供正確的操作指示。
 map.contactUs = contact us
 map.homepage = homepage
 
@@ -1056,7 +1056,7 @@ map.addFiltersTitle=Filters
 # Button for adding a tag
 map.addTagButton=Add tag
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=新增要在特定位置顯示的標籤，以在所選鍵與特定值相符時進行顯示。當申請人至少選擇了一項這些位置時，即可自行選擇是否要在「已選擇位置」區域顯示警告。
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
@@ -1074,7 +1074,7 @@ map.locationDetailsUrlHelpText=Select which key represents the location details 
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=選擇代表位置名稱的鍵。
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
