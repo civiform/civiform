@@ -91,9 +91,9 @@ content.loginPrompt=請使用「{0}」帳戶登入
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=建立帳戶
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=申請人登入
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=管理員登入
 # The text on the button an applicant clicks to log in to their session.
 button.login=登入
 # The text on the button an applicant clicks to sign in to their session.
@@ -659,7 +659,7 @@ heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=您已提交「{0}」的申請書
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=如要待會回到申請頁面，您必須先建立帳戶
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=如果想在之後存取申請書，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
@@ -671,7 +671,7 @@ content.loginToExistingAccount=登入現有帳戶
 # Informational "alert" title to push user to login as the program is only for logged in user
 alert.loginOnly=您必須登入才能申請這項計畫
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=請登入或建立帳戶，以繼續完成這項申請。
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -699,17 +699,17 @@ button.homePage=返回首頁
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=回去編輯 {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=根據前一畫面中問題的答覆，設定是否要向申請人顯示/隱藏此畫面。
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=新增資格條件，以根據此畫面中問題的答覆，來決定申請人是否符合計畫資格。如申請人不符合最低申請條件，就會遭封鎖而無法提交申請。如要進行變更，請前往
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=計劃設定
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=畫面
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=Applicant is eligible if
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
@@ -721,17 +721,17 @@ content.predicateConditionIsTrueIf=Condition is true if
 content.predicateSubconditionsAreTrue=sub-conditions are true:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=問題
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Field
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=State
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=值
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Select -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=請輸入一串以逗點分開的值。例如：「項目 1，項目 2，項目 3」。
 # Text between two input fields that represent a range. For example, "between input1 and input2".
 content.and=and
 
@@ -991,15 +991,15 @@ map.applyFiltersButtonText=Apply filters
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=地圖位置頁數
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=前往前一頁的地圖位置
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=可使用的位置
 # Legend text for the map filters section
 map.filterLegendText=Filters
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=前往第 {0} 頁的地圖位置
 # Link text for location details URLs
 map.locationLinkText=View more details
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
@@ -1011,13 +1011,13 @@ map.locationsSelectedCount={0} of {1} maximum locations selected.
 # Alt text for map region
 map.mapRegionAltText=互動式地圖顯示位置
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=已選擇
 # Message displayed when filter results return no locations
 map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=尚未選取任何地點。
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=現在顯示頁數 {0}/{1}。
 # Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
 # Heading for the section showing selected locations
@@ -1035,12 +1035,12 @@ map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=檢視已切換至地圖
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=檢視已切換至列表
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=請選擇最多 {0} 個位置。
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = 很抱歉，我們目前無法顯示這項問題。請待會再嘗試回到這項申請。現在，請回到 {0} 或 {1}，我們會為您提供正確的操作指示。
-map.contactUs = contact us
+map.contactUs = 聯絡我們
 map.homepage = homepage
 
 #---------------------------------------------------------------------------#
@@ -1054,11 +1054,11 @@ map.addFiltersSubtitle=Select up to six filters to make available to applicants.
 # Title for filters section
 map.addFiltersTitle=Filters
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=新增標籤
 # Subtitle text for adding a tag
 map.addTagSubtitle=新增要在特定位置顯示的標籤，以在所選鍵與特定值相符時進行顯示。當申請人至少選擇了一項這些位置時，即可自行選擇是否要在「已選擇位置」區域顯示警告。
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=標籤
 # Label for display name field
 map.displayNameLabel=Display name
 # Label for key field
@@ -1066,19 +1066,19 @@ map.keyLabel=Key
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=選擇代表位置地址的鍵。
 # Label for location address key field
 map.locationAddressLabel=Address key
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=檢視更多詳細資訊的 URL 鍵
 # Help text for location name field
 map.locationNameHelpText=選擇代表位置名稱的鍵。
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=最多位置選擇數量
 # Label for setting text field
 map.settingTextLabel=Alert text
 # Label for value field
@@ -1164,7 +1164,7 @@ banner.guestBannerText=申請完成後，請{0}，確保您的資料安全。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=工作階段開始 {0} 後會自動過期。請登入或在該時間內提交申請，避免丟失已完成的進度。
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hour and {0} minutes
 banner.hourAndMinute=1 hour and 1 minute
@@ -1172,7 +1172,7 @@ banner.hoursAndMinutes={0} hours and {1} minutes
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
-banner.hours={0} hours
+banner.hours={0} 小時
 banner.hour=1 hour
 banner.minute=1 minute
 
