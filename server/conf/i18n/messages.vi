@@ -702,7 +702,7 @@ button.homePage=Quay lại trang chủ
 link.backToEditProgramBlock=Quay lại chỉnh sửa {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=Cấu hình thời điểm màn hình này được hiển thị hoặc ẩn đối với ứng viên dựa trên câu trả lời cho các câu hỏi ở các màn hình trước.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Thêm các điều kiện xét duyệt để xác định xem ứng viên có đủ tiêu chuẩn tham gia chương trình hay không dựa trên câu trả lời cho các câu hỏi trên màn hình này. Những ứng viên không đáp ứng các yêu cầu tối thiểu sẽ bị chặn không cho nộp đơn đăng ký. Bạn có thể thay đổi điều này trong
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
@@ -723,13 +723,13 @@ content.predicateSubconditionsAreTrue=sub-conditions are true:
 # Label for select option dropdown to choose a question
 label.predicateQuestion=Câu hỏi
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=Trường dữ liệu
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=Trạng thái
 # Label for an input field to enter a value or multiple values.
 label.predicateValue=Value(s)
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=- Chọn -
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=Nhập danh sách các giá trị được phân tách bằng dấu phẩy. Ví dụ: "mục1,mục2,mục3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
@@ -740,13 +740,13 @@ button.predicateAddCondition=Add condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Xóa điều kiện
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=Thêm điều kiện phụ
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Xóa điều kiện phụ
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=Quay về đầu trang
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Save and exit
+button.saveAndExit=Lưu và thoát
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Không có câu hỏi nào ở các màn hình trước để dùng thiết lập điều kiện hiển thị cho màn hình này.
@@ -987,7 +987,7 @@ option.maybe=Có thể
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Áp dụng bộ lọc
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Đi tới trang kế tiếp của các vị trí trên bản đồ
 # Aria label for pagination list
@@ -1027,21 +1027,21 @@ map.selectLocationButtonText=Select location
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Chọn tối đa {0} vị trí
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Chọn -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=Đã chuyển sang chế độ xem bản đồ
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=Đã chuyển sang chế độ xem danh sách
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Vui lòng chọn tối đa {0} vị trí.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
-map.homepage = homepage
+map.homepage = trang chủ
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -1164,12 +1164,12 @@ banner.guestBannerText=Sau khi đăng ký, hãy {0} để bảo vệ dữ liệu
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=kết thúc phiên của bạn
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=Phiên của bạn sẽ tự động hết hạn sau {0} kể từ khi bắt đầu phiên nên bạn vui lòng đăng nhập hoặc nộp đơn đăng ký trước thời điểm đó để tránh mất tiến trình.
 # Phrases that combine hours and minutes for the session expiration message.
-banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinutes=1 giờ {0} phút
 banner.hourAndMinute=1 hour and 1 minute
 banner.hoursAndMinutes={0} giờ {1} phút
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hoursAndMinute={0} giờ 1 phút
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
 banner.hours={0} hours
