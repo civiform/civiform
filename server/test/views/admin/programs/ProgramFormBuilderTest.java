@@ -32,7 +32,7 @@ public class ProgramFormBuilderTest extends ResetPostgres {
    */
   private int numberOfHiddenRequiredSpans(String renderedDiv) {
     Pattern hiddenRequiredPattern =
-        Pattern.compile("class=\"required-indicator[^\"]*hidden[^\"]*\"");
+        Pattern.compile("class=\"usa-hint--required[^\"]*hidden[^\"]*\"");
     Matcher matcher = hiddenRequiredPattern.matcher(renderedDiv);
     int count = 0;
     while (matcher.find()) count++;
