@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import models.ApplicantModel;
+import models.QuestionDisplayMode;
 import services.Path;
 import services.applicant.question.AbstractQuestion;
 import services.applicant.question.ApplicantQuestion;
@@ -163,12 +164,22 @@ public final class Block {
    * empty if no questions have address correction enabled.
    */
   public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
-    return getQuestions().stream()
+    return getVisibleQuestions().stream()
         .filter(ApplicantQuestion::isAddressCorrectionEnabled)
         .findFirst();
   }
 
-  public ImmutableList<ApplicantQuestion> getQuestions() {
+  /** Returns the list of questions in this block that are VISIBLE to applicants. */
+  public ImmutableList<ApplicantQuestion> getVisibleQuestions() {
+    return getAllQuestions().stream()
+        .filter(x -> x.getQuestionDefinition().getDisplayMode() == QuestionDisplayMode.VISIBLE)
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Returns ALL questions in this block regardless of display mode (including HIDDEN questions).
+   */
+  public ImmutableList<ApplicantQuestion> getAllQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =
           Optional.of(
