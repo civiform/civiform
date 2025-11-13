@@ -997,11 +997,11 @@ map.ariaLabelPreviousPage=Đi tới trang trước của các vị trí trên b�
 # Header for the section showing available locations
 map.availableLocations=Các vị trí hiện có
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=Bộ lọc
 # Aria label for pagination buttons
 map.goToPage=Đi tới trang {0} của các vị trí trên bản đồ
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Xem thêm chi tiết
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Xem thêm chi tiết cho {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
@@ -1023,7 +1023,7 @@ map.resetFiltersButtonText=Xóa bộ lọc
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Địa điểm đã chọn
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=Chọn vị trí
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Chọn tối đa {0} vị trí
 # Placeholder text for map question select option dropdown
@@ -1031,7 +1031,7 @@ map.selectOptionPlaceholderText=- Chọn -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Chuyển sang chế độ xem bản đồ
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=Chuyển sang chế độ xem danh sách
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=Đã chuyển sang chế độ xem bản đồ
 # Screen reader text announcing that the view has been switched to list view
@@ -1039,8 +1039,8 @@ map.switchToListViewSr=Đã chuyển sang chế độ xem danh sách
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Vui lòng chọn tối đa {0} vị trí.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
+map.geoJsonErrorText = Rất tiếc, chúng tôi không thể hiển thị câu hỏi này vào lúc này. Vui lòng thử quay lại đơn đăng ký này vào lúc khác. Trong thời gian chờ đợi, vui lòng quay lại {0} hoặc {1} và chúng tôi sẽ hướng dẫn bạn.
+map.contactUs = liên hệ với chúng tôi
 map.homepage = trang chủ
 
 #---------------------------------------------------------------------------#
@@ -1048,7 +1048,7 @@ map.homepage = trang chủ
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=Thêm bộ lọc
 # Subtitle text for adding filters
 map.addFiltersSubtitle=Chọn tối đa sáu bộ lọc để hiển thị cho ứng viên.
 # Title for filters section
@@ -1060,9 +1060,9 @@ map.addTagSubtitle=Thêm một tag để hiển thị trên các vị trí nhấ
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=Tên hiển thị
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=Khóa
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Lỗi: Không tìm thấy khóa. Vui lòng chọn một khóa khác.
 # Help text for location address field
@@ -1076,7 +1076,7 @@ map.locationDetailsUrlLabel=Khóa URL xem thêm chi tiết
 # Help text for location name field
 map.locationNameHelpText=Chọn khóa đại diện cho tên vị trí.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Khóa tên
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Số vị trí được chọn tối đa
 # Label for setting text field
