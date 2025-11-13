@@ -112,9 +112,11 @@
           </div>
         </div>
         <th:block th:if="${model.hasAvailableQuestions}">
-          <div
-            th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
-          ></div>
+          <div id="predicate-conditions-list">
+            <div
+              th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+            ></div>
+          </div>
         </th:block>
       </form>
       <th:block th:unless="${model.hasAvailableQuestions}">

@@ -35,6 +35,7 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
+import views.admin.programs.predicates.AddFirstConditionPartialView;
 import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
 import views.admin.programs.predicates.EditSubconditionPartialView;
@@ -67,6 +68,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(EditConditionPartialView.class),
             instanceOf(EditSubconditionPartialView.class),
             instanceOf(FailedRequestPartialView.class),
+            instanceOf(AddFirstConditionPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
@@ -498,5 +500,151 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                 StringUtils.deleteWhitespace(content), "<optionselected=\"selected\">"))
         .isEqualTo(4);
     assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(3);
+  }
+
+  @Test
+  public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    String content =
+        seedProgramWithConditions(ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
+    assertThat(content).contains("service area");
+    assertThat(content).contains("Seattle");
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequest(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            /* idToDelete= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    content = Helpers.contentAsString(result);
+    assertThat(content).doesNotContain("service area");
+    assertThat(content).doesNotContain("Seattle");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteCondition_twoConditions_deleteFirstCondition_secondConditionBecomesFirst() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    String content =
+        seedProgramWithConditions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequest(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            /* idToDelete= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteCondition_twoConditions_deleteSecondCondition_displaysAddConditionButton() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    String content =
+        seedProgramWithConditions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequest(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            /* idToDelete= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  // Adds given ELIGIBILITY conditions onto programWithThreeBlocks screen 2.
+  private String seedProgramWithConditions(ImmutableList<Long> questionIds) {
+    String content = "";
+    for (int i = 1; i <= questionIds.size(); ++i) {
+      Result result =
+          controller.hxEditCondition(
+              fakeRequestBuilder()
+                  .bodyForm(ImmutableMap.of("conditionId", String.valueOf(i)))
+                  .build(),
+              programWithThreeBlocks.id,
+              /* blockDefinitionId= */ 2L,
+              PredicateUseCase.ELIGIBILITY.name());
+
+      assertThat(result.status()).isEqualTo(OK);
+
+      result =
+          controller.hxEditSubcondition(
+              fakeRequestBuilder()
+                  .bodyForm(
+                      ImmutableMap.of(
+                          "conditionId",
+                          String.valueOf(i),
+                          "subconditionId",
+                          "1",
+                          "condition-" + i + "-subcondition-1-question",
+                          String.valueOf(questionIds.get(i - 1))))
+                  .build(),
+              programWithThreeBlocks.id,
+              /* blockDefinitionId= */ 2L,
+              PredicateUseCase.ELIGIBILITY.name());
+
+      assertThat(result.status()).isEqualTo(OK);
+      content = content.concat(Helpers.contentAsString(result));
+    }
+
+    return content;
   }
 }
