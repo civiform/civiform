@@ -1029,7 +1029,7 @@ map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=ቦታዎችን ይምረጡ
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=እስከ {0} ቦታዎችን ይምረጡ
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Select -
 # Button text to switch from list view to map view on mobile
