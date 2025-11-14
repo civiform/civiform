@@ -706,7 +706,7 @@ content.predicateVisibilityDescription=መተግበሪያዎ ዘንድ በኋላ
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=አንድ አመልካች በዚህ ማያ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጧቸው ምላሾች ላይ በመመስረት ለፕሮግራሙ መስፈርቱን የሚያሟሉ እንደሆነ ለማወቅ የብቁነት መስፈርቶችን ያክሉ። ዝቅተኛውን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻዎችን እንዳያስገቡ ይታገዳሉ። ይህን በ
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=ፕሮግራም ቅንብሮች ውስጥ መቀየር ይችላሉ
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateScreenIs=Screen is
