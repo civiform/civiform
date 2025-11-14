@@ -912,7 +912,7 @@ validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
 validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Waa inay leeyihiin lambarka 0-9 oo kaliya.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
