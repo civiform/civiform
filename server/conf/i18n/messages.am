@@ -744,11 +744,11 @@ button.predicateAddCondition=ሁኔታ አክል
 # Button to remove a condition from the form
 button.predicateDeleteCondition=ሁኔታ ደምስስ
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=ንዑስ ሁኔታ አክል
+link.predicateAddSubcondition=ንዑስ-ሁኔታ አክል
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=ንዑስ-ሁኔታ ደምስስ
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=ወደ ላይ ተመለስ
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Save and exit
 
