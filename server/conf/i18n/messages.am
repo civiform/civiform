@@ -1074,7 +1074,7 @@ map.keyNotFoundError=ስህተት፦ ቁልፍ አልተገኘም። እባክ�
 # Help text for location address field
 map.locationAddressHelpText=የትኛው ቁልፍ የቦታውን አድራሻ እንደሚወክል ይምረጡ።
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=የአድራሻ ቁልፍ
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
