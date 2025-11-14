@@ -1013,7 +1013,7 @@ map.locationsCount=Mostrando {0} de {1} ubicaciones
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Selección: {0} de {1} ubicaciones como máximo.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=Mapa interactivo que muestra las ubicaciones
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
 # Message displayed when filter results return no locations
