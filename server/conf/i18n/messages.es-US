@@ -1064,7 +1064,7 @@ map.addTagButton=Agregar etiqueta
 # Subtitle text for adding a tag
 map.addTagSubtitle=Agrega una etiqueta para que se muestre en ciertas ubicaciones donde una clave seleccionada coincida con un valor determinado. Cuando un solicitante seleccione al menos una de estas ubicaciones, muestra de forma opcional una alerta en el área de "Ubicaciones seleccionadas".
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=Etiqueta
 # Label for display name field
 map.displayNameLabel=Display name
 # Label for key field
