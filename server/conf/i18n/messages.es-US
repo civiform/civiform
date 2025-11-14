@@ -1177,8 +1177,8 @@ banner.hourAndMinute=1 hora y 1 minuto
 banner.hoursAndMinutes={0} horas y {1} minutos
 banner.hoursAndMinute={0} horas y 1 minuto
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
+banner.minutes={0} minutos
+banner.hours={0} horas
 banner.hour=1 hour
 banner.minute=1 minute
 
