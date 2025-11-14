@@ -1084,7 +1084,7 @@ map.locationNameHelpText=የትኛው ቁልፍ የቦታውን ስም እንደ
 # Label for location name key field
 map.locationNameLabel=የስም ቁልፍ
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=ከፍተኛው የቦታ መረጣዎች
 # Label for setting text field
 map.settingTextLabel=Alert text
 # Label for value field
