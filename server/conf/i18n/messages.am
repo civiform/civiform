@@ -1174,7 +1174,7 @@ banner.sessionExpiration=ክፍለ ጊዜዎ ከጀመረበት ጊዜ ጀምሮ
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 ሰዓት እና {0} ደቂቃዎች
 banner.hourAndMinute=1 ሰዓት እና 1 ደቂቃ
-banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinutes={0} ሰዓቶች እና {1} ደቂቃዎች
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
