@@ -671,7 +671,7 @@ content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 # Informational "alert" title to push user to login as the program is only for logged in user
 alert.loginOnly=ለዚህ ፕሮግራም ለማመልከት መግባት አለብዎ
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=እባክዎ በዚህ መተግበሪያ ለመቀጠል እባክዎ ይግቡ ወይም መለያ ይፍጠሩ።
+alert.loginOnlyDescription=እባክዎ በዚህ ማመልከቻ ለመቀጠል እባክዎ ይግቡ ወይም መለያ ይፍጠሩ።
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
