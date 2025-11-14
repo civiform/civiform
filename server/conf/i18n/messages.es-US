@@ -1082,7 +1082,7 @@ map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
 map.locationNameHelpText=Selecciona la clave que representa el nombre de la ubicación.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Clave de nombre
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
