@@ -1072,9 +1072,9 @@ map.keyLabel=Clave
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Error: Clave no encontrada. Selecciona otra clave.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=Selecciona la clave que representa la dirección de la ubicación.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Clave de dirección
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
