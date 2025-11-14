@@ -1,7 +1,5 @@
 package views.applicant;
 
-import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
@@ -87,19 +85,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
-    context.setVariable("isLogin", applicationParams.loginOnly());
-    boolean isTi = applicationParams.profile().isTrustedIntermediary();
-    boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
-    context.setVariable("isGuest", isGuest);
-
-    String actionUrl =
-        applicantRoutes
-            .edit(
-                applicationParams.profile(),
-                applicationParams.applicantId(),
-                applicationParams.programId())
-            .url();
-    context.setVariable("actionUrl", actionUrl);
     String pageTitle =
         pageTitleWithBlockProgress(
             applicationParams.programTitle(),

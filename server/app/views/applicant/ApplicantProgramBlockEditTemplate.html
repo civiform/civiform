@@ -23,24 +23,13 @@
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
-      <div
-        th:if="${applicationParams.loginOnly() and isGuest}"
-        class="grid-container"
-      >
-        <div
-          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview})}"
-        ></div>
-      </div>
 
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
 
       <div class="grid-container">
-        <div
-          th:if="${applicationParams.loginOnly() and !isGuest}"
-          class="grid-row"
-        >
+        <div class="grid-row">
           <div
             th:class="${applicationParams.block().hasMapQuestion() ? 'tablet:grid-col-12' : 'tablet:grid-col-8'}"
           >

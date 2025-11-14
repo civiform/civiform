@@ -24,11 +24,18 @@
         <div class="grid-row">
           <div class="tablet:grid-col-8">
             <a
-              th:if="${!loginOnly and isGuest}"
+              th:if="${!loginOnly}"
               th:href="${actionUrl}"
               class="usa-button"
               th:text="#{button.startApp}"
             ></a>
+            <a
+              th:if="${loginOnly and !isGuest}"
+              th:href="${actionUrl}"
+              class="usa-button"
+              th:text="#{button.startApp}"
+            ></a>
+
             <a
               th:if="${loginOnly and isGuest}"
               th:href="${createAccountLink}"
