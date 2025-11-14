@@ -1017,7 +1017,7 @@ map.mapRegionAltText=Mapa interactivo que muestra las ubicaciones
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Seleccionado
 # Message displayed when filter results return no locations
-map.noResultsFound=No se encontraron resultados. Pruebe ajustando los filtros.
+map.noResultsFound=No se encontraron resultados. Prueba ajustando los filtros.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No se seleccionaron ubicaciones.
 # Sr only message displayed when page has changed
