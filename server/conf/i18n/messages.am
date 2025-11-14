@@ -727,7 +727,7 @@ content.predicateSubconditionsAreTrue=ንዑስ ሁኔታዎች እውነት ከ
 # Label for select option dropdown to choose a question
 label.predicateQuestion=ጥያቄ
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=መስክ
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=State
 # Label for an input field to enter a value or multiple values.
