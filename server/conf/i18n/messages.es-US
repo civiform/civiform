@@ -1015,7 +1015,7 @@ map.locationsSelectedCount=Selección: {0} de {1} ubicaciones como máximo.
 # Alt text for map region
 map.mapRegionAltText=Mapa interactivo que muestra las ubicaciones
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=Seleccionado
 # Message displayed when filter results return no locations
 map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
