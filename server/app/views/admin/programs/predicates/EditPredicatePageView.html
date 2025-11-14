@@ -53,41 +53,63 @@
           class="font-body-xs width-mobile-lg"
           th:switch="${model.predicateUseCase.name()}"
         >
-          <p>
-            <th:block th:case="'VISIBILITY'">
-              [[#{content.predicateScreenIs}]]
+          <div
+            th:id="predicate-operator-node-select"
+            th:attr="hidden=${!model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block th:case="'VISIBILITY'">
+                [[#{content.predicateScreenIs}]]
+                <select
+                  class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  name="predicateAction"
+                >
+                  <option
+                    th:each="action : ${model.visibilityActions()}"
+                    th:text="${action.toDisplayString()}"
+                    th:value="${action.name()}"
+                  ></option>
+                </select>
+              </th:block>
+              <th:block th:case="'ELIGIBILITY'">
+                [[#{content.predicateApplicantIsEligible}]]
+                <input
+                  type="hidden"
+                  name="predicateAction"
+                  th:value="${model.eligibilityAction().name()}"
+                />
+              </th:block>
+
               <select
-                class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
-                name="predicateAction"
+                class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
+                name="root-nodeType"
               >
                 <option
-                  th:each="action : ${model.visibilityActions()}"
-                  th:text="${action.toDisplayString()}"
-                  th:value="${action.name()}"
+                  th:each="nodeType : ${model.operatorNodeTypes()}"
+                  th:text="${nodeType.toDisplayString()}"
+                  th:value="${nodeType.name()}"
                 ></option>
               </select>
-            </th:block>
-            <th:block th:case="'ELIGIBILITY'">
-              [[#{content.predicateApplicantIsEligible}]]
-              <input
-                type="hidden"
-                name="predicateAction"
-                th:value="${model.eligibilityAction().name()}"
-              />
-            </th:block>
-
-            <select
-              class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-              name="root-nodeType"
-            >
-              <option
-                th:each="nodeType : ${model.operatorNodeTypes()}"
-                th:text="${nodeType.toDisplayString()}"
-                th:value="${nodeType.name()}"
-              ></option>
-            </select>
-            [[#{content.predicateConditionsAreTrue}]]
-          </p>
+              [[#{content.predicateConditionsAreTrue}]]
+            </p>
+          </div>
+          <div
+            th:id="predicate-operator-node-select-null-state"
+            th:attr="hidden=${model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'VISIBILITY'}"
+              >
+                [[#{content.predicateVisibilityNullState}]]
+              </th:block>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+              >
+                [[#{content.predicateEligibilityNullState}]]
+              </th:block>
+            </p>
+          </div>
         </div>
         <th:block th:if="${model.hasAvailableQuestions}">
           <div

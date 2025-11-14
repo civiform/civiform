@@ -2,6 +2,7 @@
 <th:block th:fragment="editCondition(model)">
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
+    th:id="${'condition-' + model.conditionId}"
     th:data-testid="|condition-${model.conditionId}|"
   >
     <div class="usa-card__header">
