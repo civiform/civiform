@@ -742,7 +742,7 @@ content.and=iyo
 # Button to append form fields for configuring a new condition
 button.predicateAddCondition=Ku dar xaalada
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=Tirtir xaalada
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Add sub-condition
 # Link to remove a sub-condition from the form
