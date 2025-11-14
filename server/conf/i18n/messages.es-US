@@ -1179,8 +1179,8 @@ banner.hoursAndMinute={0} horas y 1 minuto
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutos
 banner.hours={0} horas
-banner.hour=1 hour
-banner.minute=1 minute
+banner.hour=1 hora
+banner.minute=1 minuto
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
