@@ -1046,6 +1046,8 @@ map.validation.tooManySelections=Mangyaring pumili ng hindi hihigit sa {0} na lo
 map.geoJsonErrorText = Ikinalulungkot namin na hindi namin maipakita ang tanong na ito sa ngayon. Pakisubukang bumalik sa aplikasyong ito sa ibang pagkakataon. Pansamantala, bumalik sa {0} o {1} at ituturo ka namin sa tamang direksyon.
 map.contactUs = makipag-ugnayan sa amin
 map.homepage = homepage
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
