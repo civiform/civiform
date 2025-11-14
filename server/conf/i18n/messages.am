@@ -1078,7 +1078,7 @@ map.locationAddressLabel=የአድራሻ ቁልፍ
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=የትኛው ቁልፍ የአካባቢ ዝርዝሮች ዩአርኤልን እንደሚወክል ይምረጡ።
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=ተጨማሪ ዝርዝሮች ዩአርኤል ቁልፍን ይመልከቱ
 # Help text for location name field
 map.locationNameHelpText=Select which key represents the location name.
 # Label for location name key field
