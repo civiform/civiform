@@ -1011,7 +1011,7 @@ map.locationLinkTextSr=Ver más detalles de {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Mostrando {0} de {1} ubicaciones
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=Selección: {0} de {1} ubicaciones como máximo.
 # Alt text for map region
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
