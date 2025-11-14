@@ -671,7 +671,7 @@ content.loginToExistingAccount=Accede a una cuenta existente
 # Informational "alert" title to push user to login as the program is only for logged in user
 alert.loginOnly=Debes iniciar sesión si deseas enviar una solicitud para este programa
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=Inicia sesión o crea una cuenta para continuar con esta solicitud.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
