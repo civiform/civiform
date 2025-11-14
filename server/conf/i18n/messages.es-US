@@ -995,7 +995,7 @@ map.applyFiltersButtonText=Aplicar filtros
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Ir a la página siguiente de ubicaciones del mapa
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=Paginación para ubicaciones del mapa
 # Aria label for previous page pagination button
 map.ariaLabelPreviousPage=Go to previous page of map locations
 # Header for the section showing available locations
