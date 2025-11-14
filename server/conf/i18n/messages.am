@@ -912,7 +912,7 @@ validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
 validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
-validation.numberRequired.v2=ከ0-9 የሆኑ ቁጥሮችን ብቻ መያዝ አለባቸው።
+validation.numberRequired.v2=ከ0-9 የሆኑ ቁጥሮችን ብቻ መያዝ አለበት።
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
