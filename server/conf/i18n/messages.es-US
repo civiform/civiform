@@ -725,11 +725,11 @@ content.predicateConditionIsTrueIf=La condición es verdadera si
 content.predicateSubconditionsAreTrue=las subcondiciones son verdaderas:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=Pregunta
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=Campo
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=Estado
 # Label for an input field to enter a value or multiple values.
 label.predicateValue=Value(s)
 # Placeholder text for select option dropdown
