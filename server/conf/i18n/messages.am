@@ -1080,9 +1080,9 @@ map.locationDetailsUrlHelpText=የትኛው ቁልፍ የአካባቢ ዝርዝ�
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=የተጨማሪ ዝርዝሮች ዩአርኤል ቁልፍን ይመልከቱ
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=የትኛው ቁልፍ የቦታውን ስም እንደሚወክል ይምረጡ።
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=የስም ቁልፍ
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
