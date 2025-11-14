@@ -755,7 +755,7 @@ button.saveAndExit=Seyf garee oo ka noqo
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Ma jiraan wax su'aalo ah oo la heli karo oo ku saabsan shaashadaha hore  ee lagu dejinayo xaalad muuqaal ah shaashadaan.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ku yaala shaashadaan oo lagu dejinayo shuruudaha u-qalmitaanka.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
