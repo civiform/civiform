@@ -1021,9 +1021,9 @@ map.noResultsFound=No se encontraron resultados. Pruebe ajustando los filtros.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=No se seleccionaron ubicaciones.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Actualmente se muestra la página {0} de {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=Borrar filtros
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Ubicaciones seleccionadas
 # Placeholder text for map question select button in popups
