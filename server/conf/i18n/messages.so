@@ -748,7 +748,7 @@ link.predicateAddSubcondition=Ku dar xaalad-hoosaadka
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Tirtir xaalad-hoosaadka
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=Ku laabo kor
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Save and exit
 
