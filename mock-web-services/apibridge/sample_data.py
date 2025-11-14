@@ -47,6 +47,6 @@ response_schema = {
                     "description": "Has valid account",
                 },
         },
-    "required": ["accountNumber, isValid"],
+    "required": ["accountNumber", "isValid"],
     "additionalProperties": False,
 }

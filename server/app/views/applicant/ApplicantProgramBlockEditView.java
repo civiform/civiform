@@ -177,7 +177,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(requiredFieldsExplanationContent(params.messages()))
         .with(
             each(
-                params.block().getQuestions(),
+                params.block().getVisibleQuestions(),
                 question -> {
                   if (question.hasErrors()) {
                     ordinalErrorCount.incrementAndGet();

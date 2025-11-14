@@ -852,7 +852,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         }
 
                         FileUploadQuestion fileUploadQuestion =
-                            block.get().getQuestions().stream()
+                            block.get().getVisibleQuestions().stream()
                                 .filter(
                                     question -> question.getType().equals(QuestionType.FILEUPLOAD))
                                 .findAny()
@@ -1062,7 +1062,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         }
 
                         FileUploadQuestion fileUploadQuestion =
-                            block.get().getQuestions().stream()
+                            block.get().getVisibleQuestions().stream()
                                 .filter(
                                     question -> question.getType().equals(QuestionType.FILEUPLOAD))
                                 .findAny()
@@ -1280,7 +1280,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         }
 
                         FileUploadQuestion fileUploadQuestion =
-                            block.get().getQuestions().stream()
+                            block.get().getVisibleQuestions().stream()
                                 .filter(
                                     question -> question.getType().equals(QuestionType.FILEUPLOAD))
                                 .findAny()
