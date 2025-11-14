@@ -1175,7 +1175,7 @@ banner.sessionExpiration=Tu sesión caducará automáticamente tras {0} desde el
 banner.hourAndMinutes=1 hora y {0} minutos
 banner.hourAndMinute=1 hora y 1 minuto
 banner.hoursAndMinutes={0} horas y {1} minutos
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hoursAndMinute={0} horas y 1 minuto
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
 banner.hours={0} hours
