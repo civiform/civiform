@@ -1046,6 +1046,8 @@ map.validation.tooManySelections=Vui lòng chọn tối đa {0} vị trí.
 map.geoJsonErrorText = Rất tiếc, chúng tôi không thể hiển thị câu hỏi này vào lúc này. Vui lòng thử quay lại đơn đăng ký này vào lúc khác. Trong thời gian chờ đợi, vui lòng quay lại {0} hoặc {1} và chúng tôi sẽ hướng dẫn bạn.
 map.contactUs = liên hệ với chúng tôi
 map.homepage = trang chủ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
