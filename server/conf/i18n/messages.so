@@ -1003,7 +1003,7 @@ map.availableLocations=Goobaha La heli karo
 # Legend text for the map filters section
 map.filterLegendText=Shaandheeyada
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=Booqo bogga {0} ee goobaha khariirada
 # Link text for location details URLs
 map.locationLinkText=View more details
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
