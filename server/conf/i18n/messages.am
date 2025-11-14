@@ -1021,7 +1021,7 @@ map.noResultsFound=ምንም ውጤቶች አልተገኙም። እባክዎ ማ
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=አሁን ገጽ {0} ከ {1} በማሳየት ላይ።
 # Text for map question reset filters button
 map.resetFiltersButtonText=Clear filters
 # Heading for the section showing selected locations
