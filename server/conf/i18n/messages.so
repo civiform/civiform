@@ -991,7 +991,7 @@ option.maybe=Laga yaabaa
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Samee shaandheynta
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
