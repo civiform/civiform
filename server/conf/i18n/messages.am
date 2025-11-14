@@ -1086,9 +1086,9 @@ map.locationNameLabel=የስም ቁልፍ
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=ከፍተኛው የቦታ መረጣዎች
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=የማንቂያ ጽሁፍ
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=እሴት
 # Text on a grey square that indicates where a map will appear once a question has been published
 map.mapPreviewText=Map will display here
 
