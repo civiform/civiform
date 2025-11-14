@@ -702,7 +702,7 @@ button.homePage=ወደ መነሻ ገጽ ተመለስ
 link.backToEditProgramBlock=ወደ አርትዖት ይመለሱ {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=መተግበሪያዎ ዘንድ በኋላ ለመድረስ፣ መለያ መፍጠር አለብዎ
+content.predicateVisibilityDescription=በቀዳሚ ማያ ገጾች ላይ ላሉ ጥያቄዎች በሚሰጡ ምላሾች ላይ በመመስረት ይህ ማያ ገጽ ለአመልካቾች መቼ መታየት ወይም መደበቅ እንዳለበት ያዋቅሩ።
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=አንድ አመልካች በዚህ ማያ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጧቸው ምላሾች ላይ በመመስረት ለፕሮግራሙ መስፈርቱን የሚያሟሉ እንደሆነ ለማወቅ የብቁነት መስፈርቶችን ያክሉ። ዝቅተኛውን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻዎችን እንዳያስገቡ ይታገዳሉ። ይህን በ
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
