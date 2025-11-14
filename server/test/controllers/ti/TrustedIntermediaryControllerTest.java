@@ -190,7 +190,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     // assert ti notes
     assertThat(accountFinal.getTiNote()).isEqualTo("unitTest");
 
-    ApplicantModel applicantModel = accountFinal.newestApplicant().get();
+    ApplicantModel applicantModel = accountFinal.representativeApplicant().get();
     // assert dob,name,phone
     assertThat(applicantModel.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
     assertThat(applicantModel.getFirstName().get()).isEqualTo("clientFirst");

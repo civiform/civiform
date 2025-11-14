@@ -186,14 +186,14 @@ public final class ProgramAdminApplicationService {
                     /* yearQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
-    if (!adminSubmitterEmail.isPresent()) {
+    if (adminSubmitterEmail.isEmpty()) {
       return;
     }
 
     Locale locale =
         accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
-            .flatMap(AccountModel::newestApplicant)
+            .flatMap(AccountModel::representativeApplicant)
             .map(ApplicantModel::getApplicantData)
             .map(ApplicantData::preferredLocale)
             .orElse(LocalizedStrings.DEFAULT_LOCALE);

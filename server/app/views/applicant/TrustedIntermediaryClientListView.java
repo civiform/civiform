@@ -273,7 +273,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
   }
 
   private DivTag renderCardContactInfo(AccountModel account, Messages messages) {
-    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = account.representativeApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
     }
@@ -316,7 +316,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
   }
 
   private DivTag renderCardApplications(AccountModel account, Messages messages) {
-    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = account.representativeApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
     }
@@ -379,7 +379,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
   }
 
   private DivTag renderClientDateOfBirth(AccountModel account) {
-    Optional<ApplicantModel> newestApplicant = account.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = account.representativeApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
     }
@@ -396,7 +396,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
   }
 
   private DivTag renderIndexPageLink(AccountModel applicant, Messages messages) {
-    Optional<ApplicantModel> newestApplicant = applicant.newestApplicant();
+    Optional<ApplicantModel> newestApplicant = applicant.representativeApplicant();
     if (newestApplicant.isEmpty()) {
       return div();
     }

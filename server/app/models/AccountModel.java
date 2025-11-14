@@ -91,8 +91,17 @@ public class AccountModel extends BaseModel {
     return applicants;
   }
 
-  public Optional<ApplicantModel> newestApplicant() {
-    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
+  /**
+   * Returns the representative applicant for the Account.
+   *
+   * <p>Accounts ideally have 1 Applicant but Guests are merged into an Account when they log in;
+   * through at least Nov 2025. The Oldest Applicant is used as it contains the more longevity.
+   *
+   * <p>More info:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
+   */
+  public Optional<ApplicantModel> representativeApplicant() {
+    return applicants.stream().min(Comparator.comparing(ApplicantModel::getWhenCreated));
   }
 
   public AccountModel setApplicants(List<ApplicantModel> applicants) {
@@ -191,14 +200,17 @@ public class AccountModel extends BaseModel {
   }
 
   /**
-   * Returns the name, as a string, of the most-recently created Applicant associated with this
-   * Account. Or the email if no name is associated with the applicant. There is no particular
-   * reason for an Account to have more than one Applicant - this was a capability we built but did
-   * not use - so the ordering is somewhat arbitrary / unnecessary.
+   * Returns the name, as a string, of the oldest created Applicant associated with this Account. Or
+   * the email if no name is associated with the applicant.
+   *
+   * <p>We select the oldest as the system endeavors to have 1 applicant per Account however Guests
+   * logging in currently create the situation of additional ones that will be newer. As of Nov 2025
+   * work is being done to make the oldest Applicant the source of truth. See:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
   public String getApplicantDisplayName() {
     return this.getApplicants().stream()
-        .max(Comparator.comparing(ApplicantModel::getWhenCreated))
+        .min(Comparator.comparing(ApplicantModel::getWhenCreated))
         .map(u -> u.getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }

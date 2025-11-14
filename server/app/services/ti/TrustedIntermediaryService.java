@@ -193,14 +193,16 @@ public final class TrustedIntermediaryService {
         tiGroup.getManagedAccounts().stream()
             .filter(account -> account.id.equals(accountId))
             .findAny();
-    if (accountMaybe.isEmpty() || accountMaybe.get().newestApplicant().isEmpty()) {
-      throw new ApplicantNotFoundException(accountId);
-    }
+
+    ApplicantModel applicant =
+        accountMaybe
+            .flatMap(AccountModel::representativeApplicant)
+            .orElseThrow(() -> new ApplicantNotFoundException(accountId));
+
     form = validateEmailAddress(form, accountMaybe.get(), preferredLanguage);
     if (form.hasErrors()) {
       return form;
     }
-    ApplicantModel applicant = accountMaybe.get().newestApplicant().get();
     TiClientInfoForm currentForm = form.get();
     // after the validations are over, we can directly update the changes, as there are only two
     // cases possible for an update
@@ -262,10 +264,10 @@ public final class TrustedIntermediaryService {
     return allAccounts.stream()
         .filter(
             account ->
-                ((account.newestApplicant().get().getDateOfBirth().isPresent()
+                ((account.representativeApplicant().get().getDateOfBirth().isPresent()
                         && maybeDOB.isPresent()
                         && account
-                            .newestApplicant()
+                            .representativeApplicant()
                             .get()
                             .getDateOfBirth()
                             .get()

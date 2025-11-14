@@ -33,6 +33,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
@@ -1026,16 +1027,11 @@ public final class ApplicantService {
     return accountRepository
         .lookupAccountByEmailAsync(tiEmail)
         .thenApplyAsync(
-            account -> {
-              if (account.isEmpty()) {
-                return Optional.empty();
-              }
-              // There's really only one applicant per account. See notes in Account.java.
-              Optional<ApplicantModel> applicant = account.get().newestApplicant();
-              return applicant
-                  .map(ApplicantModel::getApplicantData)
-                  .map(ApplicantData::preferredLocale);
-            },
+            account ->
+                account
+                    .flatMap(AccountModel::representativeApplicant)
+                    .map(ApplicantModel::getApplicantData)
+                    .map(ApplicantData::preferredLocale),
             classLoaderExecutionContext.current());
   }
 
