@@ -991,7 +991,7 @@ option.maybe=Tal vez
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Aplicar filtros
 # Aria label for next page pagination button
 map.ariaLabelNextPage=Go to next page of map locations
 # Aria label for pagination list
