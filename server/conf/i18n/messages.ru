@@ -714,6 +714,10 @@ content.predicateScreenIs=Экран
 content.predicateApplicantIsEligible=Заявитель соответствует требованиям, если
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=выполняются следующие условия:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Условие выполняется, если
@@ -997,7 +1001,7 @@ map.ariaLabelPreviousPage=Перейти на предыдущую страни�
 # Header for the section showing available locations
 map.availableLocations=Доступные местоположения
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=Фильтры
 # Aria label for pagination buttons
 map.goToPage=Перейти на страницу {0} с метоположениями на карте
 # Link text for location details URLs
