@@ -1090,7 +1090,7 @@ map.settingTextLabel=Texto de alerta
 # Label for value field
 map.valueLabel=Valor
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=El mapa se mostrará aquí
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
