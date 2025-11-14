@@ -1070,7 +1070,7 @@ map.displayNameLabel=የሚታይ ስም
 # Label for key field
 map.keyLabel=ቁልፍ
 # Error message when a configured key is not found in the GeoJSON data
-map.keyNotFoundError=Error: Key not found. Please select a different key.
+map.keyNotFoundError=ስህተት፦ ቁልፍ አልተገኘም። እባክዎ ሌላ ቁልፍ ይምረጡ።
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
