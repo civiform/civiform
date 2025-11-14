@@ -731,9 +731,9 @@ label.predicateField=መስክ
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=ሁነታ
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=እሴት(ቶች)
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=-ይምረጡ-
 # Hint text for providing multiple values in a single input field
 content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
