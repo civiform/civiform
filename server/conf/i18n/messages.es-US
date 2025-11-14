@@ -753,7 +753,7 @@ link.backToTop=Volver a la parte superior
 button.saveAndExit=Guardar y salir
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=No hay preguntas disponibles en las pantallas anteriores con las que establecer una condición de visibilidad para esta pantalla.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
 
