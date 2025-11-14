@@ -1084,9 +1084,9 @@ map.locationNameHelpText=Selecciona la clave que representa el nombre de la ubic
 # Label for location name key field
 map.locationNameLabel=Clave de nombre
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=Selecciones de ubicación máximas
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=Texto de alerta
 # Label for value field
 map.valueLabel=Value
 # Text on a grey square that indicates where a map will appear once a question has been published
