@@ -912,7 +912,7 @@ validation.idTooLong=Debe tener menos de {0} caracteres.
 validation.idTooShort=Debe tener más de {0} caracteres.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Solo debe contener números.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Solo debe contener números del 0 al 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
