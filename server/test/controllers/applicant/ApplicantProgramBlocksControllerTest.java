@@ -67,7 +67,6 @@ import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarAddressCorrectionBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
@@ -114,7 +113,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(Config.class),
             settingsManifest,
             instanceOf(ApplicantFileUploadRenderer.class),
-            instanceOf(IneligibleBlockView.class),
             instanceOf(NorthStarApplicantIneligibleView.class),
             instanceOf(AddressCorrectionBlockView.class),
             instanceOf(NorthStarAddressCorrectionBlockView.class),
