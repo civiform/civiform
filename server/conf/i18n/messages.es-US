@@ -1027,7 +1027,7 @@ map.resetFiltersButtonText=Borrar filtros
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Ubicaciones seleccionadas
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=Seleccionar ubicación
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Select up to {0} locations
 # Placeholder text for map question select option dropdown
