@@ -669,7 +669,7 @@ alert.noProgramsAvailable=Waxaad bilowday mise gudbisay codsi ku aadan dhammaan 
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Ku gal akoon horay u sii jiray
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=Waa inaad gasho barta si aad u codsato barnaamijkaan
 # Description text in an alert that explains why the user must log in to apply for the program
 alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
