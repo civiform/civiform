@@ -740,9 +740,9 @@ content.multipleValuesInputHint=Introduce una lista de valores separados por com
 content.and=y
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=Agregar condición
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=Eliminar condición
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Add sub-condition
 # Link to remove a sub-condition from the form
