@@ -1015,7 +1015,7 @@ map.locationsSelectedCount={0} ka {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
 map.mapRegionAltText=Khariidad habboon oo muujinaysa goobaha
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=La doortay
 # Message displayed when filter results return no locations
 map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
