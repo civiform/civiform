@@ -1058,9 +1058,9 @@ map.addFilterButton=ማጣሪያ አክል
 # Subtitle text for adding filters
 map.addFiltersSubtitle=ለአመልካቾች የሚገኙ እንዲሆኑ እስከ ስድስት የሚደርሱ ማጣሪያዎችን ይምረጡ።
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=ማጣሪያዎች
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=ታግ አክል
 # Subtitle text for adding a tag
 map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
 # Title for tag section
