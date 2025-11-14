@@ -699,7 +699,7 @@ button.homePage=Ku noqo bogga hore
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=Dib u laabo si aad wax u badesho {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
 content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
