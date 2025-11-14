@@ -1170,7 +1170,7 @@ banner.guestBannerText=Luego de enviar tu solicitud, {0} para proteger tus datos
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=finaliza la sesión
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=Tu sesión caducará automáticamente tras {0} desde el inicio de la sesión. Por lo tanto, inicia sesión o envía tu solicitud antes de ese plazo para no perder tu progreso.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hour and {0} minutes
 banner.hourAndMinute=1 hour and 1 minute
