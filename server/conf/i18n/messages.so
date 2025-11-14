@@ -1001,7 +1001,7 @@ map.ariaLabelPreviousPage=Booqo boggii ee goobaha khariirada
 # Header for the section showing available locations
 map.availableLocations=Goobaha La heli karo
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=Shaandheeyada
 # Aria label for pagination buttons
 map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
