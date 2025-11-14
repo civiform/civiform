@@ -1013,7 +1013,7 @@ map.locationsCount=Soo bandhigaya {0} ka mid ah {1} gobood
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ka {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=Khariidad habboon oo muujinaysa goobaha
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
 # Message displayed when filter results return no locations
