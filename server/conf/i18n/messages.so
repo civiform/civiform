@@ -1017,7 +1017,7 @@ map.mapRegionAltText=Khariidad habboon oo muujinaysa goobaha
 # Text for map question selected button in popups
 map.mapSelectedButtonText=La doortay
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=Wax natiijooyin ah lama helin. Fadlan iskuday inaad wax ka badesho shaandheeyada.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Wax goobo ah lama xulan.
 # Sr only message displayed when page has changed
