@@ -21,6 +21,7 @@ export interface MapMessages {
   readonly mapSelectLocationButtonText: string
   readonly switchToMapViewSr: string
   readonly switchToListViewSr: string
+  readonly maxLocationsSelectedSr: string
 }
 
 export interface MapData {
@@ -54,6 +55,7 @@ export const CF_NO_SELECTIONS_MESSAGE = 'cf-no-selections-message'
 export const CF_SELECTIONS_MESSAGE = 'cf-selections-message'
 export const CF_SELECTED_LOCATION_MESSAGE = 'cf-selected-locations-message'
 export const CF_SELECTED_LOCATIONS_CONTAINER = 'cf-selected-locations-container'
+export const CF_MAX_LOCATION_STATUS = 'cf-max-location-status'
 
 // FILTERS
 export const CF_APPLY_FILTERS_BUTTON = 'cf-apply-filters-button'

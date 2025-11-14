@@ -375,6 +375,7 @@ public enum MessageKey {
   MAP_HOMEPAGE("map.homepage"), // North Star only
   MAP_CONTACT_US("map.contactUs"), // North Star only
   MAP_MAP_PREVIEW_TEXT("map.mapPreviewText"), // North Star only
+  MAP_MAX_LOCATIONS_SELECTED_SR("map.maxLocationsSelectedSr"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
