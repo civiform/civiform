@@ -1062,7 +1062,7 @@ map.addFiltersTitle=Filtros
 # Button for adding a tag
 map.addTagButton=Agregar etiqueta
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=Agrega una etiqueta para que se muestre en ciertas ubicaciones donde una clave seleccionada coincida con un valor determinado. Cuando un solicitante seleccione al menos una de estas ubicaciones, muestra de forma opcional una alerta en el área de "Ubicaciones seleccionadas".
 # Title for tag section
 map.addTagTitle=Tag
 # Label for display name field
