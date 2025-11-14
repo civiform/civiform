@@ -1046,6 +1046,8 @@ map.validation.tooManySelections=Выберите не более {0} место
 map.geoJsonErrorText = К сожалению, в данный момент мы не можем отобразить этот вопрос. Попробуйте вернуться к этому заявлению позже. А пока вернитесь к {0} или {1}, и мы подскажем вам верное направление.
 map.contactUs = связаться с нами
 map.homepage = домашняя страница
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
