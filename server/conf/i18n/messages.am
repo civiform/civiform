@@ -995,7 +995,7 @@ map.applyFiltersButtonText=ማጣሪያዎችን ይተግብሩ
 # Aria label for next page pagination button
 map.ariaLabelNextPage=ወደ ቀጣዩ የካርታ ቦታዎች ሂድ
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=ለካርታ ቦታዎች የገጽ ክፍፍል
 # Aria label for previous page pagination button
 map.ariaLabelPreviousPage=Go to previous page of map locations
 # Header for the section showing available locations
