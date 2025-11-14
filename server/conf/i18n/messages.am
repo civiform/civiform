@@ -1072,7 +1072,7 @@ map.keyLabel=ቁልፍ
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=ስህተት፦ ቁልፍ አልተገኘም። እባክዎ ሌላ ቁልፍ ይምረጡ።
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=የትኛው ቁልፍ የቦታውን አድራሻ እንደሚወክል ይምረጡ።
 # Label for location address key field
 map.locationAddressLabel=Address key
 # Help text for location details URL field
