@@ -1044,7 +1044,7 @@ map.switchToListViewSr=Se ha cambiado a la vista de lista
 map.validation.tooManySelections=Selecciona como máximo {0} ubicaciones.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = Lamentamos no poder mostrarte esta pregunta en este momento. Intenta regresar a esta solicitud en otro momento. Mientras tanto, regresa a la {0} o {1} para que podamos ofrecerte indicaciones.
-map.contactUs = contact us
+map.contactUs = comunícate con nosotros
 map.homepage = homepage
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
 map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
