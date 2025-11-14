@@ -713,7 +713,7 @@ content.predicateScreenIs=ማያ ገጽ
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=አመልካች ብቁ የሚሆነው
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=ሁኔታዎች እውነት ከሆኑ፦
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
 content.predicateEligibilityNullState=Applicant is always eligible.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
