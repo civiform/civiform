@@ -1033,7 +1033,7 @@ map.selectLocations=እስከ {0} ቦታዎችን ይምረጡ
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=-ይምረጡ-
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=ወደ ካርታ ዕይታ ይቀይሩ
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
