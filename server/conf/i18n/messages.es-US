@@ -1076,7 +1076,7 @@ map.locationAddressHelpText=Selecciona la clave que representa la dirección de 
 # Label for location address key field
 map.locationAddressLabel=Clave de dirección
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=Selecciona la clave que representa la URL con los detalles de la ubicación.
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
