@@ -1031,7 +1031,7 @@ map.selectLocationButtonText=ቦታዎችን ይምረጡ
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=እስከ {0} ቦታዎችን ይምረጡ
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=-ይምረጡ-
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
