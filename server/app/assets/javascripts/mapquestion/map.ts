@@ -371,7 +371,7 @@ const setupEventListenersForMap = (
   const selectedLocationsContainer = mapQuerySelector(
     mapId,
     CF_SELECTED_LOCATIONS_CONTAINER,
-  )
+  ) as HTMLElement
 
   // Change handler for location checkboxes in the locations list
   if (locationsListContainer) {
@@ -396,6 +396,8 @@ const setupEventListenersForMap = (
       const target = e.target as HTMLInputElement
       if (target == null || target.type !== 'checkbox') return
 
+      let nextSelectedLocationFeatureID = null
+
       const featureId = target.getAttribute(DATA_FEATURE_ID)
       if (!target.checked && featureId) {
         updateSelectedMarker(mapElement, featureId, false)
@@ -408,10 +410,45 @@ const setupEventListenersForMap = (
         if (originalCheckbox && originalCheckbox.type === 'checkbox') {
           originalCheckbox.checked = false
         }
+        // move focus to a relevant location
+        const childDivs = Array.from(
+          selectedLocationsContainer.children,
+        ).filter((child) => child.tagName === 'DIV')
+        if (childDivs.length <= 1) {
+          // no remaining selected locations so we should focus on container as a whole
+          selectedLocationsContainer.focus()
+        } else {
+          // we need to find the next checkbox
+          const locationDiv = target.parentElement
+          let nextLocation = locationDiv ? locationDiv.nextElementSibling : null
+          while (nextLocation && nextLocation.tagName != 'DIV') {
+            nextLocation = nextLocation.nextElementSibling
+          }
+          if (nextLocation) {
+            nextSelectedLocationFeatureID =
+              nextLocation.getAttribute(DATA_FEATURE_ID)
+          } else {
+            let previousLocation = locationDiv
+              ? locationDiv.previousElementSibling
+              : null
+            while (previousLocation && previousLocation.tagName != 'DIV') {
+              previousLocation = previousLocation.previousElementSibling
+            }
+            if (previousLocation) {
+              nextSelectedLocationFeatureID =
+                previousLocation.getAttribute(DATA_FEATURE_ID)
+            }
+          }
+        }
       }
-
       updateSelectedLocations(mapId)
       updateOpenPopupButtons(mapId)
+      if (nextSelectedLocationFeatureID) {
+        const nextSelectedLocation = selectedLocationsContainer?.querySelector(
+          `[${DATA_FEATURE_ID}="${nextSelectedLocationFeatureID}"] input[type="checkbox"]`,
+        ) as HTMLElement
+        nextSelectedLocation.focus()
+      }
     })
   }
 
