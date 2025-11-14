@@ -1046,6 +1046,8 @@ map.validation.tooManySelections=最大で{0}カ所を選択してください�
 map.geoJsonErrorText = 申し訳ありませんが、この質問は現在表示できません。お手数ですが、後ほどこのアプリケーションに戻って再度お試しください。それまでの間、{0}または{1}に戻っていただければ、正しい方向へご案内します。
 map.contactUs = お問い合わせ
 map.homepage = ホームページ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
