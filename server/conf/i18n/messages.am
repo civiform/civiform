@@ -1043,7 +1043,7 @@ map.switchToListViewSr=ዕይታ ወደ ዝርዝር ተቀይሯል
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=እባክዎ ቢበዛ {0} ቦታዎችን ይምረጡ።
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.geoJsonErrorText = ይህን ጥያቄ አሁን ማሳየት ባለመቻላችን ይቅርታ እንጠይቃለን። እባክዎ በኋላ ወደዚህ መተግበሪያ ለመመለስ ይሞክሩ። እስከዚያው፣ ወደ {0} ወይም {1} ይመለሱ፣ እኛም ወደ ትክክለኛው አቅጣጫ እንመራዎታለን።
 map.contactUs = contact us
 map.homepage = homepage
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
