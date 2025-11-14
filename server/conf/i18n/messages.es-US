@@ -1041,7 +1041,7 @@ map.switchToMapViewSr=Se ha cambiado a la vista de mapa
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=Se ha cambiado a la vista de lista
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Selecciona como máximo {0} ubicaciones.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
