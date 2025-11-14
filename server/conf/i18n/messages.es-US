@@ -1007,7 +1007,7 @@ map.goToPage=Ir a la página {0} de ubicaciones del mapa
 # Link text for location details URLs
 map.locationLinkText=Ver más detalles
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=Ver más detalles de {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Mostrando {0} de {1} ubicaciones
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
