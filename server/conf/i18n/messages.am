@@ -1172,7 +1172,7 @@ banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
 banner.sessionExpiration=ክፍለ ጊዜዎ ከጀመረበት ጊዜ ጀምሮ ከ{0} በኋላ በራስ ሰር ጊዜው ያበቃል፤ ስለዚህ እባክዎ የደረሱበትን ደረጃ እንዳያጡ ለመከላከል እባክዎ ከዚያ ጊዜ በፊት በመለያ ይግቡ ወይም ማመልከቻዎን ያስገቡ።
 # Phrases that combine hours and minutes for the session expiration message.
-banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinutes=1 ሰዓት እና {0} ደቂቃዎች
 banner.hourAndMinute=1 hour and 1 minute
 banner.hoursAndMinutes={0} hours and {1} minutes
 banner.hoursAndMinute={0} hours and 1 minute
