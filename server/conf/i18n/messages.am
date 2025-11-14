@@ -1017,7 +1017,7 @@ map.mapRegionAltText=ምልልሳዊ ካርታ ቦታዎችን በማሳየት �
 # Text for map question selected button in popups
 map.mapSelectedButtonText=ተመርጧል
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=ምንም ውጤቶች አልተገኙም። እባክዎ ማጣሪያዎችዎን ለማስተካከል ይሞክሩ።
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
 # Sr only message displayed when page has changed
