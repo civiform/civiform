@@ -1023,7 +1023,7 @@ map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
 # Sr only message displayed when page has changed
 map.paginationStatus=አሁን ገጽ {0} ከ {1} በማሳየት ላይ።
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=ማጣሪያዎችን ያጽዱ
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 # Placeholder text for map question select button in popups
