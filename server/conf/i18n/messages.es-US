@@ -1080,7 +1080,7 @@ map.locationDetailsUrlHelpText=Selecciona la clave que representa la URL con los
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=Selecciona la clave que representa el nombre de la ubicación.
 # Label for location name key field
 map.locationNameLabel=Name key
 # Label for maximum number of locations field
