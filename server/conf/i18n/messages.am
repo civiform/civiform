@@ -659,7 +659,7 @@ heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=የ{0} ማመልከቻዎን አስገብተዋል
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=መተግበሪያዎ ዘንድ በኋላ ለመድረስ፣ መለያ መፍጠር አለብዎ
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
