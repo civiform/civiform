@@ -659,7 +659,7 @@ heading.nextSteps=¿Qué debo hacer a continuación?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Enviaste tu inscripción a {0}
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=Debes crear una cuenta para acceder a tu solicitud en otro momento
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Crea una cuenta para acceder a tu solicitud en otro momento
 # Description text in an alert that explains how creating an account can help the user
