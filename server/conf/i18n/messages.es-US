@@ -1035,7 +1035,7 @@ map.selectOptionPlaceholderText=- Seleccionar -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=Cambiar a la vista de mapa
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=Cambiar a la vista de lista
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=View has been switched to map
 # Screen reader text announcing that the view has been switched to list view
