@@ -740,7 +740,7 @@ content.multipleValuesInputHint=Geli liiska cadadka kaladuwan ee joogtada ah. Tu
 content.and=iyo
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=Ku dar xaalada
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Delete condition
 # Link to append form fields for configuring a new sub-condition within a condition
