@@ -671,7 +671,7 @@ content.loginToExistingAccount=Ku gal akoon horay u sii jiray
 # Informational "alert" title to push user to login as the program is only for logged in user
 alert.loginOnly=Waa inaad gasho barta si aad u codsato barnaamijkaan
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=Fadlan gal barta ama abuur akoon si aad usii wado codsigaan.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
