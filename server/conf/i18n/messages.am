@@ -1177,8 +1177,8 @@ banner.hourAndMinute=1 ሰዓት እና 1 ደቂቃ
 banner.hoursAndMinutes={0} ሰዓቶች እና {1} ደቂቃዎች
 banner.hoursAndMinute={0} ሰዓቶች እና 1 ደቂቃ
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
+banner.minutes={0} ደቂቃዎች
+banner.hours={0} ሰዓቶች
 banner.hour=1 hour
 banner.minute=1 minute
 
