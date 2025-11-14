@@ -755,7 +755,7 @@ button.saveAndExit=አስቀምጥ እና ውጣ
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም የሚገኙ ጥያቄዎች የሉም።
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ የብቁነት ሁኔታን ለማዋቀር የሚያገለግሉ ምንም የሚገኙ ጥያቄዎች የሉም።
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
