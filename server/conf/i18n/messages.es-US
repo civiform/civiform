@@ -1173,8 +1173,8 @@ banner.endYourSession=finaliza la sesión
 banner.sessionExpiration=Tu sesión caducará automáticamente tras {0} desde el inicio de la sesión. Por lo tanto, inicia sesión o envía tu solicitud antes de ese plazo para no perder tu progreso.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hora y {0} minutos
-banner.hourAndMinute=1 hour and 1 minute
-banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hourAndMinute=1 hora y 1 minuto
+banner.hoursAndMinutes={0} horas y {1} minutos
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
