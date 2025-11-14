@@ -870,15 +870,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxTrackClick_returnsOk() {
-    Map<String, String> formData = new HashMap<>();
-    formData.put("externalLink", "https://example.com/apply");
-    formData.put("programName", "Food Assistance Program");
-
     Request request =
         fakeRequestBuilder()
-            .method("POST")
-            .uri("/programs/hx/trackClick")
-            .bodyForm(formData)
+            .method("GET")
+            .uri(
+                "/programs/hx/trackClick?externalLink=https://example.com/apply&programName=Food+Assistance+Program")
             .build();
 
     Result result = controller.hxTrackClick(request);
