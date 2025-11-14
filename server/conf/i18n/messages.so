@@ -711,7 +711,7 @@ link.programSettings=sitinka barnaamijka
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateScreenIs=Shaashadu waa
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=Codsaduhu waa uu u qalmaa haddii
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=conditions are true:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
