@@ -349,6 +349,7 @@ export class AdminPrograms {
     eligibility = undefined,
     submitNewProgram = true,
     applicationSteps = [{title: 'title', description: 'description'}],
+    loginOnly = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -377,6 +378,9 @@ export class AdminPrograms {
       await this.clickPreScreenerFormToggle()
     }
 
+    if (loginOnly) {
+      await this.page.click('#login-only-applications')
+    }
     if (eligibility) {
       await this.chooseEligibility(eligibility)
     }
@@ -970,9 +974,17 @@ export class AdminPrograms {
     ).toBeChecked({checked: isChecked})
   }
 
-  async setEmailNotificationPreferenceCheckbox(checked: boolean) {
+  async expectLoginOnlyProgramIsChecked(isChecked: boolean) {
+    await expect(
+      this.page.getByRole('checkbox', {
+        name: 'loginOnly',
+      }),
+    ).toBeChecked({checked: isChecked})
+  }
+
+  async setProgramToLoginOnly(checked: boolean) {
     const checkbox = this.page.getByRole('checkbox', {
-      name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+      name: 'loginOnly',
     })
     const isCurrentlyChecked = await checkbox.isChecked()
 
@@ -981,9 +993,7 @@ export class AdminPrograms {
       // because USWDS styling hides the actual checkbox input and styles the label to
       // look like a checkbox. The actual input element is visually hidden or positioned
       // off-screen, making it inaccessible to Playwright's direct interactions.
-      await this.page
-        .locator('label[for="notification-preferences-email"]')
-        .click()
+      await this.page.locator('label[for="login-only-applications"]').click()
     }
   }
 
