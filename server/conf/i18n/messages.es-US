@@ -748,7 +748,7 @@ link.predicateAddSubcondition=Agregar subcondición
 # Link to remove a sub-condition from the form
 link.predicateDeleteSubcondition=Eliminar subcondición
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=Volver a la parte superior
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Save and exit
 
