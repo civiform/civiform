@@ -1005,7 +1005,7 @@ map.filterLegendText=Shaandheeyada
 # Aria label for pagination buttons
 map.goToPage=Booqo bogga {0} ee goobaha khariirada
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Eeg faahfaahin dheeraad ah
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=View more details for {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
