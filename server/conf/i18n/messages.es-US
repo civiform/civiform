@@ -735,9 +735,9 @@ label.predicateValue=Valor(es)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Seleccionar -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=Introduce una lista de valores separados por comas. Por ejemplo, "elemento1,elemento2,elemento3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
-content.and=and
+content.and=y
 
 # Button to append form fields for configuring a new condition
 button.predicateAddCondition=Add condition
