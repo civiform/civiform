@@ -1033,7 +1033,7 @@ map.selectLocations=Selecciona hasta {0} ubicaciones
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Seleccionar -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=Cambiar a la vista de mapa
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
 # Screen reader text announcing that the view has been switched to map view
