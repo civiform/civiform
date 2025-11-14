@@ -238,7 +238,7 @@ class AdminPrograms {
       return
     }
 
-    const requiredSpan = labelElement.querySelector('.required-indicator')
+    const requiredSpan = labelElement.querySelector('.usa-hint--required')
     if (!requiredSpan) {
       return
     }
