@@ -1062,9 +1062,9 @@ map.addFiltersTitle=ማጣሪያዎች
 # Button for adding a tag
 map.addTagButton=ታግ አክል
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=የተመረጠ ቁልፍ ከአንድ እሴት ጋር ተመሳሳይ በሚሆንባቸው የተወሰኑ ቦታዎች ላይ የሚታይ ታግ ያክሉ። አንድ አመልካች ከእነዚህ ቦታዎች ቢያንስ አንዱን በሚመርጥ ጊዜ፣ እንደ አማራጭ በተመረጡት ቦታዎች አካባቢ ውስጥ ማንቂያ አሳይ።
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=ታግ
 # Label for display name field
 map.displayNameLabel=Display name
 # Label for key field
