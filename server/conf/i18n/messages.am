@@ -1180,7 +1180,7 @@ banner.hoursAndMinute={0} ሰዓቶች እና 1 ደቂቃ
 banner.minutes={0} ደቂቃዎች
 banner.hours={0} ሰዓቶች
 banner.hour=1 ሰዓት
-banner.minute=1 minute
+banner.minute=1 ደቂቃ
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
