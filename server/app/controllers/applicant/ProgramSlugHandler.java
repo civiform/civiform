@@ -28,7 +28,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.applicant.NorthStarProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
@@ -40,7 +39,6 @@ public final class ProgramSlugHandler {
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
-  private final SettingsManifest settingsManifest;
   private final NorthStarProgramOverviewView northStarProgramOverviewView;
   private final MessagesApi messagesApi;
 
@@ -52,7 +50,6 @@ public final class ProgramSlugHandler {
       ProgramService programService,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes,
-      SettingsManifest settingsManifest,
       NorthStarProgramOverviewView northStarProgramOverviewView,
       MessagesApi messagesApi) {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -61,7 +58,6 @@ public final class ProgramSlugHandler {
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
     this.applicantRoutes = checkNotNull(applicantRoutes);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramOverviewView = checkNotNull(northStarProgramOverviewView);
     this.messagesApi = checkNotNull(messagesApi);
   }
@@ -257,24 +253,24 @@ public final class ProgramSlugHandler {
               .findFirst();
     }
 
-    // TODO(#11582): North star clean up
-    return settingsManifest.getNorthStarApplicantUi()
-            && activeProgramDefinition.displayMode()
-                != DisplayMode.DISABLED // If the program is disabled,
-        // redirect to review page because that will trigger the ProgramDisabledAction.
-        ? Results.ok(
-                northStarProgramOverviewView.render(
-                    messagesApi.preferred(request),
-                    request,
-                    applicantId,
-                    applicantPersonalInfo.join(),
-                    profile,
-                    activeProgramDefinition,
-                    optionalProgramData))
-            .as("text/html")
-            .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
-        : redirectToReviewPage(
-            controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
+    // If the program is disabled, redirect to review page which will trigger the
+    // ProgramDisabledAction. Otherwise, always show the North Star program overview.
+    if (activeProgramDefinition.displayMode() == DisplayMode.DISABLED) {
+      return redirectToReviewPage(
+          controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
+    }
+
+    return Results.ok(
+            northStarProgramOverviewView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId,
+                applicantPersonalInfo.join(),
+                profile,
+                activeProgramDefinition,
+                optionalProgramData))
+        .as("text/html")
+        .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
   }
 
   private Result redirectToReviewPage(

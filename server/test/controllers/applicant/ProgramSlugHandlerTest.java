@@ -174,7 +174,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -182,11 +181,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
-                .url());
+    // With North Star always enabled, should show program overview page
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
   }
 
   @Test
@@ -214,7 +211,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -222,11 +218,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
-                .url());
+    // With North Star always enabled, should show program overview page
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
   }
 
   @Test
@@ -263,7 +257,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -307,7 +300,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -356,7 +348,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -405,7 +396,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -453,7 +443,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
