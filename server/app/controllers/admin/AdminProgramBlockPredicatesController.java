@@ -49,6 +49,7 @@ import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -770,6 +771,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   private ImmutableList<OptionElement> getValueOptionsForQuestion(QuestionDefinition question) {
     AtomicBoolean isFirst = new AtomicBoolean(true);
+    ImmutableList<QuestionType> multiSelectQuestionTypes =
+        ImmutableList.of(
+            QuestionType.DROPDOWN,
+            QuestionType.CHECKBOX,
+            QuestionType.RADIO_BUTTON,
+            QuestionType.YES_NO);
     if (question.isAddress()) {
       return esriServiceAreaValidationConfig.getImmutableMap().entrySet().stream()
           .map(
@@ -780,6 +787,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .selected(isFirst.getAndSet(false))
                     .build();
               })
+          .collect(ImmutableList.toImmutableList());
+    } else if (multiSelectQuestionTypes.contains(question.getQuestionType())) {
+      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+          (MultiOptionQuestionDefinition) question;
+      return multiOptionQuestionDefinition.getDisplayableOptions().stream()
+          .map(
+              option ->
+                  OptionElement.builder()
+                      .value(option.adminName())
+                      .displayText(option.optionText().getOrDefault(Locale.US))
+                      .selected(false)
+                      .build())
           .collect(ImmutableList.toImmutableList());
     } else {
       return ImmutableList.of();

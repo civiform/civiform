@@ -1,6 +1,6 @@
 <th:block
   th:fragment="predicateValues(questionType, valueOptions, conditionId, subconditionId, hasSelectedQuestion)"
-  th:with="subconditionPrefix=${'condition-' + conditionId + '-subcondition-' + subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}"
+  th:with="subconditionPrefix=${'condition-' + conditionId + '-subcondition-' + subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}, multiValueInputId=${subconditionPrefix + '-values'}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
@@ -17,6 +17,11 @@
           th:replace="~{::addressValuesInput(${valueOptions}, ${valueInputId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Checkbox'">
+        <div
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Currency'">
         <div
           th:replace="~{::currencyValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
@@ -27,6 +32,11 @@
           th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Dropdown'">
+        <div
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Email'">
         <div
           th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId})}"
@@ -35,6 +45,11 @@
       <th:block th:case="'Number'">
         <div
           th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Radio Button'">
+        <div
+          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
@@ -215,6 +230,30 @@
       aria-invalid="false"
     />
   </div>
+</th:block>
+
+<!-- Multi-select question type -->
+<th:block th:fragment="multiValuesInput(valueOptions, multiValueInputId)">
+  <fieldset class="usa-fieldset">
+    <th:block th:each="valueOption, valueStat: ${valueOptions}">
+      <div class="usa-checkbox">
+        <input
+          class="usa-checkbox__input usa-checkbox__input--tile"
+          type="checkbox"
+          th:value="${valueStat.count}"
+          th:name="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+          th:id="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+          data-multi-input-value
+        />
+        <label
+          class="usa-checkbox__label"
+          th:for="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+          th:text="${valueOption.displayText()}"
+        >
+        </label>
+      </div>
+    </th:block>
+  </fieldset>
 </th:block>
 
 <!-- Number question type -->
