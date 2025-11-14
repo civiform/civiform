@@ -753,7 +753,7 @@ link.backToTop=ወደ ላይ ተመለስ
 button.saveAndExit=አስቀምጥ እና ውጣ
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን በእነርሱ ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
+alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ የብቁነት ሁኔታን ለማዋቀር የሚያገለግሉ ምንም ዝግጁ ጥያቄዎች የሉም።
 
