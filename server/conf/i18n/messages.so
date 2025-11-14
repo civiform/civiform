@@ -93,7 +93,7 @@ button.createAnAccount=Samee koonto
 # The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Gelida Codsadaha
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=Gelida Maamulaha
 # The text on the button an applicant clicks to log in to their session.
 button.login=Halkan ka gal
 # The text on the button an applicant clicks to sign in to their session.
