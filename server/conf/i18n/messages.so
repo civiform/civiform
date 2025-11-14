@@ -1021,23 +1021,23 @@ map.noResultsFound=Wax natiijooyin ah lama helin. Fadlan iskuday inaad wax ka ba
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Wax goobo ah lama xulan.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Hadda muujinaya bogga {0} ee {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=Tirtir shaandheeyaasha
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Goobaha la xushay
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=Dooro goobta
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=Dooro ilaa {0} goob
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Dooro -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=Badel si aad u eegto khariirada
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=Badel si aad u eegto liiska
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=Muuqaalka waxaa loo badelay khariirada
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
