@@ -993,7 +993,7 @@ option.maybe=ምናልባት
 # Text for map question apply filters button
 map.applyFiltersButtonText=ማጣሪያዎችን ይተግብሩ
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=ወደ ቀጣዩ የካርታ ቦታዎች ሂድ
 # Aria label for pagination list
 map.ariaLabelPaginationList=Pagination for map locations
 # Aria label for previous page pagination button
