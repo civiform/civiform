@@ -1013,9 +1013,9 @@ map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ከ {1} ከፍተኛው የቦታዎች ቁጥር ተመርጧል።
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=ምልልሳዊ ካርታ ቦታዎችን በማሳየት ላይ
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=ተመርጧል
 # Message displayed when filter results return no locations
 map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
