@@ -1001,7 +1001,7 @@ map.ariaLabelPreviousPage=ወደ ቀዳሚው የካርታ ቦታዎች ገጽ �
 # Header for the section showing available locations
 map.availableLocations=ያሉ ቦታዎች
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=ማጣሪያዎች
 # Aria label for pagination buttons
 map.goToPage=Go to page {0} of map locations
 # Link text for location details URLs
