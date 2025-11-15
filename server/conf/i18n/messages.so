@@ -1074,7 +1074,7 @@ map.keyNotFoundError=Cillad: Furaha lama helin. Fadlan dooro fure kale.
 # Help text for location address field
 map.locationAddressHelpText=Dooro furaha matalaya ciwaanka goobaha.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Ciwaanka furaha
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Select which key represents the location details URL.
 # Label for location detail URL key field
