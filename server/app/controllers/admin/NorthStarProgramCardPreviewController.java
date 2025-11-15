@@ -20,14 +20,12 @@ import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 import views.admin.programs.NorthStarProgramCardPreview;
 
 /** Controller for rendering a program card preview. */
 public final class NorthStarProgramCardPreviewController extends CiviFormController {
   private final NorthStarProgramCardPreview northStarProgramCardPreview;
   private final Messages messages;
-  private final SettingsManifest settingsManifest;
   private final ProgramService programService;
 
   @Inject
@@ -36,22 +34,16 @@ public final class NorthStarProgramCardPreviewController extends CiviFormControl
       VersionRepository versionRepository,
       NorthStarProgramCardPreview northStarProgramCardPreview,
       MessagesApi messagesApi,
-      SettingsManifest settingsManifest,
       ProgramService programService) {
     super(profileUtils, versionRepository);
     this.northStarProgramCardPreview = checkNotNull(northStarProgramCardPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public String cardPreview(Http.Request request, long programId)
       throws InterruptedException, ExecutionException {
-    // TODO(#11570): North star clean up
-    if (!settingsManifest.getNorthStarApplicantUi()) {
-      return "";
-    }
 
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
