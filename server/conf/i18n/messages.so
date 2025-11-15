@@ -1174,7 +1174,7 @@ banner.sessionExpiration=Kulankaan waxa uu si toos ah u dhacayaa kadib {0} laga 
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 saac iyo {0} daqiiqo
 banner.hourAndMinute=1 saac iyo 1 daqiiqo
-banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinutes={0} saacadood iyo {0} daqiiqo
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} minutes
