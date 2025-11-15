@@ -1058,7 +1058,7 @@ map.addFilterButton=Ku dar shaandheeyaasha
 # Subtitle text for adding filters
 map.addFiltersSubtitle=Dooro ilaa lix shaandheeyaal si aad ugi diyaariso codsadaasha.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=Shaandheeyaasha
 # Button for adding a tag
 map.addTagButton=Add tag
 # Subtitle text for adding a tag
