@@ -1170,7 +1170,7 @@ banner.guestBannerText=Kadib markaad codsato, {0} si aad u ilaaliso xogtaada.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=dhammee kulankaaga
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=Kulankaan waxa uu si toos ah u dhacayaa kadib {0} laga bilaabo billoowga kulankaaga, markaa fadlan gal ama soo gudbi codsigaaga wakhtigaas kahor si aad iskaga ilaaliso inaad lumiso waxa aad sameysay.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 hour and {0} minutes
 banner.hourAndMinute=1 hour and 1 minute
