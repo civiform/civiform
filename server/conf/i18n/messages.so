@@ -1060,7 +1060,7 @@ map.addFiltersSubtitle=Dooro ilaa lix shaandheeyaal si aad ugi diyaariso codsada
 # Title for filters section
 map.addFiltersTitle=Shaandheeyaasha
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=Ku dar calaamad
 # Subtitle text for adding a tag
 map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
 # Title for tag section
