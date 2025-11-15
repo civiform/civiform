@@ -162,7 +162,7 @@ public class ViewUtilsTest {
             false, "", "", "", "", "", "", "", false, showRequired, Optional.empty());
     String rendered = dateComponent.render();
     Pattern hiddenRequiredPattern =
-        Pattern.compile("class=\"required-indicator[^\"]*hidden[^\"]*\"");
+        Pattern.compile("class=\"usa-hint--required[^\"]*hidden[^\"]*\"");
     Matcher hiddenRequiredMatcher = hiddenRequiredPattern.matcher(rendered);
     assertThat(hiddenRequiredMatcher.find()).isEqualTo(!showRequired);
   }

@@ -378,6 +378,7 @@ public enum MessageKey {
   MAP_HOMEPAGE("map.homepage"), // North Star only
   MAP_CONTACT_US("map.contactUs"), // North Star only
   MAP_MAP_PREVIEW_TEXT("map.mapPreviewText"), // North Star only
+  MAP_MAX_LOCATIONS_SELECTED_SR("map.maxLocationsSelectedSr"), // North Star only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
@@ -453,9 +454,11 @@ public enum MessageKey {
   PREDICATE_CONTENT_CONDITIONS_ARE_TRUE("content.predicateConditionsAreTrue"),
   PREDICATE_CONTENT_CONDITION_IS_TRUE_IF("content.predicateConditionIsTrueIf"),
   PREDICATE_CONTENT_ELIGIBILITY_DESCRIPTION("content.predicateEligibilityDescription"),
+  PREDICATE_CONTENT_ELIGIBILITY_NULL_STATE("content.predicateEligibilityNullState"),
   PREDICATE_CONTENT_SCREEN_IS("content.predicateScreenIs"),
   PREDICATE_CONTENT_SUBCONDITIONS_ARE_TRUE("content.predicateSubconditionsAreTrue"),
   PREDICATE_CONTENT_VISIBILITY_DESCRIPTION("content.predicateVisibilityDescription"),
+  PREDICATE_CONTENT_VISIBILITY_NULL_STATE("content.predicateVisibilityNullState"),
   PREDICATE_LABEL_FIELD("label.predicateField"),
   PREDICATE_LABEL_QUESTION("label.predicateQuestion"),
   PREDICATE_LABEL_STATE("label.predicateState"),

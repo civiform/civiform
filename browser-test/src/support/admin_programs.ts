@@ -1959,7 +1959,7 @@ export class AdminPrograms {
   }
 
   getRequiredIndicatorFor(labelId: string): Locator {
-    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+    return this.page.locator(`label[for="${labelId}"] span.usa-hint--required`)
   }
 
   getLongDescriptionField(): Locator {

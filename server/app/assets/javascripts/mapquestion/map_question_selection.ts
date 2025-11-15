@@ -18,7 +18,10 @@ import {
   mapQuerySelector,
   queryLocationCheckboxes,
   selectionCounts,
+  CF_MAX_LOCATION_STATUS,
 } from './map_util'
+
+let locationOffset = 0
 
 export const initLocationSelection = (mapId: string): void => {
   // Initial update so the previously saved locations get displayed as selected
@@ -125,6 +128,30 @@ export const updateSelectedLocations = (mapId: string): void => {
       }
     }
   })
+
+  const maxLocationStatus = mapQuerySelector(mapId, CF_MAX_LOCATION_STATUS)
+
+  if (atMaxSelections) {
+    const mapData = window.app?.data?.maps?.[mapId] as MapData
+    const maxLocationSelections = mapData.settings.maxLocationSelections
+
+    if (maxLocationStatus && maxLocationSelections) {
+      let localizedString = localizeString(
+        getMessages().maxLocationsSelectedSr,
+        [maxLocationSelections],
+      )
+      // The content needs to be different or screen readers will not re-announce it.
+      if (locationOffset % 2 == 0) {
+        localizedString += '.'
+      }
+      maxLocationStatus.textContent = localizedString
+      locationOffset++
+      // Clear the text after announcement to prevent navigation to it
+      setTimeout(() => {
+        maxLocationStatus.textContent = ''
+      }, 1000)
+    }
+  }
 }
 
 const updateSelectionCountForMap = (mapId: string): void => {
