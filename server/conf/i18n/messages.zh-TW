@@ -91,9 +91,9 @@ content.loginPrompt=請使用「{0}」帳戶登入
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=建立帳戶
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=申請人登入
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=管理員登入
 # The text on the button an applicant clicks to log in to their session.
 button.login=登入
 # The text on the button an applicant clicks to sign in to their session.
@@ -658,6 +658,8 @@ content.youCanPrint=您可以列印本記錄確認頁面。
 heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=您已提交「{0}」的申請書
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=如要待會回到申請頁面，您必須先建立帳戶
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=如果想在之後存取申請書，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=只要在帳戶中儲存相關資訊，就能查�
 alert.noProgramsAvailable=您已開始申請或已申請過目前適用的所有計畫。
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=登入現有帳戶
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=您必須登入才能申請這項計畫
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=請登入或建立帳戶，以繼續完成這項申請。
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=很抱歉，您嘗試存取的計畫已停用。如�
 # Button text on a button that takes the user back to the home page.
 button.homePage=返回首頁
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=回去編輯 {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=根據前一畫面中問題的答覆，設定是否要向申請人顯示/隱藏此畫面。
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=新增資格條件，以根據此畫面中問題的答覆，來決定申請人是否符合計畫資格。如申請人不符合最低申請條件，就會遭封鎖而無法提交申請。如要進行變更，請前往
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=計劃設定
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=畫面
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=如滿足這些條件，則
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=申請人符合資格：
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=次要條件滿足
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=即代表條件滿足：
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=問題
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=欄位
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=狀態
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=值
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- 選擇 -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=請輸入一串以逗點分開的值。例如：「項目 1，項目 2，項目 3」。
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=和
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=新增條件
+# Button to remove a condition from the form
+button.predicateDeleteCondition=刪除條件
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=新增次要條件
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=刪除次要條件
+# Link to go back to the top of the page
+link.backToTop=回到最上方
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=儲存並離開
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=前一畫面沒有可使用的問題來設定此畫面的顯示條件。
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=此畫面沒有可使用的問題來設定資格條件。
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,8 +910,9 @@ label.uploadedFiles=上傳的檔案
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=長度不可超過 {0} 個字元。
 validation.idTooShort=長度不可少於 {0} 個字元。
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=只能輸入數字。
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=僅能包含數字 0-9。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -922,94 +991,106 @@ option.maybe=或許
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=套用篩選條件
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=前往下一頁的地圖位置
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=地圖位置頁數
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=前往前一頁的地圖位置
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=可使用的位置
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=篩選條件
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=前往第 {0} 頁的地圖位置
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=檢視更多詳細資訊
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=檢視更多 {0} 詳細資訊
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=目前顯示 {0} 個地點，共 {1} 個
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=已選擇 {0} 個位置（上限為 {1}）
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=互動式地圖顯示位置
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=已選擇
+# Message displayed when filter results return no locations
+map.noResultsFound=沒找到任何結果，請嘗試調整篩選條件。
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=尚未選取任何地點。
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=現在顯示頁數 {0}/{1}。
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=清除篩選條件
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=選取的地點
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=選擇位置
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=最多選擇 {0} 個位置
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- 選擇 -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=切換至地圖檢視
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=切換至列表檢視
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=檢視已切換至地圖
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=檢視已切換至列表
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=請選擇最多 {0} 個位置。
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = 很抱歉，我們目前無法顯示這項問題。請待會再嘗試回到這項申請。現在，請回到 {0} 或 {1}，我們會為您提供正確的操作指示。
+map.contactUs = 聯絡我們
+map.homepage = 首頁
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=新增篩選條件
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=選擇最多六項篩選條件給申請人使用。
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=篩選條件
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=新增標籤
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=新增要在特定位置顯示的標籤，以在所選鍵與特定值相符時進行顯示。當申請人至少選擇了一項這些位置時，即可自行選擇是否要在「已選擇位置」區域顯示警告。
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=標籤
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=顯示名稱
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=鍵
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=錯誤：沒找到鍵，請選擇其他鍵。
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=選擇代表位置地址的鍵。
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=地址鍵
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=選擇代表位置詳細訊 URL 的鍵。
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=檢視更多詳細資訊的 URL 鍵
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=選擇代表位置名稱的鍵。
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=姓名鍵
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=最多位置選擇數量
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=警告文字
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=值
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=地圖會顯示於此
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 banner.guestBannerText=申請完成後，請{0}，確保您的資料安全。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=工作階段開始 {0} 後會自動過期。請登入或在該時間內提交申請，避免丟失已完成的進度。
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 小時又 {0} 分鐘
+banner.hourAndMinute=1 小時又 1 分鐘
+banner.hoursAndMinutes={0} 小時又 {1} 分鐘
+banner.hoursAndMinute={0} 小時又 1 分鐘
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} 分鐘
+banner.hours={0} 小時
+banner.hour=1 小時
+banner.minute=1 分鐘
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

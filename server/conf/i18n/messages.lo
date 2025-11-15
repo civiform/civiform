@@ -658,6 +658,8 @@ content.youCanPrint=ທ່ານສາມາດພິມການຢືນຢັ
 heading.nextSteps=ຂັ້ນຕອນຕໍ່ໄປຂອງຂ້ອຍແມ່ນຫຍັງ?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂອງທ່ານແລ້ວ {0} ລາຍການ
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=To access your application later, you must create an account
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ເພື່ອເຂົ້າເຖິງໃບສະໝັກຂອງທ່ານໃນພາຍຫຼັງ, ໃຫ້ສ້າງບັນຊີ
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=ທ່ານສາມາດກວດສອບສ�
 alert.noProgramsAvailable=ທ່ານໄດ້ເລີ່ມຕົ້ນ ຫຼື ຍື່ນໃບສະໝັກສຳລັບໂຄງການທັງໝົດທີ່ເປີດຢູ່ໃນເວລານີ້ແລ້ວ.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ເຂົ້າສູ່ລະບົບບັນຊີທີ່ມີຢູ່ແລ້ວ
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=You must log in to apply for this program
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Please log in or create an account to continue with this application.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=ຂໍອະໄພ, ໂຄງການທີ່ທ�
 # Button text on a button that takes the user back to the home page.
 button.homePage=ກັບຄືນໄປຫາໜ້າຫຼັກ
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Back to edit {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=program settings
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Screen is
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Applicant is eligible if
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=conditions are true:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Condition is true if
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=sub-conditions are true:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Question
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Field
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=State
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=Value(s)
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Select -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=and
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Add condition
+# Button to remove a condition from the form
+button.predicateDeleteCondition=Delete condition
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Add sub-condition
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=Delete sub-condition
+# Link to go back to the top of the page
+link.backToTop=Back to top
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=Save and exit
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,6 +910,7 @@ label.uploadedFiles=ໄຟລ໌ທີ່ອັບໂຫຼດແລ້ວ
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
 validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
 validation.numberRequired.v2=Must contain only numbers 0-9.
 
@@ -947,6 +1016,8 @@ map.locationsSelectedCount={0} of {1} maximum locations selected.
 map.mapRegionAltText=Interactive map displaying locations
 # Text for map question selected button in popups
 map.mapSelectedButtonText=Selected
+# Message displayed when filter results return no locations
+map.noResultsFound=No results found. Please try adjusting your filters.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
 # Sr only message displayed when page has changed
@@ -965,12 +1036,18 @@ map.selectOptionPlaceholderText=- Select -
 map.switchToMapView=Switch to map view
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Switch to list view
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=View has been switched to map
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=View has been switched to list
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Please select at most {0} locations.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
 map.contactUs = contact us
 map.homepage = homepage
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -992,6 +1069,8 @@ map.addTagTitle=Tag
 map.displayNameLabel=Display name
 # Label for key field
 map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Key not found. Please select a different key.
 # Help text for location address field
 map.locationAddressHelpText=Select which key represents the location address.
 # Label for location address key field
@@ -1010,6 +1089,8 @@ map.maxLocationSelectionsLabel=Maximum location selections
 map.settingTextLabel=Alert text
 # Label for value field
 map.valueLabel=Value
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Map will display here
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າ
 banner.guestBannerText=ຫຼັງຈາກທີ່ທ່ານສະໝັກແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinute=1 hour and 1 minute
+banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinute={0} hours and 1 minute
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} minutes
+banner.hours={0} hours
+banner.hour=1 hour
+banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

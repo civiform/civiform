@@ -91,9 +91,9 @@ content.loginPrompt={0} アカウントでログインしてください
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=アカウントを作成する
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=応募者ログイン
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=管理者ログイン
 # The text on the button an applicant clicks to log in to their session.
 button.login=ログイン
 # The text on the button an applicant clicks to sign in to their session.
@@ -658,6 +658,8 @@ content.youCanPrint=この確認書は記録用に印刷できます。
 heading.nextSteps=次の手順
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} の申請を送信しました
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=後でアプリケーションにアクセスするには、アカウントを作成する必要があります
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=後から申請にアクセスするには、アカウントを作成してください
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=アカウントに情報を保存すると、申�
 alert.noProgramsAvailable=現時点で利用可能なすべてのプログラムへの申し込みが開始または送信されています。
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=既存のアカウントにログイン
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=このプログラムに応募するには、ログインする必要があります
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=このアプリケーションを続行するには、ログインまたはアカウントを作成してください。
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=申し訳ございませんが、アクセスしよ�
 # Button text on a button that takes the user back to the home page.
 button.homePage=ホームページに戻る
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock={0}の編集に戻る
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=前の画面の質問への回答に基づいて、この画面を応募者に対して表示または非表示にするタイミングを設定します。
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=この画面の質問への回答に基づいて、応募者がプログラムの資格を満たすかどうかを判断する適格性条件を追加します。最低要件を満たさない応募者は、アプリケーションの提出がブロックされます。これはプログラム設定で変更できます。
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=プログラム設定
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=画面は
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=応募者は以下の場合に資格があります
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=条件が真である場合：
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=条件は以下の場合に真です
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=サブ条件が真である場合：
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=質問
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=フィールド
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=状態
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=値
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- 選択 -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=コンマで区切られた値のリストを入力してください。例：「item1,item2,item3」。
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=および
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=条件を追加
+# Button to remove a condition from the form
+button.predicateDeleteCondition=条件を削除
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=サブ条件を追加
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=サブ条件を削除
+# Link to go back to the top of the page
+link.backToTop=トップに戻る
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=保存して終了
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=この画面の表示条件を設定するために使用できる、前の画面の質問はありません。
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=この画面には、適格性条件を設定するために使用できる質問がありません。
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,8 +910,9 @@ label.uploadedFiles=アップロードしたファイル
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong={0} 文字以内にしてください。
 validation.idTooShort={0} 文字以上にしてください。
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=数字のみにする必要があります。
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=0から9の数字のみを含める必要があります。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -922,94 +991,106 @@ option.maybe=おそらく
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=フィルターを適用
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=マップ上の場所の次のページへ移動
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=マップ上の場所のページネーション
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=マップ上の場所の前のページへ移動
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=利用可能な場所
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=フィルター
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=マップ上の場所のページ{0}へ移動
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=さらに詳細を表示
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr={0}のさらに詳細を表示
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount={0}/{1} の場所を表示
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=最大{1}カ所のうち、{0}カ所を選択しています。
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=場所を表示するインタラクティブマップ
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=選択済み
+# Message displayed when filter results return no locations
+map.noResultsFound=結果が見つかりませんでした。フィルターの調整をお試しください。
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=場所が選択されていません。
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus={1}ページ中{0}ページを表示しています。
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=フィルターをクリア
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=選択された場所
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=場所を選択
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=最大{0}カ所を選択
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- 選択 -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=マップ表示に切り替える
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=リスト表示に切り替える
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=表示がマップに切り替わりました
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=表示がリストに切り替わりました
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=最大で{0}カ所を選択してください。
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = 申し訳ありませんが、この質問は現在表示できません。お手数ですが、後ほどこのアプリケーションに戻って再度お試しください。それまでの間、{0}または{1}に戻っていただければ、正しい方向へご案内します。
+map.contactUs = お問い合わせ
+map.homepage = ホームページ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=フィルターを追加
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=応募者が利用できるように、最大6個のフィルターを選択してください。
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=フィルター
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=タグを追加
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=選択したキーが特定の値と一致する特定の場所に表示されるタグを追加します。応募者がこれらの場所の少なくとも1つを選択した場合、任意で選択済み場所エリアにアラートを表示します。
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=タグ
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=表示名
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=キー
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=エラー：キーが見つかりませんでした。別のキーを選択してください。
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=場所の住所を表すキーを選択してください。
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=住所キー
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=場所の詳細URLを表すキーを選択してください。
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=さらに詳細を表示 URLキー
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=場所の名前を表すキーを選択してください。
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=名前キー
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=最大場所選択数
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=アラートテキスト
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=値
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=ここにマップが表示されます
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=プログラムやサービスに申請する
 banner.guestBannerText=申請が終了したら、{0}してデータを保護します。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=セッションを終了
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=セッション開始から{0}後にセッションは自動的に期限切れになるため、進行状況を失わないように、それまでにログインまたはアプリケーションを提出してください。
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1時間{0}分
+banner.hourAndMinute=1時間1分
+banner.hoursAndMinutes={0}時間{1}分
+banner.hoursAndMinute={0}時間1分
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0}分
+banner.hours={0}時間
+banner.hour=1時間
+banner.minute=1分
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

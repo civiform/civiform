@@ -91,9 +91,9 @@ content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=መለያ ፍጠር
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=የአመልካች መግቢያ
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=የአስተዳዳሪ መግቢያ
 # The text on the button an applicant clicks to log in to their session.
 button.login=ግባ
 # The text on the button an applicant clicks to sign in to their session.
@@ -658,6 +658,8 @@ content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም �
 heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=የ{0} ማመልከቻዎን አስገብተዋል
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=ማመልከቻዎ ዘንድ በኋላ ለመድረስ፣ መለያ መፍጠር አለብዎ
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያ�
 alert.noProgramsAvailable=እርስዎ አሁን ላይ ለሚገኙ ሁሉም ፕሮግራሞች ማመልከቻ ጀምረዋል ወይም አስገብተዋል።
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=ለዚህ ፕሮግራም ለማመልከት መግባት አለብዎ
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=እባክዎ በዚህ ማመልከቻ ለመቀጠል እባክዎ ይግቡ ወይም መለያ ይፍጠሩ።
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=እናዝናለን፣ ለመድረስ እየሞከ�
 # Button text on a button that takes the user back to the home page.
 button.homePage=ወደ መነሻ ገጽ ተመለስ
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=ወደ አርትዖት ይመለሱ {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=በቀዳሚ ማያ ገጾች ላይ ላሉ ጥያቄዎች በሚሰጡ ምላሾች ላይ በመመስረት ይህ ማያ ገጽ ለአመልካቾች መቼ መታየት ወይም መደበቅ እንዳለበት ያዋቅሩ።
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=አንድ አመልካች በዚህ ማያ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጧቸው ምላሾች ላይ በመመስረት ለፕሮግራሙ መስፈርቱን የሚያሟሉ እንደሆነ ለማወቅ የብቁነት መስፈርቶችን ያክሉ። ዝቅተኛውን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻዎችን እንዳያስገቡ ይታገዳሉ። ይህን በ
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=ፕሮግራም ቅንብሮች ውስጥ መቀየር ይችላሉ
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=ማያ ገጽ
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=አመልካች ብቁ የሚሆነው
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=ሁኔታዎች እውነት ከሆኑ፦
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=ሁኔታ እውነት የሚሆነው
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=ንዑስ ሁኔታዎች እውነት ከሆኑ ነው፦
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=ጥያቄ
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=መስክ
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=ሁነታ
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=እሴት(ቶች)
+# Placeholder text for select option dropdown
+option.selectPlaceholder=-ይምረጡ-
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=በኮማ የተለያዩ እሴቶችን ዝርዝር ያስገቡ። ለምሳሌ፣ "item1,item2,item3"።\n 
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=እና
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=ሁኔታ አክል
+# Button to remove a condition from the form
+button.predicateDeleteCondition=ሁኔታ ደምስስ
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=ንዑስ-ሁኔታ አክል
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=ንዑስ-ሁኔታ ደምስስ
+# Link to go back to the top of the page
+link.backToTop=ወደ ላይ ተመለስ
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=አስቀምጥ እና ውጣ
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ የብቁነት ሁኔታን ለማዋቀር የሚያገለግሉ ምንም ዝግጁ ጥያቄዎች የሉም።
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,8 +910,9 @@ label.uploadedFiles=የተሰቀሉ ፋይሎች
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
 validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=ከ0-9 የሆኑ ቁጥሮችን ብቻ መያዝ አለበት።
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -922,94 +991,106 @@ option.maybe=ምናልባት
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=ማጣሪያዎችን ይተግብሩ
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=ወደ ቀጣዩ የካርታ ቦታዎች ሂድ
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=ለካርታ ቦታዎች የገጽ ክፍፍል
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=ወደ ቀዳሚው የካርታ ቦታዎች ገጽ ሂድ
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=ያሉ ቦታዎች
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=ማጣሪያዎች
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=ወደ ካርታ ቦታዎች ገጽ {0} ሂድ
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=ለ{0} ተጨማሪ ዝርዝሮችን ይመልከቱ
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount={0} ከ {1} ከፍተኛው የቦታዎች ቁጥር ተመርጧል።
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=ምልልሳዊ ካርታ ቦታዎችን በማሳየት ላይ
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=ተመርጧል
+# Message displayed when filter results return no locations
+map.noResultsFound=ምንም ውጤቶች አልተገኙም። እባክዎ ማጣሪያዎችዎን ለማስተካከል ይሞክሩ።
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ምንም አካባቢዎች አልተመረጡም።
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=አሁን ገጽ {0} ከ {1} በማሳየት ላይ።
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=ማጣሪያዎችን ያጽዱ
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=የተመረጡ አካባቢዎች
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=ቦታዎችን ይምረጡ
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=እስከ {0} ቦታዎችን ይምረጡ
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=-ይምረጡ-
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=ወደ ካርታ ዕይታ ይቀይሩ
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=ወደ ዝርዝር ዕይታ ይቀይሩ
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=ዕይታ ወደ ካርታ ተቀይሯል
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=ዕይታ ወደ ዝርዝር ተቀይሯል
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=እባክዎ ቢበዛ {0} ቦታዎችን ይምረጡ።
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = ይህን ጥያቄ አሁን ማሳየት ባለመቻላችን ይቅርታ እንጠይቃለን። እባክዎ በኋላ ወደዚህ መተግበሪያ ለመመለስ ይሞክሩ። እስከዚያው፣ ወደ {0} ወይም {1} ይመለሱ፣ እኛም ወደ ትክክለኛው አቅጣጫ እንመራዎታለን።
+map.contactUs = ያነጋግሩን
+map.homepage = መነሻ ገጽ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=ማጣሪያ አክል
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=ለአመልካቾች የሚገኙ እንዲሆኑ እስከ ስድስት የሚደርሱ ማጣሪያዎችን ይምረጡ።
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=ማጣሪያዎች
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=ታግ አክል
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=የተመረጠ ቁልፍ ከአንድ እሴት ጋር ተመሳሳይ በሚሆንባቸው የተወሰኑ ቦታዎች ላይ የሚታይ ታግ ያክሉ። አንድ አመልካች ከእነዚህ ቦታዎች ቢያንስ አንዱን በሚመርጥ ጊዜ፣ እንደ አማራጭ በተመረጡት ቦታዎች አካባቢ ውስጥ ማንቂያ አሳይ።
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=ታግ
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=የሚታይ ስም
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=ቁልፍ
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=ስህተት፦ ቁልፍ አልተገኘም። እባክዎ ሌላ ቁልፍ ይምረጡ።
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=የትኛው ቁልፍ የቦታውን አድራሻ እንደሚወክል ይምረጡ።
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=የአድራሻ ቁልፍ
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=የትኛው ቁልፍ የአካባቢ ዝርዝሮች ዩአርኤልን እንደሚወክል ይምረጡ።
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=የተጨማሪ ዝርዝሮች ዩአርኤል ቁልፍን ይመልከቱ
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=የትኛው ቁልፍ የቦታውን ስም እንደሚወክል ይምረጡ።
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=የስም ቁልፍ
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=ከፍተኛው የቦታ መረጣዎች
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=የማንቂያ ጽሁፍ
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=እሴት
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=ካርታ እዚህ ይታያል
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገ
 banner.guestBannerText=ካመለከቱ በኋላ፣ ውሂብዎን ለመጠበቅ {0} ያድርጉ።
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=ክፍለ ጊዜዎ ከጀመረበት ጊዜ ጀምሮ ከ{0} በኋላ በራስ ሰር ጊዜው ያበቃል፤ ስለዚህ እባክዎ የደረሱበትን ደረጃ እንዳያጡ ለመከላከል እባክዎ ከዚያ ጊዜ በፊት በመለያ ይግቡ ወይም ማመልከቻዎን ያስገቡ።
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 ሰዓት እና {0} ደቂቃዎች
+banner.hourAndMinute=1 ሰዓት እና 1 ደቂቃ
+banner.hoursAndMinutes={0} ሰዓቶች እና {1} ደቂቃዎች
+banner.hoursAndMinute={0} ሰዓቶች እና 1 ደቂቃ
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} ደቂቃዎች
+banner.hours={0} ሰዓቶች
+banner.hour=1 ሰዓት
+banner.minute=1 ደቂቃ
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
