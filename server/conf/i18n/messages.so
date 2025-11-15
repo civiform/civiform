@@ -1066,9 +1066,9 @@ map.addTagSubtitle=Ku dar calaamad lagu soo bandhigo meelo gaar ah oo furaha la 
 # Title for tag section
 map.addTagTitle=Calaamad
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=Muuji magaca
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=Fure
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Cillad: Furaha lama helin. Fadlan dooro fure kale.
 # Help text for location address field
