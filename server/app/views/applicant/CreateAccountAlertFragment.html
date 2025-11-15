@@ -6,11 +6,17 @@
 >
   <div class="usa-alert__body">
     <h2
+      th:if="${!loginOnly}"
       class="usa-alert__heading"
       th:text="#{alert.createAccount}"
       th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
     ></h2>
-
+    <h2
+      th:if="${loginOnly}"
+      class="usa-alert__heading"
+      th:text="#{alert.createAccountForLoginOnly}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccountForLoginOnly})}"
+    ></h2>
     <p class="usa-alert__text" th:text="#{alert.createAccountDescription}"></p>
 
     <div class="content-spacing"></div>
@@ -28,8 +34,7 @@
     </div>
 
     <div class="text-medium-spacing"></div>
-
-    <p>
+    <p th:if="${!loginOnly}">
       <a
         class="usa-link"
         role="button"
