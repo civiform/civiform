@@ -427,3 +427,90 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     )
   })
 })
+
+test.describe(
+  'Applicant program overview for login only program',
+  {tag: ['@northstar']},
+  () => {
+    const programName = 'loginOnly'
+    const questionText = 'This is a text question'
+
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await test.step('create a new program with one text question', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'text question',
+          questionText: questionText,
+        })
+        await adminPrograms.addProgram(
+          '', // empty string will error
+          'program description',
+          'short program description',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          /* submitNewProgram= */ true,
+          /* setLoginOnly= */ true,
+        )
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          description: 'First block',
+          questions: [{name: 'text question', isOptional: false}],
+        })
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+    })
+
+    test('login only program has no start application button when entering as guest', async ({
+      page,
+    }) => {
+      const programName = 'loginOnly'
+
+      await page.goto(`/programs/${programName}`)
+      await expect(
+        page.getByRole('link', {name: 'Start an application'}).first(),
+      ).toBeHidden()
+
+      await expect(
+        page.getByRole('button', {name: 'Start application as a guest'}),
+      ).toBeHidden()
+
+      await expect(
+        page
+          .getByRole('button', {name: 'Start application with an account'})
+          .first(),
+      ).toBeVisible()
+
+      await validateScreenshot(
+        page.locator('main'),
+        'program-overview-login-only-guest',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
+    test('login only program has start application button when entering as a logged in user', async ({
+      page,
+    }) => {
+      const programName = 'loginOnly'
+
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+
+      await expect(
+        page.getByRole('link', {name: 'Start an application'}).first(),
+      ).toBeVisible()
+
+      await validateScreenshot(
+        page.locator('main'),
+        'program-overview-login-only-logged-in-user',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
+  },
+)

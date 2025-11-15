@@ -3,7 +3,7 @@ import {loginAsAdmin} from '../support'
 import {ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('program login only', () => {
-  test('program admin application submission email preference persists through error', async ({
+  test('program admin application submission email preference persists', async ({
     page,
     adminPrograms,
   }) => {
@@ -20,7 +20,7 @@ test.describe('program login only', () => {
         undefined,
         undefined,
         undefined,
-        /* submitNewProgram= */ false,
+        /* submitNewProgram= */ true,
       )
       await adminPrograms.expectLoginOnlyProgramIsChecked(false)
     })

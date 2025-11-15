@@ -977,14 +977,14 @@ export class AdminPrograms {
   async expectLoginOnlyProgramIsChecked(isChecked: boolean) {
     await expect(
       this.page.getByRole('checkbox', {
-        name: 'loginOnly',
+        name: 'Require applicants to log in to apply to this program',
       }),
     ).toBeChecked({checked: isChecked})
   }
 
   async setProgramToLoginOnly(checked: boolean) {
     const checkbox = this.page.getByRole('checkbox', {
-      name: 'loginOnly',
+      name: 'Require applicants to log in to apply to this program',
     })
     const isCurrentlyChecked = await checkbox.isChecked()
 
