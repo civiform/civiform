@@ -969,7 +969,7 @@
         "required": false
       },
       "MAP_QUESTION_ENABLED": {
-        "mode": "HIDDEN",
+        "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
