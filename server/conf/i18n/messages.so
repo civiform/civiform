@@ -1064,7 +1064,7 @@ map.addTagButton=Ku dar calaamad
 # Subtitle text for adding a tag
 map.addTagSubtitle=Ku dar calaamad lagu soo bandhigo meelo gaar ah oo furaha la doortay uu la mid yahay qiimo go'an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha goobaha la doortay.
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=Calaamad
 # Label for display name field
 map.displayNameLabel=Display name
 # Label for key field
