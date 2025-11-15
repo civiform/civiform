@@ -1178,8 +1178,8 @@ banner.hoursAndMinutes={0} saacadood iyo {1} daqiiqo
 banner.hoursAndMinute={0} saacadood iyo 1 daqiiqo
 # Amount of time in hours or minutes for the session expiration message.
 banner.minutes={0} daqiiqo
-banner.hours={0} hours
-banner.hour=1 hour
+banner.hours={0} saacadood
+banner.hour=1 saac
 banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
