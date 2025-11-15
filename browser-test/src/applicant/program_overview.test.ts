@@ -432,36 +432,16 @@ test.describe(
   'Applicant program overview for login only program',
   {tag: ['@northstar']},
   () => {
-    const programName = 'loginOnly'
-    const questionText = 'This is a text question'
+    const programName = 'loginonly'
 
-    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    test.beforeEach(async ({page, adminPrograms}) => {
       await test.step('create a new program with one text question', async () => {
         await loginAsAdmin(page)
-        await adminQuestions.addTextQuestion({
-          questionName: 'text question',
-          questionText: questionText,
-        })
-        await adminPrograms.addProgram(
-          '', // empty string will error
-          'program description',
-          'short program description',
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          /* submitNewProgram= */ true,
-          /* setLoginOnly= */ true,
-        )
-        await adminPrograms.editProgramBlockUsingSpec(programName, {
-          description: 'First block',
-          questions: [{name: 'text question', isOptional: false}],
-        })
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(programName)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.setProgramToLoginOnly(true)
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.publishAllDrafts()
         await logout(page)
       })
     })
@@ -469,7 +449,7 @@ test.describe(
     test('login only program has no start application button when entering as guest', async ({
       page,
     }) => {
-      const programName = 'loginOnly'
+      const programName = 'loginonly'
 
       await page.goto(`/programs/${programName}`)
       await expect(
@@ -485,6 +465,12 @@ test.describe(
           .getByRole('button', {name: 'Start application with an account'})
           .first(),
       ).toBeVisible()
+      // login only create account message
+      await expect(
+        page.getByLabel(
+          'For your information: To access your application later, you must create an account',
+        ),
+      ).toBeVisible()
 
       await validateScreenshot(
         page.locator('main'),
@@ -496,7 +482,7 @@ test.describe(
     test('login only program has start application button when entering as a logged in user', async ({
       page,
     }) => {
-      const programName = 'loginOnly'
+      const programName = 'loginonly'
 
       await loginAsTestUser(page)
       await page.goto(`/programs/${programName}`)

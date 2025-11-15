@@ -349,7 +349,6 @@ export class AdminPrograms {
     eligibility = undefined,
     submitNewProgram = true,
     applicationSteps = [{title: 'title', description: 'description'}],
-    loginOnly = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -378,9 +377,6 @@ export class AdminPrograms {
       await this.clickPreScreenerFormToggle()
     }
 
-    if (loginOnly) {
-      await this.page.click('#login-only-applications')
-    }
     if (eligibility) {
       await this.chooseEligibility(eligibility)
     }
