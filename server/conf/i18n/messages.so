@@ -1041,7 +1041,7 @@ map.switchToMapViewSr=Muuqaalka waxaa loo badelay khariirada
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=Muuqaalka waxaa loo badelay liis
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Fadlan dooro goobaha {0} ee ugu badan.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = Waan ka xunahay inaanan awoodin inaan soo bandhigno su'aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
 map.contactUs = Nala soo xariir
