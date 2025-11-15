@@ -1084,7 +1084,7 @@ map.locationNameHelpText=Dooro furaha matalaya magaca goobta.
 # Label for location name key field
 map.locationNameLabel=Magaca furaha
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=Doorashooyinka goobta ee ugu badan
 # Label for setting text field
 map.settingTextLabel=Alert text
 # Label for value field
