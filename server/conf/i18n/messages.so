@@ -1173,7 +1173,7 @@ banner.endYourSession=dhammee kulankaaga
 banner.sessionExpiration=Kulankaan waxa uu si toos ah u dhacayaa kadib {0} laga bilaabo billoowga kulankaaga, markaa fadlan gal ama soo gudbi codsigaaga wakhtigaas kahor si aad iskaga ilaaliso inaad lumiso waxa aad sameysay.
 # Phrases that combine hours and minutes for the session expiration message.
 banner.hourAndMinutes=1 saac iyo {0} daqiiqo
-banner.hourAndMinute=1 hour and 1 minute
+banner.hourAndMinute=1 saac iyo 1 daqiiqo
 banner.hoursAndMinutes={0} hours and {1} minutes
 banner.hoursAndMinute={0} hours and 1 minute
 # Amount of time in hours or minutes for the session expiration message.
