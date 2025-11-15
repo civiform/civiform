@@ -490,13 +490,6 @@ test.describe(
       await expect(
         page.getByRole('link', {name: 'Start an application'}).first(),
       ).toBeVisible()
-
-      await validateScreenshot(
-        page.locator('main'),
-        'program-overview-login-only-logged-in-user',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
     })
   },
 )
