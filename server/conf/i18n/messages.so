@@ -1056,7 +1056,7 @@ map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a differe
 # Button for adding a filter
 map.addFilterButton=Ku dar shaandheeyaasha
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Dooro ilaa lix shaandheeyaal si aad ugi diyaariso codsadaasha.
 # Title for filters section
 map.addFiltersTitle=Filters
 # Button for adding a tag
