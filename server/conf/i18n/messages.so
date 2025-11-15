@@ -1082,7 +1082,7 @@ map.locationDetailsUrlLabel=Eeg faahfaahin furaha URL
 # Help text for location name field
 map.locationNameHelpText=Dooro furaha matalaya magaca goobta.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Magaca furaha
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
 # Label for setting text field
