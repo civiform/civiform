@@ -720,7 +720,7 @@ content.predicateEligibilityNullState=Applicant is always eligible.
 content.predicateVisibilityNullState=This screen is always shown.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Shuruuduhu waa sax haddii:
+content.predicateConditionIsTrueIf=Shuruudu ay sax tahay haddii:
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateSubconditionsAreTrue=Shuruudo hoosaadyada waa sax:
 
