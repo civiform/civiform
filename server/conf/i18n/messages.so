@@ -746,7 +746,7 @@ button.predicateDeleteCondition=Tirtir shuruud
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ku dar xaalad-hoosaad
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Tirtir xaalad-hoosaadka
+link.predicateDeleteSubcondition=Tirtir xaalad-hoosaad
 # Link to go back to the top of the page
 link.backToTop=Ku laabo kor
 # Button to save the visibility or eligibility predicate and return to editing the program.
