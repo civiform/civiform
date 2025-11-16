@@ -1043,7 +1043,7 @@ map.switchToListViewSr=Eegida waxaa loo baddelay liis
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Fadlan dooro goobaha {0} ee ugu badan.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = Waan ka xunahay inaanan awoodin inaan soo bandhigno su'aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
+map.geoJsonErrorText = Waan ka xunahay ma awoodno inaan soo bandhigno su'aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
 map.contactUs = Nala soo xariir
 map.homepage = Bogga koowaad
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
