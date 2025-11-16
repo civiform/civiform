@@ -1027,7 +1027,7 @@ map.resetFiltersButtonText=Tirtir shaandheeyada
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Goobaha la xushay
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Dooro goobta
+map.selectLocationButtonText=Dooro goob
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
 map.selectLocations=Dooro ilaa {0} goob
 # Placeholder text for map question select option dropdown
