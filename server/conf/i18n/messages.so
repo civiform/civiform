@@ -1037,7 +1037,7 @@ map.switchToMapView=U beddel eegida khariirada
 # Button text to switch from map view to list view on mobile
 map.switchToListView=U beddel eegida liiska
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=Eegida waxaa loo baddelay khariirada
+map.switchToMapViewSr=Eegida waxaa loo baddelay khariirad
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=Muuqaalka waxaa loo badelay liis
 # Error message that indicates the applicant has selected too many locations
