@@ -1086,7 +1086,7 @@ map.locationNameLabel=Magaca furaha
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Doorashooyinka goobta ee ugu badan
 # Label for setting text field
-map.settingTextLabel=Qoraalka digniinta ah
+map.settingTextLabel=Qoraalka digniinta
 # Label for value field
 map.valueLabel=Cadadka
 # Text on a grey square that indicates where a map will appear once a question has been published
