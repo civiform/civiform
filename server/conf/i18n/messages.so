@@ -1035,7 +1035,7 @@ map.selectOptionPlaceholderText=- Dooro -
 # Button text to switch from list view to map view on mobile
 map.switchToMapView=U beddel eegida khariirada
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Badel si aad u eegto liiska
+map.switchToListView=U beddel eegida liiska
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=Muuqaalka waxaa loo badelay khariirada
 # Screen reader text announcing that the view has been switched to list view
