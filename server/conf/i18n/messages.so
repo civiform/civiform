@@ -1062,7 +1062,7 @@ map.addFiltersTitle=Shaandheeyaal
 # Button for adding a tag
 map.addTagButton=Ku dar calaamad
 # Subtitle text for adding a tag
-map.addTagSubtitle=Ku dar calaamad lagu soo bandhigo meelo gaar ah oo furaha la doortay uu la mid yahay qiimo go'an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha goobaha la doortay.
+map.addTagSubtitle=Ku dar calaamad si loogu soo bandhigo goobo gaar ah halkaas oo furaha la doortay uu la mid yahay cadad go'an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha Goobaha La Doortay.
 # Title for tag section
 map.addTagTitle=Calaamad
 # Label for display name field
