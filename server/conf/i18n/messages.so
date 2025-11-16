@@ -1076,7 +1076,7 @@ map.locationAddressHelpText=Dooro furaha matalaaya ciwaanka goobta.
 # Label for location address key field
 map.locationAddressLabel=Ciwaanka furaha
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Dooro furaha matalaya faahfaahinada URL-ka goobta.
+map.locationDetailsUrlHelpText=Dooro furaha matalaaya faahfaahinada URL-ka goobta.
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=Eeg faahfaahin furaha URL
 # Help text for location name field
