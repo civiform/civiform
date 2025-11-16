@@ -1023,7 +1023,7 @@ map.noSelectionsMessage=Wax goobo ah lama xulan.
 # Sr only message displayed when page has changed
 map.paginationStatus=Hadda muujinaya bogga {0} ee {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Tirtir shaandheeyaasha
+map.resetFiltersButtonText=Tirtir shaandheeyada
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Goobaha la xushay
 # Placeholder text for map question select button in popups
