@@ -731,7 +731,7 @@ label.predicateField=Godka
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
 label.predicateState=Xaalada
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Cadadka(cadadka)
+label.predicateValue=Cadad(cadadka)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Dooro -
 # Hint text for providing multiple values in a single input field
