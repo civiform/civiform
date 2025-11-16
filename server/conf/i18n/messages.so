@@ -1072,7 +1072,7 @@ map.keyLabel=Fure
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Cillad: Furaha lama helin. Fadlan dooro fure kale.
 # Help text for location address field
-map.locationAddressHelpText=Dooro furaha matalaya ciwaanka goobaha.
+map.locationAddressHelpText=Dooro furaha matalaaya ciwaanka goobta.
 # Label for location address key field
 map.locationAddressLabel=Ciwaanka furaha
 # Help text for location details URL field
