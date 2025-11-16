@@ -750,7 +750,7 @@ link.predicateDeleteSubcondition=Tirtir xaalad-hoosaad
 # Link to go back to the top of the page
 link.backToTop=Ku laabo kor
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Seyf garee oo ka noqo
+button.saveAndExit=Keydi oo ka bax
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Ma jiraan wax su'aalo ah oo la heli karo oo ku saabsan shaashadaha hore  ee lagu dejinayo xaalad muuqaal ah shaashadaan.
