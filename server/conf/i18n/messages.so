@@ -659,7 +659,7 @@ heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Waxaad gudbisay arjigaagii {0}
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=Si aad u gasho codsigaaga hadhow, waa inaad abuurto akoon
+alert.createAccountForLoginOnly=Si aad u gasho codsigaaga hadhow, waa inaad sameyso akoon
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Si aad u gasho codsigaga hadhow, samee akoon
 # Description text in an alert that explains how creating an account can help the user
