@@ -1080,7 +1080,7 @@ map.locationDetailsUrlHelpText=Dooro furaha matalaaya faahfaahinada URL-ka goobt
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=Eeg faahfaahin badan oo ah furaha URL
 # Help text for location name field
-map.locationNameHelpText=Dooro furaha matalaya magaca goobta.
+map.locationNameHelpText=Dooro furaha matalaaya magaca goobta.
 # Label for location name key field
 map.locationNameLabel=Magaca furaha
 # Label for maximum number of locations field
