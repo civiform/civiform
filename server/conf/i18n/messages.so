@@ -735,7 +735,7 @@ label.predicateValue=Cadad(cadadka)
 # Placeholder text for select option dropdown
 option.selectPlaceholder=- Dooro -
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Geli liiska cadadka kaladuwan ee joogtada ah. Tusaale ahaan, "item1,item2,item3".
+content.multipleValuesInputHint=Geli liiska cadadka cadadka uu kala soocay hakadka. Tusaale ahaan, "item1,item2,item3".
 # Text between two input fields that represent a range. For example, "between input1 and input2".
 content.and=iyo
 
