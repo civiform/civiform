@@ -753,7 +753,7 @@ link.backToTop=Ku laabo kor
 button.saveAndExit=Keydi oo ka bax
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=Ma jiraan wax su'aalo ah oo la heli karo oo ku saabsan shaashadaha hore  ee lagu dejinayo xaalad muuqaal ah shaashadaan.
+alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su’aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejin karo shuruud muujin oo loogu talagalay shaashaddan.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ku yaala shaashadaan oo lagu dejinayo shuruudaha u-qalmitaanka.
 
