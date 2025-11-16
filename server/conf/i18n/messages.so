@@ -997,7 +997,7 @@ map.ariaLabelNextPage=Booqo bogga xigga ee goobaha khariirada
 # Aria label for pagination list
 map.ariaLabelPaginationList=Kala qaybinta goobaha khariirada
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Booqo boggii ee goobaha khariirada
+map.ariaLabelPreviousPage=Booqo boggii hore ee goobaha khariirada
 # Header for the section showing available locations
 map.availableLocations=Goobaha La heli karo
 # Legend text for the map filters section
