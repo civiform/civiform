@@ -1029,7 +1029,7 @@ map.selectedLocationsHeading=Goobaha la xushay
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Dooro goob
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Dooro ilaa {0} goob
+map.selectLocations=Dooro ilaa {0} goobood
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Dooro -
 # Button text to switch from list view to map view on mobile
