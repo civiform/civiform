@@ -793,7 +793,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           // Render the addCondition fragment if this is going to be the last condition after the
           // last condition is deleted.
           int lastConditionId = this.topLevelConditions.size();
-          if ((int) idToDelete == lastConditionId && condition.conditionId() == idToDelete - 1) {
+          if (idToDelete == lastConditionId && condition.conditionId() == idToDelete - 1) {
             refreshedCondition =
                 refreshedCondition.toBuilder().disableRenderAddCondition(false).build();
           }
