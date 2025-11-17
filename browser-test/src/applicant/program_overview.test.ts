@@ -435,7 +435,7 @@ test.describe(
     const programName = 'loginonly'
 
     test.beforeEach(async ({page, adminPrograms}) => {
-      await test.step('create a new program with one text question', async () => {
+      await test.step('create a new program', async () => {
         await loginAsAdmin(page)
         await adminPrograms.addProgram(programName)
         await adminPrograms.goToProgramDescriptionPage(programName)
