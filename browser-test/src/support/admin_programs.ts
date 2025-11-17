@@ -969,7 +969,7 @@ export class AdminPrograms {
       }),
     ).toBeChecked({checked: isChecked})
   }
-  
+
   async setEmailNotificationPreferenceCheckbox(checked: boolean) {
     const checkbox = this.page.getByRole('checkbox', {
       name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
