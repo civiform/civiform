@@ -103,8 +103,10 @@
       class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
       aria-label="Delete filter"
       th:hx-post="${hxDeleteMapFilterEndpoint}"
-      th:hx-target="${'closest div[class*=filter-input]'}"
-      hx-swap="outerHTML"
+      th:hx-vals='|{"filterIndex": ${index}}|'
+      hx-include="closest form"
+      hx-target="#filters"
+      hx-swap="innerHTML"
     >
       <cf:icon type="icon-delete" />
     </button>
