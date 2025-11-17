@@ -412,23 +412,24 @@ const setupEventListenersForMap = (
           originalCheckbox.checked = false
         }
         // move focus to a relevant location
-        const childDivs = selectedLocationsContainer.querySelectorAll("div." + CF_LOCATION_CHECKBOX)
-        const elementsArray = Array.from(childDivs);
+        const childDivs = selectedLocationsContainer.querySelectorAll(
+          '.' + CF_LOCATION_CHECKBOX,
+        )
+        const elementsArray = Array.from(childDivs)
 
         // Find the index of element being removed
-        const index = elementsArray.indexOf(target.parentElement as Element);
+        const index = elementsArray.indexOf(target.parentElement as Element)
 
         // if there is a next location, focus on it
-        if(index+1 < childDivs.length){
-           const nextElement = elementsArray[index+1] as HTMLElement
-           nextSelectedLocationFeatureID =
-              nextElement.getAttribute(DATA_FEATURE_ID)
-
-        }else if (index-1 >= 0){
+        if (index + 1 < childDivs.length) {
+          const nextElement = elementsArray[index + 1] as HTMLElement
+          nextSelectedLocationFeatureID =
+            nextElement.getAttribute(DATA_FEATURE_ID)
+        } else if (index - 1 >= 0) {
           // else if there is a previous location, focus on it
-          const previousElement = elementsArray[index-1] as HTMLElement
-           nextSelectedLocationFeatureID =
-              previousElement.getAttribute(DATA_FEATURE_ID)
+          const previousElement = elementsArray[index - 1] as HTMLElement
+          nextSelectedLocationFeatureID =
+            previousElement.getAttribute(DATA_FEATURE_ID)
         } else {
           // no remaining selected locations so we should focus on container as a whole
           selectedLocationsContainer.focus()
