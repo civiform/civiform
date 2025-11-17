@@ -1103,8 +1103,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
    * programs.
    */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
   }
 
   /**
@@ -2385,7 +2385,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " question to their programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
