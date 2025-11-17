@@ -18,7 +18,7 @@ import sys
 # When successful, this script:
 #   1. tags the git commit for the release with the release number
 #   2. tags the docker image for the release with the release number
-#   3. creates a new draft release on github
+#   3. creates a new draft release on github that includes release notes from both civiform and cloud-deploy-infra changes
 #
 # The labels included in the body of the release notes are managed by:
 #    https://github.com/civiform/civiform/blob/main/.github/release.yml
@@ -42,9 +42,9 @@ GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print(
-            'Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER',
+            'Usage: bin/create-release CIVIFORM_COMMIT_SHA RELEASE_NUMBER CLOUD_DEPLOY_INFRA_SHA',
             file=sys.stderr)
         exit(1)
 
@@ -62,14 +62,21 @@ def main():
     # Set release variables
     ################################################################################
 
-    commit_sha = sys.argv[1]
+    civiform_commit_sha = sys.argv[1]
     release_number = sys.argv[2]
+    civiform_cloud_deploy_infra_commit_sha = sys.argv[3]
     if 'GITHUB_ACTOR' in os.environ:
         shell_cmd(
             f'git config user.email ' +
             f'"{os.environ["GITHUB_ACTOR"]}@users.noreply.github.com"')
         shell_cmd(f'git config user.name ' + f'"{os.environ["GITHUB_ACTOR"]}"')
     releaser_email = shell_cmd('git config --get user.email')
+
+    # Shared headers for all GitHub API requests
+    github_api_headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': f'token {gh_token}'
+    }
 
     ################################################################################
     # Resolve and validate GitHub token, check auth
@@ -84,7 +91,7 @@ def main():
 
     check_gh_auth_response = requests.get(
         'https://api.github.com/repos/civiform/civiform',
-        headers={'Authorization': f'token {gh_token}'})
+        headers=github_api_headers)
     if check_gh_auth_response.status_code != 200:
         print(
             f'GitHub API auth failed, status code: {str(check_gh_auth_response.status_code)}',
@@ -114,7 +121,7 @@ def main():
 
     # Validate commit SHA exists in main branch
     branches_containing_commit_sha = shell_cmd(
-        'git --no-pager branch -r --contains ' + commit_sha)
+        'git --no-pager branch -r --contains ' + civiform_commit_sha)
     branches_containing_commit_sha = [
         # The output of the command is a list of branch names, with a '*' at the
         # beginning of the current branch. This regex and the strip transform
@@ -123,7 +130,7 @@ def main():
         for x in branches_containing_commit_sha.split('\n')
     ]
     if not 'origin/main' in branches_containing_commit_sha:
-        print('Invalid commit SHA: ' + commit_sha, file=sys.stderr)
+        print('Invalid commit SHA: ' + civiform_commit_sha, file=sys.stderr)
         exit(1)
 
     ################################################################################
@@ -131,7 +138,7 @@ def main():
     ################################################################################
 
     # Git defaults to using the first 7 chars of the full SHA for the short SHA.
-    short_sha = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
+    short_sha = shell_cmd('git rev-parse --short ' + civiform_commit_sha)[:7]
 
     print(f'Searching for an image tag with short SHA {short_sha}')
 
@@ -173,7 +180,7 @@ def main():
     print('Adding git tag and pushing to GitHub')
 
     shell_cmd(
-        f"git tag -a {release_number} -m 'Releaser: {releaser_email}' {commit_sha}"
+        f"git tag -a {release_number} -m 'Releaser: {releaser_email}' {civiform_commit_sha}"
     )
     shell_cmd(f'git push origin {release_number}')
 
@@ -190,6 +197,81 @@ def main():
     shell_cmd(f'docker push civiform/civiform:{release_number}')
 
     ################################################################################
+    # Generate release notes
+    ################################################################################
+
+    print('Generating cloud-deploy-infra release notes')
+
+    # Get the previous tag from cloud-deploy-infra to scope release notes
+    get_tags_url = 'https://api.github.com/repos/civiform/cloud-deploy-infra/tags'
+    tags_response = requests.get(get_tags_url, headers=github_api_headers)
+
+    generate_cloud_infra_notes_url = 'https://api.github.com/repos/civiform/cloud-deploy-infra/releases/generate-notes'
+    generate_cloud_infra_notes_body = {
+        'tag_name': release_number,
+        'target_commitish': civiform_cloud_deploy_infra_commit_sha,
+    }
+
+    # Only add previous_tag_name if we successfully got tags and there's at least one
+    if tags_response.status_code == 200:
+        tags = tags_response.json()
+        if len(tags) > 0:
+            # Tags are returned in chronological order (most recent first)
+            previous_tag = tags[0]['name']
+            generate_cloud_infra_notes_body['previous_tag_name'] = previous_tag
+            print(f'Scoping cloud-deploy-infra notes from {previous_tag} to {release_number}')
+        else:
+            print('No previous tags found, generating cloud-deploy-infra notes from beginning')
+
+    cloud_infra_response = requests.post(
+        generate_cloud_infra_notes_url,
+        json=generate_cloud_infra_notes_body,
+        headers=github_api_headers)
+    if cloud_infra_response.status_code != 200:
+        print(
+            'GitHub request failed with status code: ' +
+            str(cloud_infra_response.status_code),
+            file=sys.stderr)
+        response_json = cloud_infra_response.json()
+        if 'message' in response_json:
+            print(response_json['message'], file=sys.stderr)
+        exit(2)
+
+    cloud_deploy_infra_notes = cloud_infra_response.json()["body"]
+
+    print('Generating CiviForm release notes')
+
+    generate_civiform_notes_url = 'https://api.github.com/repos/civiform/civiform/releases/generate-notes'
+    generate_civiform_notes_body = {
+        'tag_name': release_number,
+        'target_commitish': civiform_commit_sha,
+    }
+
+    civiform_notes_response = requests.post(
+        generate_civiform_notes_url,
+        json=generate_civiform_notes_body,
+        headers=github_api_headers)
+
+    if civiform_notes_response.status_code != 200:
+        print(
+            'GitHub request failed with status code: ' +
+            str(civiform_notes_response.status_code),
+            file=sys.stderr)
+        response_json = civiform_notes_response.json()
+        if 'message' in response_json:
+            print(response_json['message'], file=sys.stderr)
+        exit(2)
+
+    civiform_notes = civiform_notes_response.json()["body"]
+
+    # Combine both sets of release notes
+    combined_notes = f"""{civiform_notes}
+
+## Cloud Deploy Infrastructure Changes
+
+{cloud_deploy_infra_notes}"""
+
+    ################################################################################
     # Create GitHub release
     ################################################################################
 
@@ -200,17 +282,13 @@ def main():
         'tag_name': release_number,
         'name': release_number,
         'draft': True,
-        'generate_release_notes': True
-    }
-    create_release_headers = {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': f'token {gh_token}'
+        'body': combined_notes
     }
 
     response = requests.post(
         create_release_url,
         json=create_release_body,
-        headers=create_release_headers)
+        headers=github_api_headers)
     if response.status_code != 201:
         print(
             'GitHub request failed with status code: ' +

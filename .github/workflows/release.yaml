@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Run bin/create-release
-        run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
+        run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }} ${{ github.event.inputs.cloud_deploy_infra_sha}}'
 
       - name: Tag cloud-deploy-infra
         run: |
