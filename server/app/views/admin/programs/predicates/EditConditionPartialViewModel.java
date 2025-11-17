@@ -50,7 +50,16 @@ public record EditConditionPartialViewModel(
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)
         .valueOptions(valueOptions)
-        .renderAddSubcondition(true)
+        .build();
+  }
+
+  public SubconditionListPartialViewModel subconditionListModel(Long conditionId) {
+    return SubconditionListPartialViewModel.builder()
+        .programId(programId)
+        .blockId(blockId)
+        .conditionId(conditionId)
+        .predicateUseCase(predicateUseCase)
+        .subconditions(subconditions)
         .build();
   }
 }
