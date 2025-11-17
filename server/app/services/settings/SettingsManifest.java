@@ -1066,12 +1066,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
-   * programs.
-   */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
+  /** Enable allowing CiviForm admins to add a map question to their programs. */
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
   }
 
   /**
@@ -2331,8 +2328,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "MAP_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
-                              + " question to their programs.",
+                          "Enable allowing CiviForm admins to add a map question to their"
+                              + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

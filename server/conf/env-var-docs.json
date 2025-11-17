@@ -930,7 +930,7 @@
       },
       "MAP_QUESTION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their programs.",
+        "description": "Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
       }
