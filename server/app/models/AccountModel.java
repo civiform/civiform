@@ -209,8 +209,7 @@ public class AccountModel extends BaseModel {
    * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
   public String getApplicantDisplayName() {
-    return this.getApplicants().stream()
-        .min(Comparator.comparing(ApplicantModel::getWhenCreated))
+    return representativeApplicant()
         .map(u -> u.getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
