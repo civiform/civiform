@@ -45,6 +45,8 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.QuestionEditView;
@@ -61,6 +63,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
+  private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
 
   @Inject
   public AdminQuestionController(
@@ -71,6 +74,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
+      MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
@@ -79,6 +83,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
+    this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
   }
 
   /**
@@ -116,8 +121,25 @@ public final class AdminQuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result deleteMapQuestionFilter(Request request) {
-    // Return empty response - HTMX will remove the element from DOM
-    return ok("").as(Http.MimeTypes.HTML);
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
+
+    // Get the index of the filter to delete from the request
+    String filterIndexStr = request.body().asFormUrlEncoded().get("filterIndex")[0];
+    int filterIndexToDelete = Integer.parseInt(filterIndexStr);
+
+    // Remove the filter at the specified index
+    List<MapQuestionForm.Setting> filters = form.getFilters();
+    if (filterIndexToDelete >= 0 && filterIndexToDelete < filters.size()) {
+      filters.remove(filterIndexToDelete);
+    }
+
+    // Get possible keys list
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
+
+    // Re-render all filters with updated indices
+    return ok(mapQuestionSettingsFiltersListPartialView.render(
+            request, new MapQuestionSettingsFiltersListPartialViewModel(possibleKeysList, filters)))
+        .as(Http.MimeTypes.HTML);
   }
 
   /**
