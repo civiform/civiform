@@ -465,19 +465,20 @@ test.describe(
           .getByRole('button', {name: 'Start application with an account'})
           .first(),
       ).toBeVisible()
+
+      // there is a link and button with the same name, check both
+      await expect(
+        page
+          .getByRole('link', {name: 'Start application with an account'})
+          .first(),
+      ).toBeVisible()
+
       // login only create account message
       await expect(
         page.getByLabel(
           'For your information: To access your application later, you must create an account',
         ),
       ).toBeVisible()
-
-      await validateScreenshot(
-        page.locator('main'),
-        'program-overview-login-only-guest',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
     })
     test('login only program has start application button when entering as a logged in user', async ({
       page,

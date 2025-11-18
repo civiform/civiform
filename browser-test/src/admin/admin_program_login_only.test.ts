@@ -2,26 +2,14 @@ import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin} from '../support'
 import {ProgramLifecycle} from '../support/admin_programs'
 
-test.describe('program login only', () => {
-  test('program admin application submission email preference persists', async ({
+test.describe('login only program', () => {
+  test('default login only value for any program is false', async ({
     page,
     adminPrograms,
   }) => {
     await test.step('create new program and verify default', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        '', // empty string will error
-        'program description',
-        'short program description',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        /* submitNewProgram= */ true,
-      )
+      await adminPrograms.addProgram('default program')
       await adminPrograms.expectLoginOnlyProgramIsChecked(false)
     })
   })
@@ -29,12 +17,12 @@ test.describe('program login only', () => {
   test('login only persists through publish', async ({page, adminPrograms}) => {
     const programName = 'test program'
 
-    await test.step('create new program and set login only', async () => {
+    await test.step('create new program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
     })
 
-    await test.step('set login only to true', async () => {
+    await test.step('set login only to true and publish', async () => {
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.setProgramToLoginOnly(true)
       await adminPrograms.submitProgramDetailsEdits()
