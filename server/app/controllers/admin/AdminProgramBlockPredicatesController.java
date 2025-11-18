@@ -59,6 +59,7 @@ import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.AddFirstConditionPartialView;
 import views.admin.programs.predicates.AddFirstConditionPartialViewModel;
+import views.admin.programs.predicates.DeleteConditionCommand;
 import views.admin.programs.predicates.EditConditionCommand;
 import views.admin.programs.predicates.EditConditionPartialView;
 import views.admin.programs.predicates.EditConditionPartialViewModel;
@@ -723,11 +724,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteCondition(
-      Request request,
-      long programId,
-      long blockDefinitionId,
-      long idToDelete,
-      String predicateUseCase) {
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
     if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
       return notFound("Expanded form logic is not enabled.");
     }
@@ -736,8 +733,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     List<EditConditionPartialViewModel> newTopLevelConditions = new ArrayList<>();
     Map<Long, ArrayList<EditSubconditionPartialViewModel>> newSubconditions = new HashMap<>();
 
-    try {
-      for (EditConditionPartialViewModel condition : this.topLevelConditions) {
+    Form<DeleteConditionCommand> form =
+        formFactory.form(DeleteConditionCommand.class).bindFromRequest(request);
+    if (form.hasErrors()) {
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
+    }
+
+    Long conditionToDelete = form.get().getConditionId();
+
+    for (EditConditionPartialViewModel condition : this.topLevelConditions) {
+      try {
         if (this.topLevelConditions.size() == 1) {
           PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
           // If this is the only condition, we should just render a new AddCondition partial.
@@ -750,9 +756,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                           .blockId(blockDefinitionId)
                           .predicateUseCase(useCase)
                           .build()));
-        } else if (condition.conditionId() == idToDelete) {
+        } else if (condition.conditionId() == conditionToDelete) {
           // This is the condition we're supposed to delete. Do nothing and continue.
-        } else if (condition.conditionId() > idToDelete) {
+        } else if (condition.conditionId() > conditionToDelete) {
           // For conditions past the deleted ID, change their conditionId and re-render.
           // Also update subconditions with new conditionId.
           Long newConditionId = condition.conditionId() - 1L;
@@ -793,7 +799,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           // Render the addCondition fragment if this is going to be the last condition after the
           // last condition is deleted.
           int lastConditionId = this.topLevelConditions.size();
-          if (idToDelete == lastConditionId && condition.conditionId() == idToDelete - 1) {
+          if (conditionToDelete == lastConditionId
+              && condition.conditionId() == conditionToDelete - 1) {
             refreshedCondition =
                 refreshedCondition.toBuilder().disableRenderAddCondition(false).build();
           }
@@ -807,10 +814,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           newTopLevelConditions.add(condition);
           newSubconditions.put(condition.conditionId(), subconditionsList);
         }
+      } catch (IllegalArgumentException e) {
+        return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+            .as(Http.MimeTypes.HTML);
       }
-    } catch (IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
     }
 
     // Clear all old condition and subcondition data. We'll replace it with the new data below.

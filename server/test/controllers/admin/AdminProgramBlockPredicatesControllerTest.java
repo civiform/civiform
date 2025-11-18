@@ -512,10 +512,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequest(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
-            /* idToDelete= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -547,10 +546,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequest(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
-            /* idToDelete= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
@@ -589,10 +587,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequest(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "2")).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
-            /* idToDelete= */ 2L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);

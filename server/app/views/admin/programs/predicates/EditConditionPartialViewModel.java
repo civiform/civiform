@@ -39,7 +39,7 @@ public record EditConditionPartialViewModel(
 
   public String hxDeleteConditionEndpoint() {
     return routes.AdminProgramBlockPredicatesController.hxDeleteCondition(
-            programId, blockId, conditionId, predicateUseCase.name())
+            programId, blockId, predicateUseCase.name())
         .url();
   }
 
