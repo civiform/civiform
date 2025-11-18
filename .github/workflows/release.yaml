@@ -34,8 +34,18 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Run bin/generate-release-notes
+        id: release_notes
+        run: |
+          RELEASE_NOTES=$(GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/generate-release-notes ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }} ${{ github.event.inputs.cloud_deploy_infra_sha }})
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Run bin/create-release
-        run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }} ${{ github.event.inputs.cloud_deploy_infra_sha}}'
+        run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
+        env:
+          RELEASE_NOTES: ${{ steps.release_notes.outputs.notes }}
 
       - name: Tag cloud-deploy-infra
         run: |

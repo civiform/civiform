@@ -44,7 +44,7 @@ GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
 def main():
     if len(sys.argv) != 4:
         print(
-            'Usage: bin/create-release CIVIFORM_COMMIT_SHA RELEASE_NUMBER CLOUD_DEPLOY_INFRA_SHA',
+            'Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER',
             file=sys.stderr)
         exit(1)
 
@@ -62,9 +62,8 @@ def main():
     # Set release variables
     ################################################################################
 
-    civiform_commit_sha = sys.argv[1]
+    commit_sha = sys.argv[1]
     release_number = sys.argv[2]
-    civiform_cloud_deploy_infra_commit_sha = sys.argv[3]
     if 'GITHUB_ACTOR' in os.environ:
         shell_cmd(
             f'git config user.email ' +
@@ -121,7 +120,7 @@ def main():
 
     # Validate commit SHA exists in main branch
     branches_containing_commit_sha = shell_cmd(
-        'git --no-pager branch -r --contains ' + civiform_commit_sha)
+        'git --no-pager branch -r --contains ' + commit_sha)
     branches_containing_commit_sha = [
         # The output of the command is a list of branch names, with a '*' at the
         # beginning of the current branch. This regex and the strip transform
@@ -130,7 +129,7 @@ def main():
         for x in branches_containing_commit_sha.split('\n')
     ]
     if not 'origin/main' in branches_containing_commit_sha:
-        print('Invalid commit SHA: ' + civiform_commit_sha, file=sys.stderr)
+        print('Invalid commit SHA: ' + commit_sha, file=sys.stderr)
         exit(1)
 
     ################################################################################
@@ -138,7 +137,7 @@ def main():
     ################################################################################
 
     # Git defaults to using the first 7 chars of the full SHA for the short SHA.
-    short_sha = shell_cmd('git rev-parse --short ' + civiform_commit_sha)[:7]
+    short_sha = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
 
     print(f'Searching for an image tag with short SHA {short_sha}')
 
@@ -180,7 +179,7 @@ def main():
     print('Adding git tag and pushing to GitHub')
 
     shell_cmd(
-        f"git tag -a {release_number} -m 'Releaser: {releaser_email}' {civiform_commit_sha}"
+        f"git tag -a {release_number} -m 'Releaser: {releaser_email}' {commit_sha}"
     )
     shell_cmd(f'git push origin {release_number}')
 
@@ -197,14 +196,6 @@ def main():
     shell_cmd(f'docker push civiform/civiform:{release_number}')
 
     ################################################################################
-    # Generate release notes
-    ################################################################################
-
-    print('Generating release notes')
-    
-    release_notes = shell_cmd(f'bin/generate-release-notes {civiform_commit_sha} {release_number} {civiform_cloud_deploy_infra_commit_sha}')
-
-    ################################################################################
     # Create GitHub release
     ################################################################################
 
@@ -215,8 +206,13 @@ def main():
         'tag_name': release_number,
         'name': release_number,
         'draft': True,
-        'body': release_notes
     }
+
+    # If release_notes is provided, use it; otherwise GitHub will auto-generate
+    if 'RELEASE_NOTES' in os.environ:
+        create_release_body['body'] = os.environ['RELEASE_NOTES']
+    else:
+        create_release_body['generate_release_notes'] = True
 
     response = requests.post(
         create_release_url,
