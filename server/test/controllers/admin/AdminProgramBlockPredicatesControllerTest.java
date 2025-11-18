@@ -342,6 +342,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    seedEmptyCondition(/* blockDefinitionId= */ 1L, PredicateUseCase.ELIGIBILITY);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -356,6 +357,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -369,6 +371,21 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(content).contains("What is your address?");
     assertThat(content).contains("Select your favorite ice cream flavor");
     assertThat(content).doesNotContain("What is your favorite color?");
+  }
+
+  @Test
+  public void hxEditSubcondition_nonPresentCondition_returnsOkAndDisplaysAlert() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            EDIT_SUBCONDITION_REQUEST,
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("We are experiencing a system error");
   }
 
   @Test
@@ -434,6 +451,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_withAddressQuestionId_isSelected() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -468,6 +486,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_malformedQuestionId_selectsDefaults() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -506,7 +525,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     String content =
-        seedProgramWithConditions(ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
+        seedConditionsAndSelectQuestions(
+            ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
     assertThat(content).contains("service area");
     assertThat(content).contains("Seattle");
 
@@ -528,7 +548,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void hxDeleteCondition_twoConditions_deleteFirstCondition_secondConditionBecomesFirst() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     String content =
-        seedProgramWithConditions(
+        seedConditionsAndSelectQuestions(
             ImmutableList.of(
                 testQuestionBank.addressApplicantAddress().id,
                 testQuestionBank.dropdownApplicantIceCream().id));
@@ -570,7 +590,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void hxDeleteCondition_twoConditions_deleteSecondCondition_displaysAddConditionButton() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     String content =
-        seedProgramWithConditions(
+        seedConditionsAndSelectQuestions(
             ImmutableList.of(
                 testQuestionBank.addressApplicantAddress().id,
                 testQuestionBank.dropdownApplicantIceCream().id));
@@ -607,8 +627,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
-  // Adds given ELIGIBILITY conditions onto programWithThreeBlocks screen 2.
-  private String seedProgramWithConditions(ImmutableList<Long> questionIds) {
+  // Adds (empty) predicateUseCase condition onto programWithThreeBlocks screen with value
+  // blockDefinitionId.
+  private void seedEmptyCondition(Long blockDefinitionId, PredicateUseCase predicateUseCase) {
+    Result result =
+        controller.hxEditCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            programWithThreeBlocks.id,
+            blockDefinitionId,
+            predicateUseCase.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  // Adds given ELIGIBILITY conditions onto programWithThreeBlocks screen 2, and populates
+  // subconditions.
+  private String seedConditionsAndSelectQuestions(ImmutableList<Long> questionIds) {
     String content = "";
     for (int i = 1; i <= questionIds.size(); ++i) {
       Result result =

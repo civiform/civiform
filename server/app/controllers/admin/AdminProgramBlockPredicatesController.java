@@ -14,10 +14,11 @@ import controllers.FlashKey;
 import forms.admin.BlockEligibilityMessageForm;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
 import services.program.IllegalPredicateOrderingException;
+import services.program.PredicateDefinitionNotFoundException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -94,14 +96,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   /**
-   * Value to track how many predicates are currently present on the page. Index of a condition is
-   * equal to conditionId - 1.
+   * Value to track how many predicates are currently present on the page. Keys are conditionIds,
+   * values are top-level predicates.
    */
-  private final List<EditConditionPartialViewModel> topLevelConditions = new ArrayList<>();
-
-  /** Map to track how many subconditions are currently populated within top-level predicates. */
-  private final Map<Long, ArrayList<EditSubconditionPartialViewModel>> subconditions =
-      new HashMap<>();
+  private final Map<Long, EditConditionPartialViewModel> topLevelConditions = new HashMap<>();
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -188,7 +186,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
                 .operatorScalarMap(getOperatorScalarMap())
-                .currentAddedConditions(ImmutableList.copyOf(this.topLevelConditions))
+                .currentAddedConditions(ImmutableList.copyOf(this.topLevelConditions.values()))
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
@@ -637,8 +635,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .build();
 
       // Update controller predicate info.
-      this.topLevelConditions.add(condition);
-      this.subconditions.put(conditionId, new ArrayList<>(condition.subconditions()));
+      this.topLevelConditions.put(conditionId, condition);
       return ok(editConditionPartialView.render(request, condition)).as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
@@ -699,19 +696,28 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .build();
 
       // Update subconditions map with new subcondition.
+      EditConditionPartialViewModel condition = this.topLevelConditions.get(conditionId);
+
+      if (condition == null) {
+        throw new PredicateDefinitionNotFoundException(programId, blockDefinitionId, conditionId);
+      }
+
       ArrayList<EditSubconditionPartialViewModel> subconditionsList =
-          this.subconditions.getOrDefault(conditionId, new ArrayList<>());
+          new ArrayList<>(condition.subconditions());
 
       if (subconditionsList.size() < subconditionId) {
         subconditionsList.add(subcondition);
       } else {
         subconditionsList.set((int) subconditionId - 1, subcondition);
       }
-      this.subconditions.put(conditionId, subconditionsList);
+      condition =
+          condition.toBuilder().subconditions(ImmutableList.copyOf(subconditionsList)).build();
+      this.topLevelConditions.put(conditionId, condition);
 
       return ok(editSubconditionPartialView.render(request, subcondition)).as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
+        | PredicateDefinitionNotFoundException
         | IllegalArgumentException e) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
           .as(Http.MimeTypes.HTML);
@@ -730,8 +736,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     String returnedHTML = " ";
-    List<EditConditionPartialViewModel> newTopLevelConditions = new ArrayList<>();
-    Map<Long, ArrayList<EditSubconditionPartialViewModel>> newSubconditions = new HashMap<>();
+    Map<Long, EditConditionPartialViewModel> newTopLevelConditions = new HashMap<>();
 
     Form<DeleteConditionCommand> form =
         formFactory.form(DeleteConditionCommand.class).bindFromRequest(request);
@@ -742,7 +747,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     Long conditionToDelete = form.get().getConditionId();
 
-    for (EditConditionPartialViewModel condition : this.topLevelConditions) {
+    for (Entry<Long, EditConditionPartialViewModel> entry : this.topLevelConditions.entrySet()) {
+      Long conditionId = entry.getKey();
+      EditConditionPartialViewModel condition = entry.getValue();
+      ArrayList<EditSubconditionPartialViewModel> subconditionsList =
+          new ArrayList<>(condition.subconditions());
       try {
         if (this.topLevelConditions.size() == 1) {
           PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
@@ -756,25 +765,25 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                           .blockId(blockDefinitionId)
                           .predicateUseCase(useCase)
                           .build()));
-        } else if (condition.conditionId() == conditionToDelete) {
+        } else if (conditionId.equals(conditionToDelete)) {
           // This is the condition we're supposed to delete. Do nothing and continue.
-        } else if (condition.conditionId() > conditionToDelete) {
+        } else if (conditionId > conditionToDelete) {
           // For conditions past the deleted ID, change their conditionId and re-render.
           // Also update subconditions with new conditionId.
-          Long newConditionId = condition.conditionId() - 1L;
-          ArrayList<EditSubconditionPartialViewModel> subconditionsList =
-              this.subconditions.get(condition.conditionId()).stream()
+          Long newConditionId = conditionId - 1L;
+          ArrayList<EditSubconditionPartialViewModel> newSubconditionsList =
+              subconditionsList.stream()
                   .map(subcondition -> subcondition.toBuilder().conditionId(newConditionId).build())
                   .collect(Collectors.toCollection(ArrayList::new));
           EditConditionPartialViewModel newCondition =
               condition.toBuilder()
                   .conditionId(newConditionId)
-                  .subconditions(ImmutableList.copyOf(subconditionsList))
+                  .subconditions(ImmutableList.copyOf(newSubconditionsList))
                   .disableRenderAddCondition(true)
                   .build();
 
           // Render the addCondition fragment if this is the last condition.
-          if (condition.conditionId() == this.topLevelConditions.size()) {
+          if (conditionId == this.topLevelConditions.size()) {
             newCondition = newCondition.toBuilder().disableRenderAddCondition(false).build();
           }
 
@@ -784,12 +793,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .concat(editConditionPartialView.render(request, newCondition));
 
           // Update controller info for this condition.
-          newTopLevelConditions.add(newCondition);
-          newSubconditions.put(newCondition.conditionId(), subconditionsList);
+          newTopLevelConditions.put(newConditionId, newCondition);
         } else {
           // For conditions before the deleted conditionId, re-render as-is.
-          ArrayList<EditSubconditionPartialViewModel> subconditionsList =
-              this.subconditions.get(condition.conditionId());
           EditConditionPartialViewModel refreshedCondition =
               condition.toBuilder()
                   .subconditions(ImmutableList.copyOf(subconditionsList))
@@ -798,9 +804,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
           // Render the addCondition fragment if this is going to be the last condition after the
           // last condition is deleted.
-          int lastConditionId = this.topLevelConditions.size();
-          if (conditionToDelete == lastConditionId
-              && condition.conditionId() == conditionToDelete - 1) {
+          Long maxConditionId =
+              this.topLevelConditions.entrySet().stream()
+                  .max(Comparator.comparingLong(Entry::getKey))
+                  .orElseThrow(() -> new IllegalArgumentException("Expected max conditionId."))
+                  .getKey();
+          if (conditionToDelete.equals(maxConditionId) && conditionId.equals(maxConditionId - 1L)) {
             refreshedCondition =
                 refreshedCondition.toBuilder().disableRenderAddCondition(false).build();
           }
@@ -811,8 +820,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .concat(editConditionPartialView.render(request, refreshedCondition));
 
           // Still need to add the controller info here so that it's persisted.
-          newTopLevelConditions.add(condition);
-          newSubconditions.put(condition.conditionId(), subconditionsList);
+          newTopLevelConditions.put(conditionId, condition);
         }
       } catch (IllegalArgumentException e) {
         return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
@@ -822,13 +830,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     // Clear all old condition and subcondition data. We'll replace it with the new data below.
     this.topLevelConditions.clear();
-    this.subconditions.clear();
 
-    // Repopulate top-level conditions and subconditions with new info.
-    for (EditConditionPartialViewModel newCondition : newTopLevelConditions) {
-      this.topLevelConditions.add(newCondition);
-      this.subconditions.put(
-          newCondition.conditionId(), newSubconditions.get(newCondition.conditionId()));
+    // Repopulate top-level conditions with new info.
+    for (Entry<Long, EditConditionPartialViewModel> newEntry : newTopLevelConditions.entrySet()) {
+      Long newConditionId = newEntry.getKey();
+      EditConditionPartialViewModel newCondition = newEntry.getValue();
+      this.topLevelConditions.put(newConditionId, newCondition);
     }
 
     return ok(returnedHTML).as(Http.MimeTypes.HTML);
