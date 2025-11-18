@@ -460,13 +460,13 @@ test.describe(
         page.getByRole('button', {name: 'Start application as a guest'}),
       ).toBeHidden()
 
+      // there is a link and button with the same name, check both
       await expect(
         page
           .getByRole('button', {name: 'Start application with an account'})
           .first(),
       ).toBeVisible()
 
-      // there is a link and button with the same name, check both
       await expect(
         page
           .getByRole('link', {name: 'Start application with an account'})
