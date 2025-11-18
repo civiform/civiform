@@ -194,7 +194,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
   protected ImmutableSet<Role> roles(CiviFormProfile profile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
-      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_APPLICANT);
   }

@@ -10,6 +10,8 @@ import java.util.List;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -17,6 +19,7 @@ import org.pac4j.oidc.profile.OidcProfile;
  * right now.
  */
 public class AdfsProfileCreator extends CiviformOidcProfileCreator {
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final String adminGroupName;
   private final String adGroupsAttributeName;
 
@@ -38,8 +41,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
     }
     if (isTrustedIntermediary(profile)) {
-      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
-      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
   }
