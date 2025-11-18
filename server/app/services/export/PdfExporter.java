@@ -286,18 +286,22 @@ public final class PdfExporter {
    *     predicates correctly.
    */
   public InMemoryPdf exportProgram(
-      ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions)
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> allQuestions,
+      boolean expandedFormLogicEnabled)
       throws DocumentException, IOException, TranslationNotFoundException {
     LocalDateTime timeCreated = nowProvider.get();
     String filename = String.format("%s-%s.pdf", programDefinition.adminName(), timeCreated);
-    byte[] bytes = buildProgramPdf(programDefinition, allQuestions, timeCreated);
+    byte[] bytes =
+        buildProgramPdf(programDefinition, allQuestions, timeCreated, expandedFormLogicEnabled);
     return new InMemoryPdf(bytes, filename);
   }
 
   private byte[] buildProgramPdf(
       ProgramDefinition programDefinition,
       ImmutableList<QuestionDefinition> allQuestions,
-      LocalDateTime timeCreated)
+      LocalDateTime timeCreated,
+      boolean expandedFormLogicEnabled)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -351,7 +355,12 @@ public final class PdfExporter {
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(
-            document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
+            document,
+            programDefinition,
+            block,
+            allQuestions,
+            /* indentationLevel= */ 0,
+            expandedFormLogicEnabled);
       }
     } finally {
       if (document != null) {
@@ -379,7 +388,8 @@ public final class PdfExporter {
       ProgramDefinition program,
       BlockDefinition block,
       ImmutableList<QuestionDefinition> allQuestions,
-      int indentationLevel)
+      int indentationLevel,
+      boolean expandedFormLogicEnabled)
       throws DocumentException {
     document.add(Chunk.NEWLINE);
     LineSeparator ls = new LineSeparator();
@@ -399,7 +409,12 @@ public final class PdfExporter {
     // Visibility & eligibility information
     if (block.visibilityPredicate().isPresent()) {
       renderPredicate(
-          document, block.visibilityPredicate().get(), block, allQuestions, indentationLevel);
+          document,
+          block.visibilityPredicate().get(),
+          block,
+          allQuestions,
+          indentationLevel,
+          expandedFormLogicEnabled);
     }
     if (block.eligibilityDefinition().isPresent()) {
       renderPredicate(
@@ -407,7 +422,8 @@ public final class PdfExporter {
           block.eligibilityDefinition().get().predicate(),
           block,
           allQuestions,
-          indentationLevel);
+          indentationLevel,
+          expandedFormLogicEnabled);
     }
 
     for (int i = 0; i < block.getQuestionCount(); i++) {
@@ -467,7 +483,13 @@ public final class PdfExporter {
     if (block.isEnumerator()) {
       for (BlockDefinition subBlock : program.getBlockDefinitionsForEnumerator(block.id())) {
         // Indent the blocks related to the enumerator so it's clear they're related
-        renderProgramBlock(document, program, subBlock, allQuestions, indentationLevel + 1);
+        renderProgramBlock(
+            document,
+            program,
+            subBlock,
+            allQuestions,
+            indentationLevel + 1,
+            expandedFormLogicEnabled);
       }
     }
   }
@@ -477,10 +499,12 @@ public final class PdfExporter {
       PredicateDefinition predicate,
       BlockDefinition block,
       ImmutableList<QuestionDefinition> allQuestions,
-      int indentationLevel)
+      int indentationLevel,
+      boolean expandedFormLogicEnabled)
       throws DocumentException {
     ReadablePredicate readablePredicate =
-        PredicateUtils.getReadablePredicateDescription(block.name(), predicate, allQuestions);
+        PredicateUtils.getReadablePredicateDescription(
+            block.name(), predicate, allQuestions, expandedFormLogicEnabled);
 
     document.add(text(readablePredicate.heading(), PREDICATE_FONT, indentationLevel));
     if (readablePredicate.conditionList().isPresent()) {

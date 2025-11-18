@@ -67,7 +67,7 @@ public final class EligibilityAlertSettingsCalculator {
    * Calculates the alert settings for the given request.
    *
    * @param request The HTTP request.
-   * @param isTI True if the request is from a tax advisor.
+   * @param isTI True if the request is from a trusted intermediary.
    * @param isApplicationEligible True if the application is eligible for the program.
    * @param isNorthStarEnabled True if NorthStar is enabled.
    * @param pageHasSupplementalInformation True if the page has supplemental information.

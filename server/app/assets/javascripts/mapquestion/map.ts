@@ -45,7 +45,10 @@ import {
   CF_LOCATION_COUNT,
   CF_SWITCH_TO_LIST_VIEW_BUTTON,
   CF_SWITCH_TO_MAP_VIEW_BUTTON,
+  CF_LOCATION_CHECKBOX,
   hasReachedMaxSelections,
+  calculateMapCenter,
+  POPUP_LAYER,
 } from './map_util'
 
 export const init = (): void => {
@@ -64,12 +67,14 @@ export const init = (): void => {
   })
 }
 
-const createMap = (mapId: string) => {
+const createMap = (mapId: string, geoJson: FeatureCollection) => {
+  const calculatedCenter = calculateMapCenter(geoJson)
+  const center = calculatedCenter || DEFAULT_MAP_CENTER_POINT
+
   return new MapLibreMap({
     container: mapId,
     style: DEFAULT_MAP_STYLE,
-    // TODO(#11095): Allow configurable center point
-    center: DEFAULT_MAP_CENTER_POINT,
+    center: center,
     zoom: DEFAULT_MAP_ZOOM,
   })
 }
@@ -148,7 +153,9 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
-  popupContent.classList.add('flex', 'flex-column', 'padding-4')
+  popupContent.classList.add('flex', 'flex-column', 'padding-4', POPUP_LAYER)
+  popupContent.setAttribute('data-map-id', mapId)
+  popupContent.setAttribute('data-feature-id', featureId)
   if (name) {
     const nameElement = templateContent
       .namedItem(CF_POPUP_CONTENT_LOCATION_NAME)
@@ -267,7 +274,7 @@ const renderMap = (mapId: string, mapData: MapData): MapLibreMap => {
 
   const settings: MapSettings = mapData.settings
   const geoJson: FeatureCollection = mapData.geoJson
-  const map = createMap(mapId)
+  const map = createMap(mapId, geoJson)
 
   const canvas: HTMLCanvasElement = map.getCanvas()
   canvas.setAttribute('aria-label', getMessages().mapRegionAltText)
@@ -365,7 +372,7 @@ const setupEventListenersForMap = (
   const selectedLocationsContainer = mapQuerySelector(
     mapId,
     CF_SELECTED_LOCATIONS_CONTAINER,
-  )
+  ) as HTMLElement
 
   // Change handler for location checkboxes in the locations list
   if (locationsListContainer) {
@@ -390,6 +397,8 @@ const setupEventListenersForMap = (
       const target = e.target as HTMLInputElement
       if (target == null || target.type !== 'checkbox') return
 
+      let nextSelectedLocationFeatureID = null
+
       const featureId = target.getAttribute(DATA_FEATURE_ID)
       if (!target.checked && featureId) {
         updateSelectedMarker(mapElement, featureId, false)
@@ -402,10 +411,39 @@ const setupEventListenersForMap = (
         if (originalCheckbox && originalCheckbox.type === 'checkbox') {
           originalCheckbox.checked = false
         }
+        // move focus to a relevant location
+        const childDivs = selectedLocationsContainer.querySelectorAll(
+          '.' + CF_LOCATION_CHECKBOX,
+        )
+        const elementsArray = Array.from(childDivs)
+
+        // Find the index of element being removed
+        const index = elementsArray.indexOf(target.parentElement as Element)
+
+        // if there is a next location, focus on it
+        if (index + 1 < childDivs.length) {
+          const nextElement = elementsArray[index + 1] as HTMLElement
+          nextSelectedLocationFeatureID =
+            nextElement.getAttribute(DATA_FEATURE_ID)
+        } else if (index - 1 >= 0) {
+          // else if there is a previous location, focus on it
+          const previousElement = elementsArray[index - 1] as HTMLElement
+          nextSelectedLocationFeatureID =
+            previousElement.getAttribute(DATA_FEATURE_ID)
+        } else {
+          // no remaining selected locations so we should focus on container as a whole
+          selectedLocationsContainer.focus()
+        }
       }
 
       updateSelectedLocations(mapId)
       updateOpenPopupButtons(mapId)
+      if (nextSelectedLocationFeatureID) {
+        const nextSelectedLocation = selectedLocationsContainer?.querySelector(
+          `[${DATA_FEATURE_ID}="${nextSelectedLocationFeatureID}"] input[type="checkbox"]`,
+        ) as HTMLElement
+        nextSelectedLocation.focus()
+      }
     })
   }
 
@@ -432,6 +470,7 @@ const setupEventListenersForMap = (
       locationsListContainer.classList.remove(CF_TOGGLE_HIDDEN)
       paginationNav.classList.remove(CF_TOGGLE_HIDDEN)
       locationCount.classList.remove(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId)
     })
   }
 
@@ -443,6 +482,8 @@ const setupEventListenersForMap = (
       mapContainer.classList.remove(CF_TOGGLE_HIDDEN)
       locationsListContainer.classList.add(CF_TOGGLE_HIDDEN)
       paginationNav.classList.add(CF_TOGGLE_HIDDEN)
+      locationCount.classList.add(CF_TOGGLE_HIDDEN)
+      updateViewStatus(mapId, true)
     })
   }
 }
@@ -487,7 +528,7 @@ const updatePopupButtonState = (
   if (!mapContainer) return
 
   const popupButton = mapContainer.querySelector(
-    `[data-map-id="${mapId}"][data-feature-id="${featureId}"]`,
+    `[data-map-id="${mapId}"][data-feature-id="${featureId}"][name=${CF_POPUP_CONTENT_BUTTON}]`,
   ) as HTMLButtonElement
   if (!popupButton) return
 
@@ -521,4 +562,19 @@ const updateOpenPopupButtons = (mapId: string): void => {
   )
 
   popupButton.disabled = !isSelectedButton && maxReached
+}
+
+const updateViewStatus = (mapId: string, toMapView: boolean = false): void => {
+  const statusElement = document.querySelector(
+    `[data-map-id=${mapId}][data-switch-view-status]`,
+  ) as HTMLElement
+  if (statusElement) {
+    statusElement.textContent = toMapView
+      ? localizeString(getMessages().switchToMapViewSr)
+      : localizeString(getMessages().switchToListViewSr)
+    // Clear the text after announcement to prevent navigation to it
+    setTimeout(() => {
+      statusElement.textContent = ''
+    }, 1000)
+  }
 }

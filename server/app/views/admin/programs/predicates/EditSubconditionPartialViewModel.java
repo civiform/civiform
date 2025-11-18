@@ -21,6 +21,7 @@ public record EditSubconditionPartialViewModel(
     long conditionId,
     long subconditionId,
     Optional<String> selectedQuestionType,
+    Optional<String> selectedOperator,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,

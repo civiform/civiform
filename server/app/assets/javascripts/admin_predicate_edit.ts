@@ -1,7 +1,19 @@
 import {HtmxAfterSwapEvent} from './htmx_request'
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
+  // Set in server/app/views/admin/programs/EditPredicatePageView.html
+  static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
+  static NODE_OPERATOR_SELECT_NULL_STATE_ID =
+    'predicate-operator-node-select-null-state'
+  // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
+  static VALUE_INPUT_ID_SUFFIX: string = '-value'
+  static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
+  static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
+  static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
+
+  static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
+
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'subcondition-container' element in this swap
     if (event.target.classList.contains('subcondition-container')) {
@@ -14,6 +26,12 @@ export class AdminPredicateEdit {
           dropdown.removeEventListener('change', this.onScalarDropdownChange)
           dropdown.addEventListener('change', this.onScalarDropdownChange)
         })
+      document
+        .querySelectorAll<HTMLSelectElement>('.cf-predicate-operator-select')
+        .forEach((dropdown: HTMLSelectElement) => {
+          dropdown.removeEventListener('change', this.onOperatorDropdownChange)
+          dropdown.addEventListener('change', this.onOperatorDropdownChange)
+        })
 
       // Trigger change to update operators based on the current scalar selected.
       Array.from(
@@ -22,7 +40,16 @@ export class AdminPredicateEdit {
         const event = new CustomEvent('change', {bubbles: true})
         el.dispatchEvent(event)
       })
+
+      // Trigger change to update values inputs based on the current operator selected.
+      Array.from(
+        document.querySelectorAll('.cf-predicate-operator-select select'),
+      ).forEach((el) => {
+        const event = new CustomEvent('change', {bubbles: true})
+        el.dispatchEvent(event)
+      })
     }
+    AdminPredicateEdit.showNodeOperatorSelectOrNullState()
   }
 
   onPageLoad(): void {
@@ -30,6 +57,11 @@ export class AdminPredicateEdit {
       '.cf-predicate-scalar-select',
       'change',
       AdminPredicateEdit.onScalarDropdownChange,
+    )
+    addEventListenerToElements(
+      '.cf-predicate-operator-select',
+      'change',
+      AdminPredicateEdit.onOperatorDropdownChange,
     )
   }
 
@@ -51,6 +83,209 @@ export class AdminPredicateEdit {
     )
   }
 
+  private static onOperatorDropdownChange(event: Event): void {
+    AdminPredicateEdit.handleOperatorChange(event.target as HTMLSelectElement)
+  }
+
+  private static handleOperatorChange(operatorDropdown: HTMLSelectElement) {
+    // Get the type of operator currently selected.
+    const selectedOperatorValue =
+      operatorDropdown.options[operatorDropdown.options.selectedIndex].value
+    if (!selectedOperatorValue) {
+      return
+    }
+
+    // Get the second value input group associated with this operator.
+    const conditionId = operatorDropdown.getAttribute('data-condition-id')
+    const subconditionId = operatorDropdown.getAttribute('data-subcondition-id')
+    if (!conditionId || !subconditionId) {
+      return
+    }
+    // Construct a "base ID" for the value elements.
+    const valueBaseId = `condition-${conditionId}-subcondition-${subconditionId}`
+
+    AdminPredicateEdit.manageValueInputVisibility(
+      selectedOperatorValue,
+      valueBaseId,
+    )
+    AdminPredicateEdit.manageValueInputFiltering(
+      selectedOperatorValue,
+      valueBaseId,
+    )
+  }
+
+  /**
+   * Depending on whether the user has added conditions in the predicate screen:
+   *    * If yes, then show the normal "Applicant is eligible / Screen is visible if any/all conditions are true" text
+   *    * If no, show the null state text.
+   */
+  private static showNodeOperatorSelectOrNullState(): void {
+    const nodeOperatorSelect = document.getElementById(
+      AdminPredicateEdit.NODE_OPERATOR_SELECT_ID,
+    )
+    if (nodeOperatorSelect) {
+      const nodeOperatorSelectNullState = assertNotNull(
+        document.getElementById(
+          AdminPredicateEdit.NODE_OPERATOR_SELECT_NULL_STATE_ID,
+        ),
+      )
+      if (document.querySelector('#condition-1')) {
+        nodeOperatorSelect.hidden = false
+        nodeOperatorSelectNullState.hidden = true
+      } else {
+        nodeOperatorSelect.hidden = true
+        nodeOperatorSelectNullState.hidden = false
+      }
+    }
+  }
+
+  /**
+   * Manage visibility of value elements, depending on the currently selected operator.
+   * This is used for showing/hiding the second value input for operators that require two values (e.g. BETWEEN),
+   * and for showing/hiding the hint text for CSV input operators (e.g. IN, NOT_IN).
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
+   */
+  private static manageValueInputVisibility(
+    selectedOperatorValue: string,
+    valueBaseId: string,
+  ) {
+    if (!selectedOperatorValue) {
+      return
+    }
+
+    AdminPredicateEdit.manageSecondValueInputVisibility(
+      valueBaseId,
+      selectedOperatorValue,
+    )
+    AdminPredicateEdit.manageValueInputHintVisibility(
+      valueBaseId,
+      selectedOperatorValue,
+    )
+  }
+
+  /**
+   * Manage filtering of value input types, depending on the currently selected operator and question type.
+   * Some question types require different input types for certain operators.
+   * E.g. date questions use date inputs for most operators, but use number inputs for age-based operators.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {string} valueBaseId: The base ID for the value elements. Used to find the correct elements. Format: condition-<conditionId>-subcondition-<subconditionId>
+   */
+  private static manageValueInputFiltering(
+    selectedOperatorValue: string,
+    valueBaseId: string,
+  ) {
+    const secondValueGroupId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
+
+    // Find the HTML elements that are shared across question types:
+    // defaultInput is the first input of the default input type (e.g. date-type for dates)
+    // csvInput is the text field for multi-value operators (IN, NOT_IN)
+    const defaultInputContainer = assertNotNull(
+      document.querySelector('[data-default-input-type][data-first-input]'),
+    ) as HTMLElement
+    const defaultInputField = assertNotNull(
+      defaultInputContainer.querySelector('input.usa-input'),
+    ) as HTMLElement
+    const csvInputContainer = document.querySelector(
+      '[data-csv-input-type]',
+    ) as HTMLElement | undefined
+
+    // For question types that support CSV operators
+    // Depending on the current operator, hide/show the csv input
+    if (
+      defaultInputField.hasAttribute('data-email-value') ||
+      defaultInputField.hasAttribute('data-number-value')
+    ) {
+      this.filterCsvQuestionVisibleInputs(
+        selectedOperatorValue,
+        defaultInputContainer,
+        csvInputContainer!,
+      )
+    }
+
+    // For date values
+    // Depending on the currently selected operator, filter visible input fields
+    // Date operators vs. age operators vs. csv operators use different input fields.
+    if (defaultInputField.hasAttribute('data-date-value')) {
+      const ageInputContainer = assertNotNull(
+        document.querySelector('[data-age-input-type][data-first-input]'),
+      ) as HTMLElement
+      const secondDateInputContainer = assertNotNull(
+        document.querySelector(
+          `#${secondValueGroupId} [data-default-input-type]`,
+        ),
+      ) as HTMLElement
+      const secondAgeInputContainer = assertNotNull(
+        document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
+      ) as HTMLElement
+      this.filterDateQuestionVisibleInputs(
+        selectedOperatorValue,
+        defaultInputContainer,
+        ageInputContainer,
+        secondDateInputContainer,
+        secondAgeInputContainer,
+        csvInputContainer!,
+      )
+    }
+  }
+
+  /**
+   * Hide or show the second value input, depending on the currently selected operator.
+   * For operators requring two values (e.g. BETWEEN), show the second value input. Otherwise, the second value input is hidden and disabled.
+   *    @param {string} valueBaseId: The base ID of the second value element. Used to find the correct element. Format: condition-<conditionId>-subcondition-<subconditionId>
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   */
+  private static manageSecondValueInputVisibility(
+    valueBaseId: string,
+    selectedOperatorValue: string,
+  ) {
+    // Get the input group (for visibility -- this is the surrounding div)
+    const secondValueInputGroupId =
+      valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
+    const secondValueInputGroup = document.getElementById(
+      secondValueInputGroupId,
+    )
+    if (!secondValueInputGroup) {
+      return
+    }
+
+    // Show or hide the second value input based on the selected operator.
+    // Currently only BETWEEN operators require a second value.
+    if (
+      selectedOperatorValue === 'BETWEEN' ||
+      selectedOperatorValue === 'AGE_BETWEEN'
+    ) {
+      AdminPredicateEdit.enableAndShowAll([secondValueInputGroup])
+    } else {
+      AdminPredicateEdit.disableAndHideAll([secondValueInputGroup])
+    }
+  }
+
+  /**
+   * Hide or show the hint text for multiple values input, depending on the operator type
+   * selected. Currently only the IN and NOT_IN operators use this hint.
+   *    @param {string} valueBaseId: The base ID for the value field. Used to find the hint element. Format: condition-<conditionId>-subcondition-<subconditionId>
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   */
+  private static manageValueInputHintVisibility(
+    valueBaseId: string,
+    selectedOperatorValue: string,
+  ) {
+    const valueInputHintId =
+      valueBaseId + AdminPredicateEdit.VALUE_INPUT_HINT_ID_SUFFIX
+    const valueInputHint = document.getElementById(valueInputHintId)
+    if (!valueInputHint) {
+      return
+    }
+
+    // Show or hide the value input hint based on the selected operator.
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
+      valueInputHint.hidden = false
+    } else {
+      valueInputHint.hidden = true
+    }
+  }
   /**
    * Filter the operators available for each scalar type based on the current scalar selected.
    *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
@@ -143,6 +378,120 @@ export class AdminPredicateEdit {
         (operatorOption.value === 'EQUAL_TO' ||
           operatorOption.value === 'NOT_EQUAL_TO'))
     )
+  }
+
+  /**
+   * Set the input type for question value inputs based on the selected operator, between default and CSV.
+   * For CSV operators (IN, NOT_IN), we use a text input to allow comma-separated values.
+   * For all other operators, we use a number input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} defaultInput: The value input element to set the type for.
+   *    @param {HTMLElement} csvInputContainer: The text-format input for CSV values.
+   */
+  private static filterCsvQuestionVisibleInputs(
+    selectedOperatorValue: string,
+    defaultInput: HTMLElement,
+    csvInputContainer: HTMLElement,
+  ) {
+    let hiddenElements = []
+    let shownElements = []
+    if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
+      hiddenElements = [defaultInput]
+      shownElements = [csvInputContainer]
+    } else {
+      hiddenElements = [csvInputContainer]
+      shownElements = [defaultInput]
+    }
+
+    this.disableAndHideAll(hiddenElements)
+    this.enableAndShowAll(shownElements)
+  }
+
+  /**
+   * Set the visible input field for date questions, depending on the selected operator.
+   * For age-based operators, we use a number input. For all other operators, we use a date input.
+   *    @param {string} selectedOperatorValue: The currently selected operator.
+   *    @param {HTMLElement} dateInputContainer: The default (date-format) value input.
+   *    @param {HTMLElement} ageInputContainer: The default (age-format) value input.
+   *    @param {HTMLElement} secondDateInputContainer: The second (date-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} secondAgeInputContainer: The second (age-format) value input - only used for BETWEEN.
+   *    @param {HTMLElement} csvInputContainer: The text-format input for CSV values.
+   */
+  private static filterDateQuestionVisibleInputs(
+    selectedOperatorValue: string,
+    dateInputContainer: HTMLElement,
+    ageInputContainer: HTMLElement,
+    secondDateInputContainer: HTMLElement,
+    secondAgeInputContainer: HTMLElement,
+    csvInputContainer: HTMLElement,
+  ) {
+    const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
+
+    let hiddenElements: HTMLElement[] = []
+    let shownElements: HTMLElement[] = []
+    if (ageOperators.includes(selectedOperatorValue)) {
+      hiddenElements = [
+        dateInputContainer,
+        secondDateInputContainer,
+        csvInputContainer,
+      ]
+      shownElements =
+        selectedOperatorValue === 'AGE_BETWEEN'
+          ? [ageInputContainer, secondAgeInputContainer]
+          : [ageInputContainer]
+    } else if (
+      AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)
+    ) {
+      hiddenElements = [dateInputContainer, ageInputContainer]
+      shownElements = [csvInputContainer]
+    } else {
+      hiddenElements = [
+        ageInputContainer,
+        secondAgeInputContainer,
+        csvInputContainer,
+      ]
+      shownElements =
+        selectedOperatorValue === 'BETWEEN'
+          ? [dateInputContainer, secondDateInputContainer]
+          : [dateInputContainer]
+    }
+
+    this.disableAndHideAll(hiddenElements)
+    this.enableAndShowAll(shownElements)
+  }
+
+  /**
+   * Hide the given HTMLElements from display and set disabled to true.
+   * Also hides and all child elements, if present.
+   */
+  private static disableAndHideAll(elements: HTMLElement[]) {
+    for (const element of elements) {
+      element.setAttribute('disabled', 'disabled')
+      element.hidden = true
+
+      const children: HTMLElement[] = Array.from(element.querySelectorAll('*'))
+      for (const child of children) {
+        child.setAttribute('disabled', 'disabled')
+        child.hidden = true
+      }
+    }
+  }
+
+  /**
+   * Show and enable the given HTMLElements for display
+   * Also shows and enables all child elements, if present.
+   */
+  private static enableAndShowAll(elements: HTMLElement[]) {
+    for (const element of elements) {
+      element.removeAttribute('disabled')
+      element.hidden = false
+
+      const children: HTMLElement[] = Array.from(element.querySelectorAll('*'))
+      for (const child of children) {
+        child.removeAttribute('disabled')
+        child.hidden = false
+      }
+    }
   }
 }
 

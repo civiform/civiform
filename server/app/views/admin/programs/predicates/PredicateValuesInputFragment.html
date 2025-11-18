@@ -1,43 +1,47 @@
 <th:block
-  th:fragment="predicateValues(questionType, valueOptions, valueInputId, hasSelectedQuestion)"
+  th:fragment="predicateValues(questionType, valueOptions, conditionId, subconditionId, hasSelectedQuestion)"
+  th:with="subconditionPrefix=${'condition-' + conditionId + '-subcondition-' + subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
-      >Value(s)<span class="usa-hint--required">*</span></label
+      >[[#{label.predicateValue}]]<span class="usa-hint--required"
+        >*</span
+      ></label
     >
     <th:block
       th:if="${questionType.isPresent()}"
       th:switch="${questionType.get()}"
     >
       <th:block th:case="'Address'">
-        <select
-          class="usa-select"
-          th:id="${valueInputId}"
-          th:name="${valueInputId}"
-        >
-          <option
-            th:each="valueOption: ${valueOptions}"
-            th:value="${valueOption.value()}"
-            th:text="${valueOption.displayText()}"
-            th:selected="${valueOption.selected()}"
-          ></option>
-        </select>
+        <div
+          th:replace="~{::addressValuesInput(${valueOptions}, ${valueInputId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Currency'">
+        <div
+          th:replace="~{::currencyValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Date'">
+        <div
+          th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Email'">
+        <div
+          th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Number'">
+        <div
+          th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+        ></div>
       </th:block>
       <!--TODO (#11662): Remove this th:block once all valid question types have been added. -->
       <th:block th:case="*">
-        <select
-          class="usa-select"
-          th:id="${valueInputId}"
-          th:name="${valueInputId}"
-          th:disabled="${!hasSelectedQuestion}"
-        >
-          <option
-            th:selected="${!hasSelectedQuestion}"
-            th:hidden="${hasSelectedQuestion}"
-          >
-            -Select-
-          </option>
-        </select>
+        <div
+          th:replace="~{::emptyValuesInput(${valueInputId}, ${hasSelectedQuestion})}"
+        ></div>
       </th:block>
     </th:block>
     <th:block th:unless="${questionType.isPresent()}">
@@ -50,10 +54,231 @@
         <option
           th:selected="${!hasSelectedQuestion}"
           th:hidden="${hasSelectedQuestion}"
-        >
-          -Select-
-        </option>
+          th:text="#{option.selectPlaceholder}"
+        ></option>
       </select>
     </th:block>
   </div>
+</th:block>
+
+<!-- QUESTION TYPE FRAGMENTS -->
+
+<!-- Address question type -->
+<th:block th:fragment="addressValuesInput(valueOptions, valueInputId)">
+  <select class="usa-select" th:id="${valueInputId}" th:name="${valueInputId}">
+    <option
+      th:each="valueOption: ${valueOptions}"
+      th:value="${valueOption.value()}"
+      th:text="${valueOption.displayText()}"
+      th:selected="${valueOption.selected()}"
+      address-value
+    ></option>
+  </select>
+</th:block>
+
+<!-- Currency question type -->
+<th:block
+  th:fragment="currencyValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+>
+  <div class="usa-input-group">
+    <div class="usa-input-prefix">$</div>
+    <input
+      class="usa-input"
+      inputmode="decimal"
+      type="currency"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-currency-value
+    />
+  </div>
+
+  <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+    <span class="margin-left-1" th:text="#{content.and}"></span>
+    <div class="usa-input-group">
+      <div class="usa-input-prefix">$</div>
+      <input
+        class="usa-input"
+        inputmode="decimal"
+        type="currency"
+        th:id="${secondValueInputId}"
+        th:name="${secondValueInputId}"
+        required
+        aria-invalid="false"
+        data-currency-value
+      />
+    </div>
+  </div>
+</th:block>
+
+<!-- Date question type -->
+<!-- Support both number and date inputs for age vs. date-based operators -->
+<th:block
+  th:fragment="dateValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+>
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="date"
+      inputmode="numeric"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-date-value
+    />
+  </div>
+  <div data-age-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="number"
+      inputmode="numeric"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+  <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+
+  <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+    <span class="margin-left-1" th:text="#{content.and}"></span>
+    <div data-default-input-type>
+      <input
+        class="usa-input"
+        type="date"
+        inputmode="numeric"
+        th:id="${secondValueInputId}"
+        th:name="${secondValueInputId}"
+        required
+        aria-invalid="false"
+      />
+    </div>
+    <div data-age-input-type>
+      <input
+        class="usa-input"
+        type="number"
+        inputmode="numeric"
+        th:id="${secondValueInputId}"
+        th:name="${secondValueInputId}"
+        required
+        aria-invalid="false"
+      />
+    </div>
+  </div>
+</th:block>
+
+<!-- Email question type -->
+<th:block th:fragment="emailValuesInput(valueInputId, valueInputHintId)">
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="email"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-email-value
+    />
+  </div>
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+</th:block>
+
+<!-- Number question type -->
+<th:block
+  th:fragment="numberValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+>
+  <div
+    class="usa-hint"
+    th:id="${valueInputHintId}"
+    th:text="#{content.multipleValuesInputHint}"
+  ></div>
+  <div data-default-input-type data-first-input>
+    <input
+      class="usa-input"
+      type="number"
+      inputmode="decimal"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+      data-number-value
+    />
+  </div>
+  <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
+  <div data-csv-input-type>
+    <input
+      class="usa-input"
+      type="text"
+      inputmode="text"
+      th:id="${valueInputId}"
+      th:name="${valueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+
+  <div th:id="${secondValueInputGroupId}" class="margin-top-1">
+    <span class="margin-left-1" th:text="#{content.and}"></span>
+    <input
+      class="usa-input"
+      type="number"
+      inputmode="decimal"
+      th:id="${secondValueInputId}"
+      th:name="${secondValueInputId}"
+      required
+      aria-invalid="false"
+    />
+  </div>
+</th:block>
+
+<!-- Unknown question type -->
+<!--TODO (#11662): Remove this fragment once all valid question types have been added. -->
+<th:block th:fragment="emptyValuesInput(valueInputId, hasSelectedQuestion)">
+  <select
+    class="usa-select"
+    th:id="${valueInputId}"
+    th:name="${valueInputId}"
+    th:disabled="${!hasSelectedQuestion}"
+    data-unknown-value
+  >
+    <option
+      th:selected="${!hasSelectedQuestion}"
+      th:hidden="${hasSelectedQuestion}"
+      th:text="#{option.selectPlaceholder}"
+    ></option>
+  </select>
 </th:block>

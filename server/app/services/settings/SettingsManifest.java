@@ -725,8 +725,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * This email address receives error notifications from CiviForm when there is an internal server
    * error or a durable job fails.
    */
-  public Optional<String> getItEmailAddress(RequestHeader request) {
-    return getString("IT_EMAIL_ADDRESS", request);
+  public Optional<String> getItEmailAddress() {
+    return getString("IT_EMAIL_ADDRESS");
   }
 
   /**
@@ -1061,14 +1061,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
-  /** Enables admin validation settings for date questions. */
-  public boolean getDateValidationEnabled() {
-    return getBool("DATE_VALIDATION_ENABLED");
-  }
-
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
   public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
+  }
+
+  /** Enable allowing CiviForm admins to add a map question to their programs. */
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
   }
 
   /**
@@ -1102,14 +1102,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
-   * programs.
-   */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
   }
 
   /**
@@ -2033,7 +2025,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST",
                           "If this is a staging deployment, the application notification email is"
@@ -2329,14 +2321,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "DATE_VALIDATION_ENABLED",
-                          "Enables admin validation settings for date questions.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "Enable allowing CiviForm admins to add a map question to their"
+                              + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2390,13 +2383,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
-                              + " question to their programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.HIDDEN),
                       SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"

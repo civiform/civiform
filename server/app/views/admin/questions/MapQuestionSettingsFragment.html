@@ -1,10 +1,55 @@
 <th:block
+  th:fragment="keyInput(fieldName, setting, possibleKeys, labelKey, helpTextKey)"
+>
+  <div
+    th:with="hasKeyError=${setting.key != null && setting.key != '' && !possibleKeys.contains(setting.key)}"
+    th:class="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
+    data-key-field
+  >
+    <label
+      class="usa-label text-base-dark"
+      th:for="${fieldName + '.key'}"
+      th:inline="text"
+    >
+      <div class="font-body-sm">
+        [[#{${labelKey}}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </div>
+      <div class="font-body-2xs" th:text="#{${helpTextKey}}"></div>
+    </label>
+    <span
+      th:if="${hasKeyError}"
+      class="usa-error-message"
+      role="alert"
+      data-key-error
+      th:text="#{map.keyNotFoundError}"
+    ></span>
+    <select
+      class="usa-select"
+      th:name="${fieldName + '.key'}"
+      th:id="${fieldName + '.key'}"
+      data-key-select
+    >
+      <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+      <option
+        th:each="key: ${possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+        th:selected="${key == setting.key}"
+      ></option>
+    </select>
+  </div>
+</th:block>
+
+<th:block
   th:fragment="filterInput(index, possibleKeys, hxDeleteMapFilterEndpoint, selectedKey, displayNameValue)"
 >
   <div
     class="display-flex flex-justify filter-input"
+    th:classappend="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
     th:data-testid="filter-input"
-    th:with="keyId=|filter-${index}-key|, displayNameId=|filter-${index}-displayName|"
+    th:with="keyId=|filter-${index}-key|, displayNameId=|filter-${index}-displayName|, hasKeyError=${selectedKey != null && selectedKey != '' && !possibleKeys.contains(selectedKey)}"
+    data-key-field
   >
     <div class="width-full">
       <label
@@ -15,11 +60,19 @@
         [[#{map.keyLabel}]]
         <span title="required" class="usa-hint usa-hint--required">*</span>
       </label>
+      <span
+        th:if="${hasKeyError}"
+        class="usa-error-message"
+        role="alert"
+        data-key-error
+        th:text="#{map.keyNotFoundError}"
+      ></span>
       <select
         data-testid="key-select"
         class="usa-select"
         th:name="'filters[' + ${index} + '].key'"
         th:id="${keyId}"
+        data-key-select
       >
         <option value th:text="#{map.selectOptionPlaceholderText}"></option>
         <option
@@ -50,8 +103,10 @@
       class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
       aria-label="Delete filter"
       th:hx-post="${hxDeleteMapFilterEndpoint}"
-      th:hx-target="${'closest div[class*=filter-input]'}"
-      hx-swap="outerHTML"
+      th:hx-vals='|{"filterIndex": ${index}}|'
+      hx-include="closest form"
+      hx-target="#filters"
+      hx-swap="innerHTML"
     >
       <cf:icon type="icon-delete" />
     </button>
@@ -68,6 +123,9 @@
     </legend>
     <div
       th:class="|map-tag-setting-container ${selectedKey != '' ? '' : 'hidden'}|"
+      th:classappend="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
+      th:with="hasKeyError=${selectedKey != null && selectedKey != '' && !possibleKeys.contains(selectedKey)}"
+      data-key-field
     >
       <div
         class="display-flex flex-justify tag-input"
@@ -82,11 +140,19 @@
             [[#{map.keyLabel}]]
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
+          <span
+            th:if="${hasKeyError}"
+            class="usa-error-message"
+            role="alert"
+            data-key-error
+            th:text="#{map.keyNotFoundError}"
+          ></span>
           <select
             data-testid="tag-key-select"
             class="usa-select cf-tag-key-select"
             name="locationTag.key"
             id="tag-key"
+            data-key-select
           >
             <option value th:text="#{map.selectOptionPlaceholderText}"></option>
             <option

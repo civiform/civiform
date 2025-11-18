@@ -19,6 +19,7 @@ public record EditPredicatePageViewModel(
     BlockDefinition blockDefinition,
     PredicateUseCase predicateUseCase,
     ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
+    ImmutableList<EditConditionPartialViewModel> currentAddedConditions,
     boolean hasAvailableQuestions)
     implements EditPredicateBaseViewModel {
 
@@ -58,5 +59,9 @@ public record EditPredicatePageViewModel(
     return routes.AdminProgramBlockPredicatesController.hxEditCondition(
             programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
         .url();
+  }
+
+  public boolean screenHasPredicates() {
+    return this.currentAddedConditions.size() > 0;
   }
 }

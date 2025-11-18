@@ -9,7 +9,7 @@
   <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
     <a
       th:href="${model.blockEditUrl()}"
-      th:text="|Back to edit ${model.blockName()}|"
+      th:text="#{link.backToEditProgramBlock(${model.blockName()})}"
       class="usa-link padding-x-05"
     ></a>
 
@@ -24,15 +24,15 @@
       ></div>
       <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
         <p th:case="'VISIBILITY'" class="margin-top-05">
-          Add or remove conditions for when this screen is shown or hidden.
+          [[#{content.predicateVisibilityDescription}]]
         </p>
         <p th:case="'ELIGIBILITY'" class="margin-top-05">
-          You can add eligibility conditions to determine if an applicant
-          qualifies for the program. Applicants who do not meet the minimum
-          requirements will be blocked from submitting an application. You can
-          change this in the
-          <a th:href="${model.programEditUrl()}" class="usa-link"
-            >program settings</a
+          [[#{content.predicateEligibilityDescription}]]
+          <a
+            th:href="${model.programEditUrl()}"
+            class="usa-link"
+            th:text="#{link.programSettings}"
+          ></a
           >.
         </p>
       </div>
@@ -53,41 +53,63 @@
           class="font-body-xs width-mobile-lg"
           th:switch="${model.predicateUseCase.name()}"
         >
-          <p>
-            <th:block th:case="'VISIBILITY'">
-              This screen is
+          <div
+            th:id="predicate-operator-node-select"
+            th:attr="hidden=${!model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block th:case="'VISIBILITY'">
+                [[#{content.predicateScreenIs}]]
+                <select
+                  class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  name="predicateAction"
+                >
+                  <option
+                    th:each="action : ${model.visibilityActions()}"
+                    th:text="${action.toDisplayString()}"
+                    th:value="${action.name()}"
+                  ></option>
+                </select>
+              </th:block>
+              <th:block th:case="'ELIGIBILITY'">
+                [[#{content.predicateApplicantIsEligible}]]
+                <input
+                  type="hidden"
+                  name="predicateAction"
+                  th:value="${model.eligibilityAction().name()}"
+                />
+              </th:block>
+
               <select
-                class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
-                name="predicateAction"
+                class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
+                name="root-nodeType"
               >
                 <option
-                  th:each="action : ${model.visibilityActions()}"
-                  th:text="${action.toDisplayString()}"
-                  th:value="${action.name()}"
+                  th:each="nodeType : ${model.operatorNodeTypes()}"
+                  th:text="${nodeType.toDisplayString()}"
+                  th:value="${nodeType.name()}"
                 ></option>
               </select>
-            </th:block>
-            <th:block th:case="'ELIGIBILITY'">
-              Applicant is eligible when
-              <input
-                type="hidden"
-                name="predicateAction"
-                th:value="${model.eligibilityAction().name()}"
-              />
-            </th:block>
-
-            <select
-              class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-              name="root-nodeType"
-            >
-              <option
-                th:each="nodeType : ${model.operatorNodeTypes()}"
-                th:text="${nodeType.toDisplayString()}"
-                th:value="${nodeType.name()}"
-              ></option>
-            </select>
-            of the following are true:
-          </p>
+              [[#{content.predicateConditionsAreTrue}]]
+            </p>
+          </div>
+          <div
+            th:id="predicate-operator-node-select-null-state"
+            th:attr="hidden=${model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'VISIBILITY'}"
+              >
+                [[#{content.predicateVisibilityNullState}]]
+              </th:block>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+              >
+                [[#{content.predicateEligibilityNullState}]]
+              </th:block>
+            </p>
+          </div>
         </div>
         <th:block th:if="${model.hasAvailableQuestions}">
           <div
@@ -103,15 +125,22 @@
     </div>
 
     <div class="usa-footer__return-to-top">
-      <a href="#" class="padding-x-05">Back to top</a>
+      <a href="#" class="padding-x-05" th:text="#{link.backToTop}"></a>
     </div>
 
     <div class="border-top border-base-lighter margin-y-2"></div>
 
-    <button type="submit" class="usa-button" form="predicate-form">
-      Save and exit
-    </button>
-    <button type="submit" class="usa-button usa-button--outline">Cancel</button>
+    <button
+      type="submit"
+      class="usa-button"
+      form="predicate-form"
+      th:text="#{button.saveAndExit}"
+    ></button>
+    <button
+      type="submit"
+      class="usa-button usa-button--outline"
+      th:text="#{button.cancel}"
+    ></button>
   </div>
 </th:block>
 

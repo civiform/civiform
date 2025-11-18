@@ -4,14 +4,16 @@
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body" th:switch="${predicateUseCaseName}">
-    <p class="usa-alert__text" th:case="'VISIBILITY'">
-      There are no available questions on preceding screens with which to set a
-      visibility condition for this screen.
-    </p>
-    <p class="usa-alert__text" th:case="'ELIGIBILITY'">
-      There are no available questions with which to set an eligibility
-      condition for this screen.
-    </p>
+    <p
+      class="usa-alert__text"
+      th:case="'VISIBILITY'"
+      th:text="#{alert.predicateNoAvailableQuestionsVisibility}"
+    ></p>
+    <p
+      class="usa-alert__text"
+      th:case="'ELIGIBILITY'"
+      th:text="#{alert.predicateNoAvailableQuestionsEligibility}"
+    ></p>
   </div>
 </div>
 

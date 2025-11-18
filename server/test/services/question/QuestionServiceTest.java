@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -23,6 +24,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.Path;
+import services.TranslationLocales;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -363,5 +365,120 @@ public class QuestionServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> questionService.restoreQuestion(Long.MAX_VALUE))
         .isInstanceOf(InvalidUpdateException.class);
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
+  }
+
+  @Test
+  public void isTranslationComplete_noSupportedLanguages_returnsTrue()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of());
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_allTranslationsPresent_returnsTrue()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "text", Locale.FRANCE, "texte", Locale.JAPAN, "テキスト"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide", Locale.JAPAN, "ヘルプ"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_missingQuestionTextTranslation_returnsFalse()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide", Locale.JAPAN, "ヘルプ"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingQuestionHelpTextTranslation_returnsFalse()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "text", Locale.FRANCE, "texte", Locale.JAPAN, "テキスト"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingOptionTranslation_returnsFalse() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(2L, "admin name", LocalizedStrings.of(Locale.US, "two"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_allOptionsTranslated_returnsTrue() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(
+                        2L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "two", Locale.FRANCE, "deux"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
   }
 }

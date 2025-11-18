@@ -84,9 +84,8 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(content.get(0).render())
         .isEqualTo(
             """
-            <p>Enter your full legal name.<span class="required-indicator text-red-600\
-             font-semibold" aria-hidden="true">\u00a0*</span></p>
-            """);
+<p>Enter your full legal name.<span class="usa-hint--required" aria-hidden="true">\u00a0*</span></p>
+""");
   }
 
   @Test
@@ -104,7 +103,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
             """
-<p>Here is some text.<span class="required-indicator text-red-600 font-semibold" aria-hidden="true"> *</span></p>
+<p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
 <ul class="list-disc mx-8"><li>list item one</li><li>list item two</li></ul>
 """);
 
@@ -121,7 +120,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
             """
-<p>Here is some text.<span class="required-indicator text-red-600 font-semibold" aria-hidden="true"> *</span></p>
+<p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
 <ol class="list-decimal mx-8"><li>list item one</li><li>list item two</li></ol>
 """);
   }
@@ -142,7 +141,7 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
             <ul class="list-disc mx-8"><li>list item one</li><li>list item two</li><li>list item\
-             three<span class="required-indicator text-red-600 font-semibold" aria-hidden="true">\
+             three<span class="usa-hint--required" aria-hidden="true">\
              *</span></li></ul>
             """);
 
@@ -163,7 +162,7 @@ public class TextFormatterTest extends ResetPostgres {
 <li>list item one</li>\
 <li>list item two</li>\
 <li>list item three\
-<span class="required-indicator text-red-600 font-semibold" aria-hidden="true"> *</span>\
+<span class="usa-hint--required" aria-hidden="true"> *</span>\
 </li></ol>
 """);
   }

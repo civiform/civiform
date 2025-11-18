@@ -34,7 +34,7 @@
     </div>
     <!-- Filters -->
     <div
-      th:class="|cf-map-question-filters-container${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+      th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
       th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
     >
       <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
@@ -44,7 +44,8 @@
         ></legend>
         <div
           th:each="filter, i : ${mapQuestion.getFilters()}"
-          class="grid-col flex-align-self-end cf-map-question-filter"
+          class="mobile:width-full flex-align-self-end cf-map-question-filter"
+          th:classappend="${mapQuestion.getFilters().size() > 3} ? 'tablet:grid-col-4' : 'tablet:grid-col'"
         >
           <label
             class="usa-label margin-top-1"
@@ -89,6 +90,13 @@
       class="toggle-buttons-container"
       th:data-map-id="${mapId}"
     >
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        data-switch-view-status
+        class="sr-only"
+        th:data-map-id="${mapId}"
+      ></div>
       <button
         class="usa-button usa-button--base cf-switch-to-map-view-button"
         type="button"
@@ -118,6 +126,7 @@
           th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
           class="text-ink margin-bottom-1 margin-top-1 tablet:margin-top-3 desktop:margin-top-0 cf-location-count"
           th:data-map-id="${mapId}"
+          tabindex="-1"
           th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
         ></div>
         <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
@@ -136,6 +145,12 @@
           aria-label="Location selection"
         >
           <div
+            class="cf-filter-hidden text-gray-50 text-center"
+            data-no-results-found
+            th:data-map-id="${mapId}"
+            th:text="#{map.noResultsFound}"
+          ></div>
+          <div
             th:each="feature, iterator : ${questionRendererParams.geoJson().get().features()}"
             th:with="locationId='location-' + ${mapId} + ${iterator.index},
                       locationName=${feature.properties().get(mapQuestion.getNameValue())},
@@ -144,21 +159,24 @@
                       ariaLabelForNewTabs=#{link.opensNewTabSr},
                       featureId=${feature.id}"
             th:data-feature-id="${featureId}"
-            class="usa-checkbox cf-location-checkbox border-2px border-gray-30 radius-md margin-y-1 padding-x-1 padding-bottom-1"
+            th:data-testid="location-checkbox"
+            class="usa-checkbox cf-location-checkbox position-relative"
           >
             <input
-              class="usa-checkbox__input cf-location-checkbox-input"
+              class="usa-checkbox__input usa-checkbox__input--tile cf-location-checkbox-input"
               th:id="${locationId}"
               th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
               th:name="${mapQuestion.getSelectionPathAsArray()}"
               th:checked="${mapQuestion.locationIsSelected(featureId)}"
               th:data-map-id="${mapId}"
               th:data-feature-id="${featureId}"
+              th:data-testid="location-checkbox-input"
               type="checkbox"
             />
             <label
               class="usa-checkbox__label cf-location-checkbox-label"
               th:for="${locationId}"
+              th:data-testid="location-checkbox-label"
             >
               <div
                 class="text-bold cf-location-checkbox-name"
@@ -292,10 +310,15 @@
         <!-- TODO(#11150): Add map question preview functionality -->
         <div
           th:id="${mapId}"
-          class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-0 tablet:margin-top-3 tablet:margin-top-0"
+          class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-3 tablet:margin-top-0 display-flex flex-align-center flex-justify-center"
           data-testid="map-container"
         >
-          <div th:if="${isPreview}" class="square-mobile"></div>
+          <div
+            th:if="${isPreview}"
+            class="square-mobile display-flex flex-align-center flex-justify-center"
+          >
+            <p th:text="#{map.mapPreviewText}"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -311,7 +334,7 @@
         class="cf-selected-locations-message"
       ></p>
       <div
-        th:if="${mapQuestion.hasTagSetting()}"
+        th:if="${mapQuestion.hasTagText()}"
         class="usa-alert usa-alert--warning cf-map-question-tag-alert cf-map-question-tag-alert-hidden"
         th:data-map-id="${mapId}"
         role="alert"
@@ -324,9 +347,17 @@
         class="cf-selected-locations-container"
         data-testid="selected-locations-list"
         th:data-map-id="${mapId}"
+        tabindex="-1"
       >
         <!-- Selected locations will be dynamically populated here -->
       </div>
+      <div
+        aria-live="assertive"
+        aria-atomic="true"
+        aria-relevant="additions text"
+        class="sr-only cf-max-location-status"
+        th:data-map-id="${mapId}"
+      ></div>
     </div>
     <!-- Template for when there are no selections -->
     <template
@@ -401,6 +432,12 @@
           /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
         locationLinkTextSr:
           /*[[#{map.locationLinkTextSr}]]*/ 'View more details for {0}',
+        switchToMapViewSr:
+          /*[[#{map.switchToMapViewSr}]]*/ 'Switched to map view.',
+        switchToListViewSr:
+          /*[[#{map.switchToListViewSr}]]*/ 'Switched to list view.',
+        maxLocationsSelectedSr:
+          /*[[#{map.maxLocationsSelectedSr}]]*/ 'Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.',
       }
       window.app.data.iconUrls = {
         locationIcon: /*[[${locationIcon}]]*/ '',

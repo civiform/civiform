@@ -69,7 +69,6 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantFileUploadRenderer;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarAddressCorrectionBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
@@ -95,7 +94,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final IneligibleBlockView ineligibleBlockView;
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
@@ -122,7 +120,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Config configuration,
       SettingsManifest settingsManifest,
       ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      IneligibleBlockView ineligibleBlockView,
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView,
@@ -142,7 +139,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
@@ -1747,37 +1743,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    // TODO(#11573): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      return supplyAsync(
-          () -> {
-            NorthStarApplicantIneligibleView.Params params =
-                NorthStarApplicantIneligibleView.Params.builder()
-                    .setRequest(request)
-                    .setApplicantId(applicantId)
-                    .setProfile(profile)
-                    .setApplicantPersonalInfo(personalInfo)
-                    .setProgramDefinition(programDefinition)
-                    .setBlockDefinition(blockDefinition)
-                    .setRoApplicantProgramService(roApplicantProgramService)
-                    .setMessages(messagesApi.preferred(request))
-                    .build();
-            return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-          });
-    } else {
-      return supplyAsync(
-          () -> {
-            return ok(
-                ineligibleBlockView.render(
-                    request,
-                    profile,
-                    roApplicantProgramService,
-                    messagesApi.preferred(request),
-                    applicantId,
-                    programDefinition,
-                    blockDefinition));
-          });
-    }
+    return supplyAsync(
+        () -> {
+          NorthStarApplicantIneligibleView.Params params =
+              NorthStarApplicantIneligibleView.Params.builder()
+                  .setRequest(request)
+                  .setApplicantId(applicantId)
+                  .setProfile(profile)
+                  .setApplicantPersonalInfo(personalInfo)
+                  .setProgramDefinition(programDefinition)
+                  .setBlockDefinition(blockDefinition)
+                  .setRoApplicantProgramService(roApplicantProgramService)
+                  .setMessages(messagesApi.preferred(request))
+                  .build();
+          return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+        });
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1979,7 +1959,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantRoutes(applicantRoutes)
         .setProfile(profile)
         .setBlockList(roApplicantProgramService.getAllActiveBlocks())
-        .setEligibilityAlertSettings(eligibilityAlertSettings);
+        .setEligibilityAlertSettings(eligibilityAlertSettings)
+        .setLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(

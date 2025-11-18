@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
-import java.util.Set;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -34,8 +34,8 @@ public final class ApiBridgeProcessor {
   private final ObjectMapper mapper;
   private final RequestPayloadMapper requestPayloadMapper;
   private final ResponsePayloadMapper responsePayloadMapper;
-  private final JsonSchemaFactory jsonSchemaFactory =
-      JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+  private final SchemaRegistry jsonSchemaFactory =
+      SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
 
   @Inject
   public ApiBridgeProcessor(
@@ -146,7 +146,7 @@ public final class ApiBridgeProcessor {
 
   /** Validate payload against the json schema definition */
   private boolean isRequestValid(ImmutableMap<String, Object> payload, String schema) {
-    JsonSchema jsonSchema = jsonSchemaFactory.getSchema(schema);
+    Schema jsonSchema = jsonSchemaFactory.getSchema(schema);
     var validationMessages =
         jsonSchema.validate(JsonUtils.writeValueAsString(mapper, payload), InputFormat.JSON);
     return validationMessages.isEmpty();
@@ -166,16 +166,14 @@ public final class ApiBridgeProcessor {
       throw new ApiBridgeProcessingException("An error occurred calling endpoint.");
     }
 
-    JsonSchema jsonSchema = jsonSchemaFactory.getSchema(bridgeConfig.responseSchema());
-    Set<ValidationMessage> validationMessages =
+    Schema jsonSchema = jsonSchemaFactory.getSchema(bridgeConfig.responseSchema());
+    List<Error> validationMessages =
         jsonSchema.validate(
             JsonUtils.writeValueAsString(mapper, response.getResult().payload()), InputFormat.JSON);
 
     if (!validationMessages.isEmpty()) {
       String errorMessage =
-          validationMessages.stream()
-              .map(ValidationMessage::getMessage)
-              .collect(Collectors.joining("\n"));
+          validationMessages.stream().map(Error::getMessage).collect(Collectors.joining("\n"));
 
       log.error(errorMessage);
       throw new ApiBridgeProcessingException("Response payload does not match schema.");

@@ -10,6 +10,7 @@ import java.util.Optional;
 import services.MessageKey;
 import services.ObjectMapperSingleton;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
@@ -17,9 +18,11 @@ import services.question.types.MapQuestionDefinition;
 
 // TODO(#11003): Build out map question.
 public final class MapQuestion extends AbstractQuestion {
+  private ApplicantData applicantData;
 
   MapQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
+    applicantData = applicantQuestion.getApplicant().getApplicantData();
   }
 
   @Override
@@ -59,7 +62,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public ImmutableList<LocalizedQuestionSetting> getFilters() {
-    return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+    return getFilters(applicantData.preferredLocale());
   }
 
   /**
@@ -78,31 +81,30 @@ public final class MapQuestion extends AbstractQuestion {
 
   public String getNameValue() {
     return getSettingKey(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
+        applicantData.preferredLocale(), MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
   }
 
   public String getAddressValue() {
     return getSettingKey(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
+        applicantData.preferredLocale(), MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
   }
 
   public String getDetailsUrlValue() {
     return getSettingKey(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+        applicantData.preferredLocale(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
   }
 
   public LocalizedQuestionSetting getTagSetting() {
-    return getSetting(
-            applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-            MapSettingType.LOCATION_TAG_GEO_JSON_KEY)
+    return getSetting(applicantData.preferredLocale(), MapSettingType.LOCATION_TAG_GEO_JSON_KEY)
         .orElse(null);
   }
 
   public boolean hasTagSetting() {
     return getTagSetting() != null;
+  }
+
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
   }
 
   public String getTagKey() {
@@ -147,7 +149,7 @@ public final class MapQuestion extends AbstractQuestion {
 
   private ImmutableList<Map<String, String>> getSelectedLocations() {
     Optional<ImmutableList<String>> selectedLocationsString =
-        applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+        applicantData.readStringList(getSelectionPath());
 
     return selectedLocationsString
         .map(
