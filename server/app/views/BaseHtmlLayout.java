@@ -134,7 +134,7 @@ public class BaseHtmlLayout {
     // Add default stylesheets.
     bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
-    if (settingsManifest.getMapQuestionEnabled()) {
+    if (settingsManifest.getMapQuestionEnabled(bundle.getRequest())) {
       bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
     }
 
