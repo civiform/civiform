@@ -1,0 +1,137 @@
+#! /usr/bin/env python3
+
+import os
+import requests
+import sys
+
+# DOC: Generate release notes for CiviForm. Usage: bin/generate-release-notes CIVIFORM_COMMIT_SHA RELEASE_NUMBER CLOUD_DEPLOY_INFRA_SHA
+#
+# Requirements:
+#   Must have a GitHub API token with `repo` and `read:org` scopes located at 'gh-release-token.txt' or
+#   in the GH_TOKEN environment variable.
+#
+# This script generates combined release notes from both civiform and cloud-deploy-infra repositories.
+
+GH_RELEASE_TOKEN_FILENAME = 'gh-release-token.txt'
+GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
+
+
+def main():
+    if len(sys.argv) != 4:
+        print(
+            'Usage: bin/generate-release-notes CIVIFORM_COMMIT_SHA RELEASE_NUMBER CLOUD_DEPLOY_INFRA_SHA',
+            file=sys.stderr)
+        exit(1)
+
+    if not os.path.exists(GH_RELEASE_TOKEN_FILENAME
+                         ) and not GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
+        print(
+            f'''
+        {GH_RELEASE_TOKEN_FILENAME} not found in project base directory and {GH_RELEASE_TOKEN_ENV_VAR_NAME} not found in env
+        Create classic token with `repo` and `read:org` scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+    ''',
+            file=sys.stderr)
+        exit(1)
+
+    civiform_commit_sha = sys.argv[1]
+    release_number = sys.argv[2]
+    civiform_cloud_deploy_infra_commit_sha = sys.argv[3]
+
+    ################################################################################
+    # Resolve and validate GitHub token
+    ################################################################################
+
+    if GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
+        gh_token = os.environ[GH_RELEASE_TOKEN_ENV_VAR_NAME]
+    else:
+        with open(GH_RELEASE_TOKEN_FILENAME, 'r') as file:
+            gh_token = file.read().rstrip()
+
+    # Shared headers for all GitHub API requests
+    github_api_headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': f'token {gh_token}'
+    }
+
+    ################################################################################
+    # Generate release notes
+    ################################################################################
+
+    print('Generating cloud-deploy-infra release notes')
+
+    # Get the previous tag from cloud-deploy-infra to scope release notes
+    # Github automatically scopes the release notes to the previous release. But since there are no releases in cloud-deploy-infra, we have to do it manually by finding the most recent tag and using that as the previous tag.
+    get_tags_url = 'https://api.github.com/repos/civiform/cloud-deploy-infra/tags'
+    tags_response = requests.get(get_tags_url, headers=github_api_headers)
+
+    # Only generate cloud-deploy-infra release notes if we successfully got tags and there's at least one
+    if tags_response.status_code == 200:
+        generate_cloud_infra_notes_url = 'https://api.github.com/repos/civiform/cloud-deploy-infra/releases/generate-notes'
+        generate_cloud_infra_notes_body = {
+            'tag_name': release_number,
+            'target_commitish': civiform_cloud_deploy_infra_commit_sha,
+        }
+
+        tags = tags_response.json()
+        cloud_deploy_infra_notes = "No changes in cloud-deploy-infra since the last release."
+        if len(tags) > 0:
+            # Tags are returned in chronological order (most recent first)
+            previous_tag = tags[0]['name']
+            generate_cloud_infra_notes_body['previous_tag_name'] = previous_tag
+            print(f'Scoping cloud-deploy-infra notes from {previous_tag} to {release_number}', file=sys.stderr)
+            cloud_infra_response = requests.post(
+                generate_cloud_infra_notes_url,
+                json=generate_cloud_infra_notes_body,
+                headers=github_api_headers)
+            if cloud_infra_response.status_code != 200:
+                print(
+                    'GitHub request failed with status code: ' +
+                    str(cloud_infra_response.status_code),
+                    file=sys.stderr)
+                response_json = cloud_infra_response.json()
+                if 'message' in response_json:
+                    print(response_json['message'], file=sys.stderr)
+                exit(2)
+
+            cloud_deploy_infra_notes = cloud_infra_response.json()["body"]
+        else:
+            print('No previous tags found, not generating cloud-deploy-infra release notes', file=sys.stderr)
+
+    print('Generating CiviForm release notes', file=sys.stderr)
+
+    generate_civiform_notes_url = 'https://api.github.com/repos/civiform/civiform/releases/generate-notes'
+    generate_civiform_notes_body = {
+        'tag_name': release_number,
+        'target_commitish': civiform_commit_sha,
+    }
+
+    civiform_notes_response = requests.post(
+        generate_civiform_notes_url,
+        json=generate_civiform_notes_body,
+        headers=github_api_headers)
+
+    if civiform_notes_response.status_code != 200:
+        print(
+            'GitHub request failed with status code: ' +
+            str(civiform_notes_response.status_code),
+            file=sys.stderr)
+        response_json = civiform_notes_response.json()
+        if 'message' in response_json:
+            print(response_json['message'], file=sys.stderr)
+        exit(2)
+
+    civiform_notes = civiform_notes_response.json()["body"]
+
+    # Combine both sets of release notes
+    combined_notes = f"""{civiform_notes}
+
+## Cloud Deploy Infrastructure Changes
+
+{cloud_deploy_infra_notes}"""
+
+    # Output the combined notes to stdout (so it can be captured)
+    print(combined_notes)
+
+
+if __name__ == '__main__':
+    main()
