@@ -237,13 +237,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
-    await test.step('Delete condition and re-validate null state', async() => {
-      await adminPredicates.clickDeleteConditionButton(1);
+    await test.step('Delete condition and re-validate null state', async () => {
+      await adminPredicates.clickDeleteConditionButton(1)
 
       await waitForHtmxReady(page)
 
-      await adminPredicates.expectNoCondition(1);
-      await adminPredicates.expectAddConditionButton();
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.expectAddConditionButton()
       await expect(
         page.locator('#predicate-operator-node-select-null-state'),
       ).toBeVisible()

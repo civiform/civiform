@@ -229,9 +229,7 @@ export class AdminPredicates {
   }
 
   async expectNoCondition(conditionId: number) {
-    await expect(
-      this.page.getByText('Condition ' + conditionId),
-    ).toBeHidden()
+    await expect(this.page.getByText('Condition ' + conditionId)).toBeHidden()
   }
 
   async expectSubcondition(conditionId: number, subconditionId: number) {
