@@ -236,6 +236,27 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         'edit-visibility-predicate',
       )
     })
+
+    await test.step('Delete condition and re-validate null state', async() => {
+      await adminPredicates.clickDeleteConditionButton(1);
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectNoCondition(1);
+      await adminPredicates.expectAddConditionButton();
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toBeVisible()
+      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toContainText('This screen is always shown')
+
+      await validateScreenshot(
+        page.locator('#edit-predicate'),
+        'visibility-predicate-null-state',
+      )
+    })
   })
 
   test('Populate predicate values across question types', async ({

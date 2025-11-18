@@ -15,8 +15,8 @@
           type="button"
           class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
           th:hx-post="${model.hxDeleteConditionEndpoint()}"
+          th:hx-vals='|{"conditionId": "${model.conditionId}"}|'
           hx-target="#predicate-conditions-list"
-          hx-swap="innerHTML"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

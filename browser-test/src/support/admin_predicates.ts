@@ -75,6 +75,13 @@ export class AdminPredicates {
     await this.page.getByRole('button', {name: 'Add condition'}).click()
   }
 
+  async clickDeleteConditionButton(conditionId: number) {
+    await this.page
+      .getByRole('button', {name: 'Delete condition'})
+      .nth(conditionId - 1)
+      .click()
+  }
+
   async clickAddSubconditionButton(conditionId: number) {
     await this.page
       .getByRole('button', {name: 'Add sub-condition'})
@@ -221,6 +228,12 @@ export class AdminPredicates {
     await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
   }
 
+  async expectNoCondition(conditionId: number) {
+    await expect(
+      this.page.getByText('Condition ' + conditionId),
+    ).toBeHidden()
+  }
+
   async expectSubcondition(conditionId: number, subconditionId: number) {
     await expect(
       this.page.getByLabel('Question', {
@@ -233,6 +246,12 @@ export class AdminPredicates {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
     ).toBeHidden()
+  }
+
+  async expectAddConditionButton() {
+    await expect(
+      this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeVisible()
   }
 
   async expectHtmxError() {
