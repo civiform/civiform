@@ -130,7 +130,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
+    return reviewInternal(request, applicantId, programParam, isFromUrlCall);
+  }
 
+  public CompletionStage<Result> reviewInternal(
+      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -296,16 +301,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Long applicantIdValue = applicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                reviewWithApplicantId(
-                    request,
-                    applicantIdValue,
-                    Long.toString(programId),
-                    /* isFromUrlCall= */ false));
+    return reviewInternal(request, applicantId.get(), programParam, isFromUrlCall);
   }
 
   /**

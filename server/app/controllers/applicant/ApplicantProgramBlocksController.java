@@ -160,8 +160,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Handles rending a block for TIs applying on behalf of clients and CiviForm admins previewing
-   * programs.
+   * Renders a block for TIs applying on behalf of clients and CiviForm admins previewing programs.
    *
    * <p>See {@link #edit}.
    */
@@ -246,8 +245,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Handles rending a block for TIs applying on behalf of clients and CiviForm admins previewing
-   * programs.
+   * Renders a block for TIs applying on behalf of clients and CiviForm admins previewing programs.
    *
    * <p>See {@link #review}.
    */
