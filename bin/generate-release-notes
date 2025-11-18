@@ -54,7 +54,7 @@ def main():
     }
 
     ################################################################################
-    # Generate release notes
+    # Generate cloud-deploy-infra release notes
     ################################################################################
 
     print('Generating cloud-deploy-infra release notes')
@@ -97,6 +97,10 @@ def main():
         else:
             print('No previous tags found, not generating cloud-deploy-infra release notes', file=sys.stderr)
 
+    ################################################################################
+    # Generate civiform release notes
+    ################################################################################
+
     print('Generating CiviForm release notes', file=sys.stderr)
 
     generate_civiform_notes_url = 'https://api.github.com/repos/civiform/civiform/releases/generate-notes'
@@ -122,16 +126,17 @@ def main():
 
     civiform_notes = civiform_notes_response.json()["body"]
 
+    ################################################################################
     # Combine both sets of release notes
+    ################################################################################
+
     combined_notes = f"""{civiform_notes}
 
 ## Cloud Deploy Infrastructure Changes
 
 {cloud_deploy_infra_notes}"""
 
-    # Output the combined notes to stdout (so it can be captured)
     print(combined_notes)
-
 
 if __name__ == '__main__':
     main()
