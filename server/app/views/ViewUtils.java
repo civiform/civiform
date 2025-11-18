@@ -234,8 +234,7 @@ public final class ViewUtils {
 
   public static SpanTag requiredQuestionIndicator(Boolean isVisible) {
     return span(rawHtml("&nbsp;*"))
-        .withClasses(
-            "required-indicator", "text-red-600", "font-semibold", isVisible ? "" : "hidden")
+        .withClasses("usa-hint--required", isVisible ? "" : "hidden")
         .attr("aria-hidden", true);
   }
 

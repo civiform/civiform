@@ -12,7 +12,9 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.BlockEligibilityMessageForm;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -83,6 +85,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+
+  /** Value to track how many predicates are currently present on the page. */
+  private final List<EditConditionPartialViewModel> topLevelConditions = new ArrayList<>();
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -166,6 +171,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
                 .operatorScalarMap(getOperatorScalarMap())
+                .currentAddedConditions(ImmutableList.copyOf(this.topLevelConditions))
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);

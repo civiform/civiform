@@ -927,6 +927,12 @@
         "description": "Remove the CSV/JSON/PDF download capability for Program Admins.",
         "type": "bool",
         "required": false
+      },
+      "MAP_QUESTION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable allowing CiviForm admins to add a map question to their programs.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -965,12 +971,6 @@
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "MAP_QUESTION_ENABLED": {
-        "mode": "HIDDEN",
-        "description": "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
       },
