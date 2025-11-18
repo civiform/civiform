@@ -235,8 +235,8 @@ public class AccountModelTest extends ResetPostgres {
     account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
     account.save();
 
-    Optional<ApplicantModel> newestOptTest = account.representativeApplicant();
-    assertThat(newestOptTest).isPresent();
-    assertThat(newestOptTest.get().id).isEqualTo(applicantOlder.id);
+    Optional<ApplicantModel> optionalGot = account.representativeApplicant();
+    assertThat(optionalGot).isPresent();
+    assertThat(optionalGot.get().id).isEqualTo(applicantOlder.id);
   }
 }

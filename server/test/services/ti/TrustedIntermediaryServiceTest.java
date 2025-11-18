@@ -368,7 +368,6 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   public void editTiClientInfo_AllPass_NameEmailUpdate() throws ApplicantNotFoundException {
     AccountModel account = setupTiClientAccount("emailOld", tiGroup);
     ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
-    addGuestApplicant(account, "2022-07-08");
 
     Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(CLIENT_DATA);
     Form<TiClientInfoForm> form =

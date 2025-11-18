@@ -94,8 +94,9 @@ public class AccountModel extends BaseModel {
   /**
    * Returns the representative applicant for the Account.
    *
-   * <p>Accounts ideally have 1 Applicant but Guests are merged into an Account when they log in;
-   * through at least Nov 2025. The Oldest Applicant is used as it contains the more longevity.
+   * <p>Accounts can have multiple Applicants because Guest applicants are merged into an existing
+   * Account when they log in. The Oldest Applicant is used to consolidate the users data as it
+   * contains the most longevity.
    *
    * <p>More info:
    * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
@@ -203,9 +204,11 @@ public class AccountModel extends BaseModel {
    * Returns the name, as a string, of the oldest created Applicant associated with this Account. Or
    * the email if no name is associated with the applicant.
    *
-   * <p>We select the oldest as the system endeavors to have 1 applicant per Account however Guests
-   * logging in currently create the situation of additional ones that will be newer. As of Nov 2025
-   * work is being done to make the oldest Applicant the source of truth. See:
+   * <p>Accounts can have multiple Applicants because Guest applicants are merged into an existing
+   * Account when they log in. The Oldest Applicant is used to consolidate the users data as it
+   * contains the most longevity.
+   *
+   * <p>More info:
    * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
   public String getApplicantDisplayName() {
