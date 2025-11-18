@@ -674,6 +674,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       long subconditionId = form.get().getSubconditionId();
       Optional<QuestionDefinition> selectedQuestion =
           getSelectedQuestion(request, conditionId, subconditionId, availableQuestions);
+
+      // Condition should already be present.
+      EditConditionPartialViewModel condition = this.topLevelConditions.get(conditionId);
+      if (condition == null) {
+        throw new PredicateDefinitionNotFoundException(programId, blockDefinitionId, conditionId);
+      }
+
       EditSubconditionPartialViewModel subcondition =
           EditSubconditionPartialViewModel.builder()
               .programId(programId)
@@ -695,13 +702,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                       .orElse(ImmutableList.of()))
               .build();
 
-      // Update subconditions map with new subcondition.
-      EditConditionPartialViewModel condition = this.topLevelConditions.get(conditionId);
-
-      if (condition == null) {
-        throw new PredicateDefinitionNotFoundException(programId, blockDefinitionId, conditionId);
-      }
-
+      // Update subconditions list within the top-level predicate.
       ArrayList<EditSubconditionPartialViewModel> subconditionsList =
           new ArrayList<>(condition.subconditions());
 
@@ -712,7 +713,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       }
       condition =
           condition.toBuilder().subconditions(ImmutableList.copyOf(subconditionsList)).build();
-      this.topLevelConditions.put(conditionId, condition);
+      this.topLevelConditions.replace(conditionId, condition);
 
       return ok(editSubconditionPartialView.render(request, subcondition)).as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
