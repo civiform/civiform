@@ -10,6 +10,10 @@ test.describe('login only program', () => {
     await test.step('create new program and verify default', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('default program')
+      await adminPrograms.goToProgramDescriptionPage(
+        'default program',
+        ProgramLifecycle.DRAFT,
+      )
       await adminPrograms.expectLoginOnlyProgramIsChecked(false)
     })
   })
