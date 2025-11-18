@@ -57,7 +57,7 @@ def main():
     # Generate cloud-deploy-infra release notes
     ################################################################################
 
-    print('Generating cloud-deploy-infra release notes')
+    print('Generating cloud-deploy-infra release notes', file=sys.stderr)
 
     # Get the previous tag from cloud-deploy-infra to scope release notes
     # Github automatically scopes the release notes to the previous release. But since there are no releases in cloud-deploy-infra, we have to do it manually by finding the most recent tag and using that as the previous tag.
