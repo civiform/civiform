@@ -18,7 +18,7 @@ import sys
 # When successful, this script:
 #   1. tags the git commit for the release with the release number
 #   2. tags the docker image for the release with the release number
-#   3. creates a new draft release on github that includes release notes that are generated from both civiform and cloud-deploy-infra changes
+#   3. creates a new draft release on github
 #
 # The labels included in the body of the release notes are managed by:
 #    https://github.com/civiform/civiform/blob/main/.github/release.yml
@@ -42,7 +42,7 @@ GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
 
 
 def main():
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         print(
             'Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER',
             file=sys.stderr)
@@ -82,15 +82,9 @@ def main():
         with open(GH_RELEASE_TOKEN_FILENAME, 'r') as file:
             gh_token = file.read().rstrip()
 
-    # Shared headers for all GitHub API requests
-    github_api_headers = {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': f'token {gh_token}'
-    }
-
     check_gh_auth_response = requests.get(
         'https://api.github.com/repos/civiform/civiform',
-        headers=github_api_headers)
+        headers={'Authorization': f'token {gh_token}'})
     if check_gh_auth_response.status_code != 200:
         print(
             f'GitHub API auth failed, status code: {str(check_gh_auth_response.status_code)}',
@@ -214,10 +208,15 @@ def main():
     else:
         create_release_body['generate_release_notes'] = True
 
+    create_release_headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': f'token {gh_token}'
+    }
+
     response = requests.post(
         create_release_url,
         json=create_release_body,
-        headers=github_api_headers)
+        headers=create_release_headers)
     if response.status_code != 201:
         print(
             'GitHub request failed with status code: ' +
