@@ -37,7 +37,7 @@ jobs:
       - name: Run bin/generate-release-notes
         id: release_notes
         run: |
-          RELEASE_NOTES=$(GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/generate-release-notes ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }} ${{ github.event.inputs.cloud_deploy_infra_sha }})
+          RELEASE_NOTES=$(GH_TOKEN=${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }} bin/generate-release-notes ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }} ${{ github.event.inputs.cloud_deploy_infra_sha }})
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
