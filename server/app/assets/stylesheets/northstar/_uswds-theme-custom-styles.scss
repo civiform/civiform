@@ -189,8 +189,12 @@ it is around the label */
 }
 
 // Tailwind removes list style from unordered and ordered lists.
-.usa-list {
+ul.usa-list {
   list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
 }
 
 .content-spacing {
