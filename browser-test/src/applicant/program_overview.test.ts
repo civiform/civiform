@@ -427,3 +427,70 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     )
   })
 })
+
+test.describe(
+  'Applicant program overview for login only program',
+  {tag: ['@northstar']},
+  () => {
+    const programName = 'loginonly'
+
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await test.step('create a new program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.setProgramToLoginOnly(true)
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+    })
+
+    test('login only program has no start application button when entering as guest', async ({
+      page,
+    }) => {
+      const programName = 'loginonly'
+
+      await page.goto(`/programs/${programName}`)
+      await expect(
+        page.getByRole('link', {name: 'Start an application'}).first(),
+      ).toBeHidden()
+
+      await expect(
+        page.getByRole('button', {name: 'Start application as a guest'}),
+      ).toBeHidden()
+
+      // there is a link and button with the same name, check both
+      await expect(
+        page
+          .getByRole('button', {name: 'Start application with an account'})
+          .first(),
+      ).toBeVisible()
+
+      await expect(
+        page
+          .getByRole('link', {name: 'Start application with an account'})
+          .first(),
+      ).toBeVisible()
+
+      // login only create account message
+      await expect(
+        page.getByLabel(
+          'For your information: To access your application later, you must create an account',
+        ),
+      ).toBeVisible()
+    })
+    test('login only program has start application button when entering as a logged in user', async ({
+      page,
+    }) => {
+      const programName = 'loginonly'
+
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+
+      await expect(
+        page.getByRole('link', {name: 'Start an application'}).first(),
+      ).toBeVisible()
+    })
+  },
+)
