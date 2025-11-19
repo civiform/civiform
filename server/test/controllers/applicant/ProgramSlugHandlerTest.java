@@ -181,9 +181,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    // With North Star always enabled, should show program overview page
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
@@ -218,13 +219,14 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    // With North Star always enabled, should show program overview page
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenApplicationStarted_loadsProgramOverview() {
+  public void showProgram_whenApplicationStarted_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
@@ -272,7 +274,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenNoApplication_loadsProgramOverview() {
+  public void showProgram_whenNoApplication_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
@@ -315,7 +317,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenApplicationSubmitted_loadsProgramOverview() {
+  public void showProgram_whenApplicationSubmitted_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
@@ -363,7 +365,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgramPreview_withNorthStarEnabled_loadsProgramOverview() {
+  public void showProgramPreview_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 

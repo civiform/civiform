@@ -254,7 +254,7 @@ public final class ProgramSlugHandler {
     }
 
     // If the program is disabled, redirect to review page which will trigger the
-    // ProgramDisabledAction. Otherwise, always show the North Star program overview.
+    // ProgramDisabledAction. Otherwise, always show the program overview.
     if (activeProgramDefinition.displayMode() == DisplayMode.DISABLED) {
       return redirectToReviewPage(
           controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
