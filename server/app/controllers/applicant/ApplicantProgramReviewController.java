@@ -169,8 +169,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                   request,
                                   profileUtils.currentUserProfile(request).isTrustedIntermediary(),
                                   !roApplicantProgramService.isApplicationNotEligible(),
-                                  // TODO(#11571): North star clean up
-                                  settingsManifest.getNorthStarApplicantUi(),
                                   false,
                                   programId,
                                   roApplicantProgramService.getIneligibleQuestions());
