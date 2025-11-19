@@ -1,5 +1,30 @@
+import {Page} from 'playwright'
 import {test, expect} from './support/civiform_fixtures'
 import {loginAsAdmin} from './support'
+import {loginAsProgramAdmin} from './support'
+import {loginAsTrustedIntermediary} from './support'
+import {logout} from './support'
+
+async function expectAdminDashboard(page: Page) {
+  await expect(
+    page.getByRole('heading', {name: 'Program dashboard'}),
+  ).toBeAttached()
+  await expect(
+    page.getByRole('heading', {name: 'Create, edit and publish programs'}),
+  ).toBeAttached()
+}
+
+async function expectProgramAdminDashboard(page: Page) {
+  await expect(
+    page.getByRole('heading', {name: 'Your programs', exact: true}),
+  ).toBeAttached()
+}
+
+async function expectTiDashboard(page: Page) {
+  await expect(
+    page.getByRole('heading', {name: 'All clients', exact: true}),
+  ).toBeAttached()
+}
 
 test.describe(
   'applicant security',
@@ -22,19 +47,74 @@ test.describe(
         }),
       ).toBeAttached()
     })
+  },
+)
 
-    test('redirects to program dashboard when logged in as admin', async ({
+test.describe(
+  'non applicant security',
+  {tag: ['@parallel-candidate', '@northstar']},
+  () => {
+    const program1 = 'Test program 1'
+
+    test.beforeEach('Setup program', async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(program1)
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(program1)
+      await logout(page)
+    })
+
+    test('redirects to program dashboard when logged in as CiviForm admin', async ({
       page,
     }) => {
       await loginAsAdmin(page)
       await page.goto('/')
 
-      await expect(
-        page.getByRole('heading', {name: 'Program dashboard'}),
-      ).toBeAttached()
-      await expect(
-        page.getByRole('heading', {name: 'Create, edit and publish programs'}),
-      ).toBeAttached()
+      await expectAdminDashboard(page)
+    })
+
+    test('redirects to program dashboard when deep linking as CiviForm admin', async ({
+      page,
+    }) => {
+      await loginAsAdmin(page)
+      await page.goto('/programs/' + program1)
+
+      await expectAdminDashboard(page)
+    })
+
+    test('redirects to program dashboard when logged in as Program admin', async ({
+      page,
+    }) => {
+      await loginAsProgramAdmin(page)
+      await page.goto('/')
+
+      await expectProgramAdminDashboard(page)
+    })
+
+    test('redirects to program dashboard when deep linking as Program admin', async ({
+      page,
+    }) => {
+      await loginAsProgramAdmin(page)
+      await page.goto('/programs/' + program1)
+
+      await expectProgramAdminDashboard(page)
+    })
+
+    test('redirects to TI dashboard when logged in as TI', async ({page}) => {
+      await loginAsTrustedIntermediary(page)
+      await page.goto('/')
+
+      await expectTiDashboard(page)
+    })
+
+    test('redirects to TI dashboard when deep linking as TI', async ({
+      page,
+    }) => {
+      await loginAsTrustedIntermediary(page)
+      await page.goto('/programs/' + program1)
+
+      await expectTiDashboard(page)
     })
   },
 )
