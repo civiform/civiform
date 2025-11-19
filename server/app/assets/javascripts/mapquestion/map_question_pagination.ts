@@ -15,7 +15,6 @@ const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
   '.cf-pagination-overflow-template'
-const CF_PAGINATION = 'cf-pagination'
 const CF_PAGINATION_ITEM_SELECTOR = '.cf-pagination-item'
 const CF_PAGINATION_LIST_SELECTOR = '.cf-pagination-list'
 const CF_PAGINATION_STATUS_SELECTOR = '.cf-pagination-status'
@@ -103,13 +102,13 @@ const updateVisibleLocations = (
 
   // Hide all checkboxes first, but preserve the CF_FILTER_HIDDEN class for filtered items
   allCheckboxes.forEach((checkbox) => {
-    const checkboxElement = checkbox as HTMLElement
+    const checkboxElement = checkbox
     checkboxElement.classList.add(CF_PAGINATION_HIDDEN)
   })
 
   // Show only the checkboxes for the current page
   visibleCheckboxes.slice(startIndex, endIndex).forEach((checkbox) => {
-    const checkboxElement = checkbox as HTMLElement
+    const checkboxElement = checkbox
     checkboxElement.classList.remove(CF_PAGINATION_HIDDEN)
   })
 }
@@ -123,14 +122,6 @@ const renderPaginationButtons = (
     CF_PAGINATION_LIST_SELECTOR,
   )
   if (!paginationList) return
-
-  // Move focus to the nav BEFORE removing buttons to prevent focus jump
-  if (paginationList.contains(document.activeElement)) {
-    const paginationNav = mapQuerySelector(mapId, CF_PAGINATION) as HTMLElement
-    if (paginationNav) {
-      paginationNav.focus()
-    }
-  }
 
   // Update current page data attribute
   paginationNav.setAttribute(
@@ -304,7 +295,8 @@ const updatePaginationStatus = (
 }
 
 export const goToPage = (mapId: string, page: number): void => {
-  const paginationNav = getPaginationNavComponent(mapId)
+  const paginationNav =
+    (getPaginationNavComponent(mapId) as HTMLElement) || null
   if (!paginationNav) return
 
   const state = getPaginationState(mapId, paginationNav)
