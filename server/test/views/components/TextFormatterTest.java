@@ -5,20 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
-import java.util.List;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import repository.ResetPostgres;
 
 public class TextFormatterTest extends ResetPostgres {
-
-  private void assertIsExternalUrlWithIcon(
-      String actualValue, String expectedValue, String endsWith) {
-    assertThat(actualValue).contains(expectedValue).endsWith(endsWith);
-  }
 
   @Test
   public void urlsRenderCorrectly() {
@@ -30,29 +23,18 @@ public class TextFormatterTest extends ResetPostgres {
     // URLs without protocols are not turned into links
     assertThat(htmlContent).contains("hello google.com ");
 
-    // URLs with protocols are turned into links, the protocol is maintained and the SVG icon is
-    // added with an aria label
-    List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
-    assertIsExternalUrlWithIcon(
-        contentArr.get(0),
-        """
-        <a href="http://internet.website" class="text-blue-900 font-bold opacity-75 underline\
-         hover:opacity-100" target="_blank" rel="nofollow noopener\
-         noreferrer">http://internet.website<svg xmlns="http://www.w3.org/2000/svg"\
-         fill="currentColor" stroke="currentColor" stroke-width="1%"\
-         aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1\
-         align-text-top" aria-label=", opens in a new tab" role="img">""",
-        "</svg>");
-    assertIsExternalUrlWithIcon(
-        htmlContent,
-        """
-        <a href="https://secure.website" class="text-blue-900 font-bold opacity-75 underline\
-         hover:opacity-100" target="_blank" rel="nofollow noopener\
-         noreferrer">https://secure.website<svg xmlns="http://www.w3.org/2000/svg"\
-         fill="currentColor" stroke="currentColor" stroke-width="1%"\
-         aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1\
-         align-text-top" aria-label=", opens in a new tab" role="img">""",
-        "</svg></a></p>\n");
+    // URLs with protocols are turned into links, the protocol is maintained and aria-label is
+    // added
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"http://internet.website\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"http://internet.website, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">http://internet.website</a>");
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"https://secure.website\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"https://secure.website, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">https://secure.website</a>");
   }
 
   @Test
@@ -60,16 +42,11 @@ public class TextFormatterTest extends ResetPostgres {
     ImmutableList<DomContent> content =
         TextFormatter.formatTextForAdmins("[this is a link](https://www.google.com)");
     String htmlContent = content.get(0).render();
-    assertIsExternalUrlWithIcon(
-        htmlContent,
-        """
-        <a href="https://www.google.com" class="text-blue-900 font-bold opacity-75 underline\
-         hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">this is\
-         a link<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"\
-         stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24\
-         24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens\
-         in a new tab" role="img">""",
-        "</svg></a></p>\n");
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"https://www.google.com\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"this is a link, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">this is a link</a>");
   }
 
   @Test
