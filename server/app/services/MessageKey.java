@@ -24,6 +24,9 @@ public enum MessageKey {
   ADDRESS_VALIDATION_STREET_REQUIRED("validation.streetRequired"),
   ALERT_CREATE_ACCOUNT("alert.createAccount"), // North Star only
   ALERT_CREATE_ACCOUNT_DESCRIPTION("alert.createAccountDescription"), // North Star only
+  ALERT_LOGIN_ONLY("alert.loginOnly"), // North Star only
+  ALERT_LOGIN_ONLY_DESCRIPTION("alert.loginOnlyDescription"), // North Star only
+  ALERT_LOGIN_ONLY_CREATE_ACCOUNT("alert.createAccountForLoginOnly"), // North Star only
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TITLE("alert.eligibility_applicant_eligible_title"),
   ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT("alert.eligibility_applicant_eligible_text"),
   ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE("alert.eligibility_applicant_not_eligible_title"),
