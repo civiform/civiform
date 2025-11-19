@@ -92,7 +92,7 @@ describe('formatTextHtml', () => {
     const olText =
       'here is some markdown with an unordered list:\n - item one\n - item two\n - item 3'
     expect(formatTextHtml(olText).innerHTML).toContain(
-      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="list-disc mx-8">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
+      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="usa-list margin-r-4">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
     )
   })
 
