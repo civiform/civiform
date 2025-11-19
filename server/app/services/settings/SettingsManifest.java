@@ -1133,6 +1133,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
+   * enumerators.
+   */
+  public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
+    return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2407,6 +2415,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "LOGIN_DROPDOWN_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
                               + " applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
+                              + " admins to work with enumerators.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
