@@ -264,9 +264,9 @@ export class AdminPredicates {
     questionText: string,
   ) {
     await this.page
-      .getByLabel('Question', {
-        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
-      })
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      )
       .selectOption(questionText)
 
     await waitForHtmxReady(this.page)

@@ -42,7 +42,6 @@
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
           th:name="|condition-${model.conditionId}-nodeType|"
-          autofocus
         >
           <option
             th:each="nodeType : ${model.operatorNodeTypes()}"
@@ -59,9 +58,4 @@
       </th:block>
     </div>
   </div>
-  <th:block th:unless="${model.disableRenderAddCondition}">
-    <div
-      th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(${model.conditionId + 1}, ${model.hxEditConditionEndpoint()})}"
-    ></div>
-  </th:block>
 </th:block>

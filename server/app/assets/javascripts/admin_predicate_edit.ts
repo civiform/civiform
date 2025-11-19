@@ -15,8 +15,13 @@ export class AdminPredicateEdit {
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
-    // Only update if the target is the 'subcondition-container' element in this swap
-    if (event.target.classList.contains('subcondition-container')) {
+    const targetId: string = event.target.id
+    // Update for changes to 'subcondition-container', and also refreshes of predicate lists.
+    // The predicate list refreshes occur when a condition is deleted.
+    if (
+      event.target.classList.contains('subcondition-container') ||
+      targetId == 'predicate-conditions-list'
+    ) {
       // Remove existing listeners and bind to new ones after the swap
       // replaces the html to ensure there's only one per element instead of
       // appending after each swap.

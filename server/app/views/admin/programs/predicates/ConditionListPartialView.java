@@ -7,13 +7,12 @@ import services.settings.SettingsManifest;
 import views.admin.BaseView;
 
 /**
- * Partial view for rendering AddFirstConditionPartial.html. This partial is used for rendering the
- * first AddConditionFragment on the predicate edit page.
+ * Partial view for rendering ConditionListPartial.html. This partial is used for displaying a list
+ * of conditions within a predicate.
  */
-public final class AddFirstConditionPartialView
-    extends BaseView<AddFirstConditionPartialViewModel> {
+public final class ConditionListPartialView extends BaseView<ConditionListPartialViewModel> {
   @Inject
-  public AddFirstConditionPartialView(
+  public ConditionListPartialView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest) {
@@ -22,6 +21,6 @@ public final class AddFirstConditionPartialView
 
   @Override
   protected String pageTemplate() {
-    return "admin/programs/predicates/AddFirstConditionPartial.html";
+    return "admin/programs/predicates/ConditionListPartial.html";
   }
 }

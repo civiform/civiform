@@ -25,8 +25,7 @@
           hx-swap="outerHTML"
           th:hx-post="${model.hxEditSubconditionEndpoint()}"
           th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${model.subconditionId}"}|'
-          th:hx-target="${'closest div[class*=subcondition-container]'}"
-          autofocus
+          hx-target="#predicate-conditions-list"
         >
           <option
             th:selected="${!model.hasSelectedQuestion}"
@@ -109,20 +108,19 @@
   </div>
   <!-- Append button to add subcondition iff this is a new subcondition. Skip when updating the selected question
    of an existing subcondition. -->
-  <div
-    class="margin-top-3"
-    th:hx-target="this"
-    th:if="${!model.hasSelectedQuestion}"
-  >
-    <button
-      type="button"
-      class="usa-button usa-button--unstyled zero-top-margin"
-      th:hx-post="${model.hxEditSubconditionEndpoint()}"
-      th:with="nextSubconditionId=${model.subconditionId + 1}"
-      th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${nextSubconditionId}" }|'
-      hx-swap="outerHTML"
-    >
-      <cf:icon type="icon-add" />[[#{link.predicateAddSubcondition}]]
-    </button>
-  </div>
+  <th:block th:if="${model.renderAddSubcondition}">
+    <div class="margin-top-3" th:hx-target="this">
+      <button
+        type="button"
+        class="usa-button usa-button--unstyled zero-top-margin"
+        th:hx-post="${model.hxEditSubconditionEndpoint()}"
+        th:with="nextSubconditionId=${model.subconditionId + 1}"
+        th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${nextSubconditionId}" }|'
+        hx-target="#predicate-conditions-list"
+        hx-swap="outerHTML"
+      >
+        <cf:icon type="icon-add" />[[#{link.predicateAddSubcondition}]]
+      </button>
+    </div>
+  </th:block>
 </th:block>

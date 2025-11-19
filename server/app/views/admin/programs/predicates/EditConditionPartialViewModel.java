@@ -21,8 +21,7 @@ public record EditConditionPartialViewModel(
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
-    ImmutableList<OptionElement> valueOptions,
-    boolean disableRenderAddCondition)
+    ImmutableList<OptionElement> valueOptions)
     implements EditPredicateBaseViewModel {
 
   public String hxEditConditionEndpoint() {
@@ -56,6 +55,7 @@ public record EditConditionPartialViewModel(
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)
         .valueOptions(valueOptions)
+        .renderAddSubcondition(true)
         .build();
   }
 }

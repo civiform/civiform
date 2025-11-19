@@ -1,0 +1,21 @@
+<th:block th:fragment="conditionList(model)">
+  <div id="predicate-conditions-list">
+    <th:block th:each="condition: ${model.conditions}">
+      <div
+        th:replace="~{admin/programs/predicates/EditConditionFragment :: editCondition(${condition})}"
+      ></div>
+    </th:block>
+    <button
+      type="button"
+      class="usa-button usa-button--outline zero-top-margin"
+      th:hx-post="${model.hxEditConditionEndpoint()}"
+      th:hx-vals='|{"conditionId": "${model.conditions.size() + 1}"}|'
+      hx-target="#predicate-conditions-list"
+      hx-swap="outerHTML"
+      autofocus
+    >
+      <cf:icon type="icon-add" />
+      [[#{button.predicateAddCondition}]]
+    </button>
+  </div>
+</th:block>
