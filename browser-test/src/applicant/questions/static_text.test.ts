@@ -93,7 +93,7 @@ async function verifyMarkdownHtml(page: Page) {
     '<a href="https://www.example.com" class="usa-link usa-link--external" target="_blank" aria-label="This is a link, opens in a new tab" rel="nofollow noopener noreferrer">This is a link</a>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<ul class="list-disc mx-8"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
+    '<ul class="usa-list margin-r-4"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<p>There are some empty lines below this that should be preserved<br>&nbsp;</p>\n<p>&nbsp;</p>',
