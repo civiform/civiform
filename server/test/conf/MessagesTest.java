@@ -115,7 +115,7 @@ public class MessagesTest {
     Map<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
     assertThat(entriesInPrimaryLanguageFile)
-        .withFailMessage("Prohibited characters found in primary language file..")
+        .withFailMessage("Prohibited characters found in primary language file.")
         .allSatisfy(
             (key, value) -> {
               assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
@@ -129,30 +129,29 @@ public class MessagesTest {
       String foreignLanguageFile) throws Exception {
     Map<String, String> entriesInforeignLanguageFile = entriesInFile(foreignLanguageFile);
 
-    assertThat(entriesInforeignLanguageFile)
-        .withFailMessage("Prohibited characters found in " + foreignLanguageFile + ".")
-        .allSatisfy(
-            (key, value) -> {
-              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
-              for (String prohibitedChar : PROHIBITED_CHARACTERS) {
-                if (value.contains(prohibitedChar)) {
-                  // German language has a different set of quotes, so we expect to see the left
-                  // quote, but want to make sure the low right quote is also present.
-                  if (foreignLanguageFile.endsWith("de")) {
-                    if (value.contains(LEFT_DOUBLE_QUOTATION_MARK)
-                        && value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK)) {
-                      continue;
-                    }
-                  }
-                  assertThat(value)
-                      .withFailMessage(
-                          String.format(
-                              "Value for key '%s' contains prohibited character '%s'",
-                              key, prohibitedChar))
-                      .doesNotContain(PROHIBITED_CHARACTERS);
-                }
-              }
-            });
+    for (Map.Entry<String, String> entry : entriesInforeignLanguageFile.entrySet()) {
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
+
+      assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+      for (String prohibitedChar : PROHIBITED_CHARACTERS) {
+        if (value.contains(prohibitedChar)) {
+          // German language has a different set of quotes, so we expect to see the left
+          // quote, but want to make sure the low right quote is also present.
+          if (foreignLanguageFile.endsWith("de")) {
+            if (value.contains(LEFT_DOUBLE_QUOTATION_MARK)
+                && value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK)) {
+              continue;
+            }
+          }
+          assertThat(value)
+              .withFailMessage(
+                  String.format(
+                      "Value for key '%s' contains prohibited character '%s'", key, prohibitedChar))
+              .doesNotContain(PROHIBITED_CHARACTERS);
+        }
+      }
+    }
   }
 
   @Test
