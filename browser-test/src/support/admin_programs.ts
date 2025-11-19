@@ -987,6 +987,29 @@ export class AdminPrograms {
     }
   }
 
+  async expectLoginOnlyProgramIsChecked(isChecked: boolean) {
+    await expect(
+      this.page.getByRole('checkbox', {
+        name: 'Require applicants to log in to apply to this program',
+      }),
+    ).toBeChecked({checked: isChecked})
+  }
+
+  async setProgramToLoginOnly(checked: boolean) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: 'Require applicants to log in to apply to this program',
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page.locator('label[for="login-only-applications"]').click()
+    }
+  }
+
   /**
    * Opens the export program page by clicking on a program's card action or
    * extra action (depending on the program lifecycle)

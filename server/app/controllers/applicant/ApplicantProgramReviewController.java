@@ -46,7 +46,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
@@ -69,7 +68,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantProgramSummaryView summaryView;
   private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
-  private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
@@ -86,7 +84,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantProgramSummaryView summaryView,
       NorthStarApplicantProgramSummaryView northStarSummaryView,
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
-      IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
@@ -103,7 +100,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.summaryView = checkNotNull(summaryView);
     this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
-    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
@@ -473,30 +469,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition) {
-    // TODO(#11573): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      NorthStarApplicantIneligibleView.Params params =
-          NorthStarApplicantIneligibleView.Params.builder()
-              .setRequest(request)
-              .setApplicantId(applicantId)
-              .setProfile(profile)
-              .setApplicantPersonalInfo(personalInfo)
-              .setProgramDefinition(programDefinition)
-              .setRoApplicantProgramService(roApplicantProgramService)
-              .setMessages(messagesApi.preferred(request))
-              .build();
-      return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-    } else {
-      return ok(
-          ineligibleBlockView.render(
-              request,
-              profile,
-              roApplicantProgramService,
-              messagesApi.preferred(request),
-              applicantId,
-              programDefinition,
-              /* blockDefinition= */ Optional.empty()));
-    }
+    NorthStarApplicantIneligibleView.Params params =
+        NorthStarApplicantIneligibleView.Params.builder()
+            .setRequest(request)
+            .setApplicantId(applicantId)
+            .setProfile(profile)
+            .setApplicantPersonalInfo(personalInfo)
+            .setProgramDefinition(programDefinition)
+            .setRoApplicantProgramService(roApplicantProgramService)
+            .setMessages(messagesApi.preferred(request))
+            .build();
+    return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
   }
 
   // TODO(#7266): Delete the old codepath and inline the North Star path

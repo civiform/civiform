@@ -847,6 +847,38 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .hasValue(routes.AdminQuestionController.edit(question.id).url());
   }
 
+  @Test
+  public void deleteMapQuestionFilter_removesFilterAndReindexes() {
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(
+                ImmutableMap.<String, String>builder()
+                    .put("filterIndex", "0") // Delete first filter
+                    .put("possibleKeys", "type,name,address")
+                    .put("filters[0].key", "type")
+                    .put("filters[0].displayName", "Library Type")
+                    .put("filters[1].key", "name")
+                    .put("filters[1].displayName", "Library Name")
+                    .put("filters[2].key", "address")
+                    .put("filters[2].displayName", "Library Address")
+                    .build());
+
+    Result result = controller.deleteMapQuestionFilter(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+
+    assertThat(content).doesNotContain("Library Type");
+    assertThat(content).contains("Library Name");
+    assertThat(content).contains("Library Address");
+
+    // Verify the filters are re-indexed (should be filters[0] and filters[1] now, not [1] and [2])
+    assertThat(content).contains("filters[0]");
+    assertThat(content).contains("filters[1]");
+    assertThat(content).doesNotContain("filters[2]");
+  }
+
   private NameQuestionDefinition createNameQuestionDuplicate(QuestionModel question) {
     QuestionDefinition def = question.getQuestionDefinition();
     return new NameQuestionDefinition(
