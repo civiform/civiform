@@ -42,10 +42,8 @@ public final class CiviFormMarkdown {
         attributes.put("class", "usa-link usa-link--external");
         attributes.put("target", "_blank");
         attributes.put("rel", "noopener noreferrer");
-      } else if (node instanceof BulletList) {
-        attributes.put("class", "list-disc mx-8");
-      } else if (node instanceof OrderedList) {
-        attributes.put("class", "list-decimal mx-8");
+      } else if (node instanceof BulletList || node instanceof OrderedList) {
+        attributes.put("class", "usa-list margin-r-4");
       }
     }
   }

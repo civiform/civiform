@@ -81,7 +81,7 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
 <p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
-<ul class="list-disc mx-8"><li>list item one</li><li>list item two</li></ul>
+<ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ul>
 """);
 
     ImmutableList<DomContent> contentWithOrderedList =
@@ -117,7 +117,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
             """
-            <ul class="list-disc mx-8"><li>list item one</li><li>list item two</li><li>list item\
+            <ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li><li>list item\
              three<span class="usa-hint--required" aria-hidden="true">\
              *</span></li></ul>
             """);
@@ -160,7 +160,7 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
             <p>This is my list:</p>
-            <ul class="list-disc mx-8">\
+            <ul class="usa-list margin-r-4">\
             <li>cream cheese</li>\
             <li>eggs</li>\
             <li>sugar</li>\
