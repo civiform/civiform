@@ -120,7 +120,7 @@
     </div>
     <div class="grid-row grid-gap padding-1">
       <div
-        class="grid-col-12 desktop:grid-col-6 margin-bottom-0 tablet:margin-bottom-3 desktop:margin-bottom-0 order-1 tablet:order-1 desktop:order-1"
+        class="grid-col-12 desktop:grid-col-6 margin-bottom-0 tablet:margin-bottom-3 desktop:margin-bottom-0"
       >
         <div
           th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
@@ -305,7 +305,7 @@
 
       <!-- Map container -->
       <div
-        class="grid-col-12 desktop:grid-col-6 order-2 tablet:order-2 desktop:order-2"
+        class="grid-col-12 desktop:grid-col-6"
       >
         <!-- TODO(#11150): Add map question preview functionality -->
         <div
