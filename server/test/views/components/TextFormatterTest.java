@@ -305,7 +305,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content.get(0).render()).contains("aria-label=\", test aria label\"");
+    assertThat(content.get(0).render()).contains("aria-label=\"link, test aria label\"");
   }
 
   @Test
@@ -314,7 +314,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextToSanitizedHTML(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content).contains("aria-label=\", test aria label\"");
+    assertThat(content).contains("aria-label=\"link, test aria label\"");
   }
 
   @Test
