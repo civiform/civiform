@@ -478,6 +478,20 @@ public final class QuestionService {
           }
         }
       }
+      if (questionDefinition.getQuestionSettings().isPresent()) {
+        for (QuestionSetting setting : questionDefinition.getQuestionSettings().get()) {
+          if (setting.localizedSettingDisplayName().isPresent()) {
+            if (!setting.localizedSettingDisplayName().get().hasTranslationFor(locale)) {
+              return false;
+            }
+          }
+          if (setting.localizedSettingText().isPresent()) {
+            if (!setting.localizedSettingText().get().hasTranslationFor(locale)) {
+              return false;
+            }
+          }
+        }
+      }
     }
     return true;
   }
