@@ -162,18 +162,7 @@ public class MessagesTest {
     ImmutableList<String> messageKeys =
         Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
 
-    ImmutableList<String> untranslatedKeys =
-        ImmutableList.of(
-            "alert.createAccountForLoginOnly", "alert.loginOnly", "alert.loginOnlyDescription");
-
-    // TODO(#11806) remove when translations are completed.
-    ImmutableList<String> messageKeysAndUntranslatedKeys =
-        Stream.of(messageKeys, untranslatedKeys)
-            .flatMap(ImmutableList::stream)
-            .collect(toImmutableList());
-
-    assertThat(keysInPrimaryFile)
-        .containsExactlyInAnyOrderElementsOf(messageKeysAndUntranslatedKeys);
+    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
   }
 
   private static Set<String> keysInFile(String filePath) throws Exception {
