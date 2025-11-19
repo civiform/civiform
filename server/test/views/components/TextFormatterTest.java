@@ -98,7 +98,7 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
 <p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
-<ol class="list-decimal mx-8"><li>list item one</li><li>list item two</li></ol>
+<ol class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ol>
 """);
   }
 
@@ -135,7 +135,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
             """
-<ol class="list-decimal mx-8">\
+<ol class="usa-list margin-r-4">\
 <li>list item one</li>\
 <li>list item two</li>\
 <li>list item three\
@@ -190,9 +190,9 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
 <p>This is my list:</p>
-<ol class="list-decimal mx-8"><li>cream cheese</li></ol>
+<ol class="usa-list margin-r-4"><li>cream cheese</li></ol>
 <p><strong>hello</strong></p>
-<ol start="2" class="list-decimal mx-8"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
+<ol start="2" class="usa-list margin-r-4"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
 """);
   }
 
