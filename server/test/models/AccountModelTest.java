@@ -234,6 +234,7 @@ public class AccountModelTest extends ResetPostgres {
     // Put Older second to check that the order doesn't matter
     account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
     account.save();
+    account.refresh();
 
     Optional<ApplicantModel> optionalGot = account.representativeApplicant();
     assertThat(optionalGot).isPresent();
