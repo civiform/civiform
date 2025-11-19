@@ -91,9 +91,9 @@ content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Samee koonto
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=Gelida Codsadaha
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=Gelida Maamulaha
 # The text on the button an applicant clicks to log in to their session.
 button.login=Halkan ka gal
 # The text on the button an applicant clicks to sign in to their session.
@@ -658,6 +658,8 @@ content.youCanPrint=Waxaad xaqiijintan u daabacan kartaa diiwaannadaada.
 heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Waxaad gudbisay arjigaagii {0}
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=Si aad u gasho codsigaaga hadhow, waa inaad sameyso akoon
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=Si aad u gasho codsigaga hadhow, samee akoon
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=Waxaad hubin kartaa heerka codsigaaga oo aad si d
 alert.noProgramsAvailable=Waxaad bilowday mise gudbisay codsi ku aadan dhammaan barnaamijyada la heli karo xilligan.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Ku gal akoon horay u sii jiray
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=Waa inaad gasho barta si aad u codsato barnaamijkaan
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Fadlan gal barta ama samey akoon si aad usii wado codsigaan.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=Waanu ka xunahay, barnaamijka aad isku dayeyso inaad
 # Button text on a button that takes the user back to the home page.
 button.homePage=Ku noqo bogga hore
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Dib u laabo si aad wax u badesho {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=Qaabee marka shaashadaan soo baxdo ama la qariyo codsadaha iyadoo lagu salaynayo jawaabaha su'aalaha shaashadihii hore.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Ku dar shuruudaha u qalmitaanka si loo go'aamiyo haddii codsaduhu uu u qalmo barnaamijka iyadoo lagu salaynayo jawaabaha su'aalaha shaashadaan. Codsadayaasha aan buuxin shuruudaha ugu yar waxaa laga xanibi doonaa inay soo gudbiyaan codsi. Waad ka badeli kartaa arrintaan gudaha
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=sitinka barnaamijka
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Shaashadu waa
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Codsaduhu waa uu u qalmaa haddii
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=shuruudaha ay yihiin kuwo buuxa:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Shuruudu ay sax tahay haddii:
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=Shuruudo hoosaadyada ay sax yihiin:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Su'aal
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Godka
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=Xaalada
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=Cadad(cadadka)
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Dooro -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Geli liiska cadadka cadadka uu kala soocay hakadka. Tusaale ahaan, "item1,item2,item3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=iyo
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Ku dar shuruud
+# Button to remove a condition from the form
+button.predicateDeleteCondition=Tirtir shuruud
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Ku dar xaalad-hoosaad
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=Tirtir xaalad-hoosaad
+# Link to go back to the top of the page
+link.backToTop=Ku laabo kor
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=Keydi oo ka bax
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su'aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejinayo shuruud muujin oo loogu talagalay shaashaddan.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,8 +910,9 @@ label.uploadedFiles=Faylasha lasoo Geliyay
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
 validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=Waa inay ku jiraan oo keliya lambarada 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -922,94 +991,106 @@ option.maybe=Laga yaabaa
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=Ku dabaq shaandheynta
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=Booqo bogga xigga ee goobaha khariirada
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=Kala qaybinta goobaha khariirada
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=Booqo boggii hore ee goobaha khariirada
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=Goobaha la heli karo
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=Shaandheeyada
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=Booqo bogga {0} ee goobaha khariirada
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=Eeg faahfaahin dheeraad ah
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=Eeg faahfaahinada dheeraadka ah ee {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=Soo bandhigaya {0} ka mid ah {1} gobood
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount={0} ee {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=Khariidad habboon oo muujinaysa goobaha
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=La doortay
+# Message displayed when filter results return no locations
+map.noResultsFound=Wax natiijooyin ah lama helin. Fadlan iskuday inaad wax ka badesho shaandheeyada.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=Wax goobo ah lama xulan.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=Hadda muujinaya bogga {0} ee {1}.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=Tirtir shaandheeyada
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=Goobaha la xushay
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=Dooro goob
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=Dooro ilaa {0} goobood
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- Dooro -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=U beddel eegida khariirada
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=U beddel eegida liiska
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=Eegida waxaa loo baddelay khariirad
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=Eegida waxaa loo baddelay liis
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=Fadlan dooro goobaha {0} ee ugu badan.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = Waan ka xunahay ma awoodno inaan soo bandhigno su'aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
+map.contactUs = Nala soo xariir
+map.homepage = Bogga hore
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=Ku dar shaandheeye
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=Dooro ilaa lix shaandheeyaal si aad ugi diyaariso codsadaasha.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=Shaandheeyaal
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=Ku dar calaamad
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=Ku dar calaamad si loogu soo bandhigo goobo gaar ah halkaas oo furaha la doortay uu la mid yahay cadad go'an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha Goobaha La Doortay.
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=Calaamad
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=Muuji magaca
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=Fure
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Cillad: Furaha lama helin. Fadlan dooro fure kale.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=Dooro furaha matalaaya ciwaanka goobta.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=Ciwaanka furaha
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=Dooro furaha matalaaya faahfaahinada URL-ka goobta.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=Eeg faahfaahin badan oo ah furaha URL
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=Dooro furaha matalaaya magaca goobta.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=Magaca furaha
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=Doorashooyinka goobta ee ugu badan
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=Qoraalka digniinta
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=Cadad
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Khariirada halkaan ayay kasoo muuqanaysaa
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0
 banner.guestBannerText=Kadib markaad codsato, {0} si aad u ilaaliso xogtaada.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=dhammee kulankaaga
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Kulankaaga waxa uu si toos ah u dhacayaa {0} kadib laga bilaabo billoowga kulankaaga, markaa fadlan gal ama soo gudbi codsigaaga wakhtigaas kahor si aad iskaga ilaaliso inaad lumiso waxa aad horumarkaaga.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 saac iyo {0} daqiiqo
+banner.hourAndMinute=1 saac iyo 1 daqiiqo
+banner.hoursAndMinutes={0} saacadood iyo {1} daqiiqo
+banner.hoursAndMinute={0} saacadood iyo 1 daqiiqo
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} daqiiqood
+banner.hours={0} saacadood
+banner.hour=1 saac
+banner.minute=1 daqiiqo
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

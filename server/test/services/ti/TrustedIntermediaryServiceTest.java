@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import forms.TiClientInfoForm;
 import io.ebean.Model;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -187,7 +188,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .orElseThrow();
     assertThat(account.getApplicants().get(0).getDateOfBirth().orElseThrow().toString())
         .isEqualTo("2022-07-07");
-    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
+    assertThat(account.representativeApplicant().orElseThrow().id)
+        .isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().orElseThrow().toString()).isEqualTo("2022-07-07");
     assertThat(account.getEmailAddress()).isNull();
@@ -207,7 +209,43 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
     ApplicantModel applicant = account.getApplicants().get(0);
     assertThat(applicant.getDateOfBirth().orElseThrow().toString()).isEqualTo("2022-07-07");
-    assertThat(account.newestApplicant().orElseThrow().id).isEqualTo(returnObject.getApplicantId());
+    assertThat(account.representativeApplicant().orElseThrow().id)
+        .isEqualTo(returnObject.getApplicantId());
+  }
+
+  @Test
+  public void getManagedAccounts_ignoresGuestApplicant() {
+    // TI Client with an additional newer Applicant representing a merged Guest.
+    LocalDate primaryDob = LocalDate.of(2022, 7, 8);
+    LocalDate guestDob = LocalDate.of(2022, 12, 12);
+    var wantAccount =
+        setupTiClientAccountWithApplicant("First", primaryDob.toString(), "email1", tiGroup);
+    addGuestApplicant(wantAccount, guestDob.toString());
+
+    SearchParameters searchParametersGuest =
+        SearchParameters.builder()
+            .setNameQuery(Optional.empty())
+            .setDayQuery(Optional.of(String.valueOf(guestDob.getDayOfMonth())))
+            .setMonthQuery(Optional.of(String.valueOf(guestDob.getMonthValue())))
+            .setYearQuery(Optional.of(String.valueOf(guestDob.getYear())))
+            .build();
+    TrustedIntermediarySearchResult tiResultGuest =
+        service.getManagedAccounts(searchParametersGuest, tiGroup);
+    // The Guest is not a valid match.
+    assertThat(tiResultGuest.accounts()).isEmpty();
+
+    // Now ensure that the CUT doesn't always return nothing.
+    SearchParameters searchParametersPrimary =
+        SearchParameters.builder()
+            .setNameQuery(Optional.empty())
+            .setDayQuery(Optional.of(String.valueOf(primaryDob.getDayOfMonth())))
+            .setMonthQuery(Optional.of(String.valueOf(primaryDob.getMonthValue())))
+            .setYearQuery(Optional.of(String.valueOf(primaryDob.getYear())))
+            .build();
+    TrustedIntermediarySearchResult tiResultPrimary =
+        service.getManagedAccounts(searchParametersPrimary, tiGroup);
+    assertThat(tiResultPrimary.accounts().size()).isEqualTo(1);
+    assertThat(tiResultPrimary.accounts().get(0).getEmailAddress()).isEqualTo("email1");
   }
 
   @Test
@@ -351,6 +389,29 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
+  public void editTiClientInfo_guestIgnored() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("emailOld", tiGroup);
+    ApplicantModel applicant = setTiClientApplicant(account, "clientFirst", "2021-12-12");
+    // Add a newer guest with different data.
+    final String GUEST_BIRTHDAY = "2022-01-01";
+    final String WANT_BIRTHDAY = CLIENT_DATA.get("dob");
+    assertThat(WANT_BIRTHDAY).isNotEqualTo(GUEST_BIRTHDAY);
+    addGuestApplicant(account, GUEST_BIRTHDAY);
+
+    Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(CLIENT_DATA);
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
+        service.updateClientInfo(
+            form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
+
+    assertThat(returnForm).isEqualTo(form);
+    ApplicantModel applicantFinal = repo.lookupApplicantSync(applicant.id).orElseThrow();
+
+    assertThat(applicantFinal.getDateOfBirth().orElseThrow().toString()).isEqualTo(WANT_BIRTHDAY);
+  }
+
+  @Test
   @Parameters({
     "42598790, This phone number is invalid",
     "0000000000, This phone number is invalid",
@@ -456,10 +517,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         .hasMessage("Applicant not found for ID 1");
   }
 
-  private void setupTiClientAccountWithApplicant(
+  private AccountModel setupTiClientAccountWithApplicant(
       String firstName, String dob, String email, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel account = setupTiClientAccount(email, tiGroup);
     setTiClientApplicant(account, firstName, dob);
+    return account;
   }
 
   private AccountModel setupTiClientAccount(String email, TrustedIntermediaryGroupModel tiGroup) {
@@ -482,5 +544,14 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     applicant.save();
     account.save();
     return applicant;
+  }
+
+  private void addGuestApplicant(AccountModel account, String dob) {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setAccount(account);
+    applicant.setUserName("Guest", Optional.empty(), Optional.of("User"), Optional.empty());
+    applicant.setDateOfBirth(dob);
+    applicant.save();
+    account.save();
   }
 }
