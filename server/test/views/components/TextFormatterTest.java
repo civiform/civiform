@@ -117,10 +117,10 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
             """
-            <ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li><li>list item\
-             three<span class="usa-hint--required" aria-hidden="true">\
-             *</span></li></ul>
-            """);
+<ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li><li>list item\
+ three<span class="usa-hint--required" aria-hidden="true">\
+ *</span></li></ul>
+""");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
