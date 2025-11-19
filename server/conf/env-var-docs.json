@@ -997,6 +997,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
         "type": "bool",
         "required": false
+      },
+      "ENUMERATOR_IMPROVEMENTS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with enumerators.",
+        "type": "bool",
+        "required": false
       }
     }
   }
