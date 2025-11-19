@@ -37,3 +37,23 @@ menu {
 .hidden {
   display: none;
 }
+
+.cf-file-uploading-tag {
+  background-color: #fff7bf;
+  color: #594d00;
+  display: none;
+}
+
+/* If a file is being uploaded, show the file uploading tag... */
+.cf-file-uploading .cf-file-uploading-tag {
+  display: inline-block;
+}
+
+/* ... and apply disabled styling to any interactive elements. */
+.cf-file-uploading .cf-disable-when-uploading {
+  background-color: white;
+  color: #9ca3af;
+  border: 1px solid #9ca3af;
+  pointer-events: none;
+  cursor: default;
+}
