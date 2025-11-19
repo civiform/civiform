@@ -54,14 +54,14 @@ test.describe(
   'non applicant security',
   {tag: ['@parallel-candidate', '@northstar']},
   () => {
-    const program1 = 'Test program 1'
+    const programName = 'Test program 1'
 
     test.beforeEach('Setup program', async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(program1)
+      await adminPrograms.addProgram(programName)
 
       await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(program1)
+      await adminPrograms.publishProgram(programName)
       await logout(page)
     })
 
@@ -78,7 +78,7 @@ test.describe(
       page,
     }) => {
       await loginAsAdmin(page)
-      await page.goto('/programs/' + program1)
+      await page.goto('/programs/' + programName)
 
       await expectAdminDashboard(page)
     })
@@ -96,7 +96,7 @@ test.describe(
       page,
     }) => {
       await loginAsProgramAdmin(page)
-      await page.goto('/programs/' + program1)
+      await page.goto('/programs/' + programName)
 
       await expectProgramAdminDashboard(page)
     })
@@ -112,7 +112,7 @@ test.describe(
       page,
     }) => {
       await loginAsTrustedIntermediary(page)
-      await page.goto('/programs/' + program1)
+      await page.goto('/programs/' + programName)
 
       await expectTiDashboard(page)
     })
