@@ -91,9 +91,9 @@ content.loginPrompt={0} 계정으로 로그인하세요.
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=계정 만들기
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=지원자 로그인
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=관리자 로그인
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
 # The text on the button an applicant clicks to sign in to their session.
@@ -658,6 +658,8 @@ content.youCanPrint=기록을 위해 이 확인 페이지를 인쇄할 수 있�
 heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} 신청을 제출했습니다.
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=나중에 지원서에 접근하려면 계정을 생성해야 합니다
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드세요
 # Description text in an alert that explains how creating an account can help the user
@@ -666,6 +668,10 @@ alert.createAccountDescription=계정에 정보를 저장하면 신청 상태를
 alert.noProgramsAvailable=현재 이용할 수 있는 모든 프로그램의 신청을 시작했거나 신청서를 제출했습니다.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=기존 계정에 로그인
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=이 프로그램에 지원하려면 로그인해야 합니다
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=이 지원서로 계속 진행하려면 로그인하거나 계정을 생성해 주세요.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -688,6 +694,68 @@ content.disabledProgramInfo=죄송합니다. 이용하려는 프로그램은 중
 # Button text on a button that takes the user back to the home page.
 button.homePage=홈페이지로 돌아가기
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock={0} 편집으로 돌아가기
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=이전 화면의 질문에 대한 응답에 따라 지원자에게 이 화면을 표시하거나 숨길 시점을 설정하세요.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=이 화면의 질문에 대한 응답에 따라 지원자의 프로그램 지원 자격 충족 여부를 결정할 조건을 추가하세요. 최소 조건을 충족하지 못하는 지원자는 지원서를 제출하지 못하도록 차단됩니다. 이 설정은 다음에서 변경할 수 있습니다.
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=프로그램 설정
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=화면이
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=다음의 경우 지원자가 자격 조건을 충족함
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=조건이 참임:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=다음의 경우 조건이 참임
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=하위 조건이 참임:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=질문
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=필드
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=상태
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=값
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- 선택 -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=쉼표로 구분된 값 목록을 입력하세요. 예: "item1,item2,item3"
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=및
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=조건 추가
+# Button to remove a condition from the form
+button.predicateDeleteCondition=조건 삭제
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=하위 조건 추가
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=하위 조건 삭제
+# Link to go back to the top of the page
+link.backToTop=맨 위로 돌아가기
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=저장하고 종료
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=이전 화면에는 이 화면의 표시 조건을 설정하는 데 사용할 질문이 없습니다.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=이 화면에는 자격 조건을 설정하는 데 사용할 질문이 없습니다.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -842,8 +910,9 @@ label.uploadedFiles=업로드된 파일
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
 validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=숫자만 포함해야 합니다.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=숫자 0~9만 포함해야 합니다.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -922,94 +991,106 @@ option.maybe=확실하지 않음
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=필터 적용
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=다음 지도 위치 페이지로 가기
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=지도 위치 페이지 지정
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=이전 지도 위치 페이지로 가기
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=선택 가능한 위치
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=필터
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=지도 위치 {0} 페이지로 가기
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=세부 정보 더 보기
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr={0} 세부 정보 더 보기
 # Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=위치 {1}개 중 {0}개 표시 중
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount=최대 {1}개 중 {0}개 위치가 선택되었습니다.
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=대화형 지도 위치 표시 중
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=선택됨
+# Message displayed when filter results return no locations
+map.noResultsFound=결과를 찾을 수 없습니다. 필터를 변경해 보세요.
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=선택된 위치가 없습니다.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus={0}/{1} 페이지를 표시 중입니다.
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=필터 지우기
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=선택된 위치
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=위치 선택
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=최대 {0}개 위치 선택
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=- 선택 -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=지도 보기로 전환
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=목록 보기로 전환
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=지도 보기로 전환되었습니다
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=목록 보기로 전환되었습니다
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=최대 {0}개 위치를 선택해 주세요.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = 죄송합니다만 현재 이 질문을 표시할 수 없습니다. 나중에 이 지원서를 다시 확인해 주세요. {0} 또는 {1}(으)로 돌아가시면 다음 절차를 안내해 드리겠습니다.
+map.contactUs = 문의
+map.homepage = 홈페이지
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=필터 추가
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=지원자가 선택할 수 있는 최대 6개 필터를 선택하세요.
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=필터
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=태그 추가
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=선택한 키가 특정 값과 일치하는 특정 위치에 표시할 태그를 추가하세요. 지원자가 위치 중 하나 이상을 선택하면 선택한 위치 영역에 알림을 표시합니다(선택 사항).
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=태그
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=표시 이름
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=키
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=오류: 키를 찾을 수 없습니다. 다른 키를 선택해 주세요.
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=위치 주소를 나타내는 키를 선택하세요.
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=주소 키
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=위치 세부 정보 URL을 나타내는 키를 선택하세요.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=세부 정보 더 보기 URL 키
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=위치 이름을 나타내는 키를 선택하세요.
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=이름 키
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=최대 위치 선택
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=알림 텍스트
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=값
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=지도가 여기에 표시됩니다
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1088,6 +1169,18 @@ banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려�
 banner.guestBannerText=신청 후 데이터를 보호하려면 {0}하세요.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=세션을 종료
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=세션 시작 {0} 후 세션이 자동으로 만료되니 진행 상황이 손실되지 않도록 만료되기 전에 로그인하거나 지원서를 제출해 주세요.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1시간 {0}분
+banner.hourAndMinute=1시간 1분
+banner.hoursAndMinutes={0}시간 {1}분
+banner.hoursAndMinute={0}시간 1분
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0}분
+banner.hours={0}시간
+banner.hour=1시간
+banner.minute=1분
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

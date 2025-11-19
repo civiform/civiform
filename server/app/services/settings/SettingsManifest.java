@@ -1066,6 +1066,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
+  /** Enable allowing CiviForm admins to add a map question to their programs. */
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
    * replayed if the user logs out
@@ -1097,14 +1102,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
-   * programs.
-   */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
   }
 
   /**
@@ -2328,6 +2325,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "Enable allowing CiviForm admins to add a map question to their"
+                              + " programs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2379,13 +2383,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
-                              + " question to their programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.HIDDEN),
                       SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"

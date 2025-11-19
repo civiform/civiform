@@ -38,7 +38,6 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantProgramSummaryView;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 import views.applicant.PreventDuplicateSubmissionView;
@@ -72,7 +71,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantIneligibleView.class),
-            instanceOf(IneligibleBlockView.class),
             instanceOf(PreventDuplicateSubmissionView.class),
             instanceOf(ProfileUtils.class),
             settingsManifest,
@@ -215,7 +213,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void reviewWithApplicantId_civiformAdminAccessToDraftProgram_isOk() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -268,7 +266,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    applicant = adminAccount.newestApplicant().orElseThrow();
+    applicant = adminAccount.representativeApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")
         .withBlock()
