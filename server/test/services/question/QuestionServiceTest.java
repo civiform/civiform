@@ -539,7 +539,14 @@ public class QuestionServiceTest extends ResetPostgres {
                     QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
                     QuestionSetting.create(
                         "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
-                    QuestionSetting.create("tag1", MapSettingType.LOCATION_TAG_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "tag1",
+                        MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+                        Optional.of(LocalizedStrings.of(Locale.US, "Tag", Locale.FRANCE, "Balise")),
+                        Optional.of("tagValue"),
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Tag Alert", Locale.FRANCE, "Alerte balise"))),
                     QuestionSetting.create(
                         "filter1",
                         MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
