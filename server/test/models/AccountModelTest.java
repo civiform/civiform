@@ -207,11 +207,16 @@ public class AccountModelTest extends ResetPostgres {
   public void getApplicantDisplayName_getsOldest() {
     ApplicantModel applicantOlder = new ApplicantModel();
     applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
     applicantOlder.setWhenCreated(Instant.EPOCH);
     applicantOlder.save();
+
     ApplicantModel applicantNewer = new ApplicantModel();
     applicantNewer.setUserName("Newer Applicant");
-    applicantNewer.setWhenCreated(Instant.ofEpochSecond(1));
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
     applicantNewer.save();
 
     AccountModel account = new AccountModel();
@@ -227,11 +232,16 @@ public class AccountModelTest extends ResetPostgres {
   public void representativeApplicant() {
     ApplicantModel applicantOlder = new ApplicantModel();
     applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
     applicantOlder.setWhenCreated(Instant.EPOCH);
     applicantOlder.save();
+
     ApplicantModel applicantNewer = new ApplicantModel();
     applicantNewer.setUserName("Newer Applicant");
-    applicantNewer.setWhenCreated(Instant.ofEpochSecond(1));
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
     applicantNewer.save();
 
     AccountModel account = new AccountModel();
