@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -88,7 +89,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.metricCounters = checkNotNull(metricCounters);
   }
 
-  @Secure
+  /** Renders the index page for TIs applying on behalf of clients. */
+  @Secure(authorizers = Authorizers.Labels.TI)
   public CompletionStage<Result> indexWithApplicantId(
       Request request,
       long applicantId,
@@ -158,6 +160,7 @@ public final class ApplicantProgramsController extends CiviFormController {
    * When the user is not logged in or tied to a guest account, show them the list of publicly
    * viewable programs.
    */
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
     CompletableFuture<ApplicationPrograms> programsFuture =
         applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
@@ -204,6 +207,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   // - /programs/<program-slug>
   //
   // The program id route is deprecated, so it always redirects to home.
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
       // We no longer support (or provide) links to numeric program ID (See issue #8599), redirect
@@ -214,7 +218,11 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
   }
 
-  @Secure
+  /**
+   * Renders a program page for TIs applying on behalf of clients and CiviForm admins previewing
+   * programs.
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, String programName) {
     if (StringUtils.isNumeric(programName)) {
@@ -228,7 +236,11 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
   }
 
-  @Secure
+  /**
+   * Renders the initial application edit screen for TIs applying on behalf of clients and CiviForm
+   * admins previewing programs.
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> editWithApplicantId(
       Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
@@ -241,7 +253,12 @@ public final class ApplicantProgramsController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
+    return editInternal(request, applicantId, programParam, isFromUrlCall);
+  }
 
+  private CompletionStage<Result> editInternal(
+      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -302,7 +319,7 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
@@ -322,13 +339,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Long applicantIdValue = applicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                editWithApplicantId(
-                    request, applicantIdValue, programId.toString(), /* isFromUrlCall= */ false));
+    return editInternal(request, applicantId.get(), programParam, isFromUrlCall);
   }
 
   @Secure
