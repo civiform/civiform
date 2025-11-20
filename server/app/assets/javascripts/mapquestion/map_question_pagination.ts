@@ -295,8 +295,7 @@ const updatePaginationStatus = (
 }
 
 export const goToPage = (mapId: string, page: number): void => {
-  const paginationNav =
-    (getPaginationNavComponent(mapId) as HTMLElement) || null
+  const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
 
   const state = getPaginationState(mapId, paginationNav)
