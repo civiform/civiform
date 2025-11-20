@@ -65,8 +65,6 @@ import services.question.types.QuestionDefinitionConfig;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
-import views.applicant.ApplicantFileUploadRenderer;
-import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.NorthStarAddressCorrectionBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
@@ -104,7 +102,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(MessagesApi.class),
             instanceOf(ClassLoaderExecutionContext.class),
-            instanceOf(ApplicantProgramBlockEditViewFactory.class),
             instanceOf(NorthStarApplicantProgramBlockEditView.class),
             instanceOf(FormFactory.class),
             instanceOf(ApplicantStorageClient.class),
@@ -112,7 +109,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(ApplicantFileUploadRenderer.class),
             instanceOf(NorthStarApplicantIneligibleView.class),
             instanceOf(AddressCorrectionBlockView.class),
             instanceOf(NorthStarAddressCorrectionBlockView.class),
