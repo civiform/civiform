@@ -101,16 +101,14 @@ const updateVisibleLocations = (
   const endIndex = startIndex + ITEMS_PER_PAGE
 
   // Hide all checkboxes first, but preserve the CF_FILTER_HIDDEN class for filtered items
-  allCheckboxes.forEach((checkbox) => {
-    const checkboxElement = checkbox
-    checkboxElement.classList.add(CF_PAGINATION_HIDDEN)
-  })
+  allCheckboxes.forEach((checkbox) =>
+    checkbox.classList.add(CF_PAGINATION_HIDDEN),
+  )
 
   // Show only the checkboxes for the current page
-  visibleCheckboxes.slice(startIndex, endIndex).forEach((checkbox) => {
-    const checkboxElement = checkbox
-    checkboxElement.classList.remove(CF_PAGINATION_HIDDEN)
-  })
+  visibleCheckboxes
+    .slice(startIndex, endIndex)
+    .forEach((checkbox) => checkbox.classList.remove(CF_PAGINATION_HIDDEN))
 }
 
 const renderPaginationButtons = (
