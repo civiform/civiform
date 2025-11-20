@@ -23,10 +23,29 @@ import {
 
 let locationOffset = 0
 
+/**
+ * Prevents checking a checkbox if it has aria-disabled="true"
+ */
+const preventCheckIfDisabled = (event: Event): void => {
+  const input = event.target as HTMLInputElement
+  if (input.getAttribute('aria-disabled') === 'true') {
+    event.preventDefault()
+  }
+}
+
 export const initLocationSelection = (mapId: string): void => {
   // Initial update so the previously saved locations get displayed as selected
   updateSelectedLocations(mapId)
   updateAlertVisibility(mapId)
+
+  // Add event delegation to prevent clicking aria-disabled checkboxes
+  const locationsContainer = mapQuerySelector(
+    mapId,
+    CF_LOCATIONS_LIST_CONTAINER,
+  )
+  if (locationsContainer) {
+    locationsContainer.addEventListener('click', preventCheckIfDisabled)
+  }
 }
 
 export const updateSelectedLocations = (mapId: string): void => {
@@ -122,9 +141,10 @@ export const updateSelectedLocations = (mapId: string): void => {
     if (input) {
       // Only disable unchecked checkboxes when max is reached
       if (atMaxSelections && !input.checked) {
-        input.disabled = true
+        // Use aria-disabled instead of disabled to keep in tab order
+        input.setAttribute('aria-disabled', 'true')
       } else {
-        input.disabled = false
+        input.removeAttribute('aria-disabled')
       }
     }
   })
