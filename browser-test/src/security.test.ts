@@ -126,7 +126,9 @@ test.describe(
       await expectTiDashboard(page)
     })
 
-    test('/programs redirects to TI dashboard when logged in as TI', async ({page}) => {
+    test('/programs redirects to TI dashboard when logged in as TI', async ({
+      page,
+    }) => {
       await loginAsTrustedIntermediary(page)
       await page.goto('/programs')
 
