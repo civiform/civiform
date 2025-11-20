@@ -194,7 +194,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
     // Only allow standard applicants (non Admin/TIs) to access the program
     // list.  They should not be able to apply on their own behalf which this
-    // allows for. Valid uses of index for TIs is done through
+    // method allows for. Valid uses of index for TIs is done through
     // indexWithApplicantId().
     //
     // Note: The cleaner way to do this would be to set authorizers =
