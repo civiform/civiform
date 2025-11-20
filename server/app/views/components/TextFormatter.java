@@ -70,7 +70,7 @@ public final class TextFormatter {
     }
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
-    markdownText = addIconToLinks(markdownText, ariaLabelForNewTabs);
+    markdownText = addAriaLabelToLinks(markdownText, ariaLabelForNewTabs);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
     }
@@ -90,17 +90,10 @@ public final class TextFormatter {
     return String.join("\n", lines);
   }
 
-  private static String addIconToLinks(String markdownText, String ariaLabelForNewTabs) {
-    String closingATag = "</a>";
-
-    String svgIconString =
-        Icons.svg(Icons.OPEN_IN_NEW)
-            .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
-            .attr("aria-label", ", " + ariaLabelForNewTabs)
-            .attr("aria-hidden", false)
-            .attr("role", "img")
-            .toString();
-    return markdownText.replaceAll(closingATag, svgIconString + closingATag);
+  private static String addAriaLabelToLinks(String markdownText, String ariaLabelForNewTabs) {
+    // Use regex to find all <a> tags and add aria-label with link text + ariaLabelForNewTabs
+    return markdownText.replaceAll(
+        "<a ([^>]*)>([^<]+)</a>", "<a $1 aria-label=\"$2, " + ariaLabelForNewTabs + "\">$2</a>");
   }
 
   private static String addRequiredIndicator(String markdownText) {
