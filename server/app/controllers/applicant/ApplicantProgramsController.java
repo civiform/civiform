@@ -188,8 +188,21 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   public CompletionStage<Result> index(Request request, List<String> categories) {
-    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+    var optionalProfile = profileUtils.optionalCurrentUserProfile(request);
+    if (optionalProfile.isEmpty()) {
       return indexWithoutApplicantId(request, categories);
+    }
+    // Only allow standard applicants (non Admin/TIs) to access the program
+    // list.  They should not be able to apply on their own behalf which this
+    // method allows for. Valid uses of index for TIs is done through
+    // indexWithApplicantId().
+    //
+    // Note: The cleaner way to do this would be to set authorizers =
+    // APPLICANT on the  method/route.  This however creates a loop between
+    // /programs and / when users log out, and why is unclear.
+    var profile = optionalProfile.get();
+    if (profile.isTrustedIntermediary() || profile.isProgramAdmin() || profile.isCiviFormAdmin()) {
+      return CompletableFuture.completedFuture(redirectToHome());
     }
 
     Optional<Long> applicantId = getApplicantId(request);
