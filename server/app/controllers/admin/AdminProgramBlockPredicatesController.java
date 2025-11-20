@@ -92,8 +92,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   /**
-   * Value to track how many predicates are currently present on the page. Keys are conditionIds,
-   * values are top-level predicates.
+   * Value to track how many conditions are currently present on the page. Keys are conditionIds,
+   * values are top-level conditions (containing subconditions).
    */
   private final Map<Long, EditConditionPartialViewModel> topLevelConditions = new HashMap<>();
 
