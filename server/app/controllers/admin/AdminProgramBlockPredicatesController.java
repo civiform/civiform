@@ -573,12 +573,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         | ProgramQuestionDefinitionNotFoundException
         | EligibilityNotValidForProgramTypeException
         | BadRequestException e) {
-      // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+      // TODO(#11761): Replace toast with dismissable alert when admin alerts are
+      // ready.
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     }
 
-    // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+    // TODO(#11761): Replace toast with dismissable alert when admin alerts are
+    // ready.
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
         .flashing(
             FlashKey.SUCCESS,
@@ -605,7 +607,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> availableQuestions =
           getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
       if (availableQuestions.isEmpty()) {
-        // TODO(#11617): Render alert with message that there are no available questions.
+        // TODO(#11617): Render alert with message that there are no available
+        // questions.
         return notFound();
       }
       Long conditionId = form.get().getConditionId();
@@ -662,7 +665,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> availableQuestions =
           getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
       if (availableQuestions.isEmpty()) {
-        // TODO(#11617): Render alert with message that there are no available questions.
+        // TODO(#11617): Render alert with message that there are no available
+        // questions.
         return notFound();
       }
 
@@ -676,6 +680,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       if (condition == null) {
         throw new PredicateDefinitionNotFoundException(programId, blockDefinitionId, conditionId);
       }
+      // Get currently added subconditions
+      ArrayList<EditSubconditionPartialViewModel> subconditionsList =
+          new ArrayList<>(condition.subconditions())
+              .stream()
+                  .map(item -> item.toBuilder().renderAddSubcondition(false).build())
+                  .collect(Collectors.toCollection(ArrayList::new));
 
       EditSubconditionPartialViewModel subcondition =
           EditSubconditionPartialViewModel.builder()
@@ -696,18 +706,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   selectedQuestion
                       .map(question -> getValueOptionsForQuestion(question))
                       .orElse(ImmutableList.of()))
-              .renderAddSubcondition(false)
+              .renderAddSubcondition(subconditionsList.size() <= subconditionId)
               .build();
 
-      // Update subconditions list within the top-level condition.
-      ArrayList<EditSubconditionPartialViewModel> subconditionsList =
-          new ArrayList<>(condition.subconditions())
-              .stream()
-                  .map(item -> item.toBuilder().renderAddSubcondition(false).build())
-                  .collect(Collectors.toCollection(ArrayList::new));
-
+      // Update stored subcondition list
       if (subconditionsList.size() < subconditionId) {
-        subconditionsList.add(subcondition.toBuilder().renderAddSubcondition(true).build());
+        subconditionsList.add(subcondition);
       } else {
         subconditionsList.set((int) subconditionId - 1, subcondition);
       }
@@ -715,6 +719,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           condition.toBuilder().subconditions(ImmutableList.copyOf(subconditionsList)).build();
       this.topLevelConditions.replace(conditionId, condition);
 
+      // Render full condition list
       return ok(conditionListPartialView.render(
               request, createConditionListModel(programId, blockDefinitionId, useCase)))
           .as(Http.MimeTypes.HTML);
@@ -784,7 +789,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       }
     }
 
-    // Clear all old condition and subcondition data. We'll replace it with the new data below.
+    // Clear all old condition and subcondition data. We'll replace it with the new
+    // data below.
     this.topLevelConditions.clear();
 
     // Repopulate top-level conditions with new info.
@@ -863,7 +869,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       try {
         scalars = Scalar.getScalars(question.getQuestionType()).asList();
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-        // This should never happen since we filter out Enumerator questions before this point.
+        // This should never happen since we filter out Enumerator questions before this
+        // point.
         return ImmutableList.of();
       }
     }

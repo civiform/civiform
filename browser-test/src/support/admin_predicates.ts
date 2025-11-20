@@ -234,9 +234,9 @@ export class AdminPredicates {
 
   async expectSubcondition(conditionId: number, subconditionId: number) {
     await expect(
-      this.page.getByLabel('Question', {
-        id: `condition-${conditionId}-subcondition-${subconditionId}-question`,
-      }),
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      ),
     ).toBeVisible()
   }
 
