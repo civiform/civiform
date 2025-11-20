@@ -1,21 +1,21 @@
 <!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditConditionPartialViewModel"*/-->
-<th:block th:fragment="editCondition(model)">
+<th:block th:fragment="editCondition(conditionId, model)">
   <div
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
-    th:id="${'condition-' + model.conditionId}"
-    th:data-testid="|condition-${model.conditionId}|"
+    th:id="${'condition-' + conditionId}"
+    th:data-testid="|condition-${conditionId}|"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
         <div
           class="usa-card__heading font-heading-sm"
-          th:text="|Condition ${model.conditionId}|"
+          th:text="|Condition ${conditionId}|"
         ></div>
         <button
           type="button"
           class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
           th:hx-post="${model.hxDeleteConditionEndpoint()}"
-          th:hx-vals='|{"conditionId": "${model.conditionId}"}|'
+          th:hx-vals='|{"conditionId": "${conditionId}"}|'
           hx-target="#predicate-conditions-list"
         >
           <svg
@@ -41,7 +41,7 @@
         [[#{content.predicateConditionIsTrueIf}]]
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="|condition-${model.conditionId}-nodeType|"
+          th:name="|condition-${conditionId}-nodeType|"
         >
           <option
             th:each="nodeType : ${model.operatorNodeTypes()}"
@@ -51,9 +51,11 @@
         </select>
         [[#{content.predicateSubconditionsAreTrue}]]
       </div>
-      <th:block th:each="subcondition: ${model.subconditions}">
+      <th:block
+        th:each="subcondition, subconditionStat: ${model.subconditions}"
+      >
         <div
-          th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${subcondition})}"
+          th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, ${subconditionStat.count}, ${subcondition})}"
         ></div>
       </th:block>
     </div>

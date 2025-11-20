@@ -35,10 +35,9 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
-import views.admin.programs.predicates.AddFirstConditionPartialView;
-import views.admin.programs.predicates.EditConditionPartialView;
-import views.admin.programs.predicates.EditPredicatePageView;
+import views.admin.programs.predicates.ConditionListPartialView;
 import views.admin.programs.predicates.EditSubconditionPartialView;
+import views.admin.programs.predicates.EditPredicatePageView;
 import views.admin.programs.predicates.FailedRequestPartialView;
 
 @RunWith(JUnitParamsRunner.class)
@@ -65,10 +64,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicatesEditView.class),
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
-            instanceOf(EditConditionPartialView.class),
             instanceOf(EditSubconditionPartialView.class),
             instanceOf(FailedRequestPartialView.class),
-            instanceOf(AddFirstConditionPartialView.class),
+            instanceOf(ConditionListPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),

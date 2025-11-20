@@ -14,9 +14,6 @@ public record EditConditionPartialViewModel(
     long programId,
     long blockId,
     PredicateUseCase predicateUseCase,
-    long conditionId,
-    Optional<String> selectedQuestionType,
-    Optional<String> selectedOperator,
     ImmutableList<EditSubconditionPartialViewModel> subconditions,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
@@ -47,8 +44,6 @@ public record EditConditionPartialViewModel(
         .programId(programId)
         .blockId(blockId)
         .predicateUseCase(predicateUseCase)
-        .conditionId(conditionId)
-        .subconditionId(1L)
         .selectedQuestionType(Optional.empty())
         .selectedOperator(Optional.empty())
         .questionOptions(questionOptions)

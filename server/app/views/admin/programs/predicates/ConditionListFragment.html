@@ -1,8 +1,8 @@
 <th:block th:fragment="conditionList(model)">
   <div id="predicate-conditions-list">
-    <th:block th:each="condition: ${model.conditions}">
+    <th:block th:each="condition, conditionStat: ${model.conditions}">
       <div
-        th:replace="~{admin/programs/predicates/EditConditionFragment :: editCondition(${condition})}"
+        th:replace="~{admin/programs/predicates/EditConditionFragment :: editCondition(${conditionStat.count}, ${condition})}"
       ></div>
     </th:block>
     <button
