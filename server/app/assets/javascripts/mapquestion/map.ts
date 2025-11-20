@@ -49,6 +49,7 @@ import {
   hasReachedMaxSelections,
   calculateMapCenter,
   POPUP_LAYER,
+  CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
 export const init = (): void => {
@@ -65,6 +66,31 @@ export const init = (): void => {
       console.warn(`Failed to render map ${mapId}:`, error)
     }
   })
+  const errorMessages = document.querySelectorAll('.cf-applicant-question-errors');
+  console.log("errorMessages:")
+  console.log(errorMessages)
+  if (errorMessages.length > 0){
+    for(let i = 0; i < errorMessages.length; i++){
+      const errorMessage = errorMessages[i]
+      const ariaId = errorMessage.id + "-aria"
+      const ariaLiveRegion = document.getElementById(ariaId)
+      if (ariaLiveRegion){
+        ariaLiveRegion.textContent = errorMessage.textContent
+        // / Clear the text after announcement to prevent navigation to it
+        setTimeout(() => {
+          ariaLiveRegion.textContent = 'errorMessage'
+        }, 1000)
+      }
+      const questionId = errorMessage.id.slice(0,-6)
+      console.log(questionId)
+      const firstLocationCheckbox = document.querySelector(`[question-id="${questionId}"].${CF_LOCATION_CHECKBOX_INPUT}`) as HTMLElement
+      console.log(firstLocationCheckbox)
+      if(firstLocationCheckbox && i+1 == errorMessages.length){
+        firstLocationCheckbox.focus()
+      }
+    }
+
+  }
 }
 
 const createMap = (mapId: string, geoJson: FeatureCollection) => {
