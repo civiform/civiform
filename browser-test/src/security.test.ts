@@ -65,7 +65,7 @@ test.describe(
       await logout(page)
     })
 
-    test('/ redirects to program dashboard when logged in as CiviForm admin', async ({
+    test('/ redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
       page,
     }) => {
       await loginAsAdmin(page)
@@ -74,7 +74,7 @@ test.describe(
       await expectAdminDashboard(page)
     })
 
-    test('/programs redirects to program dashboard when logged in as CiviForm admin', async ({
+    test('/programs redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
       page,
     }) => {
       await loginAsAdmin(page)
@@ -83,7 +83,7 @@ test.describe(
       await expectAdminDashboard(page)
     })
 
-    test('program deeplink redirects to program dashboard when logged in as CiviForm admin', async ({
+    test('program deeplink redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
       page,
     }) => {
       await loginAsAdmin(page)
@@ -92,7 +92,7 @@ test.describe(
       await expectAdminDashboard(page)
     })
 
-    test('/ redirects to program dashboard when logged in as Program admin', async ({
+    test('/ redirects to program admin dashboard when logged in as Program admin', async ({
       page,
     }) => {
       await loginAsProgramAdmin(page)
@@ -101,7 +101,7 @@ test.describe(
       await expectProgramAdminDashboard(page)
     })
 
-    test('/programs redirects to program dashboard when logged in as Program admin', async ({
+    test('/programs redirects to program admin dashboard when logged in as Program admin', async ({
       page,
     }) => {
       await loginAsProgramAdmin(page)
@@ -110,7 +110,7 @@ test.describe(
       await expectProgramAdminDashboard(page)
     })
 
-    test('program deeplink redirects to program dashboard when logged in as Program admin', async ({
+    test('program deeplink redirects to program admin dashboard when logged in as Program admin', async ({
       page,
     }) => {
       await loginAsProgramAdmin(page)
@@ -135,7 +135,7 @@ test.describe(
       await expectTiDashboard(page)
     })
 
-    test('program deeplink redirects to program dashboard when logged in as TI', async ({
+    test('program deeplink redirects to TI dashboard when logged in as TI', async ({
       page,
     }) => {
       await loginAsTrustedIntermediary(page)
