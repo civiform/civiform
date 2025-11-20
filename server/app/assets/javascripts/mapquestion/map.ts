@@ -362,6 +362,15 @@ const setupEventListenersForMap = (
             (targetName === CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON ? 1 : -1)
 
       goToPage(mapId, page)
+
+      // Focus on the location count element after pagination
+      const locationCount = mapQuerySelector(
+        mapId,
+        CF_LOCATION_COUNT,
+      ) as HTMLElement
+      if (locationCount) {
+        locationCount.focus()
+      }
     }
   })
 

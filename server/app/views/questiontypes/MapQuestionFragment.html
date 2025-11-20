@@ -211,7 +211,6 @@
         </div>
         <nav
           th:if="${questionRendererParams.geoJson().isPresent()}"
-          tabindex="-1"
           th:aria-label="#{map.ariaLabelPaginationList}"
           class="usa-pagination flex-justify-end cf-pagination"
           th:data-map-id="${mapId}"
@@ -424,7 +423,8 @@
         mapRegionAltText:
           /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
         goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
-        paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
+        paginationStatus:
+          /*[[#{map.paginationStatus}]]*/ 'Now displaying page {0} of {1}.',
         mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
         mapSelectLocationButtonText:
           /*[[#{map.selectLocationButtonText}]]*/ 'Select location',
