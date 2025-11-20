@@ -39,6 +39,23 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    await test.step('Navigate to edit predicate and save empty predicate', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickSaveAndExitButton()
+
+      // Validate no predicate is saved
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+      await expect(page.locator('#eligibility-predicate')).toContainText(
+        'This screen does not have any eligibility conditions',
+      )
+    })
+
     await test.step('Navigate to edit predicate and create a new condition', async () => {
       // Edit eligibility predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -857,6 +874,72 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.expectNoAddConditionButton()
       await validateScreenshot(page, 'no-available-visibility-questions')
+    })
+  })
+
+  test('Eligibility message', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Eligibility message'
+
+    await test.step('Create a program', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+      })
+    })
+
+    await test.step('Navigate to edit predicate and verify empty state', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(
+        page.getByLabel('Display message to ineligible applicants'),
+      ).toBeVisible()
+      await expect(
+        page.getByLabel('Display message to ineligible applicants'),
+      ).toBeEmpty()
+    })
+
+    await test.step('Set eligibility message', async () => {
+      const eligibilityMessage = 'You are not eligible for this program.'
+      await page
+        .getByLabel('Display message to ineligible applicants')
+        .fill(eligibilityMessage)
+
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(
+        page.getByLabel('Display message to ineligible applicants'),
+      ).toHaveValue(eligibilityMessage)
+    })
+
+    await test.step('Remove eligibility message', async () => {
+      await page.getByLabel('Display message to ineligible applicants').fill('')
+
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(
+        page.getByLabel('Display message to ineligible applicants'),
+      ).toBeEmpty()
     })
   })
 
