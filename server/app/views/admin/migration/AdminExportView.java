@@ -93,7 +93,7 @@ public final class AdminExportView extends BaseHtmlView {
                         .setFieldName(AdminProgramExportForm.PROGRAM_JSON_FIELD)
                         .setValue(json)
                         .getTextareaTag()
-                        .withClass("hidden"))
+                        .withClass("display-none"))
                 .withAction(routes.AdminExportController.downloadJson(adminName).url()));
   }
 

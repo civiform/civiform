@@ -31,7 +31,7 @@ function attachDropdown(elementId: string) {
 function toggleElementVisibility(id: string) {
   const element = document.getElementById(id)
   if (element) {
-    element.classList.toggle('hidden')
+    element.classList.toggle('display-none')
   }
 }
 
@@ -41,7 +41,7 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
     if (parent && !parent.contains(e.target)) {
       const elementToHide = document.getElementById(id)
       if (elementToHide) {
-        elementToHide.classList.add('hidden')
+        elementToHide.classList.add('display-none')
       }
     }
   }
@@ -96,7 +96,7 @@ function addNewInput(
   const newField = document
     .getElementById(inputTemplateId)!
     .cloneNode(true) as HTMLElement
-  newField.classList.remove('hidden')
+  newField.classList.remove('display-none')
   newField.removeAttribute('id')
 
   // Register the click event handler for the buttons.
@@ -155,7 +155,7 @@ function moveMultiOptionQuestionUp(event: Event) {
 
   const options = Array.from(
     document.querySelectorAll(
-      'div.cf-multi-option-question-option-editable:not(.hidden)',
+      'div.cf-multi-option-question-option-editable:not(.display-none)',
     ),
   )
   const clickedIndex = options.indexOf(clickedOption)
@@ -186,7 +186,7 @@ function moveMultiOptionQuestionDown(event: Event) {
 
   const options = Array.from(
     document.querySelectorAll(
-      'div.cf-multi-option-question-option-editable:not(.hidden)',
+      'div.cf-multi-option-question-option-editable:not(.display-none)',
     ),
   )
   const clickedIndex = options.indexOf(clickedOption)

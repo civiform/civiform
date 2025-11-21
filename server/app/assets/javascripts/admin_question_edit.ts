@@ -195,15 +195,15 @@ class AdminQuestionEdit {
   addMapTagButtonHandlers() {
     addEventListenerToElements('#add-map-tag-button', 'click', (event) => {
       const target = event.target as HTMLButtonElement
-      target.classList.add('hidden')
+      target.classList.add('display-none')
       const tagContainer = document.querySelector(
         '.map-tag-setting-container',
       ) as HTMLDivElement
-      tagContainer.classList.remove('hidden')
+      tagContainer.classList.remove('display-none')
       const deleteButton = document.getElementById(
         'delete-map-tag-button',
       ) as HTMLButtonElement
-      deleteButton.classList.remove('hidden')
+      deleteButton.classList.remove('display-none')
     })
 
     addEventListenerToElements('#delete-map-tag-button', 'click', () => {
@@ -226,11 +226,11 @@ class AdminQuestionEdit {
       valueInput.value = ''
       textarea.value = ''
       select.selectedIndex = 0
-      tagContainer.classList.add('hidden')
+      tagContainer.classList.add('display-none')
       const addButton = document.getElementById(
         'add-map-tag-button',
       ) as HTMLButtonElement
-      addButton.classList.remove('hidden')
+      addButton.classList.remove('display-none')
     })
   }
 

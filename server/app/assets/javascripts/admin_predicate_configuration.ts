@@ -214,7 +214,7 @@ class AdminPredicateConfiguration {
     )
     csvHelpTexts.forEach((div: Element) =>
       div.classList.toggle(
-        'hidden',
+        'display-none',
         (selectedOperatorValue !== 'IN' &&
           selectedOperatorValue !== 'NOT_IN') ||
           this.isMultiSelect(selectedScalarValue),
@@ -272,7 +272,7 @@ class AdminPredicateConfiguration {
         `[data-question-id="${questionId}"] .cf-predicate-value-second-input-container`,
       )
       .forEach((div) => {
-        div.classList.toggle('hidden', oneValueOnly)
+        div.classList.toggle('display-none', oneValueOnly)
         assertNotNull(div.querySelector('input')).disabled = oneValueOnly
       })
 
@@ -403,7 +403,7 @@ class AdminPredicateConfiguration {
     )
     // The first row which is being used as a template cannot be deleted
     // and is rendered with a hidden delete button.
-    deleteButtonDiv.classList.remove('hidden')
+    deleteButtonDiv.classList.remove('display-none')
 
     assertNotNull(
       document.getElementById('predicate-config-value-row-container'),

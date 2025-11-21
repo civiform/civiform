@@ -219,6 +219,6 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
         .withId(DELETE_ENTITY_TEMPLATE_ID)
         .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
         .isDisabled() // do not submit this with the form
-        .withClasses("hidden");
+        .withClasses("display-none");
   }
 }

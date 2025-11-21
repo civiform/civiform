@@ -307,7 +307,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 each(
                     params.block().getQuestions(),
                     question -> renderEmptyFileKeyField(question, rendererParams)));
-    return div(continueForm, deleteForm).withClasses("hidden");
+    return div(continueForm, deleteForm).withClasses("display-none");
   }
 
   // Returns the "save and next" button for uploading multiple files. Since the upload and save

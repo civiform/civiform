@@ -1,6 +1,6 @@
 <div
   th:fragment="toast(id, message, canDismiss, canIgnore, toastDuration, condOnStorageKey, toastType)"
-  class="hidden cf-toast-data"
+  class="display-none cf-toast-data"
   th:id="${id}"
   th:attr="canDismiss=${canDismiss},canIgnore=${canIgnore},toastDuration=${toastDuration},condOnStorageKey=${condOnStorageKey},toastType=${toastType}"
   th:text="${message}"

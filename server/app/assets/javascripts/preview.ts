@@ -241,10 +241,10 @@ export default class PreviewController {
         PreviewController.QUESTION_MAP_FILTERS_CONTAINER_SELECTOR,
       )
       if (newFilterCount === 0) {
-        filterContainer?.classList.add('hidden')
+        filterContainer?.classList.add('display-none')
         filterContainer?.setAttribute('aria-hidden', 'true')
       } else {
-        filterContainer?.classList.remove('hidden')
+        filterContainer?.classList.remove('display-none')
         filterContainer?.removeAttribute('aria-hidden')
       }
 
@@ -496,7 +496,7 @@ export default class PreviewController {
       ),
     )
     repeatedQuestionInformation.classList.toggle(
-      'hidden',
+      'display-none',
       enumeratorSelectorValue === '',
     )
   }

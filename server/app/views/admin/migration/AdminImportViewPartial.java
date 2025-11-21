@@ -147,7 +147,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .setFieldName(AdminProgramImportForm.PROGRAM_JSON_FIELD)
                     .setValue(json)
                     .getTextareaTag()
-                    .withClass("hidden"))
+                    .withClass("display-none"))
             .condWith(
                 duplicateQuestionNames.size() > 1, renderToplevelDuplicateQuestionHandlingOptions())
             .withAction(routes.AdminImportController.hxSaveProgram().url());
