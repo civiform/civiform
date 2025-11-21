@@ -13,6 +13,8 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ProgramModel;
@@ -35,7 +37,7 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
-import views.admin.programs.predicates.EditConditionPartialView;
+import views.admin.programs.predicates.ConditionListPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
 import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.FailedRequestPartialView;
@@ -64,9 +66,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicatesEditView.class),
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
-            instanceOf(EditConditionPartialView.class),
             instanceOf(EditSubconditionPartialView.class),
             instanceOf(FailedRequestPartialView.class),
+            instanceOf(ConditionListPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
@@ -527,5 +529,108 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .doesNotContain(ImmutableList.of("street", "first name", "date", "currency"));
     // Verify that values are populated
     assertThat(content).contains("Toaster", "Pepper Grinder", "Garlic Press");
+  }
+
+  @Test
+  public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
+            ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
+    formData.put("conditionId", "1");
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).doesNotContain("service area");
+    assertThat(content).doesNotContain("Seattle");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteCondition_twoConditions_deleteFirstCondition_secondConditionBecomesFirst() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "1");
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteCondition_twoConditions_deleteSecondCondition_displaysAddConditionButton() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "2");
+
+    Result result =
+        controller.hxDeleteCondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  /**
+   * Creates a map of HTML subcondition ids to selected questions.
+   *
+   * <p>Entries are of the format: ("condition-[num]-subcondition-1-question", "[questionId]")
+   */
+  private Map<String, String> createConditionMapWithSelectedQuestions(
+      ImmutableList<Long> questionIds) {
+    Map<String, String> conditionMap = new HashMap<>();
+    for (int i = 1; i <= questionIds.size(); ++i) {
+      conditionMap.put(
+          String.format("condition-%d-subcondition-1-question", i),
+          String.valueOf(questionIds.get(i - 1)));
+    }
+
+    return conditionMap;
   }
 }

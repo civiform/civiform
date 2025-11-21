@@ -113,7 +113,7 @@
         </div>
         <th:block th:if="${model.hasAvailableQuestions}">
           <div
-            th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+            th:replace="~{admin/programs/predicates/ConditionListFragment :: conditionList(${model.newConditionList()})}"
           ></div>
         </th:block>
       </form>

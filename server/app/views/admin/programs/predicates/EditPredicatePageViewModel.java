@@ -19,7 +19,7 @@ public record EditPredicatePageViewModel(
     BlockDefinition blockDefinition,
     PredicateUseCase predicateUseCase,
     ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
-    ImmutableList<EditConditionPartialViewModel> currentAddedConditions,
+    ImmutableList<EditConditionPartialViewModel> prePopulatedConditions,
     boolean hasAvailableQuestions)
     implements EditPredicateBaseViewModel {
 
@@ -62,6 +62,15 @@ public record EditPredicatePageViewModel(
   }
 
   public boolean screenHasPredicates() {
-    return this.currentAddedConditions.size() > 0;
+    return this.prePopulatedConditions.size() > 0;
+  }
+
+  public ConditionListPartialViewModel newConditionList() {
+    return ConditionListPartialViewModel.builder()
+        .programId(programDefinition.id())
+        .blockId(blockDefinition.id())
+        .predicateUseCase(predicateUseCase)
+        .conditions(prePopulatedConditions)
+        .build();
   }
 }

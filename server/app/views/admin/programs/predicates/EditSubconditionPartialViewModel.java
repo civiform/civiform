@@ -13,7 +13,7 @@ import views.admin.BaseViewModel;
  * Partial view for rendering EditSubconditionPartial.html. This partial is used for editing a
  * subcondition within a condition of a predicate.
  */
-@Builder
+@Builder(toBuilder = true)
 public record EditSubconditionPartialViewModel(
     long programId,
     long blockId,
@@ -25,7 +25,8 @@ public record EditSubconditionPartialViewModel(
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
-    ImmutableList<OptionElement> valueOptions)
+    ImmutableList<OptionElement> valueOptions,
+    boolean renderAddSubcondition)
     implements BaseViewModel {
   public String hxEditSubconditionEndpoint() {
     return routes.AdminProgramBlockPredicatesController.hxEditSubcondition(

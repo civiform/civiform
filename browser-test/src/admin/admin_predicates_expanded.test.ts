@@ -96,6 +96,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
+      await waitForHtmxReady(page)
       await adminPredicates.expectSubcondition(1, 2)
       await validateScreenshot(
         page.getByTestId('condition-1'),
@@ -691,6 +692,116 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         )
       })
     }
+  })
+
+  test('Delete conditions', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    const firstQuestionName = 'first-predicate-q'
+    const secondQuestionName = 'second-predicate-q'
+    const firstQuestionText = 'What is your name'
+    const secondQuestionText = 'What is your birthday'
+
+    await loginAsAdmin(page)
+    const programName = 'Create and edit a new predicate'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: firstQuestionName,
+        questionText: firstQuestionText,
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: secondQuestionName,
+        questionText: secondQuestionText,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: firstQuestionName}, {name: secondQuestionName}],
+      })
+    })
+
+    await test.step('Add eligibility condition', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Delete condition and validate null state', async () => {
+      await adminPredicates.clickDeleteConditionButton(1)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.expectAddConditionButton()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toBeVisible()
+      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toContainText('Applicant is always eligible')
+
+      await validateScreenshot(
+        page.locator('#edit-predicate'),
+        'eligibility-predicate-null-state',
+      )
+    })
+
+    await test.step('Add two eligibility conditions and select questions', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        firstQuestionText,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(2)
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 2,
+        /* subconditionId= */ 1,
+        secondQuestionText,
+      )
+    })
+
+    await test.step('Delete first condition - second condition should become first', async () => {
+      await adminPredicates.clickDeleteConditionButton(1)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectCondition(1)
+      await adminPredicates.expectNoCondition(2)
+
+      await adminPredicates.expectAddConditionButton()
+      await expect(
+        page.locator('#predicate-operator-node-select-null-state'),
+      ).toBeHidden()
+      await expect(
+        page.locator('#predicate-operator-node-select'),
+      ).toBeVisible()
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(secondQuestionText)
+    })
   })
 
   test('No available questions on screen', async ({

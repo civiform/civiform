@@ -8,18 +8,23 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.BlockEligibilityMessageForm;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -55,14 +60,15 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
-import views.admin.programs.predicates.EditConditionCommand;
-import views.admin.programs.predicates.EditConditionPartialView;
+import views.admin.programs.predicates.ConditionListPartialView;
+import views.admin.programs.predicates.ConditionListPartialViewModel;
 import views.admin.programs.predicates.EditConditionPartialViewModel;
 import views.admin.programs.predicates.EditPredicatePageView;
 import views.admin.programs.predicates.EditPredicatePageViewModel;
 import views.admin.programs.predicates.EditSubconditionCommand;
 import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.EditSubconditionPartialViewModel;
+import views.admin.programs.predicates.EditSubconditionPartialViewModel.EditSubconditionPartialViewModelBuilder;
 import views.admin.programs.predicates.FailedRequestPartialView;
 import views.admin.programs.predicates.FailedRequestPartialViewModel;
 import views.components.ToastMessage;
@@ -79,16 +85,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramPredicatesEditView legacyPredicatesEditView;
   private final ProgramPredicateConfigureView legacyPredicatesConfigureView;
   private final EditPredicatePageView editPredicatePageView;
-  private final EditConditionPartialView editConditionPartialView;
   private final EditSubconditionPartialView editSubconditionPartialView;
   private final FailedRequestPartialView failedRequestPartialView;
+  private final ConditionListPartialView conditionListPartialView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-
-  /** Value to track how many predicates are currently present on the page. */
-  private final List<EditConditionPartialViewModel> topLevelConditions = new ArrayList<>();
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -112,9 +115,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramPredicatesEditView legacyPredicatesEditView,
       ProgramPredicateConfigureView legacyPredicatesConfigureView,
       EditPredicatePageView editPredicatePageView,
-      EditConditionPartialView editConditionPartialView,
       EditSubconditionPartialView editSubconditionPartialView,
       FailedRequestPartialView failedRequestPartialView,
+      ConditionListPartialView conditionListPartialView,
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
@@ -128,9 +131,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.legacyPredicatesEditView = checkNotNull(legacyPredicatesEditView);
     this.legacyPredicatesConfigureView = checkNotNull(legacyPredicatesConfigureView);
     this.editPredicatePageView = checkNotNull(editPredicatePageView);
-    this.editConditionPartialView = checkNotNull(editConditionPartialView);
-    this.editSubconditionPartialView = checkNotNull(editSubconditionPartialView);
     this.failedRequestPartialView = checkNotNull(failedRequestPartialView);
+    this.editSubconditionPartialView = checkNotNull(editSubconditionPartialView);
+    this.conditionListPartialView = checkNotNull(conditionListPartialView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -172,7 +175,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
                 .operatorScalarMap(getOperatorScalarMap())
-                .currentAddedConditions(ImmutableList.copyOf(this.topLevelConditions))
+                .prePopulatedConditions(ImmutableList.of())
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
@@ -567,12 +570,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         | ProgramQuestionDefinitionNotFoundException
         | EligibilityNotValidForProgramTypeException
         | BadRequestException e) {
-      // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+      // TODO(#11761): Replace toast with dismissable alert when admin alerts are
+      // ready.
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     }
 
-    // TODO(#11761): Replace toast with dismissable alert when admin alerts are ready.
+    // TODO(#11761): Replace toast with dismissable alert when admin alerts are
+    // ready.
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
         .flashing(
             FlashKey.SUCCESS,
@@ -587,9 +592,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound("Expanded form logic is not enabled.");
     }
 
-    Form<EditConditionCommand> form =
-        formFactory.form(EditConditionCommand.class).bindFromRequest(request);
-    if (form.hasErrors()) {
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    if (form.rawData().get("conditionId") == null) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
           .as(Http.MimeTypes.HTML);
     }
@@ -599,22 +603,39 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> availableQuestions =
           getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
       if (availableQuestions.isEmpty()) {
-        // TODO(#11617): Render alert with message that there are no available questions.
+        // TODO(#11617): Render alert with message that there are no available
+        // questions.
         return notFound();
       }
-      return ok(editConditionPartialView.render(
+
+      ArrayList<EditConditionPartialViewModel> currentConditions =
+          new ArrayList<>(
+              buildConditionsListFromFormData(
+                  programId, blockDefinitionId, predicateUseCase, form.rawData()));
+      EditConditionPartialViewModel condition =
+          EditConditionPartialViewModel.builder()
+              .programId(programId)
+              .blockId(blockDefinitionId)
+              .predicateUseCase(useCase)
+              .questionOptions(
+                  getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty()))
+              .scalarOptions(ImmutableList.of())
+              .operatorOptions(getOperatorOptions())
+              .build();
+      condition =
+          condition.toBuilder()
+              .subconditions(ImmutableList.of(condition.emptySubconditionViewModel()))
+              .build();
+      currentConditions.add(condition);
+
+      // Render an updated list of conditions (sorted by conditionId).
+      return ok(conditionListPartialView.render(
               request,
-              EditConditionPartialViewModel.builder()
+              ConditionListPartialViewModel.builder()
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(useCase)
-                  .conditionId(form.get().getConditionId())
-                  .selectedQuestionType(Optional.empty())
-                  .questionOptions(
-                      getQuestionOptions(
-                          availableQuestions, /* selectedQuestion= */ Optional.empty()))
-                  .scalarOptions(ImmutableList.of())
-                  .operatorOptions(getOperatorOptions())
+                  .conditions(ImmutableList.copyOf(currentConditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
@@ -674,10 +695,56 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                       selectedQuestion
                           .map(question -> getValueOptionsForQuestion(question))
                           .orElse(ImmutableList.of()))
+                  .renderAddSubcondition(!selectedQuestion.isPresent())
                   .build()))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
+        | IllegalArgumentException e) {
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
+    }
+  }
+
+  /**
+   * HTMX endpoint that re-renders predicate conditions, dropping the condition with id idToDelete
+   * from the DOM.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxDeleteCondition(
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+      return notFound("Expanded form logic is not enabled.");
+    }
+
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String idToRemove = form.rawData().get("conditionId");
+    if (form.hasErrors() || idToRemove == null) {
+      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+          .as(Http.MimeTypes.HTML);
+    }
+
+    try {
+      String removedConditionPrefix = "condition-" + idToRemove;
+      Map<String, String> formData = new HashMap<>(form.rawData());
+
+      // Start by pre-filtering formData to remove entry for the deleted condition.
+      formData.keySet().removeIf(key -> key.startsWith(removedConditionPrefix));
+
+      ImmutableList<EditConditionPartialViewModel> conditions =
+          buildConditionsListFromFormData(programId, blockDefinitionId, predicateUseCase, formData);
+
+      return ok(conditionListPartialView.render(
+              request,
+              ConditionListPartialViewModel.builder()
+                  .programId(programId)
+                  .blockId(blockDefinitionId)
+                  .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .conditions(conditions)
+                  .build()))
+          .as(Http.MimeTypes.HTML);
+    } catch (ProgramBlockDefinitionNotFoundException
+        | ProgramNotFoundException
         | IllegalArgumentException e) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
           .as(Http.MimeTypes.HTML);
@@ -746,7 +813,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       try {
         scalars = Scalar.getScalars(question.getQuestionType()).asList();
       } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-        // This should never happen since we filter out Enumerator questions before this point.
+        // This should never happen since we filter out Enumerator questions before this
+        // point.
         return ImmutableList.of();
       }
     }
@@ -820,5 +888,107 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .build();
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Given formData from a dynamic form, returns a parsed list of {@link
+   * EditConditionPartialViewModel} iterates through top-level conditions and subconditions in order
+   * of condition / subconditionId.
+   *
+   * <p>Does nothing if no condition / subcondition ID fields are present.
+   */
+  private ImmutableList<EditConditionPartialViewModel> buildConditionsListFromFormData(
+      Long programId, Long blockDefinitionId, String predicateUseCase, Map<String, String> formData)
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    ArrayList<EditConditionPartialViewModel> editConditionModels = new ArrayList<>();
+    PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
+    ImmutableList<QuestionDefinition> availableQuestions =
+        getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
+    ImmutableList<OptionElement> operatorOptions = getOperatorOptions();
+    ImmutableList<OptionElement> defaultQuestionOptions =
+        getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty());
+
+    // Get list of present condition IDs.
+    // This is necessary to account for gaps in condition IDs.
+    Pattern conditionIdPattern = Pattern.compile("^condition-(\\d+)");
+    ImmutableList<Long> presentConditionIds =
+        ImmutableList.sortedCopyOf(
+            formData.keySet().stream()
+                .map(conditionIdPattern::matcher)
+                .filter(Matcher::find)
+                .map(match -> Long.parseLong(match.group(1)))
+                .collect(ImmutableSet.toImmutableSet()));
+
+    // Iterate upwards through condition IDs.
+    for (Long conditionId : presentConditionIds) {
+      EditConditionPartialViewModel condition =
+          EditConditionPartialViewModel.builder()
+              .programId(programId)
+              .blockId(blockDefinitionId)
+              .predicateUseCase(useCase)
+              .questionOptions(defaultQuestionOptions)
+              .operatorOptions(operatorOptions)
+              .build();
+
+      /* Iterate through subconditions */
+      ArrayList<EditSubconditionPartialViewModel> subconditions = new ArrayList<>();
+      Pattern subconditionIdPattern =
+          Pattern.compile(String.format("^condition-%d-subcondition-(\\d+)", conditionId));
+      ImmutableList<Long> presentSubconditionIds =
+          ImmutableList.sortedCopyOf(
+              formData.keySet().stream()
+                  .map(subconditionIdPattern::matcher)
+                  .filter(Matcher::find)
+                  .map(match -> Long.parseLong(match.group(1)))
+                  .collect(ImmutableSet.toImmutableSet()));
+
+      /// Keep going until we run out of user-entered subconditions.
+      for (int i = 0; i < presentSubconditionIds.size(); i++) {
+        Long subconditionId = presentSubconditionIds.get(i);
+        String subconditionPrefix =
+            String.format("condition-%d-subcondition-%d", conditionId, subconditionId);
+
+        EditSubconditionPartialViewModelBuilder subconditionBuilder =
+            condition.emptySubconditionViewModel().toBuilder();
+
+        // Set the user-selected question
+        // If nothing is selected, exit this iteration early.
+        String questionField = formData.get(subconditionPrefix + "-question");
+        if (!StringUtils.isNumeric(questionField)) {
+          subconditions.add(subconditionBuilder.build());
+          continue;
+        }
+
+        Long questionId = Long.valueOf(questionField);
+        Optional<QuestionDefinition> selectedQuestion =
+            availableQuestions.stream()
+                .filter(question -> questionId.equals(question.getId()))
+                .findFirst();
+
+        // From selectedQuestion, we can get the rest of the necessary fields.
+        // For the last subcondition, we should render the "Add subcondition" button.
+        subconditionBuilder
+            .selectedQuestionType(
+                selectedQuestion.map(question -> question.getQuestionType().getLabel()))
+            .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
+            .scalarOptions(
+                selectedQuestion
+                    .map(question -> getScalarOptionsForQuestion(question))
+                    .orElse(ImmutableList.of()))
+            .operatorOptions(operatorOptions)
+            .valueOptions(
+                selectedQuestion
+                    .map(question -> getValueOptionsForQuestion(question))
+                    .orElse(ImmutableList.of()))
+            .renderAddSubcondition(i == presentSubconditionIds.size() - 1);
+
+        subconditions.add(subconditionBuilder.build());
+      }
+
+      condition = condition.toBuilder().subconditions(ImmutableList.copyOf(subconditions)).build();
+      editConditionModels.add(condition);
+    }
+
+    return ImmutableList.copyOf(editConditionModels);
   }
 }
