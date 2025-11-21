@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Generate and Upload SBOM to Release ${{ env.TAG_NAME }}
-        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
+        uses: anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d # v0
         with:
           image: docker.io/civiform/civiform:${{ env.TAG_NAME }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
