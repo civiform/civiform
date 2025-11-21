@@ -52,6 +52,7 @@ public final class ProgramQuestionBank {
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final SettingsManifest settingsManifest;
+  private final Http.Request request;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -66,10 +67,12 @@ public final class ProgramQuestionBank {
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.request = checkNotNull(request);
   }
 
   public DivTag getContainer(Visibility questionBankVisibility) {
@@ -153,7 +156,8 @@ public final class ProgramQuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
-                                    settingsManifest)))));
+                                    settingsManifest,
+                                    request)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =

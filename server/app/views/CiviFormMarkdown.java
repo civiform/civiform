@@ -12,8 +12,6 @@ import org.commonmark.node.OrderedList;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.AttributeProvider;
 import org.commonmark.renderer.html.HtmlRenderer;
-import views.style.ApplicantStyles;
-import views.style.StyleUtils;
 
 /** Renders markdown to HTML with styles consistent with CiviForm's UI. */
 public final class CiviFormMarkdown {
@@ -41,13 +39,11 @@ public final class CiviFormMarkdown {
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
-        attributes.put("class", StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"));
+        attributes.put("class", "usa-link usa-link--external");
         attributes.put("target", "_blank");
         attributes.put("rel", "noopener noreferrer");
-      } else if (node instanceof BulletList) {
-        attributes.put("class", "list-disc mx-8");
-      } else if (node instanceof OrderedList) {
-        attributes.put("class", "list-decimal mx-8");
+      } else if (node instanceof BulletList || node instanceof OrderedList) {
+        attributes.put("class", "usa-list margin-r-4");
       }
     }
   }

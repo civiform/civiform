@@ -99,6 +99,12 @@ it is around the label */
   @include u-maxw('mobile-lg');
 }
 
+/* Style aria-disabled checkboxes to appear disabled */
+.cf-location-checkbox-input[aria-disabled='true'] + label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /*
  * Make the file input element for program image upload fill the area it's given.
  * (This overrides the default USWDS style of a max-width of 30rem.)
@@ -189,8 +195,12 @@ it is around the label */
 }
 
 // Tailwind removes list style from unordered and ordered lists.
-.usa-list {
+ul.usa-list {
   list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
 }
 
 .content-spacing {

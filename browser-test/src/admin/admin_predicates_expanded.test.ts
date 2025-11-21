@@ -2,6 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
+import {Locator} from 'playwright'
 
 test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
@@ -268,6 +269,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         secondValue?: string
         defaultInputType?: string
         defaultInputMode?: string
+        multiValueOptions?: {adminName: string; text: string}[]
       }
     >([
       [
@@ -276,6 +278,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           questionName: 'address-q',
           questionText: 'address question text',
           firstValue: 'Seattle',
+        },
+      ],
+      [
+        QuestionType.CHECKBOX,
+        {
+          questionName: 'checkbox-q',
+          questionText: 'checkbox question text',
+          firstValue: 'N/A',
+          multiValueOptions: [
+            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
+            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
+            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
+            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
+          ],
         },
       ],
       [
@@ -301,6 +317,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         },
       ],
       [
+        QuestionType.DROPDOWN,
+        {
+          questionName: 'dropdown-q',
+          questionText: 'dropdown question text',
+          firstValue: 'N/A',
+          multiValueOptions: [
+            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
+            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
+            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
+            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
+          ],
+        },
+      ],
+      [
         QuestionType.EMAIL,
         {
           questionName: 'email-q',
@@ -321,6 +351,20 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           defaultInputMode: 'decimal',
         },
       ],
+      [
+        QuestionType.RADIO,
+        {
+          questionName: 'radio-q',
+          questionText: 'radio question text',
+          firstValue: 'N/A',
+          multiValueOptions: [
+            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
+            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
+            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
+            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
+          ],
+        },
+      ],
     ])
 
     await test.step('Create program and add questions', async () => {
@@ -329,6 +373,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           questionType,
           questionData.questionName,
           questionData.questionText,
+          questionData.multiValueOptions,
         )
       }
       await adminPrograms.addProgram(programName)
@@ -596,6 +641,57 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         'values-with-address-question-selected',
       )
     })
+
+    // Test multiple option question types
+    for (const questionType of [
+      QuestionType.CHECKBOX,
+      QuestionType.DROPDOWN,
+      QuestionType.RADIO,
+    ]) {
+      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
+      await test.step('refresh page and re-add condition', async () => {
+        await page.reload()
+        await adminPredicates.clickAddConditionButton()
+        await adminPredicates.expectCondition(1)
+      })
+
+      await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
+        const questionData = programQuestions.get(questionType)!
+        await adminPredicates.selectQuestion(
+          /* conditionId= */ 1,
+          /* subconditionId= */ 1,
+          questionData.questionText,
+        )
+        await adminPredicates.selectOperator(
+          /* conditionId= */ 1,
+          /* subconditionId= */ 1,
+          'NONE_OF',
+        )
+        await waitForHtmxReady(page)
+
+        const checkboxLabelLocators: Locator[] = [
+          page.locator('label[for="condition-1-subcondition-1-values[1]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[2]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[3]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[4]"]'),
+        ]
+
+        for (let i = 0; i < checkboxLabelLocators.length; i++) {
+          const locator = checkboxLabelLocators[i]
+          await expect(locator).toBeVisible()
+          await locator.check()
+          await expect(locator).toBeChecked()
+          await expect(locator).toHaveText(
+            questionData.multiValueOptions![i].text,
+          )
+        }
+
+        await validateScreenshot(
+          page.getByTestId('condition-1'),
+          `multiselect-with-${questionType}-question-selected`,
+        )
+      })
+    }
   })
 
   test('Delete conditions', async ({

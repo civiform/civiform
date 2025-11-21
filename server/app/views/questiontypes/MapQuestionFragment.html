@@ -120,7 +120,7 @@
     </div>
     <div class="grid-row grid-gap padding-1">
       <div
-        class="grid-col-12 desktop:grid-col-6 margin-bottom-0 tablet:margin-bottom-3 desktop:margin-bottom-0 order-1 tablet:order-2 desktop:order-1"
+        class="grid-col-12 desktop:grid-col-6 margin-bottom-0 tablet:margin-bottom-3 desktop:margin-bottom-0"
       >
         <div
           th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
@@ -211,7 +211,6 @@
         </div>
         <nav
           th:if="${questionRendererParams.geoJson().isPresent()}"
-          tabindex="-1"
           th:aria-label="#{map.ariaLabelPaginationList}"
           class="usa-pagination flex-justify-end cf-pagination"
           th:data-map-id="${mapId}"
@@ -304,9 +303,7 @@
       </div>
 
       <!-- Map container -->
-      <div
-        class="grid-col-12 desktop:grid-col-6 order-2 tablet:order-1 desktop:order-2"
-      >
+      <div class="grid-col-12 desktop:grid-col-6">
         <!-- TODO(#11150): Add map question preview functionality -->
         <div
           th:id="${mapId}"
@@ -347,6 +344,7 @@
         class="cf-selected-locations-container"
         data-testid="selected-locations-list"
         th:data-map-id="${mapId}"
+        tabindex="-1"
       >
         <!-- Selected locations will be dynamically populated here -->
       </div>
@@ -425,7 +423,8 @@
         mapRegionAltText:
           /*[[#{map.mapRegionAltText}]]*/ 'Interactive map displaying locations',
         goToPage: /*[[#{map.goToPage}]]*/ 'Go to page {0}',
-        paginationStatus: /*[[#{map.paginationStatus}]]*/ 'Page has changed.',
+        paginationStatus:
+          /*[[#{map.paginationStatus}]]*/ 'Now displaying page {0} of {1}.',
         mapSelectedButtonText: /*[[#{map.mapSelectedButtonText}]]*/ 'Selected',
         mapSelectLocationButtonText:
           /*[[#{map.selectLocationButtonText}]]*/ 'Select location',

@@ -1066,6 +1066,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
+  /** Enable allowing CiviForm admins to add a map question to their programs. */
+  public boolean getMapQuestionEnabled(RequestHeader request) {
+    return getBool("MAP_QUESTION_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
    * replayed if the user logs out
@@ -1100,14 +1105,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map question to their
-   * programs.
-   */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
-  }
-
-  /**
    * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
    * database.
    */
@@ -1134,6 +1131,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getLoginDropdownEnabled(RequestHeader request) {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
+   * enumerators.
+   */
+  public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
+    return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2328,6 +2333,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "MAP_QUESTION_ENABLED",
+                          "Enable allowing CiviForm admins to add a map question to their"
+                              + " programs.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2380,13 +2392,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable allowing CiviForm admins to add a map"
-                              + " question to their programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.HIDDEN),
-                      SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
                               + " of directly from the database.",
@@ -2410,6 +2415,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "LOGIN_DROPDOWN_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
                               + " applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
+                              + " admins to work with enumerators.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

@@ -518,6 +518,34 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .isEqualTo(4);
     assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(3);
   }
+  
+  public void hxEditSubcondition_withRadioQuestionId_showsOptions() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxEditSubcondition(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "conditionId",
+                        "1",
+                        "subconditionId",
+                        "1",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.checkboxApplicantKitchenTools().id)))
+                .build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 3L,
+            PredicateUseCase.VISIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    // Verify only scalars applicable to the selected question are shown
+    assertThat(content).contains("selection");
+    assertThat(content)
+        .doesNotContain(ImmutableList.of("street", "first name", "date", "currency"));
+    // Verify that values are populated
+    assertThat(content).contains("Toaster", "Pepper Grinder", "Garlic Press");
+  }
 
   @Test
   public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
@@ -672,8 +700,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
       assertThat(result.status()).isEqualTo(OK);
       content = content.concat(Helpers.contentAsString(result));
-    }
-
-    return content;
-  }
+      
+      return content;
+   }
 }

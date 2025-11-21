@@ -305,7 +305,9 @@ public class SecurityModule extends AbstractModule {
 
         // Having ROLE_TI authorizes a profile as TI.
         Authorizers.TI.toString(),
-        new RequireAllRolesAuthorizer(Role.ROLE_TI.toString()));
+        new RequireAllRolesAuthorizer(Role.ROLE_TI.toString()),
+        Authorizers.TI_OR_CIVIFORM_ADMIN.toString(),
+        new RequireAnyRoleAuthorizer(Role.ROLE_TI.toString(), Role.ROLE_CIVIFORM_ADMIN.toString()));
   }
 
   // This provider is consumed by play-pac4j to get the app's security configuration.

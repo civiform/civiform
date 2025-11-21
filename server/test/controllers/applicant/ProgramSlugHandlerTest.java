@@ -174,7 +174,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -182,11 +181,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
-                .url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
@@ -214,7 +212,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -222,15 +219,14 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    Long.toString(programDefinition.id()), /* isFromUrlCall= */ false)
-                .url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenApplicationStarted_loadsProgramOverview() {
+  public void showProgram_whenApplicationStarted_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
@@ -263,7 +259,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -279,7 +274,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenNoApplication_loadsProgramOverview() {
+  public void showProgram_whenNoApplication_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
@@ -307,7 +302,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -323,7 +317,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_whenApplicationSubmitted_loadsProgramOverview() {
+  public void showProgram_whenApplicationSubmitted_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
@@ -356,7 +350,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -372,7 +365,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgramPreview_withNorthStarEnabled_loadsProgramOverview() {
+  public void showProgramPreview_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
@@ -405,7 +398,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
@@ -453,7 +445,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            mockSettingsManifest,
             instanceOf(NorthStarProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
