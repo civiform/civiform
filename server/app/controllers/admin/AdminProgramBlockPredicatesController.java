@@ -893,6 +893,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Given formData from a dynamic form, returns a parsed list of {@link EditConditionPartialViewModel}
+   * Iterates through top-level conditions and subconditions in order of condition / subconditionId.
+   * 
+   * Does nothing if no condition / subcondition ID fields are present.
+   */
   private ImmutableList<EditConditionPartialViewModel> buildConditionsListFromFormData(
       Long programId, Long blockDefinitionId, String predicateUseCase, Map<String, String> formData)
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {

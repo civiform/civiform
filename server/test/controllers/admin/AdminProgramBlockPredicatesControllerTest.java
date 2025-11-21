@@ -36,8 +36,8 @@ import support.ProgramBuilder;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.ConditionListPartialView;
-import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
+import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.FailedRequestPartialView;
 
 @RunWith(JUnitParamsRunner.class)
@@ -518,7 +518,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .isEqualTo(4);
     assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(3);
   }
-  
+
+  @Test
   public void hxEditSubcondition_withRadioQuestionId_showsOptions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
@@ -700,7 +701,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
       assertThat(result.status()).isEqualTo(OK);
       content = content.concat(Helpers.contentAsString(result));
-      
-      return content;
-   }
+    }
+
+    return content;
+  }
 }
