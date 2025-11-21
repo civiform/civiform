@@ -19,7 +19,6 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import views.admin.questions.NorthStarQuestionPreview;
 
 /** Controller for rendering inputs for questions. */
