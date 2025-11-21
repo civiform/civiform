@@ -894,10 +894,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
 
   /**
-   * Given formData from a dynamic form, returns a parsed list of {@link EditConditionPartialViewModel}
-   * Iterates through top-level conditions and subconditions in order of condition / subconditionId.
-   * 
-   * Does nothing if no condition / subcondition ID fields are present.
+   * Given formData from a dynamic form, returns a parsed list of {@link
+   * EditConditionPartialViewModel} iterates through top-level conditions and subconditions in order
+   * of condition / subconditionId.
+   *
+   * <p>Does nothing if no condition / subcondition ID fields are present.
    */
   private ImmutableList<EditConditionPartialViewModel> buildConditionsListFromFormData(
       Long programId, Long blockDefinitionId, String predicateUseCase, Map<String, String> formData)
