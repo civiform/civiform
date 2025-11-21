@@ -637,7 +637,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                   finalMaybeSelectedScalar.ifPresent(
                       selectedScalar -> {
                         if (!operator.getOperableTypes().contains(selectedScalar.toScalarType())) {
-                          optionTag.withClass("hidden");
+                          optionTag.withClass("display-none");
                         }
                       });
 
@@ -758,7 +758,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             div()
                 .withClasses(
                     ReferenceClasses.PREDICATE_VALUE_SECOND_INPUT_CONTAINER,
-                    iff(hasOneValue, "hidden"))
+                    iff(hasOneValue, "display-none"))
                 .with(div("and").withClasses("text-center"))
                 .with(
                     FieldWithLabel.input()

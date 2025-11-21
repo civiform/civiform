@@ -352,7 +352,7 @@ public final class QuestionConfig {
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
                 .getInputTag()
-                .withClasses("hidden");
+                .withClasses("display-none");
     ButtonTag moveUpButton =
         button()
             .with(Icons.svg(Icons.KEYBOARD_ARROW_UP).withClasses("w-6", "h-6"))
@@ -473,7 +473,7 @@ public final class QuestionConfig {
                 .setFieldName("nextAvailableId")
                 .setValue(multiOptionQuestionForm.getNextAvailableId())
                 .getNumberTag()
-                .withClasses("hidden"));
+                .withClasses("display-none"));
     return this;
   }
 

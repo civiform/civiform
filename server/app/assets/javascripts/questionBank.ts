@@ -51,7 +51,7 @@ class QuestionBankController {
     // using requestAnimationFrame() and then remove `cf-question-bank-hidden` class.
     //
     // When hiding we first add `cf-question-bank-hidden` to trigger transition and once
-    // it's over add `hidden` class.
+    // it's over add `display-none` class.
     //
     // CSS is fun!
     const questionBankContainer = document.getElementById(
@@ -81,14 +81,14 @@ class QuestionBankController {
         QuestionBankController.hideQuestionBank(questionBankContainer)
       })
     }
-    if (!questionBankContainer.classList.contains('hidden')) {
+    if (!questionBankContainer.classList.contains('display-none')) {
       QuestionBankController.makeBodyNonScrollable()
     }
   }
 
   static showQuestionBank(container: HTMLElement) {
     QuestionBankController.makeBodyNonScrollable()
-    container.classList.remove('hidden')
+    container.classList.remove('display-none')
     window.requestAnimationFrame(() => {
       container.classList.remove(QuestionBankController.QUESTION_BANK_HIDDEN)
     })
@@ -104,7 +104,7 @@ class QuestionBankController {
     panel.addEventListener(
       'transitionend',
       () => {
-        container.classList.add('hidden')
+        container.classList.add('display-none')
         QuestionBankController.makeBodyScrollable()
       },
       {once: true},
@@ -146,7 +146,7 @@ class QuestionBankController {
           QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
         ) ?? questionElement.innerText
       questionElement.classList.toggle(
-        'hidden',
+        'display-none',
         filterString.length > 0 &&
           !questionFilterText.toUpperCase().includes(filterString),
       )

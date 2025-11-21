@@ -30,7 +30,7 @@ export class ToastController {
     toastContainer.setAttribute('id', ToastController.CONTAINER_ID)
     toastContainer.classList.add(
       'absolute',
-      'hidden',
+      'display-none',
       'left-1/2',
       'top-6',
       'transform',
@@ -124,7 +124,7 @@ export class ToastController {
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      toastContainer.classList.remove('hidden')
+      toastContainer.classList.remove('display-none')
       if (message.duration > 0) {
         setTimeout(
           ToastController.dismissToast,
@@ -237,7 +237,7 @@ export class ToastController {
     /** Hide toast container if there are no toast messages active. */
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer && toastContainer.children.length == 0) {
-      toastContainer.classList.add('hidden')
+      toastContainer.classList.add('display-none')
     }
   }
 }

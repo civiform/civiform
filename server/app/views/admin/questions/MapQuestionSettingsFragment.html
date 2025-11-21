@@ -122,7 +122,7 @@
       <h4 class="font-body-2xs" th:text="#{map.addTagSubtitle}"></h4>
     </legend>
     <div
-      th:class="|map-tag-setting-container ${selectedKey != '' ? '' : 'hidden'}|"
+      th:class="|map-tag-setting-container ${selectedKey != '' ? '' : 'display-none'}|"
       th:classappend="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
       th:with="hasKeyError=${selectedKey != null && selectedKey != '' && !possibleKeys.contains(selectedKey)}"
       data-key-field
@@ -220,7 +220,7 @@
       id="add-map-tag-button"
       type="button"
       role="button"
-      th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 ${selectedKey != '' ? 'hidden' : ''}|"
+      th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 ${selectedKey != '' ? 'display-none' : ''}|"
       th:inline="text"
     >
       <cf:icon type="icon-add" />[[#{map.addTagButton}]]

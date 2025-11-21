@@ -42,7 +42,7 @@ function addNewEnumeratorField() {
   const newField = assertNotNull(
     document.getElementById('enumerator-field-template'),
   ).cloneNode(true) as HTMLElement
-  newField.classList.remove('hidden')
+  newField.classList.remove('display-none')
   newField.removeAttribute('id')
 
   // Add the remove enumerator field event listener to the delete button
@@ -63,7 +63,7 @@ function addNewEnumeratorField() {
 
   // every time we add a new input, we need to add the index number to the label and button
   const index = assertNotNull(
-    document.querySelectorAll('.cf-enumerator-field:not(.hidden)'),
+    document.querySelectorAll('.cf-enumerator-field:not(.display-none)'),
   ).length
   addIndexToLabelAndButton(newField, index)
 
@@ -130,7 +130,7 @@ function removeExistingEnumeratorField(event: Event) {
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
   const enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
-  enumeratorFieldDiv.classList.add('hidden')
+  enumeratorFieldDiv.classList.add('display-none')
   // We must hide the child in addition to the parent since we
   // want to prevent this input from being considered when
   // toggling whether the "Add" button is enabled (especially if
@@ -138,7 +138,7 @@ function removeExistingEnumeratorField(event: Event) {
   const enumeratorInput = assertNotNull(
     enumeratorFieldDiv.querySelector('input'),
   )
-  enumeratorInput.classList.add('hidden')
+  enumeratorInput.classList.add('display-none')
   enumeratorInput.removeAttribute('data-entity-input')
 
   // Create a copy of the hidden deleted entity template. Set the value to this
@@ -167,7 +167,7 @@ function removeExistingEnumeratorField(event: Event) {
  */
 function setFocusAfterEnumeratorRemoval() {
   const deleteButtons = document.querySelectorAll(
-    '.cf-enumerator-field:not(.hidden) .cf-enumerator-delete-button',
+    '.cf-enumerator-field:not(.display-none) .cf-enumerator-delete-button',
   )
   if (deleteButtons.length === 0) {
     // Set focus to add button

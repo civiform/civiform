@@ -31,15 +31,15 @@ export class ModalController {
 
   static showModal(modalContainer: Element, modal: HTMLElement) {
     if (!this.avoidShowingModalAgain(modal)) {
-      modalContainer.classList.remove('hidden')
-      modal.classList.remove('hidden')
+      modalContainer.classList.remove('display-none')
+      modal.classList.remove('display-none')
       modal.focus()
     }
   }
 
   static hideModal(modalContainer: Element, modal: Element) {
-    modalContainer.classList.add('hidden')
-    modal.classList.add('hidden')
+    modalContainer.classList.add('display-none')
+    modal.classList.add('display-none')
   }
 
   /**

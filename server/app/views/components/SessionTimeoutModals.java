@@ -36,7 +36,7 @@ public final class SessionTimeoutModals {
     DivTag localizedMessages =
         div()
             .withId("session-timeout-messages")
-            .withClass("hidden")
+            .withClass("display-none")
             .with(
                 span()
                     .withId("session-extended-success-text")
@@ -81,7 +81,7 @@ public final class SessionTimeoutModals {
             true,
             messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-        .withClasses("hidden");
+        .withClasses("display-none");
   }
 
   private static DivTag createSessionLengthWarningModal(Messages messages) {
@@ -100,6 +100,6 @@ public final class SessionTimeoutModals {
             true,
             messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-        .withClasses("hidden");
+        .withClasses("display-none");
   }
 }

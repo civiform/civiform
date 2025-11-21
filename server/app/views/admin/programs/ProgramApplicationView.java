@@ -448,7 +448,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         makeCsrfTokenInputTag(request)));
     ButtonTag triggerButton =
         button("")
-            .withClasses("hidden")
+            .withClasses("display-none")
             .withData("status-update-confirm-for-status", status.statusText());
     return Modal.builder()
         .setModalId(Modal.randomModalId())
