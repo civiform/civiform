@@ -16,7 +16,7 @@ export class AdminPredicateEdit {
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     const targetId: string = event.target.id
-    // Update for changes to 'subcondition-container', and also refreshes of predicate lists.
+    // Update for changes to 'subcondition-container', and also refreshes of condition lists.
     // The predicate list refreshes occur when a condition is deleted.
     if (
       event.target.classList.contains('subcondition-container') ||

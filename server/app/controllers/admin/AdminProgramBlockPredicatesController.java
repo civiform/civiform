@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -647,6 +646,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
+  /**
+   * HTMX partial that renders a form for editing a subcondition within a condition of a predicate.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
@@ -726,16 +728,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       String removedConditionPrefix = "condition-" + idToRemove;
       Map<String, String> formData = new HashMap<>(form.rawData());
 
-      // Start by pre-filtering formData to remove ignored entries.
-      ImmutableList<Entry<String, String>> entries = ImmutableList.copyOf(formData.entrySet());
-      for (Entry<String, String> entry : entries) {
-        if (entry.getKey().startsWith(removedConditionPrefix)) {
-          formData.remove(entry.getKey());
-        }
-      }
+      // Start by pre-filtering formData to remove entry for the deleted condition.
+      formData.keySet().removeIf(key -> key.startsWith(removedConditionPrefix));
 
       ImmutableList<EditConditionPartialViewModel> conditions =
           buildConditionsListFromFormData(programId, blockDefinitionId, predicateUseCase, formData);
+
+      System.out.println(conditions);
 
       return ok(conditionListPartialView.render(
               request,
@@ -907,6 +906,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
     ImmutableList<QuestionDefinition> availableQuestions =
         getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
+    ImmutableList<OptionElement> operatorOptions = getOperatorOptions();
+    ImmutableList<OptionElement> defaultQuestionOptions =
+        getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty());
 
     // Get list of present condition IDs.
     // This is necessary to account for gaps in condition IDs.
@@ -926,9 +928,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .programId(programId)
               .blockId(blockDefinitionId)
               .predicateUseCase(useCase)
-              .questionOptions(
-                  getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty()))
-              .operatorOptions(getOperatorOptions())
+              .questionOptions(defaultQuestionOptions)
+              .operatorOptions(operatorOptions)
               .build();
 
       /* Iterate through subconditions */
@@ -976,7 +977,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 selectedQuestion
                     .map(question -> getScalarOptionsForQuestion(question))
                     .orElse(ImmutableList.of()))
-            .operatorOptions(getOperatorOptions())
+            .operatorOptions(operatorOptions)
             .valueOptions(
                 selectedQuestion
                     .map(question -> getValueOptionsForQuestion(question))

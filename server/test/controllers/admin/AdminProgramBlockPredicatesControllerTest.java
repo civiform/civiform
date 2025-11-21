@@ -13,6 +13,8 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ProgramModel;
@@ -340,7 +342,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    seedEmptyCondition(/* blockDefinitionId= */ 1L, PredicateUseCase.ELIGIBILITY);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -355,7 +356,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -369,21 +369,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(content).contains("What is your address?");
     assertThat(content).contains("Select your favorite ice cream flavor");
     assertThat(content).doesNotContain("What is your favorite color?");
-  }
-
-  @Test
-  public void hxEditSubcondition_nonPresentCondition_returnsOkAndDisplaysAlert() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    Result result =
-        controller.hxEditSubcondition(
-            EDIT_SUBCONDITION_REQUEST,
-            programWithThreeBlocks.id,
-            /* blockDefinitionId= */ 3L,
-            PredicateUseCase.VISIBILITY.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    String content = Helpers.contentAsString(result);
-    assertThat(content).contains("We are experiencing a system error");
   }
 
   @Test
@@ -449,7 +434,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_withAddressQuestionId_isSelected() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -484,7 +468,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxEditSubcondition_malformedQuestionId_selectsDefaults() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    seedEmptyCondition(/* blockDefinitionId= */ 3L, PredicateUseCase.VISIBILITY);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -551,21 +534,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    String content =
-        seedConditionsAndSelectQuestions(
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
             ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
-    assertThat(content).contains("service area");
-    assertThat(content).contains("Seattle");
+    formData.put("conditionId", "1");
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    content = Helpers.contentAsString(result);
+    String content = Helpers.contentAsString(result);
     assertThat(content).doesNotContain("service area");
     assertThat(content).doesNotContain("Seattle");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
@@ -574,32 +556,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxDeleteCondition_twoConditions_deleteFirstCondition_secondConditionBecomesFirst() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    String content =
-        seedConditionsAndSelectQuestions(
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
             ImmutableList.of(
                 testQuestionBank.addressApplicantAddress().id,
                 testQuestionBank.dropdownApplicantIceCream().id));
-    assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
-
-    assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "1");
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    content = Helpers.contentAsString(result);
+    String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
@@ -616,31 +588,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void hxDeleteCondition_twoConditions_deleteSecondCondition_displaysAddConditionButton() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
-    String content =
-        seedConditionsAndSelectQuestions(
+    Map<String, String> formData =
+        createConditionMapWithSelectedQuestions(
             ImmutableList.of(
                 testQuestionBank.addressApplicantAddress().id,
                 testQuestionBank.dropdownApplicantIceCream().id));
-    assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
-    assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "2");
 
     Result result =
         controller.hxDeleteCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "2")).build(),
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 2L,
             PredicateUseCase.ELIGIBILITY.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    content = Helpers.contentAsString(result);
+    String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
@@ -654,55 +617,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
-  // Adds (empty) predicateUseCase condition onto programWithThreeBlocks screen with value
-  // blockDefinitionId.
-  private void seedEmptyCondition(Long blockDefinitionId, PredicateUseCase predicateUseCase) {
-    Result result =
-        controller.hxEditCondition(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build(),
-            programWithThreeBlocks.id,
-            blockDefinitionId,
-            predicateUseCase.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-  }
-
-  // Adds given ELIGIBILITY conditions onto programWithThreeBlocks screen 2, and populates
-  // subconditions.
-  private String seedConditionsAndSelectQuestions(ImmutableList<Long> questionIds) {
-    String content = "";
+  /**
+   * Creates a map of HTML subcondition ids to selected questions.
+   *
+   * <p>Entries are of the format: ("condition-[num]-subcondition-1-question", "[questionId]")
+   */
+  private Map<String, String> createConditionMapWithSelectedQuestions(
+      ImmutableList<Long> questionIds) {
+    Map<String, String> conditionMap = new HashMap<>();
     for (int i = 1; i <= questionIds.size(); ++i) {
-      Result result =
-          controller.hxEditCondition(
-              fakeRequestBuilder()
-                  .bodyForm(ImmutableMap.of("conditionId", String.valueOf(i)))
-                  .build(),
-              programWithThreeBlocks.id,
-              /* blockDefinitionId= */ 2L,
-              PredicateUseCase.ELIGIBILITY.name());
-
-      assertThat(result.status()).isEqualTo(OK);
-
-      result =
-          controller.hxEditSubcondition(
-              fakeRequestBuilder()
-                  .bodyForm(
-                      ImmutableMap.of(
-                          "conditionId",
-                          String.valueOf(i),
-                          "subconditionId",
-                          "1",
-                          "condition-" + i + "-subcondition-1-question",
-                          String.valueOf(questionIds.get(i - 1))))
-                  .build(),
-              programWithThreeBlocks.id,
-              /* blockDefinitionId= */ 2L,
-              PredicateUseCase.ELIGIBILITY.name());
-
-      assertThat(result.status()).isEqualTo(OK);
-      content = content.concat(Helpers.contentAsString(result));
+      conditionMap.put(
+          String.format("condition-%d-subcondition-1-question", i),
+          String.valueOf(questionIds.get(i - 1)));
     }
 
-    return content;
+    return conditionMap;
   }
 }
