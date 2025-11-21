@@ -734,8 +734,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<EditConditionPartialViewModel> conditions =
           buildConditionsListFromFormData(programId, blockDefinitionId, predicateUseCase, formData);
 
-      System.out.println(conditions);
-
       return ok(conditionListPartialView.render(
               request,
               ConditionListPartialViewModel.builder()
