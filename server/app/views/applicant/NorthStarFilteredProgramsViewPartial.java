@@ -16,6 +16,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
@@ -35,6 +36,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
@@ -44,6 +46,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

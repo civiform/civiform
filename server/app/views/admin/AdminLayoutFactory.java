@@ -5,6 +5,7 @@ import controllers.AssetsFinder;
 import play.i18n.MessagesApi;
 import services.DeploymentType;
 import services.TranslationLocales;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.ViewUtils;
 
@@ -15,6 +16,7 @@ public final class AdminLayoutFactory {
   private final TranslationLocales translationLocales;
   private final DeploymentType deploymentType;
   private final AssetsFinder assetsFinder;
+  private final ViteService viteService;
   private final MessagesApi messagesApi;
 
   @Inject
@@ -24,12 +26,14 @@ public final class AdminLayoutFactory {
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       MessagesApi messagesApi) {
     this.viewUtils = viewUtils;
     this.settingsManifest = settingsManifest;
     this.translationLocales = translationLocales;
     this.deploymentType = deploymentType;
     this.assetsFinder = assetsFinder;
+    this.viteService = viteService;
     this.messagesApi = messagesApi;
   }
 
@@ -41,6 +45,7 @@ public final class AdminLayoutFactory {
         translationLocales,
         deploymentType,
         assetsFinder,
+        viteService,
         messagesApi);
   }
 }

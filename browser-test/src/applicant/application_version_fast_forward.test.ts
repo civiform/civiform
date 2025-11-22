@@ -9,7 +9,6 @@ import {
   logout,
   closeWarningMessage,
   AdminPredicates,
-  enableFeatureFlag,
   testUserDisplayName,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
@@ -43,16 +42,6 @@ test.describe(
       const programAdminActor = await FastForwardProgramAdminActor.create(
         programName,
         browser,
-      )
-
-      await enableFeatureFlag(
-        civiformAdminActor.getPage(),
-        'FASTFORWARD_ENABLED',
-      )
-      await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
-      await enableFeatureFlag(
-        programAdminActor.getPage(),
-        'FASTFORWARD_ENABLED',
       )
 
       /*
@@ -520,12 +509,6 @@ test.describe(
         programName,
         browser,
       )
-
-      await enableFeatureFlag(
-        civiformAdminActor.getPage(),
-        'FASTFORWARD_ENABLED',
-      )
-      await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
 
       /*
 

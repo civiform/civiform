@@ -20,11 +20,11 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.JsBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.PageNotProductionBanner;
@@ -57,6 +57,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
             settingsManifest,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class),
             instanceOf(PageNotProductionBanner.class),
             messagesApi,
             instanceOf(ApplicantRoutes.class));
@@ -72,8 +73,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(request);
 
     Content content = applicantLayout.render(bundle);
     String html = content.body();
@@ -88,8 +88,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(request);
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 
@@ -104,8 +103,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(request);
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 

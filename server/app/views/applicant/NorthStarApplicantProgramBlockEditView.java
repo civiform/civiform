@@ -21,6 +21,7 @@ import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MapQuestion;
@@ -55,6 +56,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
@@ -65,6 +67,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

@@ -8,24 +8,16 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import j2html.tags.specialized.DivTag;
-import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 
 public class HtmlBundleTest extends ResetPostgres {
 
-  private ViewUtils viewUtils;
-
-  @Before
-  public void setUp() {
-    viewUtils = instanceOf(ViewUtils.class);
-  }
-
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
-    bundle.setTitle("My title").setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
+    bundle.setTitle("My title");
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<title>My title</title>");
@@ -33,8 +25,8 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFaviconIsSet() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
-    bundle.setFavicon("www.civiform.com/favicon").setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
+    bundle.setFavicon("www.civiform.com/favicon");
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<link rel=\"icon\" href=\"www.civiform.com/favicon\">");
@@ -42,19 +34,16 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFaviconIsNotSet() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
-    bundle.setJsBundle(JsBundle.ADMIN);
     Content content = bundle.render();
     assertThat(content.body()).doesNotContain("<link rel=\"icon\"");
   }
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle =
-        new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
 
-    bundle.setJsBundle(JsBundle.APPLICANT);
     Content content = bundle.render();
     assertThat(content.body())
         .containsPattern(
@@ -69,8 +58,8 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
-    bundle.addMainContent(div("One")).addMainContent(div("Two")).setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
+    bundle.addMainContent(div("One")).addMainContent(div("Two"));
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<main><div>One</div><div>Two</div></main>");
@@ -78,7 +67,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testUswdsModals() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     DivTag modal =
         div()
@@ -94,7 +83,7 @@ public class HtmlBundleTest extends ResetPostgres {
                                 h2("Test Modal").withClass("usa-modal__heading"),
                                 p("Modal content"))));
 
-    bundle.addUswdsModals(modal).setJsBundle(JsBundle.APPLICANT);
+    bundle.addUswdsModals(modal);
 
     Content content = bundle.render();
     String html = content.body();
@@ -109,13 +98,13 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testMultipleUswdsModals() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     DivTag modal1 = div().withClass("usa-modal").withId("test-modal-1").with(p("First modal"));
 
     DivTag modal2 = div().withClass("usa-modal").withId("test-modal-2").with(p("Second modal"));
 
-    bundle.addUswdsModals(modal1, modal2).setJsBundle(JsBundle.APPLICANT);
+    bundle.addUswdsModals(modal1, modal2);
 
     Content content = bundle.render();
     String html = content.body();
@@ -129,8 +118,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testEmptyUswdsModalsContainer() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     Content content = bundle.render();
     String html = content.body();

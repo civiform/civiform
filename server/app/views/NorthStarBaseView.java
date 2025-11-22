@@ -23,6 +23,7 @@ import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
@@ -32,6 +33,7 @@ public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   protected final AssetsFinder assetsFinder;
+  private final ViteService viteService;
   protected final ApplicantRoutes applicantRoutes;
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
@@ -43,6 +45,7 @@ public abstract class NorthStarBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -50,6 +53,7 @@ public abstract class NorthStarBaseView {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.assetsFinder = checkNotNull(assetsFinder);
+    this.viteService = checkNotNull(viteService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
@@ -66,13 +70,18 @@ public abstract class NorthStarBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
-    context.setVariable("mapLibreGLStylesheet", assetsFinder.path("dist/maplibregl.min.css"));
-    context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
-    context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
-    context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
+
+    context.setVariable("isViteEnabled", viteService.isViteEnabled());
+
+    context.setVariable("viteClientUrl", viteService.viteClientUrl());
+    context.setVariable("tailwindStylesheet", viteService.getTailwindStylesheet());
+    context.setVariable("northStarStylesheet", viteService.getNorthStarStylesheet());
+    context.setVariable("mapLibreGLStylesheet", viteService.getMapLibreGLStylesheet());
+    context.setVariable("applicantJsBundle", viteService.getApplicantJsBundle());
+    context.setVariable("uswdsJsInit", viteService.getUswdsJsInit());
+    context.setVariable("uswdsJsBundle", viteService.getUswdsJsBundle());
+
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());

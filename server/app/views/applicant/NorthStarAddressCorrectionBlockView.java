@@ -13,6 +13,7 @@ import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
@@ -25,6 +26,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -33,6 +35,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

@@ -22,7 +22,6 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.JsBundle;
 import views.components.Icons;
 import views.dev.hx.CorrectAddressFormPartial;
 import views.dev.hx.ServiceAreaFormPartial;
@@ -77,11 +76,7 @@ public class AddressCheckerView extends BaseHtmlView {
                         div().withId("checkServiceAreaDebugOutput")));
 
     HtmlBundle bundle =
-        layout
-            .getBundle(request)
-            .setTitle("Address Checker")
-            .addMainContent(content)
-            .setJsBundle(JsBundle.ADMIN);
+        layout.getBundle(request).setTitle("Address Checker").addMainContent(content);
     return layout.render(bundle);
   }
 

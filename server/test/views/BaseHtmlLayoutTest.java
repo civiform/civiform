@@ -17,6 +17,7 @@ import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
+import services.ViteService;
 import services.settings.SettingsManifest;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
@@ -37,7 +38,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class));
   }
 
   @Test
@@ -69,7 +71,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 
@@ -81,9 +84,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle =
-        new HtmlBundle(
-            fakeRequestBuilder().cspNonce("my-nonce").build(), instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");

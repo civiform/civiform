@@ -14,6 +14,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DeploymentType;
+import services.ViteService;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.question.AddressQuestion;
@@ -36,6 +37,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
+      ViteService viteService,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
@@ -43,6 +45,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

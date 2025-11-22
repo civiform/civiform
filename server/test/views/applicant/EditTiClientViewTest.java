@@ -26,6 +26,7 @@ import repository.AccountRepository;
 import services.DateConverter;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
@@ -73,6 +74,7 @@ public class EditTiClientViewTest extends WithMockedProfiles {
             settingsManifest,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class),
             instanceOf(PageNotProductionBanner.class),
             mock(MessagesApi.class),
             instanceOf(ApplicantRoutes.class));

@@ -11,6 +11,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -21,6 +22,7 @@ public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -29,6 +31,7 @@ public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

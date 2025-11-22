@@ -66,6 +66,18 @@ public final class ViewUtils {
     return script().withSrc(assetsFinder.path(path + ".js")).withType("text/javascript");
   }
 
+  public ScriptTag makeJsTag(String url) {
+    return script().withSrc(url).withType("text/javascript");
+  }
+
+  public ScriptTag makeJsModuleTag(String url) {
+    return script().withSrc(url).withType("module");
+  }
+
+  public ScriptTag makeLocalJsModuleTag(String path) {
+    return script().withSrc(assetsFinder.path(path + ".js")).withType("module");
+  }
+
   /**
    * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
    * at the given asset route. TODO(#2349): Start using this.
@@ -77,6 +89,10 @@ public final class ViewUtils {
   /** Generates an HTML link tag for loading the CSS file found at public/main/[filePath].css. */
   public LinkTag makeLocalCssTag(String filePath) {
     return link().withHref(assetsFinder.path(filePath + ".css")).withRel("stylesheet");
+  }
+
+  public LinkTag makeCssTag(String url) {
+    return link().withHref(url).withRel("stylesheet");
   }
 
   public ImgTag makeLocalImageTag(String filename) {

@@ -50,6 +50,7 @@ import play.routing.Router;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
@@ -103,10 +104,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       PageNotProductionBanner pageNotProductionBanner,
       MessagesApi messagesApi,
       ApplicantRoutes applicantRoutes) {
-    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder, viteService);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);

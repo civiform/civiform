@@ -16,6 +16,7 @@ import services.AlertSettings;
 import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
@@ -29,6 +30,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -38,6 +40,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,
