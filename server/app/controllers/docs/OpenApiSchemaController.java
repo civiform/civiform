@@ -25,6 +25,7 @@ import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.docs.SchemaView;
+import views.docs.SchemaViewModel;
 
 /** This handles endpoints related to serving openapi schema data */
 public final class OpenApiSchemaController {
@@ -131,7 +132,6 @@ public final class OpenApiSchemaController {
     return contactEmailAddress.orElse("");
   }
 
-  /** Render the swagger ui to view the select swagger/openapi */
   public Result getSchemaUI(
       Http.Request request,
       String programSlug,
@@ -161,9 +161,24 @@ public final class OpenApiSchemaController {
                   Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
               .url();
 
-      SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
+      String formChangeUrl =
+          routes.OpenApiSchemaController.getSchemaUIRedirect(
+                  /* programSlug= */ Optional.empty(),
+                  /* stage= */ Optional.empty(),
+                  /* openApiVersion= */ Optional.empty())
+              .url();
 
-      return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
+      SchemaViewModel viewModel =
+          SchemaViewModel.builder()
+              .url(url)
+              .formChangeUrl(formChangeUrl)
+              .programSlug(programSlug)
+              .stage(stage)
+              .openApiVersion(openApiVersion)
+              .allNonExternalProgramSlugs(allNonExternalProgramSlugs)
+              .build();
+
+      return ok(schemaView.render(request, viewModel)).as(Http.MimeTypes.HTML);
     } catch (RuntimeException ex) {
       return internalServerError();
     }
