@@ -883,6 +883,25 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     ])
   })
 
+  test('edit question from program screen', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminProgramImage,
+  }) => {
+    await test.step('setup program with question', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({questionName: 'text-question'})
+      await adminPrograms.addProgram('Test program')
+      await adminProgramImage.clickContinueButton()
+      await adminPrograms.addQuestionFromQuestionBank('text-question')
+    })
+    await test.step('click edit question link', async () => {
+      await adminPrograms.editQuestion('text-question')
+      await adminQuestions.expectQuestionEditPage('text-question')
+    })
+  })
+
   test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async ({
     page,
     adminQuestions,
