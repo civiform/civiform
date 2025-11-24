@@ -884,7 +884,8 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsAdmin(page)
     const programName = 'Eligibility message'
-    const eligibilityMessageLabel = 'Display message shown to ineligible applicants'
+    const eligibilityMessageLabel =
+      'Display message shown to ineligible applicants'
 
     await test.step('Create a program', async () => {
       await adminPrograms.addProgram(programName)
@@ -902,19 +903,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.getByLabel(eligibilityMessageLabel),
-      ).toBeVisible()
-      await expect(
-        page.getByLabel(eligibilityMessageLabel),
-      ).toBeEmpty()
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeVisible()
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeEmpty()
     })
 
     await test.step('Set eligibility message', async () => {
       const eligibilityMessage = 'You are not eligible for this program.'
-      await page
-        .getByLabel(eligibilityMessageLabel)
-        .fill(eligibilityMessage)
+      await page.getByLabel(eligibilityMessageLabel).fill(eligibilityMessage)
 
       await adminPredicates.clickSaveAndExitButton()
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -923,9 +918,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.getByLabel(eligibilityMessageLabel),
-      ).toHaveValue(eligibilityMessage)
+      await expect(page.getByLabel(eligibilityMessageLabel)).toHaveValue(
+        eligibilityMessage,
+      )
     })
 
     await test.step('Remove eligibility message', async () => {
@@ -938,9 +933,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.getByLabel(eligibilityMessageLabel),
-      ).toBeEmpty()
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeEmpty()
     })
   })
 
