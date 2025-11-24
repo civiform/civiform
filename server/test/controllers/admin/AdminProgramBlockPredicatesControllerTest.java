@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -26,6 +27,7 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.applicant.question.Scalar;
@@ -60,11 +62,13 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
+  private ProgramRepository repo;
 
   private AdminProgramBlockPredicatesController controller;
 
   @Before
   public void setup() {
+    repo = instanceOf(ProgramRepository.class);
     settingsManifest = mock(SettingsManifest.class);
     controller =
         new AdminProgramBlockPredicatesController(
@@ -271,10 +275,58 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-nodeType",
+                        "OR",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.nameApplicantName().id),
+                        "condition-1-subcondition-1-scalar",
+                        Scalar.FIRST_NAME.name(),
+                        "condition-1-subcondition-1-operator",
+                        Operator.EQUAL_TO.name(),
+                        "condition-1-subcondition-1-value",
+                        "firstname"))
+                .build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    PredicateDefinition expectedPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    testQuestionBank.nameApplicantName().id,
+                    Scalar.FIRST_NAME,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("firstname"))),
+            PredicateAction.ELIGIBLE_BLOCK);
+    assertThat(
+            repo.lookupProgram(programWithThreeBlocks.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .eligibilityDefinition()
+                .get()
+                .predicate())
+        .isEqualTo(expectedPredicate);
+  }
+
+  @Test
   public void update_emptyConditions_removesPredicate() throws Exception {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     ProgramModel programWithEligibility =
-        ProgramBuilder.newDraftProgram("first program")
+        ProgramBuilder.newDraftProgram("program with condition")
             .withBlock("Screen 1")
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .withEligibilityDefinition(
@@ -296,15 +348,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         controller.updatePredicate(
             fakeRequestBuilder()
                 .bodyForm(
-                    ImmutableMap.of("predicateAction", "ELIGIBLE_BLOCK", "root-nodeType", "OR"))
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-nodeType",
+                        "OR"))
                 .build(),
             programWithEligibility.id,
             /* blockDefinitionId= */ 1L,
-            "ELIGIBILITY");
+            PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(
-            programWithEligibility
+            repo.lookupProgram(programWithEligibility.id)
+                .toCompletableFuture()
+                .join()
+                .get()
                 .getProgramDefinition()
                 .getBlockDefinition(1L)
                 .eligibilityDefinition())
@@ -318,15 +377,25 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result result =
         controller.updatePredicate(
             fakeRequestBuilder()
-                .bodyForm(ImmutableMap.of("eligibilityMessage", "New eligibility message"))
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-nodeType",
+                        "OR",
+                        "eligibilityMessage",
+                        "New eligibility message"))
                 .build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
-            "ELIGIBILITY");
+            PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(
-            programWithThreeBlocks
+            repo.lookupProgram(programWithThreeBlocks.id)
+                .toCompletableFuture()
+                .join()
+                .get()
                 .getProgramDefinition()
                 .getBlockDefinition(1L)
                 .localizedEligibilityMessage()
@@ -336,10 +405,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_eligibilityMessage_deletesMessageWhenEmpty() throws Exception {
+  public void update_eligibilityMessage_savesEmptyMessage() throws Exception {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     ProgramModel programWithEligibilityMessage =
-        ProgramBuilder.newDraftProgram("first program")
+        ProgramBuilder.newDraftProgram("program with eligibility message")
             .withBlock("Screen 1")
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .withEligibilityMessage("Existing eligibility message")
@@ -347,18 +416,32 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.updatePredicate(
-            fakeRequestBuilder().bodyForm(ImmutableMap.of("eligibilityMessage", "")).build(),
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-nodeType",
+                        "OR",
+                        "eligibilityMessage",
+                        ""))
+                .build(),
             programWithEligibilityMessage.id,
             /* blockDefinitionId= */ 1L,
-            "ELIGIBILITY");
+            PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(
-            programWithEligibilityMessage
+            repo.lookupProgram(programWithEligibilityMessage.id)
+                .toCompletableFuture()
+                .join()
+                .get()
                 .getProgramDefinition()
                 .getBlockDefinition(1L)
-                .localizedEligibilityMessage())
-        .isEmpty();
+                .localizedEligibilityMessage()
+                .get()
+                .getDefault())
+        .isEqualTo("");
   }
 
   @Test
