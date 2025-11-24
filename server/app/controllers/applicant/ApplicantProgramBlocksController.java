@@ -1909,23 +1909,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      // TODO(#11571): North star clean up
-      if (settingsManifest.getNorthStarApplicantUi()) {
-        eligibilityAlertSettings =
-            getNorthStarEligibilityAlertSettings(
-                roApplicantProgramService, request, programId, blockId);
-      } else {
-        eligibilityAlertSettings =
-            eligibilityAlertSettingsCalculator.calculate(
-                request,
-                profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-                !roApplicantProgramService.isApplicationNotEligible(),
-                // TODO(#11571): North star clean up
-                settingsManifest.getNorthStarApplicantUi(),
-                false,
-                programId,
-                roApplicantProgramService.getIneligibleQuestions());
-      }
+      eligibilityAlertSettings =
+          getNorthStarEligibilityAlertSettings(
+              roApplicantProgramService, request, programId, blockId);
     }
 
     return ApplicationBaseViewParams.builder()
@@ -2042,8 +2028,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
-            // TODO(#11571): North star clean up
-            settingsManifest.getNorthStarApplicantUi(),
             false,
             programId,
             roApplicantProgramService.getIneligibleQuestions());

@@ -82,12 +82,10 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     }
 
     AlertSettings eligibilityAlertSettings =
-        // TODO(#11571): North star clean up
         eligibilityAlertSettingsCalculator.calculate(
             params.request(),
             params.profile().isTrustedIntermediary(),
             !params.roApplicantProgramService().isApplicationNotEligible(),
-            true,
             true,
             program.id(),
             localizedEligibilityMsg,

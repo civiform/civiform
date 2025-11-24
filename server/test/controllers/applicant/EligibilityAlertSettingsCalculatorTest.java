@@ -161,7 +161,6 @@ public class EligibilityAlertSettingsCalculatorTest {
       boolean isTi,
       boolean isFastForwarded,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
       AlertType expectedAlertType,
       String expectedTitle,
@@ -175,14 +174,12 @@ public class EligibilityAlertSettingsCalculatorTest {
             true,
             true,
             false,
-            false,
             AlertType.SUCCESS,
             "APPLICANT_FASTFORWARDED_ELIGIBLE_TITLE",
             "APPLICANT_FASTFORWARDED_ELIGIBLE_TEXT"),
         new ParamValue(
             false,
             true,
-            false,
             false,
             false,
             AlertType.WARNING,
@@ -193,7 +190,6 @@ public class EligibilityAlertSettingsCalculatorTest {
             false,
             true,
             false,
-            false,
             AlertType.SUCCESS,
             "APPLICANT_ELIGIBLE_TITLE",
             "APPLICANT_ELIGIBLE_TEXT"),
@@ -202,17 +198,23 @@ public class EligibilityAlertSettingsCalculatorTest {
             false,
             false,
             false,
-            false,
             AlertType.WARNING,
             "APPLICANT_NOT_ELIGIBLE_TITLE",
             "APPLICANT_NOT_ELIGIBLE_TEXT"),
+        new ParamValue(
+            false,
+            false,
+            false,
+            true,
+            AlertType.WARNING,
+            "APPLICANT_NOT_ELIGIBLE_TITLE",
+            "APPLICANT_NOT_ELIGIBLE_TEXT_SHORT"),
 
         // TI
         new ParamValue(
             true,
             true,
             true,
-            false,
             false,
             AlertType.SUCCESS,
             "TI_FASTFORWARDED_ELIGIBLE_TITLE",
@@ -222,64 +224,23 @@ public class EligibilityAlertSettingsCalculatorTest {
             true,
             false,
             false,
-            false,
             AlertType.WARNING,
             "TI_FASTFORWARDED_NOT_ELIGIBLE_TITLE",
             "TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT"),
         new ParamValue(
-            true,
-            false,
-            true,
-            false,
-            false,
-            AlertType.SUCCESS,
-            "TI_ELIGIBLE_TITLE",
-            "TI_ELIGIBLE_TEXT"),
+            true, false, true, false, AlertType.SUCCESS, "TI_ELIGIBLE_TITLE", "TI_ELIGIBLE_TEXT"),
         new ParamValue(
             true,
-            false,
             false,
             false,
             false,
             AlertType.WARNING,
             "TI_NOT_ELIGIBLE_TITLE",
             "TI_NOT_ELIGIBLE_TEXT"),
-
-        // North Star, pageHasSupplementalInformation==false
-        new ParamValue(
-            false,
-            false,
-            false,
-            true,
-            false,
-            AlertType.WARNING,
-            "APPLICANT_NOT_ELIGIBLE_TITLE",
-            "APPLICANT_NOT_ELIGIBLE_TEXT"),
         new ParamValue(
             true,
             false,
             false,
-            true,
-            false,
-            AlertType.WARNING,
-            "TI_NOT_ELIGIBLE_TITLE",
-            "TI_NOT_ELIGIBLE_TEXT"),
-
-        // North Star, , pageHasSupplementalInformation==true
-        new ParamValue(
-            false,
-            false,
-            false,
-            true,
-            true,
-            AlertType.WARNING,
-            "APPLICANT_NOT_ELIGIBLE_TITLE",
-            "APPLICANT_NOT_ELIGIBLE_TEXT_SHORT"),
-        new ParamValue(
-            true,
-            false,
-            false,
-            true,
             true,
             AlertType.WARNING,
             "TI_NOT_ELIGIBLE_TITLE",
@@ -307,7 +268,6 @@ public class EligibilityAlertSettingsCalculatorTest {
             request,
             value.isTi,
             value.isApplicationEligible,
-            value.isNorthStarEnabled, /* programId */
             value.pageHasSupplementalInformation,
             1L,
             ImmutableList.of());
@@ -339,8 +299,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             request,
             /* isTi */ false,
             /* isApplicationEligible */ false,
-            /* isNorthStarEnabled */ false,
-            /* pageHasSupplementalInformation */ true,
+            /* pageHasSupplementalInformation */ false,
             /* programId */ 1L,
             /* eligibilityMsg */ "This is a customized eligibility message.",
             /* questions */ ImmutableList.of());
@@ -371,8 +330,7 @@ public class EligibilityAlertSettingsCalculatorTest {
     ImmutableList<ApplicantQuestion> questions = ImmutableList.of(question);
 
     AlertSettings result =
-        eligibilityAlertSettingsCalculator.calculate(
-            request, false, false, true, true, 1L, questions);
+        eligibilityAlertSettingsCalculator.calculate(request, false, false, true, 1L, questions);
 
     assertThat(result.additionalText().size()).isEqualTo(1);
     assertThat(result.additionalText().get(0)).isEqualTo(QUESTION_TEXT);
@@ -393,7 +351,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
+            fakeRequest(), false, true, false, /* programId */ 1L, ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(isEligibilityEnabled);
   }
@@ -428,7 +386,7 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, false, false, /* programId */ 1L, ImmutableList.of());
+            fakeRequest(), false, true, false, /* programId */ 1L, ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(false);
   }
