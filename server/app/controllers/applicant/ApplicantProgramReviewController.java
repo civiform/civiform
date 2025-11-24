@@ -48,7 +48,6 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
-import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
@@ -68,7 +67,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantProgramSummaryView summaryView;
   private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
-  private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -84,7 +82,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantProgramSummaryView summaryView,
       NorthStarApplicantProgramSummaryView northStarSummaryView,
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
-      PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -100,7 +97,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.summaryView = checkNotNull(summaryView);
     this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
-    this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
@@ -449,11 +445,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 }
                 if (cause instanceof DuplicateApplicationException) {
                   return renderPreventDuplicateSubmissionPage(
-                      request,
-                      submittingProfile,
-                      applicantId,
-                      readOnlyApplicantProgramServiceFuture.join(),
-                      programId);
+                      submittingProfile, applicantId, programId);
                 }
                 throw new RuntimeException(cause);
               }
@@ -484,24 +476,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   // TODO(#7266): Delete the old codepath and inline the North Star path
   private Result renderPreventDuplicateSubmissionPage(
-      Request request,
-      CiviFormProfile profile,
-      long applicantId,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      long programId) {
-    // TODO(#11576): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      Call reviewPage = applicantRoutes.review(profile, applicantId, programId);
-      return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
-    } else {
-      return ok(
-          preventDuplicateSubmissionView.render(
-              request,
-              roApplicantProgramService,
-              messagesApi.preferred(request),
-              applicantId,
-              profileUtils.currentUserProfile(request)));
-    }
+      CiviFormProfile profile, long applicantId, long programId) {
+    Call reviewPage = applicantRoutes.review(profile, applicantId, programId);
+    return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
   }
 
   /**
