@@ -24,14 +24,6 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${mapQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
-    <!-- Hidden live region to announce errors for screen readers -->
-    <div
-      th:id="${questionId} + '-error-aria'"
-      aria-live="assertive"
-      aria-atomic="true"
-      class="sr-only"
-    ></div>
-
     <div class="padding-bottom-2">
       <h3 class="font-family-serif" th:text="#{map.availableLocations}"></h3>
       <div
