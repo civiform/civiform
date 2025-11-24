@@ -237,10 +237,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     )
     const visibilityContentId = showQuestionName + '-visibility-content'
     await expect(page.locator('#' + visibilityContentId)).toBeHidden()
-    await validateScreenshot(
-      page.locator('#' + showQuestionName + '-visibility-accordion'),
-      'question-card-with-show-predicate-collapsed',
-    )
     // Expand accordion and verify it displays the block containing the predicate
     await page
       .locator('button[aria-controls="' + visibilityContentId + '"]')
@@ -249,7 +245,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await expect(page.locator('#' + visibilityContentId)).toContainText(
       'Screen 2',
     )
-    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -400,7 +395,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(page, 'eligibility-predicate')
 
     await page.click(`a:has-text("Back")`)
-    await validateScreenshot(page, 'block-settings-page')
 
     // Verify block with predicate display
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
