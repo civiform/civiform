@@ -884,6 +884,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsAdmin(page)
     const programName = 'Eligibility message'
+    const eligibilityMessageLabel = 'Display message shown to ineligible applicants'
 
     await test.step('Create a program', async () => {
       await adminPrograms.addProgram(programName)
@@ -902,17 +903,17 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(
-        page.getByLabel('Display message to ineligible applicants'),
+        page.getByLabel(eligibilityMessageLabel),
       ).toBeVisible()
       await expect(
-        page.getByLabel('Display message to ineligible applicants'),
+        page.getByLabel(eligibilityMessageLabel),
       ).toBeEmpty()
     })
 
     await test.step('Set eligibility message', async () => {
       const eligibilityMessage = 'You are not eligible for this program.'
       await page
-        .getByLabel('Display message to ineligible applicants')
+        .getByLabel(eligibilityMessageLabel)
         .fill(eligibilityMessage)
 
       await adminPredicates.clickSaveAndExitButton()
@@ -923,12 +924,12 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(
-        page.getByLabel('Display message to ineligible applicants'),
+        page.getByLabel(eligibilityMessageLabel),
       ).toHaveValue(eligibilityMessage)
     })
 
     await test.step('Remove eligibility message', async () => {
-      await page.getByLabel('Display message to ineligible applicants').fill('')
+      await page.getByLabel(eligibilityMessageLabel).fill('')
 
       await adminPredicates.clickSaveAndExitButton()
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -938,7 +939,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await expect(
-        page.getByLabel('Display message to ineligible applicants'),
+        page.getByLabel(eligibilityMessageLabel),
       ).toBeEmpty()
     })
   })
