@@ -757,6 +757,11 @@ alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa 
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa screen na ito kung saan magtatakda ng kondisyon sa pagiging karapat-dapat.
 
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
