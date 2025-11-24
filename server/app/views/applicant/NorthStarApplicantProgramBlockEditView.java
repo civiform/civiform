@@ -103,15 +103,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
 
-    String actionUrl =
-        applicantRoutes
-            .edit(
-                applicationParams.profile(),
-                applicationParams.applicantId(),
-                applicationParams.programId())
-            .url();
-    context.setVariable("actionUrl", actionUrl);
-
     // Progress bar
     ProgressBar progressBar =
         new ProgressBar(
