@@ -28,10 +28,18 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.applicant.question.Scalar;
 import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.program.EligibilityDefinition;
 import services.program.ProgramService;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateUseCase;
+import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
@@ -260,6 +268,97 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                 controller.updatePredicate(
                     fakeRequest(), programId, /* blockDefinitionId= */ 1, "ELIGIBILITY"))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void update_emptyConditions_removesPredicate() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibility =
+        ProgramBuilder.newDraftProgram("first program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder()
+                    .setPredicate(
+                        PredicateDefinition.create(
+                            PredicateExpressionNode.create(
+                                LeafOperationExpressionNode.create(
+                                    testQuestionBank.nameApplicantName().id,
+                                    Scalar.FIRST_NAME,
+                                    Operator.EQUAL_TO,
+                                    PredicateValue.of("firstname"))),
+                            PredicateAction.ELIGIBLE_BLOCK))
+                    .build())
+            .build();
+
+    // Request with header fields only, no conditions.
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of("predicateAction", "ELIGIBLE_BLOCK", "root-nodeType", "OR"))
+                .build(),
+            programWithEligibility.id,
+            /* blockDefinitionId= */ 1L,
+            "ELIGIBILITY");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(
+            programWithEligibility
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .eligibilityDefinition())
+        .isEmpty();
+  }
+
+  @Test
+  public void update_eligibilityMessage_succeeds() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(ImmutableMap.of("eligibilityMessage", "New eligibility message"))
+                .build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            "ELIGIBILITY");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(
+            programWithThreeBlocks
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .localizedEligibilityMessage()
+                .get()
+                .getDefault())
+        .isEqualTo("New eligibility message");
+  }
+
+  @Test
+  public void update_eligibilityMessage_deletesMessageWhenEmpty() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibilityMessage =
+        ProgramBuilder.newDraftProgram("first program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .withEligibilityMessage("Existing eligibility message")
+            .build();
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of("eligibilityMessage", "")).build(),
+            programWithEligibilityMessage.id,
+            /* blockDefinitionId= */ 1L,
+            "ELIGIBILITY");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(
+            programWithEligibilityMessage
+                .getProgramDefinition()
+                .getBlockDefinition(1L)
+                .localizedEligibilityMessage())
+        .isEmpty();
   }
 
   @Test
