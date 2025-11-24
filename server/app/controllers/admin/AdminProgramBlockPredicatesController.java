@@ -177,6 +177,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .operatorScalarMap(getOperatorScalarMap())
                 .prePopulatedConditions(ImmutableList.of())
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
+                .eligibilityMessage(
+                    blockDefinition
+                        .localizedEligibilityMessage()
+                        .map(LocalizedStrings::getDefault)
+                        .orElse(""))
                 .build();
         return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
       }
@@ -541,24 +546,44 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     try {
+      DynamicForm form = formFactory.form().bindFromRequest(request);
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
               programService.getFullProgramDefinition(programId),
-              formFactory.form().bindFromRequest(request),
+              form,
               roQuestionService,
               settingsManifest,
               request);
-
-      switch (PredicateUseCase.valueOf(predicateUseCase)) {
-        case ELIGIBILITY ->
+      if (predicateDefinition.getQuestions().isEmpty()) {
+        // If there are no questions in the predicate, that means there are no conditions and we
+        // should remove the predicate.
+        switch (PredicateUseCase.valueOf(predicateUseCase)) {
+          case ELIGIBILITY ->
+              programService.removeBlockEligibilityPredicate(programId, blockDefinitionId);
+          case VISIBILITY -> programService.removeBlockPredicate(programId, blockDefinitionId);
+        }
+      } else {
+        // Otherwise, update the predicate with the new definition.
+        switch (PredicateUseCase.valueOf(predicateUseCase)) {
+          case ELIGIBILITY -> {
             programService.setBlockEligibilityDefinition(
                 programId,
                 blockDefinitionId,
                 Optional.of(
                     EligibilityDefinition.builder().setPredicate(predicateDefinition).build()));
-        case VISIBILITY ->
-            programService.setBlockVisibilityPredicate(
-                programId, blockDefinitionId, Optional.of(predicateDefinition));
+          }
+          case VISIBILITY ->
+              programService.setBlockVisibilityPredicate(
+                  programId, blockDefinitionId, Optional.of(predicateDefinition));
+        }
+      }
+      // Update eligibility message if provided.
+      if (PredicateUseCase.valueOf(predicateUseCase) == PredicateUseCase.ELIGIBILITY
+          && form.rawData().containsKey("eligibilityMessage")) {
+        programService.setBlockEligibilityMessage(
+            programId,
+            blockDefinitionId,
+            Optional.of(LocalizedStrings.of(Locale.US, form.get("eligibilityMessage"))));
       }
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));

@@ -116,12 +116,41 @@
             th:replace="~{admin/programs/predicates/ConditionListFragment :: conditionList(${model.newConditionList()})}"
           ></div>
         </th:block>
-      </form>
-      <th:block th:unless="${model.hasAvailableQuestions}">
+        <th:block th:unless="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
+          ></div>
+        </th:block>
+        <!-- Eligibility message -->
         <div
-          th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
-        ></div>
-      </th:block>
+          th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+          class="width-mobile-lg padding-top-1"
+        >
+          <div class="border-top border-base-lighter margin-y-2"></div>
+          <div class="usa-form-group padding-top-1">
+            <label
+              class="usa-label"
+              th:for="eligibility-message-textarea"
+              th:text="#{label.predicateEligibilityMessageField}"
+            ></label>
+            <textarea
+              class="usa-textarea margin-y-0"
+              th:id="eligibility-message-textarea"
+              name="eligibilityMessage"
+              th:text="${model.eligibilityMessage}"
+            ></textarea>
+            <div
+              class="display-flex flex-align-center margin-top-05 text-base-dark"
+            >
+              <cf:icon type="legacy-icon-markdown" />
+              <p
+                class="margin-y-0 margin-left-1"
+                th:text="#{content.markdownSupported}"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
 
     <div class="usa-footer__return-to-top">

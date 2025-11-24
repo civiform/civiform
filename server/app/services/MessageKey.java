@@ -195,6 +195,7 @@ public enum MessageKey {
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
   CONTENT_LOGIN_TO_EXISTING_ACCOUNT("content.loginToExistingAccount"), // North Star only
+  CONTENT_MARKDOWN_SUPPORTED("content.markdownSupported"),
   CONTENT_MULTIPLE_VALUES_INPUT_HINT("content.multipleValuesInputHint"),
   CONTENT_NO_CHANGES("content.noChanges"),
   CONTENT_NO_EMAIL_ADDRESS("content.noEmailAddress"),
@@ -459,6 +460,7 @@ public enum MessageKey {
   PREDICATE_CONTENT_SUBCONDITIONS_ARE_TRUE("content.predicateSubconditionsAreTrue"),
   PREDICATE_CONTENT_VISIBILITY_DESCRIPTION("content.predicateVisibilityDescription"),
   PREDICATE_CONTENT_VISIBILITY_NULL_STATE("content.predicateVisibilityNullState"),
+  PREDICATE_LABEL_ELIGIBILITY_MESSAGE("label.predicateEligibilityMessageField"),
   PREDICATE_LABEL_FIELD("label.predicateField"),
   PREDICATE_LABEL_QUESTION("label.predicateQuestion"),
   PREDICATE_LABEL_STATE("label.predicateState"),
