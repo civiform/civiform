@@ -43,7 +43,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   private ProgramRepository programRepository;
   private VersionRepository versionRepository;
 
-private static final String ADMIN_NAME=  "internal-program-name";
+  private static final String ADMIN_NAME = "internal-program-name";
   private static final String PROGRAM_NAME = "External program name";
 
   private static final ImmutableMap<String, String> DEFAULT_FORM_FIELDS =
@@ -164,8 +164,8 @@ private static final String ADMIN_NAME=  "internal-program-name";
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     Optional<ProgramModel> newProgram =
-        versionRepository.getProgramByNameForVersion(ADMIN_NAME,
-            versionRepository.getDraftVersionOrCreate());
+        versionRepository.getProgramByNameForVersion(
+            ADMIN_NAME, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
@@ -258,7 +258,6 @@ private static final String ADMIN_NAME=  "internal-program-name";
   @Test
   public void create_allowsChangingCommonIntakeAfterConfirming() {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
-
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
