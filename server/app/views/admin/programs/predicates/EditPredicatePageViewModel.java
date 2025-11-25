@@ -20,7 +20,8 @@ public record EditPredicatePageViewModel(
     PredicateUseCase predicateUseCase,
     ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
     ImmutableList<EditConditionPartialViewModel> prePopulatedConditions,
-    boolean hasAvailableQuestions)
+    boolean hasAvailableQuestions,
+    String eligibilityMessage)
     implements EditPredicateBaseViewModel {
 
   public ProgramHeader programHeader() {

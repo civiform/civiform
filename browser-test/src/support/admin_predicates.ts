@@ -89,6 +89,10 @@ export class AdminPredicates {
       .click()
   }
 
+  async clickSaveAndExitButton() {
+    await this.page.getByRole('button', {name: 'Save and exit'}).click()
+  }
+
   async clickSaveConditionButton() {
     await this.page.getByRole('button', {name: 'Save condition'}).click()
   }

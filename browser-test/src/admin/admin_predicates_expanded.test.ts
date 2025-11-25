@@ -39,6 +39,23 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    await test.step('Navigate to edit predicate and save empty predicate', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickSaveAndExitButton()
+
+      // Validate no predicate is saved
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+      await expect(page.locator('#eligibility-predicate')).toContainText(
+        'This screen does not have any eligibility conditions',
+      )
+    })
+
     await test.step('Navigate to edit predicate and create a new condition', async () => {
       // Edit eligibility predicate
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -341,6 +358,26 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         },
       ],
       [
+        QuestionType.ID,
+        {
+          questionName: 'id-q',
+          questionText: 'id question text',
+          firstValue: 'A123456-ID',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
+        },
+      ],
+      [
+        QuestionType.NAME,
+        {
+          questionName: 'name-q',
+          questionText: 'name question text',
+          firstValue: 'Keanu',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
+        },
+      ],
+      [
         QuestionType.NUMBER,
         {
           questionName: 'number-q',
@@ -363,6 +400,16 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
             {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
             {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
           ],
+        },
+      ],
+      [
+        QuestionType.TEXT,
+        {
+          questionName: 'text-q',
+          questionText: 'text question text',
+          firstValue: 'apple',
+          defaultInputType: 'text',
+          defaultInputMode: 'text',
         },
       ],
     ])
@@ -404,7 +451,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.CURRENCY,
       QuestionType.DATE,
       QuestionType.EMAIL,
+      QuestionType.ID,
+      QuestionType.NAME,
       QuestionType.NUMBER,
+      QuestionType.TEXT,
     ]) {
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
@@ -559,7 +609,10 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     for (const questionType of [
       QuestionType.DATE,
       QuestionType.EMAIL,
+      QuestionType.ID,
+      QuestionType.NAME,
       QuestionType.NUMBER,
+      QuestionType.TEXT,
     ]) {
       await test.step('refresh page and re-add condition', async () => {
         await page.reload()
@@ -857,6 +910,66 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.expectNoAddConditionButton()
       await validateScreenshot(page, 'no-available-visibility-questions')
+    })
+  })
+
+  test('Eligibility message', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Eligibility message'
+    const eligibilityMessageLabel =
+      'Display message shown to ineligible applicants'
+
+    await test.step('Create a program', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+      })
+    })
+
+    await test.step('Navigate to edit predicate and verify empty state', async () => {
+      // Edit eligibility predicate
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeVisible()
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeEmpty()
+    })
+
+    await test.step('Set eligibility message', async () => {
+      const eligibilityMessage = 'You are not eligible for this program.'
+      await page.getByLabel(eligibilityMessageLabel).fill(eligibilityMessage)
+
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(page.getByLabel(eligibilityMessageLabel)).toHaveValue(
+        eligibilityMessage,
+      )
+    })
+
+    await test.step('Remove eligibility message', async () => {
+      await page.getByLabel(eligibilityMessageLabel).fill('')
+
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(page.getByLabel(eligibilityMessageLabel)).toBeEmpty()
     })
   })
 

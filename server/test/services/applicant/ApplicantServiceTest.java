@@ -2811,14 +2811,10 @@ public class ApplicantServiceTest extends ResetPostgres {
                 ProgramType.EXTERNAL)
             .build();
 
-    // External program is not included in 'unapplied' list when request does not have the external
-    // program card feature
-    // enabled
+    // External program is not included in 'unapplied' list when external program card feature is
+    // disabled
     Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
-            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false")
-            .build();
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false").build();
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
@@ -2828,13 +2824,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
 
-    // External program is included in 'unapplied' list when request has external program card and
-    // North Star features enabled
+    // External program is included in 'unapplied' list when external program card feature is
+    // enabled
     Request requestWithFeature =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
-            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true")
-            .build();
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true").build();
     ApplicantService.ApplicationPrograms resultWithFeature =
         subject
             .relevantProgramsForApplicant(

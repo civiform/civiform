@@ -483,6 +483,12 @@ public class ProgramBuilder {
       return this;
     }
 
+    public BlockBuilder withEligibilityMessage(String message) {
+      blockDefBuilder.setLocalizedEligibilityMessage(
+          Optional.of(LocalizedStrings.of(Locale.US, message)));
+      return this;
+    }
+
     /** Add a required question to the block. */
     public BlockBuilder withRequiredQuestion(QuestionModel question) {
       QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
