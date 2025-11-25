@@ -494,3 +494,36 @@ test.describe(
     })
   },
 )
+
+test.describe(
+  'Applicant flow for login only programs',
+  {tag: ['@northstar']},
+  () => {
+    const programName = 'loginonly'
+
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await test.step('create a new program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.setProgramToLoginOnly(true)
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+    })
+
+    test('login only program has start application button when entering as a logged in user', async ({
+      page,
+    }) => {
+      const programName = 'loginonly'
+
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+
+      await expect(
+        page.getByRole('link', {name: 'Start an application'}).first(),
+      ).toBeVisible()
+    })
+  },
+)

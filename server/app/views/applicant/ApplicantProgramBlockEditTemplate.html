@@ -38,78 +38,18 @@
       ></div>
 
       <div class="grid-container">
+        <div th:if="${!applicationParams.loginOnly()}" class="grid-row">
+          <div
+            th:replace="~{applicant/BlockEditFragment :: blockEdit(${submitFormAction}, ${previousFormAction}, ${reviewFormAction}, ${progressBar}, ${csrfToken}, ${showErrorModal}, ${enumMaxEntityCount}, ${stateAbbreviations},${questionRendererParams})}"
+          ></div>
+        </div>
         <div
-          th:if="${applicationParams.loginOnly() and !isGuest}"
+          th:if="${applicationParams.loginOnly()} and !isGuest"
           class="grid-row"
         >
           <div
-            th:class="${applicationParams.block().hasMapQuestion() ? 'tablet:grid-col-12' : 'tablet:grid-col-8'}"
-          >
-            <form
-              id="cf-block-form"
-              th:action="${submitFormAction}"
-              method="POST"
-              class="usa-form usa-form--large cf-block-form"
-            >
-              <input hidden th:value="${csrfToken}" name="csrfToken" />
-
-              <div class="section-external">
-                <div
-                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
-                ></div>
-              </div>
-
-              <div
-                th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
-              ></div>
-              <!--/* If an alert is visible, add some extra spacing. */-->
-              <div
-                th:if="${eligibilityAlertSettings.title.isPresent()}"
-                class="section-spacing"
-              ></div>
-
-              <div
-                th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
-              ></div>
-
-              <div
-                th:each="question: ${applicationParams.block().getQuestions()}"
-              >
-                <div
-                  th:replace="~{questiontypes/QuestionFragment :: applicant-question(
-                    ${question},
-                    ${questionRendererParams.get(question.getQuestionDefinition().getId())},
-                    ${stateAbbreviations},${enumMaxEntityCount})}"
-                ></div>
-              </div>
-
-              <div class="section-external">
-                <div>
-                  <!-- The "show-error-modal" div acts like a boolean. Its presence indicates an error modal should be shown on page load. -->
-                  <div th:if="${showErrorModal}" id="show-error-modal"></div>
-
-                  <button
-                    type="submit"
-                    th:formaction="${previousFormAction}"
-                    class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
-                    th:text="#{button.back}"
-                  ></button>
-                  <button
-                    type="submit"
-                    class="usa-button margin-bottom-1 zero-top-margin"
-                    th:text="#{button.continue}"
-                  ></button>
-                </div>
-                <button
-                  type="submit"
-                  th:formaction="${reviewFormAction}"
-                  id="review-application-button"
-                  class="usa-button usa-button--unstyled margin-bottom-4"
-                  th:text="#{button.reviewAndExit}"
-                ></button>
-              </div>
-            </form>
-          </div>
+            th:replace="~{applicant/BlockEditFragment :: blockEdit(${submitFormAction}, ${previousFormAction}, ${reviewFormAction}, ${progressBar}, ${csrfToken}, ${showErrorModal}, ${enumMaxEntityCount}, ${stateAbbreviations},${questionRendererParams})}"
+          ></div>
         </div>
       </div>
     </main>

@@ -1194,6 +1194,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
+    System.out.println(contentAsString(result));
     assertThat(contentAsString(result)).contains("Error: This question is required.");
   }
 
