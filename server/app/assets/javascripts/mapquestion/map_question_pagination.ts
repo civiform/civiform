@@ -10,7 +10,8 @@ import {
 } from './map_util'
 
 const ITEMS_PER_PAGE = 6
-const MAX_VISIBLE_PAGE_BUTTONS = 3
+const MAX_VISIBLE_PAGE_BUTTONS_MOBILE = 3
+const MAX_VISIBLE_PAGE_BUTTONS_DESKTOP = 1
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
@@ -38,6 +39,13 @@ export const initPagination = (mapId: string): void => {
   const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
   updatePagination(mapId, paginationNav)
+  window.addEventListener(
+    'resize',
+    function () {
+      updatePagination(mapId, paginationNav)
+    },
+    true,
+  )
 }
 
 export const updatePagination = (
@@ -162,23 +170,27 @@ const calculateVisiblePages = (
   currentPage: number,
   totalPages: number,
 ): (number | string)[] => {
+  const maxVisiblePageButtons =
+    window.innerWidth < 640
+      ? MAX_VISIBLE_PAGE_BUTTONS_MOBILE
+      : MAX_VISIBLE_PAGE_BUTTONS_DESKTOP
   // Show all pages if we have fewer than max + first/last
-  if (totalPages <= MAX_VISIBLE_PAGE_BUTTONS + 2) {
+  if (totalPages <= maxVisiblePageButtons + 2) {
     return Array.from({length: totalPages}, (_, i) => i + 1)
   }
 
   const pages: (number | string)[] = []
-  const halfVisible = Math.floor(MAX_VISIBLE_PAGE_BUTTONS / 2)
+  const halfVisible = Math.floor(maxVisiblePageButtons / 2)
 
   let startPage = Math.max(2, currentPage - halfVisible)
   const endPage = Math.min(
     totalPages - 1,
-    startPage + MAX_VISIBLE_PAGE_BUTTONS - 1,
+    startPage + maxVisiblePageButtons - 1,
   )
 
   // Adjust start if we're near the end
-  if (endPage - startPage + 1 < MAX_VISIBLE_PAGE_BUTTONS) {
-    startPage = Math.max(2, endPage - MAX_VISIBLE_PAGE_BUTTONS + 1)
+  if (endPage - startPage + 1 < maxVisiblePageButtons) {
+    startPage = Math.max(2, endPage - maxVisiblePageButtons + 1)
   }
 
   // Always show first page
