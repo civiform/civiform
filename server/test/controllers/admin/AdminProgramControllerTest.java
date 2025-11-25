@@ -45,6 +45,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   private static final String ADMIN_NAME = "internal-program-name";
   private static final String PROGRAM_NAME = "External program name";
+  public static final String SHORT_DESCRIPTION = "External short program description";
 
   private static final ImmutableMap<String, String> DEFAULT_FORM_FIELDS =
       ImmutableMap.of(
@@ -52,7 +53,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
           "adminDescription", "Internal program description",
           "localizedDisplayName", PROGRAM_NAME,
           "localizedDisplayDescription", "External program description",
-          "localizedShortDescription", "External short program description",
+          "localizedShortDescription", SHORT_DESCRIPTION,
           "externalLink", "https://external.program.link",
           "displayMode", DisplayMode.PUBLIC.getValue(),
           "applicationSteps[0][title]", "step one title",
@@ -141,8 +142,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboardResult = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboardResult)).contains(PROGRAM_NAME);
-    assertThat(contentAsString(programDashboardResult))
-        .contains("External short program description");
+    assertThat(contentAsString(programDashboardResult)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
@@ -155,7 +155,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void create_northStar_returnsNewProgramWithAcls() {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("localizedShortDescription", "External short program description with acls");
     formData.put("displayMode", DisplayMode.SELECT_TI.getValue());
     formData.put("tiGroups[]", "1");
 
@@ -172,8 +171,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
-    assertThat(contentAsString(programDashboard))
-        .contains("External short program description with acls");
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
@@ -209,7 +207,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
-    assertThat(contentAsString(programDashboard)).contains("External short program description");
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
@@ -252,7 +250,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
-    assertThat(contentAsString(programDashboard)).contains("External short program description");
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
