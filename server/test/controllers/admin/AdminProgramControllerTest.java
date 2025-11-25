@@ -43,11 +43,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
   private ProgramRepository programRepository;
   private VersionRepository versionRepository;
 
+private static final String ADMIN_NAME=  "internal-program-name";
   private static final String PROGRAM_NAME = "External program name";
 
   private static final ImmutableMap<String, String> DEFAULT_FORM_FIELDS =
       ImmutableMap.of(
-          "adminName", "internal-program-name",
+          "adminName", ADMIN_NAME,
           "adminDescription", "Internal program description",
           "localizedDisplayName", PROGRAM_NAME,
           "localizedDisplayDescription", "External program description",
@@ -154,9 +155,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void create_northStar_returnsNewProgramWithAcls() {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    // Overwrite specifics for this test
-    formData.put("adminName", "internal-program-with-acls");
-    formData.put("localizedDisplayName", "External program name with acls");
     formData.put("localizedShortDescription", "External short program description with acls");
     formData.put("displayMode", DisplayMode.SELECT_TI.getValue());
     formData.put("tiGroups[]", "1");
@@ -166,14 +164,14 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     Optional<ProgramModel> newProgram =
-        versionRepository.getProgramByNameForVersion(
-            "internal-program-with-acls", versionRepository.getDraftVersionOrCreate());
+        versionRepository.getProgramByNameForVersion(ADMIN_NAME,
+            versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
     Result programDashboard = controller.index(fakeRequest());
-    assertThat(contentAsString(programDashboard)).contains("External program name with acls");
+    assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
     assertThat(contentAsString(programDashboard))
         .contains("External short program description with acls");
   }
@@ -261,10 +259,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_allowsChangingCommonIntakeAfterConfirming() {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
-    String adminName = "internal-program-name";
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("adminName", adminName);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
     formData.put("confirmedChangeCommonIntakeForm", "true");
     formData.put("tiGroups[]", "1");
@@ -273,7 +269,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
-            adminName, versionRepository.getDraftVersionOrCreate());
+            ADMIN_NAME, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
 
@@ -405,7 +401,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("adminDescription", "New program slug");
-    formData.put("localizedDisplayName", "New program name");
     formData.put("localizedDisplayDescription", "New program description");
     formData.put("localizedShortDescription", "New external short program description");
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
@@ -417,8 +412,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result indexResult = controller.index(fakeRequestBuilder().build());
     String content = contentAsString(indexResult);
     assertThat(content)
-        .contains(
-            "Create new program", "New program name", "New external short program description");
+        .contains("Create new program", PROGRAM_NAME, "New external short program description");
     assertThat(content).doesNotContain("Existing one", "short description");
   }
 
@@ -426,7 +420,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusEdit_redirectsToProgramEditBlocks() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("localizedDisplayName", "Program");
     formData.put("localizedDisplayDescription", "description");
     formData.put("localizedShortDescription", "short description");
     formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
@@ -447,7 +440,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusCreation_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("localizedDisplayName", "Program");
     formData.put("localizedDisplayDescription", "description");
     formData.put("localizedShortDescription", "short description");
     formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
@@ -466,7 +458,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_statusCreationEdit_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("localizedDisplayName", "Program");
     formData.put("localizedDisplayDescription", "description");
     formData.put("localizedShortDescription", "short description");
     formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
@@ -586,7 +577,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
-    formData.put("localizedDisplayName", "Program");
     formData.put("localizedDisplayDescription", "description");
     formData.put("localizedShortDescription", "short description");
     formData.put("eligibilityIsGating", "false");
