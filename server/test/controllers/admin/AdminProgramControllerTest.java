@@ -45,7 +45,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   private static final String ADMIN_NAME = "internal-program-name";
   private static final String PROGRAM_NAME = "External program name";
-  public static final String SHORT_DESCRIPTION = "External short program description";
+  private static final String SHORT_DESCRIPTION = "External short program description";
 
   private static final ImmutableMap<String, String> DEFAULT_FORM_FIELDS =
       ImmutableMap.of(
