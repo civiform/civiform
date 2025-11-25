@@ -479,14 +479,16 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     // Submit the application again without editing
     Result noEditsResult = this.northstarSubmit(applicant.id, activeProgram.id);
-    // Error is handled and applicant is shown duplicates page
+    // Error is handled and applicant is redirected to review page with flash message
     assertThat(noEditsResult.status()).isEqualTo(FOUND);
+    assertThat(noEditsResult.redirectLocation().get()).contains("/review");
 
     // Edit the application but re-enter the same values
     answer(activeProgram.id);
     Result sameValuesResult = this.northstarSubmit(applicant.id, activeProgram.id);
-    // Error is handled and applicant is shown duplicates page
+    // Error is handled and applicant is redirected to review page with flash message
     assertThat(sameValuesResult.status()).isEqualTo(FOUND);
+    assertThat(sameValuesResult.redirectLocation().get()).contains("/review");
 
     // There is only one application saved in the db
     ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);

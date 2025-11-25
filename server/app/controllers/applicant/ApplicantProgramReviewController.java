@@ -444,8 +444,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   }
                 }
                 if (cause instanceof DuplicateApplicationException) {
-                  return renderPreventDuplicateSubmissionPage(
-                      submittingProfile, applicantId, programId);
+                  Call reviewPage =
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
                 }
                 throw new RuntimeException(cause);
               }
@@ -453,7 +454,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  // TODO(#7266): Delete the old codepath and inline the North Star path
   private Result renderIneligiblePage(
       Request request,
       CiviFormProfile profile,
@@ -472,13 +472,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             .setMessages(messagesApi.preferred(request))
             .build();
     return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-  }
-
-  // TODO(#7266): Delete the old codepath and inline the North Star path
-  private Result renderPreventDuplicateSubmissionPage(
-      CiviFormProfile profile, long applicantId, long programId) {
-    Call reviewPage = applicantRoutes.review(profile, applicantId, programId);
-    return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
   }
 
   /**
