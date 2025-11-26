@@ -679,6 +679,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   /**
    * HTMX partial that renders a form for editing a subcondition within a condition of a predicate.
+   *
+   * <p>Used to update the subcondition form when a question is changed, and to add an empty
+   * subcondition.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
@@ -697,11 +700,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       long conditionId = Long.valueOf(formData.get("conditionId"));
       long subconditionId = Long.valueOf(form.get("subconditionId"));
 
-      // The downside of dynamic forms is that we include the whole form in an HTMX request.
+      // Dynamic forms contain full form from the request.
       // We need to start by filtering to only this condition.
       String parentCondition = String.format("condition-%d", conditionId);
       formData.keySet().removeIf(key -> !key.startsWith(parentCondition));
 
+      // If the user is editing a subcondition, the built condition list will contain those edits.
       EditConditionPartialViewModel condition =
           getOnlyElement(
               buildConditionsListFromFormData(
