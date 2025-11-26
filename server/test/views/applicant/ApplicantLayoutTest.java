@@ -8,7 +8,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
@@ -19,6 +18,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
@@ -56,7 +56,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
             mock(LanguageUtils.class),
             settingsManifest,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             messagesApi,
             instanceOf(ApplicantRoutes.class));

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import java.util.Locale;
@@ -19,6 +18,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
@@ -49,7 +49,7 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(MessagesApi.class));
   }
 
@@ -123,7 +123,7 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             messagesApi);
 
     // Create bundle with the request

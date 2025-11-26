@@ -4,7 +4,6 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
@@ -15,6 +14,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.AlertSettings;
 import services.AlertType;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -34,7 +34,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
   NorthStarProgramOverviewView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -42,7 +42,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,

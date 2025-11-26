@@ -18,7 +18,6 @@ import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.ScriptTag;
@@ -29,6 +28,7 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
@@ -55,7 +55,7 @@ public class BaseHtmlLayout {
   private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
-  private final AssetsFinder assetsFinder;
+  private final BundledAssetsFinder bundledAssetsFinder;
 
   public final ViewUtils viewUtils;
   protected final SettingsManifest settingsManifest;
@@ -68,16 +68,16 @@ public class BaseHtmlLayout {
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder) {
+      BundledAssetsFinder bundledAssetsFinder) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
     this.addNoindexMetaTag = settingsManifest.getStagingAddNoindexMetaTag();
-    this.assetsFinder = checkNotNull(assetsFinder);
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
+    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -279,7 +279,8 @@ public class BaseHtmlLayout {
                             .with(
                                 img()
                                     .withClasses("usa-banner__icon", "usa-media-block__img")
-                                    .withSrc(assetsFinder.path("Images/uswds/icon-dot-gov.svg"))
+                                    .withSrc(
+                                        bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"))
                                     .withAlt("")
                                     .attr("role", "img")
                                     .attr("aria-hidden", true),
@@ -315,7 +316,8 @@ public class BaseHtmlLayout {
                             .with(
                                 img()
                                     .withClasses("usa-banner__icon", "usa-media-block__img")
-                                    .withSrc(assetsFinder.path("Images/uswds/icon-https.svg"))
+                                    .withSrc(
+                                        bundledAssetsFinder.path("Images/uswds/icon-https.svg"))
                                     .withAlt("")
                                     .attr("role", "img")
                                     .attr("aria-hidden", true),

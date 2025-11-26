@@ -2,7 +2,6 @@ package views.applicant;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
@@ -19,6 +18,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
@@ -54,7 +54,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   NorthStarApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
@@ -64,7 +64,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
