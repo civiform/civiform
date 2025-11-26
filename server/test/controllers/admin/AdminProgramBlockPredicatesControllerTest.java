@@ -49,8 +49,8 @@ import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.ConditionListPartialView;
 import views.admin.programs.predicates.EditPredicatePageView;
-import views.admin.programs.predicates.EditSubconditionPartialView;
 import views.admin.programs.predicates.FailedRequestPartialView;
+import views.admin.programs.predicates.SubconditionListPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -58,7 +58,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build();
   private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
-          .bodyForm(ImmutableMap.of("conditionId", "1", "subconditionId", "1"))
+          .bodyForm(
+              ImmutableMap.of(
+                  "conditionId",
+                  "1",
+                  "subconditionId",
+                  "1",
+                  "condition-1-subcondition-1-question",
+                  "-Select-"))
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
@@ -78,9 +85,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicatesEditView.class),
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
-            instanceOf(EditSubconditionPartialView.class),
             instanceOf(FailedRequestPartialView.class),
             instanceOf(ConditionListPartialView.class),
+            instanceOf(SubconditionListPartialView.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),
@@ -799,8 +806,100 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
+  @Test
+  public void
+      hxDeleteSubcondition_oneSubcondition_deleteFirstSubcondition_createsEmptySubcondition() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createSubconditionMapWithSelectedQuestions(
+            ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
+    formData.put("conditionId", "1");
+    formData.put("subconditionId", "1");
+
+    Result result =
+        controller.hxDeleteSubcondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains("<optionselected=\"selected\">-Select-</option></select>");
+    assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void
+      hxDeleteSubcondition_twoSubconditions_deleteFirstSubcondition_secondSubconditionBecomesFirst() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createSubconditionMapWithSelectedQuestions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "1");
+    formData.put("subconditionId", "1");
+
+    Result result =
+        controller.hxDeleteSubcondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void
+      hxDeleteSubcondition_twoSubconditions_deleteSecondSucondition_displaysAddSubconditionButton() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Map<String, String> formData =
+        createSubconditionMapWithSelectedQuestions(
+            ImmutableList.of(
+                testQuestionBank.addressApplicantAddress().id,
+                testQuestionBank.dropdownApplicantIceCream().id));
+    formData.put("conditionId", "1");
+    formData.put("subconditionId", "2");
+
+    Result result =
+        controller.hxDeleteSubcondition(
+            fakeRequestBuilder().bodyForm(ImmutableMap.copyOf(formData)).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 2L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(StringUtils.deleteWhitespace(content))
+        .contains(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id));
+    assertThat(StringUtils.deleteWhitespace(content))
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id));
+    assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
+  }
+
   /**
-   * Creates a map of HTML subcondition ids to selected questions.
+   * Creates a map of HTML subcondition ids to selected questions. Multiple conditions.
    *
    * <p>Entries are of the format: ("condition-[num]-subcondition-1-question", "[questionId]")
    */
@@ -811,6 +910,24 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),
           String.valueOf(questionIds.get(i - 1)));
+    }
+
+    return conditionMap;
+  }
+
+  /**
+   * Creates a map of HTML subcondition ids to selected questions. All are in one condition.
+   *
+   * <p>Entries are of the format: ("condition-1-subcondition-[num]-question", "[questionId]")
+   */
+  private Map<String, String> createSubconditionMapWithSelectedQuestions(
+      ImmutableList<Long> questionIds) {
+    Map<String, String> conditionMap = new HashMap<>();
+    for (int i = 1; i <= questionIds.size(); ++i) {
+      conditionMap.put(
+          String.format("condition-1-subcondition-%d-question", i),
+          String.valueOf(questionIds.get(i - 1)));
+      conditionMap.put("condition-1-nodeType", "AND");
     }
 
     return conditionMap;

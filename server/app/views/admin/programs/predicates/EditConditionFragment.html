@@ -51,13 +51,9 @@
         </select>
         [[#{content.predicateSubconditionsAreTrue}]]
       </div>
-      <th:block
-        th:each="subcondition, subconditionStat: ${model.subconditions}"
-      >
-        <div
-          th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, ${subconditionStat.count}, ${subcondition})}"
-        ></div>
-      </th:block>
+      <div
+        th:replace="~{admin/programs/predicates/SubconditionListFragment :: subconditionList(${model.subconditionListModel(conditionId)})}"
+      ></div>
     </div>
   </div>
 </th:block>
