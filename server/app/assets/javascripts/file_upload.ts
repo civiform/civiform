@@ -23,6 +23,10 @@ export function init() {
     return
   }
 
+  const isAzureUpload =
+    blockForm.querySelector('.azure-upload') != null ||
+    blockForm.querySelector('.azure-multi-file-upload') != null
+
   addEventListenerToElements(
     '.file-upload-action-button',
     'click',
@@ -32,14 +36,11 @@ export function init() {
   )
 
   blockForm.addEventListener('submit', (event) => {
-    // Prevent submission of a file upload form if no file has been
-    // selected. Note: For optional file uploads, a distinct skip button
-    // is shown.
-    if (!validateFileUploadQuestion(blockForm)) {
+    // For Azure uploads, the azure_upload.ts script handles submission.
+    // For other uploads, we need to validate that a file is selected.
+    if (!isAzureUpload && !validateFileUploadQuestion(blockForm)) {
       event.preventDefault()
-      return false
     }
-    return true
   })
 
   const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
@@ -57,6 +58,11 @@ export function init() {
     // behavior), then multiple file upload feature is enabled, in that case, submit the form
     // as soon as the applicant selects a file so it immediately uploads the file.
     if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+      // For Azure multi-file uploads, the azure_upload.ts script handles
+      // submission on file change.
+      if (isAzureUpload) {
+        return
+      }
       const elementsToDisable = document.querySelectorAll(
         '.cf-disable-when-uploading',
       )
