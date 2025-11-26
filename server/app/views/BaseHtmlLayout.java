@@ -6,6 +6,7 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.link;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
@@ -49,10 +50,6 @@ public class BaseHtmlLayout {
   private final String civiformImageTag;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
-  private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
-  private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
-  private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
-  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
   private final BundledAssetsFinder bundledAssetsFinder;
@@ -107,6 +104,7 @@ public class BaseHtmlLayout {
    */
   public HtmlBundle getBundle(HtmlBundle bundle) {
     // Add basic page metadata.
+    bundle.setBundledAssetsFinder(bundledAssetsFinder);
     bundle.addMetadata(
         meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
     bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
@@ -129,13 +127,17 @@ public class BaseHtmlLayout {
       bundle.addToastMessages(privacyBanner);
     }
 
-    bundle.addHeadScripts(viewUtils.makeLocalJsTag(USWDS_INIT_FILEPATH));
+    bundle.addHeadScripts(
+        script().withSrc(bundledAssetsFinder.getUswdsJsInit()).withType("text/javascript"));
 
     // Add default stylesheets.
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
     if (settingsManifest.getMapQuestionEnabled(bundle.getRequest())) {
-      bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+      bundle.addStylesheets(
+          link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
     }
 
     // Add Google analytics scripts.

@@ -21,4 +21,36 @@ public final class BundledAssetsFinder {
   public String path(String path) {
     return assetsFinder.path(path);
   }
+
+  public String getTailwindStylesheet() {
+    return path("stylesheets/tailwind.css");
+  }
+
+  public String getUswdsStylesheet() {
+    return path("dist/uswds.min.css");
+  }
+
+  public String getNorthStarStylesheet() {
+    return path("dist/uswds_northstar.min.css");
+  }
+
+  public String getMapLibreGLStylesheet() {
+    return path("dist/maplibregl.min.css");
+  }
+
+  public String getAdminJsBundle() {
+    return path("dist/admin.bundle.js");
+  }
+
+  public String getApplicantJsBundle() {
+    return path("dist/applicant.bundle.js");
+  }
+
+  public String getUswdsJsInit() {
+    return path("javascripts/uswds/uswds-init.min.js");
+  }
+
+  public String getUswdsJsBundle() {
+    return path("dist/uswds.bundle.js");
+  }
 }

@@ -66,16 +66,15 @@ public abstract class NorthStarBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("tailwindStylesheet", bundledAssetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable(
-        "northStarStylesheet", bundledAssetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
-    context.setVariable(
-        "mapLibreGLStylesheet", bundledAssetsFinder.path("dist/maplibregl.min.css"));
-    context.setVariable("applicantJsBundle", bundledAssetsFinder.path("dist/applicant.bundle.js"));
-    context.setVariable(
-        "uswdsJsInit", bundledAssetsFinder.path("javascripts/uswds/uswds-init.min.js"));
-    context.setVariable("uswdsJsBundle", bundledAssetsFinder.path("dist/uswds.bundle.js"));
+
+    context.setVariable("tailwindStylesheet", bundledAssetsFinder.getTailwindStylesheet());
+    context.setVariable("northStarStylesheet", bundledAssetsFinder.getNorthStarStylesheet());
+    context.setVariable("mapLibreGLStylesheet", bundledAssetsFinder.getMapLibreGLStylesheet());
+    context.setVariable("applicantJsBundle", bundledAssetsFinder.getApplicantJsBundle());
+    context.setVariable("uswdsJsInit", bundledAssetsFinder.getUswdsJsInit());
+    context.setVariable("uswdsJsBundle", bundledAssetsFinder.getUswdsJsBundle());
+
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());

@@ -131,7 +131,9 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.ADMIN);
+    bundle
+        .setJsBundle(JsBundle.ADMIN)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     // Render the admin layout
     Content content = adminLayout.render(bundle);
@@ -146,7 +148,9 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     Content content = adminLayout.render(bundle);
     String html = content.body();

@@ -73,7 +73,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     Content content = applicantLayout.render(bundle);
     String html = content.body();
@@ -89,7 +91,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 
@@ -105,7 +109,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 

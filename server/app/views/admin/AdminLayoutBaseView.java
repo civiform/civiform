@@ -59,23 +59,19 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
 
   @Override
   protected final ImmutableList<String> getSiteStylesheets() {
-    return ImmutableList.<String>builder()
-        .add(bundledAssetsFinder.path("dist/uswds.min.css"))
-        .build();
+    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsStylesheet()).build();
   }
 
   @Override
   protected final ImmutableList<String> getSiteHeadScripts() {
     return ImmutableList.<String>builder()
-        .add(bundledAssetsFinder.path("dist/admin.bundle.js"))
-        .add(bundledAssetsFinder.path("javascripts/uswds/uswds-init.min.js"))
+        .add(bundledAssetsFinder.getAdminJsBundle())
+        .add(bundledAssetsFinder.getUswdsJsInit())
         .build();
   }
 
   @Override
   protected final ImmutableList<String> getSiteBodyScripts() {
-    return ImmutableList.<String>builder()
-        .add(bundledAssetsFinder.path("dist/uswds.bundle.js"))
-        .build();
+    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsJsBundle()).build();
   }
 }
