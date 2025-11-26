@@ -1250,6 +1250,16 @@ export class AdminPrograms {
     }
   }
 
+  // Edit a question from the program screen
+  async editQuestion(questionName: string) {
+    await this.page.click(
+      this.withinQuestionCardSelectorInProgramView(
+        questionName,
+        'a:has-text("Edit")',
+      ),
+    )
+  }
+
   /**
    * Edit basic block details and required questions
    * @deprecated prefer using {@link #editProgramBlockUsingSpec} instead.

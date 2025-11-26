@@ -165,12 +165,14 @@
             <input
               class="usa-checkbox__input usa-checkbox__input--tile cf-location-checkbox-input"
               th:id="${locationId}"
+              th:question-id="${hasGroupErrors ? questionId + '-error' : questionId}"
               th:value="${mapQuestion.createLocationJson(featureId, locationName)}"
               th:name="${mapQuestion.getSelectionPathAsArray()}"
               th:checked="${mapQuestion.locationIsSelected(featureId)}"
               th:data-map-id="${mapId}"
               th:data-feature-id="${featureId}"
               th:data-testid="location-checkbox-input"
+              th:aria-describedby="${hasGroupErrors ? questionId + '-error' : ''}"
               type="checkbox"
             />
             <label
