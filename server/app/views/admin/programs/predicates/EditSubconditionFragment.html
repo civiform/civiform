@@ -1,6 +1,6 @@
 <!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditSubconditionPartialViewModel"*/-->
 <th:block
-  th:fragment="editSubcondition(conditionId, subconditionId, enableDeletion, model)"
+  th:fragment="editSubcondition(conditionId, subconditionId, disableDeletion, model)"
 >
   <div class="subcondition-container">
     <!-- Define input ids in the expected format: 
@@ -105,18 +105,17 @@
       <div
         th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.selectedQuestionType}, ${model.valueOptions}, ${conditionId}, ${subconditionId}, ${model.hasSelectedQuestion})}"
       ></div>
-      <th:block th:if="${enableDeletion}">
-        <div class="width-full display-inline-block">
-          <button
-            th:hx-post="${model.hxDeleteSubconditionEndpoint()}"
-            th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
-            th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
-            hx-swap="outerHTML"
-            class="usa-link usa-button usa-button--unstyled float-right text-secondary-dark"
-            th:text="#{link.predicateDeleteSubcondition}"
-          ></button>
-        </div>
-      </th:block>
+      <div class="width-full display-inline-block">
+        <button
+          th:hx-post="${model.hxDeleteSubconditionEndpoint()}"
+          th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
+          th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+          hx-swap="outerHTML"
+          class="usa-link usa-button usa-button--unstyled float-right text-secondary-dark"
+          th:text="#{link.predicateDeleteSubcondition}"
+          th:disabled="${disableDeletion}"
+        ></button>
+      </div>
     </div>
   </div>
 </th:block>

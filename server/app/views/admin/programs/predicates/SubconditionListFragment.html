@@ -4,7 +4,7 @@
   >
     <th:block th:each="subcondition, subconditionStat: ${model.subconditions}">
       <div
-        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.conditionId}, ${subconditionStat.count}, ${model.subconditions.size() > 1}, ${subcondition})}"
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.conditionId}, ${subconditionStat.count}, ${model.subconditions.size() == 1}, ${subcondition})}"
       ></div>
     </th:block>
     <div class="margin-top-3" th:hx-target="this">
