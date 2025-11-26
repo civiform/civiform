@@ -19,7 +19,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
@@ -48,6 +47,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.routing.Router;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -102,11 +102,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       PageNotProductionBanner pageNotProductionBanner,
       MessagesApi messagesApi,
       ApplicantRoutes applicantRoutes) {
-    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
+    super(viewUtils, settingsManifest, deploymentType, bundledAssetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);

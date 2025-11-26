@@ -8,7 +8,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.ConfigFactory;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import controllers.applicant.ApplicantRoutes;
@@ -25,6 +24,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import repository.AccountRepository;
 import repository.SearchParameters;
+import services.BundledAssetsFinder;
 import services.DateConverter;
 import services.DeploymentType;
 import services.MessageKey;
@@ -75,7 +75,7 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
             languageUtils,
             settingsManifest,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             mock(MessagesApi.class),
             instanceOf(ApplicantRoutes.class));

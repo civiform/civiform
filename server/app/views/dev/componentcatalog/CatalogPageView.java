@@ -1,9 +1,9 @@
 package views.dev.componentcatalog;
 
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.DevLayoutBaseView;
 
@@ -14,8 +14,8 @@ public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
-      AssetsFinder assetFinder) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest, assetFinder);
+      BundledAssetsFinder bundledAssetsFinder) {
+    super(templateEngine, playThymeleafContextFactory, settingsManifest, bundledAssetsFinder);
   }
 
   @Override

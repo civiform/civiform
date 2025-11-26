@@ -2,9 +2,9 @@ package views.admin.tools;
 
 import auth.ProfileUtils;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayoutBaseView;
 
@@ -14,10 +14,14 @@ public class UrlCheckerView extends AdminLayoutBaseView<UrlCheckerViewModel> {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ProfileUtils profileUtils) {
     super(
-        templateEngine, playThymeleafContextFactory, settingsManifest, assetsFinder, profileUtils);
+        templateEngine,
+        playThymeleafContextFactory,
+        settingsManifest,
+        bundledAssetsFinder,
+        profileUtils);
   }
 
   @Override
