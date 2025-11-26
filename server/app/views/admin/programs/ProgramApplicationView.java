@@ -46,7 +46,6 @@ import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.JsBundle;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
@@ -176,8 +175,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addBodyStyles("flex")
             .addMainStyles("w-screen")
             .addModals(updateNoteModal)
-            .addModals(statusUpdateConfirmationModals)
-            .setJsBundle(JsBundle.ADMIN);
+            .addModals(statusUpdateConfirmationModals);
     addToastMessagesOnSuccess(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }

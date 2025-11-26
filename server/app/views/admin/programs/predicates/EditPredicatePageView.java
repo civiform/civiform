@@ -2,9 +2,9 @@ package views.admin.programs.predicates;
 
 import auth.ProfileUtils;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
@@ -22,10 +22,9 @@ public class EditPredicatePageView extends AdminLayoutBaseView<EditPredicatePage
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
-      AssetsFinder assetsFinder,
+      ViteService viteService,
       ProfileUtils profileUtils) {
-    super(
-        templateEngine, playThymeleafContextFactory, settingsManifest, assetsFinder, profileUtils);
+    super(templateEngine, playThymeleafContextFactory, settingsManifest, viteService, profileUtils);
   }
 
   @Override

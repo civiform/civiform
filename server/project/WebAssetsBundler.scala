@@ -14,17 +14,13 @@ import sbt.{AutoPlugin, File, Setting, sbtUnchecked, taskKey}
 
 import scala.sys.process.{Process, ProcessLogger}
 
-/** Custom plugin to compile and bundle TypeScript and Sass using Webpack. We
-  * are not using sbt-typescript
-  * https://github.com/joost-de-vries/sbt-typescript plugin because it hasn't
-  * been updated since 2018 and uses Typescript 2 while current Typescript
-  * version is 4.
+/** Custom plugin to compile and bundle TypeScript and Sass using Vite.
   *
-  * Our custom plugin invokes `tsc` compiler directly through the Webpack
-  * ts-loader. `tsconfig.json` and `webpack.config.js` are set up to compile
-  * code from `app/assets/javascripts` and 'node_modules/@uswds/uswds/dist/js'
-  * directories and output the result to `target/web/dist` folder. We also use
-  * Webpack to compile the USWDS Sass into CSS.
+  * Our custom plugin invokes Vite build directly. `tsconfig.json` and
+  * `vite.config.ts` are set up to compile code from `app/assets/javascripts`
+  * and 'node_modules/@uswds/uswds/dist/js' directories and output the result to
+  * `target/web/dist` folder. We also use Vite to compile the USWDS Sass into
+  * CSS and handle Tailwind CSS processing.
   *
   * This plugin introduces `bundleWebAssets` task which will be used as a
   * pipeline stage. Read about Asset Pipeline tasks
@@ -49,7 +45,7 @@ object WebAssetsBundler extends AutoPlugin {
     //
     // This is task declaration. Implementation is below.
     val bundleWebAssets =
-      taskKey[Pipeline.Stage]("Uses Webpack to compile and bundle TypeScript, custom Sass files, and the USWDS Sass.")
+      taskKey[Pipeline.Stage]("Uses Vite to compile and bundle TypeScript, custom Sass files, Tailwind CSS, and the USWDS Sass.")
   }
   import autoImport._
 
@@ -103,13 +99,13 @@ object WebAssetsBundler extends AutoPlugin {
       f.getName.endsWith(".ts") || f.getName.endsWith(".scss")
     }
     // we are using sbt-web syncIncremental function. It's somewhat complicated. For our
-    // use case we just want to see if any of TS or Sass files changed and if so - rerun Webpack
+    // use case we just want to see if any of TS or Sass files changed and if so - rerun Vite
     // bundling.
     val (_, compiledFiles) =
       incremental.syncIncremental(cacheDir, changedFiles)({ modifiedFiles =>
         if (modifiedFiles.nonEmpty || !targetDir.exists()) {
           log.info("Typescript and/or Sass files changed. Recompiling...")
-          runWebpack(targetDir, log)
+          runVite(targetDir, log)
         }
         val compiledFiles: Seq[File] = targetDir.listFiles()
         // ignore opResults. We are not using full functionality of syncIncremental
@@ -124,19 +120,18 @@ object WebAssetsBundler extends AutoPlugin {
     compiledFiles
   }
 
-  def runWebpack(targetDir: File, log: ManagedLogger) = {
-    val compilationCommand =
-      "npx webpack --config webpack.config.js --output-path " + targetDir
+  def runVite(targetDir: File, log: ManagedLogger) = {
+    val compilationCommand = "npx vite build"
     val res = Process(compilationCommand) ! ProcessLogger(
       stdout => log.info(stdout),
       stderr => log.error(stderr)
     )
     if (res != 0) {
       log.info(
-        "To debug Webpack compilation run the following command from 'server' folder:\n    " + compilationCommand
+        "To debug Vite compilation run the following command from 'server' folder:\n    " + compilationCommand
       )
       throw new sbt.MessageOnlyException(
-        "Webpack compilation failed. Check console to see compilation errors."
+        "Vite compilation failed. Check console to see compilation errors."
       )
     }
   }

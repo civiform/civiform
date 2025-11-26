@@ -74,6 +74,6 @@ export default defineConfig([{
         "jest.config.js",
         "postcss.config.js",
         "tailwind.config.js",
-        "webpack.config.js"
+        "vite.config.ts"
     ]
 }]);

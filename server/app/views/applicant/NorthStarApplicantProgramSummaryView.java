@@ -16,6 +16,7 @@ import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
@@ -31,6 +32,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -39,6 +41,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
         templateEngine,
         playThymeleafContextFactory,
         assetsFinder,
+        viteService,
         applicantRoutes,
         settingsManifest,
         languageUtils,

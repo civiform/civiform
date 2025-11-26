@@ -21,10 +21,10 @@ import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.JsBundle;
 import views.ViewUtils;
 import views.components.SessionTimeoutModalsTest;
 
@@ -50,6 +50,7 @@ public class AdminLayoutTest extends ResetPostgres {
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class),
             instanceOf(MessagesApi.class));
   }
 
@@ -124,14 +125,14 @@ public class AdminLayoutTest extends ResetPostgres {
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class),
             messagesApi);
 
     // Create bundle with the request
     Http.Request request = fakeRequestBuilder().build();
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.ADMIN);
+    HtmlBundle bundle = new HtmlBundle(request);
 
     // Render the admin layout
     Content content = adminLayout.render(bundle);
@@ -145,8 +146,7 @@ public class AdminLayoutTest extends ResetPostgres {
     Http.Request request = fakeRequestBuilder().build();
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    HtmlBundle bundle = new HtmlBundle(request);
 
     Content content = adminLayout.render(bundle);
     String html = content.body();

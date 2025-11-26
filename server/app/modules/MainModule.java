@@ -18,6 +18,7 @@ import javax.inject.Provider;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import plugins.VitePlugin;
 import repository.AccountRepository;
 
 /**
@@ -61,5 +62,10 @@ public class MainModule extends AbstractModule {
       ProfileFactory profileFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
     return OidcClientProviderParams.create(config, profileFactory, accountRepositoryProvider);
+  }
+
+  @Override
+  protected void configure() {
+    bind(VitePlugin.class).asEagerSingleton();
   }
 }

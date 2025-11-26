@@ -29,10 +29,10 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.TranslationLocales;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
-import views.JsBundle;
 import views.ViewUtils;
 import views.components.Icons;
 import views.style.AdminStyles;
@@ -71,8 +71,9 @@ public final class AdminLayout extends BaseHtmlLayout {
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
+      ViteService viteService,
       MessagesApi messagesApi) {
-    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
+    super(viewUtils, settingsManifest, deploymentType, assetsFinder, viteService);
     this.activeNavPage = activeNavPage;
     this.translationLocales = checkNotNull(translationLocales);
     this.messagesApi = checkNotNull(messagesApi);
@@ -113,9 +114,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle)
-        .addHeaderContent(renderNavBar(bundle.getRequest()))
-        .setJsBundle(JsBundle.ADMIN);
+    return super.getBundle(bundle).addHeaderContent(renderNavBar(bundle.getRequest()));
   }
 
   /**

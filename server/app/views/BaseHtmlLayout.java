@@ -31,6 +31,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.components.SessionTimeoutModals;
@@ -47,12 +48,13 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout {
   private final String civiformImageTag;
+  private final ViteService viteService;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
-  private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
-  private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
-  private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
-  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
+  //  private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
+  //  private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
+  //  private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
+  //  private static final String MAPLIBRE_GL_STYLESHEET_FILEPATH = "dist/maplibregl.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
   private final AssetsFinder assetsFinder;
@@ -68,7 +70,8 @@ public class BaseHtmlLayout {
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder) {
+      AssetsFinder assetsFinder,
+      ViteService viteService) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId = settingsManifest.getMeasurementId();
@@ -78,11 +81,12 @@ public class BaseHtmlLayout {
     this.assetsFinder = checkNotNull(assetsFinder);
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
+    this.viteService = checkNotNull(viteService);
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle(Http.RequestHeader request) {
-    return getBundle(new HtmlBundle(request, viewUtils));
+    return getBundle(new HtmlBundle(request));
   }
 
   /** Get the application feature flags. */
@@ -129,13 +133,17 @@ public class BaseHtmlLayout {
       bundle.addToastMessages(privacyBanner);
     }
 
-    bundle.addHeadScripts(viewUtils.makeLocalJsTag(USWDS_INIT_FILEPATH));
+    if (viteService.isViteEnabled()) {
+      bundle.addHeadScripts(viewUtils.makeJsModuleTag(viteService.viteClientUrl()));
+    }
+
+    bundle.addHeadScripts(viewUtils.makeJsTag(viteService.getUswdsJsInit()));
 
     // Add default stylesheets.
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
+    bundle.addStylesheets(viewUtils.makeCssTag(viteService.getUswdsStylesheet()));
+    bundle.addStylesheets(viewUtils.makeCssTag(viteService.getTailwindStylesheet()));
     if (settingsManifest.getMapQuestionEnabled(bundle.getRequest())) {
-      bundle.addStylesheets(viewUtils.makeLocalCssTag(MAPLIBRE_GL_STYLESHEET_FILEPATH));
+      bundle.addStylesheets(viewUtils.makeCssTag(viteService.getMapLibreGLStylesheet()));
     }
 
     // Add Google analytics scripts.
@@ -145,7 +153,9 @@ public class BaseHtmlLayout {
 
     // Add the favicon link
     bundle.setFavicon(settingsManifest.getFaviconUrl().get());
-    bundle.setJsBundle(getJsBundle());
+    bundle.addFooterScripts(viewUtils.makeJsModuleTag(viteService.getAdminJsBundle()));
+    bundle.addFooterScripts(viewUtils.makeJsTag(viteService.getUswdsJsBundle()));
+
     return bundle;
   }
 
@@ -177,10 +187,6 @@ public class BaseHtmlLayout {
 
   protected String getTitleSuffix() {
     return CIVIFORM_TITLE;
-  }
-
-  protected JsBundle getJsBundle() {
-    return JsBundle.APPLICANT;
   }
 
   /** Creates Google Analytics scripts for the site. */

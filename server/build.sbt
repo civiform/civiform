@@ -1,4 +1,4 @@
-import WebAssetsBundler.autoImport.bundleWebAssets
+// import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -182,10 +182,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Allow tests to print to stdout when running in forking mode (default)
     Test / outputStrategy := Some(StdoutOutput),

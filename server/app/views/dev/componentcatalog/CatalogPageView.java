@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import services.ViteService;
 import services.settings.SettingsManifest;
 import views.admin.DevLayoutBaseView;
 
@@ -14,8 +15,9 @@ public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
+      ViteService viteService,
       AssetsFinder assetFinder) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest, assetFinder);
+    super(templateEngine, playThymeleafContextFactory, settingsManifest, viteService, assetFinder);
   }
 
   @Override

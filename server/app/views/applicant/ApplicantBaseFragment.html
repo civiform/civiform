@@ -20,6 +20,14 @@
 
   <title th:text="${pageTitle}"></title>
 
+  <th:block th:if="${isViteEnabled}">
+    <script
+      th:if="${viteClientUrl}"
+      type="module"
+      th:src="${viteClientUrl}"
+    ></script>
+  </th:block>
+
   <link
     th:href="${tailwindStylesheet}"
     type="text/css"
@@ -50,7 +58,7 @@
   <script
     th:nonce="${cspNonce}"
     th:src="${applicantJsBundle}"
-    type="text/javascript"
+    type="module"
   ></script>
   <script
     th:nonce="${cspNonce}"

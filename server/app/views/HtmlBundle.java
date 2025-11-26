@@ -41,11 +41,9 @@ import views.style.BaseStyles;
 public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
-  private static final String USWDS_FILEPATH = "dist/uswds.bundle";
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
-  private JsBundle jsBundle = null;
 
   private Optional<DivTag> pageNotProductionBannerTag = Optional.empty();
   private final ArrayList<String> bodyStyles = new ArrayList<>();
@@ -62,12 +60,10 @@ public final class HtmlBundle {
   private final ArrayList<DivTag> uswdsModals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
-  private final ViewUtils viewUtils;
   private final Http.RequestHeader request;
 
-  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request) {
     this.request = checkNotNull(request);
-    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /**
@@ -157,11 +153,6 @@ public final class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle setJsBundle(JsBundle jsBundle) {
-    this.jsBundle = jsBundle;
-    return this;
-  }
-
   public Http.RequestHeader getRequest() {
     return request;
   }
@@ -213,15 +204,8 @@ public final class HtmlBundle {
   }
 
   private FooterTag renderFooter() {
-    if (jsBundle == null) {
-      throw new IllegalStateException("JS bundle must be set for every page.");
-    }
     ImmutableList<ScriptTag> scripts =
-        ImmutableList.<ScriptTag>builder()
-            .addAll(footerScripts)
-            .add(viewUtils.makeLocalJsTag(jsBundle.getJsPath()))
-            .add(viewUtils.makeLocalJsTag(USWDS_FILEPATH))
-            .build();
+        ImmutableList.<ScriptTag>builder().addAll(footerScripts).build();
     FooterTag footerTag = footer().with(footerContent).with(CspUtil.applyCsp(request, scripts));
 
     if (footerStyles.size() > 0) {

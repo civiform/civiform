@@ -161,8 +161,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    */
-  private ImmutableList<String> getHeadScripts() {
-    return ImmutableList.<String>builder()
+  private ImmutableList<ScriptElementSettings> getHeadScripts() {
+    return ImmutableList.<ScriptElementSettings>builder()
         .addAll(getSiteHeadScripts())
         .addAll(getPageHeadScripts())
         .build();
@@ -176,7 +176,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    * <p>Most script files should be added with {@link #getSiteBodyScripts()} or {@link
    * #getPageBodyScripts()}.
    */
-  protected ImmutableList<String> getSiteHeadScripts() {
+  protected ImmutableList<ScriptElementSettings> getSiteHeadScripts() {
     return ImmutableList.of();
   }
 
@@ -188,7 +188,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    * <p>Override to add page specific javascript files. Use <b>sparingly</b>. Most page specific
    * files should be added with {@link #getPageBodyScripts()}.
    */
-  protected ImmutableList<String> getPageHeadScripts() {
+  protected ImmutableList<ScriptElementSettings> getPageHeadScripts() {
     return ImmutableList.of();
   }
 
@@ -198,8 +198,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    */
-  private ImmutableList<String> getBodyScripts() {
-    return ImmutableList.<String>builder()
+  private ImmutableList<ScriptElementSettings> getBodyScripts() {
+    return ImmutableList.<ScriptElementSettings>builder()
         .addAll(getSiteBodyScripts())
         .addAll(getPageBodyScripts())
         .build();
@@ -210,7 +210,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>They will be added to the page in order.
    */
-  protected ImmutableList<String> getSiteBodyScripts() {
+  protected ImmutableList<ScriptElementSettings> getSiteBodyScripts() {
     return ImmutableList.of();
   }
 
@@ -222,7 +222,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>Override to add page specific javascript files. Use <b>sparingly</b>.
    */
-  protected ImmutableList<String> getPageBodyScripts() {
+  protected ImmutableList<ScriptElementSettings> getPageBodyScripts() {
     return ImmutableList.of();
   }
 

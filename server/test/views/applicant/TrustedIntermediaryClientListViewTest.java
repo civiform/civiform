@@ -28,6 +28,7 @@ import repository.SearchParameters;
 import services.DateConverter;
 import services.DeploymentType;
 import services.MessageKey;
+import services.ViteService;
 import services.applicant.ApplicantPersonalInfo;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
@@ -76,6 +77,7 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
             settingsManifest,
             instanceOf(DeploymentType.class),
             instanceOf(AssetsFinder.class),
+            instanceOf(ViteService.class),
             instanceOf(PageNotProductionBanner.class),
             mock(MessagesApi.class),
             instanceOf(ApplicantRoutes.class));
