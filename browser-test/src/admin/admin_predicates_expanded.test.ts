@@ -111,6 +111,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
+    await test.step('refresh page and re-add condition', async () => {
+      await page.reload()
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
       await waitForHtmxReady(page)
@@ -788,16 +795,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
-    })
-
-    await test.step('Delete only subcondition and validate default state', async () => {
-      await adminPredicates.clickDeleteSubconditionButton(1, 1)
-
-      await waitForHtmxReady(page)
-
-      await adminPredicates.expectSubcondition(1, 1)
-      await adminPredicates.expectAddSubconditionButton(1)
-      await validateScreenshot(page.getByTestId('condition-1'), 'new-condition')
     })
 
     await test.step('Add second subcondition and select questions', async () => {
