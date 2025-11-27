@@ -15,7 +15,6 @@ import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.errorprone.annotations.Keep;
 import j2html.tags.Tag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
@@ -65,16 +64,10 @@ public final class HtmlBundle {
   private final ArrayList<DivTag> uswdsModals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
-
-  // Prevents errorprone from complaining. Keeping this for now as removing will
-  // will touch a bunch of things. It will be going away in the future as more
-  // admin ui work is done.
-  @Keep private final ViewUtils viewUtils;
   private final Http.RequestHeader request;
 
-  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request) {
     this.request = checkNotNull(request);
-    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /**
@@ -238,11 +231,8 @@ public final class HtmlBundle {
     ImmutableList<ScriptTag> scripts =
         ImmutableList.<ScriptTag>builder()
             .addAll(footerScripts)
-            .add(script().withSrc(jsBundlePath).withType("text/javascript"))
-            .add(
-                script()
-                    .withSrc(bundledAssetsFinder.getUswdsJsBundle())
-                    .withType("text/javascript"))
+            .add(script().withSrc(jsBundlePath).withType("module"))
+            .add(script().withSrc(bundledAssetsFinder.getUswdsJsBundle()).withType("module"))
             .build();
     FooterTag footerTag = footer().with(footerContent).with(CspUtil.applyCsp(request, scripts));
 

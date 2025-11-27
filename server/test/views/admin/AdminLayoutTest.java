@@ -130,7 +130,7 @@ public class AdminLayoutTest extends ResetPostgres {
     Http.Request request = fakeRequestBuilder().build();
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(request);
     bundle
         .setJsBundle(JsBundle.ADMIN)
         .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
@@ -147,7 +147,7 @@ public class AdminLayoutTest extends ResetPostgres {
     Http.Request request = fakeRequestBuilder().build();
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(request);
     bundle
         .setJsBundle(JsBundle.APPLICANT)
         .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));

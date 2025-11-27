@@ -37,8 +37,12 @@
     <script
       th:each="script: ${layoutParams.headScripts()}"
       th:nonce="${templateGlobals.cspNonce()}"
-      th:src="${script}"
-      type="text/javascript"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
     ></script>
   </head>
 
@@ -69,9 +73,12 @@
     <script
       th:each="script: ${layoutParams.bodyScripts()}"
       th:nonce="${templateGlobals.cspNonce()}"
-      th:src="${script}"
-      type="text/javascript"
-      defer
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
     ></script>
 
     <!--/* Optional page specific scripts. These should be load last. */-->

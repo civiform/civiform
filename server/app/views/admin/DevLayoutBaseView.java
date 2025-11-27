@@ -57,15 +57,17 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
   }
 
   @Override
-  protected final ImmutableList<String> getSiteHeadScripts() {
-    return ImmutableList.<String>builder()
-        .add(bundledAssetsFinder.getAdminJsBundle())
-        .add(bundledAssetsFinder.getUswdsJsInit())
+  protected final ImmutableList<ScriptElementSettings> getSiteHeadScripts() {
+    return ImmutableList.<ScriptElementSettings>builder()
+        .add(ScriptElementSettings.builder().src(bundledAssetsFinder.getAdminJsBundle()).build())
+        .add(ScriptElementSettings.builder().src(bundledAssetsFinder.getUswdsJsInit()).build())
         .build();
   }
 
   @Override
-  protected final ImmutableList<String> getSiteBodyScripts() {
-    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsJsBundle()).build();
+  protected final ImmutableList<ScriptElementSettings> getSiteBodyScripts() {
+    return ImmutableList.<ScriptElementSettings>builder()
+        .add(ScriptElementSettings.builder().src(bundledAssetsFinder.getUswdsJsBundle()).build())
+        .build();
   }
 }
