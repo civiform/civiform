@@ -76,6 +76,7 @@ public abstract class BlockDefinition {
    *
    * @return true if this block definition is an enumerator.
    */
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("isEnumerator")
   public abstract Optional<Boolean> isEnumerator();
 
