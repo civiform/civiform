@@ -68,19 +68,27 @@ public abstract class BlockDefinition {
   public abstract Optional<LocalizedStrings> localizedEligibilityMessage();
 
   /**
-   * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
-   * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list
-   * of user-defined identifiers for some repeated entity. Examples of repeated entities could be
-   * household members, vehicles, jobs, etc.
-   *
-   * <p>An enumerator block can only have one question, and it must be {@link
-   * QuestionType#ENUMERATOR}.
+   * An enumerator block definition is a block definition that will eventually contain a {@link
+   * QuestionDefinition} that is of type {@link QuestionType#ENUMERATOR}, but may not yet have an
+   * enumerator question set up. Enumerator questions provide a variable list of user-defined
+   * identifiers for some repeated entity. Examples of repeated entities could be household members,
+   * vehicles, jobs, etc.
    *
    * @return true if this block definition is an enumerator.
    */
+  @JsonProperty("isEnumerator")
+  public abstract Optional<Boolean> isEnumerator();
+
+  /**
+   * Checks if this block definition contains an enumerator question. In most cases, this method is
+   * used to verify that a block is a functional enumerator block since an enumerator block can only
+   * have one question, and it must be {@link QuestionType#ENUMERATOR}.
+   *
+   * @return true if this block definition has an enumerator question.
+   */
   @JsonIgnore
   @Memoized
-  public boolean isEnumerator() {
+  public boolean hasEnumeratorQuestion() {
     // Though `anyMatch` is used here, enumerator block definitions should only ever have a single
     // question, which is an enumerator question.
     return programQuestionDefinitions().stream()
@@ -111,7 +119,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public EnumeratorQuestionDefinition getEnumerationQuestionDefinition() {
-    if (isEnumerator()) {
+    if (hasEnumeratorQuestion()) {
       return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
     }
     throw new RuntimeException(
@@ -268,6 +276,9 @@ public abstract class BlockDefinition {
     @JsonProperty("localizedEligibilityMessage")
     public abstract Builder setLocalizedEligibilityMessage(
         Optional<LocalizedStrings> localizedEligibilityMessage);
+
+    @JsonProperty("isEnumerator")
+    public abstract Builder setIsEnumerator(Optional<Boolean> isEnumerator);
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);

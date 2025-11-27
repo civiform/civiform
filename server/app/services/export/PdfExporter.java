@@ -480,7 +480,7 @@ public final class PdfExporter {
       document.add(Chunk.NEWLINE);
     }
 
-    if (block.isEnumerator()) {
+    if (block.hasEnumeratorQuestion()) {
       for (BlockDefinition subBlock : program.getBlockDefinitionsForEnumerator(block.id())) {
         // Indent the blocks related to the enumerator so it's clear they're related
         renderProgramBlock(
