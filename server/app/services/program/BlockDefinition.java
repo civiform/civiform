@@ -77,8 +77,8 @@ public abstract class BlockDefinition {
    * @return true if this block definition is an enumerator.
    */
   @JsonInclude(Include.NON_EMPTY)
-  @JsonProperty("isEnumerator")
-  public abstract Optional<Boolean> isEnumerator();
+  @JsonProperty("isEnumeratorOptional")
+  public abstract Optional<Boolean> isEnumeratorOptional();
 
   /**
    * Checks if this block definition contains an enumerator question. In most cases, this method is
@@ -278,8 +278,8 @@ public abstract class BlockDefinition {
     public abstract Builder setLocalizedEligibilityMessage(
         Optional<LocalizedStrings> localizedEligibilityMessage);
 
-    @JsonProperty("isEnumerator")
-    public abstract Builder setIsEnumerator(Optional<Boolean> isEnumerator);
+    @JsonProperty("isEnumeratorOptional")
+    public abstract Builder setIsEnumeratorOptional(Optional<Boolean> isEnumeratorOptional);
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
