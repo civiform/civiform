@@ -219,7 +219,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         blockQuestions,
                                         questions,
                                         allPreviousVersionQuestions,
-                                        blockDefinition.isEnumerator(),
+                                        blockDefinition.hasEnumeratorQuestion(),
                                         csrfTag,
                                         blockDescriptionEditModal.getButton(),
                                         blockDeleteScreenModal.getButton(),
@@ -411,7 +411,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       container.with(blockContainer.with(blockContent));
 
       // Recursively add repeated blocks indented under their enumerator block
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         container.with(
             renderBlockList(
                 request,

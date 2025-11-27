@@ -579,7 +579,7 @@ public final class ReadOnlyApplicantProgramService {
       }
 
       // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();

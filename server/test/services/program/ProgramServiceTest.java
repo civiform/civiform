@@ -2018,12 +2018,12 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
@@ -2070,17 +2070,17 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))

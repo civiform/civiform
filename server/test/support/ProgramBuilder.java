@@ -618,7 +618,7 @@ public class ProgramBuilder {
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.isEnumerator()) {
+      if (!thisBlock.hasEnumeratorQuestion()) {
         throw new RuntimeException(
             "Cannot create a repeated block if this block is not an enumerator.");
       }

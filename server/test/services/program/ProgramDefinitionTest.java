@@ -836,11 +836,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition);
 
     assertThat(result.blockDefinitions()).hasSize(4);
-    assertThat(result.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
@@ -871,11 +871,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
     assertThat(result.blockDefinitions()).hasSize(3);
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
@@ -902,11 +902,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
     assertThat(result.blockDefinitions()).hasSize(3);
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
