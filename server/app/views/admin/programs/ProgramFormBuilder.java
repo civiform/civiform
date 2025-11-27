@@ -584,7 +584,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* isChecked= */ true,
                         /* isDisabled= */ false,
                         /* label= */ "")
-                    .withClasses("hidden"),
+                    .withClasses("display-none"),
                 each(
                     tiGroups,
                     tiGroup ->

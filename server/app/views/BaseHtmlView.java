@@ -291,7 +291,7 @@ public abstract class BaseHtmlView {
     FormTag hiddenForm =
         form()
             .withId(formId)
-            .withClass("hidden")
+            .withClass("display-none")
             .withMethod("POST")
             .withAction(href)
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));

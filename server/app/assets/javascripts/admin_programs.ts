@@ -244,9 +244,9 @@ class AdminPrograms {
     }
 
     if (shouldHide) {
-      requiredSpan.classList.add('hidden')
+      requiredSpan.classList.add('display-none')
     } else {
-      requiredSpan.classList.remove('hidden')
+      requiredSpan.classList.remove('display-none')
     }
   }
 

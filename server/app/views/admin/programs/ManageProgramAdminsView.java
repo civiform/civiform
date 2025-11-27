@@ -155,7 +155,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         .withMethod("POST")
         .withAction(routes.ProgramAdminManagementController.delete(programId).url())
         .with(makeCsrfTokenInputTag(request))
-        .with(hiddenEmailField.getInputTag().withClasses("hidden"))
+        .with(hiddenEmailField.getInputTag().withClasses("display-none"))
         .with(
             ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
                 .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));

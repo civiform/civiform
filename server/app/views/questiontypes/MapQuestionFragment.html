@@ -34,7 +34,7 @@
     </div>
     <!-- Filters -->
     <div
-      th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' hidden'}|"
+      th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' display-none'}|"
       th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
     >
       <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
@@ -132,7 +132,7 @@
         <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
         <input
           type="checkbox"
-          class="hidden"
+          class="display-none"
           value=""
           th:name="${mapQuestion.getSelectionPathAsArray()}"
           checked

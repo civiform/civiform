@@ -296,7 +296,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .setValue(OptionalLong.of(blockId))
                     .getNumberTag());
 
-    return div(createBlockForm, createRepeatedBlockForm).withClasses("hidden");
+    return div(createBlockForm, createRepeatedBlockForm).withClasses("display-none");
   }
 
   /**
