@@ -3,5 +3,8 @@ This ensures browser compatibility, which USWDS relies on.
 */
 
 module.exports = {
-  plugins: [require('autoprefixer')],
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 }

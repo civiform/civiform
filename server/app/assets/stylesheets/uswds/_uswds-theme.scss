@@ -35,5 +35,6 @@ https://designsystem.digital.gov/utilities/.
   // Disables mobile menu entirely as the admin area is not mobile friendly and
   // we don't want it to be collapsing into a vertical menu. Making the min width mobile
   // is the key setting for this as it defaults to desktop width size.
-  $theme-header-min-width: 'mobile'
+  $theme-header-min-width: 'mobile',
+  $theme-show-notifications: false
 );
