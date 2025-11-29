@@ -198,6 +198,18 @@ export class NorthStarModalController {
         const triggerElement = trigger as HTMLElement
         NorthStarModalController.attachHTMXModalListener(triggerElement)
       })
+
+      const externalLinkButtons = document.querySelectorAll<HTMLElement>(
+        '[data-external-link]',
+      )
+      externalLinkButtons.forEach((button) => {
+        button.addEventListener('htmx:afterRequest', () => {
+          const externalLink = button.dataset.externalLink
+          if (externalLink) {
+            window.open(externalLink, '_blank', 'noopener,noreferrer')
+          }
+        })
+      })
     })
 
     // Advertise (e.g., for browser tests) that modal.ts initialization is done

@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -56,6 +58,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final NorthStarProgramIndexView northStarProgramIndexView;
   private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
   private final MonitoringMetricCounters metricCounters;
+  private final FormFactory formFactory;
 
   @Inject
   public ApplicantProgramsController(
@@ -70,7 +73,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       SettingsManifest settingsManifest,
       NorthStarProgramIndexView northStarProgramIndexView,
       NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial,
-      MonitoringMetricCounters metricCounters) {
+      MonitoringMetricCounters metricCounters,
+      FormFactory formFactory) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -81,6 +85,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
     this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
+    this.formFactory = checkNotNull(formFactory);
     this.metricCounters = checkNotNull(metricCounters);
   }
 
@@ -379,6 +384,19 @@ public final class ApplicantProgramsController extends CiviFormController {
                   ex);
               return Results.internalServerError("There was an error in filtering the programs.");
             });
+  }
+
+  /**
+   * Record a click on an external link in the program cards. This is used for analytics purposes to
+   * track which links are being clicked on by applicants.
+   */
+  @Secure
+  public Result hxTrackClick(Request request) {
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+    String externalLink = formData.get("externalLink");
+    String programName = formData.get("programName");
+    logger.info("External program link clicked - Program: {}, Link: {}", programName, externalLink);
+    return ok();
   }
 
   /**
