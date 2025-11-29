@@ -3,7 +3,6 @@ package modules;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
@@ -21,9 +20,6 @@ import services.cloud.gcp.GcpStorageUtils;
 import services.cloud.generic_s3.AbstractS3StorageUtils;
 import services.cloud.generic_s3.GenericS3Client;
 import services.cloud.generic_s3.GenericS3ClientWrapper;
-import views.BaseHtmlView;
-import views.applicant.ApplicantProgramBlockEditView;
-import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.fileupload.AzureFileUploadViewStrategy;
 import views.fileupload.FileUploadViewStrategy;
 import views.fileupload.GenericS3FileUploadViewStrategy;
@@ -70,10 +66,5 @@ public class CloudStorageModule extends AbstractModule {
         bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
       }
     }
-
-    install(
-        new FactoryModuleBuilder()
-            .implement(BaseHtmlView.class, ApplicantProgramBlockEditView.class)
-            .build(ApplicantProgramBlockEditViewFactory.class));
   }
 }
