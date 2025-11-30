@@ -103,6 +103,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                 applicantService.relevantProgramsForApplicant(
                     applicantId, requesterProfile, request),
             classLoaderExecutionContext.current())
+      .thenApplyAsync(v -> applicantService.updateLastActivityTime(applicantId),classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
               Result result =

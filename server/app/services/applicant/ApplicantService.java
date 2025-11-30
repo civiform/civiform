@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -1021,6 +1022,9 @@ public final class ApplicantService {
                 applicant.map(ApplicantModel::getApplicantData).map(ApplicantData::preferredLocale),
             classLoaderExecutionContext.current());
   }
+  public CompletionStage<Void> updateLastActivityTime(long applicantId) {
+    return accountRepository.UpdateLastActivityTime(applicantId);
+  }
 
   /** Return the preferred locale of the given TI email. */
   public CompletionStage<Optional<Locale>> getPreferredTiLocale(String tiEmail) {
@@ -1452,7 +1456,9 @@ public final class ApplicantService {
     }
   }
 
-  /**
+
+
+    /**
    * Relevant program data to be shown to the applicant, including the time at which the applicant
    * most recently submitted an application for some version of the program.
    */

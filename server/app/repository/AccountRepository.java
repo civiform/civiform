@@ -16,6 +16,7 @@ import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -92,6 +93,21 @@ public final class AccountRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicant"))
                 .findOneOrEmpty(),
         dbExecutionContext);
+  }
+  public CompletionStage<Void> UpdateLastActivityTime(long applicantId) {
+    return supplyAsync(
+      () -> {
+
+        database
+          .update(ApplicantModel.class)
+          .setLabel("ApplicantModel.updateLastActivityTime")
+          .setProfileLocation(queryProfileLocationBuilder.create("UpdateActivityTimeApplicant"))
+          .set("last_activity_time", Instant.now())
+          .where()
+          .eq("id",applicantId).update();
+        return null;
+      },
+      dbExecutionContext);
   }
 
   public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
