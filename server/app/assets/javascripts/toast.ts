@@ -72,6 +72,7 @@ export class ToastController {
       'duration-300',
       'flex',
       'flex-row',
+      'items-center',
       'max-w-md',
       'px-2',
       'py-2',
