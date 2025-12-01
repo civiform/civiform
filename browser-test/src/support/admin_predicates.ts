@@ -309,10 +309,24 @@ export class AdminPredicates {
     operatorValue: string,
   ) {
     await this.page
-      .getByLabel('State', {
-        id: `condition-${conditionId}-subcondition-${subconditionId}-operator`,
-      })
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      )
       .selectOption(`${operatorValue}`)
+
+    await waitForHtmxReady(this.page)
+  }
+
+  async selectScalar(
+    conditionId: number,
+    subconditionId: number,
+    scalarValue: string,
+  ) {
+    await this.page
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-scalar`,
+      )
+      .selectOption(`${scalarValue}`)
 
     await waitForHtmxReady(this.page)
   }

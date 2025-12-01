@@ -20,6 +20,9 @@ public record EditSubconditionPartialViewModel(
     PredicateUseCase predicateUseCase,
     Optional<String> selectedQuestionType,
     Optional<String> selectedOperator,
+    Optional<String> selectedScalar,
+    String userEnteredValue,
+    String secondUserEnteredValue,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
@@ -39,5 +42,20 @@ public record EditSubconditionPartialViewModel(
 
   public boolean hasSelectedQuestion() {
     return questionOptions.stream().anyMatch(OptionElement::selected);
+  }
+
+  public PredicateValuesInputPartialViewModel predicateValuesInputModel(
+      long conditionId, long subconditionId) {
+    return PredicateValuesInputPartialViewModel.builder()
+        .conditionId(conditionId)
+        .subconditionId(subconditionId)
+        .questionType(selectedQuestionType)
+        .operator(selectedOperator)
+        .scalar(selectedScalar)
+        .userEnteredValue(userEnteredValue)
+        .secondUserEnteredValue(secondUserEnteredValue)
+        .valueOptions(valueOptions)
+        .hasSelectedQuestion(hasSelectedQuestion())
+        .build();
   }
 }
