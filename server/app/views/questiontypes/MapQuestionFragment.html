@@ -123,11 +123,9 @@
         class="grid-col-12 desktop:grid-col-6 margin-bottom-0 tablet:margin-bottom-3 desktop:margin-bottom-0"
       >
         <div
-          th:with="totalLocations=${questionRendererParams.geoJson().isPresent() ? questionRendererParams.geoJson().get().features().size() : 0}"
           class="text-ink margin-bottom-1 margin-top-1 tablet:margin-top-3 desktop:margin-top-0 cf-location-count"
           th:data-map-id="${mapId}"
           tabindex="-1"
-          th:text="#{map.locationsCount(${totalLocations}, ${totalLocations})}"
         ></div>
         <!--/* Hidden input that we have checked to allow clearing data from a map question */-->
         <input
@@ -419,7 +417,7 @@
       window.app.data = window.app.data || {}
       window.app.data.messages = {
         locationsCount:
-          /*[[#{map.locationsCount}]]*/ 'Displaying {0} of {1} locations',
+          /*[[#{map.locationsCount}]]*/ 'Displaying {0} to {1} of {2} locations',
         locationsSelectedCount:
           /*[[#{map.locationsSelectedCount}]]*/ 'You have selected {0} of {1} locations',
         mapRegionAltText:
