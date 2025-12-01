@@ -683,12 +683,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                 testQuestionBank.addressApplicantAddress().id));
     // Without a question selected, verify the form is in its default state with 4 default inputs
     // (question, scalar, operator value) and
-    // scalar/operator/value disabled.
+    // scalar/operator/value/delete subcondition disabled.
     assertThat(
             StringUtils.countMatches(
                 StringUtils.deleteWhitespace(content), "<optionselected=\"selected\">"))
         .isEqualTo(4);
-    assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(3);
+    assertThat(StringUtils.countMatches(content, "disabled=\"disabled\"")).isEqualTo(4);
   }
 
   @Test
