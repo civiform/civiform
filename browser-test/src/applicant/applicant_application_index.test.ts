@@ -350,11 +350,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await test.step('validate screenshot mobile', async () => {
         await page.setViewportSize({width: 360, height: 800})
-        await validateScreenshot(
-          page,
-          'filter-chips-right-to-left-mobile',
-          /* fullPage= */ false,
-        )
+        await validateScreenshot(page, 'filter-chips-right-to-left-mobile', {
+          fullPage: false,
+        })
       })
     })
 
@@ -817,7 +815,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'applicant-homepage-right-to-left-mobile',
-        /* fullPage= */ false,
+        {fullPage: false},
       )
     })
   })
@@ -836,11 +834,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await validateScreenshot(
-      page,
-      'program-index-page-theme',
-      /* fullPage= */ true,
-    )
+    await validateScreenshot(page, 'program-index-page-theme')
   })
 
   test('applies primary color only when primary dark is empty', async ({
@@ -856,11 +850,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await validateScreenshot(
-      page,
-      'program-index-page-theme-primary-only',
-      /* fullPage= */ true,
-    )
+    await validateScreenshot(page, 'program-index-page-theme-primary-only')
   })
 
   test('applies primary dark color only when primary is empty', async ({
@@ -876,11 +866,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await validateScreenshot(
-      page,
-      'program-index-page-theme-primary-dark-only',
-      /* fullPage= */ true,
-    )
+    await validateScreenshot(page, 'program-index-page-theme-primary-dark-only')
   })
 
   test('does not apply color theming on home page when disabled', async ({

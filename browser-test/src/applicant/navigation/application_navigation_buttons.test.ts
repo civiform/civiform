@@ -221,11 +221,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
 
         await validateAccessibility(page)
-        await validateScreenshot(
-          page,
-          'error-on-previous-modal',
-          /* fullPage= */ false,
-        )
+        await validateScreenshot(page, 'error-on-previous-modal', {
+          fullPage: false,
+        })
       })
 
       test('clicking previous with no answers does not show error modal', async ({

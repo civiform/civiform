@@ -76,12 +76,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     await page.goto(`/programs/${programName}`)
 
     await applicantProgramOverview.expectProgramOverviewPage(programName)
-    await validateScreenshot(
-      page.locator('main'),
-      'program-overview',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page.locator('main'), 'program-overview', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
     await validateAccessibility(page)
   })
 
@@ -422,8 +420,9 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('main'),
       'program-overview-right-to-left',
-      /* fullPage= */ true,
-      /* mobileScreenshot= */ true,
+      {
+        mobileScreenshot: true,
+      },
     )
   })
 })

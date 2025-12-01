@@ -15,20 +15,14 @@ test.describe('Managing system-wide settings', () => {
       })
 
       await adminSettings.gotoAdminSettings()
-      await validateScreenshot(
-        page,
-        'admin-settings-page',
-        /* fullPage= */ false,
-      )
+      await validateScreenshot(page, 'admin-settings-page', {fullPage: false})
     })
 
     await test.step('Jump to a specific section', async () => {
       await page.click('a:has-text("Branding")')
-      await validateScreenshot(
-        page,
-        'admin-settings-page-scrolled',
-        /* fullPage= */ false,
-      )
+      await validateScreenshot(page, 'admin-settings-page-scrolled', {
+        fullPage: false,
+      })
     })
 
     await test.step('Set viewport to a narrow width and take screenshot', async () => {
@@ -40,11 +34,9 @@ test.describe('Managing system-wide settings', () => {
 
       await adminSettings.gotoAdminSettings()
 
-      await validateScreenshot(
-        page,
-        'admin-settings-page-narrow',
-        /* fullPage= */ false,
-      )
+      await validateScreenshot(page, 'admin-settings-page-narrow', {
+        fullPage: false,
+      })
     })
   })
 
