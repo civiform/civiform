@@ -35,10 +35,10 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isEnumerator_isFalse() {
+  public void hasEnumeratorQuestion_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
-    assertThat(blockDefinition.isEnumerator()).isFalse();
+    assertThat(blockDefinition.hasEnumeratorQuestion()).isFalse();
   }
 
   @Test
@@ -56,7 +56,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isEnumerator_isTrue() {
+  public void hasEnumeratorQuestion_isTrue() {
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -70,7 +70,7 @@ public class BlockDefinitionTest {
                     Optional.empty()))
             .build();
 
-    assertThat(blockDefinition.isEnumerator()).isTrue();
+    assertThat(blockDefinition.hasEnumeratorQuestion()).isTrue();
   }
 
   @Test
