@@ -68,19 +68,6 @@ public abstract class BlockDefinition {
   public abstract Optional<LocalizedStrings> localizedEligibilityMessage();
 
   /**
-   * An enumerator block definition is a block definition that will eventually contain a {@link
-   * QuestionDefinition} that is of type {@link QuestionType#ENUMERATOR}, but may not yet have an
-   * enumerator question set up. Enumerator questions provide a variable list of user-defined
-   * identifiers for some repeated entity. Examples of repeated entities could be household members,
-   * vehicles, jobs, etc.
-   *
-   * @return true if this block definition is an enumerator.
-   */
-  @JsonInclude(Include.NON_EMPTY)
-  @JsonProperty("isEnumeratorOptional")
-  public abstract Optional<Boolean> isEnumeratorOptional();
-
-  /**
    * Checks if this block definition contains an enumerator question. In most cases, this method is
    * used to verify that a block is a functional enumerator block since an enumerator block can only
    * have one question, and it must be {@link QuestionType#ENUMERATOR}.
@@ -277,9 +264,6 @@ public abstract class BlockDefinition {
     @JsonProperty("localizedEligibilityMessage")
     public abstract Builder setLocalizedEligibilityMessage(
         Optional<LocalizedStrings> localizedEligibilityMessage);
-
-    @JsonProperty("isEnumeratorOptional")
-    public abstract Builder setIsEnumeratorOptional(Optional<Boolean> isEnumeratorOptional);
 
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
