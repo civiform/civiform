@@ -561,8 +561,7 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.locator('main'),
           'file-uploaded-very-long-name',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          {fullPage: false, mobileScreenshot: true},
         )
       })
     })

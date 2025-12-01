@@ -135,12 +135,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await test.step('Verify program summary page renders right to left correctly', async () => {
         await selectApplicantLanguageNorthstar(page, 'ar')
-        await validateScreenshot(
-          page,
-          'program-summary-right-to-left',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'program-summary-right-to-left', {
+          fullPage: false,
+          mobileScreenshot: true,
+        })
       })
     })
 

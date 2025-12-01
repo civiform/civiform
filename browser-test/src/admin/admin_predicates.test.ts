@@ -678,7 +678,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.predicate-config-form'),
       'operator-help-text',
-      /* fullPage= */ false,
+      {
+        fullPage: false,
+      },
     )
   })
 

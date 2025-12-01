@@ -1,12 +1,10 @@
-import {test, expect, Frame, Page, Locator} from '@playwright/test'
+import {test, expect, Page} from '@playwright/test'
 import {AxeBuilder} from '@axe-core/playwright'
-import * as path from 'path'
 import {waitForPageJsLoad} from './wait'
 import {
   BASE_URL,
   LOCALSTACK_URL,
   TEST_USER_AUTH_STRATEGY,
-  DISABLE_SCREENSHOTS,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
@@ -24,6 +22,8 @@ export {ApplicantFileQuestion} from './applicant_file_question'
 export {ApplicantQuestions} from './applicant_questions'
 export {ClientInformation, TIDashboard} from './ti_dashboard'
 export {clickAndWaitForModal, dismissModal, waitForPageJsLoad} from './wait'
+export {validateScreenshot} from './screenshots'
+export {normalizeElements} from './helpers'
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -301,147 +301,6 @@ export const validateAccessibility = async (page: Page) => {
     },
     {box: true},
   )
-}
-
-/**
- * Saves a screenshot to a file such as
- * browser-test/image_snapshots/test_file_name/{screenshotFileName}-snap.png.
- * If the screenshot already exists, compare the new screenshot with the
- * existing screenshot, and save a pixel diff instead if the two don't match.
- * @param fileName Must use dash-separated-case for consistency.
- */
-export const validateScreenshot = async (
-  element: Page | Locator,
-  fileName: string,
-  fullPage?: boolean,
-  mobileScreenshot?: boolean,
-  mask?: Array<Locator>,
-) => {
-  // Do not make image snapshots when running locally
-  if (DISABLE_SCREENSHOTS) {
-    return
-  }
-
-  await test.step(
-    'Validate screenshot',
-    async () => {
-      if (fullPage === undefined) {
-        fullPage = true
-      }
-
-      const page = 'page' in element ? element.page() : element
-      // Normalize all variable content so that the screenshot is stable.
-      await normalizeElements(page)
-      // Also process any sub frames.
-      for (const frame of page.frames()) {
-        await normalizeElements(frame)
-      }
-
-      if (fullPage) {
-        // Some tests take screenshots while scroll position in the middle. That
-        // affects header which is position fixed and on final full-page screenshots
-        // overlaps part of the page.
-        await page.evaluate(() => {
-          window.scrollTo(0, 0)
-        })
-      }
-
-      expect(fileName).toMatch(/^[a-z0-9-]+$/)
-
-      // Full/desktop width
-      await softAssertScreenshot(element, `${fileName}`, fullPage, mask)
-
-      // If we add additional breakpoints the browser-test/src/reporters/file_placement_reporter.ts
-      // needs to be updated to handle the additional options.
-      if (mobileScreenshot) {
-        const existingWidth = page.viewportSize()?.width || 1280
-        const height = page.viewportSize()?.height || 720
-        // Mobile width
-        await page.setViewportSize({width: 320, height})
-        await softAssertScreenshot(
-          element,
-          `${fileName}-mobile`,
-          fullPage,
-          mask,
-        )
-
-        // Medium width
-        await page.setViewportSize({width: 800, height})
-        await softAssertScreenshot(
-          element,
-          `${fileName}-medium`,
-          fullPage,
-          mask,
-        )
-
-        // Reset back to original width
-        await page.setViewportSize({width: existingWidth, height})
-      }
-
-      // Do a hard assert that we have no errors. This allows us to do soft asserts on the
-      // different sized images.
-      expect(test.info().errors).toHaveLength(0)
-    },
-    {
-      box: true,
-    },
-  )
-}
-
-const softAssertScreenshot = async (
-  element: Page | Locator,
-  fileName: string,
-  fullPage?: boolean,
-  mask?: Array<Locator>,
-) => {
-  const testFileName = path
-    .basename(test.info().file)
-    .replace('.test.ts', '_test')
-
-  await expect
-    .soft(element)
-    .toHaveScreenshot([testFileName, fileName + '.png'], {
-      fullPage: fullPage,
-      mask: mask,
-    })
-}
-
-/*
- * Replaces any variable content with static values. This is particularly useful
- * for image diffs.
- *
- * Supports date and time elements with class .cf-bt-date, and applicant IDs
- * with class .cf-application-id
- */
-export const normalizeElements = async (page: Frame | Page) => {
-  await page.evaluate(() => {
-    const replacements: {[selector: string]: (text: string) => string} = {
-      '.cf-bt-date': (text) =>
-        text
-          .replace(/\d{4}\/\d{2}\/\d{2}/, '2030/01/01')
-          .replace(/\d{4}-\d{2}-\d{2}/, '2030-01-01')
-          .replace(/\b(\d{1,2}\/\d{1,2}\/\d{2})\b/, '1/1/30')
-          .replace(/\d{1,2}:\d{2} (AM|PM) [A-Z]{2,3}/, '11:22 PM PDT')
-          .replace(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/, 'January 1, 2030'),
-      '.cf-application-id': (text) => text.replace(/\d+/, '1234'),
-      '.cf-bt-email': () => 'fake-email@example.com',
-      '.cf-bt-api-key-id': (text) => text.replace(/ID: .*/, 'ID: ####'),
-      '.cf-bt-api-key-created-by': (text) =>
-        text.replace(/Created by .*/, 'Created by fake-admin-12345'),
-    }
-    for (const [selector, replacement] of Object.entries(replacements)) {
-      for (const element of Array.from(document.querySelectorAll(selector))) {
-        if (
-          selector == '.cf-bt-email' &&
-          element.textContent == '(no email address)'
-        ) {
-          continue
-        } else {
-          element.textContent = replacement(element.textContent)
-        }
-      }
-    }
-  })
 }
 
 /**

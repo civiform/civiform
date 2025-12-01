@@ -34,12 +34,9 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Validate page', async () => {
         await expectQuestionHasNoErrors(page, 0)
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'address',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'address', {
+          fullPage: false,
+        })
         await validateAccessibility(page)
       })
 
@@ -79,8 +76,9 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'address-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {
+            fullPage: false,
+          },
         )
 
         await validateAccessibility(page)

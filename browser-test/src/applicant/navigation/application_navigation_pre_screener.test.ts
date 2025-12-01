@@ -140,12 +140,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page', {
+        mobileScreenshot: true,
+      })
       await validateAccessibility(page)
     })
 
@@ -201,8 +198,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page.locator('main'),
         'pre-screener-upsell-right-to-left',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+        {
+          mobileScreenshot: true,
+        },
       )
     })
 

@@ -59,12 +59,9 @@ test.describe(
           page.getByText('Programs you may qualify for'),
         ).toBeVisible()
 
-        await validateScreenshot(
-          page,
-          'upsell-pre-screener',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'upsell-pre-screener', {
+          mobileScreenshot: true,
+        })
 
         await validateAccessibility(page)
       })
@@ -156,11 +153,9 @@ test.describe(
 
       await applicantQuestions.clickApplyToProgramsButton()
 
-      await validateScreenshot(
-        page,
-        'upsell-pre-screener-login',
-        /* fullPage= */ false,
-      )
+      await validateScreenshot(page, 'upsell-pre-screener-login', {
+        fullPage: false,
+      })
 
       await validateAccessibility(page)
     })
@@ -277,11 +272,7 @@ test.describe(
         )
       })
 
-      await validateScreenshot(
-        page,
-        'submitted-page-theme',
-        /* fullPage= */ true,
-      )
+      await validateScreenshot(page, 'submitted-page-theme')
     })
   },
 )
