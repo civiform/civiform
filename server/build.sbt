@@ -1,4 +1,3 @@
-import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -182,10 +181,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
-    // Enable digest for local dev so that files can be served çached improving
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    // Enable digest for local dev so that files can be served cached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Allow tests to print to stdout when running in forking mode (default)
     Test / outputStrategy := Some(StdoutOutput),
@@ -309,7 +308,18 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.20.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.20"
 )
+
+// Play run hooks only run when the app starts with sbt run (dev/test). They
+// are not called when the app is precompiled with sbt dist (prod).
 playRunHooks += TailwindBuilder(baseDirectory.value)
+playRunHooks ++= {
+  if (sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean) {
+    Seq(BundlerDevServer(baseDirectory.value))
+  } else {
+    Seq(BundledAssetBuilder(baseDirectory.value))
+  }
+}
+
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
 // uncomment to show debug logging.
@@ -325,32 +335,6 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
-
-// Define a custom command to add custom asset files. These are files that need to be
-// added to the `public` folder prior to the asset jar generation which occurs early
-// in the dist pipeline.
-//
-// During development webpack manages the files, but webpack doesn't run early
-// enough during the dist pipeline.
-val addCustomAssets = taskKey[Unit]("Add custom assets")
-addCustomAssets := {
-
-  // The swagger-ui-dist files already come minified. These are getting
-  // manually copied to the `public` folder instead of running through
-  // the webpack minifier/bundler because they cause webpack to fail with
-  // multiple errors. Doing it this way the files get put into `public`
-  // then the asset builder adds them to the internal assets jar file
-  // so they still get the url versioned hash prepended.
-  val sourceDir = baseDirectory.value / "node_modules" / "swagger-ui-dist"
-  val targetDir = baseDirectory.value / "public" / "swagger-ui"
-
-  if (!sourceDir.exists) {
-    throw new IllegalStateException(s"Source directory not found: $sourceDir")
-  }
-
-  IO.createDirectory(targetDir) // Create target directory if it doesn't exist
-  IO.copyDirectory(sourceDir, targetDir)
-}
 
 // scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
 // removes the .z component and returns the path to the generated source file directory.

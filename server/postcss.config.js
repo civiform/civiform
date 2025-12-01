@@ -1,7 +1,10 @@
-/* This file configures the post-css Webpack loader to add vendor prefixes to CSS styles.
+/* This file configures the post-css loader to add vendor prefixes to CSS styles.
 This ensures browser compatibility, which USWDS relies on.
 */
 
 module.exports = {
-  plugins: [require('autoprefixer')],
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 }

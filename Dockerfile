@@ -65,6 +65,9 @@ RUN npm ci
 # Everything below here is re-run whenever any file changes.
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 
+# Build front end css/js files
+RUN npm run build
+
 # We need to save the build assets to a seperate directory (pushRemoteCache)
 RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf
 

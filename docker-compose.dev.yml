@@ -22,6 +22,7 @@ services:
     ports:
       - 9000:9000
       - 8457:8457
+      - 5173:5173     # vite dev server
       - 50000:50000
 
   civiform-shell:

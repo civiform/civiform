@@ -59,19 +59,34 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
 
   @Override
   protected final ImmutableList<String> getSiteStylesheets() {
-    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsStylesheet()).build();
-  }
-
-  @Override
-  protected final ImmutableList<String> getSiteHeadScripts() {
     return ImmutableList.<String>builder()
-        .add(bundledAssetsFinder.getAdminJsBundle())
-        .add(bundledAssetsFinder.getUswdsJsInit())
+        .add(bundledAssetsFinder.getUswdsStylesheet())
+        .add(bundledAssetsFinder.getMapLibreGLStylesheet())
         .build();
   }
 
   @Override
-  protected final ImmutableList<String> getSiteBodyScripts() {
-    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsJsBundle()).build();
+  protected final ImmutableList<ScriptElementSettings> getSiteHeadScripts() {
+    var builder = ImmutableList.<ScriptElementSettings>builder();
+
+    if (bundledAssetsFinder.useBundlerDevServer()) {
+      builder.add(ScriptElementSettings.builder().src(bundledAssetsFinder.viteClientUrl()).build());
+    }
+
+    return builder
+        .add(
+            ScriptElementSettings.builder()
+                .src(bundledAssetsFinder.getUswdsJsInit())
+                .type("text/javascript")
+                .build())
+        .add(ScriptElementSettings.builder().src(bundledAssetsFinder.getAdminJsBundle()).build())
+        .build();
+  }
+
+  @Override
+  protected final ImmutableList<ScriptElementSettings> getSiteBodyScripts() {
+    return ImmutableList.<ScriptElementSettings>builder()
+        .add(ScriptElementSettings.builder().src(bundledAssetsFinder.getUswdsJsBundle()).build())
+        .build();
   }
 }
