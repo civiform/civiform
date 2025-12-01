@@ -1,6 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  isHermeticTestEnvironment,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsCiviformAndProgramAdmin,
   loginAsProgramAdmin,
@@ -341,7 +341,7 @@ test.describe(
 
         // The reporting page is not deterministic outside the hermetic testing environment
         // so don't validate the screenshot for it when running staging probers.
-        if (isHermeticTestEnvironment()) {
+        if (isLocalDevEnvironment()) {
           await validateScreenshot(page, 'reporting-page')
         }
       })
@@ -349,7 +349,7 @@ test.describe(
       await test.step('Go to reporting program details', async () => {
         await page.getByRole('link', {name: programName}).click()
 
-        if (isHermeticTestEnvironment()) {
+        if (isLocalDevEnvironment()) {
           await validateScreenshot(page, 'program-specific-reporting-page')
         }
       })
@@ -370,7 +370,7 @@ test.describe(
         await validateScreenshot(page, 'cf-admin-applications-page')
       })
 
-      if (isHermeticTestEnvironment()) {
+      if (isLocalDevEnvironment()) {
         await test.step('Go to reporting page', async () => {
           await page.getByRole('link', {name: 'Reporting'}).click()
           await waitForPageJsLoad(page)
