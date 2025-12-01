@@ -10,7 +10,8 @@ import {
   ITEMS_PER_PAGE,
   updateLocationCountForMap,
 } from './map_util'
-const MAX_VISIBLE_PAGE_BUTTONS = 3
+const MAX_VISIBLE_PAGE_BUTTONS_MOBILE = 3
+const MAX_VISIBLE_PAGE_BUTTONS_DESKTOP = 1
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
