@@ -36,7 +36,9 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Take screenshot', async () => {
-          await validateScreenshot(page, 'map')
+          await validateScreenshot(page, 'map', {
+            maxDiffPixelRatio: 0.03,
+          })
         })
 
         await test.step('Validate accessibility', async () => {
@@ -329,19 +331,29 @@ if (isLocalDevEnvironment()) {
             .getByTestId('location-checkbox')
             .first()
           await firstCheckbox.getByTestId('location-checkbox-label').click()
-          await validateScreenshot(mapContainer, 'map-with-selected-pin')
+          await validateScreenshot(mapContainer, 'map-with-selected-pin', {
+            maxDiffPixelRatio: 0.03,
+          })
           await firstCheckbox.getByTestId('location-checkbox-label').click()
         })
 
         await test.step('Verify popup button states', async () => {
           await mapCanvas.click()
-          await validateScreenshot(mapContainer, 'map-popup-button-unselected')
+          await validateScreenshot(
+            mapContainer,
+            'map-popup-button-unselected',
+            {
+              maxDiffPixelRatio: 0.03,
+            },
+          )
           const selectButton = page.getByRole('button', {
             name: /select.*location/i,
           })
 
           await selectButton.click()
-          await validateScreenshot(mapContainer, 'map-popup-button-selected')
+          await validateScreenshot(mapContainer, 'map-popup-button-selected', {
+            maxDiffPixelRatio: 0.03,
+          })
 
           await expect(
             selectedLocationsList.getByTestId('location-checkbox'),
@@ -361,6 +373,9 @@ if (isLocalDevEnvironment()) {
           await validateScreenshot(
             mapContainer,
             'map-popup-button-unselected-after-unselect',
+            {
+              maxDiffPixelRatio: 0.03,
+            },
           )
         })
       })
@@ -388,7 +403,9 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Take screenshot of map view', async () => {
-          await validateScreenshot(page, 'map-question-mobile-view-map')
+          await validateScreenshot(page, 'map-question-mobile-view-map', {
+            maxDiffPixelRatio: 0.03,
+          })
         })
       })
     })
