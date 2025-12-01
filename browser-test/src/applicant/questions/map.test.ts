@@ -9,6 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 import {Page} from 'playwright'
+import * as path from 'path'
 
 // number of locations expected to be visible per page
 const EXPECTED_LOCATION_COUNT = 6
@@ -28,6 +29,19 @@ if (isLocalDevEnvironment()) {
           adminPrograms,
           programName,
         )
+
+        await test.step('Set up route intercept', async () => {
+          await page.route(
+            'https://tile.openstreetmap.org/**',
+            async (route) => {
+              await route.fulfill({
+                status: 200,
+                contentType: 'image/png',
+                path: path.join(__dirname, '../../support/mock-tile.png'),
+              })
+            },
+          )
+        })
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -36,9 +50,7 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Take screenshot', async () => {
-          await validateScreenshot(page, 'map', {
-            maxDiffPixelRatio: 0.03,
-          })
+          await validateScreenshot(page, 'map')
         })
 
         await test.step('Validate accessibility', async () => {
@@ -331,29 +343,19 @@ if (isLocalDevEnvironment()) {
             .getByTestId('location-checkbox')
             .first()
           await firstCheckbox.getByTestId('location-checkbox-label').click()
-          await validateScreenshot(mapContainer, 'map-with-selected-pin', {
-            maxDiffPixelRatio: 0.03,
-          })
+          await validateScreenshot(mapContainer, 'map-with-selected-pin')
           await firstCheckbox.getByTestId('location-checkbox-label').click()
         })
 
         await test.step('Verify popup button states', async () => {
           await mapCanvas.click()
-          await validateScreenshot(
-            mapContainer,
-            'map-popup-button-unselected',
-            {
-              maxDiffPixelRatio: 0.03,
-            },
-          )
+          await validateScreenshot(mapContainer, 'map-popup-button-unselected')
           const selectButton = page.getByRole('button', {
             name: /select.*location/i,
           })
 
           await selectButton.click()
-          await validateScreenshot(mapContainer, 'map-popup-button-selected', {
-            maxDiffPixelRatio: 0.03,
-          })
+          await validateScreenshot(mapContainer, 'map-popup-button-selected')
 
           await expect(
             selectedLocationsList.getByTestId('location-checkbox'),
@@ -373,9 +375,6 @@ if (isLocalDevEnvironment()) {
           await validateScreenshot(
             mapContainer,
             'map-popup-button-unselected-after-unselect',
-            {
-              maxDiffPixelRatio: 0.03,
-            },
           )
         })
       })
@@ -403,9 +402,7 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Take screenshot of map view', async () => {
-          await validateScreenshot(page, 'map-question-mobile-view-map', {
-            maxDiffPixelRatio: 0.03,
-          })
+          await validateScreenshot(page, 'map-question-mobile-view-map')
         })
       })
     })
