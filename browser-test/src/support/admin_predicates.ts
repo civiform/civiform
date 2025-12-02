@@ -82,6 +82,17 @@ export class AdminPredicates {
       .click()
   }
 
+  async clickDeleteSubconditionButton(
+    conditionId: number,
+    subconditionId: number,
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId}`)
+      .getByRole('button', {name: 'Delete sub-condition'})
+      .nth(subconditionId - 1)
+      .click()
+  }
+
   async clickAddSubconditionButton(conditionId: number) {
     await this.page
       .getByRole('button', {name: 'Add sub-condition'})
@@ -244,6 +255,14 @@ export class AdminPredicates {
     ).toBeVisible()
   }
 
+  async expectNoSubcondition(conditionId: number, subconditionId: number) {
+    await expect(
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      ),
+    ).toBeHidden()
+  }
+
   async expectNoAddConditionButton() {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
@@ -253,6 +272,14 @@ export class AdminPredicates {
   async expectAddConditionButton() {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeVisible()
+  }
+
+  async expectAddSubconditionButton(conditionId: number) {
+    await expect(
+      this.page
+        .locator(`#condition-${conditionId}`)
+        .getByRole('button', {name: 'Add sub-condition'}),
     ).toBeVisible()
   }
 

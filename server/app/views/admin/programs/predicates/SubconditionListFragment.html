@@ -1,0 +1,24 @@
+<th:block th:fragment="subconditionList(model)">
+  <div
+    th:id="${'predicate-condition-' + model.conditionId + '-subcondition-list'}"
+  >
+    <th:block th:each="subcondition, subconditionStat: ${model.subconditions}">
+      <div
+        th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.conditionId}, ${subconditionStat.count}, ${model.subconditions.size() == 1}, ${subcondition})}"
+      ></div>
+    </th:block>
+    <div class="margin-top-3" th:hx-target="this">
+      <button
+        type="button"
+        class="usa-button usa-button--unstyled zero-top-margin"
+        th:hx-post="${model.hxEditSubconditionEndpoint()}"
+        th:with="nextSubconditionId=${model.subconditions.size() + 1}"
+        th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${nextSubconditionId}" }|'
+        th:hx-target="${'#predicate-condition-' + model.conditionId + '-subcondition-list'}"
+        hx-swap="outerHTML"
+      >
+        <cf:icon type="icon-add" />[[#{link.predicateAddSubcondition}]]
+      </button>
+    </div>
+  </div>
+</th:block>
