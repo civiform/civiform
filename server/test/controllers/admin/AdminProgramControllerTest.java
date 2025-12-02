@@ -216,7 +216,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("localizedDisplayName", ""); // Empty name to force validation error
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
@@ -230,7 +230,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
@@ -242,7 +242,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_northStar_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
@@ -259,7 +259,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "true");
+    formData.put("confirmedChangePreScreenerForm", "true");
     formData.put("tiGroups[]", "1");
 
     controller.create(fakeRequestBuilder().bodyForm(formData).build());
@@ -478,7 +478,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("localizedDisplayName", ""); // Empty name to force validation error
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
         controller.update(
@@ -499,7 +499,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
         controller.update(
@@ -518,7 +518,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "false");
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
         controller.update(
@@ -547,7 +547,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("localizedShortDescription", newProgramShortDescription);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
-    formData.put("confirmedChangeCommonIntakeForm", "true");
+    formData.put("confirmedChangePreScreenerForm", "true");
 
     Result result =
         controller.update(
