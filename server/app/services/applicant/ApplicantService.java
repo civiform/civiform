@@ -364,8 +364,9 @@ public final class ApplicantService {
                 // Only check service area validation if the "Corrected" value is empty or if the
                 // address has changed from the previously corrected one
                 shouldCheckServiceAreaValidation =
-                    addressQuestion.needsAddressCorrection()
-                        || addressQuestion.hasChanges(updateMap);
+                    shouldCheckServiceAreaValidation
+                        && (addressQuestion.needsAddressCorrection()
+                            || addressQuestion.hasChanges(updateMap));
               }
 
               if (shouldCheckServiceAreaValidation) {
