@@ -12,7 +12,7 @@ import {
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
-test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
+test.describe('Applicant program overview', () => {
   const programName = 'test'
   const questionText = 'This is a text question'
 
@@ -429,132 +429,121 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   })
 })
 
-test.describe(
-  'Applicant program overview for login only program',
-  {tag: ['@northstar']},
-  () => {
-    const programName = 'loginonly'
+test.describe('Applicant program overview for login only program', () => {
+  const programName = 'loginonly'
 
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await test.step('create a new program', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.goToProgramDescriptionPage(programName)
-        await adminPrograms.setProgramToLoginOnly(true)
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
-      })
-    })
-
-    test('login only program has no start application button when entering as guest', async ({
-      page,
-    }) => {
-      const programName = 'loginonly'
-
-      await page.goto(`/programs/${programName}`)
-      await expect(
-        page.getByRole('link', {name: 'Start an application'}).first(),
-      ).toBeHidden()
-
-      await expect(
-        page.getByRole('button', {name: 'Start application as a guest'}),
-      ).toBeHidden()
-
-      // there is a link and button with the same name, check both
-      await expect(
-        page
-          .getByRole('button', {name: 'Start application with an account'})
-          .first(),
-      ).toBeVisible()
-
-      await expect(
-        page
-          .getByRole('link', {name: 'Start application with an account'})
-          .first(),
-      ).toBeVisible()
-
-      // login only create account message
-      await expect(
-        page.getByLabel(
-          'For your information: To access your application later, you must create an account',
-        ),
-      ).toBeVisible()
-    })
-    test('login only program has start application button when entering as a logged in user', async ({
-      page,
-    }) => {
-      const programName = 'loginonly'
-
-      await loginAsTestUser(page)
-      await page.goto(`/programs/${programName}`)
-
-      await expect(
-        page.getByRole('link', {name: 'Start an application'}).first(),
-      ).toBeVisible()
-    })
-  },
-)
-
-test.describe(
-  'guest cannot complete applications for login only program',
-  {tag: ['@northstar']},
-  () => {
-    const programName = 'loginonly'
-
-    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-      await test.step('create a new program', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.addProgram(programName)
-
-        await adminQuestions.addNameQuestion({
-          questionName: 'name',
-          universal: true,
-        })
-
-        await adminPrograms.editProgramBlockUsingSpec(programName, {
-          description: 'First block',
-          questions: [{name: 'name', isOptional: false}],
-        })
-        await adminPrograms.goToProgramDescriptionPage(programName)
-        await adminPrograms.setProgramToLoginOnly(true)
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
-      })
-    })
-
-    test('guest user on landing in the middle of the application, only sees the alert', async ({
-      page,
-    }) => {
-      await loginAsTestUser(page)
-      await page.goto(`/programs/${programName}`)
-      await page
-        .getByRole('link', {name: 'Start an application'})
-        .first()
-        .click()
-      await waitForPageJsLoad(page)
-
-      // logged in user can see the application page
-      await expect(page.getByText('name question text')).toBeVisible()
-
-      const applicationURL = page.url()
+  test.beforeEach(async ({page, adminPrograms}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
       await logout(page)
-
-      // go to the the middle of the application as a guest using the same URL
-      await page.goto(applicationURL)
-      await expect(page.getByText('name')).toBeHidden()
-      await expect(
-        page.getByRole('heading', {
-          name: 'You must log in to apply for this program',
-        }),
-      ).toBeVisible()
-      await expect(
-        page.getByText(
-          'Please log in or create an account to continue with this application.',
-        ),
-      ).toBeVisible()
-      await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
     })
-  },
-)
+  })
+
+  test('login only program has no start application button when entering as guest', async ({
+    page,
+  }) => {
+    const programName = 'loginonly'
+
+    await page.goto(`/programs/${programName}`)
+    await expect(
+      page.getByRole('link', {name: 'Start an application'}).first(),
+    ).toBeHidden()
+
+    await expect(
+      page.getByRole('button', {name: 'Start application as a guest'}),
+    ).toBeHidden()
+
+    // there is a link and button with the same name, check both
+    await expect(
+      page
+        .getByRole('button', {name: 'Start application with an account'})
+        .first(),
+    ).toBeVisible()
+
+    await expect(
+      page
+        .getByRole('link', {name: 'Start application with an account'})
+        .first(),
+    ).toBeVisible()
+
+    // login only create account message
+    await expect(
+      page.getByLabel(
+        'For your information: To access your application later, you must create an account',
+      ),
+    ).toBeVisible()
+  })
+  test('login only program has start application button when entering as a logged in user', async ({
+    page,
+  }) => {
+    const programName = 'loginonly'
+
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+
+    await expect(
+      page.getByRole('link', {name: 'Start an application'}).first(),
+    ).toBeVisible()
+  })
+})
+
+test.describe('guest cannot complete applications for login only program', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'name',
+        universal: true,
+      })
+
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'First block',
+        questions: [{name: 'name', isOptional: false}],
+      })
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+  })
+
+  test('guest user on landing in the middle of the application, only sees the alert', async ({
+    page,
+  }) => {
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+    await page.getByRole('link', {name: 'Start an application'}).first().click()
+    await waitForPageJsLoad(page)
+
+    // logged in user can see the application page
+    await expect(page.getByText('name question text')).toBeVisible()
+
+    const applicationURL = page.url()
+    await logout(page)
+
+    // go to the the middle of the application as a guest using the same URL
+    await page.goto(applicationURL)
+    await expect(page.getByText('name')).toBeHidden()
+    await expect(
+      page.getByRole('heading', {
+        name: 'You must log in to apply for this program',
+      }),
+    ).toBeVisible()
+    await expect(
+      page.getByText(
+        'Please log in or create an account to continue with this application.',
+      ),
+    ).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+  })
+})

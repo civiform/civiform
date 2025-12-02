@@ -37,13 +37,8 @@
       </div>
 
       <div class="grid-container">
-        <div th:if="${!applicationParams.loginOnly()}" class="grid-row">
-          <div
-            th:replace="~{applicant/BlockEditFragment :: blockEdit(${submitFormAction}, ${previousFormAction}, ${reviewFormAction}, ${progressBar}, ${csrfToken}, ${showErrorModal}, ${enumMaxEntityCount}, ${stateAbbreviations},${questionRendererParams})}"
-          ></div>
-        </div>
         <div
-          th:if="${applicationParams.loginOnly() and !isGuest}"
+          th:if="${!applicationParams.loginOnly() or (applicationParams.loginOnly() and !isGuest)}"
           class="grid-row"
         >
           <div
