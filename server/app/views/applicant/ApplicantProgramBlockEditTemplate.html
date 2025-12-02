@@ -33,10 +33,6 @@
         ></div>
       </div>
 
-      <div
-        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
-      ></div>
-
       <div class="grid-container">
         <div th:if="${!applicationParams.loginOnly()}" class="grid-row">
           <div
@@ -54,6 +50,9 @@
           ></div>
         </div>
       </div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
     </main>
 
     <div th:replace="~{applicant/ModalFragment:: blockValidation}"></div>

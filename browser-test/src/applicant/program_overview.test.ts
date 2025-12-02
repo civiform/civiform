@@ -541,7 +541,7 @@ test.describe(
       const applicationURL = page.url()
       await logout(page)
 
-      // got the the middle of the application as a guest using the same URL
+      // go to the the middle of the application as a guest using the same URL
       await page.goto(applicationURL)
       await expect(page.getByText('name')).toBeHidden()
       await expect(
