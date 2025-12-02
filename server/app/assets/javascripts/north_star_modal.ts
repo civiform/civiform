@@ -5,7 +5,7 @@
  **/
 function toggleModalVisibility(modalWrapper: Element, showModal: boolean) {
   modalWrapper.classList.toggle('is-visible', showModal)
-  modalWrapper.classList.toggle('is-hidden', !showModal)
+  modalWrapper.classList.toggle('display-none', !showModal)
 }
 
 /**

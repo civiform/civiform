@@ -52,7 +52,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withName(multiOptionQuestion.getSelectionPathAsArray())
                     .withValue("")
                     .withCondChecked(!multiOptionQuestion.hasValue())
-                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "display-none"))
             .with(
                 multiOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))

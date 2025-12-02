@@ -374,7 +374,7 @@ export class SessionTimeoutHandler {
       return
     }
     // Show the modal by removing the hidden class
-    modal.classList.remove('is-hidden')
+    modal.classList.remove('display-none')
     // Set the flag to indicate that the warning is shown
     if (type === WarningType.INACTIVITY) {
       this.inactivityWarningShown = true

@@ -29,7 +29,7 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
     DivTag result = SessionTimeoutModals.render(messages, "test-csrf-token");
     String html = result.render();
 
-    assertThat(html).contains("class=\"hidden\"");
+    assertThat(html).contains("class=\"display-none\"");
     assertThat(html).contains("session-timeout-messages");
     assertThat(html).contains("session-inactivity-warning-modal");
     assertThat(html).contains("session-length-warning-modal");

@@ -25,7 +25,7 @@ describe.skip('SessionTimeoutHandler', () => {
   function createInactivityModal() {
     inactivityModal = document.createElement('div')
     inactivityModal.id = 'session-inactivity-warning-modal'
-    inactivityModal.classList.add('is-hidden', 'usa-modal')
+    inactivityModal.classList.add('display-none', 'usa-modal')
     inactivityModal.setAttribute(
       'data-modal-type',
       'session-inactivity-warning',
@@ -66,7 +66,7 @@ describe.skip('SessionTimeoutHandler', () => {
   function createMessageContainer() {
     const messageContainer = document.createElement('div')
     messageContainer.id = 'session-timeout-messages'
-    messageContainer.classList.add('is-hidden')
+    messageContainer.classList.add('display-none')
 
     const successText = document.createElement('span')
     successText.id = 'session-extended-success-text'
@@ -86,7 +86,7 @@ describe.skip('SessionTimeoutHandler', () => {
   function createLengthWarningModal() {
     lengthModal = document.createElement('div')
     lengthModal.id = 'session-length-warning-modal'
-    lengthModal.classList.add('is-hidden', 'usa-modal')
+    lengthModal.classList.add('display-none', 'usa-modal')
     lengthModal.setAttribute('data-modal-type', 'session-length-warning')
 
     // Create primary button (logout)
@@ -201,7 +201,7 @@ describe.skip('SessionTimeoutHandler', () => {
     it('shows inactivity warning modal', () => {
       SessionTimeoutHandler['showWarning'](WarningType.INACTIVITY)
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(inactivityModal.classList.contains('display-none')).toBe(false)
 
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(true)
     })
@@ -209,7 +209,7 @@ describe.skip('SessionTimeoutHandler', () => {
     it('shows total length warning modal', () => {
       SessionTimeoutHandler['showWarning'](WarningType.TOTAL_LENGTH)
 
-      expect(lengthModal.classList.contains('is-hidden')).toBe(false)
+      expect(lengthModal.classList.contains('display-none')).toBe(false)
 
       expect(SessionTimeoutHandler['totalLengthWarningShown']).toBe(true)
     })
@@ -217,21 +217,21 @@ describe.skip('SessionTimeoutHandler', () => {
     it('does not show inactivity warning modal if already shown', () => {
       SessionTimeoutHandler['inactivityWarningShown'] = true
 
-      inactivityModal.classList.add('is-hidden')
+      inactivityModal.classList.add('display-none')
 
       SessionTimeoutHandler['showWarning'](WarningType.INACTIVITY)
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
     })
 
     it('does not show total length warning modal if already shown', () => {
       SessionTimeoutHandler['totalLengthWarningShown'] = true
 
-      lengthModal.classList.add('is-hidden')
+      lengthModal.classList.add('display-none')
 
       SessionTimeoutHandler['showWarning'](WarningType.TOTAL_LENGTH)
 
-      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(lengthModal.classList.contains('display-none')).toBe(true)
     })
 
     it('logs error if modal element is not found', () => {
@@ -259,7 +259,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
       document.dispatchEvent(successEvent)
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
 
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
 
@@ -284,7 +284,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
       document.dispatchEvent(failEvent)
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
 
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
 
@@ -310,28 +310,28 @@ describe.skip('SessionTimeoutHandler', () => {
     it('handles inactivity cancel button click', () => {
       SessionTimeoutHandler.init()
       SessionTimeoutHandler['inactivityWarningShown'] = true
-      inactivityModal.classList.remove('is-hidden')
+      inactivityModal.classList.remove('display-none')
 
       const cancelButton = inactivityModal.querySelector(
         '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
       ) as HTMLButtonElement
       cancelButton?.click()
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
     })
 
     it('handles length cancel button click', () => {
       SessionTimeoutHandler.init()
       SessionTimeoutHandler['totalLengthWarningShown'] = true
-      lengthModal.classList.remove('is-hidden')
+      lengthModal.classList.remove('display-none')
 
       const cancelButton = lengthModal.querySelector(
         '[data-modal-secondary][data-modal-type="session-length-warning"]',
       ) as HTMLButtonElement
       cancelButton?.click()
 
-      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(lengthModal.classList.contains('display-none')).toBe(true)
       expect(SessionTimeoutHandler['totalLengthWarningShown']).toBe(false)
     })
   })
@@ -393,7 +393,7 @@ describe.skip('SessionTimeoutHandler', () => {
       ) as HTMLButtonElement
       secondaryButton?.click()
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
     })
 
@@ -404,7 +404,7 @@ describe.skip('SessionTimeoutHandler', () => {
       ) as HTMLButtonElement
       closeButton?.click()
 
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(inactivityModal.classList.contains('display-none')).toBe(true)
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
     })
 

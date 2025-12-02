@@ -44,7 +44,7 @@ class AdminValidationController {
   ) {
     const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
-      errorDiv.classList.toggle('hidden', isValid)
+      errorDiv.classList.toggle('display-none', isValid)
     }
 
     // Also toggle the border on error inputs (if applicable).

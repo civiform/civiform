@@ -84,7 +84,7 @@ public final class ProgramQuestionBank {
             questionBankVisibility == Visibility.HIDDEN
                 ? ReferenceClasses.QUESTION_BANK_HIDDEN
                 : "",
-            questionBankVisibility == Visibility.HIDDEN ? "hidden" : "",
+            questionBankVisibility == Visibility.HIDDEN ? "display-none" : "",
             "fixed",
             "w-full",
             "h-screen")

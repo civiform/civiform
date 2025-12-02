@@ -107,7 +107,7 @@ export function init() {
 }
 
 /**
- * Hides the specified modal by adding the 'is-hidden' class.
+ * Hides the specified modal by adding the 'display-none' class.
  * Updates visibility tracking flags when hiding a modal.
  *
  * @param modalType Type of modal to hide
@@ -115,6 +115,6 @@ export function init() {
 export function hideUswdsModal(modalType: string) {
   const modal = document.getElementById(`${modalType}-modal`)
   if (modal) {
-    modal.classList.add('is-hidden')
+    modal.classList.add('display-none')
   }
 }

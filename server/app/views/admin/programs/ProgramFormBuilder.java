@@ -504,7 +504,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("confirmedChangeCommonIntakeForm")
             .setValue("false")
             .setChecked(false)
-            .addStyleClass("hidden")
+            .addStyleClass("display-none")
             .getCheckboxTag());
   }
 

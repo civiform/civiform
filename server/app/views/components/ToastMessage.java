@@ -111,7 +111,7 @@ public final class ToastMessage {
   public DivTag getContainerTag() {
     DivTag ret =
         div(this.message)
-            .withClasses("hidden", ReferenceClasses.TOAST_MESSAGE)
+            .withClasses("display-none", ReferenceClasses.TOAST_MESSAGE)
             .withId(this.id)
             .attr("canDismiss", this.canDismiss)
             .attr("canIgnore", this.canIgnore)

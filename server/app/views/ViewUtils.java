@@ -134,7 +134,7 @@ public final class ViewUtils {
             span(toolTipText)
                 .with(otherElements)
                 .withClasses(
-                    "hidden",
+                    "display-none",
                     "z-50",
                     "group-hover:block",
                     "bg-white",
@@ -219,13 +219,13 @@ public final class ViewUtils {
                 .withClasses(
                     ReferenceClasses.BT_DATE,
                     "font-semibold",
-                    "hidden",
+                    "display-none",
                     StyleUtils.responsiveLarge("inline")),
             span(formattedUpdateDate)
                 .withClasses(
                     ReferenceClasses.BT_DATE,
                     "font-semibold",
-                    StyleUtils.responsiveLarge("hidden")));
+                    StyleUtils.responsiveLarge("display-none")));
   }
 
   public static SpanTag requiredQuestionIndicator() {
@@ -234,7 +234,7 @@ public final class ViewUtils {
 
   public static SpanTag requiredQuestionIndicator(Boolean isVisible) {
     return span(rawHtml("&nbsp;*"))
-        .withClasses("usa-hint--required", isVisible ? "" : "hidden")
+        .withClasses("usa-hint--required", isVisible ? "" : "display-none")
         .attr("aria-hidden", true);
   }
 

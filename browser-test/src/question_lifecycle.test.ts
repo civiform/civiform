@@ -137,12 +137,12 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
 
     const downButtons = await page
       .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
+        '.cf-multi-option-question-option-editable:not(.display-none) > .multi-option-question-field-move-down-button',
       )
       .all()
     const upButtons = await page
       .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+        '.cf-multi-option-question-option-editable:not(.display-none) > .multi-option-question-field-move-up-button',
       )
       .all()
     expect(upButtons).toHaveLength(4)
@@ -167,7 +167,7 @@ test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
     })
     const newUpButtons = await page
       .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+        '.cf-multi-option-question-option-editable:not(.display-none) > .multi-option-question-field-move-up-button',
       )
       .all()
     expect(newUpButtons).toHaveLength(5)

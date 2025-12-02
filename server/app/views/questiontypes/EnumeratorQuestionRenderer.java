@@ -120,7 +120,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         applicantQuestion.getContextualizedPath(),
                         /* existingEntity= */ Optional.empty(),
                         /* existingIndex= */ Optional.empty(),
-                        /* extraStyle= */ Optional.of("hidden"),
+                        /* extraStyle= */ Optional.of("display-none"),
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
                         hasErrors,

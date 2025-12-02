@@ -24,7 +24,7 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
  */
 export const clickAndWaitForModal = async (page: Page, modalId: string) => {
   await page.click(`#${modalId}-button`)
-  await page.waitForSelector(`#${modalId}:not(.hidden)`)
+  await page.waitForSelector(`#${modalId}:not(.display-none)`)
 }
 
 /**
@@ -35,7 +35,7 @@ export const waitForAnyModal = async (
   page: Page | Frame,
 ): Promise<ElementHandle<HTMLElement>> => {
   return (await page.waitForSelector(
-    '.cf-modal:not(.hidden)',
+    '.cf-modal:not(.display-none)',
   )) as unknown as ElementHandle<HTMLElement>
 }
 
@@ -45,7 +45,7 @@ export const waitForAnyModal = async (
 export const waitForAnyModalLocator = async (
   page: Page | Frame,
 ): Promise<Locator> => {
-  const modal = page.locator('.cf-modal:not(.hidden)').first()
+  const modal = page.locator('.cf-modal:not(.display-none)').first()
   await modal.waitFor()
   return modal
 }
@@ -54,7 +54,7 @@ export const waitForAnyModalLocator = async (
  * Dismisses an open modal.
  */
 export const dismissModal = async (page: Page | Frame) => {
-  await page.click('.cf-modal:not(.hidden) .cf-modal-close')
+  await page.click('.cf-modal:not(.display-none) .cf-modal-close')
 }
 
 /**

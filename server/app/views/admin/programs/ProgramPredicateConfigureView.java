@@ -298,7 +298,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                       div()
                           .withClasses(
                               ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
-                              "hidden",
+                              "display-none",
                               "text-xs",
                               "pb-4",
                               BaseStyles.FORM_LABEL_TEXT_COLOR)
@@ -462,7 +462,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 "w-12",
                 "pt-2",
                 "cursor-pointer",
-                iff(groupId == 1, "hidden"));
+                iff(groupId == 1, "display-none"));
 
     return row.with(delete);
   }

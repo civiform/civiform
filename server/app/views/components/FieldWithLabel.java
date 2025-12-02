@@ -581,7 +581,7 @@ public class FieldWithLabel {
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
             StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, "p-1"),
-            fieldErrors.isEmpty() || !showFieldErrors ? "hidden" : "");
+            fieldErrors.isEmpty() || !showFieldErrors ? "display-none" : "");
   }
 
   private void genRandIdIfEmpty() {

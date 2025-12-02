@@ -209,7 +209,7 @@ function refreshAddButtonStatus() {
  */
 function repaintAllLabelsAndButtons() {
   const enumeratorFields = assertNotNull(
-    document.querySelectorAll('.cf-enumerator-field:not(.hidden)'),
+    document.querySelectorAll('.cf-enumerator-field:not(.display-none)'),
   )
   enumeratorFields.forEach((field, index) => {
     addIndexToLabelAndButton(field, index)

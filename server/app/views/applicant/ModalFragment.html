@@ -81,7 +81,7 @@
   <!--/* Create an invisible button that we will use to trigger this modal on load */-->
   <a
     th:href="${'#' + dialogId}"
-    class="is-hidden"
+    class="display-none"
     th:aria-controls="${dialogId}"
     aria-hidden="true"
     tabindex="-1"
@@ -215,7 +215,7 @@
   <a
     id="invisible-validation-modal-button"
     href="#validation-modal"
-    class="is-hidden"
+    class="display-none"
     th:aria-controls="validation-modal"
     aria-hidden="true"
     tabindex="-1"
@@ -226,7 +226,7 @@
 <!-- TODO(#8707): Modal sometimes flashes in incorrect position -->
 <div th:fragment="preventDuplicateSubmission (programTitle, exitHref)">
   <div
-    class="usa-modal cf-modal is-hidden"
+    class="usa-modal cf-modal display-none"
     id="duplicate-submission-modal"
     aria-labelledby="duplicate-submission-modal-heading"
     aria-describedby="duplicate-submission-modal-heading"
@@ -281,7 +281,7 @@
   <a
     id="invisible-duplicate-submission-modal-button"
     href="#duplicate-submission-modal"
-    class="is-hidden"
+    class="display-none"
     th:aria-controls="duplicate-submission-modal"
     aria-hidden="true"
     tabindex="-1"

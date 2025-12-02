@@ -754,7 +754,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         div()
                             .withId(extraActionsButtonId + "-dropdown")
                             .withClasses(
-                                "hidden",
+                                "display-none",
                                 "flex",
                                 "flex-col",
                                 "border",

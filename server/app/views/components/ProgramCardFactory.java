@@ -218,7 +218,7 @@ public final class ProgramCardFactory {
                             div()
                                 .withId(extraActionsButtonId + "-dropdown")
                                 .withClasses(
-                                    "hidden",
+                                    "display-none",
                                     "flex",
                                     "flex-col",
                                     "border",

@@ -48,7 +48,7 @@ public final class CreateQuestionButton {
                 "mt-1",
                 // Small padding at the abottom for visual spacing
                 "pb-3",
-                "hidden");
+                "display-none");
 
     for (QuestionType type : QuestionType.values()) {
       // Do not attempt to render a null question

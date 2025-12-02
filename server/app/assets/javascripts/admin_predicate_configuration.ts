@@ -457,7 +457,7 @@ class AdminPredicateConfiguration {
         operatorOption.selected = false
       }
 
-      operatorOption.classList.toggle('hidden', /* force= */ shouldHide)
+      operatorOption.classList.toggle('display-none', /* force= */ shouldHide)
     })
   }
 

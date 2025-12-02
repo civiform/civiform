@@ -311,11 +311,11 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(
             QuestionConfig.multiOptionQuestionFieldTemplate(messages)
                 .withId("multi-option-question-answer-template")
-                // Add "hidden" to other classes, so that the template is not shown
+                // Add "display-none" to other classes, so that the template is not shown
                 .withClasses(
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-                    "hidden",
+                    "display-none",
                     "grid",
                     "grid-cols-8",
                     "grid-rows-4",
@@ -839,7 +839,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     ", etc.")))
         .withId("repeated-question-information")
         .withClasses(
-            "hidden",
+            "display-none",
             "text-blue-600",
             "text-sm",
             "p-2",
