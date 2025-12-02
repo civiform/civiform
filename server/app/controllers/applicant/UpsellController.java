@@ -102,7 +102,7 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<Boolean> isCommonIntake =
         programService
             .getFullProgramDefinitionAsync(programId)
-            .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
+            .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =

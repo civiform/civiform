@@ -268,7 +268,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
         versionRepository.getProgramByNameForVersion(
             ADMIN_NAME, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
-    assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
+    assertThat(newProgram.get().getProgramDefinition().isPreScreenerForm()).isTrue();
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
