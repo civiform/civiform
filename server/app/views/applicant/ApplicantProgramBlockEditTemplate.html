@@ -23,6 +23,9 @@
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
 
       <div
         th:if="${applicationParams.loginOnly() and isGuest}"
@@ -48,9 +51,6 @@
           ></div>
         </div>
       </div>
-      <div
-        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
-      ></div>
     </main>
 
     <div th:replace="~{applicant/ModalFragment:: blockValidation}"></div>
