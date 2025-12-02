@@ -1014,7 +1014,7 @@ map.locationLinkText=Xem thêm chi tiết
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Xem thêm chi tiết cho {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Đang hiển thị {0}/{1} địa điểm
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
 # Alt text for map region
