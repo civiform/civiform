@@ -25,6 +25,7 @@ import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -218,7 +219,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         blockQuestions,
                                         questions,
                                         allPreviousVersionQuestions,
-                                        blockDefinition.isEnumerator(),
+                                        blockDefinition.hasEnumeratorQuestion(),
                                         csrfTag,
                                         blockDescriptionEditModal.getButton(),
                                         blockDeleteScreenModal.getButton(),
@@ -410,7 +411,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       container.with(blockContainer.with(blockContent));
 
       // Recursively add repeated blocks indented under their enumerator block
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         container.with(
             renderBlockList(
                 request,
@@ -792,7 +793,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         rowContent.add(maybeOptionalToggle.get());
       }
       rowContent.add(
-          this.renderMoveQuestionButtonsSection(
+          renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
               blockDefinition.id(),
@@ -800,12 +801,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionIndex,
               questionsCount));
       rowContent.add(
-          renderDeleteQuestionForm(
-              csrfTag,
-              programDefinition.id(),
-              blockDefinition.id(),
-              questionDefinition,
-              canRemove));
+          div()
+              .with(renderEditQuestionLink(questionDefinition.getId()))
+              .with(
+                  renderDeleteQuestionForm(
+                      csrfTag,
+                      programDefinition.id(),
+                      blockDefinition.id(),
+                      questionDefinition,
+                      canRemove))
+              .withClasses("flex", "flex-column"));
     } else {
       // For each toggle, use a label instead in the read only view
       if (maybeAddressCorrectionEnabledToggle.isPresent()) {
@@ -842,7 +847,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionIndex,
       int questionsCount) {
     FormTag moveUp =
-        this.createMoveQuestionButton(
+        createMoveQuestionButton(
             csrfTag,
             programDefinitionId,
             blockDefinitionId,
@@ -852,7 +857,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             /* label= */ "move up",
             /* isInvisible= */ questionIndex == 0);
     FormTag moveDown =
-        this.createMoveQuestionButton(
+        createMoveQuestionButton(
             csrfTag,
             programDefinitionId,
             blockDefinitionId,
@@ -1070,6 +1075,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withName("addressCorrectionEnabled")
                     .withValue(String.valueOf(addressCorrectionEnabled)))
             .with(addressCorrectionButton));
+  }
+
+  private ATag renderEditQuestionLink(Long questionId) {
+    return a("Edit")
+        .withHref(routes.AdminQuestionController.edit(questionId).url())
+        .withClasses("usa-link", "pb-2", "self-center");
   }
 
   /**

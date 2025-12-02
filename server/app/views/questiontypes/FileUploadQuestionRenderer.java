@@ -19,8 +19,7 @@ import views.style.ReferenceClasses;
 /**
  * Renders a file upload question.
  *
- * <p>A file upload question requires a different form. See {@code
- * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
+ * <p>A file upload question requires a different form.
  */
 public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer {
   private final ApplicantFileUploadRenderer applicantFileUploadRenderer;

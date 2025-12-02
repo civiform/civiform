@@ -8,7 +8,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
@@ -19,6 +18,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
@@ -56,7 +56,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
             mock(LanguageUtils.class),
             settingsManifest,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             messagesApi,
             instanceOf(ApplicantRoutes.class));
@@ -73,7 +73,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     Content content = applicantLayout.render(bundle);
     String html = content.body();
@@ -89,7 +91,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 
@@ -105,7 +109,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
     Content content = applicantLayout.render(bundle);
     String html = content.body();
 

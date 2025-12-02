@@ -111,6 +111,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
+    await test.step('refresh page and re-add condition', async () => {
+      await page.reload()
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
       await waitForHtmxReady(page)
@@ -788,6 +795,65 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Add second subcondition and select questions', async () => {
+      await adminPredicates.clickAddSubconditionButton(1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectSubcondition(1, 2)
+
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        firstQuestionText,
+      )
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        secondQuestionText,
+      )
+
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Delete second subcondition and expect add subcondition button', async () => {
+      await adminPredicates.clickDeleteSubconditionButton(1, 2)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectAddSubconditionButton(1)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(firstQuestionText)
+    })
+
+    await test.step('Add second subcondition and select question', async () => {
+      await adminPredicates.clickAddSubconditionButton(1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectSubcondition(1, 2)
+
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        secondQuestionText,
+      )
+
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Delete first subcondition - second becomes first', async () => {
+      await adminPredicates.clickDeleteSubconditionButton(1, 1)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectAddSubconditionButton(1)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(secondQuestionText)
     })
 
     await test.step('Delete condition and validate null state', async () => {

@@ -2,7 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {
   disableFeatureFlag,
   enableFeatureFlag,
-  isHermeticTestEnvironment,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -237,10 +237,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     )
     const visibilityContentId = showQuestionName + '-visibility-content'
     await expect(page.locator('#' + visibilityContentId)).toBeHidden()
-    await validateScreenshot(
-      page.locator('#' + showQuestionName + '-visibility-accordion'),
-      'question-card-with-show-predicate-collapsed',
-    )
     // Expand accordion and verify it displays the block containing the predicate
     await page
       .locator('button[aria-controls="' + visibilityContentId + '"]')
@@ -249,7 +245,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await expect(page.locator('#' + visibilityContentId)).toContainText(
       'Screen 2',
     )
-    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -400,7 +395,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(page, 'eligibility-predicate')
 
     await page.click(`a:has-text("Back")`)
-    await validateScreenshot(page, 'block-settings-page')
 
     // Verify block with predicate display
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -555,7 +549,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
-  if (isHermeticTestEnvironment()) {
+  if (isLocalDevEnvironment()) {
     test('add a service area validation predicate', async ({
       page,
       adminQuestions,
@@ -684,7 +678,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.predicate-config-form'),
       'operator-help-text',
-      /* fullPage= */ false,
+      {
+        fullPage: false,
+      },
     )
   })
 

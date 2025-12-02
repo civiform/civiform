@@ -36,8 +36,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'yes-no-applicant-view',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
         })
 
@@ -46,8 +45,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'yes-no-applicant-view-errors',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
         })
       })
@@ -76,8 +74,7 @@ test.describe(
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'yes-no-right-to-left',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
 

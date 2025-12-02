@@ -5,10 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
+import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.shared.AdminCommonHeader;
 
@@ -19,18 +19,18 @@ import views.admin.shared.AdminCommonHeader;
  * @param <TModel> A class or record that implements {@link BaseViewModel}
  */
 public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
+  private final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
-  protected final AssetsFinder assetsFinder;
 
   public AdminLayoutBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       SettingsManifest settingsManifest,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ProfileUtils profileUtils) {
     super(templateEngine, playThymeleafContextFactory, settingsManifest);
+    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
     this.profileUtils = checkNotNull(profileUtils);
-    this.assetsFinder = checkNotNull(assetsFinder);
   }
 
   /** Override to set the active page for top header navigation. */
@@ -59,19 +59,19 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
 
   @Override
   protected final ImmutableList<String> getSiteStylesheets() {
-    return ImmutableList.<String>builder().add(assetsFinder.path("dist/uswds.min.css")).build();
+    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsStylesheet()).build();
   }
 
   @Override
   protected final ImmutableList<String> getSiteHeadScripts() {
     return ImmutableList.<String>builder()
-        .add(assetsFinder.path("dist/admin.bundle.js"))
-        .add(assetsFinder.path("javascripts/uswds/uswds-init.min.js"))
+        .add(bundledAssetsFinder.getAdminJsBundle())
+        .add(bundledAssetsFinder.getUswdsJsInit())
         .build();
   }
 
   @Override
   protected final ImmutableList<String> getSiteBodyScripts() {
-    return ImmutableList.<String>builder().add(assetsFinder.path("dist/uswds.bundle.js")).build();
+    return ImmutableList.<String>builder().add(bundledAssetsFinder.getUswdsJsBundle()).build();
   }
 }

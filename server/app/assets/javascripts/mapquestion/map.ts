@@ -49,6 +49,7 @@ import {
   hasReachedMaxSelections,
   calculateMapCenter,
   POPUP_LAYER,
+  CF_LOCATION_CHECKBOX_INPUT,
 } from './map_util'
 
 export const init = (): void => {
@@ -65,6 +66,18 @@ export const init = (): void => {
       console.warn(`Failed to render map ${mapId}:`, error)
     }
   })
+  // get the first error on the page, if it exists. If the error's id matches a location checkbox, focus on the first location checkbox and read out the error
+  const firstErrorMessage = document.querySelector(
+    '.cf-applicant-question-errors',
+  )
+  if (firstErrorMessage) {
+    const firstLocationCheckbox = document.querySelector(
+      `[question-id="${firstErrorMessage.id}"].${CF_LOCATION_CHECKBOX_INPUT}`,
+    ) as HTMLElement
+    if (firstLocationCheckbox) {
+      firstLocationCheckbox.focus()
+    }
+  }
 }
 
 const createMap = (mapId: string, geoJson: FeatureCollection) => {

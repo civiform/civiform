@@ -109,7 +109,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-applicant-question-text'),
       'question-translation-with-markdown',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 

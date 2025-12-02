@@ -105,12 +105,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
           AdminQuestions.NUMBER_QUESTION_TEXT,
         )
-        await validateScreenshot(
-          page,
-          'application-ineligible-review-page',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'application-ineligible-review-page', {
+          mobileScreenshot: true,
+        })
         await validateAccessibility(page)
       })
 
@@ -149,12 +146,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-        await validateScreenshot(
-          page,
-          'application-eligible-edit-page',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'application-eligible-edit-page', {
+          mobileScreenshot: true,
+        })
       })
 
       await test.step('verify eligibility banner not visible on subsequent edit pages', async () => {
@@ -166,12 +160,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await test.step('fill out application without submitting and verify message on review page', async () => {
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-        await validateScreenshot(
-          page,
-          'application-eligible-review-page',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'application-eligible-review-page', {
+          mobileScreenshot: true,
+        })
       })
 
       await test.step('verify no eligibility tags on in-progress application card', async () => {
@@ -243,8 +234,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
             fullProgramName,
           ),
           'ineligible-home-page-program-card-with-tag',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
+          {mobileScreenshot: true},
         )
       })
       await test.step('verify ineligibility message on review page of overlapping program', async () => {
@@ -304,8 +294,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
             fullProgramName,
           ),
           'eligible-home-page-program-card-with-tag',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
         await validateAccessibility(page)
       })
@@ -557,12 +546,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.expectIneligiblePage(
           /* northStarEnabled= */ true,
         )
-        await validateScreenshot(
-          page,
-          'ineligible-page-with-markdown',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'ineligible-page-with-markdown', {
+          mobileScreenshot: true,
+        })
       })
     })
   })

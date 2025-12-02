@@ -1,5 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {isHermeticTestEnvironment} from './support'
+import {isLocalDevEnvironment} from './support'
 import {BASE_URL, FROZEN_PLAY_SESSION_COOKIE_VALUE} from './support/config'
 
 test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
@@ -17,7 +17,7 @@ test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
     page,
     context,
   }) => {
-    test.skip(!isHermeticTestEnvironment(), 'Only runs in test environment')
+    test.skip(!isLocalDevEnvironment(), 'Only runs in test environment')
 
     // Play encrypts cookies with the server secret:
     // https://www.playframework.com/documentation/2.8.x/ApplicationSecret

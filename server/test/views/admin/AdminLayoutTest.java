@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import java.util.Locale;
@@ -19,6 +18,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
@@ -49,7 +49,7 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(MessagesApi.class));
   }
 
@@ -123,7 +123,7 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             messagesApi);
 
     // Create bundle with the request
@@ -131,7 +131,9 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.ADMIN);
+    bundle
+        .setJsBundle(JsBundle.ADMIN)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     // Render the admin layout
     Content content = adminLayout.render(bundle);
@@ -146,7 +148,9 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
-    bundle.setJsBundle(JsBundle.APPLICANT);
+    bundle
+        .setJsBundle(JsBundle.APPLICANT)
+        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
 
     Content content = adminLayout.render(bundle);
     String html = content.body();

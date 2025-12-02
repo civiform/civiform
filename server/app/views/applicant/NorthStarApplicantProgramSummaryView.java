@@ -4,7 +4,6 @@ import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -14,6 +13,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -30,7 +30,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
   NorthStarApplicantProgramSummaryView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -38,7 +38,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,

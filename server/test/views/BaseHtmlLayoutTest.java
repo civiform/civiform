@@ -7,7 +7,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
-import controllers.AssetsFinder;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.SectionTag;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
 
@@ -37,7 +37,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class));
   }
 
   @Test
@@ -69,7 +69,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 

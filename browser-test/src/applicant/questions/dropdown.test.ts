@@ -35,8 +35,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'dropdown',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
           await validateAccessibility(page)
         })
@@ -46,8 +45,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'dropdown-errors',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
           await validateAccessibility(page)
         })

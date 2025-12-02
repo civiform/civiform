@@ -72,12 +72,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
-    await validateScreenshot(
-      page,
-      'ineligible',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page, 'ineligible', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
 
     await validateAccessibility(page)
 
@@ -255,12 +253,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await page.click('text="متابعة"')
     })
 
-    await validateScreenshot(
-      page,
-      'ineligible-right-to-left',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page, 'ineligible-right-to-left', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
 
     await validateAccessibility(page)
   })
