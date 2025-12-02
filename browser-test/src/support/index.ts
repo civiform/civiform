@@ -430,7 +430,7 @@ export const normalizeElements = async (page: Frame | Page) => {
         ) {
           continue
         } else {
-          element.textContent = replacement(element.textContent!)
+          element.textContent = replacement(element.textContent)
         }
       }
     }
