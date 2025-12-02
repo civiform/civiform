@@ -1,6 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  AuthStrategy,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -9,7 +9,6 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from './support'
-import {TEST_USER_AUTH_STRATEGY} from './support/config'
 import {CardSectionName} from './support/applicant_program_list'
 
 test.describe('Applicant auth', {tag: ['@northstar']}, () => {
@@ -62,10 +61,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
-    test.skip(
-      TEST_USER_AUTH_STRATEGY !== AuthStrategy.FAKE_OIDC,
-      'Only runs in test environment',
-    )
+    test.skip(!isLocalDevEnvironment(), 'Only runs in test environment')
     // so far only fake-oidc provider requires user to click "Yes" to confirm
     // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
     // IDCS which at the moment doesn't have central logout enabled.

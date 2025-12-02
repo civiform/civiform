@@ -9,7 +9,6 @@ import {
   validateScreenshot,
   validateToastMessage,
   selectApplicantLanguageNorthstar,
-  selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
 
@@ -649,7 +648,13 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsTrustedIntermediary(page)
     await waitForPageJsLoad(page)
-    await selectApplicantLanguage(page, '繁體中文')
+
+    // Change language using old-style language dropdown
+    await test.step('Set applicant language from header dropdown', async () => {
+      await page.click('#select-language')
+      await page.selectOption('#select-language', {label: '繁體中文'})
+      await waitForPageJsLoad(page)
+    })
 
     await validateScreenshot(page, 'ti-dashboard-chinese')
   })
