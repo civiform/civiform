@@ -497,7 +497,7 @@ test.describe(
 )
 
 test.describe(
-  'guest cannot complete applications',
+  'guest cannot complete applications for login only program',
   {tag: ['@northstar']},
   () => {
     const programName = 'loginonly'
