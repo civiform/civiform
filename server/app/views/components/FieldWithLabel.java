@@ -606,7 +606,7 @@ public class FieldWithLabel {
     // USWDS
     String labelClass =
         labelText.isEmpty()
-            ? "sr-only"
+            ? "usa-sr-only"
             : (isUSWDS
                 ? "usa-label mt-0"
                 : (toolTipText.isPresent()

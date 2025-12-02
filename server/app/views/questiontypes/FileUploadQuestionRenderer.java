@@ -60,7 +60,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
         .with(
             label()
                 .withFor(fileInputId)
-                .withClass("sr-only")
+                .withClass("usa-sr-only")
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
         .with(
             applicantFileUploadRenderer.signedFileUploadFields(
