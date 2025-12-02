@@ -1014,7 +1014,7 @@ map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=ለ{0} ተጨማሪ ዝርዝሮችን ይመልከቱ
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ከ {1} ከፍተኛው የቦታዎች ቁጥር ተመርጧል።
 # Alt text for map region
