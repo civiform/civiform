@@ -1014,7 +1014,7 @@ map.locationLinkText=Ver más detalles
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Ver más detalles de {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Mostrando {0} de {1} ubicaciones
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Selección: {0} de {1} ubicaciones como máximo.
 # Alt text for map region
