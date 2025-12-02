@@ -758,17 +758,13 @@ main {
     display: none;
   }
 
-  // Ensure components are always visible on tablet and above, even if cf-toggle-hidden is present
-  .cf-map-container,
+  // Ensure components are always visible on tablet and above when cf-toggle-hidden is present
   .cf-map-container.cf-toggle-hidden,
-  .cf-locations-list,
   .cf-locations-list.cf-toggle-hidden,
-  .cf-location-count,
   .cf-location-count.cf-toggle-hidden {
     display: block;
   }
 
-  .cf-pagination,
   .cf-pagination.cf-toggle-hidden {
     display: flex;
   }

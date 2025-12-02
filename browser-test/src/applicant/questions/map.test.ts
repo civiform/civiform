@@ -98,7 +98,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Verify location count is displayed', async () => {
           const locationCount = page.getByText(
-            `Displaying ${TOTAL_LOCATION_COUNT} of ${TOTAL_LOCATION_COUNT} locations`,
+            `Displaying 1 to 6 of ${TOTAL_LOCATION_COUNT} locations`,
           )
           await expect(locationCount).toBeVisible()
         })
@@ -256,10 +256,12 @@ if (isLocalDevEnvironment()) {
 
           // Verify location has changed
           const locationCount = page.getByText(
-            /Displaying \d+ of \d+ locations/i,
+            /Displaying \d+ to \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 1 of 7 locations')
+          await expect(locationCount).toHaveText(
+            'Displaying 1 to 1 of 1 locations',
+          )
         })
 
         await test.step('Apply another filter', async () => {

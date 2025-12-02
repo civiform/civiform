@@ -65,6 +65,7 @@ export const CF_RESET_FILTERS_BUTTON = 'cf-reset-filters-button'
 
 // PAGINATION
 export const CF_PAGINATION_HIDDEN = 'cf-pagination-hidden'
+export const ITEMS_PER_PAGE = 6
 
 // VIEW TOGGLE
 export const CF_TOGGLE_HIDDEN = 'cf-toggle-hidden'
@@ -201,4 +202,42 @@ export const hasReachedMaxSelections = (mapId: string): boolean => {
 
   const selectionCount = selectionCounts.get(mapId) || 0
   return selectionCount >= maxLocationSelections
+}
+
+export const updateLocationCountForMap = (
+  mapId: string,
+  visibleCount: number,
+  pageNo: number = 1,
+): void => {
+  const noResultsFoundDiv = document.querySelector(
+    `[data-map-id="${mapId}"][data-no-results-found]`,
+  )
+  if (noResultsFoundDiv) {
+    if (visibleCount === 0) {
+      noResultsFoundDiv.classList.remove(CF_FILTER_HIDDEN)
+    } else {
+      noResultsFoundDiv.classList.add(CF_FILTER_HIDDEN)
+    }
+  }
+
+  const countText = mapQuerySelector(
+    mapId,
+    CF_LOCATION_COUNT,
+  ) as HTMLElement | null
+  if (countText) {
+    if (visibleCount === 0) {
+      countText.classList.add('display-none')
+    } else {
+      countText.classList.remove('display-none')
+
+      const start = (pageNo - 1) * ITEMS_PER_PAGE + 1
+      const end = Math.min(start + ITEMS_PER_PAGE - 1, visibleCount)
+
+      countText.textContent = localizeString(getMessages().locationsCount, [
+        start.toString(),
+        end.toString(),
+        visibleCount.toString(),
+      ])
+    }
+  }
 }

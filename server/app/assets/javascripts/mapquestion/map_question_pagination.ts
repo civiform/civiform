@@ -7,9 +7,9 @@ import {
   queryLocationCheckboxes,
   CF_PAGINATION_HIDDEN,
   getMessages,
+  ITEMS_PER_PAGE,
+  updateLocationCountForMap,
 } from './map_util'
-
-const ITEMS_PER_PAGE = 6
 const MAX_VISIBLE_PAGE_BUTTONS_MOBILE = 3
 const MAX_VISIBLE_PAGE_BUTTONS_DESKTOP = 1
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
@@ -56,6 +56,7 @@ export const updatePagination = (
   renderPaginationButtons(mapId, state, paginationNav)
   updateVisibleLocations(mapId, state)
   updatePaginationButtonStates(state, paginationNav)
+  updateLocationCountForMap(mapId, state.visibleItems, state.currentPage)
 }
 
 export const resetPagination = (mapId: string): void => {
