@@ -1014,7 +1014,7 @@ map.locationLinkText=Tingnan ang higit pang detalye
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Tingnan ang higit pang detalye para sa {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Ipinapakita ang {0} sa {1} (na) lokasyon
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} sa {1} na maximum na lokasyon ang napili.
 # Alt text for map region
