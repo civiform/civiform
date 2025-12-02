@@ -1014,7 +1014,7 @@ map.locationLinkText=Eeg faahfaahin dheeraad ah
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Eeg faahfaahinada dheeraadka ah ee {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Soo bandhigaya {0} ka mid ah {1} gobood
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ee {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
