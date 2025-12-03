@@ -1,4 +1,15 @@
 /*
+  ----------------------------------
+  Tailwind parity styles
+  ----------------------------------
+  The following styles are adapted from Tailwind CSS's base styles.
+  Source: https://tailwindcss.com/docs/preflight 
+  A lot of the application was developed before we adopted USWDS in favor of Tailwind,  
+  so to remove Tailwind without changing the appearance of the app, we need to keep some of these base styles.
+  Eventually, if would be ideal to remove this file and replace it with USWDS equivalents where necessary.
+*/
+
+/*
 Removes the default spacing and border for appropriate elements.
 */
 
