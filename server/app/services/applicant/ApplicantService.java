@@ -96,7 +96,7 @@ import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -1941,7 +1941,9 @@ public final class ApplicantService {
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
     } else if (selectedAddress.isPresent()
-        && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+        && selectedAddress
+            .get()
+            .equals(NorthStarAddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
