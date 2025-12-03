@@ -1,7 +1,5 @@
 package views.questiontypes;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -18,16 +16,11 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import views.applicant.ApplicantFileUploadRenderer;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public final class ApplicantQuestionRendererFactory {
 
-  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
-
-  public ApplicantQuestionRendererFactory(ApplicantFileUploadRenderer applicantFileUploadRenderer) {
-    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
-  }
+  public ApplicantQuestionRendererFactory() {}
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
@@ -48,7 +41,12 @@ public final class ApplicantQuestionRendererFactory {
       case DATE -> new DateQuestionRenderer(question);
       case DROPDOWN -> new DropdownQuestionRenderer(question);
       case EMAIL -> new EmailQuestionRenderer(question);
-      case FILEUPLOAD -> new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
+      case FILEUPLOAD ->
+          throw new IllegalStateException(
+              String.format(
+                  "Question type %s should not be rendered. This question type is only compatible"
+                      + " with the North Star Applicant UI.",
+                  question.getType()));
       case ID -> new IdQuestionRenderer(question);
       case MAP ->
           throw new IllegalStateException(

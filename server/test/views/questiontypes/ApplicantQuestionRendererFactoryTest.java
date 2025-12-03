@@ -5,10 +5,7 @@ import static j2html.TagCreator.html;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.ConfigFactory;
-import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -18,10 +15,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
-import support.cloud.FakeApplicantStorageClient;
-import views.applicant.ApplicantFileUploadRenderer;
-import views.fileupload.GenericS3FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 @RunWith(JUnitParamsRunner.class)
@@ -39,19 +32,13 @@ public class ApplicantQuestionRendererFactoryTest {
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
-    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
+    if (type == QuestionType.NULL_QUESTION
+        || type == QuestionType.MAP
+        || type == QuestionType.FILEUPLOAD) {
       return;
     }
 
-    var applicantRoutes = new ApplicantRoutes();
-
-    ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(
-                new GenericS3FileUploadViewStrategy(),
-                applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+    ApplicantQuestionRendererFactory factory = new ApplicantQuestionRendererFactory();
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -67,20 +54,14 @@ public class ApplicantQuestionRendererFactoryTest {
       throws UnsupportedQuestionTypeException {
     // A null question type is not allowed to be created and won't show in the list
     // Map type questions are only compatible with North Star so won't get rendered for this test
-    if (type == QuestionType.NULL_QUESTION || type == QuestionType.MAP) {
+    if (type == QuestionType.NULL_QUESTION
+        || type == QuestionType.MAP
+        || type == QuestionType.FILEUPLOAD) {
       return;
     }
 
-    var applicantRoutes = new ApplicantRoutes();
-
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
-    ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(
-                new GenericS3FileUploadViewStrategy(),
-                applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+    ApplicantQuestionRendererFactory factory = new ApplicantQuestionRendererFactory();
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -89,11 +70,11 @@ public class ApplicantQuestionRendererFactoryTest {
     switch (type) {
       case ADDRESS, CHECKBOX, ENUMERATOR, NAME, RADIO_BUTTON, YES_NO ->
           assertThat(renderedContent).contains("fieldset");
-      case CURRENCY, DATE, DROPDOWN, EMAIL, FILEUPLOAD, ID, NUMBER, PHONE, STATIC, TEXT ->
+      case CURRENCY, DATE, DROPDOWN, EMAIL, ID, NUMBER, PHONE, STATIC, TEXT ->
           assertThat(renderedContent).doesNotContain("fieldset");
 
         // This is here because errorprone doesn't like that it was missing
-      case MAP, NULL_QUESTION -> {}
+      case MAP, NULL_QUESTION, FILEUPLOAD -> {}
     }
   }
 }
