@@ -358,7 +358,7 @@ public final class ApplicantService {
 
               Optional<ApplicantQuestion> maybeAddressQuestion =
                   blockBeforeUpdate.getAddressQuestionWithCorrectionEnabled();
-              if (!maybeAddressQuestion.isEmpty()) {
+              if (maybeAddressQuestion.isPresent()) {
                 AddressQuestion addressQuestion =
                     maybeAddressQuestion.get().createAddressQuestion();
                 // Only check service area validation if the "Corrected" value is empty or if the
