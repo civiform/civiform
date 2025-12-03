@@ -31,6 +31,8 @@ https://designsystem.digital.gov/utilities/.
   $justify-content-settings: (responsive: true),
   $theme-utility-breakpoints-custom: ('none-width': 0px),
   $theme-breadcrumb-min-width: 'none-width',
+  // Hide build notifications (the long changelog gets printed)
+  $theme-show-notifications: false,
 
   // Disables mobile menu entirely as the admin area is not mobile friendly and
   // we don't want it to be collapsing into a vertical menu. Making the min width mobile

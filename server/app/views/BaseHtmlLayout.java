@@ -79,7 +79,7 @@ public class BaseHtmlLayout {
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle(Http.RequestHeader request) {
-    return getBundle(new HtmlBundle(request, viewUtils));
+    return getBundle(new HtmlBundle(request));
   }
 
   /** Get the application feature flags. */
@@ -125,6 +125,11 @@ public class BaseHtmlLayout {
               .setIgnorable(true)
               .setDuration(0);
       bundle.addToastMessages(privacyBanner);
+    }
+
+    if (bundledAssetsFinder.useBundlerDevServer()) {
+      bundle.addHeadScripts(
+          script().withSrc(bundledAssetsFinder.viteClientUrl()).withType("module"));
     }
 
     bundle.addHeadScripts(
