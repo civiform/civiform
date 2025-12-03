@@ -1170,7 +1170,7 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
-                    .filter(programData -> !programData.program().isCommonIntakeForm())
+                    .filter(programData -> !programData.program().isPreScreenerForm())
                     .collect(ImmutableList.toImmutableList()),
             classLoaderExecutionContext.current());
   }
@@ -1280,7 +1280,7 @@ public final class ApplicantService {
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
-            if (programDefinition.isCommonIntakeForm()) {
+            if (programDefinition.isPreScreenerForm()) {
               relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());

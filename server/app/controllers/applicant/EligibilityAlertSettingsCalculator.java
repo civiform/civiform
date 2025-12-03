@@ -224,7 +224,7 @@ public final class EligibilityAlertSettingsCalculator {
     try {
       var programDefinition = programService.getFullProgramDefinition(programId);
 
-      return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
+      return !programDefinition.isPreScreenerForm() && programDefinition.hasEligibilityEnabled();
     } catch (ProgramNotFoundException ex) {
       // Checked exceptions are the devil and we've already determined that this program exists by
       // this point
