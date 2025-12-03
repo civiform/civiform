@@ -155,6 +155,7 @@ async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.fill('input[name=userName]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await page.click('button:has-text("Login"):not([disabled])')
+  // eslint-disable-next-line playwright/no-wait-for-navigation
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
@@ -430,7 +431,7 @@ export const normalizeElements = async (page: Frame | Page) => {
         ) {
           continue
         } else {
-          element.textContent = replacement(element.textContent!)
+          element.textContent = replacement(element.textContent)
         }
       }
     }
