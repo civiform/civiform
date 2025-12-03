@@ -107,7 +107,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
@@ -4381,7 +4381,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
+                Optional.of(NorthStarAddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();
