@@ -352,8 +352,29 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              if (addressServiceAreaValidationEnabled
-                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+              boolean shouldCheckServiceAreaValidation =
+                  addressServiceAreaValidationEnabled
+                      && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent();
+
+              Optional<ApplicantQuestion> maybeAddressQuestion =
+                  blockBeforeUpdate.getAddressQuestionWithCorrectionEnabled();
+              if (maybeAddressQuestion.isPresent()) {
+                AddressQuestion addressQuestion =
+                    maybeAddressQuestion.get().createAddressQuestion();
+                // Only check service area validation if
+                //  1. The address has changed from the previously corrected one
+                //  2. This is the applicant's first time filling out the question and it has not
+                // yet gone through correction
+                // In case 2 we still need to pass the question through the
+                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate which
+                // is expected in the rest of the logic
+                shouldCheckServiceAreaValidation =
+                    shouldCheckServiceAreaValidation
+                        && (addressQuestion.hasChanges(updateMap)
+                            || addressQuestion.needsAddressCorrection());
+              }
+
+              if (shouldCheckServiceAreaValidation) {
                 return serviceAreaUpdateResolver
                     .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
                     .thenComposeAsync(
