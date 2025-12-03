@@ -29,7 +29,7 @@
       ></div>
       <div
         th:if="${applicationParams.loginOnly() and isGuest}"
-        class="grid-container"
+        class="grid-container padding-top-4"
       >
         <div
           th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
