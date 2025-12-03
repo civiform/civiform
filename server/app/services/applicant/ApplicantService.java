@@ -361,12 +361,17 @@ public final class ApplicantService {
               if (maybeAddressQuestion.isPresent()) {
                 AddressQuestion addressQuestion =
                     maybeAddressQuestion.get().createAddressQuestion();
-                // Only check service area validation if the "Corrected" value is empty or if the
-                // address has changed from the previously corrected one
+                // Only check service area validation if
+                //  1. The address has changed from the previously corrected one
+                //  2. This is the applicant's first time filling out the question and it has not
+                // yet gone through correction
+                // In case 2 we still need to pass the question through the
+                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate which
+                // is expected in the rest of the logic
                 shouldCheckServiceAreaValidation =
                     shouldCheckServiceAreaValidation
-                        && (addressQuestion.needsAddressCorrection()
-                            || addressQuestion.hasChanges(updateMap));
+                        && (addressQuestion.hasChanges(updateMap)
+                            || addressQuestion.needsAddressCorrection());
               }
 
               if (shouldCheckServiceAreaValidation) {
