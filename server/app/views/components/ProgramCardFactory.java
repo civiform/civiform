@@ -44,17 +44,11 @@ public final class ProgramCardFactory {
 
   public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
-    // TODO(#11581): North star clean up
-    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     String programTitleText = displayProgram.localizedName().getDefault();
 
     ImmutableList<DomContent> programDescriptionText =
-        TextFormatter.formatTextForAdmins(displayProgram.localizedDescription().getDefault());
-    if (northStarEnabled) {
-      programDescriptionText =
-          ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));
-    }
+        ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));
 
     String adminNoteText = displayProgram.adminDescription();
     ImmutableList<String> programCategoryNames =

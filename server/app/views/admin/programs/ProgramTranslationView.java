@@ -25,7 +25,6 @@ import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -39,16 +38,12 @@ import views.components.ToastMessage;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramTranslationView(
-      AdminLayoutFactory layoutFactory,
-      TranslationLocales translationLocales,
-      SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.settingsManifest = settingsManifest;
   }
 
   public Content render(
@@ -238,17 +233,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .getInputTag(),
                     program.localizedName()));
 
-    // On north star, only default programs have a long description. Whereas when north star is off,
-    // both default programs and common intake forms have long description.
-    // TODO(#11581): North star clean up
-    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
     ProgramType programType = program.programType();
-    boolean showLongDescription = northStarEnabled && programType.equals(ProgramType.DEFAULT);
-    boolean showLongDescriptionNS =
-        !northStarEnabled
-            && (programType.equals(ProgramType.DEFAULT)
-                || programType.equals(ProgramType.COMMON_INTAKE_FORM));
-    if (showLongDescription || showLongDescriptionNS) {
+    boolean showLongDescription = programType.equals(ProgramType.DEFAULT);
+    if (showLongDescription) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(
               FieldWithLabel.input()
