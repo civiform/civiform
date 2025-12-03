@@ -72,7 +72,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(request);
     bundle
         .setJsBundle(JsBundle.APPLICANT)
         .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
@@ -90,7 +90,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(request);
     bundle
         .setJsBundle(JsBundle.APPLICANT)
         .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
@@ -108,7 +108,7 @@ public class ApplicantLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
-    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(request);
     bundle
         .setJsBundle(JsBundle.APPLICANT)
         .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));

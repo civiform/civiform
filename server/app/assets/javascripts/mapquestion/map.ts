@@ -166,7 +166,12 @@ const createPopupContent = (
   }
 
   const popupContent = document.createElement('div')
-  popupContent.classList.add('flex', 'flex-column', 'padding-4', POPUP_LAYER)
+  popupContent.classList.add(
+    'display-flex',
+    'flex-column',
+    'padding-4',
+    POPUP_LAYER,
+  )
   popupContent.setAttribute('data-map-id', mapId)
   popupContent.setAttribute('data-feature-id', featureId)
   if (name) {

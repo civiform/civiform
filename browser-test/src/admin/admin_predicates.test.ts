@@ -2,7 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {
   disableFeatureFlag,
   enableFeatureFlag,
-  isHermeticTestEnvironment,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -549,7 +549,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
-  if (isHermeticTestEnvironment()) {
+  if (isLocalDevEnvironment()) {
     test('add a service area validation predicate', async ({
       page,
       adminQuestions,

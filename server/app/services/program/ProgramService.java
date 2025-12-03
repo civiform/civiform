@@ -196,7 +196,7 @@ public final class ProgramService {
    */
   public Optional<ProgramDefinition> getCommonIntakeForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(ProgramDefinition::isCommonIntakeForm)
+        .filter(ProgramDefinition::isPreScreenerForm)
         .findFirst();
   }
 
@@ -608,7 +608,7 @@ public final class ProgramService {
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programDefinition.isCommonIntakeForm()) {
+        && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -1190,8 +1190,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       LocalizationUpdate localizationUpdate,
       ProgramDefinition programDefinition) {
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
+    if (!programDefinition.isPreScreenerForm() && !programDefinition.applicationSteps().isEmpty()) {
       IntStream.range(0, programDefinition.applicationSteps().size())
           .forEach(
               i -> {
@@ -1659,7 +1658,7 @@ public final class ProgramService {
           EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
-    if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
+    if (programDefinition.isPreScreenerForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
     }
 

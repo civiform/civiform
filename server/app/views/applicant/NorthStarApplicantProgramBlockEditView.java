@@ -1,5 +1,7 @@
 package views.applicant;
 
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
@@ -95,6 +97,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("homeUrl", index(applicationParams));
     context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
+    context.setVariable("loginOnly", applicationParams.loginOnly());
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    boolean isTi = applicationParams.profile().isTrustedIntermediary();
+    boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
+    context.setVariable("isGuest", isGuest);
 
     // Progress bar
     ProgressBar progressBar =

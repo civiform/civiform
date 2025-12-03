@@ -15,19 +15,16 @@ import repository.ResetPostgres;
 import services.BundledAssetsFinder;
 
 public class HtmlBundleTest extends ResetPostgres {
-
-  private ViewUtils viewUtils;
   private BundledAssetsFinder bundledAssetsFinder;
 
   @Before
   public void setUp() {
-    viewUtils = instanceOf(ViewUtils.class);
     bundledAssetsFinder = instanceOf(BundledAssetsFinder.class);
   }
 
   @Test
   public void testSetTitle() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
     bundle
         .setTitle("My title")
         .setJsBundle(JsBundle.APPLICANT)
@@ -39,7 +36,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFaviconIsSet() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
     bundle
         .setFavicon("www.civiform.com/favicon")
         .setJsBundle(JsBundle.APPLICANT)
@@ -51,7 +48,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testFaviconIsNotSet() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     bundle.setJsBundle(JsBundle.ADMIN).setBundledAssetsFinder(bundledAssetsFinder);
     Content content = bundle.render();
@@ -60,8 +57,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void emptyBundleRendersOutline() {
-    HtmlBundle bundle =
-        new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
 
     bundle.setJsBundle(JsBundle.APPLICANT).setBundledAssetsFinder(bundledAssetsFinder);
     Content content = bundle.render();
@@ -70,15 +66,15 @@ public class HtmlBundleTest extends ResetPostgres {
             "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
                 + " h-screen w-screen z-20\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
                 + " w-screen bg-gray-400 opacity-75\"></div></div><footer><script"
-                + " src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\" type=\"text/javascript\""
+                + " src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\" type=\"module\""
                 + " nonce=\"my-nonce\"></script><script"
-                + " src=\"/assets/dist/[a-z0-9]+-uswds.bundle.js\" type=\"text/javascript\""
+                + " src=\"/assets/dist/[a-z0-9]+-uswds_js.bundle.js\" type=\"module\""
                 + " nonce=\"my-nonce\"></script></footer></body>");
   }
 
   @Test
   public void rendersContentInOrder() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
     bundle
         .addMainContent(div("One"))
         .addMainContent(div("Two"))
@@ -91,7 +87,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testUswdsModals() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     DivTag modal =
         div()
@@ -125,7 +121,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testMultipleUswdsModals() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
 
     DivTag modal1 = div().withClass("usa-modal").withId("test-modal-1").with(p("First modal"));
 
@@ -148,7 +144,7 @@ public class HtmlBundleTest extends ResetPostgres {
 
   @Test
   public void testEmptyUswdsModalsContainer() {
-    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
     bundle.setJsBundle(JsBundle.APPLICANT).setBundledAssetsFinder(bundledAssetsFinder);
 
     Content content = bundle.render();

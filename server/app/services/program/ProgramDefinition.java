@@ -813,7 +813,7 @@ public abstract class ProgramDefinition {
   }
 
   @JsonIgnore
-  public boolean isCommonIntakeForm() {
+  public boolean isPreScreenerForm() {
     return this.programType() == ProgramType.COMMON_INTAKE_FORM;
   }
 

@@ -27,8 +27,19 @@
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
+      <div
+        th:if="${applicationParams.loginOnly() and isGuest}"
+        class="grid-container padding-top-4"
+      >
+        <div
+          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+        ></div>
+      </div>
 
-      <div class="grid-container">
+      <div
+        class="grid-container"
+        th:if="${!applicationParams.loginOnly() or (applicationParams.loginOnly() and !isGuest)}"
+      >
         <div class="grid-row">
           <div
             th:class="${applicationParams.block().hasMapQuestion() ? 'tablet:grid-col-12' : 'tablet:grid-col-8'}"

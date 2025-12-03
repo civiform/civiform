@@ -20,6 +20,11 @@ import views.NorthStarBaseView;
 
 public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
 
+  // Constants used by ApplicantProgramBlocksController and ApplicantService
+  // to process address correction form submissions
+  public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
+  public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
+
   @Inject
   NorthStarAddressCorrectionBlockView(
       TemplateEngine templateEngine,

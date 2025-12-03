@@ -501,7 +501,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         // change which program is marked as the common intake form.
         FieldWithLabel.checkbox()
             .setId("confirmed-change-common-intake-checkbox")
-            .setFieldName("confirmedChangeCommonIntakeForm")
+            .setFieldName("confirmedChangePreScreenerForm")
             .setValue("false")
             .setChecked(false)
             .addStyleClass("hidden")

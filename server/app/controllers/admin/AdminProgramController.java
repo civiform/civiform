@@ -144,7 +144,7 @@ public final class AdminProgramController extends CiviFormController {
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()) {
         return ok(
@@ -286,7 +286,7 @@ public final class AdminProgramController extends CiviFormController {
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()
           && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {

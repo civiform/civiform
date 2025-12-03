@@ -758,17 +758,13 @@ main {
     display: none;
   }
 
-  // Ensure components are always visible on tablet and above, even if cf-toggle-hidden is present
-  .cf-map-container,
+  // Ensure components are always visible on tablet and above when cf-toggle-hidden is present
   .cf-map-container.cf-toggle-hidden,
-  .cf-locations-list,
   .cf-locations-list.cf-toggle-hidden,
-  .cf-location-count,
   .cf-location-count.cf-toggle-hidden {
     display: block;
   }
 
-  .cf-pagination,
   .cf-pagination.cf-toggle-hidden {
     display: flex;
   }
@@ -797,5 +793,23 @@ main {
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
       no-repeat center;
     background-size: contain;
+  }
+}
+
+/* When a file is being uploaded... */
+.cf-file-uploading {
+  /* Show the file uploading tag */
+  .cf-file-uploading-tag {
+    display: inline-block;
+  }
+
+  /* Apply disabled styling to any interactive elements */
+  .cf-disable-when-uploading {
+    @include u-bg('white');
+    @include u-text('base-light');
+    @include u-border('base-light');
+    @include u-border('1px');
+    pointer-events: none;
+    cursor: default;
   }
 }

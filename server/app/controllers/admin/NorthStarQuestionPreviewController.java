@@ -19,35 +19,26 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import views.admin.questions.NorthStarQuestionPreview;
 
 /** Controller for rendering inputs for questions. */
 public final class NorthStarQuestionPreviewController extends CiviFormController {
   private final NorthStarQuestionPreview northStarQuestionPreview;
   private final Messages messages;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public NorthStarQuestionPreviewController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       NorthStarQuestionPreview northStarQuestionPreview,
-      MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
     this.northStarQuestionPreview = checkNotNull(northStarQuestionPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
   public Result sampleQuestion(Request request, String questionType) {
-    // TODO(#11580): North star clean up
-    if (!settingsManifest.getNorthStarApplicantUi()) {
-      return notFound();
-    }
-
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
     CiviFormProfile profile = profileUtils.currentUserProfile(request);

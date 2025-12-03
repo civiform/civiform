@@ -68,6 +68,8 @@ public abstract class NorthStarBaseView {
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
 
+    context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
+    context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
     context.setVariable("tailwindStylesheet", bundledAssetsFinder.getTailwindStylesheet());
     context.setVariable("northStarStylesheet", bundledAssetsFinder.getNorthStarStylesheet());
     context.setVariable("mapLibreGLStylesheet", bundledAssetsFinder.getMapLibreGLStylesheet());
