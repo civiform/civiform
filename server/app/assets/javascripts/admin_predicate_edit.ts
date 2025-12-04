@@ -6,6 +6,9 @@ export class AdminPredicateEdit {
   static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
   static NODE_OPERATOR_SELECT_NULL_STATE_ID =
     'predicate-operator-node-select-null-state'
+  // Set in server/app/views/admin/programs/predicates/EditSubconditionFragment.html
+  static QUESTION_ID_SUFFIX: string = '-question'
+  static ARIA_ANNOUNCE_ID_SUFFIX: string = '-ariaAnnounce'
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
   static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
@@ -59,6 +62,7 @@ export class AdminPredicateEdit {
       })
     }
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
+    AdminPredicateEdit.ariaAnnounceSubconditionAndFocus()
   }
 
   onPageLoad(): void {
@@ -146,6 +150,36 @@ export class AdminPredicateEdit {
         nodeOperatorSelectNullState.hidden = false
       }
     }
+  }
+
+  private static ariaAnnounceSubconditionAndFocus(): void {
+    // Find which subcondition has autofocus set
+    const focusedSubconditionQuestion: HTMLElement | null =
+      document.querySelector(
+        '.cf-predicate-question-select[data-should-autofocus="true"]',
+      )
+    if (focusedSubconditionQuestion === null) {
+      return
+    }
+    console.log(focusedSubconditionQuestion.id)
+
+    const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
+      this.QUESTION_ID_SUFFIX,
+      this.ARIA_ANNOUNCE_ID_SUFFIX,
+    )
+    const ariaAnnounceElement: HTMLElement | null = document.querySelector(
+      `#${ariaAnnounceElementId}`,
+    )
+    if (ariaAnnounceElement === null) {
+      return
+    }
+
+    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
+      ariaAnnounceElement.textContent =
+        ariaAnnounceElement.getAttribute('data-announce-text')
+    }
+
+    focusedSubconditionQuestion.focus()
   }
 
   /**

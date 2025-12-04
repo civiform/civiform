@@ -240,11 +240,15 @@ export class AdminPredicates {
   }
 
   async expectCondition(conditionId: number) {
-    await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
+    await expect(
+      this.page.locator('#predicate-conditions-list').first(),
+    ).toContainText('Condition ' + conditionId)
   }
 
   async expectNoCondition(conditionId: number) {
-    await expect(this.page.getByText('Condition ' + conditionId)).toBeHidden()
+    await expect(
+      this.page.locator('#predicate-conditions-list').first(),
+    ).not.toContainText('Condition ' + conditionId)
   }
 
   async expectSubcondition(conditionId: number, subconditionId: number) {

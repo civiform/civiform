@@ -14,8 +14,8 @@ public record ConditionListPartialViewModel(
     ImmutableList<EditConditionPartialViewModel> conditions)
     implements EditPredicateBaseViewModel {
 
-  public String hxEditConditionEndpoint() {
-    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+  public String hxAddConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxAddCondition(
             programId, blockId, predicateUseCase.name())
         .url();
   }

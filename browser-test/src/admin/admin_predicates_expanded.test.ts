@@ -186,6 +186,8 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await test.step('Add condition', async () => {
       await adminPredicates.clickAddConditionButton()
 
+      await waitForHtmxReady(page)
+
       await adminPredicates.expectCondition(1)
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -822,6 +824,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
     })
 
     await test.step('Add second subcondition, select questions, and enter input', async () => {
@@ -879,6 +888,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         page.locator('#condition-1-subcondition-1-question'),
       ).toContainText(nameQuestionText)
       await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
         page.locator('#condition-1-subcondition-1-operator'),
       ).toHaveValue('EQUAL_TO')
       await expect(
@@ -931,6 +943,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         page.locator('#condition-1-subcondition-1-question'),
       ).toContainText(dateQuestionText)
       await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
         page.locator('#condition-1-subcondition-1-operator'),
       ).toHaveValue('BETWEEN')
       await expect(
@@ -939,6 +954,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await expect(
         page.locator('#condition-1-subcondition-1-secondValue[type="date"]'),
       ).toHaveValue(dateQuestionSecondAnswer)
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
     })
 
     await test.step('Delete condition and validate null state', async () => {
@@ -1005,6 +1023,12 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await expect(
         page.locator('#condition-1-subcondition-1-question'),
       ).toContainText(dateQuestionText)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
     })
   })
 
@@ -1159,7 +1183,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
     await test.step('Submit bad HTMX request', async () => {
       // Reformat the request URL to produce an HTMX failure
-      await page.route('**/hx/editCondition', async (route, request) => {
+      await page.route('**/hx/addCondition', async (route, request) => {
         const newUrl = request
           .url()
           .toString()
