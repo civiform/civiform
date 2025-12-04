@@ -1110,15 +1110,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /**
    * Given formData from a dynamic form and an empty builder, return a single parsed subcondition,
    * if present.
-   * 
+   *
    * <p>Expected keys:
-   *     <ul>
-   *       <li>Operator: "{fieldNamePrefix}-operator"
-   *       <li>Scalar: "{fieldNamePrefix}-scalar"
-   *       <li>Value: "{fieldNamePrefix}-value"
-   *       <li>Second value (for BETWEEN operator): "{fieldNamePrefix}-secondValue"
-   *     </ul>
-   * </p>
+   *
+   * <ul>
+   *   <li>Operator: "{fieldNamePrefix}-operator"
+   *   <li>Scalar: "{fieldNamePrefix}-scalar"
+   *   <li>Value: "{fieldNamePrefix}-value"
+   *   <li>Second value (for BETWEEN operator): "{fieldNamePrefix}-secondValue"
+   * </ul>
    *
    * @param emptyBuilder: An empty builder for an EditSubconditionPartialViewModel. Will be used to
    *     build the returned subcondition.
@@ -1154,12 +1154,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     // Get the user-entered values, defaulting to an empty string if not present.
     String inputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-value"), "");
-    String secondInputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-secondValue"), "");
+    String secondInputFieldValue =
+        Objects.toString(formData.get(fieldNamePrefix + "-secondValue"), "");
 
     // Get multiValue selections (radios, dropdowns, checkboxes, etc.), if present.
     ImmutableSet<String> multiValueSelections =
         getMultiValueSelectionsFromFormData(fieldNamePrefix, formData);
-    
+
     // Populate the selected value, depending on whether this is a multi-value question type.
     SelectedValue selectedValue =
         selectedQuestion
