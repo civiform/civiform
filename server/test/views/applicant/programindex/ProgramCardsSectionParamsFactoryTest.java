@@ -141,7 +141,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
@@ -158,7 +158,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),

@@ -229,7 +229,7 @@ public final class ProgramCardFactory {
     Icons icon;
     String label;
     switch (programType) {
-      case COMMON_INTAKE_FORM:
+      case PRE_SCREENER_FORM:
         icon = Icons.CHECK;
         label = "Pre-Screener";
         break;
@@ -277,7 +277,7 @@ public final class ProgramCardFactory {
     Comparator<ProgramCardData> c =
         Comparator.comparingInt(
             (cardData) ->
-                getDisplayProgram(cardData).programType().equals(ProgramType.COMMON_INTAKE_FORM)
+                getDisplayProgram(cardData).programType().equals(ProgramType.PRE_SCREENER_FORM)
                     ? 0
                     : 1);
     return c.thenComparing(
