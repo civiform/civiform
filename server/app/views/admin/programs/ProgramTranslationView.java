@@ -234,8 +234,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                     program.localizedName()));
 
     ProgramType programType = program.programType();
-    boolean showLongDescription = programType.equals(ProgramType.DEFAULT);
-    if (showLongDescription) {
+    if (programType.equals(ProgramType.DEFAULT)) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(
               FieldWithLabel.input()
