@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Enums.getIfPresent;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
 import auth.Authorizers;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,6 +58,7 @@ import services.program.predicate.Operator;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateUseCase;
+import services.program.predicate.SelectedValue;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
@@ -86,6 +89,14 @@ import views.components.ToastMessage.ToastType;
  * logic.
  */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
+  // List of question types for which we expect multiple populated values.
+  private static final ImmutableList<QuestionType> MULTI_VALUE_QUESTION_TYPES =
+      ImmutableList.of(
+          QuestionType.CHECKBOX,
+          QuestionType.DROPDOWN,
+          QuestionType.RADIO_BUTTON,
+          QuestionType.YES_NO);
+
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -900,7 +911,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     AtomicBoolean isFirst = new AtomicBoolean(true);
     scalars.forEach(
         scalar -> {
-          // If there's no user-selected scalar present, select the first in the list.
+          // Select either the user-selected scalar if selectedScalar is valid OR the first in the
+          // list if selectedScalar is invalid.
           boolean shouldSelect =
               validScalarSelection
                   ? scalar.name().equals(selectedScalar.get().name())
@@ -922,32 +934,26 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * depending on question type.
    */
   private ImmutableList<OptionElement> getValueOptionsForQuestion(
-      QuestionDefinition question,
-      String selectedSingleValue,
-      ImmutableSet<String> selectedMultipleValues) {
+      QuestionDefinition question, SelectedValue selectedValue) {
     AtomicBoolean isFirst = new AtomicBoolean(true);
-    ImmutableList<QuestionType> multiSelectQuestionTypes =
-        ImmutableList.of(
-            QuestionType.DROPDOWN,
-            QuestionType.CHECKBOX,
-            QuestionType.RADIO_BUTTON,
-            QuestionType.YES_NO);
     if (question.isAddress()) {
+      checkState(selectedValue.getKind().equals(SelectedValue.Kind.SINGLE));
       // Check whether the selected value is a valid address.
       ImmutableMap<String, EsriServiceAreaValidationOption> addressOptions =
           esriServiceAreaValidationConfig.getImmutableMap();
       boolean valueIsAddress =
           addressOptions.entrySet().stream()
-              .anyMatch(entry -> entry.getValue().getLabel().equals(selectedSingleValue));
+              .anyMatch(entry -> entry.getValue().getLabel().equals(selectedValue.single()));
       return addressOptions.entrySet().stream()
           .map(
               entry -> {
-                final String displayText = entry.getValue().getLabel();
+                String displayText = entry.getValue().getLabel();
                 // Select either the already-selected address value OR the first in the list of
                 // options if no address is selected.
                 boolean shouldSelect =
-                    (valueIsAddress && displayText.equals(selectedSingleValue))
-                        || (!valueIsAddress && isFirst.getAndSet(false));
+                    valueIsAddress
+                        ? displayText.equals(selectedValue.single())
+                        : valueIsAddress && isFirst.getAndSet(false);
                 return OptionElement.builder()
                     .value(entry.getKey())
                     .displayText(displayText)
@@ -955,13 +961,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .build();
               })
           .collect(ImmutableList.toImmutableList());
-    } else if (multiSelectQuestionTypes.contains(question.getQuestionType())) {
+    } else if (MULTI_VALUE_QUESTION_TYPES.contains(question.getQuestionType())) {
+      checkState(selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE));
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) question;
       return multiOptionQuestionDefinition.getDisplayableOptions().stream()
           .map(
               option -> {
-                boolean shouldSelect = selectedMultipleValues.contains(option.adminName());
+                boolean shouldSelect = selectedValue.multiple().contains(option.adminName());
                 return OptionElement.builder()
                     .value(option.adminName())
                     .displayText(option.optionText().getOrDefault(Locale.US))
@@ -984,8 +991,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .map(
             operator -> {
               boolean shouldSelect =
-                  selectedOperator.isPresent()
-                      && operator.name().equals(selectedOperator.get().name());
+                  selectedOperator
+                      .map(Operator::name)
+                      .map(name -> name.equals(operator.name()))
+                      .orElse(false);
               return OptionElement.builder()
                   .value(operator.name())
                   .displayText(operator.toDisplayString())
@@ -1022,12 +1031,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     // This is necessary to account for gaps in condition IDs.
     Pattern conditionIdPattern = Pattern.compile("^condition-(\\d+)");
     ImmutableList<Long> presentConditionIds =
-        ImmutableList.sortedCopyOf(
-            formData.keySet().stream()
-                .map(conditionIdPattern::matcher)
-                .filter(Matcher::find)
-                .map(match -> Long.parseLong(match.group(1)))
-                .collect(ImmutableSet.toImmutableSet()));
+        getSortedMatchesFromKeys(conditionIdPattern, formData);
 
     // Iterate upwards through condition IDs.
     for (Long conditionId : presentConditionIds) {
@@ -1045,91 +1049,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       Pattern subconditionIdPattern =
           Pattern.compile(String.format("^condition-%d-subcondition-(\\d+)", conditionId));
       ImmutableList<Long> presentSubconditionIds =
-          ImmutableList.sortedCopyOf(
-              formData.keySet().stream()
-                  .map(subconditionIdPattern::matcher)
-                  .filter(Matcher::find)
-                  .map(match -> Long.parseLong(match.group(1)))
-                  .collect(ImmutableSet.toImmutableSet()));
+          getSortedMatchesFromKeys(subconditionIdPattern, formData);
 
       /// Keep going until we run out of user-entered subconditions.
       for (long subconditionId : presentSubconditionIds) {
-        String subconditionPrefix =
+        String subconditionFieldPrefix =
             String.format("condition-%d-subcondition-%d", conditionId, subconditionId);
-
-        EditSubconditionPartialViewModelBuilder subconditionBuilder =
-            condition.emptySubconditionViewModel().toBuilder();
-
-        // Set the user-selected question
-        // If there isn't a question key present, something is misformatted and we should skip.
-        String questionFieldName = subconditionPrefix + "-question";
-        String questionFieldValue = formData.get(questionFieldName);
-        if (!StringUtils.isNumeric(questionFieldValue)
-            || !formData.containsKey(questionFieldName)) {
-          subconditions.add(subconditionBuilder.build());
-          continue;
-        }
-
-        Long questionId = Long.valueOf(questionFieldValue);
-        Optional<QuestionDefinition> selectedQuestion =
-            availableQuestions.stream()
-                .filter(question -> questionId.equals(question.getId()))
-                .findFirst();
-
-        // (Optionally) set the user-selected operator
-        String operatorFieldName = subconditionPrefix + "-operator";
-        Optional<Operator> selectedOperatorOptional = Optional.empty();
-        if (formData.containsKey(operatorFieldName)) {
-          String operatorFieldValue = formData.get(operatorFieldName);
-          selectedOperatorOptional =
-              getIfPresent(Operator.class, operatorFieldValue)
-                  .transform(Optional::of)
-                  .or(Optional.empty());
-        }
-
-        // (Optionally) set the user-selected scalar
-        String scalarFieldName = subconditionPrefix + "-scalar";
-        Optional<Scalar> selectedScalarOptional = Optional.empty();
-        if (formData.containsKey(scalarFieldName)) {
-          String scalarFieldValue = formData.get(scalarFieldName);
-          selectedScalarOptional =
-              getIfPresent(Scalar.class, scalarFieldValue)
-                  .transform(Optional::of)
-                  .or(Optional.empty());
-        }
-
-        // Get the user-entered values, if present
-        String inputFieldName = subconditionPrefix + "-value";
-        String secondInputFieldName = subconditionPrefix + "-secondValue";
-        String inputFieldValue =
-            formData.containsKey(inputFieldName) ? formData.get(inputFieldName) : "";
-        String secondInputFieldValue =
-            formData.containsKey(secondInputFieldName) ? formData.get(secondInputFieldName) : "";
-
-        // Get multiValue selections (radios, dropdowns, checkboxes, etc.), if present.
-        ImmutableSet<String> multiValueSelections =
-            getMultiValueSelectionsFromFormData(conditionId, subconditionId, formData);
-
-        // From selectedQuestion, we can get the rest of the necessary fields.
-        // For the last subcondition, we should render the "Add subcondition" button.
-        subconditionBuilder
-            .selectedQuestionType(
-                selectedQuestion.map(question -> question.getQuestionType().getLabel()))
-            .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
-            .scalarOptions(
-                selectedQuestion.isPresent()
-                    ? getScalarOptionsForQuestion(selectedQuestion.get(), selectedScalarOptional)
-                    : ImmutableList.of())
-            .operatorOptions(getOperatorOptions(selectedOperatorOptional))
-            .valueOptions(
-                selectedQuestion.isPresent()
-                    ? getValueOptionsForQuestion(
-                        selectedQuestion.get(), inputFieldValue, multiValueSelections)
-                    : ImmutableList.of())
-            .userEnteredValue(inputFieldValue)
-            .secondUserEnteredValue(secondInputFieldValue);
-
-        subconditions.add(subconditionBuilder.build());
+        subconditions.add(
+            getParsedSubconditionFromFormData(
+                condition.emptySubconditionViewModel().toBuilder(),
+                subconditionFieldPrefix,
+                availableQuestions,
+                formData));
       }
 
       condition = condition.toBuilder().subconditions(ImmutableList.copyOf(subconditions)).build();
@@ -1143,16 +1074,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * Given formData from a dynamic form, find and return set of multi-value selections for the given
    * subcondition, if any are present.
    *
-   * <p>Expect that keys for multi-value inputs will be of format
-   * "condition-{conditionId}-subcondition-{subconditionId}-values[{valueNum}]"
+   * <p>Expect that keys for multi-value inputs will be of format "-values[{valueNum}]"
+   *
+   * @param fieldNamePrefix: A prefix for the value field names. Expected to be of format:
+   *     "condition-{conditionId}-subcondition-{subconditionId}"
+   * @param formData: The dynamic form data, containing the user-entered multi-values (if present).
    */
   private ImmutableSet<String> getMultiValueSelectionsFromFormData(
-      Long conditionId, Long subconditionId, ImmutableMap<String, String> formData) {
+      String fieldNamePrefix, ImmutableMap<String, String> formData) {
     // Find present input fields and return set of the IDs.
     Pattern valuesIdPattern =
-        Pattern.compile(
-            String.format(
-                "^condition-%d-subcondition-%d-values\\[(\\d+)\\]", conditionId, subconditionId));
+        Pattern.compile(String.format("^%s-values\\[(\\d+)\\]", fieldNamePrefix));
     ImmutableList<Long> presentValueInputNums =
         ImmutableList.copyOf(
             formData.keySet().stream()
@@ -1165,9 +1097,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     // Iterate through present input fields, collect all values.
     for (Long inputNum : presentValueInputNums) {
-      String inputFieldName =
-          String.format(
-              "condition-%d-subcondition-%d-values[%d]", conditionId, subconditionId, inputNum);
+      String inputFieldName = String.format("%s-values[%d]", fieldNamePrefix, inputNum);
 
       if (formData.containsKey(inputFieldName)) {
         valuesToReturn.add(formData.get(inputFieldName));
@@ -1175,5 +1105,108 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     return ImmutableSet.copyOf(valuesToReturn);
+  }
+
+  /**
+   * Given formData from a dynamic form and an empty builder, return a single parsed subcondition,
+   * if present.
+   * 
+   * <p>Expected keys:
+   *     <ul>
+   *       <li>Operator: "{fieldNamePrefix}-operator"
+   *       <li>Scalar: "{fieldNamePrefix}-scalar"
+   *       <li>Value: "{fieldNamePrefix}-value"
+   *       <li>Second value (for BETWEEN operator): "{fieldNamePrefix}-secondValue"
+   *     </ul>
+   * </p>
+   *
+   * @param emptyBuilder: An empty builder for an EditSubconditionPartialViewModel. Will be used to
+   *     build the returned subcondition.
+   * @param fieldNamePrefix: A prefix for subcondition field names. Expected to be of format
+   *     "condition-{conditionId}-subcondition-{subconditionId}".
+   * @param availableQuestions: All questions available in this program.
+   * @param formData: The dynamic form data, containing user-entered values for this subcondition.
+   */
+  private EditSubconditionPartialViewModel getParsedSubconditionFromFormData(
+      EditSubconditionPartialViewModelBuilder emptyBuilder,
+      String fieldNamePrefix,
+      ImmutableList<QuestionDefinition> availableQuestions,
+      ImmutableMap<String, String> formData) {
+    // Set the user-selected question
+    // If there isn't a question key present, something is misformatted and we should return
+    // immediately.
+    String questionFieldValue = formData.get(fieldNamePrefix + "-question");
+    if (questionFieldValue == null | !StringUtils.isNumeric(questionFieldValue)) {
+      return emptyBuilder.build();
+    }
+
+    Long questionId = Long.valueOf(questionFieldValue);
+    Optional<QuestionDefinition> selectedQuestion =
+        availableQuestions.stream()
+            .filter(question -> questionId.equals(question.getId()))
+            .findFirst();
+
+    // (Optionally) set the user-selected operator and scalar
+    Optional<Operator> selectedOperatorOptional =
+        optionallyGetEnumFromFormData(Operator.class, formData, fieldNamePrefix + "-operator");
+    Optional<Scalar> selectedScalarOptional =
+        optionallyGetEnumFromFormData(Scalar.class, formData, fieldNamePrefix + "-scalar");
+
+    // Get the user-entered values, defaulting to an empty string if not present.
+    String inputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-value"), "");
+    String secondInputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-secondValue"), "");
+
+    // Get multiValue selections (radios, dropdowns, checkboxes, etc.), if present.
+    ImmutableSet<String> multiValueSelections =
+        getMultiValueSelectionsFromFormData(fieldNamePrefix, formData);
+    
+    // Populate the selected value, depending on whether this is a multi-value question type.
+    SelectedValue selectedValue =
+        selectedQuestion
+                .map(question -> MULTI_VALUE_QUESTION_TYPES.contains(question.getQuestionType()))
+                .orElse(false)
+            ? SelectedValue.multiple(multiValueSelections)
+            : SelectedValue.single(inputFieldValue);
+
+    return emptyBuilder
+        .selectedQuestionType(
+            selectedQuestion.map(question -> question.getQuestionType().getLabel()))
+        .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
+        .scalarOptions(
+            selectedQuestion.isPresent()
+                ? getScalarOptionsForQuestion(selectedQuestion.get(), selectedScalarOptional)
+                : ImmutableList.of())
+        .operatorOptions(getOperatorOptions(selectedOperatorOptional))
+        .valueOptions(
+            selectedQuestion.isPresent()
+                ? getValueOptionsForQuestion(selectedQuestion.get(), selectedValue)
+                : ImmutableList.of())
+        .userEnteredValue(inputFieldValue)
+        .secondUserEnteredValue(secondInputFieldValue)
+        .build();
+  }
+
+  // Given a regex pattern keyPattern and a map, return a sorted list of matches between
+  // map.keySet() and keyPattern, selecting the first group from the regex.
+  private ImmutableList<Long> getSortedMatchesFromKeys(
+      Pattern keyPattern, ImmutableMap<String, String> map) {
+    return ImmutableList.sortedCopyOf(
+        map.keySet().stream()
+            .map(keyPattern::matcher)
+            .filter(Matcher::find)
+            .map(match -> Long.parseLong(match.group(1)))
+            .collect(ImmutableSet.toImmutableSet()));
+  }
+
+  // Get an (optionally present) enum value from dynamic form map formData, with key
+  // expectedFieldName.
+  private <T extends Enum<T>> Optional<T> optionallyGetEnumFromFormData(
+      Class<T> enumClass, ImmutableMap<String, String> formData, String expectedFieldName) {
+    if (!formData.containsKey(expectedFieldName)) {
+      return Optional.empty();
+    }
+
+    String scalarFieldValue = formData.get(expectedFieldName);
+    return getIfPresent(enumClass, scalarFieldValue).transform(Optional::of).or(Optional.empty());
   }
 }
