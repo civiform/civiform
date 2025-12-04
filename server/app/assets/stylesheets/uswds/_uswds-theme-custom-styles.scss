@@ -407,15 +407,15 @@ button.usa-button.usa-button--unstyled.htmx-request {
 }
 
 .bg-cf-toast-alert {
-  background-color: color('gray-10');
+  background-color: #e5e7eb; // Tailwind gray-200
 }
 
 .bg-cf-toast-error {
-  background-color: color('red-cool-10v');
+  background-color: #f87171; // Tailwind red-400
 }
 
 .bg-cf-toast-success {
-  background-color: color('green-cool-10v');
+  background-color: #a7f3d0; // Tailwind emerald-200
 }
 
 .bg-cf-toast-warning {
