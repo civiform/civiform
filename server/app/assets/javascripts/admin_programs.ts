@@ -101,8 +101,8 @@ class AdminPrograms {
       'program-external-link-input',
     ) as HTMLInputElement
     const disableExternalLink =
-      (programType === ProgramType.DEFAULT ||
-        programType === ProgramType.COMMON_INTAKE_FORM)
+      programType === ProgramType.DEFAULT ||
+      programType === ProgramType.COMMON_INTAKE_FORM
     this.updateTextFieldElementDisabledState(
       /* fieldElement= */ externalLink,
       /* shouldDisable= */ disableExternalLink,
@@ -121,9 +121,8 @@ class AdminPrograms {
 
     // Long program description
     const disableLongDescription =
-      (programType === ProgramType.COMMON_INTAKE_FORM ||
-        programType === ProgramType.EXTERNAL) &&
-      isNorthstarEnabled
+      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.EXTERNAL
     this.updateTextFieldSelectorsDisabledState(
       'textarea[id="program-display-description-textarea"]',
       disableLongDescription,
