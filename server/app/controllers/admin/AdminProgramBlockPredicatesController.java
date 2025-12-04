@@ -671,7 +671,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .build();
       condition =
           condition.toBuilder()
-              .subconditions(ImmutableList.of(condition.emptySubconditionViewModel()))
+              .subconditions(
+                  ImmutableList.of(
+                      condition.emptySubconditionViewModel().toBuilder().autofocus(true).build()))
               .build();
       currentConditions.add(condition);
 
@@ -713,8 +715,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     try {
       Map<String, String> formData = new HashMap<>(form.rawData());
-      long conditionId = Long.valueOf(formData.get("conditionId"));
-      long subconditionId = Long.valueOf(form.get("subconditionId"));
+      Long conditionId = Long.valueOf(formData.get("conditionId"));
+      Long subconditionId = Long.valueOf(form.get("subconditionId"));
 
       // Dynamic forms contain full form from the request.
       // We need to start by filtering to only this condition.
@@ -740,6 +742,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       if (isNewSubcondition) {
         subconditionList.add(condition.emptySubconditionViewModel());
       }
+
+      // Focus only edited subcondition
+      subconditionList.stream()
+          .forEach(subcondition -> subcondition.toBuilder().autofocus(false).build());
+      int focusedIndex = subconditionId.intValue() - 1;
+      EditSubconditionPartialViewModel focusedSubcondition =
+          subconditionList.get(focusedIndex).toBuilder().autofocus(true).build();
+      subconditionList.set(focusedIndex, focusedSubcondition);
 
       return ok(subconditionListPartialView.render(
               request,
@@ -840,10 +850,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           getOnlyElement(
               buildConditionsListFromFormData(
                   programId, blockDefinitionId, predicateUseCase, ImmutableMap.copyOf(formData)));
-      ImmutableList<EditSubconditionPartialViewModel> subconditions =
+      ArrayList<EditSubconditionPartialViewModel> subconditions =
           condition.subconditions().isEmpty()
-              ? ImmutableList.of(condition.emptySubconditionViewModel())
-              : condition.subconditions();
+              ? new ArrayList<>(Arrays.asList(condition.emptySubconditionViewModel()))
+              : new ArrayList<>(condition.subconditions());
+
+      // Focus either the last subcondition index before this deletion, or the first subcondition.
+      // All other subconditions should be unfocused.
+      int autofocusedIndex = Integer.max(0, subconditionId.intValue() - 2);
+      subconditions.stream()
+          .forEach(subcondition -> subcondition.toBuilder().autofocus(false).build());
+      EditSubconditionPartialViewModel focusedSubcondition =
+          subconditions.get(autofocusedIndex).toBuilder().autofocus(true).build();
+      subconditions.set(autofocusedIndex, focusedSubcondition);
 
       return ok(subconditionListPartialView.render(
               request,
@@ -852,7 +871,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
                   .conditionId(conditionId)
-                  .subconditions(subconditions)
+                  .subconditions(ImmutableList.copyOf(subconditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
     } catch (ProgramBlockDefinitionNotFoundException

@@ -49,6 +49,7 @@ public record EditConditionPartialViewModel(
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)
         .valueOptions(valueOptions)
+        .autofocus(false)
         .build();
   }
 

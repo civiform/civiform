@@ -12,7 +12,6 @@
       th:hx-vals='|{"conditionId": "${model.conditions.size() + 1}"}|'
       hx-target="#predicate-conditions-list"
       hx-swap="outerHTML"
-      autofocus
     >
       <cf:icon type="icon-add" />
       [[#{button.predicateAddCondition}]]
