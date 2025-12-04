@@ -708,7 +708,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          programType.equals(ProgramType.COMMON_INTAKE_FORM) ? "Forms" : "Applications";
+          programType.equals(ProgramType.PRE_SCREENER_FORM) ? "Forms" : "Applications";
       ButtonTag button =
           makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
       return Optional.of(asRedirectElement(button, editLink));

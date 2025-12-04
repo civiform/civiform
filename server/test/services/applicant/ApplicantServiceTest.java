@@ -4066,7 +4066,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setAdminDescription("pre_screener_form")
                     .setExternalLink("https://usa.gov")
                     .setDisplayMode(DisplayMode.PUBLIC)
-                    .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+                    .setProgramType(ProgramType.PRE_SCREENER_FORM)
                     .setEligibilityIsGating(false)
                     .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
