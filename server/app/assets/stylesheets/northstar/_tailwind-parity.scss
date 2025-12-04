@@ -113,6 +113,8 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* Hide elements. In USWDS, the class for this is display-none, but hidden is used all over the app, so including it here for backwards compatibility. */
+
 .hidden {
   display: none;
 }

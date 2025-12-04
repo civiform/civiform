@@ -391,6 +391,8 @@ button.usa-button.usa-button--unstyled.htmx-request {
 }
 
 // Toast notification styles
+// If you make any changes here, you should also update the toast styles in
+// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
 .cf-toast-container {
   position: absolute;
   left: 50%;
