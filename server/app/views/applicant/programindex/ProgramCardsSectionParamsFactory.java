@@ -40,7 +40,7 @@ public final class ProgramCardsSectionParamsFactory {
   /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
     MY_APPLICATIONS,
-    COMMON_INTAKE,
+    PRE_SCREENER,
     UNFILTERED_PROGRAMS,
     RECOMMENDED, // Once filters are applied, these are programs that match the filters
     DEFAULT; // Used when the card section doesn't have any special style requirements.
