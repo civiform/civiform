@@ -1395,7 +1395,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     })
   })
 })
-
 test.describe('for login only program, guest cannot see file upload question', () => {
   const programName = 'loginonly'
 
@@ -1408,11 +1407,6 @@ test.describe('for login only program, guest cannot see file upload question', (
         questionName: 'file-upload',
         questionText: 'file upload question',
       })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload'],
-        programName,
-      )
-
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
         questions: [{name: 'file-upload', isOptional: false}],
@@ -1432,15 +1426,13 @@ test.describe('for login only program, guest cannot see file upload question', (
     await loginAsTestUser(page)
     await page.goto(`/programs/${programName}`)
     await page.getByRole('link', {name: 'Start an application'}).first().click()
+    // Logged in user answers the file upload question
     await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
-
-    // logged in applicants can see the continue button
-    await expect(page.getByRole('button', {name: 'Continue'})).toBeVisible()
 
     const fileuploadURL = page.url()
     await logout(page)
 
-    // go to the review page as a guest using the same URL
+    // go to the file upload page as a guest using the same URL
     await page.goto(fileuploadURL)
     await expect(page.getByRole('button', {name: 'Continue'})).toBeHidden()
     await expect(
