@@ -1936,7 +1936,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> ps.addBlockToProgram(1L))
+    assertThatThrownBy(() -> ps.addBlockToProgram(1L, Optional.empty()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -1946,7 +1946,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(programDefinition.id(), Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1978,7 +1978,7 @@ public class ProgramServiceTest extends ResetPostgres {
     long programId = programDefinition.id();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(programDefinition.id(), Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1992,6 +1992,28 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
     assertThat(found.blockDefinitions().get(1).id()).isEqualTo(addedBlock.id());
+  }
+
+  @Test
+  public void addBlockToProgram_withIsEnumerator_returnsProgramDefinitionWithEnumeratorBlock()
+      throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    long programId = programDefinition.id();
+
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id(), Optional.of(true));
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+
+    ProgramDefinition found = ps.getFullProgramDefinition(programId);
+
+    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+    assertThat(found.blockDefinitions().get(1).getIsEnumerator()).isEqualTo(true);
   }
 
   @Test
@@ -2742,7 +2764,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(programDefinition.id(), Optional.empty());
     Optional<LocalizedStrings> eligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
@@ -2764,7 +2786,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(programDefinition.id(), Optional.empty());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     Optional<LocalizedStrings> secondEligibilityMsg =

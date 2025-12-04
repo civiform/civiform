@@ -33,6 +33,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
 import views.components.ToastMessage;
 
@@ -116,19 +117,34 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public Result create(Request request, long programId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+
     Optional<Long> enumeratorId =
-        Optional.ofNullable(
-                formFactory
-                    .form()
-                    .bindFromRequest(request)
-                    .get(ProgramBlocksView.ENUMERATOR_ID_FORM_FIELD))
+        Optional.ofNullable(formData.get(ProgramBlocksView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
+
+    Optional<BlockType> blockType =
+        Optional.ofNullable(formData.get(ProgramBlocksView.BLOCK_TYPE_FORM_FIELD))
+            .flatMap(
+                s -> {
+                  try {
+                    return Optional.of(BlockType.valueOf(s));
+                  } catch (IllegalArgumentException e) {
+                    return Optional.empty();
+                  }
+                });
+
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
       if (enumeratorId.isPresent()) {
         result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
       } else {
-        result = programService.addBlockToProgram(programId);
+        result =
+            programService.addBlockToProgram(
+                programId,
+                BlockType.ENUMERATOR.equals(blockType.orElse(null))
+                    ? Optional.of(true)
+                    : Optional.empty());
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
