@@ -1452,7 +1452,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-          preScreenerForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -1495,7 +1495,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-          preScreenerForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -3504,9 +3504,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getPreScreenerForm_ignoresObsoletePrograms() {
     // No pre-screener form in the most recent version of any program, although some programs
     // were previously marked as pre-screener.
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.PRE_SCREENER_FORM)
-        .build();
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
@@ -3515,9 +3513,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getPreScreenerForm_activePreScreener() {
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.PRE_SCREENER_FORM)
-        .build();
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 
     assertThat(ps.getPreScreenerForm()).isPresent();
@@ -3526,9 +3522,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getPreScreenerForm_draftPreScreener() {
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.PRE_SCREENER_FORM)
-        .build();
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 

@@ -376,9 +376,8 @@ public final class ProgramService {
    * @param loginOnly true if only logged in applicants can apply to the program.
    * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link
-   *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be
-   *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
-   *     necessary.
+   *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be changed
+   *     to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if necessary.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -551,9 +550,9 @@ public final class ProgramService {
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if an applicant must be logged in before applying to a program.
    * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
-   *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM},
-   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
-   *     draft of it if necessary.
+   *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM}, that
+   *     program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new draft
+   *     of it if necessary.
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
