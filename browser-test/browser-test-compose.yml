@@ -31,5 +31,6 @@ services:
       - BASE_URL=${BASE_URL:-http://civiform:9000}
       - LOCALSTACK_URL=http://localhost.localstack.cloud:4566
       - CIVIFORM_TIME_ZONE_ID
+      - USE_BUNDLER_DEV_SERVER=false
     command: ~runBrowserTestsServer
     entrypoint: ./entrypoint.sh -jvm-debug "0.0.0.0:9457"
