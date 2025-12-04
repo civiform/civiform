@@ -367,7 +367,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             .setAdminDescription("")
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setProgramType(ProgramType.PRE_SCREENER_FORM)
             .setEligibilityIsGating(true)
             .setLoginOnly(false)
             .setAcls(new ProgramAcls())
