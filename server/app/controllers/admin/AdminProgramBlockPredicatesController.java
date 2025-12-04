@@ -83,6 +83,7 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 import views.admin.programs.predicates.SubconditionListPartialViewModel;
 import views.components.ToastMessage;
 import views.components.ToastMessage.ToastType;
+import views.html.helper.form;
 
 /**
  * Controller for admins editing and viewing program predicates for eligibility and visibility
@@ -953,7 +954,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 boolean shouldSelect =
                     valueIsAddress
                         ? displayText.equals(selectedValue.single())
-                        : valueIsAddress && isFirst.getAndSet(false);
+                        : isFirst.getAndSet(false);
                 return OptionElement.builder()
                     .value(entry.getKey())
                     .displayText(displayText)
@@ -1057,7 +1058,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             String.format("condition-%d-subcondition-%d", conditionId, subconditionId);
         subconditions.add(
             getParsedSubconditionFromFormData(
-                condition.emptySubconditionViewModel().toBuilder(),
+                condition.emptySubconditionViewModel(),
                 subconditionFieldPrefix,
                 availableQuestions,
                 formData));
@@ -1068,43 +1069,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     return ImmutableList.copyOf(editConditionModels);
-  }
-
-  /**
-   * Given formData from a dynamic form, find and return set of multi-value selections for the given
-   * subcondition, if any are present.
-   *
-   * <p>Expect that keys for multi-value inputs will be of format "-values[{valueNum}]"
-   *
-   * @param fieldNamePrefix: A prefix for the value field names. Expected to be of format:
-   *     "condition-{conditionId}-subcondition-{subconditionId}"
-   * @param formData: The dynamic form data, containing the user-entered multi-values (if present).
-   */
-  private ImmutableSet<String> getMultiValueSelectionsFromFormData(
-      String fieldNamePrefix, ImmutableMap<String, String> formData) {
-    // Find present input fields and return set of the IDs.
-    Pattern valuesIdPattern =
-        Pattern.compile(String.format("^%s-values\\[(\\d+)\\]", fieldNamePrefix));
-    ImmutableList<Long> presentValueInputNums =
-        ImmutableList.copyOf(
-            formData.keySet().stream()
-                .map(valuesIdPattern::matcher)
-                .filter(Matcher::find)
-                .map(match -> Long.parseLong(match.group(1)))
-                .collect(ImmutableSet.toImmutableSet()));
-
-    Set<String> valuesToReturn = new HashSet<>();
-
-    // Iterate through present input fields, collect all values.
-    for (Long inputNum : presentValueInputNums) {
-      String inputFieldName = String.format("%s-values[%d]", fieldNamePrefix, inputNum);
-
-      if (formData.containsKey(inputFieldName)) {
-        valuesToReturn.add(formData.get(inputFieldName));
-      }
-    }
-
-    return ImmutableSet.copyOf(valuesToReturn);
   }
 
   /**
@@ -1120,24 +1084,27 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    *   <li>Second value (for BETWEEN operator): "{fieldNamePrefix}-secondValue"
    * </ul>
    *
-   * @param emptyBuilder: An empty builder for an EditSubconditionPartialViewModel. Will be used to
+   * @param emptyModel An empty builder for an EditSubconditionPartialViewModel. Will be used to
    *     build the returned subcondition.
-   * @param fieldNamePrefix: A prefix for subcondition field names. Expected to be of format
+   * @param fieldNamePrefix A prefix for subcondition field names. Expected to be of format
    *     "condition-{conditionId}-subcondition-{subconditionId}".
-   * @param availableQuestions: All questions available in this program.
-   * @param formData: The dynamic form data, containing user-entered values for this subcondition.
+   * @param availableQuestions All questions available in this program.
+   * @param formData The dynamic form data, containing user-entered values for this subcondition.
    */
   private EditSubconditionPartialViewModel getParsedSubconditionFromFormData(
-      EditSubconditionPartialViewModelBuilder emptyBuilder,
+      EditSubconditionPartialViewModel emptyModel,
       String fieldNamePrefix,
       ImmutableList<QuestionDefinition> availableQuestions,
       ImmutableMap<String, String> formData) {
+    EditSubconditionPartialViewModelBuilder subconditionBuilder = emptyModel.toBuilder();
+
     // Set the user-selected question
     // If there isn't a question key present, something is misformatted and we should return
     // immediately.
-    String questionFieldValue = formData.get(fieldNamePrefix + "-question");
-    if (questionFieldValue == null | !StringUtils.isNumeric(questionFieldValue)) {
-      return emptyBuilder.build();
+    String questionFieldName = fieldNamePrefix + "-question";
+    String questionFieldValue = formData.get(questionFieldName);
+    if (!StringUtils.isNumeric(questionFieldValue) || !formData.containsKey(questionFieldName)) {
+      return subconditionBuilder.build();
     }
 
     Long questionId = Long.valueOf(questionFieldValue);
@@ -1146,13 +1113,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             .filter(question -> questionId.equals(question.getId()))
             .findFirst();
 
-    // (Optionally) set the user-selected operator and scalar
+    // (Optionally) set the user-selected operator and scalar.
     Optional<Operator> selectedOperatorOptional =
         optionallyGetEnumFromFormData(Operator.class, formData, fieldNamePrefix + "-operator");
     Optional<Scalar> selectedScalarOptional =
         optionallyGetEnumFromFormData(Scalar.class, formData, fieldNamePrefix + "-scalar");
 
-    // Get the user-entered values, defaulting to an empty string if not present.
+    // Get the user-entered values, if present. Empty string otherwise.
     String inputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-value"), "");
     String secondInputFieldValue =
         Objects.toString(formData.get(fieldNamePrefix + "-secondValue"), "");
@@ -1169,7 +1136,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             ? SelectedValue.multiple(multiValueSelections)
             : SelectedValue.single(inputFieldValue);
 
-    return emptyBuilder
+    return subconditionBuilder
         .selectedQuestionType(
             selectedQuestion.map(question -> question.getQuestionType().getLabel()))
         .questionOptions(getQuestionOptions(availableQuestions, selectedQuestion))
@@ -1185,6 +1152,37 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .userEnteredValue(inputFieldValue)
         .secondUserEnteredValue(secondInputFieldValue)
         .build();
+  }
+
+  /**
+   * Given formData from a dynamic form, find and return set of multi-value selections for the given
+   * subcondition, if any are present.
+   *
+   * @param fieldNamePrefix A prefix for the expected value field names, containing the condition
+   *     and subcondition IDs. Expected to be of format
+   *     "condition-{conditionId}-subcondition-{subconditionId}-values[{valueNum}]".
+   * @param formData The dynamic form data included in the top-level HTMX request. Contains
+   *     user-entered values.
+   */
+  private ImmutableSet<String> getMultiValueSelectionsFromFormData(
+      String fieldNamePrefix, ImmutableMap<String, String> formData) {
+    // Find present input fields and return set of the IDs.
+    Pattern valuesIdPattern =
+        Pattern.compile(String.format("^%s-values\\[(\\d+)\\]", fieldNamePrefix));
+    ImmutableList<Long> presentValueInputNums = getSortedMatchesFromKeys(valuesIdPattern, formData);
+
+    Set<String> valuesToReturn = new HashSet<>();
+
+    // Iterate through present input fields, collect all values.
+    for (Long inputNum : presentValueInputNums) {
+      String inputFieldName = String.format("%s-values[%d]", fieldNamePrefix, inputNum);
+
+      if (formData.containsKey(inputFieldName)) {
+        valuesToReturn.add(formData.get(inputFieldName));
+      }
+    }
+
+    return ImmutableSet.copyOf(valuesToReturn);
   }
 
   // Given a regex pattern keyPattern and a map, return a sorted list of matches between

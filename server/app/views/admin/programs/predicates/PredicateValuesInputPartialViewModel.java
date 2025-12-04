@@ -11,12 +11,14 @@ import views.admin.BaseViewModel;
  * Partial view for rendering PredicateValuesInputPartial.html. This partial is used for editing
  * subcondition values within a condition of a predicate.
  *
- * @param questionType: String representation of the {@link QuestionType} of the user-selected
+ * @param conditionId The condition ID for this predicate condition.
+ * @param subconditionId The subconditionId for this predicate subcondition.
+ * @param questionType String representation of the {@link QuestionType} of the user-selected
  *     question.
- * @param userEnteredValue: For question types that use HTML input elements, the user-entered value.
- * @param secondUserEnteredValue: The second user-entered value, for question types that use HTML
+ * @param userEnteredValue For question types that use HTML input elements, the user-entered value.
+ * @param secondUserEnteredValue The second user-entered value, for question types that use HTML
  *     input elements. Relevant for BETWEEN operators, which accept two inputs.
- * @param valueOptions: Selectable values, for question types that allow users to select from a set
+ * @param valueOptions Selectable values, for question types that allow users to select from a set
  *     of pre-configured values. Determined by the selected question.
  */
 @Builder(toBuilder = true)
