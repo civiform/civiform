@@ -100,11 +100,9 @@ class AdminPrograms {
     const externalLink = document.getElementById(
       'program-external-link-input',
     ) as HTMLInputElement
-    const isNorthstarEnabled = externalLink.dataset.northstarEnabled === 'true'
     const disableExternalLink =
       (programType === ProgramType.DEFAULT ||
-        programType === ProgramType.COMMON_INTAKE_FORM) &&
-      isNorthstarEnabled
+        programType === ProgramType.COMMON_INTAKE_FORM)
     this.updateTextFieldElementDisabledState(
       /* fieldElement= */ externalLink,
       /* shouldDisable= */ disableExternalLink,
