@@ -627,7 +627,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -652,7 +652,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ false,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -676,7 +676,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
@@ -717,7 +717,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
@@ -739,13 +739,13 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
 
     preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
@@ -1040,7 +1040,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableMap.of(),
-            ProgramType.COMMON_INTAKE_FORM);
+            ProgramType.PRE_SCREENER_FORM);
 
     assertThat(result).isEmpty();
   }
@@ -1094,7 +1094,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
     ImmutableSet<CiviFormError> errors =
         ps.checkApplicationStepErrors(
-                ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+                ProgramType.PRE_SCREENER_FORM, errorsBuilder, applicationSteps)
             .build();
 
     assertThat(errors.size()).isEqualTo(0);
@@ -1389,7 +1389,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1413,14 +1413,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
     preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
     assertThat(preScreenerForm.get().adminName()).isEqualTo(program.adminName());
@@ -1445,7 +1445,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1464,7 +1464,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1488,7 +1488,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1555,14 +1555,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
     assertThat(result.getResult().getBlockCount()).isEqualTo(2);
     assertThat(result.getResult().getBlockDefinitionByIndex(0).get().eligibilityDefinition())
         .isNotPresent();
@@ -2520,7 +2520,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram()
-            .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .withProgramType(ProgramType.PRE_SCREENER_FORM)
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .buildDefinition();
@@ -2528,7 +2528,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatExceptionOfType(EligibilityNotValidForProgramTypeException.class)
         .isThrownBy(
             () -> ps.setBlockEligibilityDefinition(program.id(), 1L, Optional.of(eligibility)))
-        .withMessage("Eligibility conditions cannot be set for ProgramType COMMON_INTAKE_FORM");
+        .withMessage("Eligibility conditions cannot be set for ProgramType PRE_SCREENER_FORM");
   }
 
   @Test
@@ -3505,9 +3505,9 @@ public class ProgramServiceTest extends ResetPostgres {
     // No pre-screener form in the most recent version of any program, although some programs
     // were previously marked as pre-screener.
     ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .withProgramType(ProgramType.PRE_SCREENER_FORM)
         .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
     assertThat(ps.getPreScreenerForm()).isNotPresent();
@@ -3516,9 +3516,9 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getPreScreenerForm_activePreScreener() {
     ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .withProgramType(ProgramType.PRE_SCREENER_FORM)
         .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 
     assertThat(ps.getPreScreenerForm()).isPresent();
     assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
@@ -3527,10 +3527,10 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getPreScreenerForm_draftPreScreener() {
     ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .withProgramType(ProgramType.PRE_SCREENER_FORM)
         .build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
-    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 
     assertThat(ps.getPreScreenerForm()).isPresent();
     assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
