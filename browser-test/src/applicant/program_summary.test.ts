@@ -2,6 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
+  loginAsTestUser,
   selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
@@ -225,5 +226,66 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       expect(downloadedFileContent).toEqual(fileContent)
     })
+  })
+})
+
+test.describe('guest cannot see program summary page for login only program', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'name',
+        universal: true,
+      })
+
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'First block',
+        questions: [{name: 'name', isOptional: false}],
+      })
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+  })
+
+  test('guest user on landing in the review page, only sees the alert', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+    await page.getByRole('link', {name: 'Start an application'}).first().click()
+    await applicantQuestions.answerNameQuestion('test', 'user')
+    await applicantQuestions.clickContinue()
+
+    // logged in applicants can go to the review page
+    await applicantQuestions.expectTitle(
+      page,
+      'Program application summary — loginonly',
+    )
+
+    const reviewPageURL = page.url()
+    await logout(page)
+
+    // go to the review page as a guest using the same URL
+    await page.goto(reviewPageURL)
+    await expect(page.getByText('name')).toBeHidden()
+    await expect(
+      page.getByRole('heading', {
+        name: 'You must log in to apply for this program',
+      }),
+    ).toBeVisible()
+    await expect(
+      page.getByText(
+        'Please log in or create an account to continue with this application.',
+      ),
+    ).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 })

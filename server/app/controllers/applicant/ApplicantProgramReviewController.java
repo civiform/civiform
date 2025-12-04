@@ -246,6 +246,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                   .setEligibilityAlertSettings(eligibilityAlertSettings)
                                   .setSummaryData(summaryData)
                                   .setProgramType(roApplicantProgramService.getProgramType())
+                                  .setLoginOnly(
+                                      roApplicantProgramService
+                                          .isProgramOnlyForLoggedInApplicants())
                                   .build();
                           return ok(northStarSummaryView.render(request, northStarParams))
                               .as(Http.MimeTypes.HTML);
