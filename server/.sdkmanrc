@@ -1,0 +1,9 @@
+# Enable auto-env through the sdkman_auto_env config
+# To enable, run: sdk config sdkman_auto_env true
+
+# Java version (Eclipse Temurin)
+java=25.0.1-tem
+
+# Scala version
+scala=2.13.18
+

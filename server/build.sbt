@@ -95,8 +95,10 @@ lazy val root = (project in file("."))
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
-      "com.google.auto.value" % "auto-value" % "1.11.1",
-
+      "com.google.auto.value" % "auto-value" % "1.11.1" % "provided" exclude (
+        "com.google.auto.value",
+        "auto-value-shaded"
+      ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.53.0",
@@ -138,7 +140,8 @@ lazy val root = (project in file("."))
       "com.networknt" % "json-schema-validator" % "2.0.1",
 
       // Logstash to write JSON formatted log lines with logback
-      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.1",
+      "org.projectlombok" % "lombok" % "1.18.42" % "provided"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -149,6 +152,10 @@ lazy val root = (project in file("."))
         "-Xlint:deprecation",
         "-XDcompilePolicy=simple",
         "-implicit:class",
+        // "-processor", "com.google.auto.value.processor.AutoValueProcessor",
+        // "-processor", "com.google.auto.value.processor.AutoValueProcessor,lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
+        "-processor",
+        "com.google.auto.value.processor.AutoValueProcessor,com.google.auto.value.processor.AutoOneOfProcessor,lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
         // The compile option below is a hack that preserves generated files. Normally,
         // AutoValue generates .java files, compiles them into .class files, and then deletes
         // the .java files. This option keeps the .java files in the specified directory,
