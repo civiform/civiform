@@ -42,6 +42,13 @@ public class BlockDefinitionTest {
   }
 
   @Test
+  public void getIsEnumerator_isFalse() {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.getIsEnumerator()).isFalse();
+  }
+
+  @Test
   public void isRepeated_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
@@ -71,6 +78,21 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.hasEnumeratorQuestion()).isTrue();
+  }
+
+  @Test
+  public void getIsEnumerator_isTrue() {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .setIsEnumerator(Optional.of(true))
+            .build();
+
+    assertThat(blockDefinition.getIsEnumerator()).isTrue();
   }
 
   @Test
