@@ -15,7 +15,7 @@ import {
 import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
-test.describe('program creation', {tag: ['@northstar']}, () => {
+test.describe('program creation', () => {
   // TODO(#10363): Remove test once external program cards feature is rolled out
   test('create program page', async ({
     page,

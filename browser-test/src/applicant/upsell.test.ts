@@ -14,7 +14,7 @@ import {
 } from '../support'
 import {Page} from 'playwright'
 
-test.describe('Upsell tests', {tag: ['@northstar']}, () => {
+test.describe('Upsell tests', () => {
   const programName = 'Sample program'
   const customConfirmationMarkup =
     '**Custom** confirmation message for sample program'

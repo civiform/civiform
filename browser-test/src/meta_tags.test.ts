@@ -1,6 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 
-test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
+test.describe('navigating to a deep link', () => {
   test('has civiform build tag', async ({page, applicantQuestions}) => {
     await applicantQuestions.gotoApplicantHomePage()
 

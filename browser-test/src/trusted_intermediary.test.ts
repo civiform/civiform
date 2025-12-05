@@ -12,7 +12,7 @@ import {
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
 
-test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('sees client name and link in sub-banner while applying on behalf of applicant', async ({
     page,
     tiDashboard,

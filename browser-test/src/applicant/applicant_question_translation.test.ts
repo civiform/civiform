@@ -6,7 +6,7 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
+test.describe('Admin can manage translations', () => {
   test('Expect single-answer question is translated for applicant', async ({
     page,
     adminPrograms,

@@ -9,7 +9,7 @@ import {
 import {Eligibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   test.describe('navigation with eligibility conditions', () => {
     // Create a program with 3 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'

@@ -1,7 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
-test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
+test.describe('admin preview as applicant', () => {
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
   })

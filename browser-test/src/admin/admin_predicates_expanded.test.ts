@@ -4,7 +4,7 @@ import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
 import {Locator} from 'playwright'
 
-test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
+test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'expanded_form_logic_enabled')
   })
