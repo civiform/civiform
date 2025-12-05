@@ -45,7 +45,6 @@ public record EditConditionPartialViewModel(
         .blockId(blockId)
         .predicateUseCase(predicateUseCase)
         .selectedQuestionType(Optional.empty())
-        .selectedOperator(Optional.empty())
         .questionOptions(questionOptions)
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)

@@ -1,6 +1,6 @@
 <th:block
-  th:fragment="predicateValues(questionType, valueOptions, conditionId, subconditionId, hasSelectedQuestion)"
-  th:with="subconditionPrefix=${'condition-' + conditionId + '-subcondition-' + subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, firstValueInputGroupId=${subconditionPrefix + '-firstValueGroup'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}, multiValueInputId=${subconditionPrefix + '-values'}"
+  th:fragment="predicateValues(model)"
+  th:with="subconditionPrefix=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, firstValueInputGroupId=${subconditionPrefix + '-firstValueGroup'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}, multiValueInputId=${subconditionPrefix + '-values'}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
@@ -9,32 +9,32 @@
       ></label
     >
     <th:block
-      th:if="${questionType.isPresent()}"
-      th:switch="${questionType.get()}"
+      th:if="${model.questionType.isPresent()}"
+      th:switch="${model.questionType.get()}"
     >
       <th:block th:case="'Address'">
         <div
-          th:replace="~{::addressValuesInput(${valueOptions}, ${valueInputId})}"
+          th:replace="~{::addressValuesInput(${model.valueOptions}, ${valueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Checkbox'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Currency'">
         <div
-          th:replace="~{::currencyValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::currencyValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
       <th:block th:case="'Date'">
         <div
-          th:replace="~{::dateValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::dateValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
       <th:block th:case="'Dropdown'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Email'">
@@ -54,12 +54,12 @@
       </th:block>
       <th:block th:case="'Number'">
         <div
-          th:replace="~{::numberValuesInput(${valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::numberValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
         ></div>
       </th:block>
       <th:block th:case="'Radio Button'">
         <div
-          th:replace="~{::multiValuesInput(${valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
         ></div>
       </th:block>
       <th:block th:case="'Text'">
@@ -68,16 +68,16 @@
         ></div>
       </th:block>
     </th:block>
-    <th:block th:unless="${questionType.isPresent()}">
+    <th:block th:unless="${model.questionType.isPresent()}">
       <select
         class="usa-select"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
-        th:disabled="${!hasSelectedQuestion}"
+        th:disabled="${!model.hasSelectedQuestion}"
       >
         <option
-          th:selected="${!hasSelectedQuestion}"
-          th:hidden="${hasSelectedQuestion}"
+          th:selected="${!model.hasSelectedQuestion}"
+          th:hidden="${model.hasSelectedQuestion}"
           th:text="#{option.selectPlaceholder}"
         ></option>
       </select>
@@ -114,6 +114,7 @@
       th:name="${valueInputId}"
       required
       aria-invalid="false"
+      th:value="${model.userEnteredValue}"
       data-currency-value
     />
   </div>
@@ -130,6 +131,7 @@
         th:name="${secondValueInputId}"
         required
         aria-invalid="false"
+        th:value="${model.secondUserEnteredValue}"
         data-currency-value
       />
     </div>
@@ -154,6 +156,7 @@
         inputmode="numeric"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
         data-date-value
@@ -166,6 +169,7 @@
         inputmode="numeric"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -178,6 +182,7 @@
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -193,6 +198,7 @@
         inputmode="numeric"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
+        th:value="${model.secondUserEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -204,6 +210,7 @@
         inputmode="numeric"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
+        th:value="${model.secondUserEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -226,6 +233,7 @@
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
         data-email-value
@@ -238,6 +246,7 @@
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -253,9 +262,10 @@
         <input
           class="usa-checkbox__input usa-checkbox__input--tile"
           type="checkbox"
-          th:value="${valueStat.count}"
+          th:value="${valueOption.value}"
           th:name="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
           th:id="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+          th:checked="${valueOption.selected}"
           data-multi-input-value
         />
         <label
@@ -286,6 +296,7 @@
         inputmode="decimal"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
         data-number-value
@@ -299,6 +310,7 @@
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
+        th:value="${model.userEnteredValue}"
         required
         aria-invalid="false"
       />
@@ -313,6 +325,7 @@
       inputmode="decimal"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
+      th:value="${model.secondUserEnteredValue}"
       required
       aria-invalid="false"
     />
@@ -333,6 +346,7 @@
       inputmode="text"
       th:id="${valueInputId}"
       th:name="${valueInputId}"
+      th:value="${model.userEnteredValue}"
       required
       aria-invalid="false"
     />

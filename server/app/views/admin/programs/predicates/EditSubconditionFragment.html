@@ -103,7 +103,7 @@
         </div>
       </div>
       <div
-        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.selectedQuestionType}, ${model.valueOptions}, ${conditionId}, ${subconditionId}, ${model.hasSelectedQuestion})}"
+        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.predicateValuesInputModel(conditionId, subconditionId)})}"
       ></div>
       <div class="width-full display-inline-block">
         <button
