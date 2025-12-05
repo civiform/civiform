@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
-import java.net.URL;
+import java.net.URI;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
-      return new URL(signedUrl).toString();
+      return URI.create(signedUrl).toURL().toString();
     } catch (java.net.MalformedURLException e) {
       throw new RuntimeException(e);
     }
