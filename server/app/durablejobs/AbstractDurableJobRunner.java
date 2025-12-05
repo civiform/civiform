@@ -81,7 +81,7 @@ public abstract class AbstractDurableJobRunner {
    * <p>{@code synchronized} to avoid overlapping executions within the same server.
    */
   public synchronized void runJobs() {
-    logger.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
+    logger.info("JobRunner_Start thread ID={}", Thread.currentThread().threadId());
 
     Transaction transaction = database.beginTransaction();
     Optional<PersistedDurableJobModel> maybeJobToRun = getJobForExecution();
@@ -97,7 +97,7 @@ public abstract class AbstractDurableJobRunner {
     }
     transaction.close();
 
-    logger.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
+    logger.info("JobRunner_Stop thread_ID={}", Thread.currentThread().threadId());
   }
 
   private void notifyUponFinalFailure(PersistedDurableJobModel job) {
@@ -124,7 +124,7 @@ public abstract class AbstractDurableJobRunner {
     LocalDateTime startTime = nowProvider.get();
     logger.info(
         "JobRunner_ExecutingJob thread_ID={}, job_name=\"{}\", job_ID={}",
-        Thread.currentThread().getId(),
+        Thread.currentThread().threadId(),
         persistedDurableJob.getJobName(),
         persistedDurableJob.id);
 
