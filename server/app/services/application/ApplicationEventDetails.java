@@ -95,7 +95,7 @@ public abstract class ApplicationEventDetails {
       public abstract Builder setStatusText(String statusText);
 
       @JsonProperty("email_sent")
-      public abstract Builder setEmailSent(Boolean emailSent);
+      public abstract Builder setEmailSent(boolean emailSent);
 
       public abstract StatusEvent build();
     }

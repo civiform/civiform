@@ -1519,7 +1519,7 @@ public final class ApplicantService {
     public abstract static class Builder {
       protected abstract Builder setProgram(ProgramDefinition v);
 
-      public abstract Builder setCurrentApplicationProgramId(Long programId);
+      public abstract Builder setCurrentApplicationProgramId(long programId);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
