@@ -1,7 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
 
-test.describe('Admin question preview', {tag: ['@northstar']}, () => {
+test.describe('Admin question preview', () => {
   const questionName = 'test-question'
 
   test.beforeEach(async ({page}) => {

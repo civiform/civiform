@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('address applicant flow', {tag: ['@northstar']}, () => {
+test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 

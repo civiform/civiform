@@ -11,7 +11,7 @@ import {
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
 
-test.describe('Applicant auth', {tag: ['@northstar']}, () => {
+test.describe('Applicant auth', () => {
   const endYourSessionText = 'end your session'
 
   test('Applicant can login', async ({page}) => {

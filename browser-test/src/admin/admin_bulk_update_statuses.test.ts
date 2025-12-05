@@ -14,7 +14,7 @@ import {
   AdminProgramStatuses,
 } from '../support'
 
-test.describe('with program statuses', {tag: ['@northstar']}, () => {
+test.describe('with program statuses', () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
   const rejectedStatusName = 'Rejected'

@@ -10,7 +10,7 @@ import {
   validateScreenshot,
 } from './support'
 
-test.describe('Header', {tag: ['@northstar']}, () => {
+test.describe('Header', () => {
   test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await disableFeatureFlag(page, 'login_dropdown_enabled')
 

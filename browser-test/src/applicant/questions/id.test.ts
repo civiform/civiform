@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
+test.describe('Id question for applicant flow', () => {
   test.describe('single id question', () => {
     const programName = 'Test program for single id'
 

@@ -12,7 +12,7 @@ import {
   ProgramVisibility,
 } from '../support/admin_programs'
 
-test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
+test.describe('Admin can manage program image', () => {
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
   })
@@ -446,41 +446,36 @@ test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
       await adminPrograms.goToProgramImagePage(programName)
     })
 
-    test(
-      'shows uploaded image before submitting',
-      {tag: ['@northstar']},
-      async ({page, adminProgramImage}) => {
-        await adminProgramImage.setImageFile(
-          'src/assets/program-summary-image-wide.png',
-        )
+    test('shows uploaded image before submitting', async ({
+      page,
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
 
-        await validateScreenshot(page, 'program-image-with-image-before-save')
-      },
-    )
+      await validateScreenshot(page, 'program-image-with-image-before-save')
+    })
 
-    test(
-      'deletes existing image',
-      {tag: ['@northstar']},
-      async ({page, adminProgramImage}) => {
-        await adminProgramImage.setImageFileAndSubmit(
-          'src/assets/program-summary-image-wide.png',
-        )
-        await dismissToast(page)
-        await adminProgramImage.expectProgramImagePage()
-        await adminProgramImage.expectImagePreview()
+    test('deletes existing image', async ({page, adminProgramImage}) => {
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await dismissToast(page)
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectImagePreview()
 
-        await adminProgramImage.clickDeleteImageButton()
-        await validateScreenshot(page, 'delete-image-confirmation-modal')
+      await adminProgramImage.clickDeleteImageButton()
+      await validateScreenshot(page, 'delete-image-confirmation-modal')
 
-        await adminProgramImage.confirmDeleteImageButton()
+      await adminProgramImage.confirmDeleteImageButton()
 
-        await adminProgramImage.expectProgramImagePage()
-        await validateToastMessage(
-          page,
-          adminProgramImage.imageRemovedToastMessage(),
-        )
-        await adminProgramImage.expectNoImagePreview()
-      },
-    )
+      await adminProgramImage.expectProgramImagePage()
+      await validateToastMessage(
+        page,
+        adminProgramImage.imageRemovedToastMessage(),
+      )
+      await adminProgramImage.expectNoImagePreview()
+    })
   })
 })

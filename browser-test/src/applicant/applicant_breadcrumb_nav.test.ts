@@ -1,7 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, logout, validateAccessibility} from '../support'
 
-test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
+test.describe('Applicant breadcrumb navigation', () => {
   const programName = 'Test program for breadcrumb navigation'
   const programDescription = 'Test description'
   const staticQuestionText = 'static question text'

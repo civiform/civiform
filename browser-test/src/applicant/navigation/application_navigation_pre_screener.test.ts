@@ -14,7 +14,7 @@ import {
 import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   test.describe('navigation with pre-screener', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'

@@ -8,7 +8,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 
-test.describe('Admin question list', {tag: ['@northstar']}, () => {
+test.describe('Admin question list', () => {
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,

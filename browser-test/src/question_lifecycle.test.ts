@@ -9,7 +9,7 @@ import {
 import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
-test.describe('normal question lifecycle', {tag: ['@northstar']}, () => {
+test.describe('normal question lifecycle', () => {
   test('sample question seeding works', async ({
     page,
     adminQuestions,

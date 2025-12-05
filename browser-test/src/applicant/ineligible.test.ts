@@ -10,7 +10,7 @@ import {
   selectApplicantLanguageNorthstar,
 } from '../support'
 
-test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
+test.describe('North Star Ineligible Page Tests', () => {
   const programName = 'Pet Assistance Program'
   const eligibilityQuestionId = 'eligibility-q'
   const questionText = 'How many pets do you have?'

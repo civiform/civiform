@@ -8,7 +8,7 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
+test.describe('Applicant block edit', () => {
   const programName = 'Test program for block edit page'
   const programDescription = 'Test description'
   const dateQuestionText = 'date question text'

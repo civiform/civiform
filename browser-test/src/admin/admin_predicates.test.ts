@@ -13,7 +13,7 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
+test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'expanded_form_logic_enabled')
   })
