@@ -1,8 +1,8 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
-  logout,
   loginAsTestUser,
+  logout,
   selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
@@ -228,7 +228,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     })
   })
 })
-
 test.describe('guest cannot see program summary page for login only program', () => {
   const programName = 'loginonly'
 
