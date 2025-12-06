@@ -20,7 +20,19 @@
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
 
-      <div class="grid-container">
+      <div
+        th:if="${loginOnly and isGuest}"
+        class="grid-container padding-top-4"
+      >
+        <div
+          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+        ></div>
+      </div>
+
+      <div
+        class="grid-container"
+        th:if="${!loginOnly or (loginOnly and !isGuest)}"
+      >
         <div class="grid-row">
           <div class="tablet:grid-col-8">
             <div class="section-external">
