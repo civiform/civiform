@@ -757,6 +757,11 @@ alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa 
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa screen na ito kung saan magtatakda ng kondisyon sa pagiging karapat-dapat.
 
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -1009,7 +1014,7 @@ map.locationLinkText=Tingnan ang higit pang detalye
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Tingnan ang higit pang detalye para sa {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Ipinapakita ang {0} sa {1} (na) lokasyon
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} sa {1} na maximum na lokasyon ang napili.
 # Alt text for map region
