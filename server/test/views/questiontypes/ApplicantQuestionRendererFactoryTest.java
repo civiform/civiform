@@ -20,7 +20,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import support.cloud.FakeApplicantStorageClient;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.fileupload.GenericS3FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
@@ -43,15 +42,8 @@ public class ApplicantQuestionRendererFactoryTest {
       return;
     }
 
-    var applicantRoutes = new ApplicantRoutes();
-
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(
-                new GenericS3FileUploadViewStrategy(),
-                applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+        new ApplicantQuestionRendererFactory();
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -71,16 +63,9 @@ public class ApplicantQuestionRendererFactoryTest {
       return;
     }
 
-    var applicantRoutes = new ApplicantRoutes();
-
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(
-            new ApplicantFileUploadRenderer(
-                new GenericS3FileUploadViewStrategy(),
-                applicantRoutes,
-                new FakeApplicantStorageClient(),
-                new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
+        new ApplicantQuestionRendererFactory();
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
