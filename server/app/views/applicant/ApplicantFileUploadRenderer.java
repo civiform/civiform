@@ -230,7 +230,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
 
     Optional<ApplicantQuestion> fileUploadQuestion =
-        params.block().getQuestions().stream()
+        params.block().getVisibleQuestions().stream()
             .filter(question -> question.isFileUploadQuestion())
             .findFirst();
 
@@ -295,7 +295,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .with(makeCsrfTokenInputTag(params.request()))
             .with(
                 each(
-                    params.block().getQuestions(),
+                    params.block().getVisibleQuestions(),
                     question -> renderFileKeyField(question, rendererParams)));
     FormTag deleteForm =
         form()
@@ -305,7 +305,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .with(makeCsrfTokenInputTag(params.request()))
             .with(
                 each(
-                    params.block().getQuestions(),
+                    params.block().getVisibleQuestions(),
                     question -> renderEmptyFileKeyField(question, rendererParams)));
     return div(continueForm, deleteForm).withClasses("hidden");
   }

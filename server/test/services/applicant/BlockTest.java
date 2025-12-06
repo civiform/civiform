@@ -54,6 +54,17 @@ public class BlockTest {
               .setId(OptionalLong.of(123L))
               .setLastModifiedTime(Optional.empty())
               .build());
+  private static final TextQuestionDefinition HIDDEN_TEXT_QUESTION =
+      new TextQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("hidden text question")
+              .setDescription("A hidden text question for testing")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "Hidden question"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+              .setId(OptionalLong.of(999L))
+              .setLastModifiedTime(Optional.empty())
+              .setDisplayMode(models.QuestionDisplayMode.HIDDEN)
+              .build());
 
   @Test
   public void createNewBlock() {
@@ -70,7 +81,7 @@ public class BlockTest {
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
-    assertThat(block.getQuestions()).isEmpty();
+    assertThat(block.getVisibleQuestions()).isEmpty();
     assertThat(block.hasErrors()).isFalse();
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
@@ -127,7 +138,7 @@ public class BlockTest {
   }
 
   @Test
-  public void getQuestions_returnsCorrectApplicantQuestions() {
+  public void getQuestions_returnsCorrectApplicantVisibleQuestions() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantModel applicant = new ApplicantModel();
     ApplicantData applicantData = new ApplicantData();
@@ -138,7 +149,7 @@ public class BlockTest {
         ImmutableList.of(
             new ApplicantQuestion(NAME_QUESTION, applicant, applicantData, Optional.empty()),
             new ApplicantQuestion(COLOR_QUESTION, applicant, applicantData, Optional.empty()));
-    assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
+    assertThat(block.getVisibleQuestions()).containsExactlyElementsOf(expected);
   }
 
   @Test
@@ -574,14 +585,14 @@ public class BlockTest {
     Block block =
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId, 1L));
 
     assertThat(block.hasErrors()).isTrue();
     // Check that there is a required error for a question in the block.
     assertThat(
-            block.getQuestions().stream()
+            block.getVisibleQuestions().stream()
                 .anyMatch(
                     q ->
                         q
@@ -616,7 +627,7 @@ public class BlockTest {
     Block block =
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId + 1, 1L));
 
@@ -707,9 +718,9 @@ public class BlockTest {
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
     QuestionAnswerer.answerNumberQuestion(
-        applicantData, block.getQuestions().get(0).getContextualizedPath(), "5");
+        applicantData, block.getVisibleQuestions().get(0).getContextualizedPath(), "5");
     QuestionAnswerer.answerTextQuestion(
-        applicantData, block.getQuestions().get(1).getContextualizedPath(), "brown");
+        applicantData, block.getVisibleQuestions().get(1).getContextualizedPath(), "brown");
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -935,6 +946,177 @@ public class BlockTest {
     Optional<ApplicantQuestion> addressQuestion = block.getAddressQuestionWithCorrectionEnabled();
     assertThat(addressQuestion.isPresent()).isTrue();
     assertThat(addressQuestion.get().isAddressCorrectionEnabled()).isTrue();
+  }
+
+  @Test
+  public void getQuestions_filtersOutHiddenQuestions() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.of(programId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.of(programId)))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    // Should return visible questions
+    assertThat(block.getVisibleQuestions()).hasSize(2);
+
+    // getQuestions should filter out the HIDDEN question
+    ImmutableList<ApplicantQuestion> visibleQuestions = block.getVisibleQuestions();
+    assertThat(visibleQuestions).hasSize(2);
+    assertThat(
+            visibleQuestions.stream()
+                .map(q -> q.getQuestionDefinition().getName())
+                .collect(ImmutableList.toImmutableList()))
+        .containsExactly("applicant name", "applicant favorite color");
+  }
+
+  @Test
+  public void blockWithHiddenQuestion_canBeCompletedWithoutAnsweringHiddenQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.of(programId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    // Block should not be complete when visible question is unanswered
+    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+
+    // Answer only the visible question (not the hidden one)
+    answerNameQuestion(applicantData, programId);
+
+    // Block should now be complete even though hidden question is not answered
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void blockWithOnlyHiddenQuestions_isCompleteWithoutAnswers() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    // Create a second HIDDEN question
+    TextQuestionDefinition hiddenQuestion2 =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("hidden text question 2")
+                .setDescription("A second hidden text question for testing")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Hidden question 2"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+                .setId(OptionalLong.of(998L))
+                .setLastModifiedTime(Optional.empty())
+                .setDisplayMode(models.QuestionDisplayMode.HIDDEN)
+                .build());
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(
+                ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
+            .addQuestion(ProgramQuestionDefinition.create(hiddenQuestion2, Optional.of(programId)))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    // Block with only hidden questions should be complete without any answers
+    // because getQuestions().isEmpty() returns true
+    assertThat(block.getVisibleQuestions()).isEmpty();
+    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void getQuestions_withMixOfVisibleAndHidden_onlyReturnsVisible() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    // Create a second HIDDEN question
+    TextQuestionDefinition hiddenQuestion2 =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("hidden text question 2")
+                .setDescription("A second hidden text question for testing")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Hidden question 2"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+                .setId(OptionalLong.of(998L))
+                .setLastModifiedTime(Optional.empty())
+                .setDisplayMode(models.QuestionDisplayMode.HIDDEN)
+                .build());
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.of(programId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.of(programId)))
+            .addQuestion(ProgramQuestionDefinition.create(hiddenQuestion2, Optional.of(programId)))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    // Should have 4 total questions
+    assertThat(block.getAllQuestions()).hasSize(4);
+    // Should only return 2 visible questions
+    assertThat(block.getVisibleQuestions()).hasSize(2);
+    assertThat(
+            block.getVisibleQuestions().stream()
+                .map(q -> q.getQuestionDefinition().getName())
+                .collect(ImmutableList.toImmutableList()))
+        .containsExactly("applicant name", "applicant favorite color");
+  }
+
+  @Test
+  public void hasErrors_onlyChecksVisibleQuestions() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.of(programId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    answerNameQuestion(applicantData, programId);
+
+    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {
