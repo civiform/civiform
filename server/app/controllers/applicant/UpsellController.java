@@ -83,7 +83,7 @@ public final class UpsellController extends CiviFormController {
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    CompletableFuture<Boolean> isCommonIntake =
+    CompletableFuture<Boolean> isPreScreener =
         programService
             .getFullProgramDefinitionAsync(programId)
             .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
@@ -111,11 +111,11 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
-            isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
+            isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
-              if (!isCommonIntake.join()) {
-                // Only the common intake form needs to get the applicant's eligible
+              if (!isPreScreener.join()) {
+                // Only the pre-screener form needs to get the applicant's eligible
                 // programs this way.
                 Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
                 return CompletableFuture.completedFuture(result);
@@ -160,7 +160,7 @@ public final class UpsellController extends CiviFormController {
                       .setApplicantId(applicantId)
                       .setDateSubmitted(formattedDate);
 
-              if (isCommonIntake.join()) {
+              if (isPreScreener.join()) {
                 UpsellParams upsellParams =
                     paramsBuilder
                         .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
