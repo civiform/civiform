@@ -63,42 +63,15 @@ jobs:
       - name: Run tests
         run: bin/run-ts-tests
 
-  # Dynamically builds the matrix for the next job. Defaults to only aws. If the
-  # branch name contains azure we'll run against both aws and azure.
-  setup-browser-test-matrix:
-    runs-on: ubuntu-latest
-
-    outputs:
-      matrix: ${{ steps.build-matrix.outputs.matrix }}
-
-    steps:
-      - id: build-matrix
-        env:
-          # To get the branch name that we want we have to consider the event type. A PR will
-          # use the head_ref whereas a push event (i.e. pushing an approve pr to main) needs
-          # to look at the ref_name.
-          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-        run: |
-          # Temporarily ignore errors so we can check grep for matches
-          set +e
-          echo "BranchName: ${{ env.BRANCH_NAME }}"
-          echo "${{ env.BRANCH_NAME }}" | grep --quiet --ignore-case "azure"
-          if [[ $? -eq 0 ]]; then
-              matrix='{"cloud": ["aws", "azure"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
-          else
-              matrix='{"cloud": ["aws"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
-          fi
-          # Re-enable error checking
-          set -e
-          echo "matrix=${matrix}"
-          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
-
   run_browser_tests:
-    needs: setup-browser-test-matrix
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup-browser-test-matrix.outputs.matrix) }}
+      matrix:
+        cloud: ["aws", "azure"]
+        shard_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
+    env:
+      SHARD_TOTAL: 10
     steps:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
@@ -142,9 +115,9 @@ jobs:
           CI: true
         run: |
           if [[ "${{ matrix.cloud }}" == "azure" ]]; then
-            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ strategy.job-total }}" --grep-invert "@skip-on-azure"
+            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ env.SHARD_TOTAL }}" --grep-invert "@skip-on-azure"
           else
-            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ strategy.job-total }}"
+            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ env.SHARD_TOTAL }}"
           fi
 
       # We'll treat aws as the source of truth for images snapshots. Attempts to run both will
