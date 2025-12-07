@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.MessageKey;
@@ -184,6 +185,12 @@ public final class DateQuestion extends AbstractQuestion {
     if (dateValue.isEmpty() && isPaiQuestion()) {
       dateValue = getApplicantQuestion().getApplicant().getDateOfBirth();
     }
+    
+    // Autofill with current date if both minDate and maxDate are APPLICATION_DATE
+    if (dateValue.isEmpty() && shouldAutofillWithCurrentDate()) {
+      dateValue = Optional.of(LocalDate.now(ZoneId.systemDefault()));
+    }
+    
     return dateValue;
   }
 
@@ -213,5 +220,21 @@ public final class DateQuestion extends AbstractQuestion {
     return applicantQuestion
         .getQuestionDefinition()
         .containsPrimaryApplicantInfoTag(PrimaryApplicantInfoTag.APPLICANT_DOB);
+  }
+
+  /**
+   * This method will check to see if the date field should be autofilled with the current date.
+   * This will occer only when both minDate and maxDate are set to APPLICATION_DATE and
+   * there is no existing applicant date value.
+   */
+  private boolean shouldAutofillWithCurrentDate() {
+    DateQuestionDefinition definition = getQuestionDefinition();
+    Optional<DateValidationOption> minDate = definition.getMinDate();
+    Optional<DateValidationOption> maxDate = definition.getMaxDate();
+    
+    return minDate.isPresent() 
+        && maxDate.isPresent()
+        && minDate.get().dateType() == APPLICATION_DATE
+        && maxDate.get().dateType() == APPLICATION_DATE;
   }
 }
