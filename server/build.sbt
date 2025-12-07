@@ -66,7 +66,7 @@ lazy val root = (project in file("."))
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.6" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.27.6" % Test,
+
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
@@ -116,7 +116,7 @@ lazy val root = (project in file("."))
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
-      // Override defaul Play logback version. We need to use logback
+      // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
       "ch.qos.logback" % "logback-classic" % "1.5.21",
 
@@ -174,7 +174,7 @@ lazy val root = (project in file("."))
     },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >30% files have changed, to help avoid infinate
+    // Recompile everything if >30% files have changed, to help avoid infinite
     // incremental compilation.
     // (but still allow some incremental building for speed.)
     incOptions := incOptions.value.withRecompileAllFraction(.3),
