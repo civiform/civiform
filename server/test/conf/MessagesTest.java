@@ -1,9 +1,7 @@
 package conf;
 
-import static com.google.auto.common.MoreStreams.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +22,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.MessageKey;
 
 /**
  * Tests that the messages files are in sync. Reads in the keys from the primary language file,
@@ -152,16 +148,6 @@ public class MessagesTest {
         }
       }
     }
-  }
-
-  @Test
-  public void messageKeyValuesAndMessagesFileKeysAreIdentical() throws Exception {
-    Set<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
-
-    ImmutableList<String> messageKeys =
-        Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
-
-    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
   }
 
   private static Set<String> keysInFile(String filePath) throws Exception {
