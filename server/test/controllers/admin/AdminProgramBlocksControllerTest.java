@@ -117,6 +117,27 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_withProgram_andEnumeratorBlockType_addsEnumeratorBlock() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    Request request =
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("blockType", "ENUMERATOR")).build();
+    Result result = controller.create(request, program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // Ensures we're redirected to the newly created block rather than the last
+    // block in the program (see issue #1885).
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 2L)
+                .url());
+
+    program.refresh();
+    var blockDefinitions = program.getProgramDefinition().blockDefinitions();
+    assertThat(blockDefinitions).hasSize(2);
+    assertThat(blockDefinitions.get(1).getIsEnumerator()).isEqualTo(true);
+  }
+
+  @Test
   public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 

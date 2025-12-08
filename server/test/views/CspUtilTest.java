@@ -4,7 +4,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import autovalue.shaded.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ScriptTag;
 import java.util.List;
 import junitparams.JUnitParamsRunner;
