@@ -84,12 +84,16 @@
     <input
       type="text"
       class="usa-input margin-y-1"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
       maxlength="10000"
       th:id="${inputId}"
       th:value="${existingEntity}"
       th:name="${path}"
       th:disabled="${hidden}"
       th:attr="data-entity-input=${!hidden ? 'true' : null}"
+      th:aria-describedby="${hasErrors} ? ${questionId} + '-error' : null"
+      th:aria-invalid="${hasErrors} ? 'true' : null"
+      th:aria-required="${!question.isOptional()}"
     />
     <!--/* TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error */-->
     <div th:id="${inputId + '-errors'}"></div>

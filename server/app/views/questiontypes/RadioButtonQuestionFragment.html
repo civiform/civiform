@@ -37,7 +37,9 @@
             ${singleSelectQuestion.optionIsSelected(option)},
             ${!question.isOptional()},
             ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
-            ${option.formattedOptionText(ariaLabelForNewTabs)})}"
+            ${option.formattedOptionText(ariaLabelForNewTabs)},
+            ${hasErrors},
+            ${questionId})}"
       ></div>
     </div>
   </fieldset>
