@@ -268,7 +268,6 @@ test.describe('guest cannot see program summary page for login only program', ()
       await applicantQuestions.answerNameQuestion('test', 'user')
       await applicantQuestions.clickContinue()
 
-      // logged in applicants can go to the review page
       await applicantQuestions.expectTitle(
         page,
         'Program application summary — loginonly',
@@ -279,7 +278,6 @@ test.describe('guest cannot see program summary page for login only program', ()
     })
 
     await test.step('guest user tries to navigate to review page', async () => {
-      // go to the review page as a guest using the same URL
       await page.goto(reviewPageURL)
       await expect(page.getByText('name')).toBeHidden()
       await expect(

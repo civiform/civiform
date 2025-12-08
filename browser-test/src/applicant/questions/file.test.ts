@@ -1439,7 +1439,6 @@ test.describe('for login only program, guest cannot see file upload question', (
     })
 
     await test.step('guest user tries to navigate to file upload question', async () => {
-      // go to the file upload page as a guest using the same URL
       await page.goto(fileuploadURL)
       await expect(page.getByRole('button', {name: 'Continue'})).toBeHidden()
       await expect(
