@@ -235,7 +235,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
@@ -508,7 +508,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
             ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
