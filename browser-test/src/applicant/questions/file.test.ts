@@ -1423,28 +1423,35 @@ test.describe('for login only program, guest cannot see file upload question', (
     page,
     applicantQuestions,
   }) => {
-    await loginAsTestUser(page)
-    await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', {name: 'Start an application'}).first().click()
-    // Logged in user answers the file upload question
-    await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
+    let fileuploadURL: string
+    await test.step('logged in user navigates to file upload question', async () => {
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+      await page
+        .getByRole('link', {name: 'Start an application'})
+        .first()
+        .click()
+      // Logged in user answers the file upload question
+      await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
 
-    const fileuploadURL = page.url()
-    await logout(page)
+      fileuploadURL = page.url()
+      await logout(page)
+    })
 
-    // go to the file upload page as a guest using the same URL
-    await page.goto(fileuploadURL)
-    await expect(page.getByRole('button', {name: 'Continue'})).toBeHidden()
-    await expect(
-      page.getByRole('heading', {
-        name: 'You must log in to apply for this program',
-      }),
-    ).toBeVisible()
-    await expect(
-      page.getByText(
-        'Please log in or create an account to continue with this application.',
-      ),
-    ).toBeVisible()
-    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+    await test.step('guest user tries to navigate to file upload question', async () => {
+      await page.goto(fileuploadURL)
+      await expect(page.getByRole('button', {name: 'Continue'})).toBeHidden()
+      await expect(
+        page.getByRole('heading', {
+          name: 'You must log in to apply for this program',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'Please log in or create an account to continue with this application.',
+        ),
+      ).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+    })
   })
 })
