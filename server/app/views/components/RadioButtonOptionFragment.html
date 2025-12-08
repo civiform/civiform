@@ -8,8 +8,8 @@
     th:name="${name}"
     th:checked="${isChecked}"
     type="radio"
-    th:aria-describedby="${hasErrors != null && hasErrors} ? ${questionId} + '-error' : null"
-    th:aria-invalid="${hasErrors != null && hasErrors} ? 'true' : null"
+    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-invalid="${hasErrors}"
     th:aria-required="${isRequired}"
     th:autofocus="${autofocus}"
   />

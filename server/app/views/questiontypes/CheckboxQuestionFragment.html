@@ -41,8 +41,8 @@
         th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
         th:checked="${multiSelectQuestion.optionIsSelected(option)}"
         type="checkbox"
-        th:aria-describedby="${hasErrors} ? ${questionId} + '-error' : null"
-        th:aria-invalid="${hasErrors} ? 'true' : null"
+        th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+        th:aria-invalid="${hasErrors}"
         th:aria-required="${!question.isOptional()}"
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />

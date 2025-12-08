@@ -62,6 +62,8 @@
                 data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
         type="button"
         class="usa-button usa-button--outline margin-top-105"
+        th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+        th:aria-invalid="${hasErrors}"
       ></button>
     </div>
   </fieldset>
@@ -91,8 +93,8 @@
       th:name="${path}"
       th:disabled="${hidden}"
       th:attr="data-entity-input=${!hidden ? 'true' : null}"
-      th:aria-describedby="${hasErrors} ? ${questionId} + '-error' : null"
-      th:aria-invalid="${hasErrors} ? 'true' : null"
+      th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+      th:aria-invalid="${hasErrors}"
       th:aria-required="${!question.isOptional()}"
     />
     <!--/* TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error */-->
