@@ -8,6 +8,7 @@
   class="cf-question-address"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset class="usa-fieldset">
     <div class="cf-question-header">
