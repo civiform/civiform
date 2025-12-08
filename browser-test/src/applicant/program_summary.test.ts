@@ -257,34 +257,42 @@ test.describe('guest cannot see program summary page for login only program', ()
     page,
     applicantQuestions,
   }) => {
-    await loginAsTestUser(page)
-    await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', {name: 'Start an application'}).first().click()
-    await applicantQuestions.answerNameQuestion('test', 'user')
-    await applicantQuestions.clickContinue()
+    let reviewPageURL: string
+    await test.step('logged in user navigates to review page', async () => {
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+      await page
+        .getByRole('link', {name: 'Start an application'})
+        .first()
+        .click()
+      await applicantQuestions.answerNameQuestion('test', 'user')
+      await applicantQuestions.clickContinue()
 
-    // logged in applicants can go to the review page
-    await applicantQuestions.expectTitle(
-      page,
-      'Program application summary — loginonly',
-    )
+      // logged in applicants can go to the review page
+      await applicantQuestions.expectTitle(
+        page,
+        'Program application summary — loginonly',
+      )
 
-    const reviewPageURL = page.url()
-    await logout(page)
+      reviewPageURL = page.url()
+      await logout(page)
+    })
 
-    // go to the review page as a guest using the same URL
-    await page.goto(reviewPageURL)
-    await expect(page.getByText('name')).toBeHidden()
-    await expect(
-      page.getByRole('heading', {
-        name: 'You must log in to apply for this program',
-      }),
-    ).toBeVisible()
-    await expect(
-      page.getByText(
-        'Please log in or create an account to continue with this application.',
-      ),
-    ).toBeVisible()
-    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+    await test.step('guest user tries to navigate to review page', async () => {
+      // go to the review page as a guest using the same URL
+      await page.goto(reviewPageURL)
+      await expect(page.getByText('name')).toBeHidden()
+      await expect(
+        page.getByRole('heading', {
+          name: 'You must log in to apply for this program',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'Please log in or create an account to continue with this application.',
+        ),
+      ).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+    })
   })
 })
