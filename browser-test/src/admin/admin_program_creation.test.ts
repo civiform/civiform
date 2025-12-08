@@ -1223,7 +1223,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
       {fullPage: false},
     )
@@ -1234,7 +1234,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
@@ -1265,7 +1265,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
       {fullPage: false},
     )
@@ -1276,7 +1276,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
