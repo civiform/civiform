@@ -702,12 +702,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that the current block is the newly-created repeated block', async () => {
-        const currentBlockTitle = await blockPanel
-          .locator(`#block-info-display-${initialBlockCount}`) // zero-indexed
-          .innerText()
-        expect(currentBlockTitle).toContain(
-          `(Repeated from ${initialBlockCount}`,
+        const currentBlockTitle = blockPanel.getByText(
+          'Screen 3 (repeated from 2)',
         )
+        await expect(currentBlockTitle).toBeVisible()
       })
 
       await test.step('Click on the enumerator block in the block order panel', async () => {
