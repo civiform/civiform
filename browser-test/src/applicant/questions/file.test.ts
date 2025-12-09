@@ -5,6 +5,7 @@ import {
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
+  loginAsTestUser,
 } from '../../support'
 
 test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
@@ -1391,6 +1392,66 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
           )
         expect(downloadedFileContent).toEqual('some old text')
       })
+    })
+  })
+})
+test.describe('for login only program, guest cannot see file upload question', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload',
+        questionText: 'file upload question',
+      })
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'First block',
+        questions: [{name: 'file-upload', isOptional: false}],
+      })
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+  })
+
+  test('guest user on landing in file upload question, only sees the alert', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    let fileuploadURL: string
+    await test.step('logged in user navigates to file upload question', async () => {
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+      await page
+        .getByRole('link', {name: 'Start an application'})
+        .first()
+        .click()
+      // Logged in user answers the file upload question
+      await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
+
+      fileuploadURL = page.url()
+      await logout(page)
+    })
+
+    await test.step('guest user tries to navigate to file upload question', async () => {
+      await page.goto(fileuploadURL)
+      await expect(page.getByRole('button', {name: 'Continue'})).toBeHidden()
+      await expect(
+        page.getByRole('heading', {
+          name: 'You must log in to apply for this program',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'Please log in or create an account to continue with this application.',
+        ),
+      ).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
     })
   })
 })

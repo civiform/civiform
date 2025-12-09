@@ -173,13 +173,10 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
-    // TODO(#11581): North star clean up
-    boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi();
 
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
-    boolean disableLongDescription =
-        (isCommonIntakeForm || isExternalProgram) && isNorthStarEnabled;
-    boolean disableExternalLink = (isDefaultProgram || isCommonIntakeForm) && isNorthStarEnabled;
+    boolean disableLongDescription = isCommonIntakeForm || isExternalProgram;
+    boolean disableExternalLink = isDefaultProgram || isCommonIntakeForm;
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
@@ -314,10 +311,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .setRequired(isExternalProgram)
                 .setDisabled(disableExternalLink)
                 .setReadOnly(disableExternalLink)
-                .setAttribute(
-                    "data-northstar-enabled",
-                    // TODO(#11581): North star clean up
-                    String.valueOf(settingsManifest.getNorthStarApplicantUi()))
                 .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Email notifications

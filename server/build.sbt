@@ -42,15 +42,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.40.0",
-      "software.amazon.awssdk" % "ses" % "2.40.0",
+      "software.amazon.awssdk" % "s3" % "2.40.3",
+      "software.amazon.awssdk" % "ses" % "2.40.3",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.57.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.58.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
@@ -66,7 +66,7 @@ lazy val root = (project in file("."))
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.6" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.27.6" % Test,
+
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
@@ -79,24 +79,24 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.3.0",
+      "org.pac4j" % "pac4j-core" % "6.3.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.3.0",
+      "org.pac4j" % "pac4j-http" % "6.3.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.3.0",
+      "org.pac4j" % "pac4j-oidc" % "6.3.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.3.0",
+      "org.pac4j" % "pac4j-saml" % "6.3.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.11.0",
-      "com.google.auto.value" % "auto-value" % "1.11.0",
+      "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
+      "com.google.auto.value" % "auto-value" % "1.11.1",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.52.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.52.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -105,7 +105,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.19",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.20",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -116,7 +116,7 @@ lazy val root = (project in file("."))
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
-      // Override defaul Play logback version. We need to use logback
+      // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
       "ch.qos.logback" % "logback-classic" % "1.5.21",
 
@@ -174,7 +174,7 @@ lazy val root = (project in file("."))
     },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >30% files have changed, to help avoid infinate
+    // Recompile everything if >30% files have changed, to help avoid infinite
     // incremental compilation.
     // (but still allow some incremental building for speed.)
     incOptions := incOptions.value.withRecompileAllFraction(.3),

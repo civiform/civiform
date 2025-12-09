@@ -12,6 +12,21 @@ import views.admin.BaseViewModel;
 /**
  * Partial view for rendering EditSubconditionPartial.html. This partial is used for editing a
  * subcondition within a condition of a predicate.
+ *
+ * @param programId The programId for this CiviForm program.
+ * @param blockId The ID for this program block (screen).
+ * @param predicateUseCase The type of predicate. e.g. ELIGIBILITY or VISIBILITY.
+ * @param selectedQuestionType The {@link QuestionType} of the user-selected question.
+ * @param userEnteredValue For question types that use HTML input elements, the user-entered value.
+ * @param secondUserEnteredValue The second user-entered value, for question types that use HTML
+ *     input elements. Relevant for BETWEEN operators, which accept two inputs.
+ * @param questionOptions Selectable questions for this predicate page.
+ * @param scalarOptions Selectable scalars for this subcondition. Determined by the selected
+ *     question.
+ * @param operatorOptions Selectable operators for this subcondition. Determined by the selected
+ *     question and scalar.
+ * @param valueOptions Selectable values, for question types that allow users to select from a set
+ *     of pre-configured values. Determined by the selected question.
  */
 @Builder(toBuilder = true)
 public record EditSubconditionPartialViewModel(
@@ -19,7 +34,8 @@ public record EditSubconditionPartialViewModel(
     long blockId,
     PredicateUseCase predicateUseCase,
     Optional<String> selectedQuestionType,
-    Optional<String> selectedOperator,
+    String userEnteredValue,
+    String secondUserEnteredValue,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
@@ -39,5 +55,18 @@ public record EditSubconditionPartialViewModel(
 
   public boolean hasSelectedQuestion() {
     return questionOptions.stream().anyMatch(OptionElement::selected);
+  }
+
+  public PredicateValuesInputPartialViewModel predicateValuesInputModel(
+      long conditionId, long subconditionId) {
+    return PredicateValuesInputPartialViewModel.builder()
+        .conditionId(conditionId)
+        .subconditionId(subconditionId)
+        .questionType(selectedQuestionType)
+        .userEnteredValue(userEnteredValue)
+        .secondUserEnteredValue(secondUserEnteredValue)
+        .valueOptions(valueOptions)
+        .hasSelectedQuestion(hasSelectedQuestion())
+        .build();
   }
 }

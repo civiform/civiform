@@ -12,12 +12,10 @@
       th:value="${applicantId.orElse('')}"
     />
     <fieldset class="usa-fieldset double-section-bottom section-internal">
-      <div class="grid-row">
-        <legend
-          class="usa-legend margin-bottom-105 cf-prose-h4"
-          th:text="#{label.programFilters.v2}"
-        ></legend>
-      </div>
+      <legend
+        class="usa-legend margin-bottom-105 cf-prose-h4"
+        th:text="#{label.programFilters.v2}"
+      ></legend>
 
       <div class="grid-row grid-gap">
         <th:block th:each="categoryOption : ${categoryOptions}">
