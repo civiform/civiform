@@ -180,9 +180,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
-      await applicantQuestions.returnToProgramsFromSubmissionPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
     })
 
     await test.step('Expect submitted tag shows on program card', async () => {
@@ -193,7 +191,6 @@ test.describe('applicant program index page', () => {
     await test.step('Expect editing submitted application takes user to review page', async () => {
       await applicantQuestions.applyProgram(
         primaryProgramName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
 
@@ -417,13 +414,12 @@ test.describe('applicant program index page', () => {
       await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
         await applicantQuestions.applyProgram(
           primaryProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('second answer')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.returnToProgramsFromSubmissionPage()
         await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
@@ -621,7 +617,6 @@ test.describe('applicant program index page', () => {
       await test.step('Start applying to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
           preScreenerFormProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('answer')
@@ -655,7 +650,6 @@ test.describe('applicant program index page', () => {
       await test.step('Submit application to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
           preScreenerFormProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.clickSubmitApplication()
@@ -686,13 +680,11 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await validateScreenshot(page, 'pre-screener-form-sections')
-      await applicantQuestions.expectProgramsNorthstar({
+      await applicantQuestions.expectPrograms({
         wantNotStartedPrograms: [otherProgramName],
         wantInProgressOrSubmittedPrograms: [primaryProgramName],
       })
-      await applicantQuestions.expectPreScreenerFormNorthstar(
-        preScreenerFormProgramName,
-      )
+      await applicantQuestions.expectPreScreenerForm(preScreenerFormProgramName)
     })
 
     test('shows a different title for the pre-screener form', async ({
@@ -705,7 +697,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
@@ -718,12 +710,10 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.applyProgram(otherProgramName, true)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.expectProgramsNorthstar({
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.expectPrograms({
         wantNotStartedPrograms: [primaryProgramName],
         wantInProgressOrSubmittedPrograms: [otherProgramName],
       })
@@ -731,12 +721,10 @@ test.describe('applicant program index page', () => {
 
     await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.clickReview(true)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.clickReview()
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
 
-      await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
+      await applicantQuestions.validateNoPreviouslyAnsweredText(
         secondQuestionText,
       )
       await validateScreenshot(page, 'question-shows-previously-answered')
@@ -746,18 +734,16 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
       await applicantQuestions.clickSubmitApplication()
     })
 
     await test.step('Change first response on second program and check that the other program shows the previously answered text too', async () => {
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
       await applicantQuestions.clickApplyProgramButton(primaryProgramName)
       await page
         .getByRole('listitem')
@@ -766,14 +752,12 @@ test.describe('applicant program index page', () => {
         .click()
       await applicantQuestions.answerTextQuestion('first answer 2')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
 
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
       await validateScreenshot(page, 'other-program-shows-previously-answered')
     })
   })
@@ -1072,11 +1056,11 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.expectActiveProgram(programNameSubmittedBasic)
       await logout(page)
 
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programNameSubmittedBasic, true)
-      await applicantQuestions.submitFromReviewPage(true)
-      await logout(page)
-    })
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programNameSubmittedBasic, true)
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+      })
 
     await test.step('submit program with status', async () => {
       const programNameSubmittedWithStatus = 'Submitted Program [Status]'
@@ -1112,11 +1096,11 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.publishAllDrafts()
       await logout(page)
 
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programNameSubmittedImage, true)
-      await applicantQuestions.submitFromReviewPage(true)
-      await logout(page)
-    })
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programNameSubmittedImage, true)
+        await applicantQuestions.submitFromReviewPage()
+        await logout(page)
+      })
 
     await test.step('basic not started program', async () => {
       await loginAsAdmin(page)
@@ -1422,18 +1406,18 @@ test.describe('applicant program index page with images', () => {
     })
   })
 
-  async function submitApplicationAndApplyStatus(
-    page: Page,
-    programName: string,
-    statusName: string,
-    adminPrograms: AdminPrograms,
-    applicantQuestions: ApplicantQuestions,
-  ) {
-    // Submit an application as a test user.
-    await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
-    await applicantQuestions.submitFromReviewPage(true)
-    await logout(page)
+    async function submitApplicationAndApplyStatus(
+      page: Page,
+      programName: string,
+      statusName: string,
+      adminPrograms: AdminPrograms,
+      applicantQuestions: ApplicantQuestions,
+    ) {
+      // Submit an application as a test user.
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
 
     // Set a status as a program admin
     await loginAsProgramAdmin(page)

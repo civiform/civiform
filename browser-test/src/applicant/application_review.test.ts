@@ -215,9 +215,9 @@ test.describe('Program admin review of submitted applications', () => {
       await applicantQuestions.clickContinue()
     })
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.submitFromReviewPage(true)
-    })
+      await test.step('Submit application', async () => {
+        await applicantQuestions.submitFromReviewPage()
+      })
 
     await test.step('Log in as program admin', async () => {
       await logout(page)
@@ -394,12 +394,12 @@ test.describe('Program admin review of submitted applications', () => {
       await logout(page)
     })
 
-    await test.step('Submit applications from different users', async () => {
-      for (const answer of answers) {
-        await applicantQuestions.applyProgram(programName, true)
-        await applicantQuestions.answerTextQuestion(answer)
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+      await test.step('Submit applications from different users', async () => {
+        for (const answer of answers) {
+          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.answerTextQuestion(answer)
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.submitFromReviewPage()
 
         await logout(page)
       }
@@ -459,8 +459,8 @@ test.describe('Program admin review of submitted applications', () => {
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
       await applicantQuestions.clickContinue()
 
-      // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+        // Applicant submits answers from review page.
+        await applicantQuestions.submitFromReviewPage()
 
       await logout(page)
     })
@@ -475,13 +475,13 @@ test.describe('Program admin review of submitted applications', () => {
       await logout(page)
     })
 
-    await test.step('Apply to the program as as a Guest User', async () => {
-      await applicantQuestions.applyProgram(programName, true)
-      await applicantQuestions.answerNameQuestion('Gus', 'Guest')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-    })
+      await test.step('Apply to the program as as a Guest User', async () => {
+        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.answerNameQuestion('Gus', 'Guest')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.returnToProgramsFromSubmissionPage()
+      })
 
     await test.step('View application as Program Admin again', async () => {
       await loginAsProgramAdmin(page)

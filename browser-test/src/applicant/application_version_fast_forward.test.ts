@@ -1264,7 +1264,7 @@ class FastForwardApplicantActor {
    * Must be on an application edit page
    */
   async gotoReviewPage() {
-    await this.applicantQuestions.clickReview(true)
+    await this.applicantQuestions.clickReview()
   }
 
   /**
@@ -1317,7 +1317,7 @@ class FastForwardApplicantActor {
    * Submit the application
    */
   async submitApplication() {
-    await this.applicantQuestions.submitFromReviewPage(true)
+    await this.applicantQuestions.submitFromReviewPage()
   }
 
   /**

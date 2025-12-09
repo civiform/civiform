@@ -70,11 +70,11 @@ test.describe('Prevent Duplicate Submission', () => {
       await validateAccessibility(page)
     })
 
-    await test.step('Verify continue button', async () => {
-      // Verify continue button closes the modal
-      await applicantQuestions.clickContinueEditing()
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+      await test.step('Verify continue button', async () => {
+        // Verify continue button closes the modal
+        await applicantQuestions.clickContinueEditing()
+        await applicantQuestions.expectReviewPage()
+      })
 
     await test.step('Verify "Close" (x) button', async () => {
       // Show the modal again
@@ -83,10 +83,10 @@ test.describe('Prevent Duplicate Submission', () => {
       )
       await waitForPageJsLoad(page)
 
-      // Verify close (x) button closes the modal
-      await page.locator('[aria-label="Close"] >> visible=true').click()
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+        // Verify close (x) button closes the modal
+        await page.locator('[aria-label="Close"] >> visible=true').click()
+        await applicantQuestions.expectReviewPage()
+      })
 
     await test.step('Verify exit button', async () => {
       // Show the modal again

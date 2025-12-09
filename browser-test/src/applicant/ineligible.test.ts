@@ -214,7 +214,7 @@ test.describe('North Star Ineligible Page Tests', () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // All questions have been answered
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Edit the block (there is only one block)
       await applicantQuestions.clickEdit()
@@ -368,7 +368,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect review page', async () => {
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 })

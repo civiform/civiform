@@ -119,8 +119,8 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+        await applicantQuestions.expectReviewPage()
+      })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
@@ -133,8 +133,8 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+        await applicantQuestions.expectReviewPage()
+      })
 
     test('has no accessiblity violations', async ({
       page,

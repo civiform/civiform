@@ -63,17 +63,17 @@ test.describe('Program admin download button visibility and endpoint access', ()
         await adminPrograms.publishProgram(programName)
         await logout(page)
 
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programName, true)
-        await applicantQuestions.answerNameQuestion('sarah', 'smith')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
-        applicationId = parseInt(
-          (await adminPrograms.getApplicationId()) || '-1',
-        )
-        expect(applicationId).toBeGreaterThan(0)
-        await logout(page)
-      })
+          await loginAsTestUser(page)
+          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.answerNameQuestion('sarah', 'smith')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.submitFromReviewPage()
+          applicationId = parseInt(
+            (await adminPrograms.getApplicationId()) || '-1',
+          )
+          expect(applicationId).toBeGreaterThan(0)
+          await logout(page)
+        })
 
       await test.step('Flag disabled - program admin - buttons present & endpoints enabled', async () => {
         await disableFeatureFlag(page, downloadFlag)
@@ -169,7 +169,7 @@ test.describe('csv export for multioption question', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -336,7 +336,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -395,8 +395,8 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.answerNumberQuestion('1600')
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
 
       // Apply to the program again as the same user
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -404,7 +404,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1500')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 

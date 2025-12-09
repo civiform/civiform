@@ -104,16 +104,16 @@ test.describe('address correction single-block, single-address program', () => {
         )
       })
 
-      await test.step('Confirm user can confirm address and submit', async () => {
-        await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
-          addressWithCorrectionText,
-          'Address In Area',
-        )
-        await applicantQuestions.clickSubmitApplication()
-        await logout(page)
+        await test.step('Confirm user can confirm address and submit', async () => {
+          await applicantQuestions.clickConfirmAddress()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address In Area',
+          )
+          await applicantQuestions.clickSubmitApplication()
+          await logout(page)
+        })
       })
-    })
 
     test('Renders address correction page in right to left', async ({
       page,
@@ -237,16 +237,13 @@ test.describe('address correction single-block, single-address program', () => {
       await logout(page)
     })
 
-    test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        // This is currently the same as when no suggestions are returned.
-        // We may change this later.
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
+      test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          // This is currently the same as when no suggestions are returned.
+          // We may change this later.
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -264,30 +261,27 @@ test.describe('address correction single-block, single-address program', () => {
       })
     })
 
-    test('skips address correction screen if address exactly matches suggestions', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.answerAddressQuestion(
-          'Address In Area',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-        await applicantQuestions.clickContinue()
+      test('skips address correction screen if address exactly matches suggestions', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+          await applicantQuestions.answerAddressQuestion(
+            'Address In Area',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickContinue()
+        })
+        await test.step('Validate review page is shown', async () => {
+          await applicantQuestions.expectReviewPage()
+        })
+        await logout(page)
       })
-      await test.step('Validate review page is shown', async () => {
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-      })
-      await logout(page)
-    })
-  }
+    }
 
   test('address correction page does not show if feature is disabled', async ({
     page,
@@ -295,32 +289,30 @@ test.describe('address correction single-block, single-address program', () => {
   }) => {
     test.slow()
 
-    await disableFeatureFlag(page, 'esri_address_correction_enabled')
-    await test.step('Answer address question', async () => {
-      await applicantQuestions.applyProgram(
-        singleBlockSingleAddressProgram,
-        /* northStarEnabled= */ true,
-      )
+      await disableFeatureFlag(page, 'esri_address_correction_enabled')
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickContinue()
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickContinue()
+      })
+      await test.step('Validate review page is shown and user can submit', async () => {
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          addressWithCorrectionText,
+          '305 Harrison',
+        )
+        await applicantQuestions.clickSubmitApplication()
+      })
+      await logout(page)
     })
-    await test.step('Validate review page is shown and user can submit', async () => {
-      await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
-        addressWithCorrectionText,
-        '305 Harrison',
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
-    await logout(page)
-  })
-})
+  },
+)
 
 if (isLocalDevEnvironment()) {
   /**
@@ -377,20 +369,17 @@ if (isLocalDevEnvironment()) {
       await logout(page)
     })
 
-    test('skips address correction if optional address question is not answered', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          optionalAddressProgram,
-          /* northStarEnabled= */ true,
-        )
+      test('skips address correction if optional address question is not answered', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(optionalAddressProgram)
 
-        await applicantQuestions.clickContinue()
-      })
-      await test.step('Validate review page is shown and user can submit', async () => {
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+          await applicantQuestions.clickContinue()
+        })
+        await test.step('Validate review page is shown and user can submit', async () => {
+          await applicantQuestions.expectReviewPage()
 
         await applicantQuestions.clickSubmitApplication()
       })
@@ -477,39 +466,40 @@ if (isLocalDevEnvironment()) {
           /* northStarEnabled= */ true,
         )
 
-        // Fill out application and submit.
-        await applicantQuestions.answerAddressQuestion(
-          'Address In Area',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-          0,
-        )
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-          1,
-        )
-        await applicantQuestions.clickContinue()
+          // Fill out application and submit.
+          await applicantQuestions.answerAddressQuestion(
+            'Address In Area',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+            0,
+          )
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Seattle',
+            'WA',
+            '98109',
+            1,
+          )
+          await applicantQuestions.clickContinue()
+        })
+        await test.step('Validate address correction page shown and user can finish application', async () => {
+          await applicantQuestions.expectVerifyAddressPage(true)
+          await applicantQuestions.clickConfirmAddress()
+          await applicantQuestions.answerTextQuestion('Some text')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address In Area',
+          )
+          await applicantQuestions.clickSubmitApplication()
+        })
+        await logout(page)
       })
-      await test.step('Validate address correction page shown and user can finish application', async () => {
-        await applicantQuestions.expectVerifyAddressPage(true)
-        await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.answerTextQuestion('Some text')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
-          addressWithCorrectionText,
-          'Address In Area',
-        )
-        await applicantQuestions.clickSubmitApplication()
-      })
-      await logout(page)
-    })
-  })
+    },
+  )
 
   /**
    * Tests for the address correction view and navigation to and from that view.
@@ -608,13 +598,13 @@ if (isLocalDevEnvironment()) {
         await applicantQuestions.clickConfirmAddress()
       })
 
-      await test.step('Validate review page shown and user can submit application', async () => {
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
-          addressWithCorrectionText,
-          'Address With No Service Area Features',
-        )
-        await applicantQuestions.clickSubmitApplication()
-      })
+        await test.step('Validate review page shown and user can submit application', async () => {
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+            addressWithCorrectionText,
+            'Address With No Service Area Features',
+          )
+          await applicantQuestions.clickSubmitApplication()
+        })
 
       await logout(page)
     })
@@ -683,14 +673,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -713,14 +699,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -746,11 +728,10 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -776,8 +757,8 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Navigate to and validate review page', async () => {
           // Verify the original address was saved
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -788,15 +769,11 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -821,8 +798,8 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Navigate to and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -837,7 +814,7 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
@@ -863,8 +840,8 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Navigate to and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -876,14 +853,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           // Fill out application with address that is contained in findAddressCandidates.json
           // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -901,8 +874,8 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
         })
         await test.step('Navigate to and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )
@@ -916,14 +889,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -935,7 +904,7 @@ if (isLocalDevEnvironment()) {
           )
         })
         await test.step('Click review and validate verify address page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.expectVerifyAddressPage(false)
         })
@@ -946,10 +915,9 @@ if (isLocalDevEnvironment()) {
       }) => {
         await test.step('Answer address question', async () => {
           await applicantQuestions.applyProgram(programName, true)
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -961,7 +929,7 @@ if (isLocalDevEnvironment()) {
           )
         })
         await test.step('Click review and validate verify address page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.expectVerifyAddressPage(true)
         })
@@ -972,14 +940,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -991,7 +955,7 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Click review and validate verify address page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(true)
         })
         await test.step('Confirm original address and validate review page', async () => {
@@ -1005,7 +969,7 @@ if (isLocalDevEnvironment()) {
             /* northStarEnabled= */ true,
           )
           // Verify the original address was saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -1020,10 +984,9 @@ if (isLocalDevEnvironment()) {
       }) => {
         await test.step('Answer address question', async () => {
           await applicantQuestions.applyProgram(programName, true)
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1034,7 +997,7 @@ if (isLocalDevEnvironment()) {
           )
         })
         await test.step('Click review and validate verify address page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(true)
         })
         await test.step('Confirm suggested address and validate review page', async () => {
@@ -1044,10 +1007,8 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.clickConfirmAddress()
 
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -1060,14 +1021,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Bogus Address',
@@ -1078,7 +1035,7 @@ if (isLocalDevEnvironment()) {
           )
         })
         await test.step('Click review and validate verify address page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(false)
         })
 
@@ -1086,11 +1043,9 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the review page
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           // Verify the original address was saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -1104,14 +1059,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           // Fill out application with address that is contained in findAddressCandidates.json
           // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -1124,13 +1075,11 @@ if (isLocalDevEnvironment()) {
           )
         })
         await test.step('Click review and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           // Verify the applicant's answer is saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )
@@ -1149,10 +1098,9 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -1174,14 +1122,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -1203,14 +1147,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1233,8 +1173,8 @@ if (isLocalDevEnvironment()) {
         })
 
         await test.step('Click review and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -1245,14 +1185,10 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1277,8 +1213,8 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
         await test.step('Click review and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -1293,7 +1229,7 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
             /* northStarEnabled= */ true,
@@ -1317,8 +1253,8 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
         await test.step('Click review and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -1334,7 +1270,7 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
             /* northStarEnabled= */ true,
@@ -1355,8 +1291,8 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
         await test.step('Click review and validate review page', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.clickReview()
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )
@@ -1374,7 +1310,7 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
             /* northStarEnabled= */ true,
@@ -1408,7 +1344,7 @@ if (isLocalDevEnvironment()) {
             programName,
             /* northStarEnabled= */ true,
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
             /* northStarEnabled= */ true,

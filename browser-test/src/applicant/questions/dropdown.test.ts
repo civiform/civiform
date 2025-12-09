@@ -160,8 +160,8 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+        await applicantQuestions.expectReviewPage()
+      })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
@@ -174,8 +174,8 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.answerDropdownQuestion('red', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-    })
+        await applicantQuestions.expectReviewPage()
+      })
 
     test('has no accessiblity violations', async ({
       page,

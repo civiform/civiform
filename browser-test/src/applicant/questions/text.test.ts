@@ -144,14 +144,14 @@ test.describe('Text question for applicant flow', () => {
       // Check that pressing Enter on button works.
       await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
       await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 
