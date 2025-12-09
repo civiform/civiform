@@ -1085,7 +1085,6 @@ test.describe('Applicant navigation flow', () => {
       await test.step('Edit application and expect page 2', async () => {
         await applicantQuestions.applyProgram(
           programName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()

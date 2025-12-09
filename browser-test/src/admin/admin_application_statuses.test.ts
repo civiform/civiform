@@ -870,11 +870,7 @@ test.describe('view program statuses', () => {
 
       await test.step('submit application as a logged in user with a different email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(
-          programWithStatusesName,
-          true,
-          false,
-        )
+        await applicantQuestions.applyProgram(programWithStatusesName, false)
         await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
         await applicantQuestions.clickContinue()
@@ -936,11 +932,7 @@ test.describe('view program statuses', () => {
     }) => {
       await test.step('submit application as a logged in user with the same email address', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(
-          programWithStatusesName,
-          true,
-          false,
-        )
+        await applicantQuestions.applyProgram(programWithStatusesName, false)
         await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(testUserDisplayName())
         await applicantQuestions.clickContinue()

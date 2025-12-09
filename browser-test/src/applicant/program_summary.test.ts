@@ -213,17 +213,13 @@ test.describe('Applicant navigation flow', () => {
     await test.step('Download file in North Star', async () => {
       await applicantQuestions.applyProgram(
         programName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
 
       await expect(page.getByText(fileName)).toBeVisible()
 
       const downloadedFileContent =
-        await applicantQuestions.downloadSingleQuestionFromReviewPage(
-          /* northStarEnabled= */ true,
-          fileName,
-        )
+        await applicantQuestions.downloadSingleQuestionFromReviewPage(fileName)
       expect(downloadedFileContent).toEqual(fileContent)
     })
   })
