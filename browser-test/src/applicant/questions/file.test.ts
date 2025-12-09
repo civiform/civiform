@@ -256,7 +256,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -286,7 +285,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // A required file upload question should never show a Delete button
@@ -308,45 +306,44 @@ test.describe('file upload applicant flow', () => {
       await test.step('Add file upload question and publish', async () => {
         await loginAsAdmin(page)
 
-          await adminQuestions.addFileUploadQuestion({
-            questionName: 'file-upload-test-q',
-            questionText: fileUploadQuestionText,
-            maxFiles: 2,
-          })
-          await adminPrograms.addAndPublishProgramWithQuestions(
-            ['file-upload-test-q'],
-            programName,
-          )
-
-          await logout(page)
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
         })
-
-        await applicantQuestions.applyProgram(
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
           programName,
-          /* northStarEnabled= */ true,
         )
 
-        await test.step('Adding maximum files disables file input', async () => {
-          await applicantQuestions.answerFileUploadQuestionFromAssets(
-            'file-upload.png',
-          )
-          await applicantQuestions.answerFileUploadQuestionFromAssets(
-            'file-upload-second.png',
-          )
-          await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
-          await applicantFileQuestion.expectFileNameDisplayed(
-            'file-upload-second.png',
-          )
-          // TODO(#9454): uncomment when North Star obeys maxFiles.
-          // await applicantFileQuestion.expectFileInputDisabled()
-        })
+        await logout(page)
+      })
 
-        await test.step('Removing a file shows file input again', async () => {
-          await applicantFileQuestion.removeFileUpload('file-upload.png')
-          await applicantFileQuestion.expectFileInputEnabled()
-        })
-      },
-    )
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await test.step('Adding maximum files disables file input', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
+        // TODO(#9454): uncomment when North Star obeys maxFiles.
+        // await applicantFileQuestion.expectFileInputDisabled()
+      })
+
+      await test.step('Removing a file shows file input again', async () => {
+        await applicantFileQuestion.removeFileUpload('file-upload.png')
+        await applicantFileQuestion.expectFileInputEnabled()
+      })
+    })
     test('shows correct hint text based on max files', async ({
       applicantQuestions,
       page,
@@ -642,7 +639,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -825,9 +821,7 @@ test.describe('file upload applicant flow', () => {
       // Verify we're taken to the next page (which is the review page
       // since this program only has one block)
       await applicantQuestions.expectReviewPage()
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('can upload file', async ({
@@ -899,9 +893,7 @@ test.describe('file upload applicant flow', () => {
 
       // Verify we can submit the application
       await applicantQuestions.expectReviewPage()
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('has no accessibility violations', async ({
@@ -942,7 +934,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -973,7 +964,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       await applicantFileQuestion.expectHasContinueForm()
@@ -999,7 +989,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       await applicantFileQuestion.removeFileUpload('testFileName.txt')
@@ -1137,66 +1126,53 @@ test.describe('file upload applicant flow', () => {
     })
 
     test.describe('back button', () => {
-      // TODO(9521): Reinstate test when #9521 is fixed.
       test('clicking back without file redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectQuestionOnReviewPage(
-          emailQuestionText,
-        )
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectQuestionOnReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.expectQuestionOnReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.clickBack()
+        await applicantQuestions.clickBack()
 
-          // Verify we're taken to the previous page, which has the email question
-          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
-        },
-      )
+        // Verify we're taken to the previous page, which has the email question
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+      })
 
       test('clicking back with file saves file and redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectQuestionOnReviewPage(
-          emailQuestionText,
-        )
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectQuestionOnReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.expectQuestionOnReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some sample text',
-            'sample.txt',
-          )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
 
-          await applicantQuestions.clickBack()
+        await applicantQuestions.clickBack()
 
-          // Verify we're taken to the previous page, which has the email question
-          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+        // Verify we're taken to the previous page, which has the email question
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
-          // Verify the file was saved
-          await applicantQuestions.clickReview()
-          await applicantQuestions.expectReviewPage()
+        // Verify the file was saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
 
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'sample.txt',
-          )
-        },
-      )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
     })
 
     test.describe('continue button', () => {
