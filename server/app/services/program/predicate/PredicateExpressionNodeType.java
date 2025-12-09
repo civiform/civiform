@@ -20,4 +20,8 @@ public enum PredicateExpressionNodeType {
   public String toDisplayString() {
     return displayString;
   }
+
+  public Boolean isLeafNode() {
+    return this == LEAF_OPERATION || this == LEAF_ADDRESS_SERVICE_AREA;
+  }
 }

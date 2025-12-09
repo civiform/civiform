@@ -146,6 +146,7 @@ export class AdminPredicates {
   async addAndExpectSubcondition(conditionId: number, subconditionId: number) {
     await this.clickAddSubconditionButton(conditionId)
     await this.expectSubcondition(conditionId, subconditionId)
+    await waitForHtmxReady(this.page)
   }
 
   async clickSaveAndExitButton() {
