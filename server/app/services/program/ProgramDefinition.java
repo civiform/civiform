@@ -622,7 +622,9 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream()
         .anyMatch(
             blockDefinition ->
-                blockDefinition.id() == enumeratorId && blockDefinition.getIsEnumerator());
+                blockDefinition.id() == enumeratorId
+                    && (blockDefinition.getIsEnumerator()
+                        || blockDefinition.hasEnumeratorQuestion()));
   }
 
   /**

@@ -2004,7 +2004,8 @@ public class ProgramServiceTest extends ResetPostgres {
     long programId = programDefinition.id();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id(), Optional.of(true));
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.of(true));
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
