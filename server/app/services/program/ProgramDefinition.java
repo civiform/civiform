@@ -234,7 +234,7 @@ public abstract class ProgramDefinition {
       }
 
       // Push this enumerator block's id
-      if (blockDefinition.hasEnumeratorQuestion()) {
+      if (blockDefinition.hasEnumeratorQuestion() || blockDefinition.getIsEnumerator()) {
         enumeratorIds.push(blockDefinition.id());
       }
     }
@@ -622,7 +622,7 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream()
         .anyMatch(
             blockDefinition ->
-                blockDefinition.id() == enumeratorId && blockDefinition.hasEnumeratorQuestion());
+                blockDefinition.id() == enumeratorId && blockDefinition.getIsEnumerator());
   }
 
   /**

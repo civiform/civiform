@@ -672,7 +672,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await loginAsAdmin(page)
       await adminPrograms.addProgram('Enumerator test program')
     })
-    test('can add an enumerator block to a program from the program block edit page', async ({
+    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
       page,
       adminPrograms,
     }) => {
@@ -694,11 +694,28 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Validate that a new block appears in the block order panel', async () => {
+      await test.step('Validate that two new blocks appear in the block order panel', async () => {
         const newBlockCount = await page
           .getByRole('link', {name: /^Screen /})
           .count()
-        expect(newBlockCount).toBe(initialBlockCount + 1)
+        expect(newBlockCount).toBe(initialBlockCount + 2)
+      })
+
+      await test.step('Validate that the current block is the newly-created repeated block', async () => {
+        const currentBlockTitle = await blockPanel
+          .locator(`#block-info-display-${initialBlockCount}`) // zero-indexed
+          .innerText()
+        expect(currentBlockTitle).toContain(
+          `(Repeated from ${initialBlockCount}`,
+        )
+      })
+
+      await test.step('Click on the enumerator block in the block order panel', async () => {
+        const enumeratorBlockLink = page
+          .getByRole('link', {name: /^Screen /})
+          .nth(initialBlockCount) // zero-indexed
+        await enumeratorBlockLink.click()
+        await waitForPageJsLoad(page)
       })
 
       await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {

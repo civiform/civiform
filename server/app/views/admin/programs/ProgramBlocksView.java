@@ -447,7 +447,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       container.with(blockContainer.with(blockContent));
 
       // Recursively add repeated blocks indented under their enumerator block
-      if (blockDefinition.hasEnumeratorQuestion()) {
+      if (blockDefinition.getIsEnumerator()) {
         container.with(
             renderBlockList(
                 request,
