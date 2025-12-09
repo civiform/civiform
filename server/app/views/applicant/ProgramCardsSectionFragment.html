@@ -3,7 +3,7 @@
   class="cf-application-program-section cf-below-cards"
   th:with="sectionType=${section.sectionType().name()},
            showHeading=${(sectionType == 'RECOMMENDED' || sectionType == 'DEFAULT') && section.title().isPresent()}"
-  th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
+  th:aria-label="${section.title().get()}"
   th:id="${sectionType == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div th:if="${showHeading}" class="grid-row usa-prose section-bottom">

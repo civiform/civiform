@@ -254,55 +254,51 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'
 
-    // TODO(9454): remove ".fixme" once https://github.com/civiform/civiform/issues/9454 is fixed
-    test.fixme(
-      'hides upload button at max',
-      async ({
-        applicantQuestions,
-        applicantFileQuestion,
-        page,
-        adminQuestions,
-        adminPrograms,
-      }) => {
-        await test.step('Add file upload question and publish', async () => {
-          await loginAsAdmin(page)
+    test('hides upload button at max', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await test.step('Add file upload question and publish', async () => {
+        await loginAsAdmin(page)
 
-          await adminQuestions.addFileUploadQuestion({
-            questionName: 'file-upload-test-q',
-            questionText: fileUploadQuestionText,
-            maxFiles: 2,
-          })
-          await adminPrograms.addAndPublishProgramWithQuestions(
-            ['file-upload-test-q'],
-            programName,
-          )
-
-          await logout(page)
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
         })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
+          programName,
+        )
 
-        await applicantQuestions.applyProgram(programName)
+        await logout(page)
+      })
 
-        await test.step('Adding maximum files disables file input', async () => {
-          await applicantQuestions.answerFileUploadQuestionFromAssets(
-            'file-upload.png',
-          )
-          await applicantQuestions.answerFileUploadQuestionFromAssets(
-            'file-upload-second.png',
-          )
-          await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
-          await applicantFileQuestion.expectFileNameDisplayed(
-            'file-upload-second.png',
-          )
-          // TODO(#9454): uncomment when North Star obeys maxFiles.
-          // await applicantFileQuestion.expectFileInputDisabled()
-        })
+      await applicantQuestions.applyProgram(programName)
 
-        await test.step('Removing a file shows file input again', async () => {
-          await applicantFileQuestion.removeFileUpload('file-upload.png')
-          await applicantFileQuestion.expectFileInputEnabled()
-        })
-      },
-    )
+      await test.step('Adding maximum files disables file input', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
+        // TODO(#9454): uncomment when North Star obeys maxFiles.
+        // await applicantFileQuestion.expectFileInputDisabled()
+      })
+
+      await test.step('Removing a file shows file input again', async () => {
+        await applicantFileQuestion.removeFileUpload('file-upload.png')
+        await applicantFileQuestion.expectFileInputEnabled()
+      })
+    })
     test('shows correct hint text based on max files', async ({
       applicantQuestions,
       page,
@@ -1013,57 +1009,53 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test.describe('back button', () => {
-      // TODO(9521): Reinstate test when #9521 is fixed.
-      test.fixme(
-        'clicking back without file redirects to previous page',
-        async ({applicantQuestions}) => {
-          await applicantQuestions.clickApplyProgramButton(programName)
-          await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
-          await applicantQuestions.clickContinue()
+      test('clicking back without file redirects to previous page', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
+        await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectQuestionOnReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.expectQuestionOnReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.clickBack()
+        await applicantQuestions.clickBack()
 
-          // Verify we're taken to the previous page, which has the email question
-          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
-        },
-      )
+        // Verify we're taken to the previous page, which has the email question
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+      })
 
-      // TODO(9524): Reinstate test when #9524 is fixed.
-      test.fixme(
-        'clicking back with file saves file and redirects to previous page',
-        async ({applicantQuestions}) => {
-          await applicantQuestions.clickApplyProgramButton(programName)
-          await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
-          await applicantQuestions.clickContinue()
+      test('clicking back with file saves file and redirects to previous page', async ({
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
+        await applicantQuestions.clickContinue()
 
-          await applicantQuestions.expectQuestionOnReviewPage(
-            fileUploadQuestionText,
-          )
+        await applicantQuestions.expectQuestionOnReviewPage(
+          fileUploadQuestionText,
+        )
 
-          await applicantQuestions.answerFileUploadQuestion(
-            'some sample text',
-            'sample.txt',
-          )
+        await applicantQuestions.answerFileUploadQuestion(
+          'some sample text',
+          'sample.txt',
+        )
 
-          await applicantQuestions.clickBack()
+        await applicantQuestions.clickBack()
 
-          // Verify we're taken to the previous page, which has the email question
-          await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
+        // Verify we're taken to the previous page, which has the email question
+        await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
 
-          // Verify the file was saved
-          await applicantQuestions.clickReview()
-          await applicantQuestions.expectReviewPage()
+        // Verify the file was saved
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
 
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            fileUploadQuestionText,
-            'sample.txt',
-          )
-        },
-      )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          'sample.txt',
+        )
+      })
     })
 
     test.describe('continue button', () => {
