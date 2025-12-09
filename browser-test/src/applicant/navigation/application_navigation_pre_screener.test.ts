@@ -32,7 +32,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           preScreenerProgramName,
           'short program description',
           ProgramVisibility.PUBLIC,

@@ -236,7 +236,7 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
 
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerProgram,
       'short program description',
       ProgramVisibility.PUBLIC,

@@ -106,7 +106,6 @@ test.describe('Translation tag showing as expected', () => {
         await adminTranslations.selectLanguage(language)
         await adminTranslations.editProgramTranslations({
           name: `${language} name`,
-          description: `${language} description`,
           blockName: `${language} block name`,
           blockDescription: `${language} block description`,
           statuses: [],

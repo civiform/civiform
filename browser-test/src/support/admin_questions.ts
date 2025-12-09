@@ -72,23 +72,6 @@ export enum PrimaryApplicantInfoAlertType {
   TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
 }
 
-// New question types are only supported in North Star
-export enum QuestionTypeLegacy {
-  ADDRESS = 'address',
-  CHECKBOX = 'checkbox',
-  CURRENCY = 'currency',
-  DATE = 'date',
-  DROPDOWN = 'dropdown',
-  EMAIL = 'email',
-  ID = 'id',
-  NAME = 'name',
-  NUMBER = 'number',
-  RADIO = 'radio',
-  TEXT = 'text',
-  ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file-upload',
-}
-
 export enum QuestionType {
   ADDRESS = 'address',
   CHECKBOX = 'checkbox',
@@ -584,7 +567,7 @@ export class AdminQuestions {
   }
 
   async addQuestionForType(
-    type: QuestionType | QuestionTypeLegacy,
+    type: QuestionType,
     questionName: string,
     questionText?: string,
     questionOptions?: {adminName: string; text: string}[],

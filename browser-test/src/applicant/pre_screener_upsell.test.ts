@@ -23,7 +23,7 @@ test.describe(
       await loginAsAdmin(page)
 
       await test.step('Setup: Publish pre-screener program', async () => {
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           programName,
           'Short description',
           ProgramVisibility.PUBLIC,

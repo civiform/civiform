@@ -1206,7 +1206,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const preScreenerFormProgramName = 'Benefits finder'
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerFormProgramName,
       'short program description',
       ProgramVisibility.PUBLIC,
@@ -1248,7 +1248,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const preScreenerFormProgramName = 'Benefits finder'
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerFormProgramName,
       'short program description',
       ProgramVisibility.PUBLIC,
@@ -1307,7 +1307,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       'cif',
       'short program description',
       ProgramVisibility.PUBLIC,

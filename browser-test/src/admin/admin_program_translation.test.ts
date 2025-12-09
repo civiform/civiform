@@ -49,7 +49,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
-        expectProgramDescription: '',
         expectProgramShortDescription: '',
         expectApplicationStepTitle: '',
         expectApplicationStepDescription: '',
@@ -57,13 +56,11 @@ test.describe(
       await adminTranslations.expectNoProgramStatusTranslations()
       await adminTranslations.expectNoProgramImageDescription()
       const publicName = 'Spanish name'
-      const publicDescription = 'Spanish description'
       const publicShortDesc = 'Short Spanish desc'
       const stepOneTitle = 'step one Spanish title'
       const stepOneDescription = 'step one Spanish description'
       await adminTranslations.editProgramTranslations({
         name: publicName,
-        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -75,7 +72,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
-        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDesc,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -121,7 +117,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
-        expectProgramDescription: '',
         expectProgramShortDescription: '',
         expectApplicationStepTitle: '',
         expectApplicationStepDescription: '',
@@ -136,13 +131,11 @@ test.describe(
         expectStatusText: '',
       })
       const publicName = 'Spanish name'
-      const publicDescription = 'Spanish description'
       const publicShortDescription = 'Short Spanish desc'
       const stepOneTitle = 'step one Spanish title'
       const stepOneDescription = 'step one Spanish description'
       await adminTranslations.editProgramTranslations({
         name: publicName,
-        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -154,7 +147,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
-        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDescription,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -174,7 +166,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: publicName,
-        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [
@@ -196,7 +187,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
-        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDescription,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -221,7 +211,7 @@ test.describe(
 
       await test.step('Add a pre-screener program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           programName,
           'short description',
           ProgramVisibility.PUBLIC,
@@ -263,7 +253,6 @@ test.describe(
           blockDescription: 'Spanish block description',
           statuses: [],
           programType: 'pre-screener',
-          northStar: true,
         })
       })
 
@@ -279,7 +268,6 @@ test.describe(
           expectProgramName: 'Spanish name',
           expectProgramShortDescription: 'Spanish description',
           programType: 'pre-screener',
-          northStar: true,
         })
       })
     })
@@ -308,7 +296,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -348,7 +335,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -390,7 +376,6 @@ test.describe(
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -470,7 +455,6 @@ test.describe(
 
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
-          description: 'Spanish description',
           blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
           statuses: [],
