@@ -54,8 +54,11 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateUseCase;
 import services.program.predicate.SelectedValue;
@@ -186,6 +189,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
+      ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
+          buildConditionsListFromPredicateDefinition(
+              request,
+              programId,
+              blockDefinitionId,
+              predicateUseCase,
+              getAvailablePredicateDefinition(
+                  programDefinition, blockDefinitionId, predicateUseCase));
 
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
         EditPredicatePageViewModel model =
@@ -194,7 +205,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .blockDefinition(blockDefinition)
                 .predicateUseCase(predicateUseCase)
                 .operatorScalarMap(getOperatorScalarMap())
-                .prePopulatedConditions(ImmutableList.of())
+                .prePopulatedConditions(populatedConditionsList)
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
                 .eligibilityMessage(
                     blockDefinition
@@ -213,6 +224,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (QuestionNotFoundException e) {
+      return notFound(e.getLocalizedMessage());
     }
   }
 
@@ -234,6 +247,27 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
       case VISIBILITY ->
           programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId);
+    };
+  }
+
+  private Optional<PredicateDefinition> getAvailablePredicateDefinition(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().stream()
+            .filter(block -> block.id() == blockDefinitionId)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new ProgramBlockDefinitionNotFoundException(
+                        programDefinition.id(), blockDefinitionId));
+
+    return switch (predicateUseCase) {
+      case ELIGIBILITY ->
+          blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+      case VISIBILITY -> blockDefinition.visibilityPredicate();
     };
   }
 
@@ -432,6 +466,142 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  // Builds a subcondition model from a LeafOperationExpressionNode.
+  private EditSubconditionPartialViewModel buildSubconditionFromLeafNode(
+      EditSubconditionPartialViewModel model,
+      LeafOperationExpressionNode leafNode,
+      ImmutableList<QuestionDefinition> availableQuestions)
+      throws QuestionNotFoundException {
+    QuestionDefinition selectedQuestion =
+        availableQuestions.stream()
+            .filter(q -> q.getId() == leafNode.questionId())
+            .findFirst()
+            .orElseThrow(() -> new QuestionNotFoundException(leafNode.questionId()));
+
+    SelectedValue userEnteredValue =
+        leafNode.comparedValue().toSelectedValue(selectedQuestion.getQuestionType());
+    String firstValue =
+        switch (userEnteredValue.getKind()) {
+          case SINGLE -> userEnteredValue.single();
+          case PAIR -> userEnteredValue.pair().first();
+          case MULTIPLE -> "";
+        };
+
+    String secondValue =
+        switch (userEnteredValue.getKind()) {
+          case PAIR -> userEnteredValue.pair().second();
+          case SINGLE, MULTIPLE -> "";
+        };
+
+    return model.toBuilder()
+        .questionOptions(getQuestionOptions(availableQuestions, Optional.of(selectedQuestion)))
+        .operatorOptions(getOperatorOptions(Optional.of(leafNode.operator())))
+        .scalarOptions(
+            getScalarOptionsForQuestion(selectedQuestion, Optional.of(leafNode.scalar())))
+        .selectedQuestionType(Optional.of(selectedQuestion.getQuestionType().getLabel()))
+        .userEnteredValue(firstValue)
+        .secondUserEnteredValue(secondValue)
+        .valueOptions(getValueOptionsForQuestion(selectedQuestion, userEnteredValue))
+        .build();
+  }
+
+  // Builds a subcondition model from a LeafAddressServiceAreaExpressionNode.
+  private EditSubconditionPartialViewModel buildSubconditionFromAddressNode(
+      EditSubconditionPartialViewModel model,
+      LeafAddressServiceAreaExpressionNode addressNode,
+      ImmutableList<QuestionDefinition> availableQuestions)
+      throws QuestionNotFoundException {
+    QuestionDefinition selectedQuestion =
+        availableQuestions.stream()
+            .filter(q -> q.getId() == addressNode.questionId())
+            .findFirst()
+            .orElseThrow(() -> new QuestionNotFoundException(addressNode.questionId()));
+    SelectedValue userEnteredValue = SelectedValue.single(addressNode.serviceAreaId());
+
+    return model.toBuilder()
+        .questionOptions(getQuestionOptions(availableQuestions, Optional.of(selectedQuestion)))
+        .operatorOptions(getOperatorOptions(Optional.of(addressNode.operator())))
+        .scalarOptions(getScalarOptionsForQuestion(selectedQuestion, Optional.empty()))
+        .selectedQuestionType(Optional.of(selectedQuestion.getQuestionType().getLabel()))
+        .valueOptions(getValueOptionsForQuestion(selectedQuestion, userEnteredValue))
+        .build();
+  }
+
+  /**
+   * Builds a list of condition view models from an (optional) saved {@link PredicateDefinition}.
+   *
+   * <p>If expanded form logic is not enabled, or there is no saved predicate definition, returns an
+   * empty list.
+   */
+  private ImmutableList<EditConditionPartialViewModel> buildConditionsListFromPredicateDefinition(
+      Request request,
+      long programId,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase,
+      Optional<PredicateDefinition> maybePredicateDefinition)
+      throws QuestionNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException {
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)
+        || maybePredicateDefinition.isEmpty()) {
+      return ImmutableList.of();
+    }
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    // If the root is a leaf node, treat it as a single condition.
+    // If it's an AND/OR node, its children are the conditions.
+    ImmutableList<PredicateExpressionNode> conditionExpressionNodes =
+        getLeafNodeOrChildren(maybePredicateDefinition.get().rootNode());
+
+    ArrayList<EditConditionPartialViewModel> conditionsList = new ArrayList<>();
+    ImmutableList<QuestionDefinition> availableQuestions =
+        getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, predicateUseCase);
+
+    // Iterate through top-level condition nodes (children of root AND/OR) to build view models.
+    for (PredicateExpressionNode conditionExpressionNode : conditionExpressionNodes) {
+      EditConditionPartialViewModel conditionViewModel =
+          createBaseConditionModel(
+              programId, blockDefinitionId, predicateUseCase, availableQuestions);
+
+      // Subconditions will be leaf nodes here.
+      // If the conditionExpressionNode is a leaf node, treat it as a single subcondition.
+      ArrayList<EditSubconditionPartialViewModel> subconditionsList = new ArrayList<>();
+      ImmutableList<PredicateExpressionNode> subconditionExpressionNodes =
+          getLeafNodeOrChildren(conditionExpressionNode);
+      for (PredicateExpressionNode subconditionExpressionNode : subconditionExpressionNodes) {
+        EditSubconditionPartialViewModel subconditionViewModel =
+            conditionViewModel.emptySubconditionViewModel();
+
+        switch (subconditionExpressionNode.getType()) {
+          case LEAF_OPERATION -> {
+            subconditionViewModel =
+                buildSubconditionFromLeafNode(
+                    subconditionViewModel,
+                    subconditionExpressionNode.getLeafOperationNode(),
+                    availableQuestions);
+          }
+          case LEAF_ADDRESS_SERVICE_AREA -> {
+            subconditionViewModel =
+                buildSubconditionFromAddressNode(
+                    subconditionViewModel,
+                    subconditionExpressionNode.getLeafAddressNode(),
+                    availableQuestions);
+          }
+          case AND, OR -> {
+            // Skip non-leaf nodes.
+          }
+        }
+        subconditionsList.add(subconditionViewModel);
+      }
+      conditionsList.add(
+          conditionViewModel.toBuilder()
+              .subconditions(ImmutableList.copyOf(subconditionsList))
+              .build());
+    }
+
+    return ImmutableList.copyOf(conditionsList);
   }
 
   /**
@@ -1071,9 +1241,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return multiOptionQuestionDefinition.getDisplayableOptions().stream()
           .map(
               option -> {
-                boolean shouldSelect = selectedValue.multiple().contains(option.adminName());
+                String value = String.valueOf(option.id());
+                boolean shouldSelect = selectedValue.multiple().contains(value);
                 return OptionElement.builder()
-                    .value(option.adminName())
+                    .value(value)
                     .displayText(option.optionText().getOrDefault(Locale.US))
                     .selected(shouldSelect)
                     .build();
@@ -1125,10 +1296,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
     ImmutableList<QuestionDefinition> availableQuestions =
         getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, useCase);
-    ImmutableList<OptionElement> operatorOptions =
-        getOperatorOptions(/* selectedOperator= */ Optional.empty());
-    ImmutableList<OptionElement> defaultQuestionOptions =
-        getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty());
 
     // Get list of present condition IDs.
     // This is necessary to account for gaps in condition IDs.
@@ -1139,13 +1306,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     // Iterate upwards through condition IDs.
     for (Long conditionId : presentConditionIds) {
       EditConditionPartialViewModel condition =
-          EditConditionPartialViewModel.builder()
-              .programId(programId)
-              .blockId(blockDefinitionId)
-              .predicateUseCase(useCase)
-              .questionOptions(defaultQuestionOptions)
-              .operatorOptions(operatorOptions)
-              .build();
+          createBaseConditionModel(programId, blockDefinitionId, useCase, availableQuestions);
 
       /* Iterate through subconditions */
       ArrayList<EditSubconditionPartialViewModel> subconditions = new ArrayList<>();
@@ -1285,6 +1446,34 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     return ImmutableSet.copyOf(valuesToReturn);
+  }
+
+  // Create a base EditConditionPartialViewModel with default options.
+  private EditConditionPartialViewModel createBaseConditionModel(
+      long programId,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase,
+      ImmutableList<QuestionDefinition> availableQuestions) {
+    return EditConditionPartialViewModel.builder()
+        .programId(programId)
+        .blockId(blockDefinitionId)
+        .predicateUseCase(predicateUseCase)
+        .questionOptions(
+            getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty()))
+        .scalarOptions(ImmutableList.of())
+        .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
+        .build();
+  }
+
+  // If the given node is a leaf node, return a list containing just that node. Otherwise, return
+  // its children.
+  private ImmutableList<PredicateExpressionNode> getLeafNodeOrChildren(
+      PredicateExpressionNode node) {
+    if (node.getType().isLeafNode()) {
+      return ImmutableList.of(node);
+    } else {
+      return node.getChildren();
+    }
   }
 
   // Given a regex pattern keyPattern and a map, return a sorted list of matches between

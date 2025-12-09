@@ -2,7 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
-import {MultiValueSpec} from '../support/admin_predicates'
+import {MultiValueSpec, SubconditionSpec} from '../support/admin_predicates'
 
 /**
  * Map of question types to that question type's corresponding testing data
@@ -883,6 +883,160 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.expectNoDeleteAllConditionsButton()
       await adminPredicates.expectAddConditionButton()
       await adminPredicates.expectEligibilityNullState()
+    })
+  })
+
+  test('Save and restore predicate values', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+    const programName = 'Saved and restored'
+
+    const questionTypes: QuestionType[] = [
+      QuestionType.ADDRESS,
+      QuestionType.CHECKBOX,
+      QuestionType.DATE,
+      QuestionType.NAME,
+    ]
+    const testQuestionData = questionTypes
+      .filter((key) => PROGRAM_SAMPLE_QUESTIONS.has(key))
+      .map((key) => ({
+        questionType: key,
+        questionValue: PROGRAM_SAMPLE_QUESTIONS.get(key)!,
+      }))
+
+    const addressValues = testQuestionData.find(
+      (question) => question.questionType === QuestionType.ADDRESS,
+    )!.questionValue
+    const checkboxValues = testQuestionData.find(
+      (question) => question.questionType === QuestionType.CHECKBOX,
+    )!.questionValue
+    const dateValues = testQuestionData.find(
+      (question) => question.questionType === QuestionType.DATE,
+    )!.questionValue
+    const nameValues = testQuestionData.find(
+      (question) => question.questionType === QuestionType.NAME,
+    )!.questionValue
+
+    const subconditionConfigs: SubconditionSpec[] = [
+      {
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: checkboxValues.questionText,
+        value: {multiValues: checkboxValues.multiValueOptions!},
+      },
+      {
+        conditionId: 1,
+        subconditionId: 2,
+        questionText: dateValues.questionText,
+        operator: 'BETWEEN',
+        value: {
+          firstValue: dateValues.firstValue,
+          secondValue: dateValues.secondValue!,
+        },
+      },
+      {
+        conditionId: 2,
+        subconditionId: 1,
+        questionText: nameValues.questionText,
+        scalar: 'LAST_NAME',
+        value: {firstValue: nameValues.firstValue},
+      },
+      {
+        conditionId: 2,
+        subconditionId: 2,
+        questionText: addressValues.questionText,
+        value: {},
+      },
+    ]
+
+    await test.step('create a program and add questions', async () => {
+      await adminPrograms.addProgram(programName)
+      for (const question of testQuestionData) {
+        await adminQuestions.addQuestionForType(
+          question.questionType,
+          question.questionValue.questionName,
+          question.questionValue.questionText,
+          question.questionValue.multiValueOptions,
+        )
+      }
+
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: testQuestionData.map((questionData) => ({
+          name: questionData.questionValue.questionName,
+        })),
+      })
+    })
+
+    await test.step('enable address correction', async () => {
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+
+      await adminPrograms.clickAddressCorrectionToggle()
+      await expect(adminPrograms.getAddressCorrectionToggle()).toHaveValue(
+        'true',
+      )
+    })
+
+    await test.step('fill eligibility predicate conditions and values', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      // Add conditions and subconditions
+      await adminPredicates.addAndExpectCondition(1)
+      await adminPredicates.addAndExpectSubcondition(1, 2)
+
+      await adminPredicates.addAndExpectCondition(2)
+      await adminPredicates.addAndExpectSubcondition(2, 2)
+
+      await adminPredicates.configureSubconditions(subconditionConfigs)
+    })
+
+    await test.step('validate state', async () => {
+      await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
+      await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+
+      // Checking values
+      // Address value checked manually
+      await expect(
+        page
+          .getByLabel('Value(s)', {id: 'condition-2-subcondition-2-value'})
+          .locator(`option[value="Seattle"]`),
+      ).not.toHaveAttribute('hidden')
+
+      await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
+    })
+
+    await test.step('save and reload', async () => {
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+    })
+
+    await test.step('re-validate state', async () => {
+      await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
+      await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+
+      // Checking values
+      // Address value checked manually
+      await expect(
+        page
+          .getByLabel('Value(s)', {id: 'condition-2-subcondition-2-value'})
+          .locator(`option[value="Seattle"]`),
+      ).not.toHaveAttribute('hidden')
+
+      await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
     })
   })
 
