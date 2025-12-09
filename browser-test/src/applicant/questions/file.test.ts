@@ -298,8 +298,7 @@ test.describe('file upload applicant flow', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'
 
-    // TODO(9454): remove ".fixme" once https://github.com/civiform/civiform/issues/9454 is fixed
-    test.fixme('hides upload button at max', async ({
+    test('hides upload button at max', async ({
       applicantQuestions,
       applicantFileQuestion,
       page,
@@ -1146,10 +1145,10 @@ test.describe('file upload applicant flow', () => {
 
     test.describe('back button', () => {
       // TODO(9521): Reinstate test when #9521 is fixed.
-      test.fixme('clicking back without file redirects to previous page', async ({
+      test('clicking back without file redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
+        await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
         )
@@ -1168,11 +1167,10 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
       })
 
-      // TODO(9524): Reinstate test when #9524 is fixed.
-      test.fixme('clicking back with file saves file and redirects to previous page', async ({
+      test('clicking back with file saves file and redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
+        await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
         )
