@@ -272,6 +272,8 @@ test.describe('create and edit predicates', () => {
     adminPrograms,
     adminPredicates,
   }) => {
+    // Since this is the main comprehensive test suite, increase timeout to 2 minutes
+    test.setTimeout(120_000)
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
@@ -458,13 +460,15 @@ test.describe('create and edit predicates', () => {
     // Test single-value operator on applicable question types.
     for (const questionType of [
       QuestionType.CURRENCY,
-      QuestionType.DATE,
       QuestionType.EMAIL,
       QuestionType.ID,
       QuestionType.NAME,
       QuestionType.NUMBER,
       QuestionType.TEXT,
     ]) {
+      const singleValueOperator =
+        questionType === QuestionType.DATE ? 'IS_AFTER' : 'EQUAL_TO'
+
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
@@ -475,7 +479,7 @@ test.describe('create and edit predicates', () => {
         await adminPredicates.selectOperator(
           /* conditionId= */ 1,
           /* subconditionId= */ 1,
-          'EQUAL_TO',
+          singleValueOperator,
         )
         await waitForHtmxReady(page)
 
@@ -501,7 +505,45 @@ test.describe('create and edit predicates', () => {
         await inputElementLocator.fill(questionData.firstValue)
         await expect(inputElementLocator).toHaveValue(questionData.firstValue)
       })
+
+      await test.step('save predicate and re-load page and expect no change', async () => {
+        const questionData = programQuestions.get(questionType)!
+        await adminPredicates.clickSaveAndExitButton()
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
+        )
+        await adminPredicates.expectCondition(1)
+        await adminPredicates.expectSubcondition(1, 1)
+        await adminPredicates.expectNoSubcondition(1, 2)
+        await adminPredicates.expectNoCondition(2)
+        await expect(
+          page.locator('#condition-1-subcondition-1-question'),
+        ).toContainText(questionData.questionText)
+        await expect(
+          page.locator('#condition-1-subcondition-1-operator'),
+        ).toHaveValue(singleValueOperator)
+        const inputElementLocator = page.locator(
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+        )
+        await expect(inputElementLocator).toHaveValue(questionData.firstValue)
+      })
     }
+
+    // Reset test case state
+    await test.step('delete condition, save, and re-add condition', async () => {
+      await adminPredicates.clickDeleteConditionButton(/* conditionId= */ 1)
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
 
     // Test question types that allow multiple input fields with the BETWEEN operator
     for (const questionType of [
@@ -557,7 +599,54 @@ test.describe('create and edit predicates', () => {
           questionData.secondValue!,
         )
       })
+
+      await test.step('save predicate and re-load page and expect no change', async () => {
+        const questionData = programQuestions.get(questionType)!
+        await adminPredicates.clickSaveAndExitButton()
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
+        )
+        await adminPredicates.expectCondition(1)
+        await adminPredicates.expectSubcondition(1, 1)
+        await adminPredicates.expectNoSubcondition(1, 2)
+        await adminPredicates.expectNoCondition(2)
+
+        await expect(
+          page.locator('#condition-1-subcondition-1-question'),
+        ).toContainText(questionData.questionText)
+
+        await expect(
+          page.locator('#condition-1-subcondition-1-operator'),
+        ).toHaveValue('BETWEEN')
+        const inputElementLocator = page.locator(
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+        )
+        const secondInputElementLocator = page.locator(
+          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
+        )
+        await expect(inputElementLocator).toHaveValue(questionData.firstValue)
+        await expect(secondInputElementLocator).toHaveValue(
+          questionData.secondValue!,
+        )
+      })
     }
+
+    // Reset test case state
+    await test.step('delete condition, save, and re-add condition', async () => {
+      await adminPredicates.clickDeleteConditionButton(/* conditionId= */ 1)
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
 
     await test.step('Select date question and validate age operator behavior', async () => {
       const questionData = programQuestions.get(QuestionType.DATE)!
@@ -566,6 +655,9 @@ test.describe('create and edit predicates', () => {
         /* subconditionId= */ 1,
         questionData.questionText,
       )
+
+      await waitForHtmxReady(page)
+
       await adminPredicates.selectOperator(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,
@@ -586,6 +678,9 @@ test.describe('create and edit predicates', () => {
 
       await expect(inputElementLocator).toHaveValue('18')
       await expect(secondInputElementLocator).toHaveValue('25')
+      await expect(
+        page.locator('#condition-1-subcondition-1-operator'),
+      ).toHaveValue('AGE_BETWEEN')
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
@@ -605,11 +700,15 @@ test.describe('create and edit predicates', () => {
           questionData.questionText,
         )
 
+        await waitForHtmxReady(page)
+
         await adminPredicates.selectOperator(
           /* conditionId= */ 1,
           /* subconditionId= */ 1,
           'IN',
         )
+
+        await waitForHtmxReady(page)
 
         const valueHintTextLocator = page.locator(
           '#condition-1-subcondition-1-valueHintText',
@@ -653,11 +752,49 @@ test.describe('create and edit predicates', () => {
         /* subconditionId= */ 1,
         questionData.questionText,
       )
+
       await expect(
         page
           .getByLabel('Value(s)', {id: 'condition-1-subcondition-1-value'})
           .locator(`option[value="Seattle"]`),
       ).not.toHaveAttribute('hidden')
+    })
+
+    await test.step('save predicate, re-load page, and expect no change', async () => {
+      const questionData = programQuestions.get(QuestionType.ADDRESS)!
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await adminPredicates.expectCondition(1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectNoCondition(2)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(questionData.questionText)
+
+      await expect(
+        page
+          .getByLabel('Value(s)', {id: 'condition-1-subcondition-1-value'})
+          .locator(`option[value="Seattle"]`),
+      ).not.toHaveAttribute('hidden')
+    })
+
+    await test.step('reset edit eligibility page', async () => {
+      await adminPredicates.clickDeleteConditionButton(/* conditionId= */ 1)
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.clickSaveAndExitButton()
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
     })
 
     // Test multiple option question types
@@ -667,7 +804,6 @@ test.describe('create and edit predicates', () => {
       QuestionType.RADIO,
     ]) {
       const questionData = programQuestions.get(questionType)!
-
       await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
@@ -703,6 +839,40 @@ test.describe('create and edit predicates', () => {
         await adminPredicates.clickDeleteSubconditionButton(1, 2)
         await waitForHtmxReady(page)
         await adminPredicates.expectNoSubcondition(1, 2)
+
+        const checkboxLabelLocators: Locator[] = [
+          page.locator('label[for="condition-1-subcondition-1-values[1]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[2]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[3]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[4]"]'),
+        ]
+
+        for (let i = 0; i < checkboxLabelLocators.length; i++) {
+          const locator = checkboxLabelLocators[i]
+          await expect(locator).toBeVisible()
+          await expect(locator).toBeChecked()
+          await expect(locator).toHaveText(
+            questionData.multiValueOptions![i].text,
+          )
+        }
+      })
+
+      await test.step('save predicate and re-load page and expect no change', async () => {
+        await adminPredicates.clickSaveAndExitButton()
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
+        )
+
+        await adminPredicates.expectCondition(1)
+        await adminPredicates.expectSubcondition(1, 1)
+        await adminPredicates.expectNoSubcondition(1, 2)
+        await adminPredicates.expectNoCondition(2)
+
+        await expect(
+          page.locator('#condition-1-subcondition-1-question'),
+        ).toContainText(questionData.questionText)
 
         const checkboxLabelLocators: Locator[] = [
           page.locator('label[for="condition-1-subcondition-1-values[1]"]'),

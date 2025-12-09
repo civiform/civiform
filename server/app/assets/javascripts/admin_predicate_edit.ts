@@ -76,6 +76,22 @@ export class AdminPredicateEdit {
       'change',
       AdminPredicateEdit.onOperatorDropdownChange,
     )
+
+    // Trigger change to update operators based on the current scalar selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-scalar-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
+
+    // Trigger change to update values inputs based on the current operator selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-operator-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
   }
 
   private static onScalarDropdownChange(event: Event): void {
