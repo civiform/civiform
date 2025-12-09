@@ -19,16 +19,16 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
   test.beforeEach(async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
-    await test.step('Setup: Publish pre-screener program', async () => {
-      await adminPrograms.addPreScreenerNS(
-        programName,
-        'Short description',
-        ProgramVisibility.PUBLIC,
-      )
-      await adminPrograms.publishProgram(programName)
-      await adminPrograms.expectActiveProgram(programName)
+      await test.step('Setup: Publish pre-screener program', async () => {
+        await adminPrograms.addPreScreener(
+          programName,
+          'Short description',
+          ProgramVisibility.PUBLIC,
+        )
+        await adminPrograms.publishProgram(programName)
+        await adminPrograms.expectActiveProgram(programName)
+      })
     })
-  })
 
   test('view application submitted page with one eligible program', async ({
     page,

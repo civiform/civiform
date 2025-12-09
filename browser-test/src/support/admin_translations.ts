@@ -9,6 +9,18 @@ type ProgramStatusTranslationParams = {
   statusEmail?: string
 }
 
+type ProgramTranslationParams = {
+  name: string
+  blockName: string
+  blockDescription: string
+  statuses: ProgramStatusTranslationParams[]
+  shortDescription?: string
+  applicationStepTitle?: string
+  applicationStepDescription?: string
+  blockEligibilityMsg?: string
+  programType?: string
+}
+
 /**
  * List of fields in the program translation form. This list is not exhaustive,
  * as fields are added when needed by a test.
@@ -38,7 +50,6 @@ export class AdminTranslations {
 
   async editProgramTranslations({
     name,
-    description,
     blockName,
     blockDescription,
     statuses = [],
@@ -47,25 +58,9 @@ export class AdminTranslations {
     applicationStepDescription = 'step one description',
     blockEligibilityMsg = '',
     programType = 'default',
-    northStar = false,
-  }: {
-    name: string
-    description: string
-    blockName: string
-    blockDescription: string
-    statuses: ProgramStatusTranslationParams[]
-    shortDescription: string
-    applicationStepTitle: string
-    applicationStepDescription: string
-    blockEligibilityMsg?: string
-    programType: string
-    northStar: boolean
-  }) {
+  }: ProgramTranslationParams) {
     await this.page.fill('text=Program name', name)
 
-    if (programType === 'default' || !northStar) {
-      await this.page.fill('text=Program description', description)
-    }
     await this.page.fill('text=Short program description', shortDescription)
 
     for (const status of statuses) {
@@ -113,33 +108,19 @@ export class AdminTranslations {
 
   async expectProgramTranslation({
     expectProgramName,
-    expectProgramDescription,
     expectProgramShortDescription = 'short description',
     expectApplicationStepTitle = 'step one title',
     expectApplicationStepDescription = 'step one description',
     programType = 'default',
-    northStar = false,
   }: {
     expectProgramName: string
-    expectProgramDescription: string
-    expectProgramShortDescription: string
-    expectApplicationStepTitle: string
-    expectApplicationStepDescription: string
-    programType: string
-    northStar: boolean
+    expectProgramShortDescription?: string
+    expectApplicationStepTitle?: string
+    expectApplicationStepDescription?: string
+    programType?: string
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
-
-    if (programType === 'default' || !northStar) {
-      const programDescriptionValue = this.page.getByRole('textbox', {
-        name: 'Program description',
-        exact: true,
-      })
-      await expect(programDescriptionValue).toHaveValue(
-        expectProgramDescription,
-      )
-    }
 
     const programShortDescriptionValue = this.page.getByLabel(
       'Short program description',

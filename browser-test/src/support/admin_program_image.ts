@@ -193,7 +193,7 @@ export class AdminProgramImage {
   ) {
     await expect(this.page.getByText(programName)).toBeVisible()
     if (shortDescription !== '') {
-      // In North Star short description is rendered on the program card if we have it
+      // Short description is rendered on the program card if we have it
       await expect(this.page.getByText(shortDescription)).toBeVisible()
     } else {
       await expect(this.page.getByText(programDescription)).toBeVisible()

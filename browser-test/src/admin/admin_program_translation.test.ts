@@ -42,44 +42,40 @@ test.describe('Admin can manage program translations', () => {
     // Go to manage translations page.
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
 
-    // Add translations for Spanish and publish
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: '',
-      expectProgramDescription: '',
-      expectProgramShortDescription: '',
-      expectApplicationStepTitle: '',
-      expectApplicationStepDescription: '',
-    })
-    await adminTranslations.expectNoProgramStatusTranslations()
-    await adminTranslations.expectNoProgramImageDescription()
-    const publicName = 'Spanish name'
-    const publicDescription = 'Spanish description'
-    const publicShortDesc = 'Short Spanish desc'
-    const stepOneTitle = 'step one Spanish title'
-    const stepOneDescription = 'step one Spanish description'
-    await adminTranslations.editProgramTranslations({
-      name: publicName,
-      description: publicDescription,
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [],
-      shortDescription: publicShortDesc,
-      applicationStepTitle: stepOneTitle,
-      applicationStepDescription: stepOneDescription,
-    })
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: publicName,
-      expectProgramDescription: publicDescription,
-      expectProgramShortDescription: publicShortDesc,
-      expectApplicationStepTitle: stepOneTitle,
-      expectApplicationStepDescription: stepOneDescription,
-    })
-    await adminTranslations.expectNoProgramStatusTranslations()
-    await adminTranslations.expectNoProgramImageDescription()
-    await adminPrograms.publishProgram(programName)
+      // Add translations for Spanish and publish
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: '',
+        expectProgramShortDescription: '',
+        expectApplicationStepTitle: '',
+        expectApplicationStepDescription: '',
+      })
+      await adminTranslations.expectNoProgramStatusTranslations()
+      await adminTranslations.expectNoProgramImageDescription()
+      const publicName = 'Spanish name'
+      const publicShortDesc = 'Short Spanish desc'
+      const stepOneTitle = 'step one Spanish title'
+      const stepOneDescription = 'step one Spanish description'
+      await adminTranslations.editProgramTranslations({
+        name: publicName,
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+        shortDescription: publicShortDesc,
+        applicationStepTitle: stepOneTitle,
+        applicationStepDescription: stepOneDescription,
+      })
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: publicName,
+        expectProgramShortDescription: publicShortDesc,
+        expectApplicationStepTitle: stepOneTitle,
+        expectApplicationStepDescription: stepOneDescription,
+      })
+      await adminTranslations.expectNoProgramStatusTranslations()
+      await adminTranslations.expectNoProgramImageDescription()
+      await adminPrograms.publishProgram(programName)
 
     // View the applicant program page in Spanish and check that the translations are present
     await logout(page)
@@ -113,101 +109,95 @@ test.describe('Admin can manage program translations', () => {
     await adminProgramStatuses.createStatus(statusWithNoEmailName)
     await adminProgramStatuses.expectProgramManageStatusesPage(programName)
 
-    // Add only program translations for Spanish. Empty status translations should be accepted.
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: '',
-      expectProgramDescription: '',
-      expectProgramShortDescription: '',
-      expectApplicationStepTitle: '',
-      expectApplicationStepDescription: '',
-    })
-    await adminTranslations.expectProgramStatusTranslationWithEmail({
-      configuredStatusText: statusWithEmailName,
-      expectStatusText: '',
-      expectStatusEmail: '',
-    })
-    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
-      configuredStatusText: statusWithNoEmailName,
-      expectStatusText: '',
-    })
-    const publicName = 'Spanish name'
-    const publicDescription = 'Spanish description'
-    const publicShortDescription = 'Short Spanish desc'
-    const stepOneTitle = 'step one Spanish title'
-    const stepOneDescription = 'step one Spanish description'
-    await adminTranslations.editProgramTranslations({
-      name: publicName,
-      description: publicDescription,
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [],
-      shortDescription: publicShortDescription,
-      applicationStepTitle: stepOneTitle,
-      applicationStepDescription: stepOneDescription,
-    })
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: publicName,
-      expectProgramDescription: publicDescription,
-      expectProgramShortDescription: publicShortDescription,
-      expectApplicationStepTitle: stepOneTitle,
-      expectApplicationStepDescription: stepOneDescription,
-    })
-    await adminTranslations.expectProgramStatusTranslationWithEmail({
-      configuredStatusText: statusWithEmailName,
-      expectStatusText: '',
-      expectStatusEmail: '',
-    })
-    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
-      configuredStatusText: statusWithNoEmailName,
-      expectStatusText: '',
-    })
+      // Add only program translations for Spanish. Empty status translations should be accepted.
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: '',
+        expectProgramShortDescription: '',
+        expectApplicationStepTitle: '',
+        expectApplicationStepDescription: '',
+      })
+      await adminTranslations.expectProgramStatusTranslationWithEmail({
+        configuredStatusText: statusWithEmailName,
+        expectStatusText: '',
+        expectStatusEmail: '',
+      })
+      await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+        configuredStatusText: statusWithNoEmailName,
+        expectStatusText: '',
+      })
+      const publicName = 'Spanish name'
+      const publicShortDescription = 'Short Spanish desc'
+      const stepOneTitle = 'step one Spanish title'
+      const stepOneDescription = 'step one Spanish description'
+      await adminTranslations.editProgramTranslations({
+        name: publicName,
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+        shortDescription: publicShortDescription,
+        applicationStepTitle: stepOneTitle,
+        applicationStepDescription: stepOneDescription,
+      })
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: publicName,
+        expectProgramShortDescription: publicShortDescription,
+        expectApplicationStepTitle: stepOneTitle,
+        expectApplicationStepDescription: stepOneDescription,
+      })
+      await adminTranslations.expectProgramStatusTranslationWithEmail({
+        configuredStatusText: statusWithEmailName,
+        expectStatusText: '',
+        expectStatusEmail: '',
+      })
+      await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+        configuredStatusText: statusWithNoEmailName,
+        expectStatusText: '',
+      })
 
-    // Now add a partial translation for one status and a full translation for the other.
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.editProgramTranslations({
-      name: publicName,
-      description: publicDescription,
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [
-        {
-          configuredStatusText: statusWithEmailName,
-          statusText: '',
-          statusEmail: `${statusWithEmailName}-email-spanish`,
-        },
-        {
-          configuredStatusText: statusWithNoEmailName,
-          statusText: `${statusWithNoEmailName}-spanish`,
-        },
-      ],
-      shortDescription: publicShortDescription,
-      applicationStepTitle: stepOneTitle,
-      applicationStepDescription: stepOneDescription,
+      // Now add a partial translation for one status and a full translation for the other.
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editProgramTranslations({
+        name: publicName,
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [
+          {
+            configuredStatusText: statusWithEmailName,
+            statusText: '',
+            statusEmail: `${statusWithEmailName}-email-spanish`,
+          },
+          {
+            configuredStatusText: statusWithNoEmailName,
+            statusText: `${statusWithNoEmailName}-spanish`,
+          },
+        ],
+        shortDescription: publicShortDescription,
+        applicationStepTitle: stepOneTitle,
+        applicationStepDescription: stepOneDescription,
+      })
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: publicName,
+        expectProgramShortDescription: publicShortDescription,
+        expectApplicationStepTitle: stepOneTitle,
+        expectApplicationStepDescription: stepOneDescription,
+      })
+      await adminTranslations.expectProgramStatusTranslationWithEmail({
+        configuredStatusText: statusWithEmailName,
+        expectStatusText: '',
+        expectStatusEmail: `${statusWithEmailName}-email-spanish`,
+      })
+      await adminTranslations.expectProgramStatusTranslationWithNoEmail({
+        configuredStatusText: statusWithNoEmailName,
+        expectStatusText: `${statusWithNoEmailName}-spanish`,
+      })
     })
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: publicName,
-      expectProgramDescription: publicDescription,
-      expectProgramShortDescription: publicShortDescription,
-      expectApplicationStepTitle: stepOneTitle,
-      expectApplicationStepDescription: stepOneDescription,
-    })
-    await adminTranslations.expectProgramStatusTranslationWithEmail({
-      configuredStatusText: statusWithEmailName,
-      expectStatusText: '',
-      expectStatusEmail: `${statusWithEmailName}-email-spanish`,
-    })
-    await adminTranslations.expectProgramStatusTranslationWithNoEmail({
-      configuredStatusText: statusWithNoEmailName,
-      expectStatusText: `${statusWithNoEmailName}-spanish`,
-    })
-  })
 
   test('Pre-screener form translations', async ({
     page,
@@ -216,14 +206,14 @@ test.describe('Admin can manage program translations', () => {
   }) => {
     const programName = 'Pre-screener program'
 
-    await test.step('Add a pre-screener program', async () => {
-      await loginAsAdmin(page)
-      await adminPrograms.addPreScreenerNS(
-        programName,
-        'short description',
-        ProgramVisibility.PUBLIC,
-      )
-    })
+      await test.step('Add a pre-screener program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addPreScreener(
+          programName,
+          'short description',
+          ProgramVisibility.PUBLIC,
+        )
+      })
 
     await test.step('Open translations page and verify fields', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -252,17 +242,16 @@ test.describe('Admin can manage program translations', () => {
       )
     })
 
-    await test.step('Update translations', async () => {
-      await adminTranslations.editProgramTranslations({
-        name: 'Spanish name',
-        shortDescription: 'Spanish description',
-        blockName: 'Spanish block name - bloque uno',
-        blockDescription: 'Spanish block description',
-        statuses: [],
-        programType: 'pre-screener',
-        northStar: true,
+      await test.step('Update translations', async () => {
+        await adminTranslations.editProgramTranslations({
+          name: 'Spanish name',
+          shortDescription: 'Spanish description',
+          blockName: 'Spanish block name - bloque uno',
+          blockDescription: 'Spanish block description',
+          statuses: [],
+          programType: 'pre-screener',
+        })
       })
-    })
 
     await test.step('Verify translations in translations page', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -272,14 +261,13 @@ test.describe('Admin can manage program translations', () => {
         'Spanish block description',
       )
 
-      await adminTranslations.expectProgramTranslation({
-        expectProgramName: 'Spanish name',
-        expectProgramShortDescription: 'Spanish description',
-        programType: 'pre-screener',
-        northStar: true,
+        await adminTranslations.expectProgramTranslation({
+          expectProgramName: 'Spanish name',
+          expectProgramShortDescription: 'Spanish description',
+          programType: 'pre-screener',
+        })
       })
     })
-  })
 
   test('creates a program with summary image description and adds translations', async ({
     page,
@@ -300,19 +288,18 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.expectProgramImageDescriptionTranslation('')
 
-    // Add a Spanish translation
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.editProgramTranslations({
-      name: 'Spanish name',
-      description: 'Spanish description',
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [],
-    })
-    await adminTranslations.editProgramImageDescription(
-      'Spanish image description',
-    )
+      // Add a Spanish translation
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+      })
+      await adminTranslations.editProgramImageDescription(
+        'Spanish image description',
+      )
 
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
     await adminTranslations.selectLanguage('Spanish')
@@ -341,18 +328,17 @@ test.describe('Admin can manage program translations', () => {
       'Fake image description',
     )
 
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.editProgramTranslations({
-      name: 'Spanish name',
-      description: 'Spanish description',
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [],
-    })
-    await adminTranslations.editProgramImageDescription(
-      'Spanish image description',
-    )
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+      })
+      await adminTranslations.editProgramImageDescription(
+        'Spanish image description',
+      )
 
     // Update the original description
     await adminPrograms.goToProgramImagePage(programName)
@@ -383,18 +369,17 @@ test.describe('Admin can manage program translations', () => {
       'Fake image description',
     )
 
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-    await adminTranslations.selectLanguage('Spanish')
-    await adminTranslations.editProgramTranslations({
-      name: 'Spanish name',
-      description: 'Spanish description',
-      blockName: 'Spanish block name',
-      blockDescription: 'Spanish block description',
-      statuses: [],
-    })
-    await adminTranslations.editProgramImageDescription(
-      'Spanish image description',
-    )
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        blockName: 'Spanish block name',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+      })
+      await adminTranslations.editProgramImageDescription(
+        'Spanish image description',
+      )
 
     // Remove the original description
     await adminPrograms.goToProgramImagePage(programName)
@@ -465,15 +450,14 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
 
-      await adminTranslations.editProgramTranslations({
-        name: 'Spanish name',
-        description: 'Spanish description',
-        blockName: 'Spanish block name - bloque uno',
-        blockDescription: 'Spanish block description',
-        statuses: [],
-        blockEligibilityMsg: 'Spanish block eligibility message',
+        await adminTranslations.editProgramTranslations({
+          name: 'Spanish name',
+          blockName: 'Spanish block name - bloque uno',
+          blockDescription: 'Spanish block description',
+          statuses: [],
+          blockEligibilityMsg: 'Spanish block eligibility message',
+        })
       })
-    })
 
     await test.step('Verify translations in translations page', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
