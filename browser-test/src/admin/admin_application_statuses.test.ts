@@ -18,7 +18,7 @@ import {
   ClientInformation,
 } from '../support'
 
-test.describe('view program statuses', {tag: ['@northstar']}, () => {
+test.describe('view program statuses', () => {
   const programWithStatusesName = 'Test program with statuses'
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'

@@ -8,7 +8,7 @@ import {
   loginAsTestUser,
 } from '../../support'
 
-test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
+test.describe('file upload applicant flow', () => {
   test.describe('required file upload question', () => {
     const programName = 'Test program for single file upload'
     const fileUploadQuestionText = 'Required file upload question'

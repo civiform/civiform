@@ -7,7 +7,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for navigation flows'
   const dateQuestionText = 'date question text'
   const emailQuestionText = 'email question text'

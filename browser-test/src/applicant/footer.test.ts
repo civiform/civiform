@@ -6,7 +6,7 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('North Star footer', {tag: ['@northstar']}, () => {
+test.describe('North Star footer', () => {
   test('renders footer', async ({page}) => {
     await validateScreenshot(page.locator('footer'), 'footer')
     await validateAccessibility(page)

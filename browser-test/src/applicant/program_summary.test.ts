@@ -9,7 +9,7 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for summary page'
 
   test.describe('navigation with five blocks', () => {
