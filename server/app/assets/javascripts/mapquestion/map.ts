@@ -250,9 +250,7 @@ const addPopupsToMap = (
     }
 
     const geometry = features[0].geometry as Point
-    const properties = features[0].properties
-
-    if (!geometry || !properties) {
+    if (!geometry) {
       return
     }
 
@@ -269,17 +267,34 @@ const addPopupsToMap = (
       return null
     }
 
-    const popupContent = createPopupContent(
-      mapId,
-      popupContentTemplate.content.children,
-      settings,
-      properties,
-    )
-    if (popupContent) {
-      popup.setDOMContent(popupContent)
-    }
+    // Create a container for all popup contents
+    const popupContainer = document.createElement('div')
+    popupContainer.style.maxHeight = '400px'
+    popupContainer.style.overflowY = 'auto'
 
-    popup.addTo(map)
+    // Process all features at this coordinate
+    features.forEach((feature, index) => {
+      const properties = feature.properties
+      if (!properties) {
+        return
+      }
+
+      const popupContent = createPopupContent(
+        mapId,
+        popupContentTemplate.content.children,
+        settings,
+        properties,
+      )
+
+      if (popupContent) {
+        popupContainer.appendChild(popupContent)
+      }
+    })
+
+    if (popupContainer.children.length > 0) {
+      popup.setDOMContent(popupContainer)
+      popup.addTo(map)
+    }
   })
 }
 
@@ -573,22 +588,25 @@ const updatePopupButtonState = (
 }
 
 const updateOpenPopupButtons = (mapId: string): void => {
-  // Find open popup button (there will be 0 or 1)
-  const popupButton = mapQuerySelector(
-    mapId,
-    CF_POPUP_CONTENT_BUTTON,
-  ) as HTMLButtonElement
-  if (!popupButton) {
+  // Find all open popup buttons (there can be multiple if multiple locations share coordinates)
+  const mapContainer = document.getElementById(mapId)
+  if (!mapContainer) return
+
+  const popupButtons = mapContainer.querySelectorAll(
+    `.${POPUP_LAYER} [name="${CF_POPUP_CONTENT_BUTTON}"]`,
+  ) as NodeListOf<HTMLButtonElement>
+  if (popupButtons.length === 0) {
     return
   }
 
   const maxReached = hasReachedMaxSelections(mapId)
 
-  const isSelectedButton = popupButton.classList.contains(
-    CF_SELECT_LOCATION_BUTTON_CLICKED,
-  )
-
-  popupButton.disabled = !isSelectedButton && maxReached
+  popupButtons.forEach((popupButton) => {
+    const isSelectedButton = popupButton.classList.contains(
+      CF_SELECT_LOCATION_BUTTON_CLICKED,
+    )
+    popupButton.disabled = !isSelectedButton && maxReached
+  })
 }
 
 const updateViewStatus = (mapId: string, toMapView: boolean = false): void => {
