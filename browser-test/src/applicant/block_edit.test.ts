@@ -104,11 +104,7 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
       programName,
     )
 
-    await validateScreenshot(
-      page,
-      'block-edit-page-theme',
-      /* fullPage= */ true,
-    )
+    await validateScreenshot(page, 'block-edit-page-theme')
   })
 
   test('renders right to left on block edit page', async ({
@@ -122,11 +118,9 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     // Dismiss toast saying the program's not fully translated.
     await page.locator('#toast-container').getByText('x').click()
 
-    await validateScreenshot(
-      page,
-      'block-edit-page-right-to-left',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page, 'block-edit-page-right-to-left', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
   })
 })

@@ -1,12 +1,11 @@
 package services.geojson;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -45,10 +44,9 @@ public final class GeoJsonClient {
     }
 
     try {
-      URL url = new URL(endpoint);
-      url.toURI();
+      String url = URI.create(endpoint).toURL().toString();
 
-      return ws.url(endpoint)
+      return ws.url(url)
           .get()
           .thenApplyAsync(
               res -> {
@@ -84,7 +82,7 @@ public final class GeoJsonClient {
                   throw new GeoJsonProcessingException("Invalid GeoJSON format");
                 }
               });
-    } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
+    } catch (MalformedURLException | IllegalArgumentException e) {
       logger.error("Invalid GeoJSON endpoint: ", e);
       return CompletableFuture.failedFuture(
           new MalformedURLException("Not a valid URL, try retyping"));

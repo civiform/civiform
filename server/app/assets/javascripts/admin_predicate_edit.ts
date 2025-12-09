@@ -9,8 +9,11 @@ export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
   static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
+  static FIRST_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-firstValueGroup'
   static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
   static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
+  static SUBCONDITION_LIST_ID_REGEX =
+    /^predicate-condition-(\d+)-subcondition-list$/
 
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
 
@@ -20,7 +23,8 @@ export class AdminPredicateEdit {
     // The predicate list refreshes occur when a condition is deleted.
     if (
       event.target.classList.contains('subcondition-container') ||
-      targetId == 'predicate-conditions-list'
+      targetId === 'predicate-conditions-list' ||
+      this.SUBCONDITION_LIST_ID_REGEX.test(targetId)
     ) {
       // Remove existing listeners and bind to new ones after the swap
       // replaces the html to ensure there's only one per element instead of
@@ -180,20 +184,29 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueBaseId: string,
   ) {
+    const firstValueInputGroupId =
+      valueBaseId + AdminPredicateEdit.FIRST_VALUE_INPUT_GROUP_ID_SUFFIX
     const secondValueGroupId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
 
     // Find the HTML elements that are shared across question types:
     // defaultInput is the first input of the default input type (e.g. date-type for dates)
     // csvInput is the text field for multi-value operators (IN, NOT_IN)
-    const defaultInputContainer = assertNotNull(
-      document.querySelector('[data-default-input-type][data-first-input]'),
-    ) as HTMLElement
+    const defaultInputContainer = document.querySelector(
+      `#${firstValueInputGroupId} [data-default-input-type][data-first-input]`,
+    ) as HTMLElement | undefined
+
+    // defaultInputContainer only exists for question types with multiple values inputs.
+    // Return early if it's not found.
+    if (!defaultInputContainer) {
+      return
+    }
+
     const defaultInputField = assertNotNull(
       defaultInputContainer.querySelector('input.usa-input'),
     ) as HTMLElement
     const csvInputContainer = document.querySelector(
-      '[data-csv-input-type]',
+      `#${firstValueInputGroupId} [data-csv-input-type]`,
     ) as HTMLElement | undefined
 
     // For question types that support CSV operators
@@ -205,7 +218,7 @@ export class AdminPredicateEdit {
       this.filterCsvQuestionVisibleInputs(
         selectedOperatorValue,
         defaultInputContainer,
-        csvInputContainer!,
+        assertNotNull(csvInputContainer),
       )
     }
 
@@ -214,7 +227,9 @@ export class AdminPredicateEdit {
     // Date operators vs. age operators vs. csv operators use different input fields.
     if (defaultInputField.hasAttribute('data-date-value')) {
       const ageInputContainer = assertNotNull(
-        document.querySelector('[data-age-input-type][data-first-input]'),
+        document.querySelector(
+          `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
+        ),
       ) as HTMLElement
       const secondDateInputContainer = assertNotNull(
         document.querySelector(

@@ -1,5 +1,7 @@
 <!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditSubconditionPartialViewModel"*/-->
-<th:block th:fragment="editSubcondition(conditionId, subconditionId, model)">
+<th:block
+  th:fragment="editSubcondition(conditionId, subconditionId, disableDeletion, model)"
+>
   <div class="subcondition-container">
     <!-- Define input ids in the expected format: 
     questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
@@ -24,7 +26,7 @@
           th:data-scalar-target-id="${scalarDropDownId}"
           th:hx-post="${model.hxEditSubconditionEndpoint()}"
           th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
-          hx-target="closest div.subcondition-container"
+          th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
           hx-swap="outerHTML"
         >
           <option
@@ -101,33 +103,19 @@
         </div>
       </div>
       <div
-        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.selectedQuestionType}, ${model.valueOptions}, ${conditionId}, ${subconditionId}, ${model.hasSelectedQuestion})}"
+        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.predicateValuesInputModel(conditionId, subconditionId)})}"
       ></div>
       <div class="width-full display-inline-block">
-        <a
-          href="#"
+        <button
+          th:hx-post="${model.hxDeleteSubconditionEndpoint()}"
+          th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
+          th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+          hx-swap="outerHTML"
           class="usa-link usa-button usa-button--unstyled float-right text-secondary-dark"
           th:text="#{link.predicateDeleteSubcondition}"
-        ></a>
+          th:disabled="${disableDeletion}"
+        ></button>
       </div>
     </div>
-  </div>
-  <!-- Append button to add subcondition iff this is a new subcondition. Skip when updating the selected question
-   of an existing subcondition. -->
-  <div
-    class="margin-top-3"
-    th:hx-target="this"
-    th:if="${model.renderAddSubcondition}"
-  >
-    <button
-      type="button"
-      class="usa-button usa-button--unstyled zero-top-margin"
-      th:hx-post="${model.hxEditSubconditionEndpoint()}"
-      th:with="nextSubconditionId=${subconditionId + 1}"
-      th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${nextSubconditionId}" }|'
-      hx-swap="outerHTML"
-    >
-      <cf:icon type="icon-add" />[[#{link.predicateAddSubcondition}]]
-    </button>
   </div>
 </th:block>

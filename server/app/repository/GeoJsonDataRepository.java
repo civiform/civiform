@@ -1,6 +1,6 @@
 package repository;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.DB;

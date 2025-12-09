@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
@@ -13,6 +12,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -30,7 +30,7 @@ public class NorthStarProgramCardPreview extends NorthStarBaseView {
   NorthStarProgramCardPreview(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -39,7 +39,7 @@ public class NorthStarProgramCardPreview extends NorthStarBaseView {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,

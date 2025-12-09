@@ -7,6 +7,7 @@ import static services.cloud.aws.AwsStorageUtils.PRESIGNED_URL_DURATION;
 
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -132,7 +133,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
           Mockito.mock(PresignedGetObjectRequest.class);
       URL fakeUrl;
       try {
-        fakeUrl = new URL("http://fake-url");
+        fakeUrl = URI.create("http://fake-url").toURL();
       } catch (java.net.MalformedURLException e) {
         throw new RuntimeException(e);
       }

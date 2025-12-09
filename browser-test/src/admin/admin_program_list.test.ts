@@ -144,11 +144,9 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
       await expect(
         programCard.getByText('Categories: Education, Internet'),
       ).toBeVisible()
-      await validateScreenshot(
-        programCard,
-        'program-list-with-categories',
-        false,
-      )
+      await validateScreenshot(programCard, 'program-list-with-categories', {
+        fullPage: false,
+      })
     })
   })
 

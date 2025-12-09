@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
@@ -14,6 +13,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -34,7 +34,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
   NorthStarFilteredProgramsViewPartial(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory,
       SettingsManifest settingsManifest,
@@ -43,7 +43,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,

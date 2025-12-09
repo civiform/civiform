@@ -36,8 +36,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'radio-button',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
         })
 
@@ -46,8 +45,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'radio-button-errors',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
         })
       })
@@ -76,8 +74,7 @@ test.describe(
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-right-to-left',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          {fullPage: false, mobileScreenshot: true},
         )
       })
     })
@@ -201,8 +198,7 @@ test.describe(
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-button-options-with-markdown',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
 
@@ -232,8 +228,7 @@ test.describe(
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-long-text-preview',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
         await adminQuestions.clickSubmitButtonAndNavigate('Create')
         await adminPrograms.addAndPublishProgramWithQuestions(
@@ -249,8 +244,7 @@ test.describe(
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-long-text-applicant',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
     })

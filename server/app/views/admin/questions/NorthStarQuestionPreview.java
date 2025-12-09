@@ -3,7 +3,6 @@ package views.admin.questions;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import forms.EnumeratorQuestionForm;
@@ -13,6 +12,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
@@ -34,15 +34,15 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
   NorthStarQuestionPreview(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
       ApplicantRoutes applicantRoutes,
+      BundledAssetsFinder bundledAssetsFinder,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,

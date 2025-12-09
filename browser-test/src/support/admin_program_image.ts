@@ -1,7 +1,7 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
-import {dismissToast, expectDisabled, expectEnabled} from '.'
+import {dismissToast} from '.'
 
 export class AdminProgramImage {
   // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
@@ -117,27 +117,35 @@ export class AdminProgramImage {
   }
 
   async expectDisabledImageDescriptionSubmit() {
-    await expectDisabled(this.page, this.imageDescriptionSubmitButtonLocator)
+    await expect(
+      this.page.locator(this.imageDescriptionSubmitButtonLocator),
+    ).toBeDisabled()
   }
 
   async expectEnabledImageDescriptionSubmit() {
-    await expectEnabled(this.page, this.imageDescriptionSubmitButtonLocator)
+    await expect(
+      this.page.locator(this.imageDescriptionSubmitButtonLocator),
+    ).toBeEnabled()
   }
 
   async expectDisabledImageFileUploadSubmit() {
-    await expectDisabled(this.page, this.imageUploadSubmitButtonLocator)
+    await expect(
+      this.page.locator(this.imageUploadSubmitButtonLocator),
+    ).toBeDisabled()
   }
 
   async expectEnabledImageFileUploadSubmit() {
-    await expectEnabled(this.page, this.imageUploadSubmitButtonLocator)
+    await expect(
+      this.page.locator(this.imageUploadSubmitButtonLocator),
+    ).toBeEnabled()
   }
 
   async expectDisabledImageFileUpload() {
-    await expectDisabled(this.page, this.imageUploadLocator)
+    await expect(this.page.locator(this.imageUploadLocator)).toBeDisabled()
   }
 
   async expectEnabledImageFileUpload() {
-    await expectEnabled(this.page, this.imageUploadLocator)
+    await expect(this.page.locator(this.imageUploadLocator)).toBeEnabled()
   }
 
   async expectTooLargeErrorShown() {
@@ -163,11 +171,15 @@ export class AdminProgramImage {
   }
 
   async expectDisabledTranslationButton() {
-    await expectDisabled(this.page, this.translationsButtonLocator)
+    await expect(
+      this.page.locator(this.translationsButtonLocator),
+    ).toBeDisabled()
   }
 
   async expectEnabledTranslationButton() {
-    await expectEnabled(this.page, this.translationsButtonLocator)
+    await expect(
+      this.page.locator(this.translationsButtonLocator),
+    ).toBeEnabled()
   }
 
   async clickTranslationButton() {

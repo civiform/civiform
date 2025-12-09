@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   localstack:
-    image: localstack/localstack:4.10.0@sha256:a65ee2a9d45a7a34a1f1faae515d2e577ce11210312c077700ccc82daefec238
+    image: localstack/localstack:4.11.1@sha256:3071c9c72a1e9dbc23ad33540617ad7825ffeba80a8f421eff798b97850f9de5
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
@@ -119,4 +119,5 @@ services:
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
       - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
+      - USE_BUNDLER_DEV_SERVER=${USE_BUNDLER_DEV_SERVER:-true}
     entrypoint: /bin/bash

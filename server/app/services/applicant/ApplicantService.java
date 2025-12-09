@@ -96,7 +96,7 @@ import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -352,8 +352,29 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              if (addressServiceAreaValidationEnabled
-                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+              boolean shouldCheckServiceAreaValidation =
+                  addressServiceAreaValidationEnabled
+                      && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent();
+
+              Optional<ApplicantQuestion> maybeAddressQuestion =
+                  blockBeforeUpdate.getAddressQuestionWithCorrectionEnabled();
+              if (maybeAddressQuestion.isPresent()) {
+                AddressQuestion addressQuestion =
+                    maybeAddressQuestion.get().createAddressQuestion();
+                // Only check service area validation if
+                //  1. The address has changed from the previously corrected one
+                //  2. This is the applicant's first time filling out the question and it has not
+                // yet gone through correction
+                // In case 2 we still need to pass the question through the
+                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate which
+                // is expected in the rest of the logic
+                shouldCheckServiceAreaValidation =
+                    shouldCheckServiceAreaValidation
+                        && (addressQuestion.hasChanges(updateMap)
+                            || addressQuestion.needsAddressCorrection());
+              }
+
+              if (shouldCheckServiceAreaValidation) {
                 return serviceAreaUpdateResolver
                     .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
                     .thenComposeAsync(
@@ -1149,7 +1170,7 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
-                    .filter(programData -> !programData.program().isCommonIntakeForm())
+                    .filter(programData -> !programData.program().isPreScreenerForm())
                     .collect(ImmutableList.toImmutableList()),
             classLoaderExecutionContext.current());
   }
@@ -1259,7 +1280,7 @@ public final class ApplicantService {
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
-            if (programDefinition.isCommonIntakeForm()) {
+            if (programDefinition.isPreScreenerForm()) {
               relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());
@@ -1498,7 +1519,7 @@ public final class ApplicantService {
     public abstract static class Builder {
       protected abstract Builder setProgram(ProgramDefinition v);
 
-      public abstract Builder setCurrentApplicationProgramId(Long programId);
+      public abstract Builder setCurrentApplicationProgramId(long programId);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1920,7 +1941,9 @@ public final class ApplicantService {
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.CORRECTED.getSerializationFormat());
     } else if (selectedAddress.isPresent()
-        && selectedAddress.get().equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+        && selectedAddress
+            .get()
+            .equals(NorthStarAddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());

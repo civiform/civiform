@@ -1,6 +1,6 @@
 package services.apibridge;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;

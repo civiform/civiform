@@ -5,11 +5,14 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
@@ -28,6 +31,7 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.UlTag;
@@ -54,6 +58,7 @@ import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -96,9 +101,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
+  public static final String BLOCK_TYPE_FORM_FIELD = "blockType";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
+  private static final String CREATE_ENUMERATOR_BLOCK_FORM_ID = "enumerator-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
@@ -219,7 +226,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         blockQuestions,
                                         questions,
                                         allPreviousVersionQuestions,
-                                        blockDefinition.isEnumerator(),
+                                        blockDefinition.hasEnumeratorQuestion(),
                                         csrfTag,
                                         blockDescriptionEditModal.getButton(),
                                         blockDeleteScreenModal.getButton(),
@@ -282,7 +289,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
         form(csrfTag)
             .withId(CREATE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .withAction(blockCreateAction);
+            .withAction(blockCreateAction)
+            .with(
+                FieldWithLabel.input()
+                    .setFieldName(BLOCK_TYPE_FORM_FIELD)
+                    .setValue(BlockType.SINGLE.toString())
+                    .getInputTag());
 
     FormTag createRepeatedBlockForm =
         form(csrfTag)
@@ -294,9 +306,26 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
                     .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
-                    .getNumberTag());
+                    .getNumberTag())
+            .with(
+                FieldWithLabel.input()
+                    .setFieldName(BLOCK_TYPE_FORM_FIELD)
+                    .setValue(BlockType.REPEATED.toString())
+                    .getInputTag());
 
-    return div(createBlockForm, createRepeatedBlockForm).withClasses("hidden");
+    FormTag createRepeatedSetForm =
+        form(csrfTag)
+            .withId(CREATE_ENUMERATOR_BLOCK_FORM_ID)
+            .withMethod(HttpVerbs.POST)
+            .withAction(blockCreateAction)
+            .with(
+                FieldWithLabel.input()
+                    .setFieldName(BLOCK_TYPE_FORM_FIELD)
+                    .setValue(BlockType.ENUMERATOR.toString())
+                    .getInputTag());
+
+    return div(createBlockForm, createRepeatedBlockForm, createRepeatedSetForm)
+        .withClasses("hidden");
   }
 
   /**
@@ -321,6 +350,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .withType("submit")
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
+      ret.condWith(
+          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          ViewUtils.makeSvgTextButton("Add repeated set", Icons.ADD)
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
+              .withType("submit")
+              .withId("add-enumerator-block-button")
+              .withForm(CREATE_ENUMERATOR_BLOCK_FORM_ID));
     }
     return ret;
   }
@@ -411,7 +447,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       container.with(blockContainer.with(blockContent));
 
       // Recursively add repeated blocks indented under their enumerator block
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         container.with(
             renderBlockList(
                 request,
@@ -488,7 +524,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       ImmutableList<QuestionDefinition> allQuestions,
       ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
-      boolean blockDefinitionIsEnumerator,
+      boolean blockDefinitionHasEnumeratorQuestion,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
@@ -496,7 +532,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // A block can only be deleted when it has no repeated blocks. Same is true for
     // removing the enumerator question from the block.
     final boolean canDelete =
-        !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockDefinition.id());
+        !blockDefinitionHasEnumeratorQuestion || hasNoRepeatedBlocks(program, blockDefinition.id());
 
     DivTag blockInfoDisplay =
         div()
@@ -572,14 +608,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       questionIdToVisibilityBlockIdMap.get(questionDefinition.getId())));
             });
 
-    DivTag div = div().withClasses("w-7/12", "py-6", "px-4");
+    DivTag div = div().withClasses("w-7/12", "py-6", "px-4").withData("testId", "block-panel-edit");
 
     // UI elements for editing are only needed when we view a draft
     if (viewAllowsEditingProgram()) {
       DivTag buttons =
           renderBlockPanelButtons(
               program,
-              blockDefinitionIsEnumerator,
+              blockDefinitionHasEnumeratorQuestion,
               blockDescriptionModalButton,
               blockDeleteModalButton,
               canDelete);
@@ -592,6 +628,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
+
+      if (blockDefinition.getIsEnumerator()) {
+        return div.with(
+            renderEnumeratorScreenContent(
+                blockDefinitionHasEnumeratorQuestion, csrfTag, programQuestions, addQuestion));
+      }
+
       return div.with(programQuestions, addQuestion);
     }
 
@@ -620,6 +663,99 @@ public final class ProgramBlocksView extends ProgramBaseView {
         allPreviousVersionQuestions.stream().filter(x -> x.getId() == question.id()).findFirst();
 
     return foundMissingQuestionDefinition.orElse(questionDefinition);
+  }
+
+  private DivTag renderEnumeratorScreenContent(
+      boolean blockDefinitionHasEnumeratorQuestion,
+      InputTag csrfTag,
+      DivTag programQuestions,
+      ButtonTag addQuestion) {
+    // If it's an empty enumerator block
+    if (!blockDefinitionHasEnumeratorQuestion) {
+      FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons();
+      FormTag newEnumeratorQuestionForm = renderNewEnumeratorQuestionForm(csrfTag);
+      return div().with(creationMethodRadio, newEnumeratorQuestionForm);
+    } else {
+      return div()
+          .with(
+              div("This is an enumerator block that already has a question."),
+              programQuestions,
+              addQuestion);
+    }
+  }
+
+  private FieldsetTag renderCreationMethodRadioButtons() {
+    return fieldset(
+        legend("Repeated set creation method")
+            .withClass("text-gray-600")
+            .with(ViewUtils.requiredQuestionIndicator()),
+        div()
+            .withClass("usa-radio")
+            .with(
+                input()
+                    .withType("radio")
+                    .withName("creation-method-option")
+                    .withId("create-new")
+                    .withValue("create-new")
+                    .withClass("usa-radio__input usa-radio__input--tile"),
+                label("Create new").withClass("usa-radio__label").attr("for", "create-new")),
+        div()
+            .withClass("usa-radio")
+            .with(
+                input()
+                    .withType("radio")
+                    .withName("creation-method-option")
+                    .withId("choose-existing")
+                    .withValue("choose-existing")
+                    .withClass("usa-radio__input usa-radio__input--tile"),
+                label("Choose existing")
+                    .withClass("usa-radio__label")
+                    .attr("for", "choose-existing"))
+            .withClasses("usa-fieldset"));
+  }
+
+  private FormTag renderNewEnumeratorQuestionForm(InputTag csrfTag) {
+    return form(csrfTag)
+        .withClasses("border", "border-gray-300")
+        .withId("new-enumerator-question-form")
+        .withMethod(HttpVerbs.POST)
+        .with(
+            p("Create new repeated set"),
+            FieldWithLabel.input()
+                .setId("listed-entity-input")
+                .setFieldName("listed-entity")
+                .setLabelText("Listed entity")
+                .getUSWDSInputTag(),
+            FieldWithLabel.input()
+                .setId("enumerator-admin-id-input")
+                .setFieldName("enumerator-admin-id")
+                .setLabelText("Repeated set admin id")
+                .getUSWDSInputTag(),
+            FieldWithLabel.textArea()
+                .setId("question-text-input")
+                .setFieldName("question-text")
+                .setLabelText("Question text")
+                .getUSWDSTextareaTag(),
+            FieldWithLabel.textArea()
+                .setId("hint-text-input")
+                .setFieldName("hint")
+                .setLabelText("Hint text")
+                .getUSWDSTextareaTag(),
+            FieldWithLabel.number()
+                .setId("min-entity-count-input")
+                .setFieldName("min-entity-count")
+                .setLabelText("Minimum entity count")
+                .getNumberTag(),
+            FieldWithLabel.number()
+                .setId("max-entity-count-input")
+                .setFieldName("max-entity-count")
+                .setLabelText("Maximum entity count")
+                .getNumberTag(),
+            AlertComponent.renderSlimInfoAlert(
+                "Creating a repeated set will add a new question to the question bank."),
+            submitButton("Create repeated set")
+                .withId("create-repeated-set-button")
+                .withClasses("usa-button", "usa-button--primary"));
   }
 
   private DivTag renderBlockPanelButtons(

@@ -196,7 +196,7 @@ public final class ProgramService {
    */
   public Optional<ProgramDefinition> getCommonIntakeForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(ProgramDefinition::isCommonIntakeForm)
+        .filter(ProgramDefinition::isPreScreenerForm)
         .findFirst();
   }
 
@@ -418,7 +418,9 @@ public final class ProgramService {
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeEmptyBlock =
         createEmptyBlockDefinition(
-            /* blockId= */ 1, /* maybeEnumeratorBlockId= */ Optional.empty());
+            /* blockId= */ 1,
+            /* maybeEnumeratorBlockId= */ Optional.empty(),
+            /* isEnumerator= */ Optional.empty());
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
@@ -608,7 +610,7 @@ public final class ProgramService {
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programDefinition.isCommonIntakeForm()) {
+        && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -1190,8 +1192,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       LocalizationUpdate localizationUpdate,
       ProgramDefinition programDefinition) {
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
+    if (!programDefinition.isPreScreenerForm() && !programDefinition.applicationSteps().isEmpty()) {
       IntStream.range(0, programDefinition.applicationSteps().size())
           .forEach(
               i -> {
@@ -1320,10 +1321,10 @@ public final class ProgramService {
    *     succeeded, or a set of errors with the unmodified program and no block if failed.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
-      throws ProgramNotFoundException {
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
+      long programId, Optional<Boolean> isEnumerator) throws ProgramNotFoundException {
     try {
-      return addBlockToProgram(programId, Optional.empty());
+      return addBlockToProgram(programId, Optional.empty(), isEnumerator);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1348,11 +1349,12 @@ public final class ProgramService {
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
+    return addBlockToProgram(
+        programId, Optional.of(enumeratorBlockId), /* isEnumerator= */ Optional.empty());
   }
 
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> enumeratorBlockId)
+      long programId, Optional<Long> enumeratorBlockId, Optional<Boolean> isEnumerator)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
@@ -1361,7 +1363,8 @@ public final class ProgramService {
     }
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
-        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+        createEmptyBlockDefinition(
+            getNextBlockId(programDefinition), enumeratorBlockId, isEnumerator);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
@@ -1659,7 +1662,7 @@ public final class ProgramService {
           EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
-    if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
+    if (programDefinition.isPreScreenerForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
     }
 
@@ -2053,7 +2056,7 @@ public final class ProgramService {
   }
 
   private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
@@ -2067,6 +2070,7 @@ public final class ProgramService {
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
             .setEnumeratorId(maybeEnumeratorBlockId)
+            .setIsEnumerator(isEnumerator)
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);

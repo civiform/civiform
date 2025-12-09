@@ -1936,7 +1936,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> ps.addBlockToProgram(1L))
+    assertThatThrownBy(
+            () -> ps.addBlockToProgram(/* programId= */ 1L, /* isEnumerator= */ Optional.empty()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -1946,7 +1947,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1978,7 +1980,8 @@ public class ProgramServiceTest extends ResetPostgres {
     long programId = programDefinition.id();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1992,6 +1995,29 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
     assertThat(found.blockDefinitions().get(1).id()).isEqualTo(addedBlock.id());
+  }
+
+  @Test
+  public void addBlockToProgram_withIsEnumerator_returnsProgramDefinitionWithEnumeratorBlock()
+      throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    long programId = programDefinition.id();
+
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.of(true));
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+
+    ProgramDefinition found = ps.getFullProgramDefinition(programId);
+
+    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+    assertThat(found.blockDefinitions().get(1).getIsEnumerator()).isEqualTo(true);
   }
 
   @Test
@@ -2018,12 +2044,12 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
@@ -2070,17 +2096,17 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
@@ -2742,7 +2768,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
     Optional<LocalizedStrings> eligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
@@ -2764,7 +2791,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     Optional<LocalizedStrings> secondEligibilityMsg =

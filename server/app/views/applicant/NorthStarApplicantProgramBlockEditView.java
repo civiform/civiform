@@ -1,8 +1,9 @@
 package views.applicant;
 
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
@@ -19,6 +20,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
@@ -54,7 +56,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   NorthStarApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
@@ -64,7 +66,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
@@ -95,6 +97,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("homeUrl", index(applicationParams));
     context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
+    context.setVariable("loginOnly", applicationParams.loginOnly());
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    boolean isTi = applicationParams.profile().isTrustedIntermediary();
+    boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
+    context.setVariable("isGuest", isGuest);
 
     // Progress bar
     ProgressBar progressBar =

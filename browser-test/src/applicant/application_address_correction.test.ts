@@ -101,8 +101,9 @@ test.describe(
           await validateScreenshot(
             page.locator('main'),
             'verify-address-with-suggestions',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
+            {
+              mobileScreenshot: true,
+            },
           )
         })
 
@@ -145,8 +146,9 @@ test.describe(
           await validateScreenshot(
             page.locator('main'),
             'verify-address-with-suggestions-right-to-left',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
+            {
+              mobileScreenshot: true,
+            },
           )
         })
       })
@@ -179,8 +181,9 @@ test.describe(
           await validateScreenshot(
             page.locator('main'),
             'verify-address-no-suggestions',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
+            {
+              mobileScreenshot: true,
+            },
           )
         })
 
@@ -221,10 +224,11 @@ test.describe(
           await validateScreenshot(
             page.locator('main'),
             'verify-address-esri-service-error',
-            /* fullPage= */ true,
-            // Since this page is currently the same as the no-suggestions page,
-            // don't get extra mobile screenshots of the same page.
-            /* mobileScreenshot= */ false,
+            {
+              // Since this page is currently the same as the no-suggestions page,
+              // don't get extra mobile screenshots of the same page.
+              mobileScreenshot: false,
+            },
           )
         })
 

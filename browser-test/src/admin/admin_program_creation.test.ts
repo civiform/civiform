@@ -484,7 +484,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'open-question-search',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -763,7 +763,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-markdown',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -827,7 +827,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-empty',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
     await page.click('#create-question-button')
     await page.click('#create-text-question')
@@ -866,7 +866,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-with-created-question',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
@@ -1099,7 +1099,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('#block-delete-modal'),
       'delete-screen-confirmation-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -1223,9 +1223,9 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     // Modal gets re-rendered if needed.
@@ -1234,7 +1234,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
@@ -1265,9 +1265,9 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     // Modal gets re-rendered if needed.
@@ -1276,7 +1276,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })

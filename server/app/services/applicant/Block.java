@@ -105,9 +105,11 @@ public final class Block {
     return repeatedEntity;
   }
 
-  /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
+  /**
+   * This block is an enumerator block if its {@link BlockDefinition} has an enumerator question.
+   */
   public boolean isEnumerator() {
-    return blockDefinition.isEnumerator();
+    return blockDefinition.hasEnumeratorQuestion();
   }
 
   /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */

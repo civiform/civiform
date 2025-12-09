@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
+  loginAsTestUser,
   logout,
   selectApplicantLanguageNorthstar,
   validateAccessibility,
@@ -135,12 +136,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await test.step('Verify program summary page renders right to left correctly', async () => {
         await selectApplicantLanguageNorthstar(page, 'ar')
-        await validateScreenshot(
-          page,
-          'program-summary-right-to-left',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
+        await validateScreenshot(page, 'program-summary-right-to-left', {
+          fullPage: false,
+          mobileScreenshot: true,
+        })
       })
     })
 
@@ -226,6 +225,72 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           fileName,
         )
       expect(downloadedFileContent).toEqual(fileContent)
+    })
+  })
+})
+test.describe('guest cannot see program summary page for login only program', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'name',
+        universal: true,
+      })
+
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'First block',
+        questions: [{name: 'name', isOptional: false}],
+      })
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+  })
+
+  test('guest user on landing in the review page, only sees the alert', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    let reviewPageURL: string
+    await test.step('logged in user navigates to review page', async () => {
+      await loginAsTestUser(page)
+      await page.goto(`/programs/${programName}`)
+      await page
+        .getByRole('link', {name: 'Start an application'})
+        .first()
+        .click()
+      await applicantQuestions.answerNameQuestion('test', 'user')
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.expectTitle(
+        page,
+        'Program application summary — loginonly',
+      )
+
+      reviewPageURL = page.url()
+      await logout(page)
+    })
+
+    await test.step('guest user tries to navigate to review page', async () => {
+      await page.goto(reviewPageURL)
+      await expect(page.getByText('name')).toBeHidden()
+      await expect(
+        page.getByRole('heading', {
+          name: 'You must log in to apply for this program',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'Please log in or create an account to continue with this application.',
+        ),
+      ).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
     })
   })
 })

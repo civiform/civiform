@@ -1212,7 +1212,7 @@ export class AdminPrograms {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successToastMessage)
   }
 
@@ -2088,7 +2088,7 @@ export class AdminPrograms {
         programId = 'default-program-option'
         break
       case ProgramType.PRE_SCREENER:
-        programId = 'common-intake-program-option'
+        programId = 'pre-screener-program-option'
         break
       case ProgramType.EXTERNAL:
         programId = 'external-program-option'
@@ -2104,7 +2104,7 @@ export class AdminPrograms {
     // because USWDS styling hides the actual checkbox input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
     // off-screen, making it inaccessible to Playwright's direct interactions.
-    await this.page.locator('label[for="common-intake-checkbox"]').click()
+    await this.page.locator('label[for="pre-screener-checkbox"]').click()
   }
 
   /**

@@ -1,10 +1,11 @@
 package views.applicant;
 
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
+
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -14,6 +15,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -30,7 +32,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
   NorthStarApplicantProgramSummaryView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -38,7 +40,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
@@ -89,6 +91,13 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     // Eligibility Alerts
     context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());
+
+    // loginOnly programs
+    context.setVariable("loginOnly", params.loginOnly());
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    boolean isTi = params.profile().isTrustedIntermediary();
+    boolean isGuest = params.applicantPersonalInfo().getType() == GUEST && !isTi;
+    context.setVariable("isGuest", isGuest);
 
     // Login modal
     Optional<String> redirectedFromProgramSlug =
@@ -206,6 +215,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     abstract ProgramType programType();
 
+    abstract boolean loginOnly();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -241,6 +252,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
 
       public abstract Builder setProgramType(ProgramType programType);
+
+      public abstract Builder setLoginOnly(boolean loginOnly);
 
       public abstract Params build();
     }

@@ -32,12 +32,9 @@ test.describe(
         )
 
         await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'phone',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
-          )
+          await validateScreenshot(page.getByTestId('questionRoot'), 'phone', {
+            fullPage: false,
+          })
         })
 
         await test.step('Screenshot with errors', async () => {
@@ -45,8 +42,7 @@ test.describe(
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'phone-errors',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
+            {fullPage: false},
           )
         })
       })

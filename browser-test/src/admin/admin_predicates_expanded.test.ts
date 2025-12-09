@@ -111,6 +111,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
+    await test.step('refresh page and re-add condition', async () => {
+      await page.reload()
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
       await waitForHtmxReady(page)
@@ -701,6 +708,8 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.DROPDOWN,
       QuestionType.RADIO,
     ]) {
+      const questionData = programQuestions.get(questionType)!
+
       // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
       await test.step('refresh page and re-add condition', async () => {
         await page.reload()
@@ -709,17 +718,12 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       })
 
       await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
-        const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
           /* conditionId= */ 1,
           /* subconditionId= */ 1,
           questionData.questionText,
         )
-        await adminPredicates.selectOperator(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          'NONE_OF',
-        )
+
         await waitForHtmxReady(page)
 
         const checkboxLabelLocators: Locator[] = [
@@ -733,6 +737,32 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           const locator = checkboxLabelLocators[i]
           await expect(locator).toBeVisible()
           await locator.check()
+          await expect(locator).toBeChecked()
+          await expect(locator).toHaveText(
+            questionData.multiValueOptions![i].text,
+          )
+        }
+      })
+
+      await test.step('add and delete subcondition and expect no change', async () => {
+        await adminPredicates.clickAddSubconditionButton(1)
+        await waitForHtmxReady(page)
+        await adminPredicates.expectSubcondition(1, 2)
+
+        await adminPredicates.clickDeleteSubconditionButton(1, 2)
+        await waitForHtmxReady(page)
+        await adminPredicates.expectNoSubcondition(1, 2)
+
+        const checkboxLabelLocators: Locator[] = [
+          page.locator('label[for="condition-1-subcondition-1-values[1]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[2]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[3]"]'),
+          page.locator('label[for="condition-1-subcondition-1-values[4]"]'),
+        ]
+
+        for (let i = 0; i < checkboxLabelLocators.length; i++) {
+          const locator = checkboxLabelLocators[i]
+          await expect(locator).toBeVisible()
           await expect(locator).toBeChecked()
           await expect(locator).toHaveText(
             questionData.multiValueOptions![i].text,
@@ -753,28 +783,32 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     adminPrograms,
     adminPredicates,
   }) => {
-    const firstQuestionName = 'first-predicate-q'
-    const secondQuestionName = 'second-predicate-q'
-    const firstQuestionText = 'What is your name'
-    const secondQuestionText = 'What is your birthday'
+    const nameQuestionName = 'first-predicate-q'
+    const nameQuestionText = 'What is your last name'
+    const nameQuestionAnswer = 'Reeves'
+
+    const dateQuestionName = 'second-predicate-q'
+    const dateQuestionText = 'What is your birthday'
+    const dateQuestionAnswer = '1980-01-01'
+    const dateQuestionSecondAnswer = '2000-01-01'
 
     await loginAsAdmin(page)
     const programName = 'Create and edit a new predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      await adminQuestions.addTextQuestion({
-        questionName: firstQuestionName,
-        questionText: firstQuestionText,
+      await adminQuestions.addNameQuestion({
+        questionName: nameQuestionName,
+        questionText: nameQuestionText,
       })
       await adminQuestions.addDateQuestion({
-        questionName: secondQuestionName,
-        questionText: secondQuestionText,
+        questionName: dateQuestionName,
+        questionText: dateQuestionText,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
-        questions: [{name: firstQuestionName}, {name: secondQuestionName}],
+        questions: [{name: nameQuestionName}, {name: dateQuestionName}],
       })
     })
 
@@ -788,6 +822,123 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+    })
+
+    await test.step('Add second subcondition, select questions, and enter input', async () => {
+      await adminPredicates.clickAddSubconditionButton(1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectSubcondition(1, 2)
+
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        nameQuestionText,
+      )
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'EQUAL_TO',
+      )
+      await adminPredicates.selectScalar(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 1,
+        'LAST_NAME',
+      )
+      const nameInputElementLocator = page.locator(
+        '#condition-1-subcondition-1-value',
+      )
+      await nameInputElementLocator.fill(nameQuestionAnswer)
+
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        dateQuestionText,
+      )
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        'EQUAL_TO',
+      )
+      const dateInputElementLocator = page.locator(
+        '#condition-1-subcondition-2-value[type="date"]',
+      )
+      await dateInputElementLocator.fill(dateQuestionAnswer)
+
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Delete second subcondition and no change to first', async () => {
+      await adminPredicates.clickDeleteSubconditionButton(1, 2)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectAddSubconditionButton(1)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(nameQuestionText)
+      await expect(
+        page.locator('#condition-1-subcondition-1-operator'),
+      ).toHaveValue('EQUAL_TO')
+      await expect(
+        page.locator('#condition-1-subcondition-1-scalar'),
+      ).toHaveValue('LAST_NAME')
+      await expect(
+        page.locator('#condition-1-subcondition-1-value'),
+      ).toHaveValue(nameQuestionAnswer)
+    })
+
+    await test.step('Add second subcondition, select question, and enter values', async () => {
+      await adminPredicates.clickAddSubconditionButton(1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectSubcondition(1, 2)
+
+      await adminPredicates.selectQuestion(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        dateQuestionText,
+      )
+
+      await adminPredicates.selectOperator(
+        /* conditionId= */ 1,
+        /* subconditionId= */ 2,
+        'BETWEEN',
+      )
+
+      const dateInputElementLocator = page.locator(
+        '#condition-1-subcondition-2-value[type="date"]',
+      )
+      const secondDateInputElementLocator = page.locator(
+        '#condition-1-subcondition-2-secondValue[type="date"]',
+      )
+
+      await dateInputElementLocator.fill(dateQuestionAnswer)
+      await secondDateInputElementLocator.fill(dateQuestionSecondAnswer)
+
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Delete first subcondition - second becomes first', async () => {
+      await adminPredicates.clickDeleteSubconditionButton(1, 1)
+
+      await waitForHtmxReady(page)
+
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectAddSubconditionButton(1)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainText(dateQuestionText)
+      await expect(
+        page.locator('#condition-1-subcondition-1-operator'),
+      ).toHaveValue('BETWEEN')
+      await expect(
+        page.locator('#condition-1-subcondition-1-value[type="date"]'),
+      ).toHaveValue(dateQuestionAnswer)
+      await expect(
+        page.locator('#condition-1-subcondition-1-secondValue[type="date"]'),
+      ).toHaveValue(dateQuestionSecondAnswer)
     })
 
     await test.step('Delete condition and validate null state', async () => {
@@ -824,7 +975,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.selectQuestion(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,
-        firstQuestionText,
+        nameQuestionText,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -832,7 +983,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.selectQuestion(
         /* conditionId= */ 2,
         /* subconditionId= */ 1,
-        secondQuestionText,
+        dateQuestionText,
       )
     })
 
@@ -853,7 +1004,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(
         page.locator('#condition-1-subcondition-1-question'),
-      ).toContainText(secondQuestionText)
+      ).toContainText(dateQuestionText)
     })
   })
 

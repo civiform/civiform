@@ -8,7 +8,6 @@ import auth.CiviFormProfile;
 import auth.FakeAdminClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
@@ -21,6 +20,7 @@ import play.mvc.Http.Request;
 import play.routing.Router;
 import services.AlertSettings;
 import services.AlertType;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -31,7 +31,7 @@ import views.html.helper.CSRF;
 public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
-  protected final AssetsFinder assetsFinder;
+  private final BundledAssetsFinder bundledAssetsFinder;
   protected final ApplicantRoutes applicantRoutes;
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
@@ -42,14 +42,14 @@ public abstract class NorthStarBaseView {
   protected NorthStarBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
-    this.assetsFinder = checkNotNull(assetsFinder);
+    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
@@ -66,13 +66,16 @@ public abstract class NorthStarBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
-    context.setVariable("mapLibreGLStylesheet", assetsFinder.path("dist/maplibregl.min.css"));
-    context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
-    context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));
-    context.setVariable("uswdsJsBundle", assetsFinder.path("dist/uswds.bundle.js"));
+
+    context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
+    context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
+    context.setVariable("northStarStylesheet", bundledAssetsFinder.getNorthStarStylesheet());
+    context.setVariable("mapLibreGLStylesheet", bundledAssetsFinder.getMapLibreGLStylesheet());
+    context.setVariable("applicantJsBundle", bundledAssetsFinder.getApplicantJsBundle());
+    context.setVariable("uswdsJsInit", bundledAssetsFinder.getUswdsJsInit());
+    context.setVariable("uswdsJsBundle", bundledAssetsFinder.getUswdsJsBundle());
+
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());
@@ -80,7 +83,7 @@ public abstract class NorthStarBaseView {
         "smallLogoUrl",
         settingsManifest
             .getCivicEntitySmallLogoUrl()
-            .orElse(assetsFinder.path("Images/civiform-staging.png")));
+            .orElse(bundledAssetsFinder.path("Images/civiform-staging.png")));
     context.setVariable(
         "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
     context.setVariable(
@@ -89,11 +92,13 @@ public abstract class NorthStarBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
-    context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
-    context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
-    context.setVariable("locationIcon", assetsFinder.path("Images/uswds/icon-location_on.png"));
+    context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
+    context.setVariable("govIcon", bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"));
     context.setVariable(
-        "selectedLocationIcon", assetsFinder.path("Images/uswds/icon-location_selected.png"));
+        "locationIcon", bundledAssetsFinder.path("Images/uswds/icon-location_on.png"));
+    context.setVariable(
+        "selectedLocationIcon",
+        bundledAssetsFinder.path("Images/uswds/icon-location_selected.png"));
     context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
     boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     context.setVariable("userIsAdmin", userIsAdmin);

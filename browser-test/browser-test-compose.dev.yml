@@ -12,6 +12,8 @@ services:
     tty: true # docker run -t
     ports:
       - 9457:9457
+    environment:
+      - CI=false
     command: ~runBrowserTestsServer
 
 volumes:
