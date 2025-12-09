@@ -174,12 +174,14 @@ export class AdminPredicateEdit {
       return
     }
 
-    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
-      ariaAnnounceElement.textContent =
-        ariaAnnounceElement.getAttribute('data-announce-text')
-    }
-
     focusedSubconditionQuestion.focus()
+
+    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
+      setTimeout(function () {
+        ariaAnnounceElement.textContent =
+          ariaAnnounceElement.getAttribute('data-announce-text')
+      }, 1000)
+    }
   }
 
   /**
