@@ -46,6 +46,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
+        expectProgramDescription: '',
         expectProgramShortDescription: '',
         expectApplicationStepTitle: '',
         expectApplicationStepDescription: '',
@@ -53,11 +54,13 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.expectNoProgramStatusTranslations()
       await adminTranslations.expectNoProgramImageDescription()
       const publicName = 'Spanish name'
+      const publicDescription = 'Spanish description'
       const publicShortDesc = 'Short Spanish desc'
       const stepOneTitle = 'step one Spanish title'
       const stepOneDescription = 'step one Spanish description'
       await adminTranslations.editProgramTranslations({
         name: publicName,
+        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -69,6 +72,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
+        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDesc,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -114,6 +118,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: '',
+        expectProgramDescription: '',
         expectProgramShortDescription: '',
         expectApplicationStepTitle: '',
         expectApplicationStepDescription: '',
@@ -128,11 +133,13 @@ test.describe('Admin can manage program translations', () => {
         expectStatusText: '',
       })
       const publicName = 'Spanish name'
+      const publicDescription = 'Spanish description'
       const publicShortDescription = 'Short Spanish desc'
       const stepOneTitle = 'step one Spanish title'
       const stepOneDescription = 'step one Spanish description'
       await adminTranslations.editProgramTranslations({
         name: publicName,
+        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -144,6 +151,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
+        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDescription,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -163,6 +171,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: publicName,
+        description: publicDescription,
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [
@@ -184,6 +193,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectProgramTranslation({
         expectProgramName: publicName,
+        expectProgramDescription: publicDescription,
         expectProgramShortDescription: publicShortDescription,
         expectApplicationStepTitle: stepOneTitle,
         expectApplicationStepDescription: stepOneDescription,
@@ -245,6 +255,7 @@ test.describe('Admin can manage program translations', () => {
       await test.step('Update translations', async () => {
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
+          description: 'Spanish description',
           shortDescription: 'Spanish description',
           blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
@@ -293,6 +304,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
+        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -332,6 +344,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
+        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -373,6 +386,7 @@ test.describe('Admin can manage program translations', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
+        description: 'Spanish description',
         blockName: 'Spanish block name',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -452,6 +466,7 @@ test.describe('Admin can manage program translations', () => {
 
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
+          description: 'Spanish description',
           blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
           statuses: [],
