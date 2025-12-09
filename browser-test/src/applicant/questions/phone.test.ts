@@ -68,8 +68,8 @@ test.describe('phone question for applicant flow', () => {
       await validateScreenshot(page.locator('main'), 'phone-format-usa')
       await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage()
-      })
+      await applicantQuestions.expectReviewPage()
+    })
 
     test('with canada phone submits successfully', async ({
       page,
@@ -83,9 +83,9 @@ test.describe('phone question for applicant flow', () => {
 
       await validateScreenshot(page.locator('main'), 'phone-format-ca')
 
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectReviewPage()
-      })
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.expectReviewPage()
+    })
 
     test('with empty phone does not submit', async ({
       page,
@@ -199,20 +199,20 @@ test.describe('phone question for applicant flow', () => {
       await page.keyboard.press('Enter')
       await expect(page.locator('input[type=text]')).toBeVisible()
 
-        // Check that pressing Enter on button works.
-        // await page.focus('button:has-text("Save and next")')
-        await page.focus('button:has-text("Continue")')
-        await page.keyboard.press('Enter')
-        await applicantQuestions.expectReviewPage()
+      // Check that pressing Enter on button works.
+      // await page.focus('button:has-text("Save and next")')
+      await page.focus('button:has-text("Continue")')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
 
-        // Go back to question and ensure that "Review" button is also clickable
-        // via Enter.
-        await applicantQuestions.clickEdit()
-        await page.focus('text="Review and submit"')
-        await page.keyboard.press('Enter')
-        await applicantQuestions.expectReviewPage()
-      })
+      // Go back to question and ensure that "Review" button is also clickable
+      // via Enter.
+      await applicantQuestions.clickEdit()
+      await page.focus('text="Review and submit"')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
     })
+  })
 
   test.describe('multiple phone questions', () => {
     const programName = 'Test program for multiple phone qs'
@@ -250,8 +250,8 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage()
-      })
+      await applicantQuestions.expectReviewPage()
+    })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
@@ -264,8 +264,8 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage()
-      })
+      await applicantQuestions.expectReviewPage()
+    })
 
     test('with first invalid does not submit', async ({
       page,

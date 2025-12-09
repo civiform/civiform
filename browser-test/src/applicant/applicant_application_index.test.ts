@@ -1056,11 +1056,11 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.expectActiveProgram(programNameSubmittedBasic)
       await logout(page)
 
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programNameSubmittedBasic, true)
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-      })
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programNameSubmittedBasic, true)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
 
     await test.step('submit program with status', async () => {
       const programNameSubmittedWithStatus = 'Submitted Program [Status]'
@@ -1096,11 +1096,11 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.publishAllDrafts()
       await logout(page)
 
-        await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programNameSubmittedImage, true)
-        await applicantQuestions.submitFromReviewPage()
-        await logout(page)
-      })
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programNameSubmittedImage, true)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
 
     await test.step('basic not started program', async () => {
       await loginAsAdmin(page)
@@ -1406,18 +1406,18 @@ test.describe('applicant program index page with images', () => {
     })
   })
 
-    async function submitApplicationAndApplyStatus(
-      page: Page,
-      programName: string,
-      statusName: string,
-      adminPrograms: AdminPrograms,
-      applicantQuestions: ApplicantQuestions,
-    ) {
-      // Submit an application as a test user.
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
-      await applicantQuestions.submitFromReviewPage()
-      await logout(page)
+  async function submitApplicationAndApplyStatus(
+    page: Page,
+    programName: string,
+    statusName: string,
+    adminPrograms: AdminPrograms,
+    applicantQuestions: ApplicantQuestions,
+  ) {
+    // Submit an application as a test user.
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.submitFromReviewPage()
+    await logout(page)
 
     // Set a status as a program admin
     await loginAsProgramAdmin(page)

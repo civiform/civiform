@@ -63,17 +63,17 @@ test.describe('Program admin download button visibility and endpoint access', ()
         await adminPrograms.publishProgram(programName)
         await logout(page)
 
-          await loginAsTestUser(page)
-          await applicantQuestions.applyProgram(programName, true)
-          await applicantQuestions.answerNameQuestion('sarah', 'smith')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage()
-          applicationId = parseInt(
-            (await adminPrograms.getApplicationId()) || '-1',
-          )
-          expect(applicationId).toBeGreaterThan(0)
-          await logout(page)
-        })
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.answerNameQuestion('sarah', 'smith')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        applicationId = parseInt(
+          (await adminPrograms.getApplicationId()) || '-1',
+        )
+        expect(applicationId).toBeGreaterThan(0)
+        await logout(page)
+      })
 
       await test.step('Flag disabled - program admin - buttons present & endpoints enabled', async () => {
         await disableFeatureFlag(page, downloadFlag)

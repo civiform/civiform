@@ -104,16 +104,16 @@ test.describe('address correction single-block, single-address program', () => {
         )
       })
 
-        await test.step('Confirm user can confirm address and submit', async () => {
-          await applicantQuestions.clickConfirmAddress()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            addressWithCorrectionText,
-            'Address In Area',
-          )
-          await applicantQuestions.clickSubmitApplication()
-          await logout(page)
-        })
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          addressWithCorrectionText,
+          'Address In Area',
+        )
+        await applicantQuestions.clickSubmitApplication()
+        await logout(page)
       })
+    })
 
     test('Renders address correction page in right to left', async ({
       page,
@@ -237,13 +237,13 @@ test.describe('address correction single-block, single-address program', () => {
       await logout(page)
     })
 
-      test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
-        applicantQuestions,
-      }) => {
-        await test.step('Answer address question', async () => {
-          // This is currently the same as when no suggestions are returned.
-          // We may change this later.
-          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+    test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        // This is currently the same as when no suggestions are returned.
+        // We may change this later.
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -261,27 +261,27 @@ test.describe('address correction single-block, single-address program', () => {
       })
     })
 
-      test('skips address correction screen if address exactly matches suggestions', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
-          await applicantQuestions.answerAddressQuestion(
-            'Address In Area',
-            '',
-            'Redlands',
-            'CA',
-            '92373',
-          )
-          await applicantQuestions.clickContinue()
-        })
-        await test.step('Validate review page is shown', async () => {
-          await applicantQuestions.expectReviewPage()
-        })
-        await logout(page)
+    test('skips address correction screen if address exactly matches suggestions', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.answerAddressQuestion(
+          'Address In Area',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
       })
-    }
+      await test.step('Validate review page is shown', async () => {
+        await applicantQuestions.expectReviewPage()
+      })
+      await logout(page)
+    })
+  }
 
   test('address correction page does not show if feature is disabled', async ({
     page,
@@ -289,30 +289,29 @@ test.describe('address correction single-block, single-address program', () => {
   }) => {
     test.slow()
 
-      await disableFeatureFlag(page, 'esri_address_correction_enabled')
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+    await disableFeatureFlag(page, 'esri_address_correction_enabled')
+    await test.step('Answer address question', async () => {
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-        await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-        )
-        await applicantQuestions.clickContinue()
-      })
-      await test.step('Validate review page is shown and user can submit', async () => {
-        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          addressWithCorrectionText,
-          '305 Harrison',
-        )
-        await applicantQuestions.clickSubmitApplication()
-      })
-      await logout(page)
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickContinue()
     })
-  },
-)
+    await test.step('Validate review page is shown and user can submit', async () => {
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        addressWithCorrectionText,
+        '305 Harrison',
+      )
+      await applicantQuestions.clickSubmitApplication()
+    })
+    await logout(page)
+  })
+})
 
 if (isLocalDevEnvironment()) {
   /**
@@ -369,17 +368,17 @@ if (isLocalDevEnvironment()) {
       await logout(page)
     })
 
-      test('skips address correction if optional address question is not answered', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(optionalAddressProgram)
+    test('skips address correction if optional address question is not answered', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(optionalAddressProgram)
 
-          await applicantQuestions.clickContinue()
-        })
-        await test.step('Validate review page is shown and user can submit', async () => {
-          await applicantQuestions.expectReviewPage()
+        await applicantQuestions.clickContinue()
+      })
+      await test.step('Validate review page is shown and user can submit', async () => {
+        await applicantQuestions.expectReviewPage()
 
         await applicantQuestions.clickSubmitApplication()
       })
@@ -466,40 +465,39 @@ if (isLocalDevEnvironment()) {
           /* northStarEnabled= */ true,
         )
 
-          // Fill out application and submit.
-          await applicantQuestions.answerAddressQuestion(
-            'Address In Area',
-            '',
-            'Seattle',
-            'WA',
-            '98109',
-            0,
-          )
-          await applicantQuestions.answerAddressQuestion(
-            'Legit Address',
-            '',
-            'Seattle',
-            'WA',
-            '98109',
-            1,
-          )
-          await applicantQuestions.clickContinue()
-        })
-        await test.step('Validate address correction page shown and user can finish application', async () => {
-          await applicantQuestions.expectVerifyAddressPage(true)
-          await applicantQuestions.clickConfirmAddress()
-          await applicantQuestions.answerTextQuestion('Some text')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            addressWithCorrectionText,
-            'Address In Area',
-          )
-          await applicantQuestions.clickSubmitApplication()
-        })
-        await logout(page)
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Address In Area',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          1,
+        )
+        await applicantQuestions.clickContinue()
       })
-    },
-  )
+      await test.step('Validate address correction page shown and user can finish application', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.answerTextQuestion('Some text')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          addressWithCorrectionText,
+          'Address In Area',
+        )
+        await applicantQuestions.clickSubmitApplication()
+      })
+      await logout(page)
+    })
+  })
 
   /**
    * Tests for the address correction view and navigation to and from that view.
@@ -598,13 +596,13 @@ if (isLocalDevEnvironment()) {
         await applicantQuestions.clickConfirmAddress()
       })
 
-        await test.step('Validate review page shown and user can submit application', async () => {
-          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-            addressWithCorrectionText,
-            'Address With No Service Area Features',
-          )
-          await applicantQuestions.clickSubmitApplication()
-        })
+      await test.step('Validate review page shown and user can submit application', async () => {
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          addressWithCorrectionText,
+          'Address With No Service Area Features',
+        )
+        await applicantQuestions.clickSubmitApplication()
+      })
 
       await logout(page)
     })
