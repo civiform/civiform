@@ -998,14 +998,14 @@ test.describe('applicant program index page with images', () => {
     const programNameInProgressImage = 'In Progress Program [Image]'
     const approvedStatusName = 'Approved'
 
-      await test.step('create program with image as admin', async () => {
-        await loginAsAdmin(page)
-        const preScreenerFormProgramName = 'Benefits finder'
-        await adminPrograms.addPreScreener(
-          preScreenerFormProgramName,
-          'short program description',
-          ProgramVisibility.PUBLIC,
-        )
+    await test.step('create program with image as admin', async () => {
+      await loginAsAdmin(page)
+      const preScreenerFormProgramName = 'Benefits finder'
+      await adminPrograms.addPreScreener(
+        preScreenerFormProgramName,
+        'short program description',
+        ProgramVisibility.PUBLIC,
+      )
 
       await adminPrograms.addProgram(programNameInProgressImage)
       await adminQuestions.addTextQuestion({
