@@ -1,7 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   loginAsAdmin,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -18,10 +18,10 @@ test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
       ).toBeAttached()
     })
 
-    await test.step('Change applicant language to Spanish', async () => {
-      await page.goto('/')
-      await selectApplicantLanguageNorthstar(page, 'es-US')
-    })
+      await test.step('Change applicant language to Spanish', async () => {
+        await page.goto('/')
+        await selectApplicantLanguage(page, 'es-US')
+      })
 
     await test.step('Has heading in Spanish', async () => {
       await page.goto('/bad/path/ezbezzdebashiboozook')

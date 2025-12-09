@@ -3,7 +3,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
@@ -135,7 +135,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('Verify program summary page renders right to left correctly', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
         await validateScreenshot(page, 'program-summary-right-to-left', {
           fullPage: false,
           mobileScreenshot: true,

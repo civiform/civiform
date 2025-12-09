@@ -32,7 +32,7 @@ export {
 export {
   isLocalDevEnvironment,
   dismissToast,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   disableFeatureFlag,
   enableFeatureFlag,
   closeWarningMessage,

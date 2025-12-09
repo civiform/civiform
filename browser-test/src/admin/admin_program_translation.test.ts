@@ -4,7 +4,7 @@ import {
   loginAsAdmin,
   logout,
   loginAsTestUser,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
 } from '../support'
@@ -81,15 +81,15 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
     await adminPrograms.publishProgram(programName)
 
-    // View the applicant program page in Spanish and check that the translations are present
-    await logout(page)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
-    const cardText = await page.innerText(
-      '.cf-application-card:has-text("' + publicName + '")',
-    )
-    expect(cardText).toContain('Spanish name')
-    expect(cardText).toContain('Short Spanish desc')
-  })
+      // View the applicant program page in Spanish and check that the translations are present
+      await logout(page)
+      await selectApplicantLanguage(page, 'es-US')
+      const cardText = await page.innerText(
+        '.cf-application-card:has-text("' + publicName + '")',
+      )
+      expect(cardText).toContain('Spanish name')
+      expect(cardText).toContain('Short Spanish desc')
+    })
 
   test('creates a program with statuses and adds translations for program statuses', async ({
     page,
@@ -489,23 +489,23 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.publishProgram(programName)
       await logout(page)
 
-      await loginAsTestUser(page)
-      await selectApplicantLanguageNorthstar(page, 'es-US')
-      await applicantQuestions.applyProgram(
-        'Spanish name',
-        /* northStarEnabled= */ true,
-        /* showProgramOverviewPage= */ true,
-        /* translatedOverviewTitle= */ 'Descripción general del programa',
-        /* translatedLinkText= */ 'Comenzar una solicitud',
-      )
-      await applicantQuestions.answerTextQuestion('ineligible')
-      await page.click('text="Continuar"')
-      await validateScreenshot(
-        page,
-        'ineligible-view-with-translated-eligibility-msg',
-      )
+        await loginAsTestUser(page)
+        await selectApplicantLanguage(page, 'es-US')
+        await applicantQuestions.applyProgram(
+          'Spanish name',
+          /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ true,
+          /* translatedOverviewTitle= */ 'Descripción general del programa',
+          /* translatedLinkText= */ 'Comenzar una solicitud',
+        )
+        await applicantQuestions.answerTextQuestion('ineligible')
+        await page.click('text="Continuar"')
+        await validateScreenshot(
+          page,
+          'ineligible-view-with-translated-eligibility-msg',
+        )
+      })
     })
-  })
 
   test('External program translations', async ({
     page,
