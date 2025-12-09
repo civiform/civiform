@@ -1,10 +1,8 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Preconditions;
@@ -25,6 +23,7 @@ import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -38,12 +37,16 @@ import views.components.ToastMessage;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramTranslationView(
-      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      SettingsManifest settingsManifest) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.settingsManifest = settingsManifest;
   }
 
   public Content render(
@@ -171,46 +174,6 @@ public final class ProgramTranslationView extends TranslationFormView {
               fieldsBuilder.build()));
     }
 
-    // Add slim alert with warning that translations aren't visible yet.
-    result.add(
-        div()
-            .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
-            .with(
-                div()
-                    .withClass("usa-alert__body")
-                    .with(
-                        p().withClass("usa-alert__text")
-                            .withText(
-                                "Translations entered below will be visible at a future launch"
-                                    + " date."))));
-
-    ImmutableList.Builder<DomContent> newProgramFieldsBuilder =
-        ImmutableList.<DomContent>builder()
-            .add(
-                fieldWithDefaultLocaleTextHint(
-                    FieldWithLabel.input()
-                        .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
-                        .setLabelText("Short program description")
-                        .setValue(updateData.localizedShortDescription())
-                        .setRequired(true)
-                        .getInputTag(),
-                    program.localizedShortDescription()));
-
-    newProgramFieldsBuilder =
-        addApplicationSteps(newProgramFieldsBuilder, program, updateData.applicationSteps());
-
-    result.add(
-        fieldSetForFields(
-            legend()
-                .with(
-                    span("New program details fields"),
-                    new LinkElement()
-                        .setText("(edit default)")
-                        .setHref(programDetailsLink)
-                        .setStyles("ml-2")
-                        .asAnchorText()),
-            newProgramFieldsBuilder.build()));
-
     // Add fields for Screen names and descriptions. External programs don't have screens
     if (!program.programType().equals(ProgramType.EXTERNAL)) {
       addScreenFields(updateData, program, blockDefinitions, result);
@@ -233,8 +196,17 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .getInputTag(),
                     program.localizedName()));
 
+    // On north star, only default programs have a long description. Whereas when north star is off,
+    // both default programs and common intake forms have long description.
+    // TODO(#11581): North star clean up
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi();
     ProgramType programType = program.programType();
-    if (programType.equals(ProgramType.DEFAULT)) {
+    boolean showLongDescription = northStarEnabled && programType.equals(ProgramType.DEFAULT);
+    boolean showLongDescriptionNS =
+        !northStarEnabled
+            && (programType.equals(ProgramType.DEFAULT)
+                || programType.equals(ProgramType.COMMON_INTAKE_FORM));
+    if (showLongDescription || showLongDescriptionNS) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(
               FieldWithLabel.input()
@@ -269,6 +241,21 @@ public final class ProgramTranslationView extends TranslationFormView {
                   .getInputTag(),
               program.localizedSummaryImageDescription().get()));
     }
+
+    // Add short description field
+    applicantVisibleDetails.add(
+        fieldWithDefaultLocaleTextHint(
+            FieldWithLabel.input()
+                .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
+                .setLabelText("Short program description")
+                .setValue(updateData.localizedShortDescription())
+                .setRequired(true)
+                .getInputTag(),
+            program.localizedShortDescription()));
+
+    // Add application steps
+    addApplicationSteps(applicantVisibleDetails, program, updateData.applicationSteps());
+
     return applicantVisibleDetails.build();
   }
 
@@ -279,8 +266,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     // Get the application steps from the program data
     // if we have default text, add a box for translations
     ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
-    // TODO: Once we've fully transitioned to the new fields, we probably want each application step
-    // to be it's own section
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       LocalizationUpdate.ApplicationStepUpdate updatedStep = updatedApplicationSteps.get(i);
