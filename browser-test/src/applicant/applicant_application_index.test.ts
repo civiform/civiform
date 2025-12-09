@@ -9,7 +9,7 @@ import {
   loginAsTestUser,
   logout,
   normalizeElements,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -129,7 +129,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -167,10 +167,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsTestUser(page)
 
     await test.step('Apply to the primary program', async () => {
-      await applicantQuestions.applyProgram(
-        primaryProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(primaryProgramName)
       // Screen 1 has no questions, so expect to navigate directly to screen 2
       await expect(page.getByText('Screen 2')).toBeVisible()
       await applicantQuestions.answerTextQuestion('first answer')
@@ -180,9 +177,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
-      await applicantQuestions.returnToProgramsFromSubmissionPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
     })
 
     await test.step('Expect submitted tag shows on program card', async () => {
@@ -193,7 +188,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await test.step('Expect editing submitted application takes user to review page', async () => {
       await applicantQuestions.applyProgram(
         primaryProgramName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
 
@@ -314,10 +308,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
 
       await test.step('start applying to a program', async () => {
-        await applicantQuestions.applyProgram(
-          primaryProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(primaryProgramName)
 
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
@@ -341,7 +332,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
 
       await test.step('change language to Arabic', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
       })
 
       await test.step('validate screenshot desktop', async () => {
@@ -381,7 +372,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section
@@ -393,7 +383,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
-        await applicantQuestions.applyProgram(primaryProgramName, true)
+        await applicantQuestions.applyProgram(primaryProgramName)
         await applicantQuestions.answerTextQuestion('first answer')
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
@@ -410,19 +400,17 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
       await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
         await applicantQuestions.applyProgram(
           primaryProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('second answer')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage(true)
         await applicantQuestions.expectProgramsinCorrectSections(
           {
@@ -437,7 +425,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -465,7 +452,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
             ],
           },
           /* filtersOn= */ true,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section headings
@@ -499,7 +485,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
     })
@@ -610,7 +595,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -621,7 +605,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await test.step('Start applying to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
           preScreenerFormProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('answer')
@@ -640,7 +623,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await validateScreenshot(
@@ -655,7 +637,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await test.step('Submit application to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
           preScreenerFormProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.clickSubmitApplication()
@@ -673,26 +654,23 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
     })
 
     test('shows pre-screener form', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
 
       await validateScreenshot(page, 'pre-screener-form-sections')
-      await applicantQuestions.expectProgramsNorthstar({
+      await applicantQuestions.expectPrograms({
         wantNotStartedPrograms: [otherProgramName],
         wantInProgressOrSubmittedPrograms: [primaryProgramName],
       })
-      await applicantQuestions.expectPreScreenerFormNorthstar(
-        preScreenerFormProgramName,
-      )
+      await applicantQuestions.expectPreScreenerForm(preScreenerFormProgramName)
     })
 
     test('shows a different title for the pre-screener form', async ({
@@ -715,28 +693,24 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await test.step('Fill out application with one question and confirm it shows previously answered at the end', async () => {
-      await applicantQuestions.applyProgram(otherProgramName, true)
+      await applicantQuestions.applyProgram(otherProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.expectProgramsNorthstar({
+      await applicantQuestions.expectPrograms({
         wantNotStartedPrograms: [primaryProgramName],
         wantInProgressOrSubmittedPrograms: [otherProgramName],
       })
     })
 
     await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.clickReview(true)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
 
-      await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
+      await applicantQuestions.validateNoPreviouslyAnsweredText(
         secondQuestionText,
       )
       await validateScreenshot(page, 'question-shows-previously-answered')
@@ -746,13 +720,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -766,14 +738,12 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         .click()
       await applicantQuestions.answerTextQuestion('first answer 2')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
 
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
       await validateScreenshot(page, 'other-program-shows-previously-answered')
     })
   })
@@ -803,7 +773,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     page,
   }) => {
     await test.step('change language to Arabic', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
     })
 
     await test.step('validate screenshot desktop', async () => {
@@ -911,10 +881,7 @@ test.describe(
       await validateAccessibility(page)
 
       await test.step('Fill out part of the program application', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickSubmitApplication()
         await applicantQuestions.gotoApplicantHomePage()
       })
@@ -1030,7 +997,7 @@ test.describe(
 
       await test.step('start application to program', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programNameInProgressImage, true)
+        await applicantQuestions.applyProgram(programNameInProgressImage)
         await applicantQuestions.answerTextQuestion('first answer')
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
@@ -1078,8 +1045,8 @@ test.describe(
         await logout(page)
 
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programNameSubmittedBasic, true)
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.applyProgram(programNameSubmittedBasic)
+        await applicantQuestions.submitFromReviewPage()
         await logout(page)
       })
 
@@ -1118,8 +1085,8 @@ test.describe(
         await logout(page)
 
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programNameSubmittedImage, true)
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.applyProgram(programNameSubmittedImage)
+        await applicantQuestions.submitFromReviewPage()
         await logout(page)
       })
 
@@ -1182,7 +1149,6 @@ test.describe(
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
     })
@@ -1229,7 +1195,6 @@ test.describe(
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
 
         // Button for external program card has a different text.
@@ -1362,7 +1327,6 @@ test.describe(
             ],
           },
           /* filtersOn= */ true,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -1436,8 +1400,8 @@ test.describe(
     ) {
       // Submit an application as a test user.
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
 
       // Set a status as a program admin

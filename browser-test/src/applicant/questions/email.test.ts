@@ -26,10 +26,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(page.getByTestId('questionRoot'), 'email', {
@@ -50,26 +47,18 @@ test.describe(
       test('with email input submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
       })
 
       test('with no email input does not submit', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // Click "Continue" without inputting anything.
         await applicantQuestions.clickContinue()
 
@@ -83,10 +72,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -116,10 +102,7 @@ test.describe(
       test('with email inputs submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerEmailQuestion(
           'your_email@civiform.gov',
           0,
@@ -127,31 +110,25 @@ test.describe(
         await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('with unanswered optional question submits successfully', async ({
         applicantQuestions,
       }) => {
         // Only answer second question. First is optional.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('has no accessiblity violations', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

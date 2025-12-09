@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from '../../support'
 
 test.describe(
@@ -27,10 +27,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -54,10 +51,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -66,11 +60,8 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await applicantQuestions.applyProgram(programName)
+        await selectApplicantLanguage(page, 'ar')
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'yes-no-right-to-left',
@@ -82,11 +73,8 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguageNorthstar(page, 'es-US')
+        await applicantQuestions.applyProgram(programName)
+        await selectApplicantLanguage(page, 'es-US')
 
         // Verify Spanish translations are shown
         await expect(page.getByText('Sí', {exact: true})).toBeVisible()
@@ -120,10 +108,7 @@ test.describe(
       })
 
       test('validate option hidden', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await expect(page.getByText('Yes', {exact: true})).toBeVisible()
         await expect(page.getByText('No', {exact: true})).toBeVisible()
@@ -162,39 +147,30 @@ test.describe(
       test('with both selections submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerYesNoQuestion('Yes')
         await applicantQuestions.answerYesNoQuestion('No', /* order= */ 1)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('with unanswered optional question submits successfully', async ({
         applicantQuestions,
       }) => {
         // Only answer second question. First is optional.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerYesNoQuestion('Yes', /* order= */ 1)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('has no accessiblity violations', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

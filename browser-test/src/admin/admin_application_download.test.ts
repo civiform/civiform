@@ -69,10 +69,10 @@ test.describe(
           await logout(page)
 
           await loginAsTestUser(page)
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerNameQuestion('sarah', 'smith')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage(true)
+          await applicantQuestions.submitFromReviewPage()
           applicationId = parseInt(
             (await adminPrograms.getApplicationId()) || '-1',
           )
@@ -169,13 +169,13 @@ test.describe('csv export for multioption question', () => {
 
     await test.step('Test user - Submit initial application', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Jane', 'Doe')
       await applicantQuestions.answerCheckboxQuestion(['blue', 'red'])
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -205,7 +205,7 @@ test.describe('csv export for multioption question', () => {
     })
 
     await test.step('Test user - Submit updated application', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await page.click('text="Continue"')
       await waitForPageJsLoad(page)
 
@@ -327,7 +327,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
     await test.step('Test user - application submission', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
 
       // Applicant fills out first application block.
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
@@ -342,7 +342,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -389,7 +389,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
     await test.step('Applicant - Submit application as guest user', async () => {
       // Apply to the program again, this time a different user
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
       await applicantQuestions.answerDropdownQuestion('op2', 1)
       await applicantQuestions.answerMemorableDateQuestion(
@@ -401,7 +401,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.answerNumberQuestion('1600')
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
 
       // Apply to the program again as the same user
@@ -410,7 +410,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1500')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 

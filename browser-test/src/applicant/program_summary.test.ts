@@ -3,7 +3,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
@@ -96,10 +96,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
     test('Verify program summary page', async ({page, applicantQuestions}) => {
       await test.step('Apply to program', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -135,7 +132,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Verify program summary page renders right to left correctly', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
         await validateScreenshot(page, 'program-summary-right-to-left', {
           fullPage: false,
           mobileScreenshot: true,
@@ -148,10 +145,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       // Clicking "Apply" navigates to the first block edit page
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Go to the review page
       await applicantQuestions.clickBack()
@@ -204,7 +198,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Upload file', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
@@ -213,17 +207,13 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     await test.step('Download file in North Star', async () => {
       await applicantQuestions.applyProgram(
         programName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
 
       await expect(page.getByText(fileName)).toBeVisible()
 
       const downloadedFileContent =
-        await applicantQuestions.downloadSingleQuestionFromReviewPage(
-          /* northStarEnabled= */ true,
-          fileName,
-        )
+        await applicantQuestions.downloadSingleQuestionFromReviewPage(fileName)
       expect(downloadedFileContent).toEqual(fileContent)
     })
   })

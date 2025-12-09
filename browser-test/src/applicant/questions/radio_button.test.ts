@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from '../../support'
 
 test.describe(
@@ -27,10 +27,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -54,10 +51,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -66,11 +60,8 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await applicantQuestions.applyProgram(programName)
+        await selectApplicantLanguage(page, 'ar')
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-right-to-left',
@@ -137,24 +128,18 @@ test.describe(
       test('with selection submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('with empty selection does not submit', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Click next without inputting anything
         await applicantQuestions.clickContinue()
@@ -237,10 +222,7 @@ test.describe(
         )
         await logout(page)
 
-        await applicantQuestions.applyProgram(
-          longTextProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(longTextProgramName)
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-long-text-applicant',
@@ -289,39 +271,30 @@ test.describe(
       test('with both selections submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.answerRadioButtonQuestion('mountains')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('with unanswered optional question submits successfully', async ({
         applicantQuestions,
       }) => {
         // Only answer second question. First is optional.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('has no accessiblity violations', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

@@ -251,10 +251,10 @@ test.describe('primary applicant info questions', {tag: ['@northstar']}, () => {
     await logout(page)
     await loginAsTestUser(page)
 
-    await applicantQuestions.applyProgram('test', true)
+    await applicantQuestions.applyProgram('test')
     await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
     await applicantQuestions.clickContinue()
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)

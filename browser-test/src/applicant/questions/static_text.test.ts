@@ -37,10 +37,7 @@ test.describe(
     })
 
     test('parses markdown', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await validateScreenshot(
         page.getByTestId('staticQuestionRoot'),
         'markdown-text',
@@ -53,10 +50,7 @@ test.describe(
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await validateAccessibility(page)
     })
   },

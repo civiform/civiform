@@ -159,7 +159,7 @@ test.describe(
       await applicantQuestions.validateHeader('en-US')
 
       await test.step('Fill out first application block', async () => {
-        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '')
         await applicantQuestions.answerNameQuestion('', '', '')
         await applicantQuestions.answerRadioButtonQuestion('two')
@@ -218,7 +218,7 @@ test.describe(
       })
 
       await test.step('Submit application', async () => {
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
       })
 
       await test.step('Log in as program admin', async () => {
@@ -402,10 +402,10 @@ test.describe(
 
       await test.step('Submit applications from different users', async () => {
         for (const answer of answers) {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerTextQuestion(answer)
           await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage(true)
+          await applicantQuestions.submitFromReviewPage()
 
           await logout(page)
         }
@@ -459,14 +459,14 @@ test.describe(
 
       await test.step('Submit an application as Test User', async () => {
         await loginAsTestUser(page)
-        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.applyProgram(programName)
 
         // Applicant fills out first application block.
         await applicantQuestions.answerNameQuestion('sarah', 'smith')
         await applicantQuestions.clickContinue()
 
         // Applicant submits answers from review page.
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
 
         await logout(page)
       })
@@ -482,10 +482,10 @@ test.describe(
       })
 
       await test.step('Apply to the program as as a Guest User', async () => {
-        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('Gus', 'Guest')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       })
 
@@ -571,7 +571,6 @@ test.describe(
           'oneLast',
           'one@email.com',
           '4152321234',
-          true,
         )
         await applicantQuestions.completeApplicationWithPaiQuestions(
           programName,
@@ -580,7 +579,6 @@ test.describe(
           'twoLast',
           'two@email.com',
           '4153231234',
-          true,
         )
         await applicantQuestions.completeApplicationWithPaiQuestions(
           programName,
@@ -589,7 +587,6 @@ test.describe(
           'threeLast',
           'three@email.com',
           '5102321234',
-          true,
         )
       })
 

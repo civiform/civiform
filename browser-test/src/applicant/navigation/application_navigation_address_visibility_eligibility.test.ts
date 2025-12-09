@@ -117,10 +117,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
             '',
@@ -160,10 +157,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerAddressQuestion(
             'Nonlegit Address',
             '',
@@ -200,10 +194,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
             '',

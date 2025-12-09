@@ -4,7 +4,7 @@ import {
   loginAsAdmin,
   logout,
   loginAsTestUser,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
 } from '../support'
@@ -86,7 +86,7 @@ test.describe(
 
       // View the applicant program page in Spanish and check that the translations are present
       await logout(page)
-      await selectApplicantLanguageNorthstar(page, 'es-US')
+      await selectApplicantLanguage(page, 'es-US')
       const cardText = await page.innerText(
         '.cf-application-card:has-text("' + publicName + '")',
       )
@@ -493,10 +493,9 @@ test.describe(
         await logout(page)
 
         await loginAsTestUser(page)
-        await selectApplicantLanguageNorthstar(page, 'es-US')
+        await selectApplicantLanguage(page, 'es-US')
         await applicantQuestions.applyProgram(
           'Spanish name',
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ true,
           /* translatedOverviewTitle= */ 'Descripción general del programa',
           /* translatedLinkText= */ 'Comenzar una solicitud',

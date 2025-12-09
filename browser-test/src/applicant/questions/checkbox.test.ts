@@ -69,10 +69,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateScreenshot(page.locator('main'), 'checkbox')
       })
@@ -81,10 +78,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickContinue()
 
         await validateScreenshot(page.locator('main'), 'checkbox-errors')
@@ -93,26 +87,18 @@ test.describe(
       test('with single checked box submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerCheckboxQuestion(['blue'])
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
       })
 
       test('with no checked boxes does not submit', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // No validation errors on first page load.
         await expect(page.locator('.cf-applicant-question-errors')).toBeHidden()
@@ -133,10 +119,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         const checkBoxError = '.cf-applicant-question-errors'
         // No validation errors on first page load.
         await expect(page.locator(checkBoxError)).toBeHidden()
@@ -225,10 +208,7 @@ test.describe(
           await logout(page)
         })
 
-        await applicantQuestions.applyProgram(
-          longTextProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(longTextProgramName)
         await validateScreenshot(
           page.locator('main'),
           'checkbox-options-long-text-applicant',
@@ -280,43 +260,30 @@ test.describe(
       test('with valid checkboxes submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerCheckboxQuestion(['blue'])
         await applicantQuestions.answerCheckboxQuestion(['beach'])
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
       })
 
       test('with unanswered optional question submits successfully', async ({
         applicantQuestions,
       }) => {
         // Only answer required question.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerCheckboxQuestion(['red'])
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
       })
 
       test('with first invalid does not submit', async ({
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         const checkboxError = '.cf-applicant-question-errors'
         // No validation errors on first page load.
         await expect(page.locator(checkboxError)).toBeHidden()
@@ -337,10 +304,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         const checkboxError = '.cf-applicant-question-errors'
         // No validation errors on first page load.
         await expect(page.locator(checkboxError)).toBeHidden()
@@ -361,10 +325,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

@@ -185,6 +185,8 @@ export class ApplicantProgramList {
 export enum CardSectionName {
   MyApplications = 'My applications',
   ProgramsAndServices = 'Programs and services',
+  RecommendedPrograms = 'Programs based on your selections',
+  OtherPrograms = 'Other programs and services',
 }
 
 /**

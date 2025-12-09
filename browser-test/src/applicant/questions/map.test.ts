@@ -46,7 +46,7 @@ if (isLocalDevEnvironment()) {
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         await test.step('Take screenshot', async () => {
@@ -60,7 +60,7 @@ if (isLocalDevEnvironment()) {
 
       test('display map', async ({page, applicantQuestions}) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         await test.step('Wait for map to load and verify canvas', async () => {
@@ -109,7 +109,7 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         const locationsList = page.getByRole('group', {
@@ -182,7 +182,7 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         await test.step('Dismiss attribution control to avoid overlap', async () => {
@@ -232,7 +232,7 @@ if (isLocalDevEnvironment()) {
 
       test('filter locations', async ({page, applicantQuestions}) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         const filterSelects = page.getByRole('combobox')
@@ -296,7 +296,7 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         const locationsList = page.getByRole('group', {
@@ -326,7 +326,7 @@ if (isLocalDevEnvironment()) {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.applyProgram(programName)
 
         const mapContainer = page.getByTestId('map-container')
         const mapCanvas = mapContainer.getByRole('region', {name: 'Map'})
@@ -386,7 +386,7 @@ if (isLocalDevEnvironment()) {
         applicantQuestions,
       }) => {
         await test.step('Navigate to map question', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         await test.step('Set viewport to mobile size', async () => {
@@ -441,7 +441,7 @@ if (isLocalDevEnvironment()) {
 
       test('display multiple maps', async ({page, applicantQuestions}) => {
         await test.step('Navigate to multiple map questions', async () => {
-          await applicantQuestions.applyProgram(programName, true)
+          await applicantQuestions.applyProgram(programName)
         })
 
         await test.step('Verify both maps are present', async () => {
