@@ -205,11 +205,11 @@ test.describe('program migration', () => {
       )
     })
 
-    await test.step('error: invalid program ID', async () => {
+    await test.step('error: invalid program slug', async () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-      // replace the program ID with an invalid ID to trigger an error
+      // replace the program slug with an invalid slug to trigger an error
       const comprehensiveProgramBadName =
         downloadedComprehensiveProgram.replace(
           'comprehensive-sample-program',
