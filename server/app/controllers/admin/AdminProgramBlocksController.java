@@ -155,7 +155,20 @@ public final class AdminProgramBlocksController extends CiviFormController {
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
-      return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
+
+      long addedBlockId = block.id();
+
+      // If it's an enumerator, also add the first repeated block.
+      if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        result = programService.addRepeatedBlockToProgram(programId, addedBlockId);
+        if (result.isError()) {
+          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+          return renderEditViewWithMessage(request, program, block, Optional.of(message));
+        }
+        addedBlockId++;
+      }
+
+      return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {

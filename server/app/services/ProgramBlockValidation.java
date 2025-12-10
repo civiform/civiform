@@ -105,7 +105,9 @@ public final class ProgramBlockValidation {
     try {
       BlockDefinition enumeratorBlockDefinition =
           program.getBlockDefinition(block.enumeratorId().get());
-      return Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
+      return enumeratorBlockDefinition.hasEnumeratorQuestion()
+          ? Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId())
+          : Optional.empty();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       String errorMessage =
           String.format(
