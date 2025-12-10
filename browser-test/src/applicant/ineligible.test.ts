@@ -86,9 +86,7 @@ test.describe('North Star Ineligible Page Tests', () => {
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Expect application submitted page', async () => {
@@ -214,16 +212,14 @@ test.describe('North Star Ineligible Page Tests', () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // All questions have been answered
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Edit the block (there is only one block)
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Expect application submitted page', async () => {
@@ -368,7 +364,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect review page', async () => {
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 })

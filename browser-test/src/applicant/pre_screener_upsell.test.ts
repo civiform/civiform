@@ -45,9 +45,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Verify output', async () => {
@@ -80,9 +78,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Validate the sign in link logs the user in and navigates to the home page', async () => {
@@ -113,9 +109,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await expect(
@@ -141,9 +135,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await applicantQuestions.clickApplyToProgramsButton()
@@ -185,9 +177,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
     await test.step('Setup: submit application', async () => {
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Verify output', async () => {
@@ -229,9 +219,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
         ),
       ).toBeHidden()
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await expect(
@@ -259,9 +247,7 @@ test.describe('North Star Pre-Screener Upsell Tests', () => {
 
     await test.step('Setup: submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await validateScreenshot(page, 'submitted-page-theme')

@@ -177,7 +177,7 @@ test.describe('Trusted intermediaries', () => {
       )
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.expectConfirmationPage(true)
       await applicantQuestions.clickBackToHomepageButton()
       await tiDashboard.clickOnViewApplications()
@@ -1083,7 +1083,7 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.applyProgram(program1, true)
       await applicantQuestions.answerEmailQuestion('fake@sample.com')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('1')
@@ -1093,7 +1093,7 @@ test.describe('Trusted intermediaries', () => {
       await tiDashboard.clickOnViewApplications()
 
       await applicantQuestions.applyProgram(program2, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('2')
@@ -1332,7 +1332,7 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('submitting the application without changing any values succeeds', async () => {
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(true)
       })
     })
@@ -1373,7 +1373,7 @@ test.describe('Trusted intermediaries', () => {
       })
 
       await test.step('submitting the application with changed values succeeds', async () => {
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(true)
       })
     })
@@ -1405,7 +1405,7 @@ test.describe('Trusted intermediaries', () => {
         await applicantQuestions.answerPhoneQuestion('7188675309')
         await applicantQuestions.answerEmailQuestion('email@example.com')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
       })
 
       const newClientInfo: ClientInformation = {

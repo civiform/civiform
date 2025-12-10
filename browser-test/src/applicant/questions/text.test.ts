@@ -69,9 +69,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with empty text does not submit', async ({
@@ -144,14 +142,14 @@ test.describe('Text question for applicant flow', () => {
       // Check that pressing Enter on button works.
       await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
       await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 
@@ -200,9 +198,7 @@ test.describe('Text question for applicant flow', () => {
       await validateScreenshot(page.locator('main'), 'text-max')
 
       // Form should submit with partial text entry.
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
   })
 
@@ -246,9 +242,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -262,9 +256,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({

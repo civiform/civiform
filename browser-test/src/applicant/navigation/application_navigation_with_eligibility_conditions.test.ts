@@ -179,9 +179,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerTextQuestion('text!')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
       })
 
       await test.step('verify no eligibility tags on submitted application', async () => {
@@ -395,9 +393,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerTextQuestion('text!')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       })

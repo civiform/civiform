@@ -97,9 +97,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with no checked boxes does not submit', async ({
@@ -285,9 +283,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -301,9 +297,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({

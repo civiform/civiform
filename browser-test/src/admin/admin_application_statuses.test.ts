@@ -37,7 +37,7 @@ test.describe('view program statuses', () => {
 
       // Submit an application as a guest.
       await applicantQuestions.applyProgram(programWithoutStatusesName, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(page)
@@ -87,7 +87,7 @@ test.describe('view program statuses', () => {
 
         // Submit an application as a guest.
         await applicantQuestions.applyProgram(programWithoutStatusesName, true)
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
 
         await loginAsProgramAdmin(page)
       }
@@ -433,7 +433,7 @@ test.describe('view program statuses', () => {
           programWithDefaultStatusName,
           true,
         )
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await logout(page)
 
         // Submit an application as the logged in test user.
@@ -442,7 +442,7 @@ test.describe('view program statuses', () => {
           programWithDefaultStatusName,
           true,
         )
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await logout(page)
 
         await loginAsProgramAdmin(page)
@@ -529,7 +529,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.applyProgram(programForFilteringName, true)
         await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await loginAsProgramAdmin(page)
       },
     )
@@ -733,7 +733,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Robin', 'Hood')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await logout(page)
 
         // Add eligibility conditions to existing program
@@ -760,7 +760,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.answerTextQuestion('Red')
         await applicantQuestions.answerNameQuestion('Sonny', 'Hood')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
 
         await logout(page)
       },
@@ -820,7 +820,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.applyProgram(programWithStatusesName, true)
         await applicantQuestions.answerEmailQuestion(guestEmail)
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -878,7 +878,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -944,7 +944,7 @@ test.describe('view program statuses', () => {
         await applicantQuestions.clickEdit()
         await applicantQuestions.answerEmailQuestion(testUserDisplayName())
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         const id = await adminPrograms.getApplicationId()
         await logout(page)
         await loginAsProgramAdmin(page)
@@ -1014,7 +1014,7 @@ test.describe('view program statuses', () => {
         const otherTestUserEmail = 'other@example.com'
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
 
         await logout(page)
       })
@@ -1052,14 +1052,14 @@ test.describe('view program statuses', () => {
 
     await test.step('submit an application as a guest', async () => {
       await applicantQuestions.applyProgram(programWithStatusesName, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programWithStatusesName, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
   }

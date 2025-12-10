@@ -254,7 +254,7 @@ test.describe('primary applicant info questions', () => {
     await applicantQuestions.applyProgram('test', true)
     await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
     await applicantQuestions.clickContinue()
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)

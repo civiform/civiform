@@ -72,9 +72,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with invalid currency does not submit', async ({
@@ -130,9 +128,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits', async ({
@@ -145,9 +141,7 @@ test.describe('currency applicant flow', () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({

@@ -143,7 +143,7 @@ test.describe('create and edit predicates', () => {
     await applicantQuestions.expectQuestionDoesNotExistOnReviewPage(
       'conditional question',
     )
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the hidden question does not show
     await logout(page)
@@ -281,7 +281,7 @@ test.describe('create and edit predicates', () => {
     await applicantQuestions.expectQuestionExistsOnReviewPage(
       'conditional question',
     )
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the conditional question is shown
     await logout(page)
@@ -435,7 +435,7 @@ test.describe('create and edit predicates', () => {
     await expect(
       page.getByRole('button', {name: 'Submit application'}),
     ).toBeVisible()
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the question is shown
     await logout(page)
@@ -1234,7 +1234,7 @@ test.describe('create and edit predicates', () => {
       // "hidden" first name is not allowed.
       await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickContinue()
@@ -1244,7 +1244,7 @@ test.describe('create and edit predicates', () => {
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickContinue()
@@ -1254,7 +1254,7 @@ test.describe('create and edit predicates', () => {
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickContinue()
@@ -1264,7 +1264,7 @@ test.describe('create and edit predicates', () => {
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickContinue()
@@ -1274,7 +1274,7 @@ test.describe('create and edit predicates', () => {
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickContinue()
@@ -1288,7 +1288,7 @@ test.describe('create and edit predicates', () => {
         '01',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2020',
@@ -1306,7 +1306,7 @@ test.describe('create and edit predicates', () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2023',
@@ -1324,7 +1324,7 @@ test.describe('create and edit predicates', () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '1930',
@@ -1342,7 +1342,7 @@ test.describe('create and edit predicates', () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
@@ -1360,7 +1360,7 @@ test.describe('create and edit predicates', () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2000',
@@ -1374,7 +1374,7 @@ test.describe('create and edit predicates', () => {
       // "dog" or "cat" are allowed.
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickContinue()
@@ -1384,7 +1384,7 @@ test.describe('create and edit predicates', () => {
       // number between 10 and 20 is allowed
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('15')
       await applicantQuestions.clickContinue()
@@ -1398,7 +1398,7 @@ test.describe('create and edit predicates', () => {
         '01',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
@@ -1412,7 +1412,7 @@ test.describe('create and edit predicates', () => {
       // currency between 4.25 and 9.99 is allowed
       await applicantQuestions.answerCurrencyQuestion('2.00')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('5.50')
       await applicantQuestions.clickContinue()
@@ -1424,7 +1424,7 @@ test.describe('create and edit predicates', () => {
     })
 
     // We should now be on the summary page
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
   })
 
   test('every eligibility right hand type evaluates correctly', async ({
@@ -2040,7 +2040,7 @@ test.describe('create and edit predicates', () => {
     await validateScreenshot(page, 'review-page-no-ineligible-banner-completed')
     await validateToastMessage(page, '')
 
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
   })
 
   test('multiple questions ineligible', async ({

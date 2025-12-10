@@ -805,16 +805,10 @@ export class ApplicantQuestions {
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async expectReviewPage(northStarEnabled = false) {
-    if (northStarEnabled) {
-      await expect(
-        this.page.locator('[data-testid="programSummary"]'),
-      ).toBeVisible()
-    } else {
-      await expect(this.page.locator('h2')).toContainText(
-        'Program application summary',
-      )
-    }
+  async expectReviewPage() {
+    await expect(
+      this.page.locator('[data-testid="programSummary"]'),
+    ).toBeVisible()
   }
 
   async expectConfirmationPage(northStarEnabled = false) {
@@ -1050,16 +1044,12 @@ export class ApplicantQuestions {
     ).toBeHidden()
   }
 
-  async submitFromReviewPage(northStarEnabled = false) {
+  async submitFromReviewPage() {
     // Assert that we're on the review page.
-    await this.expectReviewPage(northStarEnabled)
+    await this.expectReviewPage()
 
     // Click on submit button.
-    if (northStarEnabled) {
-      await this.clickSubmitApplication()
-    } else {
-      await this.clickSubmit()
-    }
+    await this.clickSubmitApplication()
   }
 
   async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
@@ -1225,7 +1215,7 @@ export class ApplicantQuestions {
     } else {
       await this.clickNext()
     }
-    await this.submitFromReviewPage(northStarEnabled)
+    await this.submitFromReviewPage()
     if (northStarEnabled) {
       await this.page.getByRole('button', {name: 'End your session'}).click()
     } else {
