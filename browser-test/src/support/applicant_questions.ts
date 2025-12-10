@@ -461,20 +461,9 @@ export class ApplicantQuestions {
       expectedProgramsInOtherProgramsSection: string[]
     },
     /* Toggle whether filters have been selected */ filtersOn = false,
-    northStarEnabled = false,
   ) {
-    let gotMyApplicationsProgramNames
-
-    if (northStarEnabled) {
-      gotMyApplicationsProgramNames =
-        await this.northStarProgramNamesForSection(
-          CardSectionName.MyApplications,
-        )
-    } else {
-      gotMyApplicationsProgramNames =
-        await this.programNamesForSection('My applications')
-    }
-
+    const gotMyApplicationsProgramNames =
+      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
     let gotRecommendedProgramNames
     let gotOtherProgramNames
     let gotProgramsAndServicesNames
@@ -489,16 +478,9 @@ export class ApplicantQuestions {
       )
       gotOtherProgramNames.sort()
     } else {
-      if (northStarEnabled) {
-        gotProgramsAndServicesNames =
-          await this.northStarProgramNamesForSection(
-            CardSectionName.ProgramsAndServices,
-          )
-      } else {
-        gotProgramsAndServicesNames = await this.programNamesForSection(
-          'Programs and services',
-        )
-      }
+      gotProgramsAndServicesNames = await this.northStarProgramNamesForSection(
+        CardSectionName.ProgramsAndServices,
+      )
       gotProgramsAndServicesNames.sort()
     }
 

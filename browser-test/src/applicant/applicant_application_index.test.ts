@@ -378,7 +378,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section
@@ -407,7 +406,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -433,7 +431,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -461,7 +458,6 @@ test.describe('applicant program index page', () => {
             ],
           },
           /* filtersOn= */ true,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section headings
@@ -495,7 +491,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
     })
@@ -606,7 +601,6 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -635,7 +629,6 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await validateScreenshot(
@@ -667,14 +660,13 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
     })
 
     test('shows pre-screener form', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
@@ -892,10 +884,7 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
 
     await test.step('Fill out part of the program application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickSubmitApplication()
       await applicantQuestions.gotoApplicantHomePage()
     })
@@ -1161,7 +1150,6 @@ test.describe('applicant program index page with images', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
   })
@@ -1208,7 +1196,6 @@ test.describe('applicant program index page with images', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       // Button for external program card has a different text.
@@ -1341,7 +1328,6 @@ test.describe('applicant program index page with images', () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
 
