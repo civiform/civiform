@@ -9,7 +9,7 @@ import {
   loginAsTestUser,
   logout,
   normalizeElements,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -129,7 +129,7 @@ test.describe('applicant program index page', () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -334,7 +334,7 @@ test.describe('applicant program index page', () => {
       })
 
       await test.step('change language to Arabic', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
       })
 
       await test.step('validate screenshot desktop', async () => {
@@ -793,7 +793,7 @@ test.describe('applicant program index page', () => {
     page,
   }) => {
     await test.step('change language to Arabic', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
     })
 
     await test.step('validate screenshot desktop', async () => {

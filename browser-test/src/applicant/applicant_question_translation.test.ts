@@ -2,7 +2,7 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateScreenshot,
 } from '../support'
 
@@ -41,7 +41,7 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Go to the home page and select Spanish as the language
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     await applicantQuestions.applyProgram(
@@ -55,7 +55,7 @@ test.describe('Admin can manage translations', () => {
     )
 
     // TODO(#9203): When the bug is fixed, we don't need to select Español again.
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -99,7 +99,7 @@ test.describe('Admin can manage translations', () => {
 
     // Log in as an applicant and view the translated question
     await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     await validateScreenshot(
@@ -147,7 +147,7 @@ test.describe('Admin can manage translations', () => {
 
     // Log in as an applicant and view the translated question
     await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('uno')
     expect(await page.innerText('main form')).toContain('dos')
@@ -183,7 +183,7 @@ test.describe('Admin can manage translations', () => {
 
     // Log in as an applicant and view the translated question
     await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
   })

@@ -8,7 +8,7 @@ import {
   waitForPageJsLoad,
   validateScreenshot,
   validateToastMessage,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
 
@@ -699,8 +699,8 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
 
-    await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await applicantQuestions.applyProgram(programName, true)
+    await selectApplicantLanguage(page, 'es-US')
 
     await validateScreenshot(page, 'applicant-program-spanish')
   })
