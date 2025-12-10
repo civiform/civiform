@@ -1209,7 +1209,7 @@ export class ApplicantQuestions {
     phone: string,
     northStarEnabled = false,
   ) {
-    await this.applyProgram(programName, true)
+    await this.applyProgram(programName)
     await this.answerNameQuestion(firstName, lastName, middleName)
     await this.answerEmailQuestion(email)
     await this.answerPhoneQuestion(phone)
