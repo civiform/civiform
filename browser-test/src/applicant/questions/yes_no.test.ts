@@ -59,31 +59,28 @@ test.describe('Yes/no question for applicant flow', () => {
       await validateAccessibility(page)
     })
 
-      test('renders correctly right to left', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguage(page, 'ar')
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'yes-no-right-to-left',
-          {fullPage: false},
-        )
-      })
+    test('renders correctly right to left', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await selectApplicantLanguage(page, 'ar')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'yes-no-right-to-left',
+        {fullPage: false},
+      )
+    })
 
-      test('options translate to Spanish', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguage(page, 'es-US')
+    test('options translate to Spanish', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await selectApplicantLanguage(page, 'es-US')
 
       // Verify Spanish translations are shown
       await expect(page.getByText('Sí', {exact: true})).toBeVisible()

@@ -125,9 +125,9 @@ test.describe('address correction single-block, single-address program', () => {
           /* northStarEnabled= */ true,
         )
 
-          await test.step('Set language to Arabic', async () => {
-            await selectApplicantLanguage(page, 'ar')
-          })
+        await test.step('Set language to Arabic', async () => {
+          await selectApplicantLanguage(page, 'ar')
+        })
 
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',

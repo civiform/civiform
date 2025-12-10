@@ -59,22 +59,22 @@ test.describe('Radio button question for applicant flow', () => {
       await validateAccessibility(page)
     })
 
-      test('renders correctly right to left', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await selectApplicantLanguage(page, 'ar')
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'radio-options-right-to-left',
-          {fullPage: false, mobileScreenshot: true},
-        )
-      })
+    test('renders correctly right to left', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await selectApplicantLanguage(page, 'ar')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'radio-options-right-to-left',
+        {fullPage: false, mobileScreenshot: true},
+      )
     })
+  })
 
   test.describe('single radio button question with north star flag disabled', () => {
     const programName = 'Test program for single radio button'
