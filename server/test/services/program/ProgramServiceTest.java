@@ -456,7 +456,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program ID is required"),
             CiviFormError.of("One or more notification preferences are invalid"));
   }
 
@@ -555,7 +555,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsExactly(
             CiviFormError.of(
-                "A program URL may only contain lowercase letters, numbers, and dashes"));
+                "A program ID may only contain lowercase letters, numbers, and dashes"));
   }
 
   @Test
@@ -776,7 +776,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program ID is required"),
             CiviFormError.of("One or more notification preferences are invalid"));
   }
 
@@ -849,7 +849,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result)
         .containsExactly(
             CiviFormError.of(
-                "A program URL may only contain lowercase letters, numbers, and dashes"));
+                "A program ID may only contain lowercase letters, numbers, and dashes"));
   }
 
   @Test
@@ -871,7 +871,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT);
 
     assertThat(result)
-        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+        .containsExactly(CiviFormError.of("A program ID must contain at least one letter"));
   }
 
   @Test
