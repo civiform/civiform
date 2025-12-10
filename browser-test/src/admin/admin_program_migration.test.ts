@@ -221,7 +221,7 @@ test.describe('program migration', () => {
         ALERT_ERROR,
       )
       await adminProgramMigration.expectAlert(
-        'A program ID may only contain lowercase letters, numbers, and dashes.',
+        'A program slug may only contain lowercase letters, numbers, and dashes.',
         ALERT_ERROR,
       )
     })
