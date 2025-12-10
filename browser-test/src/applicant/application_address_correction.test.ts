@@ -117,7 +117,10 @@ test.describe('address correction single-block, single-address program', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Set language to Arabic', async () => {
           await selectApplicantLanguageNorthstar(page, 'ar')
@@ -684,6 +687,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview(/* northStarEnabled= */ true)
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
+            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
