@@ -3,7 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -112,7 +112,7 @@ test.describe('Applicant block edit', () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.clickApplyProgramButton(programName)
-    await selectApplicantLanguageNorthstar(page, 'ar')
+    await selectApplicantLanguage(page, 'ar')
 
     await page.getByRole('link', {name: 'بدء الطلب'}).first().click()
     // Dismiss toast saying the program's not fully translated.

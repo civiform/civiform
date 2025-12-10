@@ -5,7 +5,7 @@ import {
   isLocalDevEnvironment,
   loginAsAdmin,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -126,7 +126,7 @@ test.describe('address correction single-block, single-address program', () => {
         )
 
         await test.step('Set language to Arabic', async () => {
-          await selectApplicantLanguageNorthstar(page, 'ar')
+          await selectApplicantLanguage(page, 'ar')
         })
 
         await applicantQuestions.answerAddressQuestion(
