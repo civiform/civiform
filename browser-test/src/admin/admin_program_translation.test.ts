@@ -255,7 +255,6 @@ test.describe('Admin can manage program translations', () => {
     await test.step('Update translations', async () => {
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
         shortDescription: 'Spanish description',
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
@@ -304,7 +303,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -344,7 +343,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -386,7 +385,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -466,7 +465,7 @@ test.describe('Admin can manage program translations', () => {
 
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
+        shortDescription: 'Spanish description',
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
         statuses: [],
