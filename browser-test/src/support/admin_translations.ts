@@ -134,8 +134,10 @@ export class AdminTranslations {
         name: 'Program description',
         exact: true,
       })
-       
-      await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+
+      await expect(programDescriptionValue).toHaveValue(
+        expectProgramDescription,
+      )
     }
     const programShortDescriptionValue = this.page.getByLabel(
       'Short program description',
