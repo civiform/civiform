@@ -979,8 +979,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(new ApplicationStep("title", "description")),
             ImmutableMap.of(),
             ProgramType.DEFAULT);
-    assertThat(result)
-        .containsExactly(CiviFormError.of("A program ID of name-one already exists"));
+    assertThat(result).containsExactly(CiviFormError.of("A program ID of name-one already exists"));
   }
 
   @Test
