@@ -609,7 +609,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+        .containsExactly(CiviFormError.of("A program ID of name-one already exists"));
   }
 
   @Test
@@ -980,7 +980,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableMap.of(),
             ProgramType.DEFAULT);
     assertThat(result)
-        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+        .containsExactly(CiviFormError.of("A program ID of name-one already exists"));
   }
 
   @Test
