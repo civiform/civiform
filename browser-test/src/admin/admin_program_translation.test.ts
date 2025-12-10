@@ -493,7 +493,6 @@ test.describe('Admin can manage program translations', () => {
       await selectApplicantLanguageNorthstar(page, 'es-US')
       await applicantQuestions.applyProgram(
         'Spanish name',
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ true,
         /* translatedOverviewTitle= */ 'Descripción general del programa',
         /* translatedLinkText= */ 'Comenzar una solicitud',

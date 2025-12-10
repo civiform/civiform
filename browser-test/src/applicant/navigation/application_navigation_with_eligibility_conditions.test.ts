@@ -81,10 +81,7 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        fullProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(fullProgramName)
 
       await test.step('fill out application with ineligible answer', async () => {
         await applicantQuestions.answerNumberQuestion('1')
@@ -137,10 +134,7 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        fullProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(fullProgramName)
 
       await test.step('fill out application without submitting and verify message on edit page', async () => {
         await applicantQuestions.answerNumberQuestion('5')
@@ -173,7 +167,6 @@ test.describe('Applicant navigation flow', () => {
       await test.step('finish submitting application and verify eligibility message', async () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('text!')
@@ -214,10 +207,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('Answer overlapping question', async () => {
-        await applicantQuestions.applyProgram(
-          overlappingOneQProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(overlappingOneQProgramName)
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
       })
@@ -274,10 +264,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('Answer overlapping question', async () => {
-        await applicantQuestions.applyProgram(
-          overlappingOneQProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(overlappingOneQProgramName)
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
       })
@@ -317,10 +304,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('fill out application without submitting', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(fullProgramName)
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
       })
@@ -333,7 +317,6 @@ test.describe('Applicant navigation flow', () => {
       await test.step('verify eligibility banner shows on review page', async () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
@@ -370,10 +353,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('fill out application with ineligible answer without submitting', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(fullProgramName)
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
@@ -387,7 +367,6 @@ test.describe('Applicant navigation flow', () => {
       await test.step('go back to in-progress application and validate no eligibility alert and submit', async () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
-          /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
@@ -434,10 +413,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('Answer overlapping question', async () => {
-        await applicantQuestions.applyProgram(
-          overlappingOneQProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(overlappingOneQProgramName)
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
       })
@@ -480,10 +456,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('Answer overlapping question', async () => {
-        await applicantQuestions.applyProgram(
-          overlappingOneQProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(overlappingOneQProgramName)
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
       })
@@ -537,10 +510,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('apply to program with ineligible answer and verify text', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerTextQuestion('bar')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectIneligiblePage(

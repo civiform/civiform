@@ -76,10 +76,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
       await applicantQuestions.clickContinue()
@@ -93,10 +90,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
       await applicantQuestions.clickContinue()
@@ -128,10 +122,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -154,10 +145,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -315,10 +303,7 @@ test.describe('End to end enumerator test', () => {
       applicantQuestions,
     }) => {
       await test.step('Set up application', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerNameQuestion('Porky', 'Pig')
         await applicantQuestions.clickContinue()
@@ -397,10 +382,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -430,10 +412,7 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')

@@ -117,7 +117,7 @@ test.describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be shown
     await applicantQuestions.answerTextQuestion('show me')
@@ -252,7 +252,7 @@ test.describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be hidden
     await applicantQuestions.answerTextQuestion('hide next screen')
@@ -410,7 +410,7 @@ test.describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that it is ineligible
     await applicantQuestions.answerTextQuestion('ineligble')
@@ -1222,7 +1222,7 @@ test.describe('create and edit predicates', () => {
     // the next screen will be shown.
     await logout(page)
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // For each screen:
     // - enter and submit a disallowed answer
@@ -1763,7 +1763,7 @@ test.describe('create and edit predicates', () => {
     // the next screen will be shown.
     await logout(page)
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // For each condition:
     // - submit an invalid option
@@ -2098,7 +2098,7 @@ test.describe('create and edit predicates', () => {
     await logout(page)
 
     await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
 
     // 'Hidden' name is ineligible
     await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')

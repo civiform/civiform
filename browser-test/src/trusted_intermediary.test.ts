@@ -131,7 +131,7 @@ test.describe('Trusted intermediaries', () => {
       await tiDashboard.clickOnViewApplications()
     })
     await test.step('Apply to a program and verify that applied program is under my applicatins section of view application page', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
@@ -172,7 +172,6 @@ test.describe('Trusted intermediaries', () => {
     await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
       await applicantQuestions.applyProgram(
         primaryProgramName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerTextQuestion('second answer')
@@ -700,7 +699,7 @@ test.describe('Trusted intermediaries', () => {
     await tiDashboard.createClient(client)
     await tiDashboard.clickOnViewApplications()
 
-    await applicantQuestions.applyProgram(programName, true)
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguageNorthstar(page, 'es-US')
 
     await validateScreenshot(page, 'applicant-program-spanish')
@@ -1080,7 +1079,7 @@ test.describe('Trusted intermediaries', () => {
       // Apply to first program
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program1, true)
+      await applicantQuestions.applyProgram(program1)
       await applicantQuestions.answerEmailQuestion('fake@sample.com')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(true)
@@ -1092,7 +1091,7 @@ test.describe('Trusted intermediaries', () => {
       // Apply to second program
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program2, true)
+      await applicantQuestions.applyProgram(program2)
       await applicantQuestions.submitFromReviewPage(true)
 
       await tiDashboard.gotoTIDashboardPage(page, true)
@@ -1105,7 +1104,7 @@ test.describe('Trusted intermediaries', () => {
       // Start application to third program, but don't submit
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program3, true)
+      await applicantQuestions.applyProgram(program3)
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
@@ -1280,7 +1279,7 @@ test.describe('Trusted intermediaries', () => {
       await test.step('login as TI, add a client, and apply', async () => {
         await loginAsTrustedIntermediary(page)
         await tiDashboard.createClientAndApply(clientInfo)
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('verify client info is pre-populated on the application review page', async () => {
@@ -1345,7 +1344,7 @@ test.describe('Trusted intermediaries', () => {
       await test.step('login as TI, add a client, and apply', async () => {
         await loginAsTrustedIntermediary(page)
         await tiDashboard.createClientAndApply(clientInfo)
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('fill in the name question with different values', async () => {
@@ -1398,7 +1397,7 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('apply to program on behalf of client', async () => {
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('fill out the phone and email questions and submit the application', async () => {

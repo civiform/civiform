@@ -45,10 +45,7 @@ test.describe('Applicant auth', () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await applicantQuestions.applyProgram(
-      'Minimal Sample Program',
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram('Minimal Sample Program')
     await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
       page.getByRole('button', {name: endYourSessionText}),
@@ -119,10 +116,7 @@ test.describe('Applicant auth', () => {
     await adminPrograms.publishAllDrafts()
 
     await logout(page)
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
     await loginAsTestUser(page)
 

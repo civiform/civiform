@@ -29,10 +29,7 @@ test.describe('currency applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(page.getByTestId('questionRoot'), 'currency', {
@@ -56,19 +53,13 @@ test.describe('currency applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
     test('with valid currency does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickContinue()
 
@@ -81,10 +72,7 @@ test.describe('currency applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await expect(page.getByText(currencyError)).toBeHidden()
 
       // Input has not enough decimal points.
@@ -122,10 +110,7 @@ test.describe('currency applicant flow', () => {
     })
 
     test('with valid currencies does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
@@ -138,10 +123,7 @@ test.describe('currency applicant flow', () => {
     test('with unanswered optional question submits', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
 
@@ -154,10 +136,7 @@ test.describe('currency applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await expect(page.getByText(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
@@ -171,10 +150,7 @@ test.describe('currency applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await expect(page.getByText(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)

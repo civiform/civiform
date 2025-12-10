@@ -24,10 +24,7 @@ test.describe('name applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(page.getByTestId('questionRoot'), 'name', {
@@ -49,10 +46,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await expect(page.getByLabel('First name')).toHaveAttribute(
         'aria-required',
@@ -67,19 +61,13 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await expectQuestionHasNoErrors(page)
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickContinue()
 
@@ -92,10 +80,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickContinue()
 
@@ -106,10 +91,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Frida', '', '')
       await applicantQuestions.clickContinue()
 
@@ -138,10 +120,7 @@ test.describe('name applicant flow', () => {
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -161,10 +140,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -186,10 +162,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', '', 1)
       await applicantQuestions.clickContinue()
@@ -205,10 +178,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -242,10 +212,7 @@ test.describe('name applicant flow', () => {
     test('with valid required name does submit', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickContinue()
 
@@ -258,10 +225,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickContinue()
@@ -277,10 +241,7 @@ test.describe('name applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', '', 1)
       await applicantQuestions.clickContinue()
 

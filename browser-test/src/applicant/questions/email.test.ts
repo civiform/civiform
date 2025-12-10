@@ -23,10 +23,7 @@ test.describe('Email question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(page.getByTestId('questionRoot'), 'email', {
@@ -47,10 +44,7 @@ test.describe('Email question for applicant flow', () => {
     test('with email input submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickContinue()
 
@@ -63,10 +57,7 @@ test.describe('Email question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       // Click "Continue" without inputting anything.
       await applicantQuestions.clickContinue()
 
@@ -78,10 +69,7 @@ test.describe('Email question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -111,10 +99,7 @@ test.describe('Email question for applicant flow', () => {
     test('with email inputs submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickContinue()
@@ -126,10 +111,7 @@ test.describe('Email question for applicant flow', () => {
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
       await applicantQuestions.clickContinue()
 
@@ -140,10 +122,7 @@ test.describe('Email question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

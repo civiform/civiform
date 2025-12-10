@@ -24,10 +24,7 @@ test.describe('Radio button question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
@@ -51,10 +48,7 @@ test.describe('Radio button question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -63,10 +57,7 @@ test.describe('Radio button question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await selectApplicantLanguageNorthstar(page, 'ar')
       await validateScreenshot(
         page.getByTestId('questionRoot'),
@@ -134,10 +125,7 @@ test.describe('Radio button question for applicant flow', () => {
     test('with selection submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickContinue()
 
@@ -148,10 +136,7 @@ test.describe('Radio button question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
       await applicantQuestions.clickContinue()
@@ -286,10 +271,7 @@ test.describe('Radio button question for applicant flow', () => {
     test('with both selections submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickContinue()
@@ -301,10 +283,7 @@ test.describe('Radio button question for applicant flow', () => {
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickContinue()
 
@@ -315,10 +294,7 @@ test.describe('Radio button question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

@@ -27,10 +27,7 @@ test.describe('Number question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(page.getByTestId('questionRoot'), 'number', {
@@ -52,10 +49,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -63,10 +57,7 @@ test.describe('Number question for applicant flow', () => {
     test('with valid number submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
       await applicantQuestions.clickContinue()
 
@@ -79,10 +70,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       // Leave field blank.
       await applicantQuestions.clickContinue()
 
@@ -93,10 +81,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const testValues = ['12e3', '12E3', '-123', '1.23']
 
       for (const testValue of testValues) {
@@ -137,10 +122,7 @@ test.describe('Number question for applicant flow', () => {
     test('with valid numbers submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickContinue()
@@ -154,10 +136,7 @@ test.describe('Number question for applicant flow', () => {
       applicantQuestions,
     }) => {
       // Only answer required question.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickContinue()
 
@@ -170,10 +149,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickContinue()
@@ -185,10 +161,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
       await applicantQuestions.clickContinue()
@@ -200,10 +173,7 @@ test.describe('Number question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

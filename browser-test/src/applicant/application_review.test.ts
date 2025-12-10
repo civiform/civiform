@@ -157,7 +157,7 @@ test.describe('Program admin review of submitted applications', () => {
     await applicantQuestions.validateHeader('en-US')
 
     await test.step('Fill out first application block', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.answerRadioButtonQuestion('two')
@@ -396,7 +396,7 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('Submit applications from different users', async () => {
       for (const answer of answers) {
-        await applicantQuestions.applyProgram(programName, true)
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerTextQuestion(answer)
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
@@ -453,7 +453,7 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('Submit an application as Test User', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
 
       // Applicant fills out first application block.
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
@@ -476,7 +476,7 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Apply to the program as as a Guest User', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(true)

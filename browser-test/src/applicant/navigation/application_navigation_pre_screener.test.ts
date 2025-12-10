@@ -77,7 +77,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -102,7 +101,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -126,7 +124,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -153,7 +150,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -179,7 +175,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -212,7 +207,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -269,7 +263,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -307,7 +300,6 @@ test.describe('Applicant navigation flow', () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )

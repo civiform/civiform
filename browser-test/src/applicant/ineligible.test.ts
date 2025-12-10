@@ -58,10 +58,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -105,10 +102,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -154,10 +148,7 @@ test.describe('North Star Ineligible Page Tests', () => {
 
     await test.step('View the ineligible page with markdown-compatible eligibility message', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
       await validateScreenshot(page.getByRole('alert'), 'eligibility-msg')
@@ -186,10 +177,7 @@ test.describe('North Star Ineligible Page Tests', () => {
 
     await test.step('Answer questions', async () => {
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
@@ -240,10 +228,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Setup: set language to Arabic', async () => {
         await selectApplicantLanguageNorthstar(page, 'ar')
@@ -268,10 +253,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: start application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
@@ -298,10 +280,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: start application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
@@ -340,10 +319,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     await loginAsTestUser(page)
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })

@@ -27,7 +27,7 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
 
