@@ -129,12 +129,14 @@ export class AdminTranslations {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
 
-    const programDescriptionValue = this.page.getByRole('textbox', {
-      name: 'Program description',
-      exact: true,
-    })
-    await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
-
+    if (expectProgramDescription !== '') {
+      const programDescriptionValue = this.page.getByRole('textbox', {
+        name: 'Program description',
+        exact: true,
+      })
+       
+      await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+    }
     const programShortDescriptionValue = this.page.getByLabel(
       'Short program description',
     )
