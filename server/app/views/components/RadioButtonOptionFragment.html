@@ -1,5 +1,5 @@
 <div
-  th:fragment="radioButtonOptionFragment(inputId, optionId, name, isChecked, isRequired, autofocus, optionLabelText)"
+  th:fragment="radioButtonOptionFragment(inputId, optionId, name, isChecked, isRequired, autofocus, optionLabelText, hasErrors, questionId)"
 >
   <input
     class="usa-radio__input usa-radio__input--tile cf-radio-input"
@@ -8,6 +8,8 @@
     th:name="${name}"
     th:checked="${isChecked}"
     type="radio"
+    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-invalid="${hasErrors}"
     th:aria-required="${isRequired}"
     th:autofocus="${autofocus}"
   />
