@@ -526,7 +526,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("A program URL of name already exists"));
+        .containsExactly(CiviFormError.of("A program ID of name already exists"));
   }
 
   @Test
