@@ -178,7 +178,7 @@ test.describe('Trusted intermediaries', () => {
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.expectConfirmationPage(true)
+      await applicantQuestions.expectConfirmationPage()
       await applicantQuestions.clickBackToHomepageButton()
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.expectProgramsinCorrectSections(
@@ -1333,7 +1333,7 @@ test.describe('Trusted intermediaries', () => {
       await test.step('submitting the application without changing any values succeeds', async () => {
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -1374,7 +1374,7 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('submitting the application with changed values succeeds', async () => {
         await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
