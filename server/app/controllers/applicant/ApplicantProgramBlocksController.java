@@ -10,6 +10,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
+import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -65,16 +66,10 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
-import views.applicant.AddressCorrectionBlockView;
-import views.applicant.ApplicantFileUploadRenderer;
-import views.applicant.ApplicantProgramBlockEditView;
-import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarAddressCorrectionBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramBlockEditView;
 import views.components.ToastMessage;
-import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 /**
@@ -88,16 +83,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
-  private final ApplicantProgramBlockEditView editView;
   private final NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView;
   private final FormFactory formFactory;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final IneligibleBlockView ineligibleBlockView;
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
-  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
@@ -113,7 +105,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ClassLoaderExecutionContext classLoaderExecutionContext,
-      ApplicantProgramBlockEditViewFactory editViewFactory,
       NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView,
       FormFactory formFactory,
       ApplicantStorageClient applicantStorageClient,
@@ -121,10 +112,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer,
-      IneligibleBlockView ineligibleBlockView,
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
-      AddressCorrectionBlockView addressCorrectionBlockView,
       NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
@@ -142,14 +130,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
-    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
-    this.editView =
-        editViewFactory.create(new ApplicantQuestionRendererFactory(applicantFileUploadRenderer));
     this.northStarApplicantProgramBlockEditView =
         checkNotNull(northStarApplicantProgramBlockEditView);
     this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
@@ -159,18 +143,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * Renders all questions in the block of the program and presents to the applicant.
+   * Renders a block for TIs applying on behalf of clients and CiviForm admins previewing programs.
    *
-   * <p>The difference between `edit` and `review` is the next block the applicant will see after
-   * submitting the answers.
-   *
-   * <p>`edit` takes the applicant to the next in-progress block, see {@link
-   * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
-   * page is shown.
-   *
-   * <p>`questionName` is present when answering a question or reviewing an answer.
+   * <p>See {@link #edit}.
    */
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> editWithApplicantId(
       Request request,
       long applicantId,
@@ -189,7 +166,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
+    return editInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+  }
 
+  private CompletionStage<Result> editInternal(
+      Request request,
+      long applicantId,
+      String programParam,
+      String blockId,
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -211,7 +198,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * <p>`questionName` is present when answering a question or reviewing an answer.
    */
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(
       Request request,
       String programParam,
@@ -236,41 +223,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Long applicantIdValue = applicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                editWithApplicantId(
-                    request,
-                    applicantIdValue,
-                    programId.toString(),
-                    blockId,
-                    questionName,
-                    /* isFromUrlCall= */ false));
+    return editInternal(
+        request, applicantId.get(), programParam, blockId, questionName, isFromUrlCall);
   }
 
   /**
-   * Renders all questions in the block of the program and presents to the applicant in review mode.
+   * Renders a block for TIs applying on behalf of clients and CiviForm admins previewing programs.
    *
-   * <p>The difference between `edit` and `review` is the next block the applicant will see after
-   * submitting the answers.
-   *
-   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
-   * summary page is shown.
-   *
-   * @param request the HTTP request containing context and session information
-   * @param applicantId the unique identifier of the applicant whose application is being reviewed
-   * @param programParam the program identifier, which can be either a program slug or program ID,
-   *     depending on feature configuration
-   * @param blockId the unique identifier of the specific block within the program to review
-   * @param questionName optional parameter present when answering a question or reviewing an answer
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
-   * @return a CompletionStage that resolves to a Result containing the rendered review page or a
-   *     redirect response
+   * <p>See {@link #review}.
    */
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> reviewWithApplicantId(
       Request request,
       long applicantId,
@@ -290,7 +252,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
+    return reviewInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+  }
 
+  private CompletionStage<Result> reviewInternal(
+      Request request,
+      long applicantId,
+      String programParam,
+      String blockId,
+      Optional<String> questionName,
+      Boolean isFromUrlCall) {
+
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -309,8 +282,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * summary page is shown.
    *
    * <p>`questionName` is present when answering a question or reviewing an answer.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programParam the program identifier, which can be either a program slug or program ID,
+   *     depending on feature configuration
+   * @param blockId the unique identifier of the specific block within the program to review
+   * @param questionName optional parameter present when answering a question or reviewing an answer
+   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
+   *     to determine redirect behavior when program slug URLs are enabled
+   * @return a CompletionStage that resolves to a Result containing the rendered review page or a
+   *     redirect response
    */
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> review(
       Request request,
       String programParam,
@@ -335,18 +318,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                reviewWithApplicantId(
-                    request,
-                    applicantId,
-                    programId.toString(),
-                    blockId,
-                    questionName,
-                    /* isFromUrlCall= */ false));
+    return reviewInternal(
+        request, optionalApplicantId.get(), programParam, blockId, questionName, isFromUrlCall);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -360,7 +333,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
-        Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
+        Optional.ofNullable(form.get(NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
     ImmutableList<AddressSuggestion> suggestions =
@@ -566,19 +539,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 applicantRoutes,
                                 profile);
 
-                        // TODO(#11572): North star clean up
-                        if (settingsManifest.getNorthStarApplicantUi()) {
-                          final String programSlug;
-                          try {
-                            programSlug = programService.getSlug(programId);
-                          } catch (ProgramNotFoundException e) {
-                            return notFound(e.toString());
-                          }
-                          return ok(northStarApplicantProgramBlockEditView.render(
-                                  request, applicationParams, programSlug))
-                              .as(Http.MimeTypes.HTML);
+                        final String programSlug;
+                        try {
+                          programSlug = programService.getSlug(programId);
+                        } catch (ProgramNotFoundException e) {
+                          return notFound(e.toString());
                         }
-                        return ok(editView.render(applicationParams));
+                        return ok(northStarApplicantProgramBlockEditView.render(
+                                request, applicationParams, programSlug))
+                            .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
                   .exceptionally(
@@ -707,20 +676,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
-                // TODO(#11572): North star clean up
-                if (settingsManifest.getNorthStarApplicantUi()) {
-                  final String programSlug;
-                  try {
-                    programSlug = programService.getSlug(programId);
-                  } catch (ProgramNotFoundException e) {
-                    return notFound(e.toString());
-                  }
-                  return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams, programSlug))
-                      .as(Http.MimeTypes.HTML);
-                } else {
-                  return ok(editView.render(applicationParams));
+                final String programSlug;
+                try {
+                  programSlug = programService.getSlug(programId);
+                } catch (ProgramNotFoundException e) {
+                  return notFound(e.toString());
                 }
+                return ok(northStarApplicantProgramBlockEditView.render(
+                        request, applicationParams, programSlug))
+                    .as(Http.MimeTypes.HTML);
               } else {
                 return notFound();
               }
@@ -1656,20 +1620,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            // TODO(#11572): North star clean up
-            if (settingsManifest.getNorthStarApplicantUi()) {
-              final String programSlug;
-              try {
-                programSlug = programService.getSlug(programId);
-              } catch (ProgramNotFoundException e) {
-                return notFound(e.toString());
-              }
-              return ok(northStarApplicantProgramBlockEditView.render(
-                      request, applicationParams, programSlug))
-                  .as(Http.MimeTypes.HTML);
-            } else {
-              return ok(editView.render(applicationParams));
+            final String programSlug;
+            try {
+              programSlug = programService.getSlug(programId);
+            } catch (ProgramNotFoundException e) {
+              return notFound(e.toString());
             }
+            return ok(northStarApplicantProgramBlockEditView.render(
+                    request, applicationParams, programSlug))
+                .as(Http.MimeTypes.HTML);
           });
     }
 
@@ -1747,37 +1706,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    // TODO(#11573): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      return supplyAsync(
-          () -> {
-            NorthStarApplicantIneligibleView.Params params =
-                NorthStarApplicantIneligibleView.Params.builder()
-                    .setRequest(request)
-                    .setApplicantId(applicantId)
-                    .setProfile(profile)
-                    .setApplicantPersonalInfo(personalInfo)
-                    .setProgramDefinition(programDefinition)
-                    .setBlockDefinition(blockDefinition)
-                    .setRoApplicantProgramService(roApplicantProgramService)
-                    .setMessages(messagesApi.preferred(request))
-                    .build();
-            return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-          });
-    } else {
-      return supplyAsync(
-          () -> {
-            return ok(
-                ineligibleBlockView.render(
-                    request,
-                    profile,
-                    roApplicantProgramService,
-                    messagesApi.preferred(request),
-                    applicantId,
-                    programDefinition,
-                    blockDefinition));
-          });
-    }
+    return supplyAsync(
+        () -> {
+          NorthStarApplicantIneligibleView.Params params =
+              NorthStarApplicantIneligibleView.Params.builder()
+                  .setRequest(request)
+                  .setApplicantId(applicantId)
+                  .setProfile(profile)
+                  .setApplicantPersonalInfo(personalInfo)
+                  .setProgramDefinition(programDefinition)
+                  .setBlockDefinition(blockDefinition)
+                  .setRoApplicantProgramService(roApplicantProgramService)
+                  .setMessages(messagesApi.preferred(request))
+                  .build();
+          return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+        });
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1882,27 +1825,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
               applicantRoutes,
               profile);
-      // TODO(#11574): North star clean up
-      if (settingsManifest.getNorthStarApplicantUi()) {
-        return CompletableFuture.completedFuture(
-            ok(northStarAddressCorrectionBlockView.render(
-                    request,
-                    applicationParams,
-                    addressSuggestionGroup,
-                    applicantRequestedAction,
-                    isEligibilityEnabledOnThisBlock))
-                .as(Http.MimeTypes.HTML)
-                .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
-      } else {
-        return CompletableFuture.completedFuture(
-            ok(addressCorrectionBlockView.render(
-                    applicationParams,
-                    messagesApi.preferred(request),
-                    addressSuggestionGroup,
-                    applicantRequestedAction,
-                    isEligibilityEnabledOnThisBlock))
-                .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
-      }
+      return CompletableFuture.completedFuture(
+          ok(northStarAddressCorrectionBlockView.render(
+                  request,
+                  applicationParams,
+                  addressSuggestionGroup,
+                  applicantRequestedAction,
+                  isEligibilityEnabledOnThisBlock))
+              .as(Http.MimeTypes.HTML)
+              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
     }
   }
 
@@ -1939,23 +1870,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      // TODO(#11571): North star clean up
-      if (settingsManifest.getNorthStarApplicantUi()) {
-        eligibilityAlertSettings =
-            getNorthStarEligibilityAlertSettings(
-                roApplicantProgramService, request, programId, blockId);
-      } else {
-        eligibilityAlertSettings =
-            eligibilityAlertSettingsCalculator.calculate(
-                request,
-                profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-                !roApplicantProgramService.isApplicationNotEligible(),
-                // TODO(#11571): North star clean up
-                settingsManifest.getNorthStarApplicantUi(),
-                false,
-                programId,
-                roApplicantProgramService.getIneligibleQuestions());
-      }
+      eligibilityAlertSettings =
+          getNorthStarEligibilityAlertSettings(
+              roApplicantProgramService, request, programId, blockId);
     }
 
     return ApplicationBaseViewParams.builder()
@@ -1979,7 +1896,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantRoutes(applicantRoutes)
         .setProfile(profile)
         .setBlockList(roApplicantProgramService.getAllActiveBlocks())
-        .setEligibilityAlertSettings(eligibilityAlertSettings);
+        .setEligibilityAlertSettings(eligibilityAlertSettings)
+        .setLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(
@@ -2071,8 +1989,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             request,
             profileUtils.currentUserProfile(request).isTrustedIntermediary(),
             !roApplicantProgramService.isApplicationNotEligible(),
-            // TODO(#11571): North star clean up
-            settingsManifest.getNorthStarApplicantUi(),
             false,
             programId,
             roApplicantProgramService.getIneligibleQuestions());

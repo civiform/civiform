@@ -271,6 +271,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -291,6 +292,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             draftVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -317,6 +319,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1140,5 +1143,53 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThat(existsOne).isTrue();
     assertThat(existsTwo).isFalse();
+  }
+
+  @Test
+  public void canAddAndRemoveCategories() {
+    ProgramModel insertedProgramModel = resourceCreator.insertDraftProgram("program-name-1");
+
+    var categories = resourceCreator.insertCategoriesFromParser();
+
+    // save with many categories
+    var updatedProgramModel =
+        repo.updateProgramSync(
+            new ProgramModel(
+                insertedProgramModel.getProgramDefinition().toBuilder()
+                    .setCategories(categories)
+                    .build()));
+
+    assertThat(updatedProgramModel.getCategories().size()).isEqualTo(categories.size());
+
+    // save with fewer categories
+    updatedProgramModel =
+        repo.updateProgramSync(
+            new ProgramModel(
+                insertedProgramModel.getProgramDefinition().toBuilder()
+                    .setCategories(
+                        categories.stream().limit(4).collect(ImmutableList.toImmutableList()))
+                    .build()));
+
+    assertThat(updatedProgramModel.getCategories().size()).isEqualTo(4);
+
+    // save with more categories
+    updatedProgramModel =
+        repo.updateProgramSync(
+            new ProgramModel(
+                insertedProgramModel.getProgramDefinition().toBuilder()
+                    .setCategories(categories)
+                    .build()));
+
+    assertThat(updatedProgramModel.getCategories().size()).isEqualTo(categories.size());
+
+    // Save with no categories
+    updatedProgramModel =
+        repo.updateProgramSync(
+            new ProgramModel(
+                updatedProgramModel.getProgramDefinition().toBuilder()
+                    .setCategories(ImmutableList.of())
+                    .build()));
+
+    assertThat(updatedProgramModel.getCategories().size()).isEqualTo(0);
   }
 }

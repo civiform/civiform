@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
+test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
@@ -35,12 +35,9 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
       )
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'currency',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'currency', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -48,8 +45,9 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'currency-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {
+            fullPage: false,
+          },
         )
       })
     })
@@ -74,9 +72,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with invalid currency does not submit', async ({
@@ -132,9 +128,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits', async ({
@@ -147,9 +141,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({

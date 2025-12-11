@@ -69,6 +69,12 @@ public abstract class AnswerData {
    */
   public abstract boolean eligibilityIsGating();
 
+  /**
+   * True if the program can only be applied by logged in applicants. If false, program can be
+   * applied by both guest and non-guest applicants.
+   */
+  public abstract boolean loginOnly();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -103,7 +109,7 @@ public abstract class AnswerData {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setProgramId(Long programId);
+    public abstract Builder setProgramId(long programId);
 
     public abstract Builder setBlockId(String blockId);
 
@@ -127,6 +133,8 @@ public abstract class AnswerData {
 
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
 
+    public abstract Builder setLoginOnly(boolean loginOnly);
+
     public abstract Builder setAnswerText(String answerText);
 
     public abstract Builder setEncodedFileKey(Optional<String> encodedFileKey);
@@ -137,7 +145,7 @@ public abstract class AnswerData {
 
     public abstract Builder setFileNames(ImmutableList<String> fileNames);
 
-    public abstract Builder setTimestamp(Long timestamp);
+    public abstract Builder setTimestamp(long timestamp);
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
 

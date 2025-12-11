@@ -184,6 +184,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
@@ -231,6 +232,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
@@ -273,7 +275,12 @@ public final class DevDatabaseSeedTask {
               getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 2");
       blockForm.setDescription("one of each question type - part 2");
       programService.updateBlock(programId, blockId, blockForm);
@@ -288,7 +295,12 @@ public final class DevDatabaseSeedTask {
               getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.of(true))
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
@@ -319,7 +331,12 @@ public final class DevDatabaseSeedTask {
                   .getId()));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 3");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
@@ -329,7 +346,12 @@ public final class DevDatabaseSeedTask {
           programId, blockId, ImmutableList.of(radioButtonQuestionId));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen with Predicate");
       blockForm.setDescription("May be hidden");
       programService.updateBlock(programId, blockId, blockForm);
@@ -353,7 +375,12 @@ public final class DevDatabaseSeedTask {
 
       // Add file upload as optional to make local testing easier.
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);

@@ -38,8 +38,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
     }
     if (isTrustedIntermediary(profile)) {
-      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
-      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
   }

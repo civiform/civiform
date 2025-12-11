@@ -45,10 +45,12 @@ public final class PdfExporterService {
    * <p>Used for admins to see their current program setup.
    */
   public PdfExporter.InMemoryPdf generateProgramPreviewPdf(
-      ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions) {
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> allQuestions,
+      boolean expandedFormLogicEnabled) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.exportProgram(programDefinition, allQuestions);
+      pdf = pdfExporter.exportProgram(programDefinition, allQuestions, expandedFormLogicEnabled);
     } catch (DocumentException | IOException | TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

@@ -70,7 +70,7 @@ public final class ProgramBlockValidation {
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
-    if (block.isEnumerator() || block.isFileUpload()) {
+    if (block.hasEnumeratorQuestion() || block.isFileUpload()) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
     if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
@@ -105,7 +105,9 @@ public final class ProgramBlockValidation {
     try {
       BlockDefinition enumeratorBlockDefinition =
           program.getBlockDefinition(block.enumeratorId().get());
-      return Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId());
+      return enumeratorBlockDefinition.hasEnumeratorQuestion()
+          ? Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId())
+          : Optional.empty();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       String errorMessage =
           String.format(

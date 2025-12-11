@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.oidc.IdTokens;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Duration;
@@ -200,5 +201,56 @@ public class AccountModelTest extends ResetPostgres {
     TimeUnit.MILLISECONDS.sleep(5);
     userAccount.save();
     assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+  }
+
+  @Test
+  public void getApplicantDisplayName_getsOldest() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
+    applicantOlder.setWhenCreated(Instant.EPOCH);
+    applicantOlder.save();
+
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
+    account.save();
+
+    // Display name order is reversed.
+    assertThat(account.getApplicantDisplayName()).isEqualTo("Applicant, Older");
+  }
+
+  @Test
+  public void representativeApplicant() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
+    applicantOlder.setWhenCreated(Instant.EPOCH);
+    applicantOlder.save();
+
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
+    account.save();
+
+    Optional<ApplicantModel> optionalGot = account.representativeApplicant();
+    assertThat(optionalGot).isPresent();
+    assertThat(optionalGot.get().id).isEqualTo(applicantOlder.id);
   }
 }

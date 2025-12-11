@@ -8,12 +8,11 @@ import {
   waitForPageJsLoad,
   validateScreenshot,
   validateToastMessage,
-  selectApplicantLanguageNorthstar,
   selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
 
-test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('sees client name and link in sub-banner while applying on behalf of applicant', async ({
     page,
     tiDashboard,
@@ -178,8 +177,8 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.expectConfirmationPage(true)
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectConfirmationPage()
       await applicantQuestions.clickBackToHomepageButton()
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.expectProgramsinCorrectSections(
@@ -649,7 +648,13 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsTrustedIntermediary(page)
     await waitForPageJsLoad(page)
-    await selectApplicantLanguage(page, '繁體中文')
+
+    // Change language using old-style language dropdown
+    await test.step('Set applicant language from header dropdown', async () => {
+      await page.click('#select-language')
+      await page.selectOption('#select-language', {label: '繁體中文'})
+      await waitForPageJsLoad(page)
+    })
 
     await validateScreenshot(page, 'ti-dashboard-chinese')
   })
@@ -696,7 +701,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
     await tiDashboard.clickOnViewApplications()
 
     await applicantQuestions.applyProgram(programName, true)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
 
     await validateScreenshot(page, 'applicant-program-spanish')
   })
@@ -1078,7 +1083,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(program1, true)
       await applicantQuestions.answerEmailQuestion('fake@sample.com')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('1')
@@ -1088,7 +1093,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       await tiDashboard.clickOnViewApplications()
 
       await applicantQuestions.applyProgram(program2, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('2')
@@ -1327,8 +1332,8 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
 
       await test.step('submitting the application without changing any values succeeds', async () => {
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -1368,8 +1373,8 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       })
 
       await test.step('submitting the application with changed values succeeds', async () => {
-        await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -1400,7 +1405,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerPhoneQuestion('7188675309')
         await applicantQuestions.answerEmailQuestion('email@example.com')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
       })
 
       const newClientInfo: ClientInformation = {

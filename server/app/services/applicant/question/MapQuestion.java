@@ -10,6 +10,7 @@ import java.util.Optional;
 import services.MessageKey;
 import services.ObjectMapperSingleton;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionSetting;
 import services.question.MapSettingType;
@@ -17,9 +18,11 @@ import services.question.types.MapQuestionDefinition;
 
 // TODO(#11003): Build out map question.
 public final class MapQuestion extends AbstractQuestion {
+  private ApplicantData applicantData;
 
   MapQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
+    applicantData = applicantQuestion.getApplicant().getApplicantData();
   }
 
   @Override
@@ -59,7 +62,7 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public ImmutableList<LocalizedQuestionSetting> getFilters() {
-    return getFilters(applicantQuestion.getApplicant().getApplicantData().preferredLocale());
+    return getFilters(applicantData.preferredLocale());
   }
 
   /**
@@ -77,21 +80,51 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String getNameValue() {
-    return getSettingValue(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
+    return getSettingKey(
+        applicantData.preferredLocale(), MapSettingType.LOCATION_NAME_GEO_JSON_KEY);
   }
 
   public String getAddressValue() {
-    return getSettingValue(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
+    return getSettingKey(
+        applicantData.preferredLocale(), MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY);
   }
 
   public String getDetailsUrlValue() {
-    return getSettingValue(
-        applicantQuestion.getApplicant().getApplicantData().preferredLocale(),
-        MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+    return getSettingKey(
+        applicantData.preferredLocale(), MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY);
+  }
+
+  public LocalizedQuestionSetting getTagSetting() {
+    return getSetting(applicantData.preferredLocale(), MapSettingType.LOCATION_TAG_GEO_JSON_KEY)
+        .orElse(null);
+  }
+
+  public boolean hasTagSetting() {
+    return getTagSetting() != null;
+  }
+
+  public boolean hasTagText() {
+    return !getTagText().isBlank();
+  }
+
+  public String getTagKey() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingKey() : "";
+  }
+
+  public String getTagValue() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingValue() : "";
+  }
+
+  public String getTagDisplayName() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingDisplayName() : "";
+  }
+
+  public String getTagText() {
+    LocalizedQuestionSetting tag = getTagSetting();
+    return tag != null ? tag.settingText() : "";
   }
 
   public Path getSelectionPath() {
@@ -116,7 +149,7 @@ public final class MapQuestion extends AbstractQuestion {
 
   private ImmutableList<Map<String, String>> getSelectedLocations() {
     Optional<ImmutableList<String>> selectedLocationsString =
-        applicantQuestion.getApplicantData().readStringList(getSelectionPath());
+        applicantData.readStringList(getSelectionPath());
 
     return selectedLocationsString
         .map(
@@ -147,6 +180,9 @@ public final class MapQuestion extends AbstractQuestion {
   }
 
   public String createLocationJson(String featureId, String locationName) {
+    if (locationName == null) {
+      locationName = "Unknown Location";
+    }
     MapSelection selection = MapSelection.create(featureId, locationName);
     try {
       return ObjectMapperSingleton.instance().writeValueAsString(selection);
@@ -159,11 +195,17 @@ public final class MapQuestion extends AbstractQuestion {
     return getQuestionDefinition().getSettingsForLocaleOrDefault(locale).orElse(ImmutableSet.of());
   }
 
-  private String getSettingValue(Locale locale, MapSettingType settingType) {
+  private String getSettingKey(Locale locale, MapSettingType settingType) {
     return getSettings(locale).stream()
         .filter(setting -> setting.settingType() == settingType)
         .findFirst()
-        .map(LocalizedQuestionSetting::settingValue)
+        .map(LocalizedQuestionSetting::settingKey)
         .orElse("");
+  }
+
+  private Optional<LocalizedQuestionSetting> getSetting(Locale locale, MapSettingType settingType) {
+    return getSettings(locale).stream()
+        .filter(setting -> setting.settingType() == settingType)
+        .findFirst();
   }
 }

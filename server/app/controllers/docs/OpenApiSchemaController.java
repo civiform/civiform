@@ -124,9 +124,9 @@ public final class OpenApiSchemaController {
   /** Get either the IT email address or the support email address */
   private String getEmailAddress(Http.Request request) {
     Optional<String> contactEmailAddress =
-        settingsManifest.getItEmailAddress(request).isPresent()
-                && !settingsManifest.getItEmailAddress(request).get().isBlank()
-            ? settingsManifest.getItEmailAddress(request)
+        settingsManifest.getItEmailAddress().isPresent()
+                && !settingsManifest.getItEmailAddress().get().isBlank()
+            ? settingsManifest.getItEmailAddress()
             : settingsManifest.getSupportEmailAddress(request);
     return contactEmailAddress.orElse("");
   }

@@ -1,5 +1,5 @@
-import MarkdownIt = require('markdown-it')
-import DOMPurify = require('dompurify')
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
 
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
@@ -84,8 +84,8 @@ export function formatText(text: string): string {
 
   let parsedHtml = md.render(text)
   // Format lists
-  parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
-  parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
+  parsedHtml = parsedHtml.split('<ul>').join('<ul class="usa-list margin-r-4">')
+  parsedHtml = parsedHtml.split('<ol>').join('<ol class="usa-list margin-r-4">')
   // Format links
   parsedHtml = parsedHtml
     .split('href')

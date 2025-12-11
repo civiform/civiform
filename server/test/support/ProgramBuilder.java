@@ -84,6 +84,7 @@ public class ProgramBuilder {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of())
@@ -151,6 +152,7 @@ public class ProgramBuilder {
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -268,6 +270,7 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
@@ -299,6 +302,7 @@ public class ProgramBuilder {
             obsoleteVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -479,6 +483,12 @@ public class ProgramBuilder {
       return this;
     }
 
+    public BlockBuilder withEligibilityMessage(String message) {
+      blockDefBuilder.setLocalizedEligibilityMessage(
+          Optional.of(LocalizedStrings.of(Locale.US, message)));
+      return this;
+    }
+
     /** Add a required question to the block. */
     public BlockBuilder withRequiredQuestion(QuestionModel question) {
       QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
@@ -608,7 +618,7 @@ public class ProgramBuilder {
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.isEnumerator()) {
+      if (!thisBlock.hasEnumeratorQuestion()) {
         throw new RuntimeException(
             "Cannot create a repeated block if this block is not an enumerator.");
       }

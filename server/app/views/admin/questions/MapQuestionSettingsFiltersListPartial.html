@@ -1,0 +1,5 @@
+<div th:each="filter, i : ${model.filters}">
+  <div
+    th:insert="~{admin/questions/MapQuestionSettingsFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+  ></div>
+</div>

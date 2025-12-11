@@ -20,7 +20,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import controllers.AssetsFinder;
 import controllers.docs.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -32,6 +31,7 @@ import javax.inject.Inject;
 import play.libs.F;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import services.openapi.OpenApiVersion;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -47,7 +47,7 @@ public class SchemaView extends BaseHtmlView {
   public record Form(String programSlug, Optional<String> stage, Optional<String> openApiVersion) {}
 
   private final ProfileUtils profileUtils;
-  private final AssetsFinder assetsFinder;
+  private final BundledAssetsFinder bundledAssetsFinder;
   private final BaseHtmlLayout unauthenticatedLayout;
   private final AdminLayout authenticatedLayout;
 
@@ -55,11 +55,11 @@ public class SchemaView extends BaseHtmlView {
   public SchemaView(
       AdminLayoutFactory layoutFactory,
       ProfileUtils profileUtils,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       BaseHtmlLayout unauthenticatedLayout) {
     this.profileUtils = checkNotNull(profileUtils);
     this.unauthenticatedLayout = checkNotNull(unauthenticatedLayout);
-    this.assetsFinder = checkNotNull(assetsFinder);
+    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
     this.authenticatedLayout = layoutFactory.getLayout(NavPage.API_DOCS);
   }
 
@@ -79,15 +79,13 @@ public class SchemaView extends BaseHtmlView {
             .addStylesheets(
                 link()
                     .withRel("stylesheet")
-                    .withHref(assetsFinder.path("swagger-ui/swagger-ui.css"))
+                    .withHref(bundledAssetsFinder.getSwaggerUiCss())
                     .attr("nonce", cspNonce))
             .addHeadScripts(
-                script()
-                    .withSrc(assetsFinder.path("swagger-ui/swagger-ui-bundle.js"))
-                    .attr("nonce", cspNonce))
+                script().withSrc(bundledAssetsFinder.getSwaggerUiJs()).attr("nonce", cspNonce))
             .addHeadScripts(
                 script()
-                    .withSrc(assetsFinder.path("swagger-ui/swagger-ui-standalone-preset.js"))
+                    .withSrc(bundledAssetsFinder.getSwaggeruiPresetJs())
                     .attr("nonce", cspNonce))
             .addMainContent(
                 div(

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -36,8 +37,6 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
 import views.applicant.NorthStarFilteredProgramsViewPartial;
 import views.applicant.NorthStarProgramIndexView;
-import views.applicant.ProgramIndexView;
-import views.components.ToastMessage;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -50,7 +49,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final ProgramIndexView programIndexView;
   private final ApplicantDisabledProgramView disabledProgramInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
@@ -64,7 +62,6 @@ public final class ApplicantProgramsController extends CiviFormController {
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      ProgramIndexView programIndexView,
       ApplicantDisabledProgramView disabledProgramInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
@@ -79,7 +76,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
-    this.programIndexView = checkNotNull(programIndexView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -88,7 +84,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.metricCounters = checkNotNull(metricCounters);
   }
 
-  @Secure
+  /** Renders the index page for TIs applying on behalf of clients. */
+  @Secure(authorizers = Authorizers.Labels.TI)
   public CompletionStage<Result> indexWithApplicantId(
       Request request,
       long applicantId,
@@ -96,7 +93,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
-    Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
 
@@ -109,32 +105,16 @@ public final class ApplicantProgramsController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              Result result;
-              // TODO(#11577): North star clean up
-              if (settingsManifest.getNorthStarApplicantUi()) {
-                result =
-                    ok(northStarProgramIndexView.render(
-                            messagesApi.preferred(request),
-                            request,
-                            Optional.of(applicantId),
-                            applicantStage.toCompletableFuture().join(),
-                            applicationPrograms,
-                            bannerMessage,
-                            Optional.of(requesterProfile)))
-                        .as(Http.MimeTypes.HTML);
-              } else {
-                result =
-                    ok(
-                        programIndexView.render(
-                            messagesApi.preferred(request),
-                            request,
-                            Optional.of(applicantId),
-                            applicantStage.toCompletableFuture().join(),
-                            applicationPrograms,
-                            ImmutableList.copyOf(categories),
-                            banner,
-                            Optional.of(requesterProfile)));
-              }
+              Result result =
+                  ok(northStarProgramIndexView.render(
+                          messagesApi.preferred(request),
+                          request,
+                          Optional.of(applicantId),
+                          applicantStage.toCompletableFuture().join(),
+                          applicationPrograms,
+                          bannerMessage,
+                          Optional.of(requesterProfile)))
+                      .as(Http.MimeTypes.HTML);
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
               // logging in.
@@ -158,35 +138,40 @@ public final class ApplicantProgramsController extends CiviFormController {
    * When the user is not logged in or tied to a guest account, show them the list of publicly
    * viewable programs.
    */
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
     CompletableFuture<ApplicationPrograms> programsFuture =
         applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
 
     return programsFuture.thenApplyAsync(
-        programs -> {
-          // TODO(#11577): North star clean up
-          return settingsManifest.getNorthStarApplicantUi()
-              ? ok(northStarProgramIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      Optional.empty(),
-                      ApplicantPersonalInfo.ofGuestUser(),
-                      programsFuture.join(),
-                      request.flash().get(FlashKey.BANNER),
-                      Optional.empty()))
-                  .as(Http.MimeTypes.HTML)
-              : ok(
-                  programIndexView.renderWithoutApplicant(
-                      messagesApi.preferred(request),
-                      request,
-                      programs,
-                      ImmutableList.copyOf(categories)));
-        });
+        programs ->
+            ok(northStarProgramIndexView.render(
+                    messagesApi.preferred(request),
+                    request,
+                    Optional.empty(),
+                    ApplicantPersonalInfo.ofGuestUser(),
+                    programsFuture.join(),
+                    request.flash().get(FlashKey.BANNER),
+                    Optional.empty()))
+                .as(Http.MimeTypes.HTML));
   }
 
   public CompletionStage<Result> index(Request request, List<String> categories) {
-    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+    var optionalProfile = profileUtils.optionalCurrentUserProfile(request);
+    if (optionalProfile.isEmpty()) {
       return indexWithoutApplicantId(request, categories);
+    }
+    // Only allow standard applicants (non Admin/TIs) to access the program
+    // list.  They should not be able to apply on their own behalf which this
+    // method allows for. Valid uses of index for TIs is done through
+    // indexWithApplicantId().
+    //
+    // Note: The cleaner way to do this would be to set authorizers =
+    // APPLICANT on the  method/route.  This however creates a loop between
+    // /programs and / when users log out, and why is unclear.
+    var profile = optionalProfile.get();
+    if (profile.isTrustedIntermediary() || profile.isProgramAdmin() || profile.isCiviFormAdmin()) {
+      return CompletableFuture.completedFuture(redirectToHome());
     }
 
     Optional<Long> applicantId = getApplicantId(request);
@@ -204,6 +189,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   // - /programs/<program-slug>
   //
   // The program id route is deprecated, so it always redirects to home.
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
       // We no longer support (or provide) links to numeric program ID (See issue #8599), redirect
@@ -214,7 +200,11 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
   }
 
-  @Secure
+  /**
+   * Renders a program page for TIs applying on behalf of clients and CiviForm admins previewing
+   * programs.
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, String programName) {
     if (StringUtils.isNumeric(programName)) {
@@ -228,7 +218,11 @@ public final class ApplicantProgramsController extends CiviFormController {
     }
   }
 
-  @Secure
+  /**
+   * Renders the initial application edit screen for TIs applying on behalf of clients and CiviForm
+   * admins previewing programs.
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> editWithApplicantId(
       Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
@@ -241,7 +235,12 @@ public final class ApplicantProgramsController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
+    return editInternal(request, applicantId, programParam, isFromUrlCall);
+  }
 
+  private CompletionStage<Result> editInternal(
+      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -302,7 +301,7 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
@@ -322,13 +321,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    Long applicantIdValue = applicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantIdValue, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                editWithApplicantId(
-                    request, applicantIdValue, programId.toString(), /* isFromUrlCall= */ false));
+    return editInternal(request, applicantId.get(), programParam, isFromUrlCall);
   }
 
   @Secure

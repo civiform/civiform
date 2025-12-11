@@ -107,7 +107,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.NorthStarAddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
@@ -2089,7 +2089,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
+  public void stageAndUpdateIfValid_with_correctedAddress_and_esriServiceAreaValidation() {
+
     QuestionDefinition addressQuestion =
         testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
@@ -2113,7 +2114,37 @@ public class ApplicantServiceTest extends ResetPostgres {
     Path rootPath = Path.create("applicant.applicant_address");
     Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
 
-    ImmutableMap<String, String> updates =
+    // Mimic the applicant entering an address that will be corrected
+    ImmutableMap<String, String> initialUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            /* blockId= */ "1",
+            initialUpdates,
+            /* addressServiceAreaValidationEnabled= */ true,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusionsBeforeCorrected =
+        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+
+    assertThat(optionalServiceAreaInclusionsBeforeCorrected.isPresent()).isFalse();
+
+    // Mimic the applicant selecting a corrected address
+    ImmutableMap<String, String> correctedUpdates =
         ImmutableMap.<String, String>builder()
             .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
             .put(rootPath.join(Scalar.CITY).toString(), "City")
@@ -2132,22 +2163,23 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programDefinition.id(),
             "1",
-            updates,
+            correctedUpdates,
             true,
             false,
             /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
+    ApplicantData applicantDataAfterCorrected =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusions =
-        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusionsAfterCorrected =
+        applicantDataAfterCorrected.readServiceAreaList(serviceAreaPath);
 
-    assertThat(optionalServiceAreaInclusions.isPresent()).isTrue();
+    assertThat(optionalServiceAreaInclusionsAfterCorrected.isPresent()).isTrue();
 
-    ImmutableList<ServiceAreaInclusion> serviceAreaInclusions = optionalServiceAreaInclusions.get();
+    ImmutableList<ServiceAreaInclusion> serviceAreaInclusions =
+        optionalServiceAreaInclusionsAfterCorrected.get();
 
     assertThat(serviceAreaInclusions.size()).isEqualTo(1);
 
@@ -2160,7 +2192,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void
-      stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation_with_existing_service_areas() {
+      stageAndUpdateIfValid_with_correctedAddress_and_esriServiceAreaValidation_with_existing_service_areas() {
     QuestionDefinition addressQuestion =
         testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     EligibilityDefinition eligibilityDef =
@@ -2184,6 +2216,36 @@ public class ApplicantServiceTest extends ResetPostgres {
     Path rootPath = Path.create("applicant.applicant_address");
     Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
 
+    // Mimic the applicant entering an address that will be corrected
+    ImmutableMap<String, String> initialUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            /* blockId= */ "1",
+            initialUpdates,
+            /* addressServiceAreaValidationEnabled= */ true,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusionsBeforeCorrected =
+        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+
+    assertThat(optionalServiceAreaInclusionsBeforeCorrected.isPresent()).isFalse();
+
+    // Mimic the applicant selecting a corrected address
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
@@ -2220,11 +2282,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
+    ApplicantData applicantDataAfterCorrected =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusions =
-        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+        applicantDataAfterCorrected.readServiceAreaList(serviceAreaPath);
 
     assertThat(optionalServiceAreaInclusions.isPresent()).isTrue();
 
@@ -2247,6 +2309,124 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(seattle.isPresent()).isTrue();
     assertThat(seattle.get().getState()).isEqualTo(ServiceAreaState.IN_AREA);
     assertThat(seattle.get().getTimeStamp()).isNotEqualTo(4567);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_esriServiceAreaValidation_isPreservedWhenNoChangesInData() {
+
+    QuestionDefinition addressQuestion =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.save();
+
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
+
+    // Mimic the applicant entering an address that will be corrected
+    ImmutableMap<String, String> initialUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            /* blockId= */ "1",
+            initialUpdates,
+            /* addressServiceAreaValidationEnabled= */ true,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    // Mimic the applicant selecting a corrected address
+    ImmutableMap<String, String> correctedUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+            .put(
+                rootPath.join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
+            .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
+            .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            correctedUpdates,
+            true,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfterCorrected =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusionsAfterCorrected =
+        applicantDataAfterCorrected.readServiceAreaList(serviceAreaPath);
+
+    assertThat(optionalServiceAreaInclusionsAfterCorrected.isPresent()).isTrue();
+
+    ImmutableList<ServiceAreaInclusion> serviceAreaInclusionsAfterCorrected =
+        optionalServiceAreaInclusionsAfterCorrected.get();
+
+    // Mimic the applicant submitting the same data without the "Corrected" field
+    // This occurs when the applicant goes to the edit question screen but doesn't make any changes
+    ImmutableMap<String, String> unchangedUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            unchangedUpdates,
+            true,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfterUnchangedSubmission =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    ImmutableList<ServiceAreaInclusion> serviceAreaInclusionsAfterUnchangedSubmission =
+        applicantDataAfterUnchangedSubmission.readServiceAreaList(serviceAreaPath).get();
+
+    assertThat(serviceAreaInclusionsAfterUnchangedSubmission)
+        .isEqualTo(serviceAreaInclusionsAfterCorrected);
   }
 
   @Test
@@ -2811,14 +2991,10 @@ public class ApplicantServiceTest extends ResetPostgres {
                 ProgramType.EXTERNAL)
             .build();
 
-    // External program is not included in 'unapplied' list when request does not have the external
-    // program card feature
-    // enabled
+    // External program is not included in 'unapplied' list when external program card feature is
+    // disabled
     Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
-            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false")
-            .build();
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false").build();
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
@@ -2828,13 +3004,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
 
-    // External program is included in 'unapplied' list when request has external program card and
-    // North Star features enabled
+    // External program is included in 'unapplied' list when external program card feature is
+    // enabled
     Request requestWithFeature =
-        fakeRequestBuilder()
-            .addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true")
-            .addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true")
-            .build();
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true").build();
     ApplicantService.ApplicationPrograms resultWithFeature =
         subject
             .relevantProgramsForApplicant(
@@ -3810,6 +3983,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
+                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
@@ -3894,6 +4068,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setDisplayMode(DisplayMode.PUBLIC)
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
+                    .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
                     .setApplicationSteps(
@@ -4386,7 +4561,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 program.id,
                 String.valueOf(blockDefinition.id()),
-                Optional.of(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
+                Optional.of(NorthStarAddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE),
                 addressSuggestionList)
             .toCompletableFuture()
             .get();

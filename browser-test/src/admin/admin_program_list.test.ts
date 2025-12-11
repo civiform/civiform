@@ -16,7 +16,7 @@ import {
   ProgramVisibility,
 } from '../support/admin_programs'
 
-test.describe('Program list page.', {tag: ['@northstar']}, () => {
+test.describe('Program list page.', () => {
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -144,11 +144,9 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
       await expect(
         programCard.getByText('Categories: Education, Internet'),
       ).toBeVisible()
-      await validateScreenshot(
-        programCard,
-        'program-list-with-categories',
-        false,
-      )
+      await validateScreenshot(programCard, 'program-list-with-categories', {
+        fullPage: false,
+      })
     })
   })
 
@@ -238,7 +236,7 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
 
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerProgram,
       'short program description',
       ProgramVisibility.PUBLIC,

@@ -45,6 +45,8 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.QuestionEditView;
@@ -61,6 +63,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
+  private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
 
   @Inject
   public AdminQuestionController(
@@ -71,6 +74,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
+      MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
@@ -79,6 +83,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
+    this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
   }
 
   /**
@@ -116,8 +121,25 @@ public final class AdminQuestionController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result deleteMapQuestionFilter(Request request) {
-    // Return empty response - HTMX will remove the element from DOM
-    return ok("").as(Http.MimeTypes.HTML);
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
+
+    // Get the index of the filter to delete from the request
+    String filterIndexStr = request.body().asFormUrlEncoded().get("filterIndex")[0];
+    int filterIndexToDelete = Integer.parseInt(filterIndexStr);
+
+    // Remove the filter at the specified index
+    List<MapQuestionForm.Setting> filters = form.getFilters();
+    if (filterIndexToDelete >= 0 && filterIndexToDelete < filters.size()) {
+      filters.remove(filterIndexToDelete);
+    }
+
+    // Get possible keys list
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
+
+    // Re-render all filters with updated indices
+    return ok(mapQuestionSettingsFiltersListPartialView.render(
+            request, new MapQuestionSettingsFiltersListPartialViewModel(possibleKeysList, filters)))
+        .as(Http.MimeTypes.HTML);
   }
 
   /**
@@ -527,47 +549,71 @@ public final class AdminQuestionController extends CiviFormController {
     ImmutableSet.Builder<QuestionSetting> newSettingsListBuilder = ImmutableSet.builder();
 
     for (QuestionSetting updatedQuestionSetting : updatedQuestionSettings) {
-      // Find an existing setting with the same value and type
-      Optional<QuestionSetting> maybeExistingSettingWithSameValue =
+      // Find an existing setting with the same key and type
+      Optional<QuestionSetting> maybeExistingSettingWithSameKey =
           existingSettings.stream()
               .filter(
                   existingSetting ->
-                      existingSetting.settingValue().equals(updatedQuestionSetting.settingValue())
+                      existingSetting.settingKey().equals(updatedQuestionSetting.settingKey())
                           && existingSetting
                               .settingType()
                               .equals(updatedQuestionSetting.settingType()))
               .findFirst();
 
-      if (maybeExistingSettingWithSameValue.isPresent()
-          && updatedQuestionSetting.localizedSettingDisplayName().isPresent()) {
-        // If there's an existing setting with the same value and type, preserve its translations
-        // and update the default locale text
-        QuestionSetting existingSetting = maybeExistingSettingWithSameValue.get();
-        String updatedDefaultText =
-            updatedQuestionSetting.localizedSettingDisplayName().get().getDefault();
+      if (maybeExistingSettingWithSameKey.isPresent()) {
+        QuestionSetting existingSetting = maybeExistingSettingWithSameKey.get();
 
-        if (existingSetting.localizedSettingDisplayName().isPresent()
-            && existingSetting
-                .localizedSettingDisplayName()
-                .get()
-                .getDefault()
-                .equals(updatedDefaultText)) {
-          // If the default text hasn't changed, preserve all translations
-          newSettingsListBuilder.add(existingSetting);
-        } else {
-          // If the default text changed, update it but preserve other translations
-          LocalizedStrings existingLocalizedText =
+        // Handle localizedSettingDisplayName
+        Optional<LocalizedStrings> updatedDisplayName =
+            updatedQuestionSetting.localizedSettingDisplayName();
+        Optional<LocalizedStrings> localizedDisplayName;
+        if (updatedDisplayName.isPresent()) {
+          LocalizedStrings existingDisplayName =
               existingSetting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
-          newSettingsListBuilder.add(
-              existingSetting.toBuilder()
-                  .setLocalizedSettingDisplayName(
-                      Optional.of(
-                          existingLocalizedText.updateTranslation(
-                              LocalizedStrings.DEFAULT_LOCALE, updatedDefaultText)))
-                  .build());
+          if (existingSetting.localizedSettingDisplayName().isPresent()
+              && existingDisplayName.getDefault().equals(updatedDisplayName.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedDisplayName = Optional.of(existingDisplayName);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedDisplayName =
+                Optional.of(
+                    existingDisplayName.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedDisplayName.get().getDefault()));
+          }
+        } else {
+          localizedDisplayName = existingSetting.localizedSettingDisplayName();
         }
+
+        // Handle localizedSettingText
+        Optional<LocalizedStrings> updatedText = updatedQuestionSetting.localizedSettingText();
+        Optional<LocalizedStrings> localizedText;
+        if (updatedText.isPresent()) {
+          LocalizedStrings existingText =
+              existingSetting.localizedSettingText().orElse(LocalizedStrings.of());
+          if (existingSetting.localizedSettingText().isPresent()
+              && existingText.getDefault().equals(updatedText.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedText = Optional.of(existingText);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedText =
+                Optional.of(
+                    existingText.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedText.get().getDefault()));
+          }
+        } else {
+          localizedText = existingSetting.localizedSettingText();
+        }
+
+        newSettingsListBuilder.add(
+            existingSetting.toBuilder()
+                .setLocalizedSettingDisplayName(localizedDisplayName)
+                .setLocalizedSettingText(localizedText)
+                .setSettingValue(updatedQuestionSetting.settingValue())
+                .build());
       } else {
-        // If there's no existing setting with the same value, treat it as a new setting
+        // If there's no existing setting with the same key, treat it as a new setting
         newSettingsListBuilder.add(updatedQuestionSetting);
       }
     }

@@ -76,6 +76,14 @@ public final class SimpleEmail implements EmailSendClient {
     if (toAddresses.isEmpty()) {
       return;
     }
+
+    if (toAddresses.size() > 50) {
+      logger.warn(
+          "Attempting to send an email with AWS, but it has too many recipients. The email will"
+              + " only be sent to the first 50 email addresses.");
+      toAddresses = toAddresses.stream().limit(50).collect(ImmutableList.toImmutableList());
+    }
+
     Histogram.Timer timer = emailSendMetrics.getEmailExecutionTime().startTimer();
 
     // Add some messaging to non-prod emails to make it easier to

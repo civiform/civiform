@@ -10,7 +10,8 @@ import * as toggle from './toggle'
 import * as adminApiKeys from './admin_api_keys'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
-import * as adminPredicates from './admin_predicate_configuration'
+import * as legacyAdminPredicates from './admin_predicate_configuration'
+import * as adminPredicateEdit from './admin_predicate_edit'
 import * as adminProgramImage from './admin_program_image'
 import * as adminPrograms from './admin_programs'
 import * as adminProgramStatusesView from './admin_program_statuses_view'
@@ -43,6 +44,7 @@ window.app.scripts = window.app.scripts || {}
 
 // Attach so the specific page can manage init
 window.app.scripts.AdminProgramApiBridge = AdminProgramApiBridge
+window.app.scripts.AdminPredicateEdit = adminPredicateEdit.AdminPredicateEdit
 
 window.addEventListener('load', () => {
   initializeEverything()
@@ -61,7 +63,8 @@ function initializeEverything(): void {
   adminApiKeys.init()
   adminApplicationView.init()
   adminApplications.init()
-  adminPredicates.init()
+  legacyAdminPredicates.init()
+  adminPredicateEdit.init()
   adminProgramImage.init()
   adminPrograms.init()
   adminProgramStatusesView.init()

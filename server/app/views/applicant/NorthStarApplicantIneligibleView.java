@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.EligibilityAlertSettingsCalculator;
@@ -16,6 +15,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -32,7 +32,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
   NorthStarApplicantIneligibleView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -41,7 +41,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
@@ -82,12 +82,10 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     }
 
     AlertSettings eligibilityAlertSettings =
-        // TODO(#11571): North star clean up
         eligibilityAlertSettingsCalculator.calculate(
             params.request(),
             params.profile().isTrustedIntermediary(),
             !params.roApplicantProgramService().isApplicationNotEligible(),
-            true,
             true,
             program.id(),
             localizedEligibilityMsg,

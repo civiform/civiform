@@ -2,7 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {
   disableFeatureFlag,
   enableFeatureFlag,
-  isHermeticTestEnvironment,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -13,7 +13,7 @@ import {
   validateToastMessage,
 } from '../support'
 
-test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
+test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
     await disableFeatureFlag(page, 'expanded_form_logic_enabled')
   })
@@ -143,7 +143,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await applicantQuestions.expectQuestionDoesNotExistOnReviewPage(
       'conditional question',
     )
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the hidden question does not show
     await logout(page)
@@ -237,10 +237,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     )
     const visibilityContentId = showQuestionName + '-visibility-content'
     await expect(page.locator('#' + visibilityContentId)).toBeHidden()
-    await validateScreenshot(
-      page.locator('#' + showQuestionName + '-visibility-accordion'),
-      'question-card-with-show-predicate-collapsed',
-    )
     // Expand accordion and verify it displays the block containing the predicate
     await page
       .locator('button[aria-controls="' + visibilityContentId + '"]')
@@ -249,7 +245,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await expect(page.locator('#' + visibilityContentId)).toContainText(
       'Screen 2',
     )
-    await validateScreenshot(page, 'question-card-with-show-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -286,7 +281,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await applicantQuestions.expectQuestionExistsOnReviewPage(
       'conditional question',
     )
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the conditional question is shown
     await logout(page)
@@ -400,7 +395,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(page, 'eligibility-predicate')
 
     await page.click(`a:has-text("Back")`)
-    await validateScreenshot(page, 'block-settings-page')
 
     // Verify block with predicate display
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -441,7 +435,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await expect(
       page.getByRole('button', {name: 'Submit application'}),
     ).toBeVisible()
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the question is shown
     await logout(page)
@@ -555,7 +549,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
-  if (isHermeticTestEnvironment()) {
+  if (isLocalDevEnvironment()) {
     test('add a service area validation predicate', async ({
       page,
       adminQuestions,
@@ -684,7 +678,9 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.predicate-config-form'),
       'operator-help-text',
-      /* fullPage= */ false,
+      {
+        fullPage: false,
+      },
     )
   })
 
@@ -1238,7 +1234,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // "hidden" first name is not allowed.
       await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickContinue()
@@ -1248,7 +1244,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickContinue()
@@ -1258,7 +1254,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickContinue()
@@ -1268,7 +1264,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickContinue()
@@ -1278,7 +1274,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickContinue()
@@ -1292,7 +1288,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '01',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2020',
@@ -1310,7 +1306,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2023',
@@ -1328,7 +1324,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '1930',
@@ -1346,7 +1342,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
@@ -1364,7 +1360,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '31',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2000',
@@ -1378,7 +1374,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // "dog" or "cat" are allowed.
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickContinue()
@@ -1388,7 +1384,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // number between 10 and 20 is allowed
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('15')
       await applicantQuestions.clickContinue()
@@ -1402,7 +1398,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         '01',
       )
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
@@ -1416,7 +1412,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       // currency between 4.25 and 9.99 is allowed
       await applicantQuestions.answerCurrencyQuestion('2.00')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(true)
+      await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('5.50')
       await applicantQuestions.clickContinue()
@@ -1428,7 +1424,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     })
 
     // We should now be on the summary page
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
   })
 
   test('every eligibility right hand type evaluates correctly', async ({
@@ -1835,7 +1831,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
 
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
@@ -2044,7 +2040,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     await validateScreenshot(page, 'review-page-no-ineligible-banner-completed')
     await validateToastMessage(page, '')
 
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
   })
 
   test('multiple questions ineligible', async ({

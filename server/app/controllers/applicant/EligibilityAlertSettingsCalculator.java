@@ -16,7 +16,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
-// TODO(#11571): North star clean up
 public final class EligibilityAlertSettingsCalculator {
   private final ProgramService programService;
   private final MessagesApi messagesApi;
@@ -35,7 +34,6 @@ public final class EligibilityAlertSettingsCalculator {
    * @param request The HTTP request.
    * @param isTI True if the request is from a tax advisor.
    * @param isApplicationEligible True if the application is eligible for the program.
-   * @param isNorthStarEnabled True if NorthStar is enabled.
    * @param pageHasSupplementalInformation True if the page has supplemental information.
    * @param programId The program ID.
    * @param eligibilityMsg The eligibility message.
@@ -47,7 +45,6 @@ public final class EligibilityAlertSettingsCalculator {
       Http.Request request,
       boolean isTI,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
       long programId,
       String eligibilityMsg,
@@ -56,7 +53,6 @@ public final class EligibilityAlertSettingsCalculator {
         request,
         isTI,
         isApplicationEligible,
-        isNorthStarEnabled,
         pageHasSupplementalInformation,
         programId,
         eligibilityMsg,
@@ -67,9 +63,8 @@ public final class EligibilityAlertSettingsCalculator {
    * Calculates the alert settings for the given request.
    *
    * @param request The HTTP request.
-   * @param isTI True if the request is from a tax advisor.
+   * @param isTI True if the request is from a trusted intermediary.
    * @param isApplicationEligible True if the application is eligible for the program.
-   * @param isNorthStarEnabled True if NorthStar is enabled.
    * @param pageHasSupplementalInformation True if the page has supplemental information.
    * @param programId The program ID.
    * @param questions The list of applicant questions that the applicant answered that may make the
@@ -80,7 +75,6 @@ public final class EligibilityAlertSettingsCalculator {
       Http.Request request,
       boolean isTI,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
       long programId,
       ImmutableList<ApplicantQuestion> questions) {
@@ -88,7 +82,6 @@ public final class EligibilityAlertSettingsCalculator {
         request,
         isTI,
         isApplicationEligible,
-        isNorthStarEnabled,
         pageHasSupplementalInformation,
         programId,
         "",
@@ -99,7 +92,6 @@ public final class EligibilityAlertSettingsCalculator {
       Http.Request request,
       boolean isTI,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
       long programId,
       String eligibilityMsg,
@@ -116,15 +108,9 @@ public final class EligibilityAlertSettingsCalculator {
     Triple triple =
         isTI
             ? getTi(
-                isApplicationFastForwarded,
-                isApplicationEligible,
-                isNorthStarEnabled,
-                pageHasSupplementalInformation)
+                isApplicationFastForwarded, isApplicationEligible, pageHasSupplementalInformation)
             : getApplicant(
-                isApplicationFastForwarded,
-                isApplicationEligible,
-                isNorthStarEnabled,
-                pageHasSupplementalInformation);
+                isApplicationFastForwarded, isApplicationEligible, pageHasSupplementalInformation);
 
     String text = messages.at(triple.textKey.getKeyName());
     ImmutableList<String> formattedQuestions =
@@ -153,7 +139,6 @@ public final class EligibilityAlertSettingsCalculator {
   private Triple getTi(
       boolean isApplicationFastForwarded,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation) {
     if (isApplicationFastForwarded == true && isApplicationEligible == true) {
       return new Triple(
@@ -176,7 +161,7 @@ public final class EligibilityAlertSettingsCalculator {
           MessageKey.ALERT_ELIGIBILITY_TI_ELIGIBLE_TEXT);
     }
 
-    if (isNorthStarEnabled == true && pageHasSupplementalInformation == true) {
+    if (pageHasSupplementalInformation == true) {
       return new Triple(
           AlertType.WARNING,
           MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE,
@@ -193,7 +178,6 @@ public final class EligibilityAlertSettingsCalculator {
   private Triple getApplicant(
       boolean isApplicationFastForwarded,
       boolean isApplicationEligible,
-      boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation) {
     if (isApplicationFastForwarded == true && isApplicationEligible == true) {
       return new Triple(
@@ -216,7 +200,7 @@ public final class EligibilityAlertSettingsCalculator {
           MessageKey.ALERT_ELIGIBILITY_APPLICANT_ELIGIBLE_TEXT);
     }
 
-    if (pageHasSupplementalInformation == true && isNorthStarEnabled == true) {
+    if (pageHasSupplementalInformation == true) {
       return new Triple(
           AlertType.WARNING,
           MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE,
@@ -240,7 +224,7 @@ public final class EligibilityAlertSettingsCalculator {
     try {
       var programDefinition = programService.getFullProgramDefinition(programId);
 
-      return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
+      return !programDefinition.isPreScreenerForm() && programDefinition.hasEligibilityEnabled();
     } catch (ProgramNotFoundException ex) {
       // Checked exceptions are the devil and we've already determined that this program exists by
       // this point

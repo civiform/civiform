@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
+test.describe('Id question for applicant flow', () => {
   test.describe('single id question', () => {
     const programName = 'Test program for single id'
 
@@ -29,12 +29,9 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       )
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'id',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'id', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -43,8 +40,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'id-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
     })
@@ -68,7 +64,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerIdQuestion('12345')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
     })
 
@@ -157,7 +153,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -171,7 +167,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with first invalid does not submit', async ({

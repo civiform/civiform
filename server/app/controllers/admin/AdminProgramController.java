@@ -80,7 +80,7 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     return ok(
         listView.render(
-            programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getInUseActiveAndDraftPrograms(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
             ProgramTab.IN_USE,
@@ -144,7 +144,7 @@ public final class AdminProgramController extends CiviFormController {
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()) {
         return ok(
@@ -165,6 +165,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             programData.getEligibilityIsGating(),
+            programData.getLoginOnly(),
             programData.getProgramType(),
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
@@ -285,7 +286,7 @@ public final class AdminProgramController extends CiviFormController {
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()
           && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
@@ -311,6 +312,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getNotificationPreferences(),
         programData.getEligibilityIsGating(),
+        programData.getLoginOnly(),
         programData.getProgramType(),
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),

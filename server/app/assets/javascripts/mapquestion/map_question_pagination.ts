@@ -3,18 +3,19 @@ import {
   DATA_MAP_ID,
   getVisibleCheckboxes,
   localizeString,
-  MapMessages,
   mapQuerySelector,
   queryLocationCheckboxes,
+  CF_PAGINATION_HIDDEN,
+  getMessages,
+  ITEMS_PER_PAGE,
+  updateLocationCountForMap,
 } from './map_util'
-
-const ITEMS_PER_PAGE = 6
-const MAX_VISIBLE_PAGE_BUTTONS = 3
+const MAX_VISIBLE_PAGE_BUTTONS_MOBILE = 3
+const MAX_VISIBLE_PAGE_BUTTONS_DESKTOP = 1
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'
 const CF_PAGINATION_BUTTON_TEMPLATE_SELECTOR = '.cf-pagination-button-template'
 const CF_PAGINATION_OVERFLOW_TEMPLATE_SELECTOR =
   '.cf-pagination-overflow-template'
-const CF_PAGINATION = 'cf-pagination'
 const CF_PAGINATION_ITEM_SELECTOR = '.cf-pagination-item'
 const CF_PAGINATION_LIST_SELECTOR = '.cf-pagination-list'
 const CF_PAGINATION_STATUS_SELECTOR = '.cf-pagination-status'
@@ -38,6 +39,13 @@ export const initPagination = (mapId: string): void => {
   const paginationNav = getPaginationNavComponent(mapId)
   if (!paginationNav) return
   updatePagination(mapId, paginationNav)
+  window.addEventListener(
+    'resize',
+    function () {
+      updatePagination(mapId, paginationNav)
+    },
+    true,
+  )
 }
 
 export const updatePagination = (
@@ -48,6 +56,7 @@ export const updatePagination = (
   renderPaginationButtons(mapId, state, paginationNav)
   updateVisibleLocations(mapId, state)
   updatePaginationButtonStates(state, paginationNav)
+  updateLocationCountForMap(mapId, state.visibleItems, state.currentPage)
 }
 
 export const resetPagination = (mapId: string): void => {
@@ -100,17 +109,15 @@ const updateVisibleLocations = (
   const startIndex = (state.currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
 
-  // Hide all checkboxes first, but preserve the CF_LOCATION_HIDDEN class for filtered items
-  allCheckboxes.forEach((checkbox) => {
-    const checkboxElement = checkbox as HTMLElement
-    checkboxElement.classList.add('hidden')
-  })
+  // Hide all checkboxes first, but preserve the CF_FILTER_HIDDEN class for filtered items
+  allCheckboxes.forEach((checkbox) =>
+    checkbox.classList.add(CF_PAGINATION_HIDDEN),
+  )
 
   // Show only the checkboxes for the current page
-  visibleCheckboxes.slice(startIndex, endIndex).forEach((checkbox) => {
-    const checkboxElement = checkbox as HTMLElement
-    checkboxElement.classList.remove('hidden')
-  })
+  visibleCheckboxes
+    .slice(startIndex, endIndex)
+    .forEach((checkbox) => checkbox.classList.remove(CF_PAGINATION_HIDDEN))
 }
 
 const renderPaginationButtons = (
@@ -122,14 +129,6 @@ const renderPaginationButtons = (
     CF_PAGINATION_LIST_SELECTOR,
   )
   if (!paginationList) return
-
-  // Move focus to the nav BEFORE removing buttons to prevent focus jump
-  if (paginationList.contains(document.activeElement)) {
-    const paginationNav = mapQuerySelector(mapId, CF_PAGINATION) as HTMLElement
-    if (paginationNav) {
-      paginationNav.focus()
-    }
-  }
 
   // Update current page data attribute
   paginationNav.setAttribute(
@@ -172,23 +171,27 @@ const calculateVisiblePages = (
   currentPage: number,
   totalPages: number,
 ): (number | string)[] => {
+  const maxVisiblePageButtons =
+    window.innerWidth < 640
+      ? MAX_VISIBLE_PAGE_BUTTONS_MOBILE
+      : MAX_VISIBLE_PAGE_BUTTONS_DESKTOP
   // Show all pages if we have fewer than max + first/last
-  if (totalPages <= MAX_VISIBLE_PAGE_BUTTONS + 2) {
+  if (totalPages <= maxVisiblePageButtons + 2) {
     return Array.from({length: totalPages}, (_, i) => i + 1)
   }
 
   const pages: (number | string)[] = []
-  const halfVisible = Math.floor(MAX_VISIBLE_PAGE_BUTTONS / 2)
+  const halfVisible = Math.floor(maxVisiblePageButtons / 2)
 
   let startPage = Math.max(2, currentPage - halfVisible)
   const endPage = Math.min(
     totalPages - 1,
-    startPage + MAX_VISIBLE_PAGE_BUTTONS - 1,
+    startPage + maxVisiblePageButtons - 1,
   )
 
   // Adjust start if we're near the end
-  if (endPage - startPage + 1 < MAX_VISIBLE_PAGE_BUTTONS) {
-    startPage = Math.max(2, endPage - MAX_VISIBLE_PAGE_BUTTONS + 1)
+  if (endPage - startPage + 1 < maxVisiblePageButtons) {
+    startPage = Math.max(2, endPage - maxVisiblePageButtons + 1)
   }
 
   // Always show first page
@@ -227,9 +230,7 @@ const createPageButton = (
   link.textContent = pageNumber.toString()
   link.setAttribute(
     'aria-label',
-    localizeString((window.app.data.messages as MapMessages).goToPage, [
-      pageNumber.toString(),
-    ]),
+    localizeString(getMessages().goToPage, [pageNumber.toString()]),
   )
   link.setAttribute(DATA_PAGE_ATTRIBUTE, pageNumber.toString())
   link.setAttribute(DATA_MAP_ID, mapId)
@@ -293,10 +294,10 @@ const updatePaginationStatus = (
     CF_PAGINATION_STATUS_SELECTOR,
   ) as HTMLElement
   if (statusElement) {
-    statusElement.textContent = localizeString(
-      (window.app.data.messages as MapMessages).paginationStatus,
-      [updatedState.currentPage.toString(), updatedState.totalPages.toString()],
-    )
+    statusElement.textContent = localizeString(getMessages().paginationStatus, [
+      updatedState.currentPage.toString(),
+      updatedState.totalPages.toString(),
+    ])
     // Clear the text after announcement to prevent navigation to it
     setTimeout(() => {
       statusElement.textContent = ''

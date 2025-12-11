@@ -7,7 +7,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
-import controllers.AssetsFinder;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.SectionTag;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
 
@@ -37,7 +37,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class));
   }
 
   @Test
@@ -54,7 +54,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<script src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
-                + " type=\"text/javascript\" nonce=\"my-nonce\"></script>");
+                + " type=\"module\" nonce=\"my-nonce\"></script>");
     assertThat(content.body()).doesNotContain("googletagmanager");
 
     assertThat(content.body()).contains("<main></main>");
@@ -69,7 +69,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 
@@ -81,9 +81,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle =
-        new HtmlBundle(
-            fakeRequestBuilder().cspNonce("my-nonce").build(), instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
@@ -96,7 +94,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<link href=\"moose.css\" rel=\"stylesheet\" nonce=\"my-nonce\"><link"
-                + " href=\"/assets/dist/[a-z0-9]+-uswds.min.css\" rel=\"stylesheet\""
+                + " href=\"/assets/dist/[a-z0-9]+-uswds_css.min.css\" rel=\"stylesheet\""
                 + " nonce=\"my-nonce\"><link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\""
                 + " rel=\"stylesheet\" nonce=\"my-nonce\">");
   }

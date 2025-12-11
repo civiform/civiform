@@ -269,6 +269,11 @@ public final class ReadOnlyApplicantProgramService {
     return hasAnsweredEligibilityQuestions() && hasGatingEligibilityEnabledOrEligible();
   }
 
+  /** Returns whether the program is available to only logged-in users. */
+  public boolean isProgramOnlyForLoggedInApplicants() {
+    return programDefinition.loginOnly();
+  }
+
   /** Returns whether eligibility is gating or the application is eligible. */
   private boolean hasGatingEligibilityEnabledOrEligible() {
     if (programDefinition.eligibilityIsGating()) {
@@ -509,6 +514,7 @@ public final class ReadOnlyApplicantProgramService {
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
                 .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                .setLoginOnly(programDefinition.loginOnly())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setEncodedFileKeys(encodedFileKeys)
@@ -573,7 +579,7 @@ public final class ReadOnlyApplicantProgramService {
       }
 
       // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();

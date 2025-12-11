@@ -10,7 +10,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('name applicant flow', {tag: ['@northstar']}, () => {
+test.describe('name applicant flow', () => {
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 
@@ -30,12 +30,9 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       )
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'name',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'name', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -43,8 +40,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'name-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
     })
@@ -87,9 +83,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with empty name does not submit', async ({
@@ -156,9 +150,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({
@@ -253,9 +245,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with invalid optional name does not submit', async ({
@@ -352,9 +342,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
           await applicantQuestions.clickContinue()
 
           await expect(page.getByText('Lilly Saini Singh I')).toBeVisible()
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.submitFromReviewPage()
         })
       })
 
@@ -372,9 +360,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
           await applicantQuestions.clickContinue()
 
           await expect(page.getByText('Ann Quiroz Gates')).toBeVisible()
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.submitFromReviewPage()
         })
       })
     },

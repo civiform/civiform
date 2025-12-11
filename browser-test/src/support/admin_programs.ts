@@ -259,12 +259,12 @@ export class AdminPrograms {
    * @param {string} shortDescription - Short description of the program
    * @param {ProgramVisibility} programVisibility - Visibility of the program
    */
-  async addPreScreenerNS(
+  async addPreScreener(
     programName: string,
     shortDescription: string,
     programVisibility: ProgramVisibility,
   ) {
-    // Only add values for fields that are required on North Star. Disabled
+    // Only add values for fields that are required. Disabled
     // fields must have an empty or undefined value, since disabled elements
     // are readonly and cannot be edited
     return this.addProgram(
@@ -387,7 +387,7 @@ export class AdminPrograms {
     }
 
     // This method adds an external link by default. The external link field is
-    // disabled for default programs and pre-screeners in North Star. Therefore,
+    // disabled for default programs and pre-screeners. Therefore,
     // tests will fail if we try to add default external link to a disabled
     // field.
     // TODO(#10630): Ideally, this method should not have a default value for
@@ -987,6 +987,29 @@ export class AdminPrograms {
     }
   }
 
+  async expectLoginOnlyProgramIsChecked(isChecked: boolean) {
+    await expect(
+      this.page.getByRole('checkbox', {
+        name: 'Require applicants to log in to apply to this program',
+      }),
+    ).toBeChecked({checked: isChecked})
+  }
+
+  async setProgramToLoginOnly(checked: boolean) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: 'Require applicants to log in to apply to this program',
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page.locator('label[for="login-only-applications"]').click()
+    }
+  }
+
   /**
    * Opens the export program page by clicking on a program's card action or
    * extra action (depending on the program lifecycle)
@@ -1189,7 +1212,7 @@ export class AdminPrograms {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successToastMessage)
   }
 
@@ -1225,6 +1248,16 @@ export class AdminPrograms {
         ),
       )
     }
+  }
+
+  // Edit a question from the program screen
+  async editQuestion(questionName: string) {
+    await this.page.click(
+      this.withinQuestionCardSelectorInProgramView(
+        questionName,
+        'a:has-text("Edit")',
+      ),
+    )
   }
 
   /**
@@ -1953,7 +1986,7 @@ export class AdminPrograms {
   }
 
   getRequiredIndicatorFor(labelId: string): Locator {
-    return this.page.locator(`label[for="${labelId}"] span.required-indicator`)
+    return this.page.locator(`label[for="${labelId}"] span.usa-hint--required`)
   }
 
   getLongDescriptionField(): Locator {
@@ -2055,7 +2088,7 @@ export class AdminPrograms {
         programId = 'default-program-option'
         break
       case ProgramType.PRE_SCREENER:
-        programId = 'common-intake-program-option'
+        programId = 'pre-screener-program-option'
         break
       case ProgramType.EXTERNAL:
         programId = 'external-program-option'
@@ -2071,7 +2104,7 @@ export class AdminPrograms {
     // because USWDS styling hides the actual checkbox input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
     // off-screen, making it inaccessible to Playwright's direct interactions.
-    await this.page.locator('label[for="common-intake-checkbox"]').click()
+    await this.page.locator('label[for="pre-screener-checkbox"]').click()
   }
 
   /**

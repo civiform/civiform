@@ -88,6 +88,10 @@ public abstract class ProgramDefinition {
   @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
 
+  /** If the program is for logged in applicants only. */
+  @JsonProperty("loginOnly")
+  public abstract boolean loginOnly();
+
   /** The notification preferences for this program. */
   @JsonProperty("notificationPreferences")
   public abstract ImmutableList<ProgramNotificationPreference> notificationPreferences();
@@ -194,7 +198,7 @@ public abstract class ProgramDefinition {
     ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
     for (BlockDefinition blockDefinition : currentLevel) {
       blockDefinitionBuilder.add(blockDefinition);
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         blockDefinitionBuilder.addAll(
             orderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
       }
@@ -230,7 +234,7 @@ public abstract class ProgramDefinition {
       }
 
       // Push this enumerator block's id
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion() || blockDefinition.getIsEnumerator()) {
         enumeratorIds.push(blockDefinition.id());
       }
     }
@@ -411,7 +415,7 @@ public abstract class ProgramDefinition {
     int endIndex = startIndex + 1;
 
     // Early return for non-enumerator blocks
-    if (!blockDefinition.isEnumerator()) {
+    if (!blockDefinition.hasEnumeratorQuestion()) {
       return BlockSlice.create(startIndex, endIndex);
     }
 
@@ -426,7 +430,7 @@ public abstract class ProgramDefinition {
         break;
       }
       // Add nested enumerators into the set of enumerators
-      if (current.isEnumerator()) {
+      if (current.hasEnumeratorQuestion()) {
         enumeratorIds.add(current.id());
       }
       endIndex++;
@@ -618,7 +622,9 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream()
         .anyMatch(
             blockDefinition ->
-                blockDefinition.id() == enumeratorId && blockDefinition.isEnumerator());
+                blockDefinition.id() == enumeratorId
+                    && (blockDefinition.getIsEnumerator()
+                        || blockDefinition.hasEnumeratorQuestion()));
   }
 
   /**
@@ -809,7 +815,7 @@ public abstract class ProgramDefinition {
   }
 
   @JsonIgnore
-  public boolean isCommonIntakeForm() {
+  public boolean isPreScreenerForm() {
     return this.programType() == ProgramType.COMMON_INTAKE_FORM;
   }
 
@@ -903,6 +909,9 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
+
+    @JsonProperty("loginOnly")
+    public abstract Builder setLoginOnly(boolean loginOnly);
 
     @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);

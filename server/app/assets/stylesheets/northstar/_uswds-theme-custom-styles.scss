@@ -91,11 +91,18 @@ it is around the label */
   height: 85%;
 }
 
-// Checkbox question in the applicant form
-.cf-checkbox-question-input {
+// Checkboxes in the checkbox and map question types in the applicant form
+.cf-checkbox-question-input,
+.cf-location-checkbox-input {
   @include u-height('full');
   @include u-width('full');
   @include u-maxw('mobile-lg');
+}
+
+/* Style aria-disabled checkboxes to appear disabled */
+.cf-location-checkbox-input[aria-disabled='true'] + label {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /*
@@ -188,8 +195,12 @@ it is around the label */
 }
 
 // Tailwind removes list style from unordered and ordered lists.
-.usa-list {
+ul.usa-list {
   list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
 }
 
 .content-spacing {
@@ -695,6 +706,12 @@ main {
 }
 
 // Custom height for map question map container
+@include at-media('desktop') {
+  .cf-map-container {
+    min-height: 698px;
+  }
+}
+
 .cf-map-container {
   min-height: 400px;
 }
@@ -706,6 +723,11 @@ main {
 
 .maplibregl-popup-close-button {
   color: color('blue-60v');
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-weight: 700;
 }
 
 // Ensure MapLibre attribution links are underlined and styled consistently for accessibility
@@ -715,8 +737,42 @@ main {
 }
 
 // Map question filtering - hide filtered out locations
-.cf-location-hidden {
+.cf-filter-hidden {
   display: none;
+}
+
+// Map question pagination - hide locations not on current page
+.cf-pagination-hidden {
+  display: none;
+}
+
+// Map question tag alert - display when tagged locations are selected
+.cf-map-question-tag-alert-hidden {
+  display: none;
+}
+
+// Map question responsive behavior
+@include at-media-max('tablet') {
+  .cf-toggle-hidden {
+    display: none;
+  }
+}
+
+@include at-media('tablet') {
+  .toggle-buttons-container {
+    display: none;
+  }
+
+  // Ensure components are always visible on tablet and above when cf-toggle-hidden is present
+  .cf-map-container.cf-toggle-hidden,
+  .cf-locations-list.cf-toggle-hidden,
+  .cf-location-count.cf-toggle-hidden {
+    display: block;
+  }
+
+  .cf-pagination.cf-toggle-hidden {
+    display: flex;
+  }
 }
 
 .usa-button.cf-apply-filters-button,
@@ -728,4 +784,75 @@ main {
 .usa-pagination__item.cf-pagination-item {
   height: 2.75rem;
   min-width: 2.75rem;
+}
+
+.usa-button.usa-button--secondary.cf-select-location-button-clicked {
+  background-color: color('primary-darker');
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
+      no-repeat center;
+    background-size: contain;
+  }
+}
+
+/* When a file is being uploaded... */
+.cf-file-uploading {
+  /* Show the file uploading tag */
+  .cf-file-uploading-tag {
+    display: inline-block;
+  }
+
+  /* Apply disabled styling to any interactive elements */
+  .cf-disable-when-uploading {
+    @include u-bg('white');
+    @include u-text('base-light');
+    @include u-border('base-light');
+    @include u-border('1px');
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+// Toast notification styles
+// If you make any changes here, you should also update the toast styles in
+// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
+.cf-toast-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1.5rem;
+}
+
+.cf-toast-message {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
+  color: color('gray-cool-70');
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-cf-toast-alert {
+  background-color: #e5e7eb; // Tailwind gray-200
+}
+
+.bg-cf-toast-error {
+  background-color: #f87171; // Tailwind red-400
+}
+
+.bg-cf-toast-success {
+  background-color: #a7f3d0; // Tailwind green-200
+}
+
+.bg-cf-toast-warning {
+  background-color: color('yellow-10v');
+}
+
+.opacity-40:hover {
+  opacity: 1;
 }

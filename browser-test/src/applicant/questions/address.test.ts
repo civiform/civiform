@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('address applicant flow', {tag: ['@northstar']}, () => {
+test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
@@ -34,12 +34,9 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Validate page', async () => {
         await expectQuestionHasNoErrors(page, 0)
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'address',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'address', {
+          fullPage: false,
+        })
         await validateAccessibility(page)
       })
 
@@ -53,9 +50,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         )
 
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )
@@ -79,8 +74,9 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'address-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {
+            fullPage: false,
+          },
         )
 
         await validateAccessibility(page)
@@ -197,9 +193,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )
@@ -335,9 +329,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )

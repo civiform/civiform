@@ -1,12 +1,15 @@
 package views.applicant;
 
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import forms.EnumeratorQuestionForm;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,12 +20,15 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.MapQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
@@ -50,7 +56,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   NorthStarApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       FileUploadViewStrategy fileUploadViewStrategy,
       SettingsManifest settingsManifest,
@@ -60,7 +66,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
@@ -91,6 +97,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("homeUrl", index(applicationParams));
     context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
+    context.setVariable("loginOnly", applicationParams.loginOnly());
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    boolean isTi = applicationParams.profile().isTrustedIntermediary();
+    boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
+    context.setVariable("isGuest", isGuest);
 
     // Progress bar
     ProgressBar progressBar =
@@ -310,7 +321,25 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
               question.getQuestionDefinition().getName()));
     }
 
-    return maybeExistingGeoJsonDataRow.get().getGeoJson();
+    FeatureCollection geoJson = maybeExistingGeoJsonDataRow.get().getGeoJson();
+
+    // Preserve original IDs and selected state in properties because MapLibre
+    // only preserves properties when processing click events
+    MapQuestion mapQuestion = question.createMapQuestion();
+    List<Feature> geoJsonWithUpdatedProperties =
+        geoJson.features().stream()
+            .map(
+                feature -> {
+                  HashMap<String, String> updatedProperties = new HashMap<>(feature.properties());
+                  updatedProperties.put("originalId", feature.id());
+                  updatedProperties.put(
+                      "selected", String.valueOf(mapQuestion.locationIsSelected(feature.id())));
+                  return new Feature(
+                      feature.type(), feature.geometry(), updatedProperties, feature.id());
+                })
+            .collect(Collectors.toList());
+
+    return new FeatureCollection(geoJson.type(), geoJsonWithUpdatedProperties);
   }
 
   private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {

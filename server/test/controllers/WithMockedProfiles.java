@@ -7,6 +7,7 @@ import static play.inject.Bindings.bind;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
+import auth.ProfileTestFactory;
 import auth.ProfileUtils;
 import java.util.Collections;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class WithMockedProfiles {
 
   private static Injector injector;
   private static ProfileFactory profileFactory;
+  private static ProfileTestFactory profileTestFactory;
   protected static ResourceCreator resourceCreator;
   protected static Application app;
 
@@ -130,7 +132,7 @@ public class WithMockedProfiles {
     managedAccount.save();
     ti.setMemberOfGroup(group);
     ti.save();
-    CiviFormProfile profile = profileFactory.wrap(ti);
+    CiviFormProfile profile = profileTestFactory.wrapTi(ti);
     mockProfile(profile);
     return ti;
   }
@@ -141,7 +143,7 @@ public class WithMockedProfiles {
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
 
-    CiviFormProfile profile = profileFactory.wrap(programAdmin);
+    CiviFormProfile profile = profileTestFactory.wrap(programAdmin);
     mockProfile(profile);
     return programAdmin;
   }
@@ -164,6 +166,7 @@ public class WithMockedProfiles {
     resourceCreator = new ResourceCreator(injector);
     Helpers.start(app);
     profileFactory = injector.instanceOf(ProfileFactory.class);
+    profileTestFactory = new ProfileTestFactory(profileFactory);
     ProgramBuilder.setInjector(injector);
   }
 

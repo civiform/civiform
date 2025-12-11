@@ -44,6 +44,12 @@ type QuestionParams = {
   locationAddressKey?: string
   locationDetailsUrlKey?: string
   filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  tag?: {
+    key?: string | null
+    displayName?: string | null
+    value?: string | null
+    text?: string | null
+  }
   displayMode?: QuestionDisplayMode | null
 }
 
@@ -64,23 +70,6 @@ export enum PrimaryApplicantInfoAlertType {
   NOT_UNIVERSAL = '.cf-pai-not-universal-alert',
   TAG_SET = '.cf-pai-tag-set-alert',
   TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
-}
-
-// New question types are only supported in North Star
-export enum QuestionTypeLegacy {
-  ADDRESS = 'address',
-  CHECKBOX = 'checkbox',
-  CURRENCY = 'currency',
-  DATE = 'date',
-  DROPDOWN = 'dropdown',
-  EMAIL = 'email',
-  ID = 'id',
-  NAME = 'name',
-  NUMBER = 'number',
-  RADIO = 'radio',
-  TEXT = 'text',
-  ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file-upload',
 }
 
 export enum QuestionType {
@@ -156,7 +145,7 @@ export class AdminQuestions {
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }
@@ -578,82 +567,98 @@ export class AdminQuestions {
   }
 
   async addQuestionForType(
-    type: QuestionType | QuestionTypeLegacy,
+    type: QuestionType,
     questionName: string,
+    questionText?: string,
+    questionOptions?: {adminName: string; text: string}[],
   ) {
     switch (type) {
       case QuestionType.ADDRESS:
         await this.addAddressQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.CHECKBOX:
         await this.addCheckboxQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-            {adminName: 'op4_admin', text: 'op4'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+                {adminName: 'op4_admin', text: 'op4'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.CURRENCY:
         await this.addCurrencyQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.DATE:
-        await this.addDateQuestion({questionName})
+        await this.addDateQuestion({questionName, questionText: questionText})
         break
       case QuestionType.MAP:
-        await this.addMapQuestion({questionName})
+        await this.addMapQuestion({questionName, questionText: questionText})
         break
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.EMAIL:
-        await this.addEmailQuestion({questionName})
+        await this.addEmailQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ID:
-        await this.addIdQuestion({questionName})
+        await this.addIdQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NAME:
-        await this.addNameQuestion({questionName})
+        await this.addNameQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NUMBER:
         await this.addNumberQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.RADIO:
         await this.addRadioButtonQuestion({
           questionName,
-          options: [
-            {adminName: 'one_admin', text: 'one'},
-            {adminName: 'two_admin', text: 'two'},
-            {adminName: 'three_admin', text: 'three'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'one_admin', text: 'one'},
+                {adminName: 'two_admin', text: 'two'},
+                {adminName: 'three_admin', text: 'three'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.TEXT:
-        await this.addTextQuestion({questionName})
+        await this.addTextQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ENUMERATOR:
         await this.addEnumeratorQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.FILE_UPLOAD:
         await this.addFileUploadQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       default:
@@ -838,6 +843,7 @@ export class AdminQuestions {
     locationAddressKey = 'address',
     locationDetailsUrlKey = 'website',
     filters = null,
+    tag = {},
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -898,6 +904,29 @@ export class AdminQuestions {
             .nth(i)
             .fill(filter.displayName)
         }
+      }
+    }
+
+    // Configure tag if provided
+    if (tag != null) {
+      await this.page.getByRole('button', {name: 'Add tag'}).click()
+      if (tag.key != null) {
+        await this.page
+          .locator('select[name^="filters["]')
+          .nth(0)
+          .selectOption({value: tag.key})
+      }
+      if (tag.displayName != null) {
+        await this.page
+          .locator('input[name*="displayName"]')
+          .nth(0)
+          .fill(tag.displayName)
+      }
+      if (tag.value != null) {
+        await this.page.locator('input[name*="value"]').nth(0).fill(tag.value)
+      }
+      if (tag.text != null) {
+        await this.page.locator('input[name*="text"]').nth(0).fill(tag.text)
       }
     }
 

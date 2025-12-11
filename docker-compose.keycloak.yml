@@ -5,7 +5,7 @@ services:
   # container name in their /etc/hosts file for the web brower to load the auth url.
   # EG: 127.0.0.1 dev-oidc
   dev-oidc:
-    image: quay.io/keycloak/keycloak:26.3@sha256:2b32a51a31e8d780d9fa9a69a59ead69975263c61b5dd13559090e22aa26f100
+    image: quay.io/keycloak/keycloak:26.4@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
     ports:
       - 3390:3390
     environment:

@@ -6,7 +6,16 @@
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div
+      th:if="${applicationParams.loginOnly() and isGuest}"
+      class="grid-container padding-top-4"
+    >
+      <div
+        th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+      ></div>
+    </div>
     <main
+      th:if="${!applicationParams.loginOnly() or (applicationParams.loginOnly() and !isGuest)}"
       id="main-content"
       tabindex="-1"
       role="main"
@@ -68,7 +77,7 @@
               <div
                 th:text="#{label.uploading}"
                 role="alert"
-                class="cf-file-uploading-tag padding-1"
+                class="cf-file-uploading-tag display-none padding-1 bg-warning-lighter text-warning-dark"
               ></div>
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"

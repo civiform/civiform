@@ -1,334 +1,814 @@
-# Messages for Lao (ລາວ)
-# Exported from translatewiki.net
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=ອອກຈາກລະບົບ
+#  This appears before applicants select their preferred language.
 label.selectLanguage=ກະລຸນາເລືອກພາສາທີ່ທ່ານຕ້ອງການ.
 button.untranslatedSubmit=ສົ່ງ
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
 footer.aboutCiviform=ກ່ຽວກັບ CiviForm
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
+# Text in the footer telling users that this is an official website of the specified Civic entity.
 footer.officialWebsiteOf=ເວັບໄຊຢ່າງເປັນທາງການຂອງ {0}
+# Text on a link that will scroll to the top of the page
 footer.returnToTop=ກັບຄືນໄປຫາເທິງສຸດ
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
 footer.technicalSupport=ສຳລັບການຊ່ວຍເຫຼືອທາງເທັກນິກ ໃຫ້ປະຕິບັດດັ່ງນີ້: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
 footer.technicalSupport.v2=ສຳລັບການຊ່ວຍເຫຼືອທາງເທັກນິກ: ອີເມວ {0}
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
 guest=ແຂກ
+# Clicking this button shows a dropdown menu to change the display language
 button.languages=ເລືອກພາສາ
+# Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=ເລືອກພາສາ
+# A label on the button that opens the header menu shown on mobile
 header.menu=ເມນູ
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=ສິ້ນສຸດເຊດຊັນ
+# Message for screen readers as part of aria label to let user know about an informational alert.
 heading.informationAriaLabelPrefix=ເພື່ອເປັນຂໍ້ມູນສຳລັບທ່ານ: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=ສຳເລັດ: {0}
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
+# Message with user's name to show who you are logged in as.
 header.userName=ເຂົ້າສູ່ລະບົບໃນຖານະ {0} ແລ້ວ
+# Error message to answer a required question
 validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
+# Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
+# Error message announced to screen reader when there are errors on the current page.
 validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
+# Message displayed at the top of a question page denoting fields with a * are required.
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=ຊ່ອງຂໍ້ມູນທີ່ຈຳເປັນແມ່ນໝາຍດ້ວຍເຄື່ອງໝາຍດອກຈັນ ({0}).
 content.optional=(ບໍ່ບັງຄັບ)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
 button.close=ປິດ
+# Button text that will navigate the applicant to a page where they can review previous answers
 button.review=ກວດສອບ
+# Button text that will go back to the previous page.
 button.goBack=ກັບຄືນ
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=ເປີດໃນແຖບໃໝ່
+# Aria-label for the primary navigation
 label.primaryNavigation=ການນຳທາງຫຼັກ
+# Aria-label for agency identifier
 label.agencyIdentifier=ຕົວລະບຸຕົວແທນ,
+# Aria-label for guest session alert
 label.guestSessionAlert=ແຈ້ງເຕືອນຂໍ້ມູນໄລຍະເວລາຂອງແຂກ
+# Link to skip to the main content of the page
 link.skipToMainContent=ຂ້າມໄປຫາເນື້ອຫາຫຼັກ
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
 title.login=ເຂົ້າສູ່ລະບົບ
+# Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ {0} ຂອງທ່ານ
+# The text on the button an applicant clicks to create an account.
 button.createAnAccount=ສ້າງບັນຊີ
+# The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Applicant log in
+# The text on the button in the login drop down an admin clicks to log in to their session.
 button.adminLogin=Administrator log in
+# The text on the button an applicant clicks to log in to their session.
 button.login=ເຂົ້າສູ່ລະບົບ
+# The text on the button an applicant clicks to sign in to their session.
 button.signIn=ເຂົ້າສູ່ລະບົບ
+# Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=ບໍ່ມີບັນຊີບໍ?
+# The text between creating a new account, and becoming a guest
 content.or=ຫຼື
+# The text on the button for applicants to create a new account.
 button.createAccount=ສ້າງບັນຊີ
+# The text on the button for guests to log in to their session.
 button.guestLogin=ສືບຕໍ່ໃນຖານະແຂກ
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
 content.loginDisabledPrompt=ການເຂົ້າສູ່ລະບົບບັນຊີຖືກປິດການນຳໃຊ້ໃນປັດຈຸບັນ
+# The words leading up to the admin login anchor
 content.adminLoginPrompt=ກຳລັງຊອກຫາສິ່ງອື່ນຢູ່ບໍ?
+# Asking whether the user is an administrator for the program
 content.adminFooterPrompt=ທ່ານເປັນຜູ້ເບິ່ງແຍງລະບົບບໍ?
+# The text on the anchor for admins to log in to their session.
 link.adminLogin=ການເຂົ້າສູ່ລະບົບຂອງຜູ້ເບິ່ງແຍງ
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=ອັບໂຫຼດໄຟລ໌ແລ້ວ: {0}
+# Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=ເລືອກໄຟລ໌
+# Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
+# 2 or greater, representing the maximum number of files.
 input.multipleFileUploadHint=ເລືອກຢ່າງໜ້ອຍ 1 ໄຟລ໌ (ສູງສຸດ {0})
+# Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=ເລືອກຢ່າງໜ້ອຍ 1 ໄຟລ໌
+# The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=ລຶບ
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
 button.keepFile=ສືບຕໍ່
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
+# The button text for navigating to the previous screen in the form.
 button.previousScreen=ກ່ອນໜ້າ
+# The label on a button that will navigate the user to the previous section of the form.
 button.back=ກັບຄືນ
+# The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=ກວດສອບ ແລະ ສົ່ງ
+# The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ຂ້າມ
+# The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0} ຈາກທັງໝົດ {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
 content.blockProgressFull={0} ຈາກທັງໝົດ {1} ຄຳຖາມ
+# An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=ຄວາມຄືບໜ້າຂອງການສະໝັກ
+# Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=ກວດສອບ ແລະ ສົ່ງ
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງການນີ້ບໍ່ໄດ້ແປເປັນພາສາທີ່ທ່ານຕ້ອງການຢ່າງສົມບູນຄົບຖ້ວນ.
+# A link that logs out a guest user after they submit an application.
 link.allDone=ຂ້ອຍແລ້ວໆ
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
+# A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=ໜ້າຫຼັກ
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
 link.applicationForProgram=ແອັບພລິເຄຊັນສຳລັບ {0}
+# Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=ລຶບໄຟລ໌ອອກ
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr=ລຶບໄຟລ໌ {0} ອອກ
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເລີ່ມກວດສອບຫຼືບໍ່?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=ຄຳຖາມໃນໜ້ານີ້ບໍ່ສົມບູນ. ທ່ານຍັງຕ້ອງການອອກ ແລະ ເຂົ້າໄປໜ້າກ່ອນໜ້ານີ້ຫຼືບໍ່?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
 modal.errorSaving.review.content=ເກີດຂໍ້ຜິດພາດບາງຢ່າງຂຶ້ນກັບຂໍ້ມູນທີ່ທ່ານຕື່ມໃສ່. ທ່ານຕ້ອງການຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ ຫຼື ກັບໄປໜ້າຄຳຕິຊົມໂດຍບໍ່ບັນທຶກຄຳຕອບຂອງທ່ານ?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
 modal.errorSaving.previous.content=ເກີດຂໍ້ຜິດພາດບາງຢ່າງຂຶ້ນກັບຂໍ້ມູນທີ່ທ່ານຕື່ມໃສ່. ທ່ານຕ້ອງການຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ ຫຼື ກັບໄປໜ້າຄຳຖາມກ່ອນໜ້າໂດຍບໍ່ບັນທຶກຄຳຕອບຂອງທ່ານ?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
 modal.errorSaving.review.noSaveButton=ສືບຕໍ່ໄປຫາໜ້າຄຳຕິຊົມໂດຍບໍ່ບັນທຶກ
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
 modal.errorSaving.previous.noSaveButton=ສືບຕໍ່ໄປຫາຄຳຕອບກ່ອນໜ້າໂດຍບໍ່ບັນທຶກ
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=ຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=ຄຳຕອບບາງສ່ວນໃນໜ້ານີ້ຕ້ອງໄດ້ຮັບການແກ້ໄຂ
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
 modal.errorSaving.content.review=ໜ້ານີ້ໃນໃບສະໝັກຂອງທ່ານມີຂໍ້ຜິດພາດບາງຢ່າງ ຫຼື ຊ່ອງຂໍ້ມູນບາງຊ່ອງຫວ່າງເປົ່າ. ຫາກທ່ານສືບຕໍ່ໄປຫາໜ້າກວດສອບ, ຂໍ້ມູນໃດກໍຕາມທີ່ລະບຸໃນໜ້ານີ້ຈະບໍ່ໄດ້ຮັບການບັນທຶກຈົນກວ່າຈະແກ້ໄຂຂໍ້ຜິດພາດ.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
 modal.errorSaving.content.previous=ໜ້ານີ້ໃນໃບສະໝັກຂອງທ່ານມີຂໍ້ຜິດພາດບາງຢ່າງ ຫຼື ຊ່ອງຂໍ້ມູນບາງຊ່ອງຫວ່າງເປົ່າ. ຫາກທ່ານສືບຕໍ່ໄປຫາໜ້າກ່ອນໜ້າ, ຂໍ້ມູນໃດກໍຕາມທີ່ລະບຸໃນໜ້ານີ້ຈະບໍ່ໄດ້ຮັບການບັນທຶກຈົນກວ່າຈະແກ້ໄຂຂໍ້ຜິດພາດ.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
 modal.errorSaving.continueButton.review=ເຂົ້າໄປໜ້າກວດສອບໂດຍບໍ່ຕ້ອງບັນທຶກ
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
 modal.errorSaving.continueButton.previous=ເຂົ້າໄປໜ້າກ່ອນໜ້າໂດຍບໍ່ຕ້ອງບັນທຶກ
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
 modal.errorSaving.fixButton=ຢູ່ໜ້ານີ້ຕໍ່ ແລະ ແກ້ໄຂຄຳຕອບຂອງທ່ານ
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
 button.apply=ສະໝັກ
+# The text read for screen readers.
 button.applySr=ສະໝັກ {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=ແກ້ໄຂ
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=ແກ້ໄຂໃບສະໝັກທີ່ສົ່ງຫາ {0}
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=ສືບຕໍ່ສະໝັກ {0}
+# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ເລີ່ມຕົ້ນບ່ອນນີ້
+# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=ເລີ່ມເຮັດແບບສຳຫຼວດ
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=ເບິ່ງ ແລະ ນຳໃຊ້
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=ເບິ່ງ ແລະ ນຳໃຊ້ກັບ {0}
+# The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=ເບິ່ງໃນແຖບໃໝ່
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
 button.viewInNewTabSr=View {0} ໃນແຖບໃໝ່
+# The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ສືບຕໍ່ສະໝັກ
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHerePreScreenerSr=ເລີ່ມຕົ້ນບ່ອນນີ້ໂດຍການຕື່ມຂໍ້ມູນ {0}
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr=ແກ້ໄຂຂໍ້ມູນທີ່ສົ່ງສຳລັບ {0}
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continuePreScreenerSr=ສືບຕໍ່ຕື່ມຂໍ້ມູນ {0}
+# Text describing the date the application was last submitted.
 content.submittedDate=ສົ່ງ {0} ແລ້ວ
+# Text for applicants to understand the section is for finding programs
 content.findPrograms=ຊອກຫາໂຄງການ
+# Long form description of the CiviForm site shown to the applicant.
 content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາໂຄງການທີ່ທ່ານອາດມີສິດຮັບໃນ {0}. ເລີ່ມຕົ້ນໂດຍເລືອກໃບສະໝັກທາງລຸ່ມ.
+# Title for programs page when applicant is not logged in
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
+# Main home page heading
 heading.homepage=ສະໝັກຮັບຄວາມຊ່ວຍເຫຼືອຈາກລັດຖະບານຢູ່ບ່ອນນີ້
+# Main home page heading, updated to be more generic
 heading.homepage.v2=ນຳໃຊ້ສຳລັບໂປຣແກຣມອອນລາຍຂອງລັດຖະບານ
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
+# Main home page intro text
 content.homepageIntro=ເພື່ອຮັບຄວາມຊ່ວຍເຫຼືອກ່ຽວກັບອາຫານ, ການຂົນສົ່ງ, ການເບິ່ງແຍງເດັກນ້ອຍ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ, ກະລຸນາຄລິກຕົວເລືອກໃດໜຶ່ງລຸ່ມນີ້. ທ່ານສາມາດສະໝັກໄດ້ເທື່ອລະໂຄງການ.
+# Main home page intro text, updated to be more generic
 content.homepageIntro.v2=ຄົ້ນພົບບໍລິການທີ່ທ່ານອາດມີສິດ. CiviForm ຈະໃຊ້ຂໍ້ມູນຂອງທ່ານຄືນໃໝ່ເພື່ອຊ່ວຍທ່ານເຂົ້າເຖິງພວກມັນໄດ້ໄວຂຶ້ນ.
+# The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
+# The label for the program filter checkboxes
 label.programFilters.v2=ທ່ານຕ້ອງການຄວາມຊ່ວຍເຫຼືອໃນເລື່ອງໃດ?
+# The button to apply program filters
 button.applySelections=ນຳໃຊ້ລາຍການທີ່ເລືອກ
+# The button to clear program filter selections
 button.clearSelections=ລຶບລ້າງລາຍການທີ່ເລືອກ
+# Link text to read more about a program.
 link.programDetails=ລາຍລະອຽດໂຄງການ
+# The same text, read for screen readers.
 link.programDetailsSr=ລາຍລະອຽດໂຄງການສຳລັບ {0}, ເປີດໃນແຖບໃໝ່
+# The title of the page for the list of programs.
 title.programs=ໂຄງການ ແລະ ບໍລິການ
+# The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=ເລີ່ມຕົ້ນ
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=ໂຄງການທັງໝົດ ({0})
+# For the badge on the program list index denoting the current status of an application
 title.status=ສະຖານະ
+# Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
+# Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
+# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=ຊອກຫາບໍລິການ
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection.v2=ແອັບພລິເຄຊັນຂອງຂ້ອຍ
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການອື່ນໆ ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
 title.availableProgramsSection=ໂຄງການ ແລະ ບໍລິການ
+# Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=ໂປຣແກຣມທີ່ອີງຕາມການເລືອກຂອງທ່ານ ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ພາກສ່ວນທີ່ສຳເລັດແລ້ວ
+# Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=ສົ່ງແລ້ວ
+# Alert banner when an application was successfully saved, with the ID of the application.
 toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດແລ້ວ: ລະຫັດໃບສະໝັກ {0}
+# Alert banner when an application was already completed
 toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
+# Informational tag on an in-progress application card
 label.inProgress=ບໍ່ທັນສົ່ງ
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
 label.submitted=ສົ່ງແລ້ວ
+# Informational tag on a submitted application card. The parameter is the date of the submission.
 label.submittedOn=ສົ່ງເມື່ອ {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} ເມື່ອ {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
 title.externalProgramModal=ນີ້ຈະເປີດເວັບໄຊອື່ນ
+# Content of the external program modal that opens when a user clicks on an external program card.
 content.externalProgramModal=ໄປຫາເວັບໄຊຂອງໂປຣແກຣມເຊິ່ງທ່ານຈະສາມາດເບິ່ງລາຍລະອຽດເພີ່ມເຕີມ ແລະ ສະໝັກໄດ້, ຄລິກດຳເດີນການຕໍ່
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
 banner.acctDeleteError=ບໍ່ສາມາດລຶບບັນຊີນີ້ໄດ້.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
 banner.acctDeleteErrorReason=ບໍ່ສາມາດລຶບບັນຊີນີ້ໄດ້ເນື່ອງຈາກມີແອັບພລິເຄຊັນເປີດຢູ່.
+# Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=ອັບເດດຂໍ້ມູນລູກຂ່າຍສຳເລັດແລ້ວ.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
 banner.clientAcctDeleted=ລຶບບັນຊີລູກຂ່າຍສຳລັບ "{0}" ສຳເລັດແລ້ວ.
+# Message when a user successfully creates a client account.
 banner.newClientCreated=ສ້າງລູກຂ່າຍໃໝ່ສຳເລັດແລ້ວ.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
 banner.viewApplication=ທ່ານກຳລັງສະໝັກ {0}. ທ່ານກຳລັງສະໝັກໃຫ້ກັບລູກຂ່າຍຄົນອື່ນບໍ?
+
+
+# Button that allows a user to add a client to the CiviForm system.
 button.addNewClient=ເພີ່ມລູກຂ່າຍໃໝ່
+# Button that brings the user back to the list of their clients.
 button.backToClientList=ກັບຄືນໄປຫາລາຍຊື່ລູກຂ່າຍ
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
 button.backToEditing=ກັບຄືນໄປຫາການແກ້ໄຂ
+# Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=ຍົກເລີກ
+# Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=ລຶບລ້າງການຊອກຫາ
+# Button for a user to delete their client's account
 button.deleteAcct=ລຶບບັນຊີ
+# Button option when asked if the user is sure they want to delete an account.
 button.keepAcct=ຮັກສາບັນຊີໄວ້
+# Button to navigate to the next page.
 button.nextPage=ຕໍ່ໄປ
+# Button to save information that has been entered.
 button.save=ບັນທຶກ
+# Button to execute a search to filter a client list.
 button.search=ຊອກຫາ
+# Button to select a client.
 button.select=ເລືອກ
+# Button to start an application on behalf of a client.
 button.startApp=ເປີດແອັບພລິເຄຊັນ
+# Button to view the applications belonging to an applicant.
 button.viewApplications=ເບິ່ງແອັບພລິເຄຊັນ
+# Button to view and add clients
 button.viewAndAddClients=ເບິ່ງ ແລະ ເພີ່ມລູກຂ່າຍ
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=ເພີ່ມ {0} ລູກຂ່າຍໃໝ່ຂອງທ່ານໃສ່ໃນລາຍຊື່ລູກຂ່າຍຂອງທ່ານແລ້ວ. ຕອນນີ້ທ່ານສາມາດເລີ່ມສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້ໄດ້ແລ້ວ.
+# The tooltip of the email input field.
 content.emailTooltip=ເພີ່ມທີ່ຢູ່ອີເມວສຳລັບລູກຂ່າຍຂອງທ່ານເພື່ອຮັບການອັບເດດສະຖານະກ່ຽວກັບໃບສະໝັກຂອງເຂົາເຈົ້າໂດຍອັດຕະໂນມັດ. ຫາກບໍ່ມີອີເມວ, ທ່ານ ຫຼື ອົງກອນໃນຊຸມຊົນຂອງທ່ານຈະຕ້ອງຮັບຜິດຊອບໃນການສື່ສານຂໍ້ມູນອັບເດດໄປໃຫ້ລູກຂ່າຍຂອງທ່ານ.
+# For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ແອັບພລິເຄຊັນທີ່ສົ່ງແລ້ວ
+# Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=ສົ່ງໃບສະໝັກແລ້ວ 1 ລາຍການ
+# Some explanation text on the confirmation modal when deleting a client.
 content.warning=ບໍ່ມີການສົ່ງແອັບພລິເຄຊັນສຳລັບລູກຂ່າຍຄົນນີ້, ດັ່ງນັ້ນຈະບໍ່ມີແອັບພລິເຄຊັນໃດສູນຫາຍ.
+# Shows there is no email address connected to the account.
 content.noEmailAddress=(ບໍ່ມີທີ່ຢູ່ອີເມວ)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=ຍັງບໍ່ໄດ້ເຂົ້າສູ່ລະບົບ
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
 content.noApplications=ເຂົ້າສູ່ລະບົບແລ້ວ, ແຕ່ຍັງບໍ່ໄດ້ສົ່ງໃບສະໝັກ
+# The status of an organization member showing the date of the last application that they submitted for a client.
 content.lastApplicationDate=ສົ່ງໃບສະໝັກເທື່ອຫຼ້າສຸດເມື່ອວັນທີ {0}
+# Confirmation modal text when the user tries to delete a client account.
 dialog.deleteConfirmation=ທ່ານໝັ້ນໃຈບໍ່ວ່າຕ້ອງການລຶບບັນຊີຂອງລູກຂ່າຍຄົນນີ້ອອກ?
+
+# Header for the page with the Organization Members table.
 header.acctSettings=ການຕັ້ງຄ່າບັນຊີ
+# Tab label for getting to the client list page
 header.clientList=ລາຍຊື່ລູກຂ່າຍ
+# Label for search
 header.search=ຊອກຫາ
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
 label.acctStatus=ສະຖານະບັນຊີ
+# Label above the phone number for each client on the client list.
 label.contactInfo=ຂໍ້ມູນການຕິດຕໍ່
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
 label.day=ມື້
+# Label above the birth date input field when creating or editing a client
 label.dob=ວັນເດືອນປີເກີດ
+# Example above the 3 birth date input fields (Month, Day, Year).
 label.dobExample=ຕົວຢ່າງ: 28 ມັງກອນ 1986
+# Label above the "Email" column of the community-based organization members table.
 label.email=ອີເມວ
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
 label.errorDOB=ຕ້ອງລະບຸວັນເດືອນປີເກີດ
+# Validation error message below first name input when the TI clicks on save without filling out the field.
 label.errorFirstName=ຕ້ອງລະບຸຊື່
+# Validation error message below last name input when the TI clicks on save without filling out the field.
 label.errorLastName=ຕ້ອງລະບຸນາມສະກຸນ
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
 label.errorEmailInUseForClientCreate=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດສ້າງຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
 label.errorEmailInUseForClientEdit=ມີການໃຊ້ທີ່ຢູ່ອີເມວນີ້ແລ້ວ. ບໍ່ສາມາດອັບເດດຜູ້ສະໝັກໄດ້ຫາກມີບັນຊີຢູ່ແລ້ວ.
+# The label above the dropdown select field for the month of the client birth date.
 label.month=ເດືອນ
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
 label.name=ຊື່
+# Example above the name input field for the client search.
 label.nameExample=ຕົວຢ່າງ: Gu ຫຼື Darren ຫຼື Darren Gu
+# Label above the text input field for notes about a client.
 label.notes=ໝາຍເຫດ
+# Label above the phone number input field when creating or editing a client.
 label.phoneNum=ເບີໂທລະສັບ
+# The label above the Date of Birth search input for the client search.
 label.searchByDob=ຊອກຫາຕາມວັນເດືອນປີເກີດ
+# The label above the name search field of the client search.
 label.searchByName=ຊອກຫາຕາມຊື່
+# The label above the input field for the year of the client birth date.
 label.year=ປີ
+# Label showing the user when there is no name
 label.unnamedUser=ຜູ້ໃຊ້ທີ່ບໍ່ມີຊື່
+
+# Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=ເລືອກລູກຂ່າຍຄົນໃໝ່
+
+# This is the header above the list of clients and the client search.
 title.allClients=ລູກຂ່າຍທຸກຄົນ
+# This is the heading above a new client creation form.
 title.createClient=ສ້າງລູກຂ່າຍໃໝ່
+# This is the heading above the client editing form.
 title.editClient=ແກ້ໄຂຂໍ້ມູນລູກຂ່າຍ
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
 title.displayingMultiClients=ສະແດງລູກຂ່າຍ {0} ຄົນ
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
 title.displayingOneClient=ສະແດງລູກຂ່າຍ 1 ຄົນ
+# This is the heading above an unfiltered list of clients.
 title.displayingAllClients=ກຳລັງສະແດງລູກຂ່າຍທຸກຄົນ
+# This is the heading above a table that contains the members of the current community-based organization.
 title.orgMembers=ສະມາຊິກຂອງອົງກອນ
+# HTML document title for the trusted intermediary dashboard page
 title.tiDashboard=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ຈັດການລູກຂ່າຍ - CiviForm
+# HTML document title for the trusted intermediary account settings page
 title.tiAccountSettings=ຕົວກາງທີ່ເຊື່ອຖືໄດ້ - ເບິ່ງການຕັ້ງຄ່າບັນຊີ - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
 button.submit=ສົ່ງ
+# Submit application button
 button.submitApplication=ສົ່ງໃບສະໝັກ
+# Continue application button
 button.continue=ສືບຕໍ່
+# Button text on a button that will allow the user to start filling out a section of questions.
 button.start=ເລີ່ມ
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
 content.reviewPageIntro=ເລືອກຂັ້ນຕອນລຸ່ມນີ້ເພື່ອເລີ່ມຕື່ມຂໍ້ມູນແອັບພລິເຄຊັນຂອງທ່ານ. ທ່ານສາມາດບັນທຶກ ແລະ ກັບຄືນມາໄດ້ທຸກເວລາ.
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=ຂາດຄຸນສົມບັດ
+# The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=ແກ້ໄຂ
 link.answer=ຄຳຕອບ
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=ຕອບກ່ອນໜ້ານີ້ເມື່ອ {0}
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=ຕອບ {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=ແກ້ໄຂ {0}
+# Title for the summary of the pre-screener page
 title.preScreenerSummary=ສະຫຼຸບສິດທິປະໂຫຍດກວດສອບລ່ວງໜ້າ
+# Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=ມາເລີ່ມກັນເລີຍ.
 title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - ພາບຮວມໂປຣແກຣມ
+# Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=ວິທີສະໝັກ
+# Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=ສະໝັກເຂົ້າຮ່ວມໂຄງການ {0}
+# The text on the button that takes users to the account creation form.
 link.createAccountFromOverview=ເລີ່ມຕົ້ນການສະໝັກໂດຍໃຊ້ບັນຊີ
+# The link that directs users to the start of the application without creating an account.
 link.startAsGuest=ເລີ່ມຕົ້ນການສະໝັກໃນຖານະແຂກ
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Tab title for ineligible page
 title.ineligible=ບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການ
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
 title.applicantNotEligibleTi=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+# Section heading
 heading.eligibilityCriteria=ຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບຄວາມຕ້ອງການໃນການມີສິດໃຊ້
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=ສຳລັບເກນການມີສິດ ກະລຸນາເຂົ້າເບິ່ງ {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=ເພື່ອສຶກສາເພີ່ມເຕີມກ່ຽວກັບກົດລະບຽບການມີສິດຂອງໂຄງການນີ້ ຫຼື ຕິດຕໍ່ທີມງານໂຄງການໂດຍກົງ, ກະລຸນາເບິ່ງ {0}.
 content.eligibilityCriteria.v3=ເພື່ອສຶກສາເພີ່ມເຕີມກ່ຽວກັບກົດລະບຽບການມີສິດຂອງໂຄງການນີ້ ຫຼື ຕິດຕໍ່ທີມງານໂຄງການໂດຍກົງ, ກະລຸນາເບິ່ງ {0} (ເປີດໃນແຖບໃໝ່).
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=ທ່ານສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້າເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້. ຫຼື ສະໝັກໂຄງການອື່ນ.
+# Text shown on a webpage when the applicant is ineligible for a program.
 content.changeAnswersForEligibility.v2=ຫາກທ່ານຄິດວ່າມີຄວາມຜິດພາດເກີດຂຶ້ນ, ທ່ານສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້າເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້. ນອກຈາກນີ້, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າຫຼັກເພື່ອສະໝັກໂຄງການອື່ນໄດ້ນຳ.
+# Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=ກັບຄືນ ແລະ ແກ້ໄຂ
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=ແກ້ໄຂຄຳຕອບຂອງຂ້ອຍ
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
 toast.mayQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=ທ່ານອາດມີຄຸນສົມບັດ
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayQualifyTi=ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດ
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
 tag.mayNotQualify=ທ່ານອາດຂາດຄຸນສົມບັດ
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດ
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayNotQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
+
+# Error when there was an exception while submitting the application
 banner.errorSavingApplication=ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກໃບສະໝັກ
+
+# Alert title when applicant may be eligible for a program
 alert.eligibility_applicant_eligible_title=ທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may be eligible for a program
 alert.eligibility_applicant_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_title=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
 alert.eligibilityApplicantNotEligibleTextShort=ອີງຕາມຄຳຕອບຂອງທ່ານຕໍ່ຄຳຖາມຕໍ່ໄປນີ້, ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=ທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_title=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ອີກຕໍ່ໄປ
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when TI client may be eligible for a program
 alert.eligibility_ti_eligible_title=ລູກຄ້າຂອງທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may be eligible for a program
 alert.eligibility_ti_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ, ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານແລ້ວດຳເນີນການສະໝັກຕໍ່ໄດ້.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
 alert.eligibilityTiNotEligibleTextShort=ອີງຕາມຄຳຕອບຂອງທ່ານຕໍ່ຄຳຖາມຕໍ່ໄປນີ້, ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=ລູກຄ້າຂອງທ່ານອາດມີສິດເຂົ້າຮ່ວມໂຄງການນີ້
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງລູກຄ້າຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ອີກຕໍ່ໄປ
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງລູກຄ້າຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=ທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
 alert.likelyIneligible=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
 alert.clientLikelyEligible=ລູກຂ່າຍຂອງທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
 alert.clientLikelyIneligible=ລູກຂ່າຍຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
 title.applicationConfirmation=ການຢືນຢັນການສະໝັກ
+# A confirmation message that shows after an applicant has submitted their application.
 content.confirmed=ຂໍຂອບໃຈສຳລັບການສະໝັກເຂົ້າຮ່ວມ {0}.  ໄດ້ຮັບໃບສະໝັກຂອງທ່ານແລ້ວ ແລະ ລະຫັດການສະໝັກຂອງທ່ານແມ່ນ {1}.
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# The title of a pop-up informing an applicant to sign in before continuing with the application
 title.signInModal=ເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=ທ່ານສາມາດກວດສອບສະຖານະຂອງໃບສະໝັກ, ດຳເນີນການປ່ຽນແປງໃນໃບສະໝັກ ແລະ ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວເມື່ອທ່ານສ້າງບັນຊີ.
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີເພື່ອບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້. ທ່ານຈະສາມາດກັບຄືນມາໄດ້ທຸກເວລາເພື່ອຕື່ມໃບສະໝັກໃຫ້ຄົບຖ້ວນໃນອະນາຄົດ. ຫາກທ່ານຍັງບໍ່ມີບັນຊີ, ໜ້າເຂົ້າສູ່ລະບົບຈະອະນຸຍາດໃຫ້ທ່ານລົງທະບຽນ ແລະ ທ່ານຈະບໍ່ສູນເສຍຂໍ້ມູນໃດກໍຕາມທີ່ທ່ານເຄີຍປ້ອນໄປແລ້ວ.
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.generalLoginModalPrompt=ທ່ານບໍ່ໄດ້ເຂົ້າສູ່ລະບົບບັນຊີ. ຫາກບໍ່ມີບັນຊີ, ທ່ານຈະບໍ່ສາມາດແກ້ໄຂໃບສະໝັກ, ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານ ຫຼື ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວ.
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=ກ່ອນທ່ານສືບຕໍ່, ໃຫ້ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ. ທ່ານຈະສາມາດສະໝັກຫຼາຍໂຄງການໄດ້ໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດແກ້ໄຂໃບສະໝັກ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້.
+# A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=ສືບຕໍ່ໂດຍບໍ່ຕ້ອງມີບັນຊີ
 title.preScreenerConfirmation=ໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=ໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=ທ່ານອາດຈະສາມາດລົງທະບຽນໃນໂຄງການເຫຼົ່ານີ້ໄດ້ ຫາກທ່ານສະໝັກຜ່ານໃບສະໝັກທາງອອນລາຍໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.
+# A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=ອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດມີຄຸນສົມບັດສຳລັບໂປຣແກຣມຕໍ່ໄປນີ້:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmationTi=ລູກຄ້າຂອງທ່ານອາດຈະສາມາດລົງທະບຽນໃນໂຄງການເຫຼົ່ານີ້ໄດ້ ຫາກທ່ານສະໝັກຜ່ານໃບສະໝັກທາງອອນລາຍໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
 content.preScreenerConfirmationTi.v2=ອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດສຳລັບໂປຣແກຣມຕໍ່ໄປນີ້:
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.preScreenerNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
+# A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=ດາວໂຫຼດໃບສະໝັກຂອງທ່ານ
 button.downloadPdf=ດາວໂຫຼດ PDF
+# A button prompting users to apply to programs.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
+# Heading above a section showing the user's name, confirmation number, and date
 heading.yourSubmissionInformation=ລາຍລະອຽດຂອງໃບສະໝັກຂອງທ່ານ
+# Text above the name of the person who submitted this application
 heading.applicantName=ໃຜເປັນຄົນສົ່ງໃບສະໝັກນີ້
+# Text above the confirmation number of the application
 heading.confirmationNumber=ໝາຍເລກການຢືນຢັນ
+# Text above the date submitted of the application
 heading.dateSubmitted=ວັນທີທີ່ສົ່ງ
+# Text above a message telling the user they can print this page
 heading.forYourRecords=ການຢືນຢັນເພື່ອຮັກສາໄວ້ເປັນຂໍ້ມູນອ້າງອີງຂອງທ່ານ
+# Text above a button to print this page
 content.youCanPrint=ທ່ານສາມາດພິມການຢືນຢັນນີ້ເພື່ອຮັກສາໄວ້ເປັນຂໍ້ມູນອ້າງອີງຂອງທ່ານໄດ້.
+# Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ຂັ້ນຕອນຕໍ່ໄປຂອງຂ້ອຍແມ່ນຫຍັງ?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂອງທ່ານແລ້ວ {0} ລາຍການ
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=To access your application later, you must create an account
+# Informational "alert" title to encourage the user to create an account
 alert.createAccount=ເພື່ອເຂົ້າເຖິງໃບສະໝັກຂອງທ່ານໃນພາຍຫຼັງ, ໃຫ້ສ້າງບັນຊີ
+# Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=ທ່ານສາມາດກວດສອບສະຖານະຂອງໃບສະໝັກຂອງທ່ານ ແລະ ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວເມື່ອທ່ານບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້ໃນບັນຊີ.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
 alert.noProgramsAvailable=ທ່ານໄດ້ເລີ່ມຕົ້ນ ຫຼື ຍື່ນໃບສະໝັກສຳລັບໂຄງການທັງໝົດທີ່ເປີດຢູ່ໃນເວລານີ້ແລ້ວ.
+# Hyperlink to log in to an existing account
 content.loginToExistingAccount=ເຂົ້າສູ່ລະບົບບັນຊີທີ່ມີຢູ່ແລ້ວ
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=You must log in to apply for this program
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
 title.noChangesToSave=ບໍ່ມີການປ່ຽນແປງທີ່ຈະບັນທຶກສຳລັບ {0}
 content.noChanges=ທ່ານຍັງບໍ່ໄດ້ດຳເນີນການປ່ຽນແປງໃດໆຕໍ່ກັບໃບສະໝັກເທື່ອ. ທ່ານຕ້ອງການສືບຕໍ່ແກ້ໄຂບໍ?
 button.continueEditing=ສືບຕໍ່ແກ້ໄຂ
 button.exitApplication=ອອກຈາກໃບສະໝັກ
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
 title.programNotAvailable=ບໍ່ສາມາດເຂົ້າເຖິງໂຄງການນີ້ໄດ້ອີກຕໍ່ໄປ
+# Info stating program disabled and see home page for other options.
 content.disabledProgramInfo=ຂໍອະໄພ, ໂຄງການທີ່ທ່ານພະຍາຍາມເຂົ້າເຖິງໄດ້ຖືກປິດການນຳໃຊ້ແລ້ວ. ເພື່ອຊອກຫາໂຄງການເພີ່ມເຕີມ, ກະລຸນາກັບຄືນໄປຫາໜ້າຫຼັກ.
+# Button text on a button that takes the user back to the home page.
 button.homePage=ກັບຄືນໄປຫາໜ້າຫຼັກ
+
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Back to edit {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=program settings
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Screen is
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Applicant is eligible if
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=conditions are true:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Condition is true if
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=sub-conditions are true:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Question
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Field
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=State
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=Value(s)
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Select -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=and
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Add condition
+# Button to remove a condition from the form
+button.predicateDeleteCondition=Delete condition
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Add sub-condition
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=Delete sub-condition
+# Link to go back to the top of the page
+link.backToTop=Back to top
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=Save and exit
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=ອະພາດເມັນ, ຫ້ອງຊຸດ ແລະ ອື່ນໆ. (ບໍ່ບັງຄັບ)
 label.city=ເມືອງ
 label.state=ລັດ
 label.selectState=ເລືອກລັດ
 label.street=ທີ່ຢູ່
 label.zipcode=ລະຫັດ ZIP
+
+# Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=ກະລຸນາໃສ່ຊື່ ແລະ ໝາຍເລກຖະໜົນທີ່ຖືກຕ້ອງ.
 validation.cityRequired=ກະລຸນາໃສ່ເມືອງ.
 validation.currencyMisformatted=ສະກຸນເງິນຕ້ອງເປັນໜຶ່ງໃນຮູບແບບຕໍ່ໄປນີ້: 1000 1,000 1000.30 1,000.30
 validation.stateRequired=ກະລຸນາໃສ່ລັດ.
 validation.invalidZipcode=ກະລຸນາໃສ່ລະຫັດ ZIP 5 ຕົວເລກທີ່ຖືກຕ້ອງ.
 validation.noPoBox=ກະລຸນາໃສ່ທີ່ຢູ່ທີ່ຖືກຕ້ອງ. ພວກເຮົາບໍ່ຮັບຂໍ້ມູນຕູ້ໄປສະນີ.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=ຢືນຢັນທີ່ຢູ່ຂອງທ່ານ
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=ພວກເຮົາບໍ່ພົບທີ່ຢູ່ຂອງທ່ານ.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=ກະລຸນາກວດສອບການສະກົດທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ໃຫ້ໄວ້.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
 content.noValidAddressLine2=ກະລຸນາກວດສອບການສະກົດທີ່ຢູ່ຂອງທ່ານ ແລະ ແກ້ໄຂເພື່ອສືບຕໍ່.
+# Heading for showing the user the address they provided earlier
 content.addressEntered=ທີ່ຢູ່ທີ່ທ່ານໄດ້ລະບຸ:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
 button.confirmAddress=ຢືນຢັນທີ່ຢູ່
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=ເລືອກຕົວເລືອກ:
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
 label.countryCode=ປະເທດ
 label.phoneNumber=ໃສ່ເບີໂທລະສັບ
 validation.phoneNumberRequired=ຕ້ອງລະບຸເບີໂທລະສັບ
@@ -336,146 +816,444 @@ validation.phoneCountryCodeRequired=ຕ້ອງເລືອກປະເທດ
 validation.phoneNumberMustContainNumbersOnly=ເບີໂທລະສັບບໍ່ສາມາດມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກໄດ້
 validation.invalidPhoneNumberProvided=ເບີໂທລະສັບນີ້ບໍ່ຖືກຕ້ອງ
 validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ່ານລະບຸບໍ່ໄດ້ເປັນຂອງປະເທດດັ່ງກ່າວ
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
 validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບທີ່ຖືກຕ້ອງ
+# Date cannot be over specified years in past.
 validation.dateBeyondAllowablePast=ກະລຸນາໃສ່ວັນທີໃນ {0} ປີທີ່ຜ່ານມາ
+# Date cannot be over specified years in future.
 validation.dateBeyondAllowableFuture=ກະລຸນາໃສ່ວັນທີໜ້ອຍກວ່າ {0} ປີໃນອະນາຄົດ
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
 validation.futureDateRequired=ວັນທີຕ້ອງເປັນວັນທີຫຼັງຈາກມື້ນີ້
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
 validation.dateTooFarInPast=ວັນທີຕ້ອງເປັນຫຼັງຈາກ {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
 validation.pastDateRequired=ວັນທີຕ້ອງເປັນວັນທີກ່ອນມື້ນີ້
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
 validation.dateTooFarInFuture=ວັນທີຕ້ອງເປັນກ່ອນ {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
 validation.dateNotInRange=ວັນທີຕ້ອງຢູ່ລະຫວ່າງ {0} ແລະ {1}
 validation.currentDateRequired=ກະລຸນາໃສ່ວັນທີມື້ນີ້
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - ມັງກອນ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.February=02 - ກຸມພາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.March=03 - ມີນາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.April=04 - ເມສາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.May=05 - ພຶດສະພາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.June=06 - ມິຖຸນາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.July=07 - ກໍລະກົດ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.August=08 - ສິງຫາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.September=09 - ກັນຍາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.October=10 - ຕຸລາ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.November=11 - ພະຈິກ
+# A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.December=12 - ທັນວາ
+# A placeholder for the month dropdown menu when selecting a specific date.
 placeholder.memorableDate=ເລືອກ
+# An error message that appears when the user tries to search by date without completing all the fields.
 error.incompleteDate=ຂໍ້ຜິດພາດ: ກະລຸນາລະບຸເດືອນ, ວັນທີ ແລະ ປີ.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
 validation.dobNotInPast=ວັນເດືອນປີເກີດຕ້ອງແມ່ນວັນທີໃນອະດີດ
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
 validation.impossibleDob=ວັນເດືອນປີເກີດຕ້ອງໜ້ອຍກວ່າ 150 ປີທີ່ຜ່ານມາ
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
 button.addEntity=ເພີ່ມ {0}
+# Text on a button an applicant would click to delete an entity
 button.removeEntity=ລຶບ {0} ອອກ
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
 dialog.confirmDeleteAllButtonsSave=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ເມື່ອທ່ານຄລິກ "ກວດສອບ", "ກ່ອນໜ້າ" ຫຼື "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນຫາຍ.
 validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
+# Validation error that shows when an applicant uses a duplicate entity name
 validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
 validation.tooManyEntities=ກະລຸນາໃສ່ສູງສຸດ {0} ຄ່າ.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
 validation.tooFewEntities=ກະລຸນາໃສ່ຢ່າງໜ້ອຍ {0} ຄ່າ.
 placeholder.entityName=ຊື່ {0}
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ໄຟລ໌ຂອງທ່ານໃຫຍ່ເກີນໄປ. ກະລຸນາເລືອກໄຟລ໌ທີ່ນ້ອຍກວ່າ {0} MB.
 button.chooseFile=ເລືອກໄຟລ໌
+# Text shown on a tag while a file is uploading.
 label.uploading=ກຳລັງອັບໂຫຼດ
+# Label applied to a list of uploaded files
 label.uploadedFiles=ໄຟລ໌ທີ່ອັບໂຫຼດແລ້ວ
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
 validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
+validation.numberRequired.v2=Must contain only numbers 0-9.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
 validation.tooFewSelections=ກະລຸນາເລືອກຢ່າງໜ້ອຍ {0} ຂໍ້.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
 validation.tooManySelections.v2=ກະລຸນາເລືອກບໍ່ເກີນ {0} ຕົວເລືອກ.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
 label.firstName=ຊື່
 label.lastName=ນາມສະກຸນ
 label.middleName=ຊື່ກາງ
+# Label for name suffix field in name question
 label.nameSuffix=ຄຳຕໍ່ທ້າຍ
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=ຊື່
 placeholder.lastName=ນາມສະກຸນ
 placeholder.middleName=ຊື່ກາງ
+# Placeholder for name suffix field in name question
 placeholder.nameSuffix=ຄຳຕໍ່ທ້າຍ
+
+# Option Junior for the name suffix dropdown
 option.junior=ຈູເນຍຣ໌
+# Option Senior for the name suffix dropdown
 option.senior=ຊີເນຍຣ໌
+# Option the first for the name suffix dropdown
 option.first=ທີ 1
+# Option the second for the name suffix dropdown
 option.second=ທີ 2
+# Option the third for the name suffix dropdown
 option.third=ທີ 3
+# Option the forth for the name suffix dropdown
 option.forth=ທີ 4
+# Option the fifth for the name suffix dropdown
 option.fifth=ທີ 5
+
+# Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=ກະລຸນາໃສ່ຊື່ຂອງທ່ານ.
 validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນຂອງທ່ານ.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=ຕ້ອງບໍ່ເກີນ {0}.
 validation.numberTooSmall=ຕ້ອງບໍ່ຕ່ຳກວ່າ {0}.
 validation.numberNonInteger=ຕົວເລກຕ້ອງເປັນຈຳນວນເຕັມບວກ ແລະ ສາມາດມີໄດ້ສະເພາະຕົວອັກສອນທີ່ເປັນຕົວເລກ 0-9 ເທົ່ານັ້ນ.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
 validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
+
+#---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
 option.yes=ແມ່ນ
 option.no=ບໍ່
 option.notSure=ບໍ່ແນ່ໃຈ
 option.maybe=ອາດຈະ
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
 map.applyFiltersButtonText=Apply filters
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Go to next page of map locations
+# Aria label for pagination list
+map.ariaLabelPaginationList=Pagination for map locations
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Go to previous page of map locations
+# Header for the section showing available locations
+map.availableLocations=Available locations
+# Legend text for the map filters section
 map.filterLegendText=Filters
+# Aria label for pagination buttons
+map.goToPage=Go to page {0} of map locations
+# Link text for location details URLs
 map.locationLinkText=View more details
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr=View more details for {0}
+# Text showing the count of displayed locations, with placeholders for current count and total count
 map.locationsCount=ກຳລັງສະແດງ {0} ຈາກທັງໝົດ {1} ສະຖານທີ່
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} of {1} maximum locations selected.
-map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
-map.resetFiltersButtonText=Clear filters
-map.selectLocationButtonText=Select location
-map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
-map.selectOptionPlaceholderText=- Select -
-map.validation.tooManySelections=Please select at most {0} locations.
+# Alt text for map region
 map.mapRegionAltText=Interactive map displaying locations
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Selected
+# Message displayed when filter results return no locations
+map.noResultsFound=No results found. Please try adjusting your filters.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
+# Sr only message displayed when page has changed
+map.paginationStatus=Now displaying page {0} of {1}.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Clear filters
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Select location
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Select up to {0} locations
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Select -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Switch to map view
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Switch to list view
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=View has been switched to map
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=View has been switched to list
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Please select at most {0} locations.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
+map.contactUs = contact us
+map.homepage = homepage
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
 map.addFilterButton=Add filter
-# Fuzzy
-map.addFiltersSubtitle=Add up to six filters to make available to applicants.
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+# Title for filters section
 map.addFiltersTitle=Filters
+# Button for adding a tag
+map.addTagButton=Add tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+# Title for tag section
+map.addTagTitle=Tag
+# Label for display name field
 map.displayNameLabel=Display name
+# Label for key field
 map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Key not found. Please select a different key.
+# Help text for location address field
+map.locationAddressHelpText=Select which key represents the location address.
+# Label for location address key field
 map.locationAddressLabel=Address key
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+# Label for location detail URL key field
 map.locationDetailsUrlLabel=View more details URL key
+# Help text for location name field
+map.locationNameHelpText=Select which key represents the location name.
+# Label for location name key field
 map.locationNameLabel=Name key
+# Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Maximum location selections
+# Label for setting text field
+map.settingTextLabel=Alert text
+# Label for value field
+map.valueLabel=Value
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Map will display here
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=ຊື່ຂອງຜູ້ເບິ່ງແຍງສາມາດມີໄດ້ສະເພາະຕົວພິມນ້ອຍ, ຕົວເລກ, ຂີດກ້ອງ ແລະ ຂີດກາງ.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
 error.notFoundTitle=ພວກເຮົາບໍ່ສາມາດຊອກຫາໜ້າທີ່ທ່ານພະຍາຍາມເຂົ້າເບິ່ງໄດ້
 error.notFoundDescription=ກະລຸນາກັບຄືນ ຫຼື ກັບໄປຫາ {0}
 error.notFoundDescriptionLink=ໜ້າຫຼັກ
+# The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
+# The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ພວກເຮົາຂໍອະໄພ, ມີຂໍ້ຜິດພາດພາຍໃນເກີດຂຶ້ນໃນລະບົບຂອງພວກເຮົາ.
+# Additional information about the error that is shown to the user in small font
 error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ %s ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {0}.
+# A button redirecting the user to the homepage
 error.internalServerHomeButton=ເຂົ້າເບິ່ງໜ້າຫຼັກ
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=ລະຫັດຂໍ້ຜິດພາດ: {0}
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=ເຂົ້າສູ່ລະບົບ Civiform ຢູ່ {0}
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ຂອງທ່ານແລ້ວ
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ຂອງທ່ານແລ້ວ. ລະຫັດໃບສະໝັກຂອງທ່ານແມ່ນ {1} ແລະ ລະຫັດໃບສະໝັກດັ່ງກ່າວແມ່ນ {2}
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນຖານະຜູ້ສະໝັກ {1} ແລ້ວ ແລະ ລະຫັດໃບສະໝັກແມ່ນ {2}.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=ຈັດການລູກຄ້າຂອງທ່ານໄດ້ຢູ່ {0}.
+# Subject of the email sent to an applicant when the status of their application has changed
 email.applicationUpdateSubject=ການອັບເດດໃບສະໝັກ {0} ຂອງທ່ານ
+# Subject of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateSubject=ການອັບເດດໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
+# Body of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັກ {0} ໃນໂຄງການ {1} ໄດ້ປ່ຽນເປັນ {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.
 banner.httpsSectionHeader=ເວັບໄຊ .gov ທີ່ປອດໄພຈະໃຊ້ HTTPS
 banner.httpsSectionContent=ໄອຄອນກະແຈ ( {0} ) ຫຼື https:// ໝາຍຄວາມວ່າທ່ານໄດ້ເຊື່ອມຕໍ່ກັບເວັບໄຊ .gov ຢ່າງປອດໄພ. ກະລຸນາແບ່ງປັນຂໍ້ມູນລະອຽດອ່ອນຢູ່ເວັບໄຊຢ່າງເປັນທາງການທີ່ປອດໄພເທົ່ານັ້ນ.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
 banner.notForProductionBannerLine1=ເວັບໄຊນີ້ມີຈຸດປະສົງເພື່ອການທົດສອບເທົ່ານັ້ນ. ກະລຸນາຢ່າລະບຸຂໍ້ມູນສ່ວນຕົວ.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
 banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າຮ່ວມໂຄງການ ຫຼື ບໍລິການ, ໃຫ້ເຂົ້າໄປ {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
 banner.guestBannerText=ຫຼັງຈາກທີ່ທ່ານສະໝັກແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
+# A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 hour and {0} minutes
+banner.hourAndMinute=1 hour and 1 minute
+banner.hoursAndMinutes={0} hours and {1} minutes
+banner.hoursAndMinute={0} hours and 1 minute
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} minutes
+banner.hours={0} hours
+banner.hour=1 hour
+banner.minute=1 minute
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=ການເບິ່ງແຍງເດັກນ້ອຍ
+
+# A tag used to filter the list of programs down to those that are related to economy.
 category.tag.economic=ເສດຖະກິດ
+
+# A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=ການສຶກສາ
+
+# A tag used to filter the list of programs down to those that are related to employment.
 category.tag.employment=ການຈ້າງງານ
+
+# A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=ອາຫານ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
 category.tag.general=ທົ່ວໄປ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
 category.tag.healthcare=ການເບິ່ງແຍງສຸຂະພາບ
+
+# A tag used to filter the list of programs down to those that are related to housing.
 category.tag.housing=ທີ່ຢູ່ອາໄສ
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=ອິນເຕີເນັດ
+
+# A tag used to filter the list of programs down to those that are related to the military.
 category.tag.military=ທະຫານ
+
+# A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=ການຝຶກອົບຮົມ
+
+# A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=ການຂົນສົ່ງ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=ສາທາລະນູປະໂພກ
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=ທະຫານຜ່ານເສິກ
+
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ໝວດໝູ່
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=ຄຳເຕືອນການບໍ່ມີກິດຈະກຳໃນເຊດຊັນ
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=ເຊດຊັນຂອງທ່ານຈະໝົດອາຍຸໄວໆນີ້ເນື່ອງຈາກບໍ່ມີການເຄື່ອນໄຫວ. ທ່ານຕ້ອງການຂະຫຍາຍເຊດຊັນຂອງທ່ານບໍ?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=ຄຳເຕືອນຄວາມຍາວຂອງເຊດຊັນ
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=ເຊດຊັນຂອງທ່ານຈະໝົດອາຍຸໄວໆນີ້ເນື່ອງຈາກຄວາມຍາວ. ກະລຸນາບັນທຶກວຽກຂອງທ່ານ ແລະ ເຂົ້າສູ່ລະບົບຄືນໃໝ່ຫາກຈຳເປັນ.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=ຂະຫຍາຍເຊດຊັນ
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=ຂະຫຍາຍເຊດຊັນສຳເລັດຜົນ
+
+# Error message shown when there was a problem extending the user's session
 session.extended.error=ຂະຫຍາຍເຊດຊັນບໍ່ສຳເລັດ
-translation.untranslated=ສະຕຣິງນີ້ຍັງບໍ່ໄດ້ຮັບການແປເນື່ອງຈາກຢູ່ໃນຂັ້ນທົດລອງໂຄງສ້າງພື້ນຖານການແປພາສາ.

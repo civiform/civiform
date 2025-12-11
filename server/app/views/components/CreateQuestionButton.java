@@ -9,6 +9,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
+import play.mvc.Http;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.style.StyleUtils;
@@ -22,7 +23,8 @@ public final class CreateQuestionButton {
   public static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -44,10 +46,8 @@ public final class CreateQuestionButton {
                 "absolute",
                 "ml-3",
                 "mt-1",
-                // add extra padding at the bottom to account for the fact
-                // that question bank is pushed down by the header and its
-                // lower part is always hidden
-                "pb-12",
+                // Small padding at the abottom for visual spacing
+                "pb-3",
                 "hidden");
 
     for (QuestionType type : QuestionType.values()) {
@@ -58,7 +58,7 @@ public final class CreateQuestionButton {
       if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
-      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled()) {
+      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled(request)) {
         continue;
       }
 

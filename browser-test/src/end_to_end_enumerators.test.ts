@@ -2,6 +2,7 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -10,7 +11,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
+test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -277,7 +278,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+      await applicantQuestions.clickReview()
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
       await expect(page.locator('.application-summary')).toContainText(
@@ -660,4 +661,100 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await logout(page)
     })
   }
+})
+
+test.describe('End to end enumerator test with enumerators feature flag on', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+  })
+  test.describe('Admin', () => {
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('Enumerator test program')
+    })
+    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      let initialBlockCount: number
+      await test.step('Record how many blocks are present in the block order panel', async () => {
+        initialBlockCount = await page
+          .getByRole('link', {name: /^Screen /})
+          .count()
+      })
+
+      await test.step('Click "Add repeated set" button', async () => {
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that two new blocks appear in the block order panel', async () => {
+        const newBlockCount = await page
+          .getByRole('link', {name: /^Screen /})
+          .count()
+        expect(newBlockCount).toBe(initialBlockCount + 2)
+      })
+
+      await test.step('Validate that the current block is the newly-created repeated block', async () => {
+        const currentBlockTitle = blockPanel.getByText(
+          'Screen 3 (repeated from 2)',
+        )
+        await expect(currentBlockTitle).toBeVisible()
+      })
+
+      await test.step('Click on the enumerator block in the block order panel', async () => {
+        const enumeratorBlockLink = page
+          .getByRole('link', {name: /^Screen /})
+          .nth(initialBlockCount) // zero-indexed
+        await enumeratorBlockLink.click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {
+        await expect(
+          blockPanel.getByRole('group', {name: 'Repeated set creation method'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Create new'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Choose existing'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate the "Create new repeated set" text is visible', async () => {
+        await expect(
+          blockPanel.getByText('Create new repeated set'),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that "Create repeated set" button is visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Create repeated set'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that questions section is not visible', async () => {
+        await expect(blockPanel.locator('#questions-section')).toBeHidden()
+      })
+
+      await test.step('Validate that "Add a question" button is not visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Add a question'}),
+        ).toBeHidden()
+      })
+
+      await test.step('Take a screenshot of the block panel', async () => {
+        await validateScreenshot(blockPanel, 'enumerator-block-panel', {
+          fullPage: false,
+        })
+      })
+    })
+  })
 })

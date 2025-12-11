@@ -1,5 +1,6 @@
 import {expect} from '@playwright/test'
 import {Page} from 'playwright'
+import {waitForHtmxReady} from './wait'
 
 type PredicateSpec = {
   questionName: string
@@ -72,6 +73,35 @@ export class AdminPredicates {
 
   async clickAddConditionButton() {
     await this.page.getByRole('button', {name: 'Add condition'}).click()
+  }
+
+  async clickDeleteConditionButton(conditionId: number) {
+    await this.page
+      .getByRole('button', {name: 'Delete condition'})
+      .nth(conditionId - 1)
+      .click()
+  }
+
+  async clickDeleteSubconditionButton(
+    conditionId: number,
+    subconditionId: number,
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId}`)
+      .getByRole('button', {name: 'Delete sub-condition'})
+      .nth(subconditionId - 1)
+      .click()
+  }
+
+  async clickAddSubconditionButton(conditionId: number) {
+    await this.page
+      .getByRole('button', {name: 'Add sub-condition'})
+      .nth(conditionId - 1)
+      .click()
+  }
+
+  async clickSaveAndExitButton() {
+    await this.page.getByRole('button', {name: 'Save and exit'}).click()
   }
 
   async clickSaveConditionButton() {
@@ -210,12 +240,98 @@ export class AdminPredicates {
   }
 
   async expectCondition(conditionId: number) {
-    await expect(this.page.getByText('Condition ' + conditionId)).toBeVisible()
+    await expect(
+      this.page.locator('#predicate-conditions-list').first(),
+    ).toContainText('Condition ' + conditionId)
+  }
+
+  async expectNoCondition(conditionId: number) {
+    await expect(
+      this.page.locator('#predicate-conditions-list').first(),
+    ).not.toContainText('Condition ' + conditionId)
+  }
+
+  async expectSubcondition(conditionId: number, subconditionId: number) {
+    await expect(
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      ),
+    ).toBeVisible()
+  }
+
+  async expectNoSubcondition(conditionId: number, subconditionId: number) {
+    await expect(
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      ),
+    ).toBeHidden()
   }
 
   async expectNoAddConditionButton() {
     await expect(
       this.page.getByRole('button', {name: 'Add condition'}),
     ).toBeHidden()
+  }
+
+  async expectAddConditionButton() {
+    await expect(
+      this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeVisible()
+  }
+
+  async expectAddSubconditionButton(conditionId: number) {
+    await expect(
+      this.page
+        .locator(`#condition-${conditionId}`)
+        .getByRole('button', {name: 'Add sub-condition'}),
+    ).toBeVisible()
+  }
+
+  async expectHtmxError() {
+    await expect(
+      this.page.getByText('We are experiencing a system error'),
+    ).toBeVisible()
+  }
+
+  async selectQuestion(
+    conditionId: number,
+    subconditionId: number,
+    questionText: string,
+  ) {
+    await this.page
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+      )
+      .selectOption(questionText)
+
+    await waitForHtmxReady(this.page)
+  }
+
+  async selectOperator(
+    conditionId: number,
+    subconditionId: number,
+    operatorValue: string,
+  ) {
+    await this.page
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      )
+      .selectOption(`${operatorValue}`)
+
+    await waitForHtmxReady(this.page)
+  }
+
+  async selectScalar(
+    conditionId: number,
+    subconditionId: number,
+    scalarValue: string,
+  ) {
+    await this.page
+      .locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-scalar`,
+      )
+      .selectOption(`${scalarValue}`)
+
+    await waitForHtmxReady(this.page)
   }
 }

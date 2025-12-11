@@ -53,7 +53,6 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -69,10 +68,8 @@ import views.style.StyleUtils;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
-  private final QuestionPreview questionPreview;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final TemplateEngine templateEngine;
   private final GeoJsonDataRepository geoJsonDataRepository;
@@ -92,9 +89,7 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
-      QuestionPreview questionPreview,
       SettingsManifest settingsManifest,
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
@@ -102,10 +97,8 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.questionPreview = checkNotNull(questionPreview);
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
@@ -244,23 +237,16 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    // TODO(#11580): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
-      // fragments without using HTMX
-      previewContent =
-          div()
-              .attr("hx-swap", "outerHTML")
-              .attr(
-                  "hx-get",
-                  controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
-                      type.getLabel()))
-              .attr("hx-trigger", "load");
-    } else {
-      previewContent =
-          questionPreview.renderQuestionPreview(
-              type, messages, applicantFileUploadRenderer, request);
-    }
+    // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
+    // fragments without using HTMX
+    previewContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
+                    type.getLabel()))
+            .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
@@ -289,6 +275,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
+        .attr("hx-ext", "response-targets")
         .withClasses(
             "border-gray-400",
             "border-r",
@@ -475,21 +462,6 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    if (questionType.equals(QuestionType.MAP)) {
-      formTag.with(
-          FieldWithLabel.input()
-              .setFieldName("geoJsonEndpoint")
-              .setLabelText("GeoJSON Endpoint")
-              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
-              .setRequired(true)
-              // GeoJSON endpoint can only be added upon question creation
-              .setReadOnly(!forCreate)
-              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
-              .setAttribute("hx-target", "#geoJsonOutput")
-              .setAttribute("hx-trigger", "change delay:1s")
-              .getInputTag());
-    }
-
     formTag.with(
         FieldWithLabel.textArea()
             .setFieldName("questionDescription")
@@ -498,6 +470,25 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
+
+    if (questionType.equals(QuestionType.MAP)) {
+      formTag.with(
+          FieldWithLabel.input()
+              .setFieldName("geoJsonEndpoint")
+              .setId("geoJsonURL")
+              .setLabelText("GeoJSON Endpoint URL")
+              .setSubLabelText("URL must be entered in order to configure question settings below.")
+              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .setRequired(true)
+              // GeoJSON endpoint can only be added upon question creation
+              .setReadOnly(!forCreate)
+              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
+              .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-target-error", "#geoJsonURL-errors")
+              .setAttribute("hx-swap", "outerHTML")
+              .setAttribute("hx-trigger", "input changed delay:300ms")
+              .getInputTag());
+    }
 
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
@@ -562,6 +553,7 @@ public final class QuestionEditView extends BaseHtmlView {
         mapQuestionForm.getLocationAddress(),
         mapQuestionForm.getLocationDetailsUrl(),
         mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
         possibleKeys);
   }
 

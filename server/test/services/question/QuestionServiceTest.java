@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -23,6 +25,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.Path;
+import services.TranslationLocales;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -363,5 +366,236 @@ public class QuestionServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> questionService.restoreQuestion(Long.MAX_VALUE))
         .isInstanceOf(InvalidUpdateException.class);
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
+  }
+
+  @Test
+  public void isTranslationComplete_noSupportedLanguages_returnsTrue()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of());
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_allTranslationsPresent_returnsTrue()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "text", Locale.FRANCE, "texte", Locale.JAPAN, "テキスト"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide", Locale.JAPAN, "ヘルプ"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_missingQuestionTextTranslation_returnsFalse()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide", Locale.JAPAN, "ヘルプ"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingQuestionHelpTextTranslation_returnsFalse()
+      throws UnsupportedQuestionTypeException {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(
+            com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "text", Locale.FRANCE, "texte", Locale.JAPAN, "テキスト"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingOptionTranslation_returnsFalse() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(2L, "admin name", LocalizedStrings.of(Locale.US, "two"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_missingSettingTranslation_returnsFalse() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.MAP)
+            .setName("map question")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionSettings(
+                ImmutableSet.of(
+                    QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+                    QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "tag1",
+                        MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+                        Optional.of(
+                            LocalizedStrings.of(Locale.US, "Tag One", Locale.FRANCE, "Tag Un")),
+                        Optional.of("value1"),
+                        Optional.of(LocalizedStrings.of(Locale.US, "Tag Text"))),
+                    QuestionSetting.create(
+                        "testKey1",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un"))),
+                    QuestionSetting.create(
+                        "testKey2",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(LocalizedStrings.of(Locale.US, "two")))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_allOptionsTranslated_returnsTrue() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionType(QuestionType.DROPDOWN)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "one", Locale.FRANCE, "un")),
+                    QuestionOption.create(
+                        2L,
+                        "admin name",
+                        LocalizedStrings.of(Locale.US, "two", Locale.FRANCE, "deux"))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_allSettingsTranslated_returnsTrue() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.MAP)
+            .setName("map question")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionSettings(
+                ImmutableSet.of(
+                    QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+                    QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "tag1",
+                        MapSettingType.LOCATION_TAG_GEO_JSON_KEY,
+                        Optional.of(LocalizedStrings.of(Locale.US, "Tag", Locale.FRANCE, "Balise")),
+                        Optional.of("tagValue"),
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Tag Alert", Locale.FRANCE, "Alerte balise"))),
+                    QuestionSetting.create(
+                        "filter1",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Filter One", Locale.FRANCE, "Filtre Un"))),
+                    QuestionSetting.create(
+                        "filter2",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Filter Two", Locale.FRANCE, "Filtre Deux")))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_noTagsAllFiltersTranslated_returnsTrue() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(com.google.common.collect.ImmutableList.of(Locale.US, Locale.FRANCE));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder()
+            .setQuestionType(QuestionType.MAP)
+            .setName("map question")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
+            .setQuestionSettings(
+                ImmutableSet.of(
+                    QuestionSetting.create("name", MapSettingType.LOCATION_NAME_GEO_JSON_KEY),
+                    QuestionSetting.create("address", MapSettingType.LOCATION_ADDRESS_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "details_url", MapSettingType.LOCATION_DETAILS_URL_GEO_JSON_KEY),
+                    QuestionSetting.create(
+                        "filter1",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Filter One", Locale.FRANCE, "Filtre Un"))),
+                    QuestionSetting.create(
+                        "filter2",
+                        MapSettingType.LOCATION_FILTER_GEO_JSON_KEY,
+                        Optional.of(
+                            LocalizedStrings.of(
+                                Locale.US, "Filter Two", Locale.FRANCE, "Filtre Deux")))))
+            .build();
+
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
   }
 }

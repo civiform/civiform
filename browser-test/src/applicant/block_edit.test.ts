@@ -3,12 +3,12 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
 
-test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
+test.describe('Applicant block edit', () => {
   const programName = 'Test program for block edit page'
   const programDescription = 'Test description'
   const dateQuestionText = 'date question text'
@@ -104,11 +104,7 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
       programName,
     )
 
-    await validateScreenshot(
-      page,
-      'block-edit-page-theme',
-      /* fullPage= */ true,
-    )
+    await validateScreenshot(page, 'block-edit-page-theme')
   })
 
   test('renders right to left on block edit page', async ({
@@ -116,17 +112,15 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.clickApplyProgramButton(programName)
-    await selectApplicantLanguageNorthstar(page, 'ar')
+    await selectApplicantLanguage(page, 'ar')
 
     await page.getByRole('link', {name: 'بدء الطلب'}).first().click()
     // Dismiss toast saying the program's not fully translated.
     await page.locator('#toast-container').getByText('x').click()
 
-    await validateScreenshot(
-      page,
-      'block-edit-page-right-to-left',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page, 'block-edit-page-right-to-left', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
   })
 })

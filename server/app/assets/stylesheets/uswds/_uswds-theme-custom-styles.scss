@@ -61,6 +61,15 @@ See the radio-option below as an example.
   @include u-padding-left(2);
 }
 
+// Tailwind removes list style from unordered and ordered lists.
+ul.usa-list {
+  list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
+}
+
 /*
  * Less padding when there is an error, since we add a border and still want the inputs to line up.
  */
@@ -379,4 +388,42 @@ button.usa-button.usa-button--unstyled.htmx-request {
 
 .usa-form .usa-button.zero-top-margin {
   margin-top: 0;
+}
+
+// Toast notification styles
+// If you make any changes here, you should also update the toast styles in
+// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
+.cf-toast-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1.5rem;
+}
+
+.cf-toast-message {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
+  color: color('gray-cool-70');
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-cf-toast-alert {
+  background-color: #e5e7eb; // Tailwind gray-200
+}
+
+.bg-cf-toast-error {
+  background-color: #f87171; // Tailwind red-400
+}
+
+.bg-cf-toast-success {
+  background-color: #a7f3d0; // Tailwind emerald-200
+}
+
+.bg-cf-toast-warning {
+  background-color: color('yellow-10v');
+}
+
+.opacity-40:hover {
+  opacity: 1;
 }

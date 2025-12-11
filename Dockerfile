@@ -1,10 +1,10 @@
-# syntax=docker/dockerfile:1@sha256:dabfc0969b935b2080555ace70ee69a5261af8a8f1b4df97b9e7fbcf6722eddf
+# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
 
 # The eclipse-temurin image and the standard openJDK11 fails to run on M1 Macs because it is incompatible with ARM architecture. This
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:17.0.16_8-jdk-alpine@sha256:c0dfec8fb4aec4adad2d00d267c5cb5348465d77f087e455d2905fb180ce27d2 AS amd64
+FROM eclipse-temurin:17.0.17_10-jdk-alpine@sha256:eaf56b7430cee6c93871106367715e2675192093d8f67dbbdbe07136f7cfae60 AS amd64
 FROM bellsoft/liberica-openjdk-alpine:17.0.16-12@sha256:ed3d715eb5d00e7929d47b3bd4c4b872d773dc4830cf34222ccc9ab3ab1c9a84 AS arm64
 
 FROM ${TARGETARCH}
@@ -59,11 +59,14 @@ RUN sbt update --allow-empty
 # Do this before the rest of the server code, so they don't
 # get re-downloaded every time code changes.
 COPY "${PROJECT_NAME}"/package* .
-RUN npm install
+RUN npm ci
 
 # Copy over the remainder of the server code
 # Everything below here is re-run whenever any file changes.
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
+
+# Build front end css/js files
+RUN npm run build
 
 # We need to save the build assets to a seperate directory (pushRemoteCache)
 RUN sbt update compile pushRemoteCache -Dconfig.file=conf/application.dev.conf

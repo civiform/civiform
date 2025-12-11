@@ -5,6 +5,12 @@
   <meta name="civiform-build-tag" th:content="${civiformImageTag}" />
   <meta th:if="${addNoIndexMetaTag}" name="robots" content="noindex" />
   <link th:if="${favicon}" rel="icon" th:href="${favicon}" />
+  <link th:if="${favicon}" rel="apple-touch-icon" th:href="${favicon}" />
+  <link
+    th:if="${favicon}"
+    rel="apple-touch-icon-precomposed.png"
+    th:href="${favicon}"
+  />
   <meta name="htmx-config" th:content='|{"inlineStyleNonce":"${cspNonce}"}|' />
   <!--/* Best practice: add ❤️ every time you touch this file :) */-->
   <meta
@@ -14,12 +20,15 @@
 
   <title th:text="${pageTitle}"></title>
 
-  <link
-    th:href="${tailwindStylesheet}"
-    type="text/css"
-    rel="stylesheet"
-    th:nonce="${cspNonce}"
-  />
+  <th:block th:if="${useBundlerDevServer}">
+    <script
+      th:if="${viteClientUrl}"
+      type="module"
+      th:src="${viteClientUrl}"
+      th:nonce="${cspNonce}"
+    ></script>
+  </th:block>
+
   <link
     th:href="${northStarStylesheet}"
     type="text/css"
@@ -44,7 +53,7 @@
   <script
     th:nonce="${cspNonce}"
     th:src="${applicantJsBundle}"
-    type="text/javascript"
+    type="module"
   ></script>
   <script
     th:nonce="${cspNonce}"

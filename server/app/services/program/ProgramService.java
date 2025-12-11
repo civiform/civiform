@@ -49,6 +49,7 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.TranslationLocales;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.predicate.PredicateDefinition;
@@ -75,11 +76,11 @@ public final class ProgramService {
       "A program visibility option must be selected";
   private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
       "One or more notification preferences are invalid";
-  private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
-  private static final String INVALID_ADMIN_NAME_MSG =
-      "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String MISSING_PROGRAM_SLUG_MSG = "A program slug is required";
   private static final String INVALID_PROGRAM_SLUG_MSG =
-      "A program URL must contain at least one letter";
+      "A program slug may only contain lowercase letters, numbers, and dashes";
+  private static final String NUMERIC_PROGRAM_SLUG_MSG =
+      "A program slug must contain at least one letter";
   private static final String INVALID_CATEGORY_MSG = "Only existing category ids are allowed";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
@@ -96,6 +97,7 @@ public final class ProgramService {
   private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public ProgramService(
@@ -106,7 +108,8 @@ public final class ProgramService {
       CategoryRepository categoryRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramBlockValidationFactory programBlockValidationFactory,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicationStatusesRepository applicationStatusesRepository,
+      TranslationLocales translationLocales) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -115,6 +118,7 @@ public final class ProgramService {
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Get the names for all programs. */
@@ -174,10 +178,11 @@ public final class ProgramService {
 
   /**
    * Get the data object about the non-disabled programs that are in the active or draft version
-   * without the full question definitions attached to the programs.
+   * with the full question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getInUseActiveAndDraftProgramsWithoutQuestionLoad() {
-    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsUnsynced(versionRepository);
+  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
+    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
+        this, versionRepository);
   }
 
   /** Checks if there is any disabled program in active or draft version. */
@@ -191,7 +196,7 @@ public final class ProgramService {
    */
   public Optional<ProgramDefinition> getCommonIntakeForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(ProgramDefinition::isCommonIntakeForm)
+        .filter(ProgramDefinition::isPreScreenerForm)
         .findFirst();
   }
 
@@ -368,6 +373,7 @@ public final class ProgramService {
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
+   * @param loginOnly true if only logged in applicants can apply to the program.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link
    *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
@@ -388,6 +394,7 @@ public final class ProgramService {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -411,7 +418,9 @@ public final class ProgramService {
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeEmptyBlock =
         createEmptyBlockDefinition(
-            /* blockId= */ 1, /* maybeEnumeratorBlockId= */ Optional.empty());
+            /* blockId= */ 1,
+            /* maybeEnumeratorBlockId= */ Optional.empty(),
+            /* isEnumerator= */ Optional.empty());
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
@@ -440,6 +449,7 @@ public final class ProgramService {
             versionRepository.getDraftVersionOrCreate(),
             programType,
             eligibilityIsGating,
+            loginOnly,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
@@ -500,13 +510,13 @@ public final class ProgramService {
             bridgeDefinitions,
             programType));
     if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
+      errorsBuilder.add(CiviFormError.of(MISSING_PROGRAM_SLUG_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
-    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(NUMERIC_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+      errorsBuilder.add(CiviFormError.of("A program slug of " + adminName + " already exists"));
     }
     return errorsBuilder.build();
   }
@@ -541,6 +551,7 @@ public final class ProgramService {
    * @param eligibilityIsGating true if an applicant must meet all eligibility criteria in order to
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
+   * @param loginOnly true if an applicant must be logged in before applying to a program.
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
    *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
@@ -562,6 +573,7 @@ public final class ProgramService {
       String displayMode,
       List<String> notificationPreferences,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -598,7 +610,7 @@ public final class ProgramService {
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programDefinition.isCommonIntakeForm()) {
+        && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -624,6 +636,7 @@ public final class ProgramService {
             .setNotificationPreferences(notificationPreferencesAsEnums)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
+            .setLoginOnly(loginOnly)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)
@@ -637,6 +650,65 @@ public final class ProgramService {
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
+  }
+
+  public boolean isTranslationComplete(ProgramDefinition programDefinition)
+      throws ProgramNotFoundException {
+    ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
+
+    if (supportedLanguages.isEmpty()) {
+      return true;
+    }
+
+    StatusDefinitions statusDefinitions =
+        applicationStatusesRepository.lookupActiveStatusDefinitions(programDefinition.adminName());
+
+    for (Locale locale : supportedLanguages) {
+      if (locale.equals(DEFAULT_LOCALE)) {
+        continue;
+      }
+
+      if (programDefinition.localizedName().maybeGet(locale).isEmpty()
+          || programDefinition.localizedDescription().maybeGet(locale).isEmpty()
+          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()
+          || programDefinition.localizedShortDescription().maybeGet(locale).isEmpty()
+          || (programDefinition.localizedSummaryImageDescription().isPresent()
+              && programDefinition
+                  .localizedSummaryImageDescription()
+                  .get()
+                  .maybeGet(locale)
+                  .isEmpty())) {
+        return false;
+      }
+
+      for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
+        if (status.localizedStatusText().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+      }
+
+      for (BlockDefinition block : programDefinition.blockDefinitions()) {
+        if (block.localizedName().maybeGet(locale).isEmpty()
+            || block.localizedDescription().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+        if (block.localizedEligibilityMessage().isPresent()) {
+          LocalizedStrings localizedEligibilityMessage = block.localizedEligibilityMessage().get();
+          if (localizedEligibilityMessage.maybeGet(locale).isEmpty()) {
+            return false;
+          }
+        }
+        for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+          if (!question.hasQuestionDefinition()
+              || !questionService.isTranslationComplete(
+                  translationLocales, question.getQuestionDefinition())) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
   }
 
   /** Preserve translations on existing titles and descriptions in application steps */
@@ -1120,8 +1192,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       LocalizationUpdate localizationUpdate,
       ProgramDefinition programDefinition) {
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
+    if (!programDefinition.isPreScreenerForm() && !programDefinition.applicationSteps().isEmpty()) {
       IntStream.range(0, programDefinition.applicationSteps().size())
           .forEach(
               i -> {
@@ -1250,10 +1321,10 @@ public final class ProgramService {
    *     succeeded, or a set of errors with the unmodified program and no block if failed.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
-      throws ProgramNotFoundException {
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
+      long programId, Optional<Boolean> isEnumerator) throws ProgramNotFoundException {
     try {
-      return addBlockToProgram(programId, Optional.empty());
+      return addBlockToProgram(programId, Optional.empty(), isEnumerator);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1278,11 +1349,12 @@ public final class ProgramService {
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
+    return addBlockToProgram(
+        programId, Optional.of(enumeratorBlockId), /* isEnumerator= */ Optional.empty());
   }
 
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> enumeratorBlockId)
+      long programId, Optional<Long> enumeratorBlockId, Optional<Boolean> isEnumerator)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
@@ -1291,7 +1363,8 @@ public final class ProgramService {
     }
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
-        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+        createEmptyBlockDefinition(
+            getNextBlockId(programDefinition), enumeratorBlockId, isEnumerator);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
@@ -1589,7 +1662,7 @@ public final class ProgramService {
           EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
-    if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
+    if (programDefinition.isPreScreenerForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
     }
 
@@ -1983,7 +2056,7 @@ public final class ProgramService {
   }
 
   private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
@@ -1997,6 +2070,7 @@ public final class ProgramService {
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
             .setEnumeratorId(maybeEnumeratorBlockId)
+            .setIsEnumerator(isEnumerator)
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);

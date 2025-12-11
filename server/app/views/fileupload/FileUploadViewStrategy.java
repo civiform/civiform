@@ -31,7 +31,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageUploadRequest;
 import views.AlertComponent;
 import views.CspUtil;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.style.ReferenceClasses;
 
 /**

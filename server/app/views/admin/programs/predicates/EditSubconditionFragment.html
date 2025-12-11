@@ -1,65 +1,130 @@
+<!--/*@thymesvar id="model" type="views.admin.programs.predicates.EditSubconditionPartialViewModel"*/-->
 <th:block
-  th:fragment="editSubcondition(conditionId, subconditionId, questions)"
+  th:fragment="editSubcondition(conditionId, subconditionId, disableDeletion, model)"
 >
-  <div>
-    <div class="border-left-05 border-base-lighter padding-left-3">
-      <div
-        class="usa-form-group margin-top-2"
-        th:with="questionId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionId'}"
-      >
-        <label class="usa-label" th:for="${questionId}"
-          >Question<span class="usa-hint--required">*</span></label
+  <div class="subcondition-container">
+    <!-- Define input ids in the expected format: 
+    questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
+    scalarDropdownId:   conditionId-<conditionId>-subconditionId-<subconditionId>-scalar
+    operatorDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-operator 
+    valueInputId:       conditionId-<conditionId>-subconditionId-<subconditionId>-value
+    -->
+    <div
+      class="border-left-05 border-base-lighter padding-left-3"
+      th:with="questionDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-question'}, scalarDropDownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-scalar'},operatorDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'},ariaAnnounceId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-ariaAnnounce'}"
+    >
+      <div class="usa-form-group margin-top-2">
+        <span
+          class="usa-sr-only"
+          th:id="${ariaAnnounceId}"
+          aria-live="polite"
+          aria-atomic="true"
+          th:data-should-announce="${model.shouldAnnounceChanges}"
+          th:data-announce-text="${'Condition ' + conditionId + ' subcondition ' + subconditionId + ' selected.'}"
+        ></span>
+        <label class="usa-label" th:for="${questionDropdownId}"
+          >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
+            >*</span
+          ></label
         >
         <select
-          class="usa-select"
-          th:id="${questionId}"
-          th:name="${questionId}"
+          class="usa-select cf-predicate-question-select"
+          th:id="${questionDropdownId}"
+          th:name="${questionDropdownId}"
+          th:data-scalar-target-id="${scalarDropDownId}"
+          th:hx-post="${model.hxEditSubconditionEndpoint()}"
+          th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
+          th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+          hx-swap="outerHTML"
+          th:data-should-autofocus="${model.autofocus}"
         >
-          <option>-Select-</option>
           <option
-            th:each="question : ${questions}"
-            th:value="${question.getId()}"
-            th:text="${question.getQuestionText().getDefault()}"
+            th:selected="${!model.hasSelectedQuestion}"
+            th:hidden="${model.hasSelectedQuestion}"
+            th:text="#{option.selectPlaceholder}"
+          ></option>
+          <option
+            th:each="question : ${model.questionOptions}"
+            th:value="${question.value()}"
+            th:text="${question.displayText()}"
+            th:selected="${question.selected()}"
           ></option>
         </select>
       </div>
-      <div
-        class="usa-form-group margin-top-2"
-        th:with="operatorId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'}"
-      >
-        <label class="usa-label" th:for="${operatorId}"
-          >State<span class="usa-hint--required">*</span></label
+      <div class="display-flex flex-gap flex-wrap margin-top-2">
+        <div
+          class="usa-form-group cf-predicate-scalar-select tablet:grid-col margin-top-0"
         >
-        <select
-          class="usa-select"
-          th:id="${operatorId}"
-          th:name="${operatorId}"
+          <label class="usa-label" th:for="${scalarDropDownId}"
+            >[[#{label.predicateField}]]<span class="usa-hint--required"
+              >*</span
+            ></label
+          >
+          <select
+            class="usa-select"
+            th:id="${scalarDropDownId}"
+            th:name="${scalarDropDownId}"
+            th:data-operator-target-id="${operatorDropdownId}"
+            th:disabled="${!model.hasSelectedQuestion}"
+          >
+            <option
+              th:selected="${!model.hasSelectedQuestion}"
+              th:hidden="${model.hasSelectedQuestion}"
+              th:text="#{option.selectPlaceholder}"
+            ></option>
+            <option
+              th:each="scalar : ${model.scalarOptions}"
+              th:value="${scalar.value()}"
+              th:text="${scalar.displayText()}"
+              th:data-type="${scalar.scalarType()}"
+              th:selected="${scalar.selected()}"
+            ></option>
+          </select>
+        </div>
+        <div
+          class="usa-form-group cf-predicate-operator-select tablet:grid-col margin-top-0"
         >
-          <option>-Select-</option>
-        </select>
+          <label class="usa-label" th:for="${operatorDropdownId}"
+            >[[#{label.predicateState}]]<span class="usa-hint--required"
+              >*</span
+            ></label
+          >
+          <select
+            class="usa-select"
+            th:id="${operatorDropdownId}"
+            th:name="${operatorDropdownId}"
+            th:disabled="${!model.hasSelectedQuestion}"
+            th:data-condition-id="${conditionId}"
+            th:data-subcondition-id="${subconditionId}"
+          >
+            <option
+              th:selected="${!model.hasSelectedQuestion}"
+              th:hidden="${model.hasSelectedQuestion}"
+              th:text="#{option.selectPlaceholder}"
+            ></option>
+            <option
+              th:each="operator : ${model.operatorOptions}"
+              th:value="${operator.value()}"
+              th:text="${operator.displayText()}"
+              th:selected="${operator.selected()}"
+            ></option>
+          </select>
+        </div>
       </div>
       <div
-        class="usa-form-group margin-top-2"
-        th:with="valueId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-value'}"
-      >
-        <label class="usa-label" th:for="${valueId}"
-          >Value(s)<span class="usa-hint--required">*</span></label
-        >
-        <select class="usa-select" th:id="${valueId}" th:name="${valueId}">
-          <option>-Select-</option>
-        </select>
-      </div>
-
+        th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.predicateValuesInputModel(conditionId, subconditionId)})}"
+      ></div>
       <div class="width-full display-inline-block">
-        <a
-          href="#"
+        <button
+          th:hx-post="${model.hxDeleteSubconditionEndpoint()}"
+          th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
+          th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+          hx-swap="outerHTML"
           class="usa-link usa-button usa-button--unstyled float-right text-secondary-dark"
-          >Remove sub-condition</a
-        >
+          th:text="#{link.predicateDeleteSubcondition}"
+          th:disabled="${disableDeletion}"
+        ></button>
       </div>
-    </div>
-    <div class="margin-top-3">
-      <a href="#" class="usa-link">Add sub-condition</a>
     </div>
   </div>
 </th:block>

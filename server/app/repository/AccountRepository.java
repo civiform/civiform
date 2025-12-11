@@ -509,6 +509,7 @@ public final class AccountRepository {
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
   public int deleteUnusedGuestAccounts(int minAgeInDays) {
+    // TODO(#12167): Handle that Accounts can have multiple Applicants.
     String sql =
         "WITH unused_accounts AS ( "
             + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "

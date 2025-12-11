@@ -10,6 +10,7 @@ import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.main;
+import static j2html.TagCreator.script;
 import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
@@ -41,11 +43,11 @@ import views.style.BaseStyles;
 public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
-  private static final String USWDS_FILEPATH = "dist/uswds.bundle";
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
   private JsBundle jsBundle = null;
+  private BundledAssetsFinder bundledAssetsFinder = null;
 
   private Optional<DivTag> pageNotProductionBannerTag = Optional.empty();
   private final ArrayList<String> bodyStyles = new ArrayList<>();
@@ -62,12 +64,10 @@ public final class HtmlBundle {
   private final ArrayList<DivTag> uswdsModals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
-  private final ViewUtils viewUtils;
   private final Http.RequestHeader request;
 
-  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request) {
     this.request = checkNotNull(request);
-    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /**
@@ -162,6 +162,11 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle setBundledAssetsFinder(BundledAssetsFinder bundledAssetsFinder) {
+    this.bundledAssetsFinder = bundledAssetsFinder;
+    return this;
+  }
+
   public Http.RequestHeader getRequest() {
     return request;
   }
@@ -216,11 +221,18 @@ public final class HtmlBundle {
     if (jsBundle == null) {
       throw new IllegalStateException("JS bundle must be set for every page.");
     }
+
+    String jsBundlePath =
+        switch (jsBundle) {
+          case ADMIN -> bundledAssetsFinder.getAdminJsBundle();
+          case APPLICANT -> bundledAssetsFinder.getApplicantJsBundle();
+        };
+
     ImmutableList<ScriptTag> scripts =
         ImmutableList.<ScriptTag>builder()
             .addAll(footerScripts)
-            .add(viewUtils.makeLocalJsTag(jsBundle.getJsPath()))
-            .add(viewUtils.makeLocalJsTag(USWDS_FILEPATH))
+            .add(script().withSrc(jsBundlePath).withType("module"))
+            .add(script().withSrc(bundledAssetsFinder.getUswdsJsBundle()).withType("module"))
             .build();
     FooterTag footerTag = footer().with(footerContent).with(CspUtil.applyCsp(request, scripts));
 

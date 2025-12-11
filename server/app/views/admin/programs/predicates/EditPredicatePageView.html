@@ -9,7 +9,7 @@
   <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
     <a
       th:href="${model.blockEditUrl()}"
-      th:text="|Back to edit ${model.blockName()}|"
+      th:text="#{link.backToEditProgramBlock(${model.blockName()})}"
       class="usa-link padding-x-05"
     ></a>
 
@@ -24,20 +24,25 @@
       ></div>
       <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
         <p th:case="'VISIBILITY'" class="margin-top-05">
-          Add or remove conditions for when this screen is shown or hidden.
+          [[#{content.predicateVisibilityDescription}]]
         </p>
         <p th:case="'ELIGIBILITY'" class="margin-top-05">
-          You can add eligibility conditions to determine if an applicant
-          qualifies for the program. Applicants who do not meet the minimum
-          requirements will be blocked from submitting an application. You can
-          change this in the
-          <a th:href="${model.programEditUrl()}" class="usa-link"
-            >program settings</a
+          [[#{content.predicateEligibilityDescription}]]
+          <a
+            th:href="${model.programEditUrl()}"
+            class="usa-link"
+            th:text="#{link.programSettings}"
+          ></a
           >.
         </p>
       </div>
 
-      <form class="usa-form">
+      <form
+        id="predicate-form"
+        class="usa-form"
+        th:action="${model.updatePredicateEndpoint()}"
+        method="post"
+      >
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -48,63 +53,141 @@
           class="font-body-xs width-mobile-lg"
           th:switch="${model.predicateUseCase.name()}"
         >
-          <p>
-            <th:block th:case="'VISIBILITY'">
-              This screen is
+          <div
+            th:id="predicate-operator-node-select"
+            th:attr="hidden=${!model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block th:case="'VISIBILITY'">
+                [[#{content.predicateScreenIs}]]
+                <select
+                  class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  name="predicateAction"
+                >
+                  <option
+                    th:each="action : ${model.visibilityActions()}"
+                    th:text="${action.toDisplayString()}"
+                    th:value="${action.name()}"
+                  ></option>
+                </select>
+              </th:block>
+              <th:block th:case="'ELIGIBILITY'">
+                [[#{content.predicateApplicantIsEligible}]]
+                <input
+                  type="hidden"
+                  name="predicateAction"
+                  th:value="${model.eligibilityAction().name()}"
+                />
+              </th:block>
+
               <select
-                class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
-                name="predicateAction"
+                class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
+                name="root-nodeType"
               >
-                <option value>Select</option>
                 <option
-                  th:each="action : ${model.visibilityActions()}"
-                  th:text="${action.toDisplayString()}"
-                  th:value="${action.name()}"
+                  th:each="nodeType : ${model.operatorNodeTypes()}"
+                  th:text="${nodeType.toDisplayString()}"
+                  th:value="${nodeType.name()}"
                 ></option>
               </select>
-            </th:block>
-            <th:block th:case="'ELIGIBILITY'">
-              Applicant is eligible when
-              <input
-                type="hidden"
-                name="predicateAction"
-                th:value="${model.eligibilityAction().name()}"
-              />
-            </th:block>
-
-            <select
-              class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-              name="root-nodeType"
-            >
-              <option
-                th:each="nodeType : ${model.operatorNodeTypes()}"
-                th:text="${nodeType.toDisplayString()}"
-                th:value="${nodeType.name()}"
-              ></option>
-            </select>
-            of the following are true:
-          </p>
-        </div>
-        <th:block th:unless="${model.questions.isEmpty()}">
+              [[#{content.predicateConditionsAreTrue}]]
+            </p>
+          </div>
           <div
-            th:replace="~{admin/programs/predicates/AddConditionFragment :: addCondition(1, ${model.hxEditConditionEndpoint()})}"
+            th:id="predicate-operator-node-select-null-state"
+            th:attr="hidden=${model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'VISIBILITY'}"
+              >
+                [[#{content.predicateVisibilityNullState}]]
+              </th:block>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+              >
+                [[#{content.predicateEligibilityNullState}]]
+              </th:block>
+            </p>
+          </div>
+        </div>
+        <th:block th:if="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/ConditionListFragment :: conditionList(${model.newConditionList()})}"
           ></div>
         </th:block>
-      </form>
-      <th:block th:if="${model.questions.isEmpty()}">
+        <th:block th:unless="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
+          ></div>
+        </th:block>
+        <!-- Eligibility message -->
         <div
-          th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
-        ></div>
-      </th:block>
+          th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+          class="width-mobile-lg padding-top-1"
+        >
+          <div class="border-top border-base-lighter margin-y-2"></div>
+          <div class="usa-form-group padding-top-1">
+            <label
+              class="usa-label"
+              th:for="eligibility-message-textarea"
+              th:text="#{label.predicateEligibilityMessageField}"
+            ></label>
+            <textarea
+              class="usa-textarea margin-y-0"
+              th:id="eligibility-message-textarea"
+              name="eligibilityMessage"
+              th:text="${model.eligibilityMessage}"
+            ></textarea>
+            <div
+              class="display-flex flex-align-center margin-top-05 text-base-dark"
+            >
+              <cf:icon type="legacy-icon-markdown" />
+              <p
+                class="margin-y-0 margin-left-1"
+                th:text="#{content.markdownSupported}"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
 
     <div class="usa-footer__return-to-top">
-      <a href="#" class="padding-x-05">Back to top</a>
+      <a href="#" class="padding-x-05" th:text="#{link.backToTop}"></a>
     </div>
 
     <div class="border-top border-base-lighter margin-y-2"></div>
 
-    <button type="submit" class="usa-button">Save and exit</button>
-    <button type="submit" class="usa-button usa-button--outline">Cancel</button>
+    <button
+      type="submit"
+      class="usa-button"
+      form="predicate-form"
+      th:text="#{button.saveAndExit}"
+    ></button>
+    <button
+      type="submit"
+      class="usa-button usa-button--outline"
+      th:text="#{button.cancel}"
+    ></button>
   </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <!--/* Store the operator scalar map for use on the client */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.predicate = window.app.data.predicate || {}
+    window.app.data.predicate.operator_scalars =
+      /*[[${model.operatorScalarMap()}]]*/ {}
+
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      window.app.scripts.AdminPredicateEdit.onHtmxAfterSwap(event)
+    })
+  </script>
 </th:block>

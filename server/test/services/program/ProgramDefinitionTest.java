@@ -69,6 +69,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -102,6 +103,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockA)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -126,6 +128,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -263,6 +266,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -291,6 +295,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -331,6 +336,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls(tiGroups))
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -380,6 +386,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -438,6 +445,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockB)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -521,6 +529,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -623,6 +632,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -747,6 +757,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockE)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -825,11 +836,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition);
 
     assertThat(result.blockDefinitions()).hasSize(4);
-    assertThat(result.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
@@ -860,11 +871,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
     assertThat(result.blockDefinitions()).hasSize(3);
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
@@ -891,11 +902,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
 
     assertThat(result.blockDefinitions()).hasSize(3);
     assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
-    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
-    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
@@ -1291,6 +1302,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setCreateTime(now)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1314,6 +1326,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1339,6 +1352,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLastModifiedTime(now)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1362,6 +1376,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1386,6 +1401,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1412,6 +1428,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1437,6 +1454,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1473,6 +1491,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1500,6 +1519,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1524,6 +1544,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1620,6 +1641,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
@@ -1804,6 +1826,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .addBlockDefinition(blockD)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))

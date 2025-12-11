@@ -2,10 +2,14 @@ interface Window {
   app: {
     scripts: {
       AdminProgramApiBridge: AdminProgramApiBridge
+      AdminPredicateEdit: AdminPredicateEdit
     }
     data: {
-      maxLocationSelections: number
       messages: object
+      iconUrls: {
+        locationIcon: string
+        selectedLocationIcon: string
+      }
       maps: {
         [id: string]: object // Maps map IDs to GeoJSON objects
       }
@@ -15,6 +19,11 @@ interface Window {
         }
       }
       questionType: QuestionType
+      predicate: {
+        operator_scalars: {
+          [key: string]: Array<string>
+        }
+      }
     }
   }
 }

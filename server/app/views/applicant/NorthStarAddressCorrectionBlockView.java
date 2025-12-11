@@ -1,7 +1,6 @@
 package views.applicant;
 
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
@@ -11,6 +10,7 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.AlertType;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.geo.AddressSuggestionGroup;
@@ -20,11 +20,16 @@ import views.NorthStarBaseView;
 
 public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
 
+  // Constants used by ApplicantProgramBlocksController and ApplicantService
+  // to process address correction form submissions
+  public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
+  public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
+
   @Inject
   NorthStarAddressCorrectionBlockView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
@@ -32,7 +37,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
     super(
         templateEngine,
         playThymeleafContextFactory,
-        assetsFinder,
+        bundledAssetsFinder,
         applicantRoutes,
         settingsManifest,
         languageUtils,
