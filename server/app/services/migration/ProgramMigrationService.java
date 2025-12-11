@@ -58,10 +58,6 @@ import services.statuses.StatusDefinitions;
  */
 public final class ProgramMigrationService {
   private static final Logger logger = LoggerFactory.getLogger(ProgramMigrationService.class);
-  // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
-  // name like `name - parent`.
-  // It will transform to a key formatted like `%s__%s`
-  private static final String CONFLICTING_QUESTION_FORMAT = "%s -_- %s";
   private static final Pattern SUFFIX_PATTERN = Pattern.compile(" -_- [a-z]+$");
 
   private final ApplicationStatusesRepository applicationStatusesRepository;
@@ -333,11 +329,14 @@ public final class ProgramMigrationService {
 
     int extension = 0;
     String newName = "";
+
     do {
       extension++;
-      newName =
-          CONFLICTING_QUESTION_FORMAT.formatted(
-              adminNameBase, Utils.convertNumberToSuffix(extension));
+
+      // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
+      // name like `name - parent`.
+      // It will transform to a key formatted like `%s__%s`
+      newName = "%s -_- %s".formatted(adminNameBase, Utils.convertNumberToSuffix(extension));
     } while (nameHasConflict(newName, newNamesSoFar));
 
     return newName;
