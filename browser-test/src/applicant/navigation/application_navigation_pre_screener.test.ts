@@ -6,7 +6,7 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -32,7 +32,7 @@ test.describe('Applicant navigation flow', () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           preScreenerProgramName,
           'short program description',
           ProgramVisibility.PUBLIC,
@@ -192,7 +192,7 @@ test.describe('Applicant navigation flow', () => {
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateAccessibility(page)
 
       await validateScreenshot(

@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from '../../support'
 
 test.describe('Radio button question for applicant flow', () => {
@@ -67,7 +67,7 @@ test.describe('Radio button question for applicant flow', () => {
         programName,
         /* northStarEnabled= */ true,
       )
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateScreenshot(
         page.getByTestId('questionRoot'),
         'radio-options-right-to-left',

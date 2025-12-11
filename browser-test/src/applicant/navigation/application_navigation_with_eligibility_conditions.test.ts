@@ -73,7 +73,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantProgramOverview.startApplicationFromProgramOverviewPage(
         fullProgramName,
       )
-      await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+      await applicantQuestions.clickReview()
       await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
     })
 
@@ -99,7 +99,7 @@ test.describe('Applicant navigation flow', () => {
 
       await test.step('verify not eligible alert is shown on review page', async () => {
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
@@ -158,7 +158,7 @@ test.describe('Applicant navigation flow', () => {
       })
 
       await test.step('fill out application without submitting and verify message on review page', async () => {
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(page, 'application-eligible-review-page', {
           mobileScreenshot: true,
@@ -240,7 +240,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           fullProgramName,
         )
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
           AdminQuestions.NUMBER_QUESTION_TEXT,

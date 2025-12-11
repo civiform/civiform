@@ -7,7 +7,7 @@ import {
   validateAccessibility,
   loginAsTrustedIntermediary,
   ClientInformation,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from '../support'
 
 test.describe('North Star Ineligible Page Tests', () => {
@@ -90,9 +90,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
     })
   })
 
@@ -223,9 +221,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
     })
   })
 
@@ -242,7 +238,7 @@ test.describe('North Star Ineligible Page Tests', () => {
       )
 
       await test.step('Setup: set language to Arabic', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
       })
 
       await applicantQuestions.answerNumberQuestion('0')
@@ -278,7 +274,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Setup: set language to French', async () => {
-      await selectApplicantLanguageNorthstar(page, 'fr')
+      await selectApplicantLanguage(page, 'fr')
     })
 
     await test.step('Expect first block edit', async () => {
@@ -320,7 +316,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Setup: set language to French', async () => {
-      await selectApplicantLanguageNorthstar(page, 'fr')
+      await selectApplicantLanguage(page, 'fr')
     })
 
     await test.step('Expect block review page', async () => {
@@ -360,7 +356,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Setup: set language to French', async () => {
-      await selectApplicantLanguageNorthstar(page, 'fr')
+      await selectApplicantLanguage(page, 'fr')
     })
 
     await test.step('Expect review page', async () => {

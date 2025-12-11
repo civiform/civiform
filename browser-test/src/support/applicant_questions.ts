@@ -614,10 +614,8 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickReview(northStarEnabled = false) {
-    const reviewButton = northStarEnabled
-      ? 'text="Review and submit"'
-      : 'text="Review"'
+  async clickReview() {
+    const reviewButton = 'text="Review and submit"'
     await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
   }
@@ -638,10 +636,8 @@ export class ApplicantQuestions {
     ).toBeVisible()
   }
 
-  async clickDownload(northStarEnabled = false) {
-    const downloadButton = northStarEnabled
-      ? 'text="Download your application"'
-      : 'text="Download PDF"'
+  async clickDownload() {
+    const downloadButton = 'text="Download your application"'
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(downloadButton),
@@ -781,7 +777,7 @@ export class ApplicantQuestions {
 
   async returnToProgramsFromSubmissionPage(northStarEnabled = false) {
     // Assert that we're on the submission page.
-    await this.expectConfirmationPage(northStarEnabled)
+    await this.expectConfirmationPage()
     if (northStarEnabled) {
       await this.clickBackToHomepageButton()
     } else {
@@ -811,16 +807,8 @@ export class ApplicantQuestions {
     ).toBeVisible()
   }
 
-  async expectConfirmationPage(northStarEnabled = false) {
-    if (northStarEnabled) {
-      await expect(
-        this.page.getByText('Your application details'),
-      ).toBeVisible()
-    } else {
-      expect(await this.page.innerText('h1')).toContain(
-        'Application confirmation',
-      )
-    }
+  async expectConfirmationPage() {
+    await expect(this.page.getByText('Your application details')).toBeVisible()
   }
 
   async expectPreScreenerReviewPage() {
@@ -1052,11 +1040,11 @@ export class ApplicantQuestions {
     await this.clickSubmitApplication()
   }
 
-  async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
+  async downloadFromConfirmationPage(): Promise<void> {
     // Assert that we're on the confirmation page.
-    await this.expectConfirmationPage(northStarEnabled)
+    await this.expectConfirmationPage()
     // Click on the download button
-    await this.clickDownload(northStarEnabled)
+    await this.clickDownload()
   }
 
   async validateHeader(lang: string) {
@@ -1146,10 +1134,8 @@ export class ApplicantQuestions {
     }
   }
 
-  async clickReviewWithoutSaving(northStarEnabled = false) {
-    const buttonText = northStarEnabled
-      ? 'Go to the review page without saving'
-      : 'Continue to review page without saving'
+  async clickReviewWithoutSaving() {
+    const buttonText = 'Go to the review page without saving'
     await this.page.click(`button:has-text("${buttonText}")`)
   }
 
@@ -1183,17 +1169,13 @@ export class ApplicantQuestions {
     }
   }
 
-  async clickPreviousWithoutSaving(northStarEnabled = false) {
-    const buttonText = northStarEnabled
-      ? 'Go to the previous page without saving'
-      : 'Continue to previous questions without saving'
+  async clickPreviousWithoutSaving() {
+    const buttonText = 'Go to the previous page without saving'
     await this.page.click(`button:has-text("${buttonText}")`)
   }
 
-  async clickStayAndFixAnswers(northStarEnabled = false) {
-    const buttonText = northStarEnabled
-      ? 'Stay here and fix your answers'
-      : 'Stay and fix your answers'
+  async clickStayAndFixAnswers() {
+    const buttonText = 'Stay here and fix your answers'
     await this.page.click(`button:has-text("${buttonText}")`)
   }
 

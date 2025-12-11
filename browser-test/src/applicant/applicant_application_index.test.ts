@@ -9,7 +9,7 @@ import {
   loginAsTestUser,
   logout,
   normalizeElements,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -129,7 +129,7 @@ test.describe('applicant program index page', () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -341,7 +341,7 @@ test.describe('applicant program index page', () => {
       })
 
       await test.step('change language to Arabic', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
+        await selectApplicantLanguage(page, 'ar')
       })
 
       await test.step('validate screenshot desktop', async () => {
@@ -576,7 +576,7 @@ test.describe('applicant program index page', () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminPrograms.addPreScreenerNS(
+      await adminPrograms.addPreScreener(
         preScreenerFormProgramName,
         'short program description',
         ProgramVisibility.PUBLIC,
@@ -705,7 +705,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
@@ -731,7 +731,7 @@ test.describe('applicant program index page', () => {
 
     await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       await applicantQuestions.northStarValidatePreviouslyAnsweredText(
         firstQuestionText,
       )
@@ -803,7 +803,7 @@ test.describe('applicant program index page', () => {
     page,
   }) => {
     await test.step('change language to Arabic', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
     })
 
     await test.step('validate screenshot desktop', async () => {
@@ -1001,7 +1001,7 @@ test.describe('applicant program index page with images', () => {
     await test.step('create program with image as admin', async () => {
       await loginAsAdmin(page)
       const preScreenerFormProgramName = 'Benefits finder'
-      await adminPrograms.addPreScreenerNS(
+      await adminPrograms.addPreScreener(
         preScreenerFormProgramName,
         'short program description',
         ProgramVisibility.PUBLIC,
@@ -1188,9 +1188,9 @@ test.describe('applicant program index page with images', () => {
     applicantQuestions,
   }) => {
     const externalProgramAName = 'External Program A'
-    const externalProgramALink = 'https://www.usa.gov'
+    const externalProgramALink = `${BASE_URL}/programs`
     const externalProgramBName = 'External Program B'
-    const externalProgramBLink = 'https://civiform.us'
+    const externalProgramBLink = `${BASE_URL}/programs#simulated_difference`
 
     await test.step('add external programs', async () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')
@@ -1308,7 +1308,7 @@ test.describe('applicant program index page with images', () => {
     seeding,
   }) => {
     const externalProgramName = 'External Program'
-    const externalProgramLink = 'https://civiform.us'
+    const externalProgramLink = `${BASE_URL}/programs`
 
     await test.step('enable required features', async () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')

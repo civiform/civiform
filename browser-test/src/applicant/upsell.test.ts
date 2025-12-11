@@ -5,7 +5,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -188,7 +188,7 @@ test.describe('Upsell tests', () => {
     })
 
     await test.step('Validate page renders right to left on desktop', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateScreenshot(page, 'upsell-right-to-left-desktop', {
         mask: [page.locator('.cf-bt-date')],
       })
@@ -197,7 +197,7 @@ test.describe('Upsell tests', () => {
     // This is here because the standard way of passing the `mobileScreenshot` flag
     // to `validateScreenshot` results in a mobile view 12k px wide for some reason.
     await test.step('validate screenshot mobile', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await page.setViewportSize({width: 360, height: 800})
       await validateScreenshot(page, 'upsell-right-to-left-mobile', {
         fullPage: false,
@@ -286,9 +286,7 @@ test.describe('Upsell tests', () => {
           name: "You've submitted your " + programName + ' application',
         }),
       ).toBeVisible()
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
       await expect(
         page.getByText(customConfirmationMarkupMatcher),
       ).toBeVisible()

@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   waitForPageJsLoad,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
@@ -414,7 +414,7 @@ test.describe('Applicant program overview', () => {
 
   test('renders right to left', async ({page}) => {
     await page.goto(`/programs/${programName}`)
-    await selectApplicantLanguageNorthstar(page, 'ar')
+    await selectApplicantLanguage(page, 'ar')
 
     await validateAccessibility(page)
 

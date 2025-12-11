@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from '../../support'
 
 test.describe('Yes/no question for applicant flow', () => {
@@ -67,7 +67,7 @@ test.describe('Yes/no question for applicant flow', () => {
         programName,
         /* northStarEnabled= */ true,
       )
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateScreenshot(
         page.getByTestId('questionRoot'),
         'yes-no-right-to-left',
@@ -80,7 +80,7 @@ test.describe('Yes/no question for applicant flow', () => {
         programName,
         /* northStarEnabled= */ true,
       )
-      await selectApplicantLanguageNorthstar(page, 'es-US')
+      await selectApplicantLanguage(page, 'es-US')
 
       // Verify Spanish translations are shown
       await expect(page.getByText('Sí', {exact: true})).toBeVisible()

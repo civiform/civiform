@@ -194,7 +194,7 @@ test.describe('Applicant navigation flow', () => {
         // answer was saved
         await applicantQuestions.clickBack()
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressQuestionText,
@@ -259,9 +259,7 @@ test.describe('Applicant navigation flow', () => {
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.clickStayAndFixAnswers(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickStayAndFixAnswers()
 
         // Verify the previously filled in answers are present
         // await applicantQuestions.checkDateQuestionValue('')
@@ -311,9 +309,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Proceed to the previous page (which will be the review page,
         // since this is the first block), acknowledging that answers won't be saved
-        await applicantQuestions.clickPreviousWithoutSaving(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickPreviousWithoutSaving()
 
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -355,9 +351,7 @@ test.describe('Applicant navigation flow', () => {
         )
 
         // Proceed to the previous page and verify the first block answers are present
-        await applicantQuestions.clickPreviousWithoutSaving(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickPreviousWithoutSaving()
         // This is the static question block, so continue to the previous block
         await applicantQuestions.clickBack()
 
@@ -383,7 +377,7 @@ test.describe('Applicant navigation flow', () => {
             '1',
           )
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         await test.step('delete answers on first block', async () => {
@@ -416,7 +410,7 @@ test.describe('Applicant navigation flow', () => {
             '1',
           )
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.editBlock('Screen 3')
           await applicantQuestions.answerAddressQuestion(
@@ -426,7 +420,7 @@ test.describe('Applicant navigation flow', () => {
             'WA',
             '54321',
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         // We require that all questions be seen before an applicant can submit an application,
@@ -437,7 +431,7 @@ test.describe('Applicant navigation flow', () => {
         })
 
         await test.step('answer only required questions on block with both required and optional', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           // This block has a required phone question and optional currency question.
           // Only answer the required question, then use the "Previous" button.
           await applicantQuestions.editBlock('Screen 5')
@@ -447,11 +441,9 @@ test.describe('Applicant navigation flow', () => {
 
         // Verify that the optional questions were marked as seen and we can now submit the application
         await test.step('can submit application', async () => {
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.submitFromReviewPage()
-          await applicantQuestions.expectConfirmationPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectConfirmationPage()
         })
       })
     })
@@ -592,9 +584,7 @@ test.describe('Applicant navigation flow', () => {
 
         await test.step('can submit application', async () => {
           await applicantQuestions.submitFromReviewPage()
-          await applicantQuestions.expectConfirmationPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectConfirmationPage()
         })
       })
 
@@ -651,9 +641,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('can submit application', async () => {
           await applicantQuestions.expectReviewPage()
           await applicantQuestions.submitFromReviewPage()
-          await applicantQuestions.expectConfirmationPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectConfirmationPage()
         })
       })
 
@@ -665,14 +653,14 @@ test.describe('Applicant navigation flow', () => {
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         await test.step('answer screen 4', async () => {
           await applicantQuestions.editBlock('Screen 4')
 
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
           await applicantQuestions.answerRadioButtonQuestion('one')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         await test.step('answer screen 1', async () => {
@@ -683,7 +671,7 @@ test.describe('Applicant navigation flow', () => {
             '1',
           )
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         // Re-answering questions by clicking "Edit" on the review page puts the application
@@ -751,9 +739,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('can submit application', async () => {
           await applicantQuestions.expectReviewPage()
           await applicantQuestions.submitFromReviewPage()
-          await applicantQuestions.expectConfirmationPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectConfirmationPage()
         })
       })
     })
@@ -773,7 +759,7 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -796,7 +782,7 @@ test.describe('Applicant navigation flow', () => {
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         // The date question is required, so expect the error modal.
         await applicantQuestions.expectErrorOnReviewModal(
@@ -815,7 +801,7 @@ test.describe('Applicant navigation flow', () => {
         // If the applicant has never answered this block before and doesn't fill in any
         // answers now, we shouldn't show the error modal and should just go straight to
         // the review page -- see issue #6987.
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         await applicantQuestions.expectReviewPage()
       })
@@ -830,14 +816,12 @@ test.describe('Applicant navigation flow', () => {
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectErrorOnReviewModal(
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.clickStayAndFixAnswers(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickStayAndFixAnswers()
 
         // Verify the previously filled in answers are present
         await applicantQuestions.checkMemorableDateQuestionValue('', '', '')
@@ -850,7 +834,7 @@ test.describe('Applicant navigation flow', () => {
           '1',
         )
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
 
         // Verify we're taken to the review page and the answers were saved
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -877,15 +861,13 @@ test.describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.answerEmailQuestion('')
 
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        await applicantQuestions.clickReview()
         await applicantQuestions.expectErrorOnReviewModal(
           /* northStarEnabled= */ true,
         )
 
         // Proceed to the Review page, acknowledging that answers won't be saved
-        await applicantQuestions.clickReviewWithoutSaving(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickReviewWithoutSaving()
 
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -910,7 +892,7 @@ test.describe('Applicant navigation flow', () => {
             '1',
           )
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         await test.step('delete answers on first block', async () => {
@@ -922,7 +904,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('review button should show error modal', async () => {
           // Because the questions were previously answered and the date and email questions are required,
           // we don't let the user save the deletion of answers.
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
           await applicantQuestions.expectErrorOnReviewModal(
             /* northStarEnabled= */ true,
           )
@@ -943,7 +925,7 @@ test.describe('Applicant navigation flow', () => {
             '1',
           )
           await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
 
           await applicantQuestions.editBlock('Screen 3')
           await applicantQuestions.answerAddressQuestion(
@@ -953,14 +935,14 @@ test.describe('Applicant navigation flow', () => {
             'WA',
             '54321',
           )
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         // We require that all questions be seen before an applicant can submit an application,
         // so open the optional question but don't fill in any answer, then use the "Review" button.
         await test.step('open optional question block but do not answer', async () => {
           await applicantQuestions.editBlock('Screen 4')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         await test.step('answer only required questions on block with both required and optional', async () => {
@@ -968,15 +950,13 @@ test.describe('Applicant navigation flow', () => {
           // Only answer the required question, then use the "Review" button.
           await applicantQuestions.editBlock('Screen 5')
           await applicantQuestions.answerPhoneQuestion('4256373270')
-          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.clickReview()
         })
 
         // Verify that the optional questions were marked as seen and we can now submit the application
         await test.step('can submit application', async () => {
           await applicantQuestions.submitFromReviewPage()
-          await applicantQuestions.expectConfirmationPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectConfirmationPage()
         })
       })
     })

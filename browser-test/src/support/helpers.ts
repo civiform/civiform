@@ -14,7 +14,7 @@ export const dismissToast = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
-export const selectApplicantLanguageNorthstar = async (
+export const selectApplicantLanguage = async (
   page: Page,
   languageCode: string,
 ) => {
