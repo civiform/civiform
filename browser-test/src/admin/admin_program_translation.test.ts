@@ -218,7 +218,7 @@ test.describe('Admin can manage program translations', () => {
 
     await test.step('Add a pre-screener program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addPreScreenerNS(
+      await adminPrograms.addPreScreener(
         programName,
         'short description',
         ProgramVisibility.PUBLIC,
@@ -260,7 +260,6 @@ test.describe('Admin can manage program translations', () => {
         blockDescription: 'Spanish block description',
         statuses: [],
         programType: 'pre-screener',
-        northStar: true,
       })
     })
 
@@ -276,7 +275,6 @@ test.describe('Admin can manage program translations', () => {
         expectProgramName: 'Spanish name',
         expectProgramShortDescription: 'Spanish description',
         programType: 'pre-screener',
-        northStar: true,
       })
     })
   })
@@ -305,7 +303,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -345,7 +343,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -387,7 +385,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -467,7 +465,7 @@ test.describe('Admin can manage program translations', () => {
 
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
+        shortDescription: 'Spanish description',
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
         statuses: [],

@@ -259,12 +259,12 @@ export class AdminPrograms {
    * @param {string} shortDescription - Short description of the program
    * @param {ProgramVisibility} programVisibility - Visibility of the program
    */
-  async addPreScreenerNS(
+  async addPreScreener(
     programName: string,
     shortDescription: string,
     programVisibility: ProgramVisibility,
   ) {
-    // Only add values for fields that are required on North Star. Disabled
+    // Only add values for fields that are required. Disabled
     // fields must have an empty or undefined value, since disabled elements
     // are readonly and cannot be edited
     return this.addProgram(
@@ -387,7 +387,7 @@ export class AdminPrograms {
     }
 
     // This method adds an external link by default. The external link field is
-    // disabled for default programs and pre-screeners in North Star. Therefore,
+    // disabled for default programs and pre-screeners. Therefore,
     // tests will fail if we try to add default external link to a disabled
     // field.
     // TODO(#10630): Ideally, this method should not have a default value for

@@ -286,9 +286,7 @@ test.describe('Upsell tests', () => {
           name: "You've submitted your " + programName + ' application',
         }),
       ).toBeVisible()
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
       await expect(
         page.getByText(customConfirmationMarkupMatcher),
       ).toBeVisible()

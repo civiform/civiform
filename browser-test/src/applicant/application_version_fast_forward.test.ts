@@ -1264,7 +1264,7 @@ class FastForwardApplicantActor {
    * Must be on an application edit page
    */
   async gotoReviewPage() {
-    await this.applicantQuestions.clickReview(true)
+    await this.applicantQuestions.clickReview()
   }
 
   /**

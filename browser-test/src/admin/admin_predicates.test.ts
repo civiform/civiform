@@ -1831,7 +1831,7 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
 
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()

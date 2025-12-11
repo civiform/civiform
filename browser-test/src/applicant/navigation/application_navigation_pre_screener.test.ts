@@ -32,7 +32,7 @@ test.describe('Applicant navigation flow', () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           preScreenerProgramName,
           'short program description',
           ProgramVisibility.PUBLIC,

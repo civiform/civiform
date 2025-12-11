@@ -568,7 +568,7 @@ test.describe('applicant program index page', () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminPrograms.addPreScreenerNS(
+      await adminPrograms.addPreScreener(
         preScreenerFormProgramName,
         'short program description',
         ProgramVisibility.PUBLIC,
@@ -695,7 +695,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
@@ -721,7 +721,7 @@ test.describe('applicant program index page', () => {
 
     await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
       await applicantQuestions.applyProgram(primaryProgramName)
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       await applicantQuestions.northStarValidatePreviouslyAnsweredText(
         firstQuestionText,
       )
@@ -988,7 +988,7 @@ test.describe('applicant program index page with images', () => {
     await test.step('create program with image as admin', async () => {
       await loginAsAdmin(page)
       const preScreenerFormProgramName = 'Benefits finder'
-      await adminPrograms.addPreScreenerNS(
+      await adminPrograms.addPreScreener(
         preScreenerFormProgramName,
         'short program description',
         ProgramVisibility.PUBLIC,
@@ -1175,9 +1175,9 @@ test.describe('applicant program index page with images', () => {
     applicantQuestions,
   }) => {
     const externalProgramAName = 'External Program A'
-    const externalProgramALink = 'https://www.usa.gov'
+    const externalProgramALink = `${BASE_URL}/programs`
     const externalProgramBName = 'External Program B'
-    const externalProgramBLink = 'https://civiform.us'
+    const externalProgramBLink = `${BASE_URL}/programs#simulated_difference`
 
     await test.step('add external programs', async () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')
@@ -1295,7 +1295,7 @@ test.describe('applicant program index page with images', () => {
     seeding,
   }) => {
     const externalProgramName = 'External Program'
-    const externalProgramLink = 'https://civiform.us'
+    const externalProgramLink = `${BASE_URL}/programs`
 
     await test.step('enable required features', async () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')

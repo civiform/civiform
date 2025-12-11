@@ -89,9 +89,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
     })
   })
 
@@ -215,9 +213,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect application submitted page', async () => {
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
     })
   })
 

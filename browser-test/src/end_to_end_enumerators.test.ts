@@ -266,7 +266,7 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+      await applicantQuestions.clickReview()
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
       await expect(page.locator('.application-summary')).toContainText(
