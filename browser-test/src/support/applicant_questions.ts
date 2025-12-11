@@ -267,14 +267,9 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
-  async editQuestionFromReviewPage(
-    questionText: string,
-    northStarEnabled = false,
-  ) {
+  async editQuestionFromReviewPage(questionText: string) {
     const locator = this.page.locator(
-      northStarEnabled
-        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
-        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
+      `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
     await locator.click()
     await waitForPageJsLoad(this.page)
@@ -400,7 +395,7 @@ export class ApplicantQuestions {
     expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
   }
 
-  async expectProgramsNorthstar({
+  async expectPrograms({
     wantNotStartedPrograms,
     wantInProgressOrSubmittedPrograms,
   }: {
@@ -543,12 +538,6 @@ export class ApplicantQuestions {
   }
 
   async expectPreScreenerForm(preScreenerFormName: string) {
-    const preScreenerFormSectionNames =
-      await this.programNamesForSection('Find services')
-    expect(preScreenerFormSectionNames).toEqual([preScreenerFormName])
-  }
-
-  async expectPreScreenerFormNorthstar(preScreenerFormName: string) {
     const sectionLocator = this.page.locator('[aria-label="Get Started"]')
 
     const programTitlesLocator = sectionLocator.locator(
@@ -691,24 +680,15 @@ export class ApplicantQuestions {
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
-  async deleteEnumeratorEntityByIndex(
-    entityIndex: number,
-    northStarEnabled = false,
-  ) {
+  async deleteEnumeratorEntityByIndex(entityIndex: number) {
     this.page.once('dialog', async (dialog) => {
       await dialog.accept()
     })
-    if (northStarEnabled) {
-      await this.page
-        .locator(
-          `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
-        )
-        .click()
-    } else {
-      await this.page.click(
-        `:nth-match(:text("Remove entity"), ${entityIndex})`,
+    await this.page
+      .locator(
+        `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
       )
-    }
+      .click()
   }
 
   /**
@@ -720,17 +700,10 @@ export class ApplicantQuestions {
    * download".)
    */
   async downloadSingleQuestionFromReviewPage(
-    northStarEnabled = false,
     downloadText = 'click to download',
   ) {
     // Assert that we're on the review page.
-    if (northStarEnabled) {
-      await expect(this.page.getByText('Review and submit')).toBeVisible()
-    } else {
-      await expect(
-        this.page.getByText('Program application summary'),
-      ).toBeVisible()
-    }
+    await expect(this.page.getByText('Review and submit')).toBeVisible()
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -775,14 +748,10 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
-  async returnToProgramsFromSubmissionPage(northStarEnabled = false) {
+  async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
     await this.expectConfirmationPage()
-    if (northStarEnabled) {
-      await this.clickBackToHomepageButton()
-    } else {
-      await this.clickApplyToAnotherProgramButton()
-    }
+    await this.clickBackToHomepageButton()
 
     // If we are a guest, we will get a prompt to log in before going back to the
     // programs page. Bypass this to continue as a guest.
@@ -823,42 +792,6 @@ export class ApplicantQuestions {
     wantEligiblePrograms: string[],
   ) {
     if (wantTrustedIntermediary) {
-      expect(await this.page.innerText('h1')).toContain(
-        'Programs your client may qualify for',
-      )
-    } else {
-      expect(await this.page.innerText('h1')).toContain(
-        'Programs you may qualify for',
-      )
-    }
-
-    const upsellLocator = this.page.locator(
-      ':text("Create an account or sign in"):visible',
-    )
-    if (wantUpsell) {
-      expect(await upsellLocator.count()).toEqual(1)
-    } else {
-      expect(await upsellLocator.count()).toEqual(0)
-    }
-
-    const programLocator = this.page.locator(
-      '.cf-applicant-cif-eligible-program-name',
-    )
-    if (wantEligiblePrograms.length == 0) {
-      expect(await programLocator.count()).toEqual(0)
-    } else {
-      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
-      const allProgramTitles = await programLocator.allTextContents()
-      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
-    }
-  }
-
-  async expectPreScreenerConfirmationPageNorthStar(
-    wantUpsell: boolean,
-    wantTrustedIntermediary: boolean,
-    wantEligiblePrograms: string[],
-  ) {
-    if (wantTrustedIntermediary) {
       await expect(
         this.page.getByRole('heading', {
           name: 'Programs your client may qualify for',
@@ -892,31 +825,20 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectIneligiblePage(northStar = false) {
-    if (northStar) {
-      await expect(this.page).toHaveTitle('Ineligible for program')
+  async expectIneligiblePage() {
+    await expect(this.page).toHaveTitle('Ineligible for program')
 
-      await expect(
-        this.page
-          .getByText('You may not be eligible for this program')
-          .and(this.page.getByRole('heading')),
-      ).toBeVisible()
+    await expect(
+      this.page
+        .getByText('You may not be eligible for this program')
+        .and(this.page.getByRole('heading')),
+    ).toBeVisible()
 
-      await expect(
-        this.page.getByText('Apply to another program'),
-      ).toBeVisible()
-      await expect(this.page.getByText('Edit my responses')).toBeVisible()
-    } else {
-      expect(await this.page.innerText('html')).toContain('you may not qualify')
-    }
+    await expect(this.page.getByText('Apply to another program')).toBeVisible()
+    await expect(this.page.getByText('Edit my responses')).toBeVisible()
   }
 
   async clickGoBackAndEditOnIneligiblePage() {
-    await this.page.click('text="Go back and edit"')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async clickGoBackAndEditOnIneligiblePageNorthStar() {
     await this.page
       .getByRole('button', {
         name: 'Edit my responses',
@@ -932,10 +854,6 @@ export class ApplicantQuestions {
   }
 
   async expectIneligibleQuestion(questionText: string) {
-    expect(await this.page.innerText('li')).toContain(questionText)
-  }
-
-  async expectIneligibleQuestionNorthStar(questionText: string) {
     await expect(
       this.page
         .getByRole('alert')
@@ -945,10 +863,6 @@ export class ApplicantQuestions {
   }
 
   async expectIneligibleQuestionsCount(number: number) {
-    expect(await this.page.locator('li').count()).toEqual(number)
-  }
-
-  async expectIneligibleQuestionsCountNorthStar(number: number) {
     await expect(
       this.page.getByRole('alert').getByRole('listitem'),
     ).toHaveCount(number)
@@ -1062,15 +976,6 @@ export class ApplicantQuestions {
     ).toBeVisible()
   }
 
-  async validatePreviouslyAnsweredText(questionText: string) {
-    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
-      has: this.page.locator(`:text("${questionText}")`),
-    })
-    await expect(
-      questionLocator.locator('.cf-applicant-question-previously-answered'),
-    ).toBeVisible()
-  }
-
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
@@ -1080,7 +985,7 @@ export class ApplicantQuestions {
     ).toBeHidden()
   }
 
-  async northStarValidatePreviouslyAnsweredText(questionText: string) {
+  async validatePreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
@@ -1103,35 +1008,22 @@ export class ApplicantQuestions {
       'This question is required',
     )
   }
-  async expectErrorOnReviewModal(northStarEnabled = false) {
-    if (northStarEnabled) {
-      const modalTitle = 'Some answers on this page need to be fixed'
-      const modalContent =
-        'This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.'
-      const modalContinueButton = 'Go to the review page without saving'
-      const modalFixButton = 'Stay here and fix your answers'
+  async expectErrorOnReviewModal() {
+    const modalTitle = 'Some answers on this page need to be fixed'
+    const modalContent =
+      'This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.'
+    const modalContinueButton = 'Go to the review page without saving'
+    const modalFixButton = 'Stay here and fix your answers'
 
-      const modal = this.page.getByRole('dialog', {state: 'visible'})
-      await expect(modal.getByText(modalTitle)).toBeVisible()
-      await expect(modal.getByText(modalContent)).toBeVisible()
-      await expect(
-        modal.getByRole('button').getByText(modalContinueButton),
-      ).toBeVisible()
-      await expect(
-        modal.getByRole('button').getByText(modalFixButton),
-      ).toBeVisible()
-    } else {
-      const modalContent =
-        "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?"
-      const modalContinueButton = 'Continue to review page without saving'
-      const modalFixButton = 'Stay and fix your answers'
-
-      const modal = await waitForAnyModalLocator(this.page)
-      await expect(modal).toBeVisible()
-      await expect(modal).toContainText(modalContent)
-      await expect(modal).toContainText(modalContinueButton)
-      await expect(modal).toContainText(modalFixButton)
-    }
+    const modal = this.page.getByRole('dialog', {state: 'visible'})
+    await expect(modal.getByText(modalTitle)).toBeVisible()
+    await expect(modal.getByText(modalContent)).toBeVisible()
+    await expect(
+      modal.getByRole('button').getByText(modalContinueButton),
+    ).toBeVisible()
+    await expect(
+      modal.getByRole('button').getByText(modalFixButton),
+    ).toBeVisible()
   }
 
   async clickReviewWithoutSaving() {
@@ -1139,34 +1031,22 @@ export class ApplicantQuestions {
     await this.page.click(`button:has-text("${buttonText}")`)
   }
 
-  async expectErrorOnPreviousModal(northStarEnabled = false) {
-    if (northStarEnabled) {
-      const modalTitle = 'Some answers on this page need to be fixed'
-      const modalContent =
-        'This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.'
-      const modalContinueButton = 'Go to the previous page without saving'
-      const modalFixButton = 'Stay here and fix your answers'
+  async expectErrorOnPreviousModal() {
+    const modalTitle = 'Some answers on this page need to be fixed'
+    const modalContent =
+      'This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.'
+    const modalContinueButton = 'Go to the previous page without saving'
+    const modalFixButton = 'Stay here and fix your answers'
 
-      const modal = this.page.getByRole('dialog', {state: 'visible'})
-      await expect(modal.getByText(modalTitle)).toBeVisible()
-      await expect(modal.getByText(modalContent)).toBeVisible()
-      await expect(
-        modal.getByRole('button').getByText(modalContinueButton),
-      ).toBeVisible()
-      await expect(
-        modal.getByRole('button').getByText(modalFixButton),
-      ).toBeVisible()
-    } else {
-      const modalTitle = 'Questions on this page are not complete.'
-      const modalContinueButton =
-        'Continue to previous questions without saving'
-      const modalFixButton = 'Stay and fix your answers'
-
-      const modal = await waitForAnyModalLocator(this.page)
-      await expect(modal).toContainText(modalTitle)
-      await expect(modal).toContainText(modalContinueButton)
-      await expect(modal).toContainText(modalFixButton)
-    }
+    const modal = this.page.getByRole('dialog', {state: 'visible'})
+    await expect(modal.getByText(modalTitle)).toBeVisible()
+    await expect(modal.getByText(modalContent)).toBeVisible()
+    await expect(
+      modal.getByRole('button').getByText(modalContinueButton),
+    ).toBeVisible()
+    await expect(
+      modal.getByRole('button').getByText(modalFixButton),
+    ).toBeVisible()
   }
 
   async clickPreviousWithoutSaving() {
@@ -1186,23 +1066,14 @@ export class ApplicantQuestions {
     lastName: string,
     email: string,
     phone: string,
-    northStarEnabled = false,
   ) {
     await this.applyProgram(programName, northStarEnabled)
     await this.answerNameQuestion(firstName, lastName, middleName)
     await this.answerEmailQuestion(email)
     await this.answerPhoneQuestion(phone)
-    if (northStarEnabled) {
-      await this.clickContinue()
-    } else {
-      await this.clickNext()
-    }
+    await this.clickContinue()
     await this.submitFromReviewPage()
-    if (northStarEnabled) {
-      await this.page.getByRole('button', {name: 'End your session'}).click()
-    } else {
-      await this.page.click('text=End session')
-    }
+    await this.page.getByRole('button', {name: 'End your session'}).click()
   }
 
   async expectMayBeEligibileAlertToBeVisible() {

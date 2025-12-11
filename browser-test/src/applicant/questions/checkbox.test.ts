@@ -220,10 +220,7 @@ test.describe('Checkbox question for applicant flow', () => {
         await logout(page)
       })
 
-      await applicantQuestions.applyProgram(
-        longTextProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(longTextProgramName)
       await validateScreenshot(
         page.locator('main'),
         'checkbox-options-long-text-applicant',

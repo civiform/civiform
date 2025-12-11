@@ -396,7 +396,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
 
       // Apply to the program again as the same user
       await applicantQuestions.clickApplyProgramButton(programName)
