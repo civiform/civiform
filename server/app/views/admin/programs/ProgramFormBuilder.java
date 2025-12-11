@@ -624,7 +624,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String adminName, ProgramEditStatus programEditStatus, ProgramType programType) {
     if (programEditStatus == ProgramEditStatus.CREATION) {
       String labelText =
-          " Create a program ID. This ID can only contain lowercase letters, numbers, and"
+          " Create a program slug. This slug can only contain lowercase letters, numbers, and"
               + " dashes. It will be used in the program’s applicant-facing URL (except for"
               + " external programs), and it can’t be changed later.";
       return FieldWithLabel.input()

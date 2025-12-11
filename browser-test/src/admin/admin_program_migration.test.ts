@@ -205,11 +205,11 @@ test.describe('program migration', () => {
       )
     })
 
-    await test.step('error: invalid program admin name', async () => {
+    await test.step('error: invalid program slug', async () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-      // replace the program admin name with an invalid admin name to trigger an error
+      // replace the program slug with an invalid slug to trigger an error
       const comprehensiveProgramBadName =
         downloadedComprehensiveProgram.replace(
           'comprehensive-sample-program',
@@ -221,7 +221,7 @@ test.describe('program migration', () => {
         ALERT_ERROR,
       )
       await adminProgramMigration.expectAlert(
-        'A program admin name may only contain lowercase letters, numbers, and dashes.',
+        'A program slug may only contain lowercase letters, numbers, and dashes.',
         ALERT_ERROR,
       )
     })
