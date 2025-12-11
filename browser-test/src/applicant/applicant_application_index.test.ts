@@ -705,7 +705,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
@@ -731,7 +731,7 @@ test.describe('applicant program index page', () => {
 
     await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.clickReview(true)
+      await applicantQuestions.clickReview()
       await applicantQuestions.northStarValidatePreviouslyAnsweredText(
         firstQuestionText,
       )
