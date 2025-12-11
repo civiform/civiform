@@ -62,7 +62,7 @@ export class AdminPredicateEdit {
       })
     }
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
-    AdminPredicateEdit.ariaAnnounceSubconditionAndFocus()
+    AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
   }
 
   onPageLoad(): void {
@@ -152,7 +152,7 @@ export class AdminPredicateEdit {
     }
   }
 
-  private static ariaAnnounceSubconditionAndFocus(): void {
+  private static focusSubconditionAndTriggerAriaAnnouncement(): void {
     // Find which subcondition has autofocus set
     const focusedSubconditionQuestion: HTMLElement | null =
       document.querySelector(
@@ -161,7 +161,6 @@ export class AdminPredicateEdit {
     if (focusedSubconditionQuestion === null) {
       return
     }
-    console.log(focusedSubconditionQuestion.id)
 
     const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
       this.QUESTION_ID_SUFFIX,
@@ -174,8 +173,11 @@ export class AdminPredicateEdit {
       return
     }
 
+    // Focus the question dropdown of the desired subcondition
     focusedSubconditionQuestion.focus()
 
+    // If we want an aria announcement here, set the text of the aria-live region after a short delay.
+    // This update will trigger screen readers to read the text.
     if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
       setTimeout(function () {
         ariaAnnounceElement.textContent =
