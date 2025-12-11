@@ -8,11 +8,7 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
-      ></div>
-
-      <div
-        th:replace="~{errors/ErrorComponentFragment :: errorComponent(
+        th:replace="~{errors/ErrorFragment :: error(
           ${title},
           ${subtitle},
           ${additionalInfo},

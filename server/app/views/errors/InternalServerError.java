@@ -2,7 +2,6 @@ package views.errors;
 
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
-import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -50,20 +49,11 @@ public final class InternalServerError extends NorthStarBaseView {
             ApplicantPersonalInfo.ofGuestUser(),
             messages);
 
-    String title = messages.at(MessageKey.ERROR_INTERNAL_SERVER_TITLE_V2.getKeyName());
-    String subtitle = messages.at(MessageKey.ERROR_INTERNAL_SERVER_SUBTITLE.getKeyName());
     String additionalInfo = buildAdditionalInfo(request, messages, exceptionId);
-    String buttonText = messages.at(MessageKey.ERROR_INTERNAL_SERVER_HOME_BUTTON.getKeyName());
-    String homeUrl = routes.HomeController.index().url();
-    String statusCode = "500";
 
-    context.setVariable("title", title);
-    context.setVariable("subtitle", subtitle);
     context.setVariable("additionalInfo", additionalInfo);
-    context.setVariable("buttonText", buttonText);
-    context.setVariable("homeUrl", homeUrl);
-    context.setVariable("statusCode", statusCode);
-    context.setVariable("pageTitle", title);
+    context.setVariable("homeUrl", controllers.routes.HomeController.index().url());
+    context.setVariable("statusCode", "500");
 
     return templateEngine.process("errors/InternalServerErrorTemplate.html", context);
   }
