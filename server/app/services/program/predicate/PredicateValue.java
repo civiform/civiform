@@ -1,5 +1,6 @@
 package services.program.predicate;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.strong;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import controllers.admin.PredicateUtils;
 import j2html.tags.UnescapedText;
 import java.time.Instant;
@@ -224,6 +226,17 @@ public abstract class PredicateValue {
     return String.format("$%d.%02d", dollars, cents);
   }
 
+  private String toValueString(String value, QuestionType questionType) {
+    value = value.trim();
+    if (questionType.equals(QuestionType.CURRENCY)) {
+      return displayCurrencyString(value).replace("$", "");
+    } else if (type().equals(OperatorRightHandType.DATE)
+        || type().equals(OperatorRightHandType.PAIR_OF_DATES)) {
+      return displayDateString(value);
+    }
+    return value.replace("\"", "");
+  }
+
   private static String displayDateString(String value) {
     return Instant.ofEpochMilli(Long.parseLong(value))
         .atZone(ZoneId.systemDefault())
@@ -256,5 +269,45 @@ public abstract class PredicateValue {
    */
   public String valueWithoutSurroundingQuotes() {
     return type() == OperatorRightHandType.STRING ? value().replace("\"", "") : value();
+  }
+
+  /**
+   * Converts this PredicateValue to a {@link SelectedValue} for use in the admin expanded predicate
+   * view. Type conversions are as follows:
+   *
+   * <ul>
+   *   <li>STRING, LONG, DOUBLE, DATE, SERVICE_AREA -> SINGLE
+   *   <li>PAIR_OF_LONGS, PAIR_OF_DATES -> PAIR
+   *   <li>LIST_OF_LONGS, LIST_OF_STRINGS -> MULTIPLE
+   * </ul>
+   */
+  public SelectedValue toSelectedValue(QuestionType questionType) {
+    SelectedValue selectedValue = SelectedValue.single("");
+    switch (type()) {
+      case DATE, DOUBLE, LONG, SERVICE_AREA, STRING -> {
+        return SelectedValue.single(toValueString(value(), questionType));
+      }
+      case PAIR_OF_LONGS, PAIR_OF_DATES -> {
+        ImmutableList<String> values =
+            splitListString(value())
+                .map(value -> toValueString(value, questionType))
+                .collect(toImmutableList());
+        checkState(values.size() == 2, "Expected exactly two values for %s PredicateValue", type());
+        selectedValue =
+            SelectedValue.pair(new SelectedValue.ValuePair(values.get(0), values.get(1)));
+      }
+      case LIST_OF_STRINGS, LIST_OF_LONGS -> {
+        ImmutableSet<String> values =
+            splitListString(value())
+                .map(value -> toValueString(value, questionType))
+                .collect(ImmutableSet.toImmutableSet());
+        selectedValue = SelectedValue.multiple(values);
+      }
+      default -> {
+        throw new IllegalArgumentException(
+            String.format("Unsupported PredicateValue type: %s", type()));
+      }
+    }
+    return selectedValue;
   }
 }
