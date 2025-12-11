@@ -1,0 +1,23 @@
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <main id="main-content" tabindex="-1">
+      <div
+        th:replace="~{errors/ErrorComponentFragment :: errorComponent(
+          ${title},
+          ${subtitle},
+          ${additionalInfo},
+          ${buttonText},
+          ${homeUrl},
+          ${statusCode}
+        )}"
+      ></div>
+    </main>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
+  </body>
+</html>
