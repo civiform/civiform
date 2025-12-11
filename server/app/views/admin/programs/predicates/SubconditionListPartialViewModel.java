@@ -14,6 +14,11 @@ public record SubconditionListPartialViewModel(
     PredicateUseCase predicateUseCase,
     ImmutableList<EditSubconditionPartialViewModel> subconditions)
     implements EditPredicateBaseViewModel {
+  public String hxAddSubconditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxAddSubcondition(
+            programId, blockId, predicateUseCase.name())
+        .url();
+  }
 
   public String hxEditSubconditionEndpoint() {
     return routes.AdminProgramBlockPredicatesController.hxEditSubcondition(
