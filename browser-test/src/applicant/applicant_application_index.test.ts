@@ -414,7 +414,7 @@ test.describe('applicant program index page', () => {
         )
         await applicantQuestions.answerTextQuestion('second answer')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage(true)
         await applicantQuestions.expectProgramsinCorrectSections(
           {
@@ -711,7 +711,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.northStarValidatePreviouslyAnsweredText(
         firstQuestionText,
       )
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       await applicantQuestions.expectProgramsNorthstar({
         wantNotStartedPrograms: [primaryProgramName],
@@ -736,7 +736,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
@@ -756,7 +756,7 @@ test.describe('applicant program index page', () => {
         .click()
       await applicantQuestions.answerTextQuestion('first answer 2')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
       await applicantQuestions.clickApplyProgramButton(otherProgramName)
@@ -1061,7 +1061,7 @@ test.describe('applicant program index page with images', () => {
 
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programNameSubmittedBasic)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -1101,7 +1101,7 @@ test.describe('applicant program index page with images', () => {
 
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programNameSubmittedImage)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -1419,7 +1419,7 @@ test.describe('applicant program index page with images', () => {
     // Submit an application as a test user.
     await loginAsTestUser(page)
     await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.submitFromReviewPage(true)
+    await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
     // Set a status as a program admin

@@ -8,11 +8,10 @@
     <button
       type="button"
       class="usa-button usa-button--outline zero-top-margin"
-      th:hx-post="${model.hxEditConditionEndpoint()}"
+      th:hx-post="${model.hxAddConditionEndpoint()}"
       th:hx-vals='|{"conditionId": "${model.conditions.size() + 1}"}|'
       hx-target="#predicate-conditions-list"
       hx-swap="outerHTML"
-      autofocus
     >
       <cf:icon type="icon-add" />
       [[#{button.predicateAddCondition}]]

@@ -47,9 +47,7 @@ test.describe('address applicant flow', () => {
         )
 
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )
@@ -180,9 +178,7 @@ test.describe('address applicant flow', () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )
@@ -306,9 +302,7 @@ test.describe('address applicant flow', () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.expectConfirmationPage(
           /* northStarEnabled= */ true,
         )

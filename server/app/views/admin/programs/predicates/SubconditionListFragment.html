@@ -11,9 +11,8 @@
       <button
         type="button"
         class="usa-button usa-button--unstyled zero-top-margin"
-        th:hx-post="${model.hxEditSubconditionEndpoint()}"
-        th:with="nextSubconditionId=${model.subconditions.size() + 1}"
-        th:hx-vals='|{"conditionId": "${model.conditionId}", "subconditionId": "${nextSubconditionId}" }|'
+        th:hx-post="${model.hxAddSubconditionEndpoint()}"
+        th:hx-vals='|{"conditionId": "${model.conditionId}"}|'
         th:hx-target="${'#predicate-condition-' + model.conditionId + '-subcondition-list'}"
         hx-swap="outerHTML"
       >

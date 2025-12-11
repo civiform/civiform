@@ -110,7 +110,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
         'file2.txt',
@@ -134,7 +134,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickBack()
 
       // Verify we're taken to the previous page, which is the review page.
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
@@ -208,7 +208,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Verify the previously uploaded file name is shown on the review page
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
         'testFileName.txt',
@@ -241,7 +241,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Re-open the file upload question
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
         /* northStarEnabled= */ true,
@@ -560,7 +560,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Verify the previously uploaded file name is shown on the review page
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
         'file-upload.png',
@@ -730,10 +730,8 @@ test.describe('file upload applicant flow', () => {
       // Then the question is skipped because file upload question is optional
       // Verify we're taken to the next page (which is the review page
       // since this program only has one block)
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('can upload file', async ({
@@ -768,7 +766,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
         'file2.txt',
@@ -792,10 +790,8 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Verify we can submit the application
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('has no accessibility violations', async ({
@@ -821,7 +817,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Verify the previously uploaded file name is shown on the review page
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
         'testFileName.txt',
@@ -855,7 +851,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Re-open the file upload question
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
         /* northStarEnabled= */ true,
@@ -878,7 +874,7 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       // Re-open the file upload question
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
         /* northStarEnabled= */ true,
@@ -982,7 +978,7 @@ test.describe('file upload applicant flow', () => {
         )
 
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('clicking review with file saves file and redirects to review page', async ({
@@ -1016,7 +1012,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickReview()
 
         // Verify we're taken to the review page
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
 
         // Verify the file was saved
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -1078,7 +1074,7 @@ test.describe('file upload applicant flow', () => {
 
         // Verify the file was saved
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
 
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
@@ -1154,7 +1150,7 @@ test.describe('file upload applicant flow', () => {
 
         // Verify the file was saved
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
           'sample.txt',
@@ -1190,7 +1186,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickReview()
 
         // Re-open the file upload question
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
           /* northStarEnabled= */ true,
@@ -1204,7 +1200,7 @@ test.describe('file upload applicant flow', () => {
 
         // Verify the old file is still present
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
           'old.txt',
@@ -1238,7 +1234,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickReview()
 
         // Re-open the file upload question
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
           /* northStarEnabled= */ true,
@@ -1260,7 +1256,7 @@ test.describe('file upload applicant flow', () => {
 
         // Verify the old file is still used
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
           'old.txt',

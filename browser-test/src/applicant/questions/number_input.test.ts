@@ -61,9 +61,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('8')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with no input does not submit', async ({
@@ -127,9 +125,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -140,9 +136,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.answerNumberQuestion('33', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({

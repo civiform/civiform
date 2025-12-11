@@ -76,11 +76,11 @@ public final class ProgramService {
       "A program visibility option must be selected";
   private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
       "One or more notification preferences are invalid";
-  private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
-  private static final String INVALID_ADMIN_NAME_MSG =
-      "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String MISSING_PROGRAM_SLUG_MSG = "A program slug is required";
   private static final String INVALID_PROGRAM_SLUG_MSG =
-      "A program URL must contain at least one letter";
+      "A program slug may only contain lowercase letters, numbers, and dashes";
+  private static final String NUMERIC_PROGRAM_SLUG_MSG =
+      "A program slug must contain at least one letter";
   private static final String INVALID_CATEGORY_MSG = "Only existing category ids are allowed";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
@@ -510,13 +510,13 @@ public final class ProgramService {
             bridgeDefinitions,
             programType));
     if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
+      errorsBuilder.add(CiviFormError.of(MISSING_PROGRAM_SLUG_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
-    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(NUMERIC_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+      errorsBuilder.add(CiviFormError.of("A program slug of " + adminName + " already exists"));
     }
     return errorsBuilder.build();
   }

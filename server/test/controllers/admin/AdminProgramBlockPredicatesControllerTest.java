@@ -466,11 +466,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_expandedLogicDisabled_notFound() {
+  public void hxAddCondition_expandedLogicDisabled_notFound() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
 
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
@@ -481,10 +481,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
+  public void hxAddCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
@@ -496,10 +496,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
+  public void hxAddCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             EDIT_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
@@ -561,10 +561,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_noForm_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_noForm_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequestBuilder().build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
@@ -576,10 +576,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             /* programId= */ 1,
             /* blockDefinitionId= */ 3L,
@@ -591,10 +591,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 543L,
@@ -606,10 +606,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,

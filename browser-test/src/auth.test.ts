@@ -117,7 +117,7 @@ test.describe('Applicant auth', () => {
 
     await logout(page)
     await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+    await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page)
 
     // Check that program is marked as submitted.

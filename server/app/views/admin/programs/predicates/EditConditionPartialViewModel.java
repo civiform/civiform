@@ -21,8 +21,8 @@ public record EditConditionPartialViewModel(
     ImmutableList<OptionElement> valueOptions)
     implements EditPredicateBaseViewModel {
 
-  public String hxEditConditionEndpoint() {
-    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+  public String hxAddConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxAddCondition(
             programId, blockId, predicateUseCase.name())
         .url();
   }
@@ -49,6 +49,8 @@ public record EditConditionPartialViewModel(
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)
         .valueOptions(valueOptions)
+        .autofocus(false)
+        .shouldAnnounceChanges(false)
         .build();
   }
 

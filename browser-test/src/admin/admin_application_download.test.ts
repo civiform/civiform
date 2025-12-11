@@ -67,7 +67,7 @@ test.describe('Program admin download button visibility and endpoint access', ()
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('sarah', 'smith')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
         applicationId = parseInt(
           (await adminPrograms.getApplicationId()) || '-1',
         )
@@ -169,7 +169,7 @@ test.describe('csv export for multioption question', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -336,7 +336,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
@@ -395,7 +395,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.answerNumberQuestion('1600')
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
 
       // Apply to the program again as the same user
@@ -404,7 +404,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1500')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
