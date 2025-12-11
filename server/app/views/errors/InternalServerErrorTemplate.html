@@ -6,11 +6,11 @@
   <body>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{errors/ErrorComponentFragment :: errorComponent(
-          ${title},
-          ${subtitle},
+        th:replace="~{errors/ErrorFragment :: error(
+          #{error.internalServerTitle.v2},
+          #{error.internalServerSubtitle},
           ${additionalInfo},
-          ${buttonText},
+          #{error.internalServerHomeButton},
           ${homeUrl},
           ${statusCode}
         )}"

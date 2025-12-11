@@ -1,0 +1,25 @@
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <main id="main-content" tabindex="-1">
+      <div class="text-center maxw-tablet width-full margin-x-auto padding-x-2">
+        <h1
+          class="font-sans-xl text-bold margin-top-15 margin-bottom-5 text-base-darkest"
+          th:text="#{error.notFoundTitle}"
+        ></h1>
+        <p
+          class="font-sans-lg text-base-darker margin-bottom-3"
+          th:with="homepageLinkText=#{error.notFoundDescriptionLink},
+              homepageLinkHtml='<a class=\'usa-link\' href=\'' + ${homeUrl} + '\'>' + ${homepageLinkText} + '</a>'"
+          th:utext="#{error.notFoundDescription(${homepageLinkHtml})}"
+        ></p>
+      </div>
+    </main>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
+  </body>
+</html>
