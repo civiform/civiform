@@ -692,6 +692,12 @@ test.describe('create and edit predicates', () => {
       QuestionType.NUMBER,
       QuestionType.TEXT,
     ]) {
+      await test.step('refresh page and re-add condition', async () => {
+        await page.reload()
+        await adminPredicates.clickAddConditionButton()
+        await adminPredicates.expectCondition(1)
+      })
+
       await test.step(`Select ${questionType} question and validate CSV operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(

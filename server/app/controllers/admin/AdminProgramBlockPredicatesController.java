@@ -1410,7 +1410,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   private ImmutableSet<String> getMultiValueSelectionsFromFormData(
       String fieldNamePrefix, ImmutableMap<String, String> formData) {
-    System.out.println("Multi-value form data: " + formData.toString());
     // Find present input fields and return set of the IDs.
     Pattern valuesIdPattern =
         Pattern.compile(String.format("^%s-values\\[(\\d+)\\]", fieldNamePrefix));
