@@ -1,86 +1,86 @@
 package views.errors;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.rawHtml;
-
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
-import j2html.tags.UnescapedText;
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.DivTag;
+import controllers.routes;
 import java.util.Optional;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http;
-import play.twirl.api.Content;
+import services.BundledAssetsFinder;
+import services.DeploymentType;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.BaseHtmlView;
-import views.HtmlBundle;
-import views.applicant.ApplicantLayout;
-import views.components.LinkElement;
+import views.NorthStarBaseView;
 import views.components.TextFormatter;
-import views.style.ApplicantStyles;
 
 /**
  * Renders a page to handle internal server errors that will be shown to users instead of the
  * unthemed default Play page.
  */
-public final class InternalServerError extends BaseHtmlView {
-
-  private final ApplicantLayout layout;
-  private final LanguageUtils languageUtils;
-  private final SettingsManifest settingsManifest;
+public final class InternalServerError extends NorthStarBaseView {
 
   @Inject
   public InternalServerError(
-      ApplicantLayout layout, LanguageUtils languageUtils, SettingsManifest settingsManifest) {
-    this.layout = checkNotNull(layout);
-    this.languageUtils = checkNotNull(languageUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      BundledAssetsFinder bundledAssetsFinder,
+      controllers.applicant.ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        bundledAssetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils,
+        deploymentType);
   }
 
-  public Content render(Http.RequestHeader request, Messages messages, String exceptionId) {
-    HtmlBundle bundle = layout.getBundle(request);
-    String language = languageUtils.getPreferredLanguage(request).code();
-    bundle.setLanguage(language);
-    bundle.addMainContent(mainContent(request, messages, exceptionId));
-    return layout.render(bundle);
-  }
-
-  /** Page returned on 500 error */
-  private DivTag mainContent(
-      Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
+  public String render(Http.Request request, Messages messages, String exceptionId) {
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(
+            request,
+            Optional.empty(),
+            Optional.empty(),
+            ApplicantPersonalInfo.ofGuestUser(),
+            messages);
 
     String title = messages.at(MessageKey.ERROR_INTERNAL_SERVER_TITLE_V2.getKeyName());
-    Optional<String> subtitle =
-        Optional.of(messages.at(MessageKey.ERROR_INTERNAL_SERVER_SUBTITLE.getKeyName()));
-    Optional<UnescapedText> additionalInfo =
-        Optional.of(buildAdditionalInfo(requestHeader, messages, exceptionId));
+    String subtitle = messages.at(MessageKey.ERROR_INTERNAL_SERVER_SUBTITLE.getKeyName());
+    String additionalInfo = buildAdditionalInfo(request, messages, exceptionId);
     String buttonText = messages.at(MessageKey.ERROR_INTERNAL_SERVER_HOME_BUTTON.getKeyName());
-    Optional<String> statusCode = Optional.of("500");
+    String homeUrl = routes.HomeController.index().url();
+    String statusCode = "500";
 
-    return ErrorComponent.renderErrorComponent(
-        title, subtitle, additionalInfo, buttonText, messages, statusCode);
+    context.setVariable("title", title);
+    context.setVariable("subtitle", subtitle);
+    context.setVariable("additionalInfo", additionalInfo);
+    context.setVariable("buttonText", buttonText);
+    context.setVariable("homeUrl", homeUrl);
+    context.setVariable("statusCode", statusCode);
+    context.setVariable("pageTitle", title);
+
+    return templateEngine.process("errors/InternalServerErrorTemplate.html", context);
   }
 
-  private UnescapedText buildAdditionalInfo(
-      Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
+  private String buildAdditionalInfo(Http.Request request, Messages messages, String exceptionId) {
     // Support email address is required and should never be blank
-    String emailAddress = settingsManifest.getSupportEmailAddress(requestHeader).orElse("");
+    String emailAddress = settingsManifest.getSupportEmailAddress(request).orElse("");
     String emailLinkHref =
         String.format("mailto:%s?body=[CiviForm Error ID: %s]", emailAddress, exceptionId);
-    ATag emailAction =
-        new LinkElement()
-            .setText(emailAddress)
-            .setHref(emailLinkHref)
-            .asAnchorText()
-            .withClasses(ApplicantStyles.LINK);
+    String emailLinkHtml =
+        String.format("<a href=\"%s\" class=\"usa-link\">%s</a>", emailLinkHref, emailAddress);
     String descriptionText =
         messages.at(MessageKey.ERROR_INTERNAL_SERVER_DESCRIPTION.getKeyName(), exceptionId);
     // Since the exceptionId comes through in a query param, we want to sanitize it before allowing
     // the raw html to be rendered to remove any script tags or other potentially harmful injections
     String sanitizedDescription =
-        TextFormatter.sanitizeHtml(String.format(descriptionText, emailAction.render()));
-    return rawHtml(sanitizedDescription);
+        TextFormatter.sanitizeHtml(String.format(descriptionText, emailLinkHtml));
+    return sanitizedDescription;
   }
 }
