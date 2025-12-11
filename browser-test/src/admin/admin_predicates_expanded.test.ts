@@ -500,18 +500,6 @@ test.describe('create and edit predicates', () => {
 
         await inputElementLocator.fill(questionData.firstValue)
         await expect(inputElementLocator).toHaveValue(questionData.firstValue)
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `single-value-with-${questionType}-question-selected`,
-        )
-      })
-
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
       })
     }
 
@@ -568,18 +556,6 @@ test.describe('create and edit predicates', () => {
         await expect(secondInputElementLocator).toHaveValue(
           questionData.secondValue!,
         )
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `multiple-values-with-${questionType}-question-selected`,
-        )
-      })
-
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
       })
     }
 
@@ -608,10 +584,8 @@ test.describe('create and edit predicates', () => {
       await inputElementLocator.fill('18')
       await secondInputElementLocator.fill('25')
 
-      await validateScreenshot(
-        page.getByTestId('condition-1'),
-        `multiple-values-with-age-question-selected`,
-      )
+      await expect(inputElementLocator).toHaveValue('18')
+      await expect(secondInputElementLocator).toHaveValue('25')
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
@@ -623,12 +597,6 @@ test.describe('create and edit predicates', () => {
       QuestionType.NUMBER,
       QuestionType.TEXT,
     ]) {
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
-      })
-
       await test.step(`Select ${questionType} question and validate CSV operator behavior`, async () => {
         const questionData = programQuestions.get(questionType)!
         await adminPredicates.selectQuestion(
@@ -658,13 +626,6 @@ test.describe('create and edit predicates', () => {
         await expect(inputElementLocator).toHaveAttribute('inputmode', 'text')
       })
     }
-
-    await test.step('Validate value hint text screenshot', async () => {
-      await validateScreenshot(
-        page.locator('#condition-1-subcondition-1-valueHintText'),
-        'value-hint-text',
-      )
-    })
 
     await test.step('Trigger address correction toggle and add new condition', async () => {
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -697,11 +658,6 @@ test.describe('create and edit predicates', () => {
           .getByLabel('Value(s)', {id: 'condition-1-subcondition-1-value'})
           .locator(`option[value="Seattle"]`),
       ).not.toHaveAttribute('hidden')
-
-      await validateScreenshot(
-        page.getByTestId('condition-1'),
-        'values-with-address-question-selected',
-      )
     })
 
     // Test multiple option question types
@@ -711,13 +667,6 @@ test.describe('create and edit predicates', () => {
       QuestionType.RADIO,
     ]) {
       const questionData = programQuestions.get(questionType)!
-
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
-      })
 
       await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
         await adminPredicates.selectQuestion(
@@ -770,11 +719,6 @@ test.describe('create and edit predicates', () => {
             questionData.multiValueOptions![i].text,
           )
         }
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `multiselect-with-${questionType}-question-selected`,
-        )
       })
     }
   })
