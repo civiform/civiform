@@ -164,7 +164,7 @@ test.describe('Yes/no question for applicant flow', () => {
       await applicantQuestions.answerYesNoQuestion('No', /* order= */ 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -178,7 +178,7 @@ test.describe('Yes/no question for applicant flow', () => {
       await applicantQuestions.answerYesNoQuestion('Yes', /* order= */ 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('has no accessiblity violations', async ({

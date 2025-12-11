@@ -283,7 +283,7 @@ test.describe('address correction single-block, single-address program', () => {
         await applicantQuestions.clickContinue()
       })
       await test.step('Validate review page is shown', async () => {
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
       await logout(page)
     })
@@ -390,7 +390,7 @@ if (isLocalDevEnvironment()) {
         await applicantQuestions.clickContinue()
       })
       await test.step('Validate review page is shown and user can submit', async () => {
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
 
         await applicantQuestions.clickSubmitApplication()
       })
@@ -1001,9 +1001,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the review page
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           // Verify the original address was saved
           await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
             addressQuestionText,
@@ -1044,9 +1042,7 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.clickConfirmAddress()
 
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
             addressQuestionText,
             'Address With No Service Area Features',
@@ -1086,9 +1082,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the review page
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           // Verify the original address was saved
           await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
             addressQuestionText,
@@ -1126,9 +1120,7 @@ if (isLocalDevEnvironment()) {
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
 
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
           // Verify the applicant's answer is saved
           await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
             addressQuestionText,

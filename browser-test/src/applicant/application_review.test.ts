@@ -216,7 +216,7 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Submit application', async () => {
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('Log in as program admin', async () => {
@@ -399,7 +399,7 @@ test.describe('Program admin review of submitted applications', () => {
         await applicantQuestions.applyProgram(programName, true)
         await applicantQuestions.answerTextQuestion(answer)
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
 
         await logout(page)
       }
@@ -460,7 +460,7 @@ test.describe('Program admin review of submitted applications', () => {
       await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await logout(page)
     })
@@ -479,7 +479,7 @@ test.describe('Program admin review of submitted applications', () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage(true)
     })
 

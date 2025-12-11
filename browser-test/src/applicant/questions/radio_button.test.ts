@@ -141,7 +141,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with empty selection does not submit', async ({
@@ -294,7 +294,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -308,7 +308,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('has no accessiblity violations', async ({

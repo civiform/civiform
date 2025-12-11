@@ -46,17 +46,13 @@ test.describe('Prevent Duplicate Submission', () => {
       )
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
     })
 
     await test.step('Submit another application to the same program without changing anything', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
       // Wait for the page to finish loading
       await waitForPageJsLoad(page)
     })
@@ -73,26 +69,22 @@ test.describe('Prevent Duplicate Submission', () => {
     await test.step('Verify continue button', async () => {
       // Verify continue button closes the modal
       await applicantQuestions.clickContinueEditing()
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     await test.step('Verify "Close" (x) button', async () => {
       // Show the modal again
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
       await waitForPageJsLoad(page)
 
       // Verify close (x) button closes the modal
       await page.locator('[aria-label="Close"] >> visible=true').click()
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     await test.step('Verify exit button', async () => {
       // Show the modal again
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
       await waitForPageJsLoad(page)
 
       // Verify the exit button returns to the home page

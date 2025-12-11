@@ -210,7 +210,7 @@ test.describe('Applicant program overview', () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     // Eligibility is gating by default
@@ -224,7 +224,7 @@ test.describe('Applicant program overview', () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as ineligible when the eligibility condition is not met and eligibilty is gating', async () => {
@@ -249,7 +249,7 @@ test.describe('Applicant program overview', () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that no alert shows when eligibilty is not gating and the eligibility condition is not met', async () => {
@@ -262,7 +262,7 @@ test.describe('Applicant program overview', () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as eligible when the eligibility condition is met and eligibilty is not gating', async () => {

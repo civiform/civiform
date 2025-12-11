@@ -102,7 +102,7 @@ test.describe('Applicant navigation flow', () => {
 
         await applicantQuestions.clickBack()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('clicking previous on later blocks goes to previous blocks', async ({
@@ -160,7 +160,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Assert that we're on the review page.
         await applicantQuestions.clickBack()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('clicking previous with correct form shows previous page and saves answers', async ({
@@ -195,7 +195,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickBack()
 
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressQuestionText,
           '1234 St',
@@ -240,7 +240,7 @@ test.describe('Applicant navigation flow', () => {
         // See issue #6987.
         await applicantQuestions.clickBack()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('error on previous modal > click stay and fix > shows block', async ({
@@ -277,7 +277,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Verify we're taken to the previous page (which is the review page
         // since this was the first block) page and the answers were saved
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           dateQuestionText,
           '11/01/2021',
@@ -311,7 +311,7 @@ test.describe('Applicant navigation flow', () => {
         // since this is the first block), acknowledging that answers won't be saved
         await applicantQuestions.clickPreviousWithoutSaving()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.validateNoPreviouslyAnsweredText(
           dateQuestionText,
         )
@@ -442,9 +442,7 @@ test.describe('Applicant navigation flow', () => {
         // Verify that the optional questions were marked as seen and we can now submit the application
         await test.step('can submit application', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
       })
@@ -553,9 +551,7 @@ test.describe('Applicant navigation flow', () => {
 
         await test.step('clicking next on last block goes to review page', async () => {
           await applicantQuestions.clickContinue()
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
         })
 
         await test.step('review page has all saved answers', async () => {
@@ -587,9 +583,7 @@ test.describe('Applicant navigation flow', () => {
         })
 
         await test.step('can submit application', async () => {
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
       })
@@ -645,12 +639,8 @@ test.describe('Applicant navigation flow', () => {
         })
 
         await test.step('can submit application', async () => {
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
       })
@@ -720,9 +710,7 @@ test.describe('Applicant navigation flow', () => {
         // All the blocks are answered, so we should now be taken to the review page
         await test.step('next screen is review page', async () => {
           await applicantQuestions.clickContinue()
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
         })
 
         await test.step('cannot delete answers to required questions', async () => {
@@ -749,12 +737,8 @@ test.describe('Applicant navigation flow', () => {
         })
 
         await test.step('can submit application', async () => {
-          await applicantQuestions.expectReviewPage(
-            /* northStarEnabled= */ true,
-          )
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectReviewPage()
+          await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
       })
@@ -777,7 +761,7 @@ test.describe('Applicant navigation flow', () => {
 
         await applicantQuestions.clickReview()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           dateQuestionText,
           '11/01/2021',
@@ -819,7 +803,7 @@ test.describe('Applicant navigation flow', () => {
         // the review page -- see issue #6987.
         await applicantQuestions.clickReview()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
 
       test('error on review modal > click stay and fix > shows block', async ({
@@ -885,7 +869,7 @@ test.describe('Applicant navigation flow', () => {
         // Proceed to the Review page, acknowledging that answers won't be saved
         await applicantQuestions.clickReviewWithoutSaving()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
         await applicantQuestions.validateNoPreviouslyAnsweredText(
           dateQuestionText,
         )
@@ -971,9 +955,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Verify that the optional questions were marked as seen and we can now submit the application
         await test.step('can submit application', async () => {
-          await applicantQuestions.submitFromReviewPage(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.submitFromReviewPage()
           await applicantQuestions.expectConfirmationPage()
         })
       })
@@ -1043,7 +1025,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickContinue()
       })
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('Editing an in-progress application takes user to the next incomplete page', async ({

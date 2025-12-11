@@ -34,7 +34,7 @@ test.describe('Applicant application download test', () => {
     )
     await applicantQuestions.answerNameQuestion('sarah', 'smith')
     await applicantQuestions.clickContinue()
-    await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+    await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.downloadFromConfirmationPage()
 
     await logout(page)

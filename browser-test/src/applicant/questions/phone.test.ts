@@ -68,7 +68,7 @@ test.describe('phone question for applicant flow', () => {
       await validateScreenshot(page.locator('main'), 'phone-format-usa')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with canada phone submits successfully', async ({
@@ -84,7 +84,7 @@ test.describe('phone question for applicant flow', () => {
       await validateScreenshot(page.locator('main'), 'phone-format-ca')
 
       await applicantQuestions.clickContinue()
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with empty phone does not submit', async ({
@@ -203,14 +203,14 @@ test.describe('phone question for applicant flow', () => {
       // await page.focus('button:has-text("Save and next")')
       await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
       await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 
@@ -250,7 +250,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -264,7 +264,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with first invalid does not submit', async ({
