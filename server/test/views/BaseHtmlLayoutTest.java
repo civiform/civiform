@@ -35,7 +35,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
+            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG), null),
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class));
   }
@@ -67,7 +67,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            new SettingsManifest(ConfigFactory.parseMap(config)),
+            new SettingsManifest(ConfigFactory.parseMap(config), null),
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
