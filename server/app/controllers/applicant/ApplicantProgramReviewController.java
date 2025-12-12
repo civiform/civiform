@@ -1,8 +1,6 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
-import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import actions.ProgramDisabledAction;
 import auth.Authorizers;
@@ -33,7 +31,6 @@ import services.AlertSettings;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -48,8 +45,6 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
-import views.components.Modal;
-import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
 
 /**
@@ -188,35 +183,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                 .setProgramId(programId)
                                 .setRequest(request)
                                 .setProfile(submittingProfile);
-
-                        // Show a login prompt on the review page if we were redirected from a
-                        // program slug and user is a guest.
-                        if (request.flash().get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG).isPresent()
-                            && applicantStage.toCompletableFuture().join().getType()
-                                == ApplicantType.GUEST) {
-                          Modal loginPromptModal =
-                              createLoginPromptModal(
-                                      messages,
-                                      /* postLoginRedirectTo= */ routes.ApplicantProgramsController
-                                          .show(
-                                              request
-                                                  .flash()
-                                                  .get(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG)
-                                                  .get())
-                                          .url(),
-                                      messages.at(
-                                          MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
-                                          // The applicant portal name should always be set (there
-                                          // is a
-                                          // default setting as well).
-                                          settingsManifest.getApplicantPortalName(request).get()),
-                                      MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
-                                  .setDisplayOnLoad(true)
-                                  .setRepeatOpenBehavior(
-                                      RepeatOpenBehavior.showOnlyOnce(PROGRAM_SLUG_LOGIN_PROMPT))
-                                  .build();
-                          params.setLoginPromptModal(loginPromptModal);
-                        }
 
                         // TODO(#11575): North star clean up
                         if (settingsManifest.getNorthStarApplicantUi()) {
