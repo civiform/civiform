@@ -67,7 +67,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                   "subconditionId",
                   "1",
                   "condition-1-subcondition-1-question",
-                  "-Select-"))
+                  "-Select-",
+                  "condition-1-nodeType",
+                  "AND"))
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
@@ -634,6 +636,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-nodeType",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -668,6 +672,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-nodeType",
+                        "AND",
                         "condition-1-subcondition-1-INVALIDQuestionId",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -705,6 +711,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-nodeType",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.checkboxApplicantKitchenTools().id)))
                 .build(),
@@ -970,6 +978,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),
           String.valueOf(questionIds.get(i - 1)));
+      conditionMap.put(String.format("condition-%d-nodeType", i), "AND");
     }
 
     return conditionMap;

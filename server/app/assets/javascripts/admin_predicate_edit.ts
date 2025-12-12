@@ -58,6 +58,18 @@ export class AdminPredicateEdit {
             this.onOperatorDropdownChange.bind(this),
           )
         })
+      document
+        .querySelectorAll<HTMLSelectElement>('.cf-subcondition-logic-select')
+        .forEach((dropdown: HTMLSelectElement) => {
+          dropdown.removeEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange.bind(this),
+          )
+        })
 
       // Trigger change to update operators based on the current scalar selected.
       Array.from(
@@ -97,6 +109,11 @@ export class AdminPredicateEdit {
       '.cf-predicate-operator-select',
       'change',
       AdminPredicateEdit.onOperatorDropdownChange.bind(this),
+    )
+    addEventListenerToElements(
+      '.cf-subcondition-logic-select',
+      'change',
+      AdminPredicateEdit.onSubconditionLogicDropdownChange.bind(this),
     )
     addEventListenerToElements(
       '[name="root-nodeType"]',
@@ -173,6 +190,41 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static onSubconditionLogicDropdownChange(event: Event) {
+    AdminPredicateEdit.handleSubconditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleSubconditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Only change separators for this condition.
+    const conditionId: string | null =
+      predicateLogicDropdown.getAttribute('data-condition-id')
+    if (conditionId === null) {
+      return
+    }
+
+    // Set inner text of all subcondition separators to the desired value.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(
+        `#condition-${conditionId} .cf-predicate-subcondition-separator`,
+      ),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
   }
 
   private static onConditionLogicDropdownChange(this: void, event: Event) {

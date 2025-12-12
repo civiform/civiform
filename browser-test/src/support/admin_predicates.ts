@@ -188,6 +188,32 @@ export class AdminPredicates {
     }
   }
 
+  async selectConditionLogicalOperator(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    await this.page
+      .getByRole('combobox', {name: `condition-${conditionId}-nodeType`})
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectConditionLogicalOperatorValues(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    const subconditionLogicSeparatorsText = this.page.locator(
+      `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
+    )
+
+    expect(subconditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await subconditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
+  }
+
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
   }
