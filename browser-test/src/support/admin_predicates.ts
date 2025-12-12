@@ -187,6 +187,29 @@ export class AdminPredicates {
     }
   }
 
+  async selectConditionLogicalOperator(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId}-nodeType`)
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectConditionLogicalOperatorValues(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    const subconditionLogicSeparators: Locator[] = await this.page
+      .locator(`#condition-${conditionId} .cf-predicate-subcondition-separator`)
+      .all()
+    for (const separator of subconditionLogicSeparators) {
+      await expect(separator).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separator).toBeVisible()
+    }
+  }
+
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
   }

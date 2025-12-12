@@ -273,6 +273,22 @@ test.describe('create and edit predicates', () => {
         'condition-with-multiple-subconditions',
       )
     })
+
+    await test.step('refresh page and add two conditions', async () => {
+      await page.reload()
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+      await waitForHtmxReady(page)
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(2)
+      await waitForHtmxReady(page)
+
+      await validateScreenshot(
+        page.locator('#predicate-conditions-list'),
+        'multiple-conditions',
+      )
+    })
   })
 
   test('Create and edit an eligibility predicate', async ({
@@ -738,6 +754,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Add second subcondition, select questions, and enter input', async () => {
       await adminPredicates.addAndExpectSubcondition(1, 2)
+      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
 
       await adminPredicates.configureSubcondition({
         conditionId: 1,
@@ -775,6 +792,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Add second subcondition, select question, and enter values', async () => {
       await adminPredicates.addAndExpectSubcondition(1, 2)
+      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
 
       await adminPredicates.configureSubcondition({
         conditionId: 1,
@@ -1012,6 +1030,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('select logical operators', async () => {
       await adminPredicates.selectRootLogicalOperator('OR')
+      await adminPredicates.selectConditionLogicalOperator(1, 'OR')
     })
 
     await test.step('validate state', async () => {
@@ -1027,6 +1046,7 @@ test.describe('create and edit predicates', () => {
       ).not.toHaveAttribute('hidden')
 
       await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
+      await adminPredicates.expectRootLogicalOperatorValues('OR')
     })
 
     await test.step('save and reload', async () => {
@@ -1051,6 +1071,7 @@ test.describe('create and edit predicates', () => {
       ).not.toHaveAttribute('hidden')
 
       await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
+      await adminPredicates.expectRootLogicalOperatorValues('OR')
     })
   })
 
