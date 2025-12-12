@@ -337,8 +337,8 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
-        // TODO(#9454): uncomment when North Star obeys maxFiles.
-        // await applicantFileQuestion.expectFileInputDisabled()
+
+        await applicantFileQuestion.expectFileInputDisabled()
       })
 
       await test.step('Removing a file shows file input again', async () => {
@@ -1146,9 +1146,7 @@ test.describe('file upload applicant flow', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.expectQuestionOnReviewPage(
@@ -1168,9 +1166,7 @@ test.describe('file upload applicant flow', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.expectQuestionOnReviewPage(

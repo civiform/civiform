@@ -210,7 +210,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.gotoApplicantHomePage()
     })
 
-    await test.step('Download file in North Star', async () => {
+    await test.step('Download file', async () => {
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,

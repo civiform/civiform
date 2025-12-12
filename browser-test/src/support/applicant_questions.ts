@@ -474,24 +474,33 @@ export class ApplicantQuestions {
     },
     /* Toggle whether filters have been selected */ filtersOn = false,
   ) {
-    const gotMyApplicationsProgramNames =
-      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
+    const gotMyApplicationsProgramNames = await this.programNamesForSection(
+      CardSectionName.MyApplications,
+    )
 
     let gotRecommendedProgramNames
     let gotOtherProgramNames
     let gotProgramsAndServicesNames
 
     if (filtersOn) {
-      gotRecommendedProgramNames = await this.programNamesForSection(
-        'Programs based on your selections',
+      const recommendedSectionLocator = this.page.locator(
+        '.cf-application-program-section',
+        {has: this.page.locator(':text("Programs based on your selections")')},
+      )
+      gotRecommendedProgramNames = await this.findProgramsWithSectionLocator(
+        recommendedSectionLocator,
       )
       gotRecommendedProgramNames.sort()
-      gotOtherProgramNames = await this.programNamesForSection(
-        'Other programs and services',
+
+      const otherSectionLocator = this.page.locator(
+        '.cf-application-program-section',
+        {has: this.page.locator(':text("Other programs and services")')},
       )
+      gotOtherProgramNames =
+        await this.findProgramsWithSectionLocator(otherSectionLocator)
       gotOtherProgramNames.sort()
     } else {
-      gotProgramsAndServicesNames = await this.northStarProgramNamesForSection(
+      gotProgramsAndServicesNames = await this.programNamesForSection(
         CardSectionName.ProgramsAndServices,
       )
       gotProgramsAndServicesNames.sort()
@@ -538,15 +547,7 @@ export class ApplicantQuestions {
     await expect(programTitlesLocator).toHaveText(preScreenerFormName)
   }
 
-  private programNamesForSection(sectionName: string): Promise<string[]> {
-    const sectionLocator = this.page.locator(
-      '.cf-application-program-section',
-      {has: this.page.locator(`:text("${sectionName}")`)},
-    )
-    return this.findProgramsWithSectionLocator(sectionLocator)
-  }
-
-  private northStarProgramNamesForSection(
+  private programNamesForSection(
     sectionName: CardSectionName,
   ): Promise<string[]> {
     const sectionLocator =
@@ -695,9 +696,8 @@ export class ApplicantQuestions {
    * On the review page, users can download already-uploaded files;
    * this method downloads one of them and returns the file content.
    *
-   * In North Star, the anchor text for the download link is the name
-   * of the file. (Prior to North Star, the anchor text was "click to
-   * download".)
+   * The anchor text for the download link is the name
+   * of the file.
    */
   async downloadSingleQuestionFromReviewPage(
     northStarEnabled = false,

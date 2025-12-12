@@ -880,7 +880,7 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
-  test('shows program with wide image in North Star and removes image from card when in My Applications', async ({
+  test('shows program with wide image and removes image from card when in My Applications', async ({
     page,
     adminPrograms,
     adminProgramImage,
