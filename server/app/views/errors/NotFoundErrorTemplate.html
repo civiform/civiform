@@ -1,7 +1,7 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
     <main id="main-content" tabindex="-1">

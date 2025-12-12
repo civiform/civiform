@@ -27,14 +27,15 @@ import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
+import views.applicant.support.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
-public class NorthStarProgramIndexView extends NorthStarBaseView {
+public class ProgramIndexView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject
-  NorthStarProgramIndexView(
+  ProgramIndexView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,

@@ -36,6 +36,8 @@ import views.BaseHtmlLayout;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.PageNotProductionBanner;
+import views.trustedintermediary.ApplicantLayout;
+import views.trustedintermediary.TrustedIntermediaryClientListView;
 
 public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
 

@@ -18,14 +18,16 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.support.ApplicantUpsellParams;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
+import views.applicant.support.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
 
-public class NorthStarApplicantUpsellView extends NorthStarBaseView {
+public class ApplicantUpsellView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject
-  NorthStarApplicantUpsellView(
+  ApplicantUpsellView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -45,7 +47,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 
-  public String render(UpsellParams params) {
+  public String render(ApplicantUpsellParams params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
