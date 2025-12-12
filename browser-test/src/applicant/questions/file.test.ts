@@ -29,19 +29,13 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page.locator('main'), 'file-required')
     })
 
     test('form is correctly formatted', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickContinue()
 
       const formInputs = await page
@@ -58,10 +52,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
       await applicantFileQuestion.expectFileTooLargeErrorHidden()
@@ -71,10 +62,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectNoContinueButton()
     })
@@ -83,10 +71,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectNoSkipButton()
     })
@@ -96,10 +81,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
@@ -112,10 +94,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
@@ -139,10 +118,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('can download file content', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
       await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickContinue()
@@ -153,10 +129,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('back button', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.clickBack()
 
@@ -169,10 +142,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickContinue()
 
       await applicantFileQuestion.expectQuestionErrorShown()
@@ -187,10 +157,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Shows error when file size is too large', async () => {
         await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
@@ -219,10 +186,7 @@ test.describe('file upload applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await expect(page.getByLabel('Drag file here')).toHaveAttribute(
         'aria-required',
@@ -236,10 +200,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
         'testFileName.txt',
@@ -272,10 +233,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
         'testFileName.txt',
@@ -321,10 +279,7 @@ test.describe('file upload applicant flow', () => {
         await logout(page)
       })
 
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Adding maximum files disables file input', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
@@ -392,10 +347,7 @@ test.describe('file upload applicant flow', () => {
         await logout(page)
       })
 
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Check that text is correct for file upload with no limit set', async () => {
         await expect(
@@ -441,10 +393,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(
         page.locator('main'),
@@ -453,10 +402,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('form is correctly formatted', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       const formInputs = await page
         .locator('#cf-block-form')
@@ -472,10 +418,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
       await applicantFileQuestion.expectFileTooLargeErrorHidden()
@@ -485,10 +428,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
@@ -519,10 +459,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Upload two files', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
@@ -567,10 +504,7 @@ test.describe('file upload applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
       )
@@ -594,10 +528,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('can download file content', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'file 1 content',
         'file1.txt',
@@ -622,10 +553,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
       )
@@ -652,10 +580,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
@@ -673,10 +598,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
@@ -701,10 +623,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       page,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload.png',
@@ -737,10 +656,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Shows error when file size is too large', async () => {
         await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
@@ -769,10 +685,7 @@ test.describe('file upload applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -803,19 +716,13 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page.locator('main'), 'file-optional')
     })
 
     test('with missing file can be skipped', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // When the applicant clicks "Continue"
       await applicantQuestions.clickContinue()
@@ -831,10 +738,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
@@ -846,10 +750,7 @@ test.describe('file upload applicant flow', () => {
       applicantQuestions,
       applicantFileQuestion,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerFileUploadQuestion(
         'some file',
@@ -873,10 +774,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('can download file content', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
       await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickContinue()
@@ -887,10 +785,7 @@ test.describe('file upload applicant flow', () => {
     })
 
     test('can submit application', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion('some sample text')
       await applicantQuestions.clickContinue()
 
@@ -903,10 +798,7 @@ test.describe('file upload applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -917,10 +809,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
         'testFileName.txt',
@@ -954,10 +843,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
         'testFileName.txt',
@@ -980,10 +866,7 @@ test.describe('file upload applicant flow', () => {
       applicantFileQuestion,
     }) => {
       // Answer the file upload question
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
         'testFileName.txt',

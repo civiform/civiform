@@ -35,7 +35,7 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
       await loginAsProgramAdmin(page)
@@ -195,14 +195,14 @@ test.describe('when email is configured for the status and applicant, a checkbox
     })
 
     await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.applyProgram(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programWithStatusesName, true)
+      await applicantQuestions.applyProgram(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })

@@ -24,10 +24,7 @@ test.describe('Yes/no question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
@@ -51,10 +48,7 @@ test.describe('Yes/no question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -63,10 +57,7 @@ test.describe('Yes/no question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await selectApplicantLanguage(page, 'ar')
       await validateScreenshot(
         page.getByTestId('questionRoot'),
@@ -76,10 +67,7 @@ test.describe('Yes/no question for applicant flow', () => {
     })
 
     test('options translate to Spanish', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await selectApplicantLanguage(page, 'es-US')
 
       // Verify Spanish translations are shown
@@ -114,10 +102,7 @@ test.describe('Yes/no question for applicant flow', () => {
     })
 
     test('validate option hidden', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await expect(page.getByText('Yes', {exact: true})).toBeVisible()
       await expect(page.getByText('No', {exact: true})).toBeVisible()
@@ -156,10 +141,7 @@ test.describe('Yes/no question for applicant flow', () => {
     test('with both selections submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerYesNoQuestion('Yes')
       await applicantQuestions.answerYesNoQuestion('No', /* order= */ 1)
       await applicantQuestions.clickContinue()
@@ -171,10 +153,7 @@ test.describe('Yes/no question for applicant flow', () => {
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerYesNoQuestion('Yes', /* order= */ 1)
       await applicantQuestions.clickContinue()
 
@@ -185,10 +164,7 @@ test.describe('Yes/no question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

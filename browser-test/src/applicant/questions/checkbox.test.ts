@@ -66,10 +66,7 @@ test.describe('Checkbox question for applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page.locator('main'), 'checkbox')
     })
@@ -78,10 +75,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickContinue()
 
       await validateScreenshot(page.locator('main'), 'checkbox-errors')
@@ -90,10 +84,7 @@ test.describe('Checkbox question for applicant flow', () => {
     test('with single checked box submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickContinue()
 
@@ -104,10 +95,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // No validation errors on first page load.
       await expect(page.locator('.cf-applicant-question-errors')).toBeHidden()
@@ -128,10 +116,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
       await expect(page.locator(checkBoxError)).toBeHidden()
@@ -275,10 +260,7 @@ test.describe('Checkbox question for applicant flow', () => {
     test('with valid checkboxes submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickContinue()
@@ -290,10 +272,7 @@ test.describe('Checkbox question for applicant flow', () => {
       applicantQuestions,
     }) => {
       // Only answer required question.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickContinue()
 
@@ -304,10 +283,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
       await expect(page.locator(checkboxError)).toBeHidden()
@@ -328,10 +304,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
       await expect(page.locator(checkboxError)).toBeHidden()
@@ -352,10 +325,7 @@ test.describe('Checkbox question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

@@ -86,7 +86,7 @@ test.describe('Applicant program overview', () => {
 
   test.describe('after starting an application', () => {
     test.beforeEach(async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
     })
@@ -103,7 +103,7 @@ test.describe('Applicant program overview', () => {
 
       // Exercise test user path
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
 
@@ -207,7 +207,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
@@ -221,7 +221,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
@@ -246,7 +246,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
@@ -259,7 +259,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()

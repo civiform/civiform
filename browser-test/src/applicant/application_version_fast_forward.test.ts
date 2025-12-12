@@ -1240,7 +1240,7 @@ class FastForwardApplicantActor {
    */
   async applyToProgram() {
     await test.step(`apply to program ${this.programName}`, async () => {
-      await this.applicantQuestions.applyProgram(this.programName, true)
+      await this.applicantQuestions.applyProgram(this.programName)
     })
   }
 

@@ -26,10 +26,7 @@ test.describe('address applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Validate page', async () => {
         await expectQuestionHasNoErrors(page, 0)
@@ -61,10 +58,7 @@ test.describe('address applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       // Answers intentionally left blank
       await applicantQuestions.clickContinue()
 
@@ -88,10 +82,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -129,10 +120,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Partially fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '43568')
         await applicantQuestions.clickContinue()
       })
@@ -168,10 +156,7 @@ test.describe('address applicant flow', () => {
 
     test('with valid addresses does submit', async ({applicantQuestions}) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -205,10 +190,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
@@ -233,10 +215,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -272,10 +251,7 @@ test.describe('address applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -312,10 +288,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -341,10 +314,7 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           '',
@@ -383,10 +353,7 @@ test.describe('address applicant flow', () => {
     })
 
     test('invalid required address', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Intentionally do not answer any questions
       await applicantQuestions.clickContinue()

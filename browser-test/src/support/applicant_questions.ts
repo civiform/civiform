@@ -294,28 +294,21 @@ export class ApplicantQuestions {
 
   async applyProgram(
     programName: string,
-    northStarEnabled = false,
     showProgramOverviewPage = true,
     translatedOverviewTitle?: string,
     translatedLinkText?: string,
   ) {
     await this.clickApplyProgramButton(programName)
 
-    // In North Star, clicking on "Apply" navigates to the program overview page if it's the applicant's first time applying.
+    // Clicking on "Apply" navigates to the program overview page if it's the applicant's first time applying.
     // If the applicant has already submitted an application, it will take them to the review page.
     // If the applicant has a partially completed application, it will take them to the page with the first unanswered question.
-    if (northStarEnabled) {
-      if (showProgramOverviewPage) {
-        await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-          translatedOverviewTitle,
-          translatedLinkText,
-        )
-      }
-    } else {
-      // In the legacy UI, the user navigates to the application review page. They must click another
-      // button to reach the first unanswered question.
-      await this.page.click(`#continue-application-button`)
+    if (showProgramOverviewPage) {
+      await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+        translatedOverviewTitle,
+        translatedLinkText,
+      )
     }
 
     await waitForPageJsLoad(this.page)
@@ -1188,7 +1181,7 @@ export class ApplicantQuestions {
     phone: string,
     northStarEnabled = false,
   ) {
-    await this.applyProgram(programName, northStarEnabled)
+    await this.applyProgram(programName)
     await this.answerNameQuestion(firstName, lastName, middleName)
     await this.answerEmailQuestion(email)
     await this.answerPhoneQuestion(phone)

@@ -46,7 +46,6 @@ test.describe('Admin can manage translations', () => {
 
     await applicantQuestions.applyProgram(
       programName,
-      /* northStarEnabled= */ true,
       /* showProgramOverviewPage= */ false, // in this case, the application is unstarted, but we pass in false so that we can use the translated version of the program overview page below
     )
     await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
@@ -99,10 +98,7 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
@@ -150,10 +146,7 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('uno')
@@ -189,10 +182,7 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
