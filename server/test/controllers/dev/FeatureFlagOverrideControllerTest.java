@@ -26,7 +26,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   @Test
   public void disable() {
     // Setup
-    controller = new FeatureFlagOverrideController(instanceOf(SettingsService.class));
+    controller = instanceOf(FeatureFlagOverrideController.class);
 
     // Execute
     var result = controller.disable(fakeRequest(), FLAG_NAME);
@@ -39,7 +39,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
   @Test
   public void enable() {
     // Setup
-    controller = new FeatureFlagOverrideController(instanceOf(SettingsService.class));
+    controller = instanceOf(FeatureFlagOverrideController.class);
 
     // Execute
     var result = controller.enable(fakeRequest(), FLAG_NAME);

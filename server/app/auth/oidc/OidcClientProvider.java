@@ -39,7 +39,8 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected final String baseUrl;
   protected final SettingsManifest settingsManifest;
 
-  public OidcClientProvider(OidcClientProviderParams params) {
+  public OidcClientProvider(
+      OidcClientProviderParams params, Provider<SettingsManifest> manifestProvider) {
     this.params = params;
     this.civiformConfig = checkNotNull(params.configuration());
     this.profileFactory = checkNotNull(params.profileFactory());
@@ -48,7 +49,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     this.baseUrl =
         getBaseConfigurationValue("base_url")
             .orElseThrow(() -> new RuntimeException("base_url must be set"));
-    this.settingsManifest = new SettingsManifest(this.civiformConfig);
+    this.settingsManifest = manifestProvider.get();
   }
 
   /*
@@ -233,7 +234,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
         new CiviformOidcLogoutActionBuilder(
-            config, config.getClientId(), params, identityProviderType));
+            config, config.getClientId(), params, identityProviderType, settingsManifest));
 
     try {
       client.init();
