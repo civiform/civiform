@@ -24,7 +24,6 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
-import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
@@ -59,7 +58,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
             params.messages());
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = ApplicantQuestionRendererFactory.questionDefinitionSample(params.type());
+      questionDefinition = QuestionDefinition.questionDefinitionSample(params.type());
     } catch (UnsupportedQuestionTypeException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
