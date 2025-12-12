@@ -106,7 +106,7 @@ test.describe('address correction single-block, single-address program', () => {
 
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressWithCorrectionText,
           'Address In Area',
         )
@@ -312,7 +312,7 @@ test.describe('address correction single-block, single-address program', () => {
       await applicantQuestions.clickContinue()
     })
     await test.step('Validate review page is shown and user can submit', async () => {
-      await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         addressWithCorrectionText,
         '305 Harrison',
       )
@@ -501,7 +501,7 @@ if (isLocalDevEnvironment()) {
         await applicantQuestions.clickConfirmAddress()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressWithCorrectionText,
           'Address In Area',
         )
@@ -609,7 +609,7 @@ if (isLocalDevEnvironment()) {
       })
 
       await test.step('Validate review page shown and user can submit application', async () => {
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           addressWithCorrectionText,
           'Address With No Service Area Features',
         )
@@ -777,7 +777,7 @@ if (isLocalDevEnvironment()) {
         await test.step('Navigate to and validate review page', async () => {
           // Verify the original address was saved
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -822,7 +822,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Navigate to and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -864,7 +864,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Navigate to and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -902,7 +902,7 @@ if (isLocalDevEnvironment()) {
         })
         await test.step('Navigate to and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )
@@ -1003,7 +1003,7 @@ if (isLocalDevEnvironment()) {
           // Verify we're taken to the review page
           await applicantQuestions.expectReviewPage()
           // Verify the original address was saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -1043,7 +1043,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickConfirmAddress()
 
           await applicantQuestions.expectReviewPage()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -1084,7 +1084,7 @@ if (isLocalDevEnvironment()) {
           // Verify we're taken to the review page
           await applicantQuestions.expectReviewPage()
           // Verify the original address was saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -1122,7 +1122,7 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.expectReviewPage()
           // Verify the applicant's answer is saved
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )
@@ -1226,7 +1226,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Legit Address',
           )
@@ -1270,7 +1270,7 @@ if (isLocalDevEnvironment()) {
         })
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address With No Service Area Features',
           )
@@ -1310,7 +1310,7 @@ if (isLocalDevEnvironment()) {
         })
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Bogus Address',
           )
@@ -1348,7 +1348,7 @@ if (isLocalDevEnvironment()) {
         })
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             addressQuestionText,
             'Address In Area',
           )

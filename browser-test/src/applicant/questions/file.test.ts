@@ -1090,7 +1090,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         // Then look for fileUploadQuestionText.
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1111,13 +1111,11 @@ test.describe('file upload applicant flow', () => {
         )
 
         // Advance past the email question.
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1153,7 +1151,7 @@ test.describe('file upload applicant flow', () => {
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1175,7 +1173,7 @@ test.describe('file upload applicant flow', () => {
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1212,13 +1210,11 @@ test.describe('file upload applicant flow', () => {
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1247,12 +1243,10 @@ test.describe('file upload applicant flow', () => {
           programName,
         )
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
