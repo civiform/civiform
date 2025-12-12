@@ -16,3 +16,4 @@ docker::compose_dev \
   -d
 
 echo "Running grafana at http://localhost:8013"
+echo "Make sure you've set civiform_server_metrics_enabled = true in application.conf"
