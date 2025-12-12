@@ -1,15 +1,15 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
 
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -23,7 +23,7 @@
             ></div>
             <div class="section-external">
               <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                th:replace="~{applicant/fragments/ProgressBarFragment :: progressBar(${progressBar})}"
               ></div>
             </div>
 
@@ -48,7 +48,7 @@
                 <div th:if="${!isEligibilityEnabled}" class="usa-prose">
                   <h4 th:text="#{content.addressEntered}"></h4>
                   <div
-                    th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                    th:replace="~{applicant/fragments/AddressCorrectionOptionFragment :: address-correction-option(
                         ${addressSuggestionGroup.getOriginalAddress()},
                         ${!anySuggestions},
                         ${!anySuggestions},
@@ -75,7 +75,7 @@
                     th:if="${iterator.index &lt; 3}"
                   >
                     <div
-                      th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                      th:replace="~{applicant/fragments/AddressCorrectionOptionFragment :: address-correction-option(
                         ${suggestions.get(iterator.index).getAddress()},
                         ${iterator.index == 0},
                         false,
@@ -114,7 +114,7 @@
         </div>
       </div>
     </main>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

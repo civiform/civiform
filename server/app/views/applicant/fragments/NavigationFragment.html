@@ -55,7 +55,7 @@
           th:aria-label="#{button.close}"
         >
           <svg
-            th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+            th:replace="~{applicant/fragments/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
         <div class="display-flex grid-col-fill flex-column flex-align-end">
@@ -79,7 +79,7 @@
   <div th:replace="~{this :: tiAlert}"></div>
   <th:block th:if="${sessionTimeoutEnabled}">
     <th:div
-      th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"
+      th:replace="~{applicant/fragments/ModalFragment :: sessionTimeoutModals}"
     ></th:div>
   </th:block>
 </th:block>
@@ -238,7 +238,7 @@
     aria-controls="debug-content-modal"
     >DevTools</a
   >
-  <div th:replace="~{applicant/ModalFragment:: devTools}"></div>
+  <div th:replace="~{applicant/fragments/ModalFragment:: devTools}"></div>
 </div>
 
 <th:block th:fragment="userName">
@@ -285,7 +285,7 @@
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <th:block th:if="${loginDropdownEnabled}">
-      <div th:replace="~{applicant/NavigationFragment:: loginDropdown}"></div>
+      <div th:replace="~{applicant/fragments/NavigationFragment:: loginDropdown}"></div>
     </th:block>
     <th:block th:if="${!loginDropdownEnabled}">
       <a
@@ -423,7 +423,7 @@
     </section>
   </div>
   <div
-    th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 </footer>
 
@@ -436,7 +436,7 @@
     <div class="tablet:grid-col-8 usa-prose">
       <a th:href="${goBackToAdminUrl}">
         <svg
-          th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
+          th:replace="~{applicant/fragments/ApplicantBaseFragment :: icon(${goBackIcon})}"
         ></svg>
         Back to admin view
       </a>

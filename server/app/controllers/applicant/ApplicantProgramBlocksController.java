@@ -66,9 +66,9 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
-import views.applicant.NorthStarAddressCorrectionBlockView;
-import views.applicant.NorthStarApplicantIneligibleView;
-import views.applicant.NorthStarApplicantProgramBlockEditView;
+import views.applicant.AddressCorrectionBlockView;
+import views.applicant.ApplicantIneligibleView;
+import views.applicant.ApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -83,14 +83,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
-  private final NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView;
+  private final ApplicantProgramBlockEditView applicantProgramBlockEditView;
   private final FormFactory formFactory;
   private final ApplicantStorageClient applicantStorageClient;
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
-  private final NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView;
+  private final ApplicantIneligibleView applicantIneligibleView;
+  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -105,15 +105,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ClassLoaderExecutionContext classLoaderExecutionContext,
-      NorthStarApplicantProgramBlockEditView northStarApplicantProgramBlockEditView,
+      ApplicantProgramBlockEditView applicantProgramBlockEditView,
       FormFactory formFactory,
       ApplicantStorageClient applicantStorageClient,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
-      NorthStarAddressCorrectionBlockView northStarAddressCorrectionBlockView,
+      ApplicantIneligibleView applicantIneligibleView,
+      AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -130,13 +130,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
+    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
-    this.northStarApplicantProgramBlockEditView =
-        checkNotNull(northStarApplicantProgramBlockEditView);
-    this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
+    this.applicantProgramBlockEditView = checkNotNull(applicantProgramBlockEditView);
+    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
@@ -333,7 +332,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
-        Optional.ofNullable(form.get(NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
     ImmutableList<AddressSuggestion> suggestions =
@@ -545,7 +544,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         } catch (ProgramNotFoundException e) {
                           return notFound(e.toString());
                         }
-                        return ok(northStarApplicantProgramBlockEditView.render(
+                        return ok(applicantProgramBlockEditView.render(
                                 request, applicationParams, programSlug))
                             .as(Http.MimeTypes.HTML);
                       },
@@ -682,7 +681,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 } catch (ProgramNotFoundException e) {
                   return notFound(e.toString());
                 }
-                return ok(northStarApplicantProgramBlockEditView.render(
+                return ok(applicantProgramBlockEditView.render(
                         request, applicationParams, programSlug))
                     .as(Http.MimeTypes.HTML);
               } else {
@@ -1626,8 +1625,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             } catch (ProgramNotFoundException e) {
               return notFound(e.toString());
             }
-            return ok(northStarApplicantProgramBlockEditView.render(
-                    request, applicationParams, programSlug))
+            return ok(applicantProgramBlockEditView.render(request, applicationParams, programSlug))
                 .as(Http.MimeTypes.HTML);
           });
     }
@@ -1708,8 +1706,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
     return supplyAsync(
         () -> {
-          NorthStarApplicantIneligibleView.Params params =
-              NorthStarApplicantIneligibleView.Params.builder()
+          ApplicantIneligibleView.Params params =
+              ApplicantIneligibleView.Params.builder()
                   .setRequest(request)
                   .setApplicantId(applicantId)
                   .setProfile(profile)
@@ -1719,7 +1717,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .setRoApplicantProgramService(roApplicantProgramService)
                   .setMessages(messagesApi.preferred(request))
                   .build();
-          return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+          return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
         });
   }
 
@@ -1826,7 +1824,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               applicantRoutes,
               profile);
       return CompletableFuture.completedFuture(
-          ok(northStarAddressCorrectionBlockView.render(
+          ok(addressCorrectionBlockView.render(
                   request,
                   applicationParams,
                   addressSuggestionGroup,

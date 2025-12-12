@@ -33,6 +33,8 @@ import views.BaseHtmlLayout;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.PageNotProductionBanner;
+import views.trustedintermediary.ApplicantLayout;
+import views.trustedintermediary.EditTiClientView;
 
 public class EditTiClientViewTest extends WithMockedProfiles {
 

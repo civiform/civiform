@@ -13,11 +13,12 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.applicant.support.ApplicantUpsellParams;
 
-public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
+public class ApplicantPreScreenerUpsellView extends NorthStarBaseView {
 
   @Inject
-  NorthStarApplicantPreScreenerUpsellView(
+  ApplicantPreScreenerUpsellView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -35,7 +36,7 @@ public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
         deploymentType);
   }
 
-  public String render(UpsellParams params) {
+  public String render(ApplicantUpsellParams params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),

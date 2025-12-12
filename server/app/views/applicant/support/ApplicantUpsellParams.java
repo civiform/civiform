@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.support;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -12,40 +12,40 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 
 /** Params for rendering Upsell View. */
 @AutoValue
-public abstract class UpsellParams {
+public abstract class ApplicantUpsellParams {
 
   public static Builder builder() {
-    return new AutoValue_UpsellParams.Builder();
+    return new AutoValue_ApplicantUpsellParams.Builder();
   }
 
-  abstract Request request();
+  public abstract Request request();
 
-  abstract CiviFormProfile profile();
+  public abstract CiviFormProfile profile();
 
-  abstract long applicantId();
+  public abstract long applicantId();
 
-  abstract long applicationId();
+  public abstract long applicationId();
 
-  abstract ApplicantPersonalInfo applicantPersonalInfo();
+  public abstract ApplicantPersonalInfo applicantPersonalInfo();
 
-  abstract Optional<String> bannerMessage();
+  public abstract Optional<String> bannerMessage();
 
   // Use programTitle or eligiblePrograms, but not both
-  abstract Optional<String> programTitle();
+  public abstract Optional<String> programTitle();
 
-  abstract Optional<ImmutableList<ApplicantProgramData>> eligiblePrograms();
+  public abstract Optional<ImmutableList<ApplicantProgramData>> eligiblePrograms();
 
-  abstract Optional<String> programShortDescription();
+  public abstract Optional<String> programShortDescription();
 
   // Program ID of the program that was just applied to
-  abstract long completedProgramId();
+  public abstract long completedProgramId();
 
-  abstract LocalizedStrings customConfirmationMessage();
+  public abstract LocalizedStrings customConfirmationMessage();
 
   // Localized string for the date the application was submitted
-  abstract String dateSubmitted();
+  public abstract String dateSubmitted();
 
-  abstract Messages messages();
+  public abstract Messages messages();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -78,6 +78,6 @@ public abstract class UpsellParams {
 
     public abstract Builder setMessages(Messages messages);
 
-    public abstract UpsellParams build();
+    public abstract ApplicantUpsellParams build();
   }
 }

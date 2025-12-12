@@ -4,17 +4,17 @@
   data-testid="programSummary"
 >
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+        th:replace="~{applicant/fragments/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -25,7 +25,7 @@
         class="grid-container padding-top-4"
       >
         <div
-          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+          th:replace="~{applicant/fragments/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
         ></div>
       </div>
 
@@ -37,7 +37,7 @@
           <div class="tablet:grid-col-8">
             <div class="section-external">
               <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                th:replace="~{applicant/fragments/ProgressBarFragment :: progressBar(${progressBar})}"
               ></div>
             </div>
 
@@ -55,13 +55,13 @@
             ></div>
 
             <div
-              th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+              th:replace="~{applicant/fragments/ApplicantBaseFragment :: requiredFieldsExplanation}"
             ></div>
 
             <ol class="application-summary usa-list--unstyled">
               <li class="" th:each="blockSummary: ${blockSummaries}">
                 <div
-                  th:replace="~{applicant/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"
+                  th:replace="~{applicant/fragments/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"
                 ></div>
               </li>
             </ol>
@@ -92,15 +92,15 @@
       <div class="page-spacing"></div>
     </main>
     <div th:if="${isGuest and redirectedFromProgramSlug.isPresent()}">
-      <div th:replace="~{applicant/ModalFragment:: reviewLogin}"></div>
+      <div th:replace="~{applicant/fragments/ModalFragment:: reviewLogin}"></div>
     </div>
     <div th:if="${duplicateSubmission.isPresent()}">
       <div id="show-duplicate-submission-modal"></div>
       <th:block
-        th:replace="~{applicant/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
+        th:replace="~{applicant/fragments/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
       ></th:block>
     </div>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

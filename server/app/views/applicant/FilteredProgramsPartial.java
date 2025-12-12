@@ -20,18 +20,19 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
 
 /**
  * Renders the HTMX partial view for programs filtered by category on the landing page. The view has
  * two sections: one for programs that match the filters and another for programs that do not match
  * the filters.
  */
-public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
+public class FilteredProgramsPartial extends NorthStarBaseView {
 
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject
-  NorthStarFilteredProgramsViewPartial(
+  FilteredProgramsPartial(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -123,6 +124,6 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
 
     context.setVariable("recommendedSection", recommendedSection);
     context.setVariable("otherProgramsSection", otherProgramsSection);
-    return templateEngine.process("applicant/FilteredProgramsTemplate", context);
+    return templateEngine.process("applicant/FilteredProgramsPartial", context);
   }
 }

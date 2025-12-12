@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.support;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -8,12 +8,12 @@ import java.util.Collections;
 import services.applicant.Block;
 
 // Represents a block on the Application Summary page
-public final class NorthStarBlockSummary {
+public final class ApplicantProgramSummaryParams {
   private final Block block;
   private final String editUrl;
   private ArrayList<NorthStarAnswerData> answerData;
 
-  public NorthStarBlockSummary(Block block, String editUrl) {
+  public ApplicantProgramSummaryParams(Block block, String editUrl) {
     this.block = checkNotNull(block);
     this.editUrl = checkNotNull(editUrl);
     answerData = new ArrayList<NorthStarAnswerData>();

@@ -64,9 +64,9 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.NorthStarAddressCorrectionBlockView;
-import views.applicant.NorthStarApplicantIneligibleView;
-import views.applicant.NorthStarApplicantProgramBlockEditView;
+import views.applicant.AddressCorrectionBlockView;
+import views.applicant.ApplicantIneligibleView;
+import views.applicant.ApplicantProgramBlockEditView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -101,15 +101,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(MessagesApi.class),
             instanceOf(ClassLoaderExecutionContext.class),
-            instanceOf(NorthStarApplicantProgramBlockEditView.class),
+            instanceOf(ApplicantProgramBlockEditView.class),
             instanceOf(FormFactory.class),
             instanceOf(ApplicantStorageClient.class),
             instanceOf(StoredFileRepository.class),
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(NorthStarApplicantIneligibleView.class),
-            instanceOf(NorthStarAddressCorrectionBlockView.class),
+            instanceOf(ApplicantIneligibleView.class),
+            instanceOf(AddressCorrectionBlockView.class),
             addressSuggestionJsonSerializer,
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
@@ -3456,7 +3456,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             // Don't set the ADDRESS_JSON_SESSION_KEY on the session
             .bodyForm(
                 ImmutableMap.of(
-                    NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
                     "123 Main St, Boston, Massachusetts, 02111"))
             .build();
 
@@ -3598,8 +3598,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         fakeRequestBuilder()
             .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
-            .bodyForm(
-                ImmutableMap.of(NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address))
+            .bodyForm(ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address))
             .build();
     Result result =
         subject
@@ -3651,7 +3650,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
             .build();
     Result result =
         subject
@@ -3698,7 +3697,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
             .build();
     Result result =
         subject
@@ -3775,8 +3774,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    NorthStarAddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
-                    NorthStarAddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE))
             .build();
 
     Result confirmAddressResult =

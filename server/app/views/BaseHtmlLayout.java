@@ -36,6 +36,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
+import views.trustedintermediary.ApplicantLayout;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
 
@@ -92,7 +93,7 @@ public class BaseHtmlLayout {
    * should only be used if you know what you're doing.
    *
    * <p>Most of the time you'll want to use {@link views.admin.AdminLayout} or {@link
-   * views.applicant.ApplicantLayout} instead.
+   * ApplicantLayout} instead.
    *
    * <pre>
    *  Example: If we want to add specific styles before the core tailwind styles we

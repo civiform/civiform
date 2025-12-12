@@ -22,16 +22,17 @@ import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
 import views.components.TextFormatter;
 
 /**
  * Renders the program overview page for applicants, which describes the program to the applicant
  * before they start an application.
  */
-public class NorthStarProgramOverviewView extends NorthStarBaseView {
+public class ProgramOverviewView extends NorthStarBaseView {
 
   @Inject
-  NorthStarProgramOverviewView(
+  ProgramOverviewView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,

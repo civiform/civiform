@@ -1,18 +1,18 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
         th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
       ></div>
 
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programName},${programShortDescription})}"
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programName},${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -68,7 +68,7 @@
         </div>
       </div>
     </main>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>
