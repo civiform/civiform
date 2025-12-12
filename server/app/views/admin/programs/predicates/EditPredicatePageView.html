@@ -88,6 +88,7 @@
                   th:each="nodeType : ${model.operatorNodeTypes()}"
                   th:text="${nodeType.toDisplayString()}"
                   th:value="${nodeType.name()}"
+                  th:selected="${nodeType.equals(model.rootLogicalOperator.toNodeType())}"
                 ></option>
               </select>
               [[#{content.predicateConditionsAreTrue}]]

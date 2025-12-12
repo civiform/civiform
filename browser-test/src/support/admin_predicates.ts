@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {Locator, Page} from 'playwright'
 import {waitForHtmxReady} from './wait'
 
 type PredicateSpec = {
@@ -102,6 +102,7 @@ export class AdminPredicates {
       .getByRole('button', {name: 'Delete condition'})
       .nth(conditionId - 1)
       .click()
+
     await waitForHtmxReady(this.page)
   }
 
@@ -114,6 +115,7 @@ export class AdminPredicates {
       .getByRole('button', {name: 'Delete sub-condition'})
       .nth(subconditionId - 1)
       .click()
+
     await waitForHtmxReady(this.page)
   }
 
@@ -135,6 +137,7 @@ export class AdminPredicates {
       .getByRole('button', {name: 'Add sub-condition'})
       .nth(conditionId - 1)
       .click()
+
     await waitForHtmxReady(this.page)
   }
 
@@ -598,5 +601,61 @@ export class AdminPredicates {
         await expect(checkboxLabel).toHaveText(multiValueSpec.text)
       }
     }
+  }
+
+    async expectRootLogicalOperatorValues(
+    operator: 'AND' | 'OR',
+    expectedNumberOfSeparators?: number,
+  ) {
+    const separators: Locator[] = this.page
+      .locator('.cf-predicate-condition-separator')
+      .all()
+
+    if (expectedNumberOfSeparators) {
+      await expect(
+        this.page.locator('.cf-predicate-condition-separator'),
+      ).toHaveCount(expectedNumberOfSeparators)
+    }
+
+    for (const topLevelSeparator of separators) {
+      await expect(topLevelSeparator).toContainText(operator)
+    }
+  }
+
+  async expectConditionLogicalOperatorValues(
+    conditionId: number,
+    operator: 'AND' | 'OR',
+    expectedNumberOfSeparators?: number,
+  ) {
+    const separators: Locator[] = this.page
+      .locator(`#condition-${conditionId} .cf-predicate-subcondition-separator`)
+      .all()
+
+    if (expectedNumberOfSeparators) {
+      await expect(
+        this.page.locator(
+          `#condition-${conditionId} .cf-predicate-subcondition-separator`,
+        ),
+      ).toHaveCount(expectedNumberOfSeparators)
+    }
+
+    for (const subconditionSeparator of separators) {
+      await expect(subconditionSeparator).toContainText(operator)
+    }
+  }
+
+  async selectRootLogicalOperator(operator: 'AND' | 'OR') {
+    await this.page
+      .locator('[name="root-nodeType"]')
+      .selectOption(`${operator}`)
+  }
+
+  async selectConditionLogicalOperator(
+    conditionId: number,
+    operator: 'AND' | 'OR',
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId} .cf-subcondition-logic-select select`)
+      .selectOption(`${operator}`)
   }
 }

@@ -44,6 +44,18 @@ export class AdminPredicateEdit {
           dropdown.removeEventListener('change', this.onOperatorDropdownChange)
           dropdown.addEventListener('change', this.onOperatorDropdownChange)
         })
+      document
+        .querySelectorAll<HTMLSelectElement>('.cf-subcondition-logic-select')
+        .forEach((dropdown: HTMLSelectElement) => {
+          dropdown.removeEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange,
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange,
+          )
+        })
 
       // Trigger change to update operators based on the current scalar selected.
       Array.from(
@@ -78,6 +90,16 @@ export class AdminPredicateEdit {
       '.cf-predicate-operator-select',
       'change',
       AdminPredicateEdit.onOperatorDropdownChange,
+    )
+    addEventListenerToElements(
+      '.cf-subcondition-logic-select',
+      'change',
+      AdminPredicateEdit.onSubconditionLogicDropdownChange,
+    )
+    addEventListenerToElements(
+      '[name="root-nodeType"]',
+      'change',
+      AdminPredicateEdit.onConditionLogicDropdownChange,
     )
 
     // Trigger change to update operators based on the current scalar selected.
@@ -144,6 +166,68 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static onSubconditionLogicDropdownChange(event: Event) {
+    AdminPredicateEdit.handleSubconditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleSubconditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Only change separators for this condition.
+    const conditionId: string | null =
+      predicateLogicDropdown.getAttribute('data-condition-id')
+    if (conditionId === null) {
+      return
+    }
+
+    // Set inner text of all subcondition separators to the desired value.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(
+        `#condition-${conditionId} .cf-predicate-subcondition-separator`,
+      ),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
+  }
+
+  private static onConditionLogicDropdownChange(event: Event) {
+    AdminPredicateEdit.handleConditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleConditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Set inner text of all condition separators to the desired value.
+    // Applies to all separators on the page.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(`.cf-predicate-condition-separator`),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
   }
 
   /**
