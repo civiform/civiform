@@ -1,10 +1,8 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Preconditions;
@@ -171,46 +169,6 @@ public final class ProgramTranslationView extends TranslationFormView {
               fieldsBuilder.build()));
     }
 
-    // Add slim alert with warning that translations aren't visible yet.
-    result.add(
-        div()
-            .withClasses("usa-alert", "usa-alert--info", "usa-alert--slim")
-            .with(
-                div()
-                    .withClass("usa-alert__body")
-                    .with(
-                        p().withClass("usa-alert__text")
-                            .withText(
-                                "Translations entered below will be visible at a future launch"
-                                    + " date."))));
-
-    ImmutableList.Builder<DomContent> newProgramFieldsBuilder =
-        ImmutableList.<DomContent>builder()
-            .add(
-                fieldWithDefaultLocaleTextHint(
-                    FieldWithLabel.input()
-                        .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
-                        .setLabelText("Short program description")
-                        .setValue(updateData.localizedShortDescription())
-                        .setRequired(true)
-                        .getInputTag(),
-                    program.localizedShortDescription()));
-
-    newProgramFieldsBuilder =
-        addApplicationSteps(newProgramFieldsBuilder, program, updateData.applicationSteps());
-
-    result.add(
-        fieldSetForFields(
-            legend()
-                .with(
-                    span("New program details fields"),
-                    new LinkElement()
-                        .setText("(edit default)")
-                        .setHref(programDetailsLink)
-                        .setStyles("ml-2")
-                        .asAnchorText()),
-            newProgramFieldsBuilder.build()));
-
     // Add fields for Screen names and descriptions. External programs don't have screens
     if (!program.programType().equals(ProgramType.EXTERNAL)) {
       addScreenFields(updateData, program, blockDefinitions, result);
@@ -269,6 +227,21 @@ public final class ProgramTranslationView extends TranslationFormView {
                   .getInputTag(),
               program.localizedSummaryImageDescription().get()));
     }
+
+    // Add short description field
+    applicantVisibleDetails.add(
+        fieldWithDefaultLocaleTextHint(
+            FieldWithLabel.input()
+                .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
+                .setLabelText("Short program description")
+                .setValue(updateData.localizedShortDescription())
+                .setRequired(true)
+                .getInputTag(),
+            program.localizedShortDescription()));
+
+    // Add application steps
+    addApplicationSteps(applicantVisibleDetails, program, updateData.applicationSteps());
+
     return applicantVisibleDetails.build();
   }
 
@@ -279,8 +252,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     // Get the application steps from the program data
     // if we have default text, add a box for translations
     ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
-    // TODO: Once we've fully transitioned to the new fields, we probably want each application step
-    // to be it's own section
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       LocalizationUpdate.ApplicationStepUpdate updatedStep = updatedApplicationSteps.get(i);
