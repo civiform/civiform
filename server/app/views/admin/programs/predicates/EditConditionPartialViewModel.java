@@ -6,6 +6,7 @@ import controllers.admin.AdminProgramBlockPredicatesController.ScalarOptionEleme
 import controllers.admin.routes;
 import java.util.Optional;
 import lombok.Builder;
+import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 
 /** Model for rendering the EditConditionPartial.html */
@@ -14,6 +15,7 @@ public record EditConditionPartialViewModel(
     long programId,
     long blockId,
     PredicateUseCase predicateUseCase,
+    PredicateLogicalOperator subconditionLogicalOperator,
     ImmutableList<EditSubconditionPartialViewModel> subconditions,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
@@ -60,6 +62,7 @@ public record EditConditionPartialViewModel(
         .blockId(blockId)
         .conditionId(conditionId)
         .predicateUseCase(predicateUseCase)
+        .predicateLogicalOperator(subconditionLogicalOperator)
         .subconditions(subconditions)
         .build();
   }

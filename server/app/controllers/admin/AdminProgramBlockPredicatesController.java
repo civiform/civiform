@@ -57,6 +57,7 @@ import services.program.ProgramService;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateGenerator;
+import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 import services.program.predicate.SelectedValue;
 import services.question.QuestionService;
@@ -637,6 +638,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
+    ImmutableMap<String, String> formData = ImmutableMap.copyOf(form.rawData());
     if (form.rawData().get("conditionId") == null) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
           .as(Http.MimeTypes.HTML);
@@ -655,10 +657,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ArrayList<EditConditionPartialViewModel> currentConditions =
           new ArrayList<>(
               buildConditionsListFromFormData(
-                  programId,
-                  blockDefinitionId,
-                  predicateUseCase,
-                  ImmutableMap.copyOf(form.rawData())));
+                  programId, blockDefinitionId, predicateUseCase, formData));
       EditConditionPartialViewModel condition =
           EditConditionPartialViewModel.builder()
               .programId(programId)
@@ -666,6 +665,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .predicateUseCase(useCase)
               .questionOptions(
                   getQuestionOptions(availableQuestions, /* selectedQuestion= */ Optional.empty()))
+              .subconditionLogicalOperator(PredicateLogicalOperator.AND)
               .scalarOptions(ImmutableList.of())
               .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
               .build();
@@ -687,6 +687,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(useCase)
+                  .predicateLogicalOperator(getLogicalOperatorFromFormData("root", formData))
                   .conditions(ImmutableList.copyOf(currentConditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
@@ -748,6 +749,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .predicateLogicalOperator(condition.subconditionLogicalOperator())
                   .conditionId(conditionId)
                   .subconditions(subconditionList)
                   .build()))
@@ -802,6 +804,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .predicateLogicalOperator(condition.subconditionLogicalOperator())
                   .conditionId(conditionId)
                   .subconditions(ImmutableList.copyOf(subconditionList))
                   .build()))
@@ -862,6 +865,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .predicateLogicalOperator(
+                      getLogicalOperatorFromFormData("root", ImmutableMap.copyOf(formData)))
                   .conditions(ImmutableList.copyOf(conditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
@@ -934,6 +939,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .predicateLogicalOperator(condition.subconditionLogicalOperator())
                   .conditionId(conditionId)
                   .subconditions(subconditions)
                   .build()))
@@ -1124,6 +1130,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .programId(programId)
               .blockId(blockDefinitionId)
               .predicateUseCase(useCase)
+              .subconditionLogicalOperator(
+                  getLogicalOperatorFromFormData(
+                      String.format("condition-%d", conditionId), formData))
               .questionOptions(defaultQuestionOptions)
               .operatorOptions(operatorOptions)
               .build();
@@ -1235,6 +1244,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .userEnteredValue(inputFieldValue)
         .secondUserEnteredValue(secondInputFieldValue)
         .build();
+  }
+
+  private PredicateLogicalOperator getLogicalOperatorFromFormData(
+      String fieldNamePrefix, ImmutableMap<String, String> formData) {
+    String nodeTypeId = fieldNamePrefix + "-nodeType";
+    // NodeType should always be present in the form data.
+    checkState(formData.containsKey(nodeTypeId));
+
+    String logicalOperatorString = formData.get(nodeTypeId);
+
+    return PredicateLogicalOperator.valueOf(logicalOperatorString);
   }
 
   /**

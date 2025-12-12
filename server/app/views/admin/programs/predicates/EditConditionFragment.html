@@ -4,6 +4,7 @@
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
     th:id="${'condition-' + conditionId}"
     th:data-testid="|condition-${conditionId}|"
+    th:with="subconditionLogicSelectorId=${'condition-' + conditionId + '-subconditionLogicSelect'}"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
@@ -37,11 +38,13 @@
     </div>
     <div class="usa-card__body font-body-xs">
       <div class="border-top border-base-lighter margin-y-2"></div>
-      <div class="font-body-xs">
+      <div class="cf-subcondition-logic-select font-body-xs">
         [[#{content.predicateConditionIsTrueIf}]]
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
           th:name="|condition-${conditionId}-nodeType|"
+          th:id="${subconditionLogicSelectorId}"
+          th:data-condition-id="${conditionId}"
         >
           <option
             th:each="nodeType : ${model.operatorNodeTypes()}"
