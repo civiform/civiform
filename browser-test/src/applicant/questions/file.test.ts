@@ -337,8 +337,8 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
-        // TODO(#9454): uncomment when North Star obeys maxFiles.
-        // await applicantFileQuestion.expectFileInputDisabled()
+
+        await applicantFileQuestion.expectFileInputDisabled()
       })
 
       await test.step('Removing a file shows file input again', async () => {
@@ -1090,7 +1090,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         // Then look for fileUploadQuestionText.
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1111,13 +1111,11 @@ test.describe('file upload applicant flow', () => {
         )
 
         // Advance past the email question.
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1148,12 +1146,10 @@ test.describe('file upload applicant flow', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1170,12 +1166,10 @@ test.describe('file upload applicant flow', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1212,13 +1206,11 @@ test.describe('file upload applicant flow', () => {
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
 
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 
@@ -1247,12 +1239,10 @@ test.describe('file upload applicant flow', () => {
           programName,
         )
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
-          emailQuestionText,
-        )
+        await applicantQuestions.expectQuestionOnReviewPage(emailQuestionText)
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectQuestionOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionOnReviewPage(
           fileUploadQuestionText,
         )
 

@@ -331,7 +331,7 @@ export class AdminPrograms {
     programName: string,
     description = 'program description',
     shortDescription = 'short program description',
-    externalLink = 'https://usa.gov',
+    externalLink = '',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
     programType: ProgramType = ProgramType.DEFAULT,
@@ -386,19 +386,9 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    // This method adds an external link by default. The external link field is
-    // disabled for default programs and pre-screeners. Therefore,
-    // tests will fail if we try to add default external link to a disabled
-    // field.
-    // TODO(#10630): Ideally, this method should not have a default value for
-    // the external link (or any field, for that matter) but that would require
-    // updating lots of tests. Thus, for now we will fix this by only adding the
-    // external link if its field is enabled. We can fix this when we clean up
-    // the tests for North Star, since there will be less tests to migrate.
-    const externalLinkEnabled = await this.page
-      .getByRole('textbox', {name: 'Link to program website'})
-      .isEnabled()
-    if (externalLinkEnabled) {
+    // The external link field is disabled for default programs and pre-screeners,
+    // so only fill it if a value is provided.
+    if (externalLink.length > 0) {
       await this.page.fill('#program-external-link-input', externalLink)
     }
 
@@ -616,13 +606,8 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeEnabled()
         expect(await externalLink.getAttribute('readonly')).toBeNull()
-        // In pre - North Star, the external link field is optional for
-        // 'default' and 'pre-screeners'. In North Star, the external link field
-        // is disabled for 'default' and 'pre-screeners' and required for
-        // 'external programs'. Therefore, required indicator is dependent on
-        // program type. This condition can be removed once North Star is fully
-        // launched, since the required indicator will always be present if the
-        // field is enabled.
+        // The external link field is only required for external programs,
+        // so only check for the required indicator for that program type.
         if (programType && programType === ProgramType.EXTERNAL) {
           const requiredIndicator = this.getRequiredIndicatorFor(
             'program-external-link-input',

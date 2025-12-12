@@ -381,7 +381,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section
@@ -410,7 +409,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -437,7 +435,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
 
@@ -465,7 +462,6 @@ test.describe('applicant program index page', () => {
             ],
           },
           /* filtersOn= */ true,
-          /* northStarEnabled= */ true,
         )
 
         // Check the program count in the section headings
@@ -499,7 +495,6 @@ test.describe('applicant program index page', () => {
             expectedProgramsInOtherProgramsSection: [],
           },
           /* filtersOn= */ false,
-          /* northStarEnabled= */ true,
         )
       })
     })
@@ -610,7 +605,6 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -640,7 +634,6 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await validateScreenshot(
@@ -673,7 +666,6 @@ test.describe('applicant program index page', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
@@ -736,7 +728,7 @@ test.describe('applicant program index page', () => {
         firstQuestionText,
       )
 
-      await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
+      await applicantQuestions.validateNoPreviouslyAnsweredText(
         secondQuestionText,
       )
       await validateScreenshot(page, 'question-shows-previously-answered')
@@ -888,7 +880,7 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
-  test('shows program with wide image in North Star and removes image from card when in My Applications', async ({
+  test('shows program with wide image and removes image from card when in My Applications', async ({
     page,
     adminPrograms,
     adminProgramImage,
@@ -1177,7 +1169,6 @@ test.describe('applicant program index page with images', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
   })
@@ -1224,7 +1215,6 @@ test.describe('applicant program index page with images', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
 
       // Button for external program card has a different text.
@@ -1357,7 +1347,6 @@ test.describe('applicant program index page with images', () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
 
