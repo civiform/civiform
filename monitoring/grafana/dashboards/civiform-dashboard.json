@@ -3,10 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
+        "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -31,10 +28,6 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PROMETHEUS_DATA"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -43,15 +36,6 @@
       },
       "id": 40,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PROMETHEUS_DATA"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "General metrics",
       "type": "row"
     },
@@ -720,10 +704,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PROMETHEUS_DATA"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -732,15 +712,6 @@
       },
       "id": 28,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PROMETHEUS_DATA"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Database metrics",
       "type": "row"
     },
@@ -1465,10 +1436,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PROMETHEUS_DATA"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1898,7 +1865,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "CiviForm server",
-  "uid": "p5kGWLV4z",
+  "uid": "p5kGWLV4n",
   "version": 3,
   "weekStart": ""
 }
