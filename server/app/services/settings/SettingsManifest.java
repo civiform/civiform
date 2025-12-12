@@ -16,6 +16,9 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
+
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.mvc.Http.RequestHeader;
 
 /** Data class providing access to server settings. */
@@ -24,14 +27,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   private final ImmutableMap<String, SettingsSection> settingsSections;
 
   @Inject
-  public SettingsManifest(Config config) {
-    super(config);
+  public SettingsManifest(
+    Config config,
+    @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
+    super(config, settingsCache);
     this.settingsSections = GENERATED_SECTIONS;
   }
 
   @VisibleForTesting
-  public SettingsManifest(ImmutableMap<String, SettingsSection> settingsSections, Config config) {
-    super(config);
+  public SettingsManifest(
+    ImmutableMap<String, SettingsSection> settingsSections,
+    Config config,
+    SyncCacheApi settingsCache) {
+    super(config, settingsCache);
     this.settingsSections = checkNotNull(settingsSections);
   }
 
@@ -1131,6 +1139,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getLoginDropdownEnabled(RequestHeader request) {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Sample. */
+  public boolean getSampleFlagEnabled() {
+    return getBool("SAMPLE_FLAG_ENABLED", true);
   }
 
   /**
@@ -2414,6 +2427,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "LOGIN_DROPDOWN_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
                               + " applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SAMPLE_FLAG_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Sample.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

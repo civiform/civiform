@@ -1004,6 +1004,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with enumerators.",
         "type": "bool",
         "required": false
+      },
+      "SAMPLE_FLAG_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Sample.",
+        "type": "bool",
+        "required": false
       }
     }
   }
