@@ -4,18 +4,21 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
         th:replace="~{errors/ErrorFragment :: error(
-          #{error.internalServerTitle.v2},
-          #{error.internalServerSubtitle},
+          ${title},
+          ${subtitle},
           ${additionalInfo},
-          #{error.internalServerHomeButton},
+          ${buttonText},
           ${homeUrl},
           ${statusCode}
         )}"
       ></div>
     </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

@@ -96,7 +96,7 @@ import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.edit.AddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program

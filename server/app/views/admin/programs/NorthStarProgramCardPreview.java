@@ -20,8 +20,8 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
-import views.applicant.support.ProgramCardsSectionParamsFactory;
-import views.applicant.support.ProgramCardsSectionParamsFactory.ProgramCardParams;
+import views.applicant.ProgramCardsSectionParamsFactory;
+import views.applicant.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
 public class NorthStarProgramCardPreview extends NorthStarBaseView {
   ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;

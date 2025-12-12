@@ -107,7 +107,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.edit.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
