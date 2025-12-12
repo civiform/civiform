@@ -49,7 +49,7 @@ public class IdcsClientProviderTest extends ResetPostgres {
     idcsProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)), null);
   }
 
   @Test
