@@ -28,8 +28,9 @@ public class InternalServerErrorController extends Controller {
   public CompletionStage<Result> index(Http.Request request, String exceptionId) {
     return CompletableFuture.completedFuture(
         Results.internalServerError(
-            internalServerErrorPageProvider
-                .get()
-                .render(request, messagesApi.preferred(request), exceptionId)));
+                internalServerErrorPageProvider
+                    .get()
+                    .render(request, messagesApi.preferred(request), exceptionId))
+            .as(Http.MimeTypes.HTML));
   }
 }

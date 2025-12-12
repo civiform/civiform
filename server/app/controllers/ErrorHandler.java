@@ -22,6 +22,7 @@ import play.api.UsefulException;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
 import play.i18n.MessagesApi;
+import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -165,7 +166,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
         Results.notFound(
-            notFoundPageProvider.get().render(request, messagesApi.preferred(request))));
+                notFoundPageProvider
+                    .get()
+                    .render((Request) request, messagesApi.preferred(request), message))
+            .as(play.mvc.Http.MimeTypes.HTML));
   }
 
   @Override
