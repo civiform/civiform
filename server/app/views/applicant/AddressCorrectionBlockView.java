@@ -17,8 +17,9 @@ import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
 import views.NorthStarBaseView;
+import views.applicant.support.ProgressBar;
 
-public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
+public class AddressCorrectionBlockView extends NorthStarBaseView {
 
   // Constants used by ApplicantProgramBlocksController and ApplicantService
   // to process address correction form submissions
@@ -26,7 +27,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
   public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
 
   @Inject
-  NorthStarAddressCorrectionBlockView(
+  AddressCorrectionBlockView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,

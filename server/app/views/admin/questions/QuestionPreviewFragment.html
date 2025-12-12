@@ -10,7 +10,7 @@
     th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
   ></div>
   <div
-    th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 
   <script th:inline="javascript" th:nonce="${cspNonce}">

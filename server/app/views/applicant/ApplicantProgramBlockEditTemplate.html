@@ -1,25 +1,25 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
       <div
-        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+        th:replace="~{applicant/fragments/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
 
       <div
-        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+        th:replace="~{applicant/fragments/BreadcrumbFragment :: breadcrumb(
           ${applicationParams.programTitle()},
           ${homeUrl},
           ${programOverviewUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
@@ -32,7 +32,7 @@
         class="grid-container padding-top-4"
       >
         <div
-          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+          th:replace="~{applicant/fragments/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
         ></div>
       </div>
 
@@ -54,7 +54,7 @@
 
               <div class="section-external">
                 <div
-                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                  th:replace="~{applicant/fragments/ProgressBarFragment :: progressBar(${progressBar})}"
                 ></div>
               </div>
 
@@ -68,7 +68,7 @@
               ></div>
 
               <div
-                th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+                th:replace="~{applicant/fragments/ApplicantBaseFragment :: requiredFieldsExplanation}"
               ></div>
 
               <div
@@ -113,9 +113,9 @@
       </div>
     </main>
 
-    <div th:replace="~{applicant/ModalFragment:: blockValidation}"></div>
+    <div th:replace="~{applicant/fragments/ModalFragment:: blockValidation}"></div>
 
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

@@ -39,7 +39,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.NorthStarProgramOverviewView;
+import views.applicant.ProgramOverviewView;
 
 public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
@@ -174,7 +174,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -212,7 +212,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -259,7 +259,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -302,7 +302,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -350,7 +350,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -398,7 +398,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -445,7 +445,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler

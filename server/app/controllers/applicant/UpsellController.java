@@ -34,9 +34,9 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.applicant.NorthStarApplicantPreScreenerUpsellView;
-import views.applicant.NorthStarApplicantUpsellView;
-import views.applicant.UpsellParams;
+import views.applicant.ApplicantPreScreenerUpsellView;
+import views.applicant.support.ApplicantUpsellParams;
+import views.applicant.ApplicantUpsellView;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
@@ -45,8 +45,8 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
-  private final NorthStarApplicantUpsellView northStarUpsellView;
-  private final NorthStarApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
+  private final ApplicantUpsellView northStarUpsellView;
+  private final ApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
 
@@ -57,8 +57,8 @@ public final class UpsellController extends CiviFormController {
       ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
-      NorthStarApplicantUpsellView northStarApplicantUpsellView,
-      NorthStarApplicantPreScreenerUpsellView northStarApplicantPreScreenerUpsellView,
+      ApplicantUpsellView applicantUpsellView,
+      ApplicantPreScreenerUpsellView applicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       VersionRepository versionRepository) {
@@ -67,8 +67,8 @@ public final class UpsellController extends CiviFormController {
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
-    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
-    this.northStarPreScreenerUpsellView = checkNotNull(northStarApplicantPreScreenerUpsellView);
+    this.northStarUpsellView = checkNotNull(applicantUpsellView);
+    this.northStarPreScreenerUpsellView = checkNotNull(applicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
   }
@@ -143,8 +143,8 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getApplicantData().preferredLocale());
               String formattedDate = dateFormat.format(submitDate);
 
-              UpsellParams.Builder paramsBuilder =
-                  UpsellParams.builder()
+              ApplicantUpsellParams.Builder paramsBuilder =
+                  ApplicantUpsellParams.builder()
                       .setRequest(request)
                       .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
                       .setProgramShortDescription(
@@ -161,19 +161,20 @@ public final class UpsellController extends CiviFormController {
                       .setDateSubmitted(formattedDate);
 
               if (isCommonIntake.join()) {
-                UpsellParams upsellParams =
+                ApplicantUpsellParams applicantUpsellParams =
                     paramsBuilder
                         .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
                         .build();
-                return ok(northStarPreScreenerUpsellView.render(upsellParams))
+                return ok(northStarPreScreenerUpsellView.render(applicantUpsellParams))
                     .as(Http.MimeTypes.HTML);
               } else {
-                UpsellParams upsellParams =
+                ApplicantUpsellParams applicantUpsellParams =
                     paramsBuilder
                         .setEligiblePrograms(
                             relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
                         .build();
-                return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+                return ok(northStarUpsellView.render(applicantUpsellParams))
+                    .as(Http.MimeTypes.HTML);
               }
             },
             classLoaderExecutionContext.current())

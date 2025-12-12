@@ -24,12 +24,15 @@ import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.applicant.support.ProgressBar;
+import views.applicant.support.ApplicantProgramSummaryParams;
+import views.applicant.support.NorthStarAnswerData;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
+public final class ApplicantProgramSummaryView extends NorthStarBaseView {
 
   @Inject
-  NorthStarApplicantProgramSummaryView(
+  ApplicantProgramSummaryView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -126,9 +129,9 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             .map(datum -> new NorthStarAnswerData(datum, params.applicantId()))
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<NorthStarBlockSummary> blockSummaries =
+    ImmutableList<ApplicantProgramSummaryParams> blockSummaries =
         params.blocks().stream()
-            .map(block -> new NorthStarBlockSummary(block, getBlockEditUrl(params, block)))
+            .map(block -> new ApplicantProgramSummaryParams(block, getBlockEditUrl(params, block)))
             .collect(ImmutableList.toImmutableList());
 
     blockSummaries.forEach(
@@ -180,7 +183,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarApplicantProgramSummaryView_Params.Builder();
+      return new AutoValue_ApplicantProgramSummaryView_Params.Builder();
     }
 
     abstract String programTitle();

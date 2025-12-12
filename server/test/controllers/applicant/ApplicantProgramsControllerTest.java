@@ -48,8 +48,8 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.NorthStarFilteredProgramsViewPartial;
-import views.applicant.NorthStarProgramIndexView;
+import views.applicant.FilteredProgramsPartial;
+import views.applicant.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
@@ -78,8 +78,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             settingsManifest,
-            instanceOf(NorthStarProgramIndexView.class),
-            instanceOf(NorthStarFilteredProgramsViewPartial.class),
+            instanceOf(ProgramIndexView.class),
+            instanceOf(FilteredProgramsPartial.class),
             instanceOf(MonitoringMetricCounters.class));
   }
 

@@ -30,11 +30,11 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
@@ -52,7 +52,7 @@
       >
         <div th:if="${commonIntakeSection.isPresent()}">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
+            th:replace="~{applicant/fragments/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
         <th:block th:if="${myApplicationsSection.isPresent()}">
@@ -61,7 +61,7 @@
             class="cf-below-cards"
           ></h2>
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
+            th:replace="~{applicant/fragments/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
           ></div>
         </th:block>
         <h2
@@ -69,7 +69,7 @@
           class="cf-below-cards"
         ></h2>
         <div
-          th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
+          th:replace="~{applicant/fragments/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
         ></div>
         <div th:if="${categoryOptions != null and !categoryOptions.isEmpty()}">
           <div
@@ -79,7 +79,7 @@
         <div id="not-started-programs">
           <th:block th:if="${unfilteredSection.isPresent()}">
             <div
-              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
+              th:replace="~{applicant/fragments/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
             ></div>
           </th:block>
           <th:block th:if="${!unfilteredSection.isPresent()}">
@@ -92,7 +92,7 @@
         </div>
       </div>
     </main>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

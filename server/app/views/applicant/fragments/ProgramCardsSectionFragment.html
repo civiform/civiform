@@ -24,7 +24,7 @@
   <!--/* Pre-screener card (before it is started) */-->
   <div th:if="${sectionType == 'COMMON_INTAKE'}">
     <div
-      th:replace="~{applicant/ProgramCardsFragment :: preScreenerCard(${section.cards().get(0)})}"
+      th:replace="~{applicant/fragments/ProgramCardsFragment :: preScreenerCard(${section.cards().get(0)})}"
     ></div>
   </div>
 
@@ -36,7 +36,7 @@
     <th:block th:each="card : ${section.cards()}">
       <!-- Standard cards and pre-screener card (after it is started) -->
       <li
-        th:replace="${card.programType().toString() == 'COMMON_INTAKE_FORM'} ? ~{applicant/ProgramCardsFragment :: submittedOrInProgressPreScreenerCard(${card})} : ~{applicant/ProgramCardsFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
+        th:replace="${card.programType().toString() == 'COMMON_INTAKE_FORM'} ? ~{applicant/fragments/ProgramCardsFragment :: submittedOrInProgressPreScreenerCard(${card})} : ~{applicant/fragments/ProgramCardsFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
       ></li>
     </th:block>
   </ul>

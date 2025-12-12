@@ -1,15 +1,15 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
 
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -78,7 +78,7 @@
 
               <div th:if="${isGuest}">
                 <div
-                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
+                  th:replace="~{applicant/fragments/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
                 ></div>
               </div>
 
@@ -115,7 +115,7 @@
           </div>
           <div class="section-internal">
             <div
-              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+              th:replace="~{applicant/fragments/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
             ></div>
           </div>
         </div>
@@ -127,10 +127,10 @@
     </main>
 
     <div th:if="${isGuest}">
-      <div th:replace="~{applicant/ModalFragment:: upsellLogin}"></div>
+      <div th:replace="~{applicant/fragments/ModalFragment:: upsellLogin}"></div>
     </div>
 
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

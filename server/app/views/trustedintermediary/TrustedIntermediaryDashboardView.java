@@ -1,4 +1,4 @@
-package views.applicant;
+package views.trustedintermediary;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.iffElse;

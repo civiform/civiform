@@ -25,11 +25,11 @@ import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
-public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
+public class ApplicantIneligibleView extends NorthStarBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject
-  NorthStarApplicantIneligibleView(
+  ApplicantIneligibleView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -109,14 +109,14 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
         applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
     context.setVariable("goBackHref", goBackHref);
 
-    return templateEngine.process("applicant/IneligibleTemplate", context);
+    return templateEngine.process("applicant/ApplicantIneligibleTemplate", context);
   }
 
   @AutoValue
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarApplicantIneligibleView_Params.Builder();
+      return new AutoValue_ApplicantIneligibleView_Params.Builder();
     }
 
     abstract Request request();

@@ -4,17 +4,17 @@
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
-    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+    th:replace="~{applicant/fragments/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
-    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/fragments/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/fragments/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+        th:replace="~{applicant/fragments/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment ::
+        th:replace="~{applicant/fragments/TitleAndDescriptionFragment ::
           titleAndDescriptionFragment(
           #{heading.programOverview(${programName})},
           ${programDescription})}"
@@ -77,7 +77,7 @@
               </div>
               <div th:if="${isGuest}" class="section-internal">
                 <div
-                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
+                  th:replace="~{applicant/fragments/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
                 ></div>
               </div>
               <div th:if="${!isGuest}" class="section-internal">
@@ -92,7 +92,7 @@
         </div>
       </div>
     </main>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/fragments/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>
