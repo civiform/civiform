@@ -83,7 +83,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(activeProgram.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject.review(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
@@ -130,7 +130,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public void
       reviewWithApplicanId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -196,7 +196,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = activeProgram.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject

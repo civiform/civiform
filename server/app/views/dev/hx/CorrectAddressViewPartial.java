@@ -118,8 +118,7 @@ public class CorrectAddressViewPartial extends BaseHtmlView {
                                                   .withValue(
                                                       Integer.toString(location.getWellKnownId()))))
                                   .condWith(
-                                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                          request),
+                                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                                       div()
                                           .with(
                                               label()

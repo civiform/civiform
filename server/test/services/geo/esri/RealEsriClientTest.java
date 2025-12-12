@@ -20,6 +20,7 @@ import junitparams.Parameters;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import play.cache.SyncCacheApi;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.test.WithApplication;
@@ -41,7 +42,7 @@ public class RealEsriClientTest extends WithApplication {
 
   @Test
   public void fetchAddressSuggestions() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -58,7 +59,7 @@ public class RealEsriClientTest extends WithApplication {
     // Can do away after the removal of the old config setting.
     helper =
         new EsriTestHelper(
-            TestType.LEGACY_SINGLE_URL_CONFIG_SETTING, instanceOf(ObjectMapper.class));
+            TestType.LEGACY_SINGLE_URL_CONFIG_SETTING, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -70,7 +71,7 @@ public class RealEsriClientTest extends WithApplication {
 
   @Test
   public void fetchAddressSuggestionsHavingLine2Populated() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     addressJson.put("line2", "Apt 123");
@@ -84,7 +85,7 @@ public class RealEsriClientTest extends WithApplication {
 
   @Test
   public void fetchAddressSuggestionsWithNoCandidates() throws Exception {
-    helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -95,7 +96,7 @@ public class RealEsriClientTest extends WithApplication {
 
   @Test
   public void fetchAddressSuggestionsWithError() throws Exception {
-    helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -107,7 +108,7 @@ public class RealEsriClientTest extends WithApplication {
   public void fetchAddressSuggestionsMultipleUrls() throws Exception {
     // TestType.MULTIPLE_ENDPOINTS configures the test web server with multi endpoints
     // that each return different numbers of results
-    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -123,7 +124,7 @@ public class RealEsriClientTest extends WithApplication {
 
   @Test
   public void fetchServiceAreaFeatures() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Optional<JsonNode> optionalResponse =
         helper
             .getClient()
@@ -141,7 +142,7 @@ public class RealEsriClientTest extends WithApplication {
   @Test
   public void fetchServiceAreaFeaturesWithError() throws Exception {
     helper =
-        new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR, instanceOf(ObjectMapper.class));
+        new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Optional<JsonNode> maybeResp =
         helper
             .getClient()

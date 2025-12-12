@@ -19,6 +19,7 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Optional;
 import org.apache.commons.lang3.NotImplementedException;
+import play.cache.SyncCacheApi;
 import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
@@ -74,7 +75,7 @@ public class EsriTestHelper {
 
   private static final Clock CLOCK = Clock.system(ZoneId.of("America/Los_Angeles"));
   private static final Config CONFIG = ConfigFactory.load();
-  private static final SettingsManifest SETTINGS_MANIFEST = new SettingsManifest(CONFIG, null);
+  private SettingsManifest settingsManifest;
 
   private static final EsriServiceAreaValidationConfig ESRI_SERVICE_AREA_VALIDATION_CONFIG =
       new EsriServiceAreaValidationConfig(CONFIG);
@@ -98,8 +99,10 @@ public class EsriTestHelper {
   private final EsriClient client;
   private final ObjectMapper mapper;
 
-  public EsriTestHelper(TestType testType, ObjectMapper mapper) {
+  public EsriTestHelper(TestType testType, ObjectMapper mapper, SyncCacheApi syncCacheApi) {
     this.mapper = checkNotNull(mapper);
+    this.settingsManifest = new SettingsManifest(CONFIG, syncCacheApi);
+
 
     ServerSettings serverSettings =
         switch (testType) {
@@ -154,7 +157,7 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-            SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
+          settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
@@ -177,7 +180,7 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-            SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
+          settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =

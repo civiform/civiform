@@ -506,7 +506,7 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
 
-    if (settingsManifest.getApiBridgeEnabled(request)) {
+    if (settingsManifest.getApiBridgeEnabled()) {
       questionSettingsContentBuilder.add(buildDisplayModeFields(questionForm, submittable));
     }
 

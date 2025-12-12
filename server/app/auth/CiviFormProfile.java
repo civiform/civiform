@@ -303,7 +303,7 @@ public class CiviFormProfile {
         .thenApply(
             account -> {
               if (account.getGlobalAdmin()
-                  && settingsManifest.getAllowCiviformAdminAccessPrograms(request)) {
+                  && settingsManifest.getAllowCiviformAdminAccessPrograms()) {
                 return null;
               }
               if (account.getAdministeredProgramNames().stream()

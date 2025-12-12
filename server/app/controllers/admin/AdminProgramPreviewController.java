@@ -71,7 +71,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
                   pdfExporterService.generateProgramPreviewPdf(
                       program,
                       roQuestionService.getAllQuestions(),
-                      settingsManifest.getExpandedFormLogicEnabled(request));
+                      settingsManifest.getExpandedFormLogicEnabled());
               return ok(pdf.getByteArray())
                   .as("application/pdf")
                   .withHeader(

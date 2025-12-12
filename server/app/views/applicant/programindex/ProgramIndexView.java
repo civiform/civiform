@@ -152,7 +152,7 @@ public class ProgramIndexView extends ApplicantBaseView {
         "authProviderName",
         // The applicant portal name should always be set (there is a
         // default setting as well).
-        settingsManifest.getApplicantPortalName(request).get());
+        settingsManifest.getApplicantPortalName().get());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());

@@ -181,7 +181,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
-      if (!settingsManifest.getEsriAddressCorrectionEnabled(request)
+      if (!settingsManifest.getEsriAddressCorrectionEnabled()
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
               .getBlockDefinition(blockDefinitionId)

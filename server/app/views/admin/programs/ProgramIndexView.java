@@ -97,7 +97,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // languages.
     String pageExplanation =
         "Create, edit and publish programs in "
-            + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
+            + settingsManifest.getWhitelabelCivicEntityShortName().get();
 
     // TODO: Figure out how to simplify logic so getUpToDateQuestions() can be used in place of
     // getActiveAndDraftQuestions()
@@ -541,7 +541,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
 
-        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+        if (settingsManifest.getTranslationManagementImprovementEnabled()) {
           maybeRenderManageTranslationsLink(activeProgram.get())
               .ifPresent(activeRowExtraActions::add);
         }

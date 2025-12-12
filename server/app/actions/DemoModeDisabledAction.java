@@ -29,7 +29,7 @@ public class DemoModeDisabledAction extends Action.Simple {
   @Override
   public CompletionStage<Result> call(Request req) {
 
-    if (settingsManifest.getStagingDisableDemoModeLogins(req)) {
+    if (settingsManifest.getStagingDisableDemoModeLogins()) {
       logger.warn(
           "There was an attempt to navigate to a dev tools action when demo mode was disabled");
       return CompletableFuture.completedFuture(

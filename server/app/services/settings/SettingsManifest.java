@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import play.mvc.Http.RequestHeader;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -63,8 +62,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
-    return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
+  public Optional<String> getWhitelabelCivicEntityShortName() {
+    return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME");
   }
 
   /**
@@ -72,18 +71,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * may be desired if the government name is included in the logo. The logo is hidden on smaller
    * screens, so this will only hide the name if the logo is showing.
    */
-  public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
-    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
+  public boolean getHideCivicEntityNameInHeader() {
+    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER");
   }
 
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
-    return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
+  public Optional<String> getWhitelabelCivicEntityFullName() {
+    return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME");
   }
 
   /** The URL to the civic entity's production CiviForm site. */
-  public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
-    return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
+  public Optional<String> getCivicEntityProductionUrl() {
+    return getString("CIVIC_ENTITY_PRODUCTION_URL");
   }
 
   /**
@@ -99,16 +98,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * A primary color is the color displayed most prominently across your website. Enter the hex code
    * for this color.
    */
-  public Optional<String> getThemeColorPrimary(RequestHeader request) {
-    return getString("THEME_COLOR_PRIMARY", request);
+  public Optional<String> getThemeColorPrimary() {
+    return getString("THEME_COLOR_PRIMARY");
   }
 
   /**
    * A darker version of your primary color can be applied to your website for some purposes. Enter
    * the hex code for this color.
    */
-  public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
-    return getString("THEME_COLOR_PRIMARY_DARK", request);
+  public Optional<String> getThemeColorPrimaryDark() {
+    return getString("THEME_COLOR_PRIMARY_DARK");
   }
 
   /** What identity provider to use for applicants. */
@@ -125,8 +124,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the portal that applicants log into, used in sentences like 'Log into your
    * APPLICANT_PORTAL_NAME account.'
    */
-  public Optional<String> getApplicantPortalName(RequestHeader request) {
-    return getString("APPLICANT_PORTAL_NAME", request);
+  public Optional<String> getApplicantPortalName() {
+    return getString("APPLICANT_PORTAL_NAME");
   }
 
   /**
@@ -646,8 +645,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
+  public boolean getEsriAddressCorrectionEnabled() {
+    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
   }
 
   /**
@@ -673,8 +672,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
    */
-  public boolean getEsriAddressServiceAreaValidationEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
+  public boolean getEsriAddressServiceAreaValidationEnabled() {
+    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
   }
 
   /**
@@ -733,8 +732,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** This email address is listed in the footer for applicants to contact support. */
-  public Optional<String> getSupportEmailAddress(RequestHeader request) {
-    return getString("SUPPORT_EMAIL_ADDRESS", request);
+  public Optional<String> getSupportEmailAddress() {
+    return getString("SUPPORT_EMAIL_ADDRESS");
   }
 
   /**
@@ -773,16 +772,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The text for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT", request);
+  public Optional<String> getCommonIntakeMoreResourcesLinkText() {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT");
   }
 
   /**
    * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
+  public Optional<String> getCommonIntakeMoreResourcesLinkHref() {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF");
   }
 
   /**
@@ -995,8 +994,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
    */
-  public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
-    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
+  public boolean getAllowCiviformAdminAccessPrograms() {
+    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS");
   }
 
   /**
@@ -1014,13 +1013,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need
    * to log in through the admin authenticator to get back to this settings page
    */
-  public boolean getStagingDisableDemoModeLogins(RequestHeader request) {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
+  public boolean getStagingDisableDemoModeLogins() {
+    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
   /** Enables the API docs tab on CiviForm. */
-  public boolean getApiGeneratedDocsEnabled(RequestHeader request) {
-    return getBool("API_GENERATED_DOCS_ENABLED", request);
+  public boolean getApiGeneratedDocsEnabled() {
+    return getBool("API_GENERATED_DOCS_ENABLED");
   }
 
   /** Enables caching for versions and their associated data. */
@@ -1052,8 +1051,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
-  public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
-    return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
+  public boolean getSuggestProgramsOnApplicationConfirmationPage() {
+    return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE");
   }
 
   /**
@@ -1061,28 +1060,28 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
    * also include a link to your production site.
    */
-  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
-    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  public boolean getShowNotProductionBannerEnabled() {
+    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED");
   }
 
   /** Enables civiform admins to set up a customized eligibility message per screen. */
-  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
-    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
+  public boolean getCustomizedEligibilityMessageEnabled() {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED");
   }
 
   /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  public boolean getCustomThemeColorsEnabled() {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED");
   }
 
   /** Enables suffix dropdown field in name question. */
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  public boolean getNameSuffixDropdownEnabled() {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED");
   }
 
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
-  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
-    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
+  public boolean getRemoveDownloadForProgramAdminsEnabled() {
+    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED");
   }
 
   /** Enable allowing CiviForm admins to add a map question to their programs. */
@@ -1096,23 +1095,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled(RequestHeader request) {
-    return getBool("SESSION_TIMEOUT_ENABLED", request);
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards. */
-  public boolean getExternalProgramCardsEnabled(RequestHeader request) {
-    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
+  public boolean getExternalProgramCardsEnabled() {
+    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
-  public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
-    return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
+  public boolean getProgramSlugUrlsEnabled() {
+    return getBool("PROGRAM_SLUG_URLS_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
@@ -1121,29 +1120,29 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
-  public boolean getApiBridgeEnabled(RequestHeader request) {
-    return getBool("API_BRIDGE_ENABLED", request);
+  public boolean getApiBridgeEnabled() {
+    return getBool("API_BRIDGE_ENABLED");
   }
 
   /**
    * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
    * logic capabilities for admin.
    */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  public boolean getExpandedFormLogicEnabled() {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED");
   }
 
   /**
    * (NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin
    * login.
    */
-  public boolean getLoginDropdownEnabled(RequestHeader request) {
-    return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  public boolean getLoginDropdownEnabled() {
+    return getBool("LOGIN_DROPDOWN_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Sample. */
   public boolean getSampleFlagEnabled() {
-    return getBool("SAMPLE_FLAG_ENABLED", true);
+    return getBool("SAMPLE_FLAG_ENABLED");
   }
 
   /**

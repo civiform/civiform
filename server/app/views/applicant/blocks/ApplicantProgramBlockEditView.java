@@ -159,7 +159,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("nameSuffixOptions", Suffix.values());
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
-          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
