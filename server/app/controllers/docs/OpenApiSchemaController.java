@@ -52,7 +52,7 @@ public final class OpenApiSchemaController {
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
+    if (!settingsManifest.getApiGeneratedDocsEnabled()) {
       return notFound("API Docs are not enabled.");
     }
 
@@ -76,7 +76,7 @@ public final class OpenApiSchemaController {
       OpenApiSchemaSettings openApiSchemaSettings =
           new OpenApiSchemaSettings(
               settingsManifest.getBaseUrl().orElse(""),
-              getEmailAddress(request),
+              getEmailAddress(),
               deploymentType.isDev());
 
       OpenApiSchemaGenerator openApiSchemaGenerator =
@@ -122,12 +122,12 @@ public final class OpenApiSchemaController {
   }
 
   /** Get either the IT email address or the support email address */
-  private String getEmailAddress(Http.Request request) {
+  private String getEmailAddress() {
     Optional<String> contactEmailAddress =
         settingsManifest.getItEmailAddress().isPresent()
                 && !settingsManifest.getItEmailAddress().get().isBlank()
             ? settingsManifest.getItEmailAddress()
-            : settingsManifest.getSupportEmailAddress(request);
+            : settingsManifest.getSupportEmailAddress();
     return contactEmailAddress.orElse("");
   }
 
@@ -137,7 +137,7 @@ public final class OpenApiSchemaController {
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
+    if (!settingsManifest.getApiGeneratedDocsEnabled()) {
       return notFound("API Docs are not enabled.");
     }
 

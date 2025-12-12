@@ -115,7 +115,7 @@ public class ApplicantUpsellView extends ApplicantBaseView {
 
     // Cards section
     Optional<ProgramSectionParams> cardsSection = Optional.empty();
-    if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(params.request())) {
+    if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage()) {
       cardsSection =
           Optional.of(
               programCardsSectionParamsFactory.getSection(

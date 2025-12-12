@@ -58,7 +58,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     formFactory = instanceOf(FormFactory.class);
     predicateGenerator = instanceOf(PredicateGenerator.class);
     settingsManifest = mock(SettingsManifest.class);
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
   }
 
   @Test

@@ -176,7 +176,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ArrayList<ProgramHeaderButton> headerButtons =
         new ArrayList<>(
-            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram(), request));
+            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
 
     // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
     // buttons to preview or download the application.
@@ -229,8 +229,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         blockDefinition.hasEnumeratorQuestion(),
                                         csrfTag,
                                         blockDescriptionEditModal.getButton(),
-                                        blockDeleteScreenModal.getButton(),
-                                        request)))));
+                                        blockDeleteScreenModal.getButton())))));
 
     // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
@@ -266,9 +265,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
    *     only allows editing if a program is in draft mode.)
    */
   private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      boolean isEditingAllowed, Request request) {
+      boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getApiBridgeEnabled(request)) {
+      if (settingsManifest.getApiBridgeEnabled()) {
         return ImmutableList.of(
             ProgramHeaderButton.EDIT_PROGRAM_DETAILS,
             ProgramHeaderButton.EDIT_PROGRAM_IMAGE,
@@ -549,8 +548,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockDefinitionHasEnumeratorQuestion,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
-      ButtonTag blockDeleteModalButton,
-      Request request) {
+      ButtonTag blockDeleteModalButton) {
     // A block can only be deleted when it has no repeated blocks. Same is true for
     // removing the enumerator question from the block.
     final boolean canDelete =
@@ -571,7 +569,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
             allQuestions,
-            settingsManifest.getExpandedFormLogicEnabled(request));
+            settingsManifest.getExpandedFormLogicEnabled());
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
@@ -583,7 +581,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
                   allQuestions,
-                  settingsManifest.getExpandedFormLogicEnabled(request)));
+                  settingsManifest.getExpandedFormLogicEnabled()));
     }
 
     // Precompute a map of questions to block ids that use the question in visibility conditions.
@@ -626,7 +624,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       index,
                       blockQuestions.size(),
                       question.getQuestionDefinition() instanceof NullQuestionDefinition,
-                      request,
                       questionIdToVisibilityBlockIdMap.get(questionDefinition.getId())));
             });
 
@@ -928,12 +925,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionIndex,
       int questionsCount,
       boolean malformedQuestionDefinition,
-      Request request,
       ImmutableSet<Long> visibilityGatedBlockIds) {
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
-            request,
             csrfTag,
             programDefinition,
             blockDefinition,
@@ -1137,7 +1132,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * for address related questions.
    */
   private Optional<FormTag> renderAddressCorrectionEnabledToggle(
-      Request request,
       InputTag csrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
@@ -1167,7 +1161,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (!settingsManifest.getEsriAddressCorrectionEnabled(request)) {
+    if (!settingsManifest.getEsriAddressCorrectionEnabled()) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=

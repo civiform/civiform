@@ -110,7 +110,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
@@ -122,7 +122,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
@@ -142,7 +142,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
@@ -155,7 +155,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
@@ -179,7 +179,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
@@ -190,7 +190,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled(fakeRequest()))
+    when(settingsManifest.getExpandedFormLogicEnabled())
         .thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
@@ -266,7 +266,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void update_activeProgram_throws() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () ->
@@ -467,7 +467,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_expandedLogicDisabled_notFound() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(false);
 
     Result result =
         controller.hxAddCondition(
@@ -482,7 +482,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             EDIT_CONDITION_REQUEST,
@@ -497,7 +497,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             EDIT_CONDITION_REQUEST,
@@ -515,7 +515,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_expandedLogicDisabled_notFound() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(false);
 
     Result result =
         controller.hxEditSubcondition(
@@ -530,7 +530,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -544,7 +544,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxEditSubcondition(
             EDIT_SUBCONDITION_REQUEST,
@@ -562,7 +562,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_noForm_returnsOkAndDisplaysAlert() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             fakeRequestBuilder().build(),
@@ -577,7 +577,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             fakeRequest(),
@@ -592,7 +592,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             fakeRequest(),
@@ -607,7 +607,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxAddCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxAddCondition(
             fakeRequest(),
@@ -622,7 +622,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_withAddressQuestionId_isSelected() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -656,7 +656,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_malformedQuestionId_selectsDefaults() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()

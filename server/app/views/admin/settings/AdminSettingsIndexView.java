@@ -206,8 +206,11 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       SettingDescription settingDescription) {
     Optional<String> value =
         settingsManifest
-            .getSettingDisplayValue(request, settingDescription)
+            .getSettingDisplayValue(settingDescription)
             .filter(v -> !v.isBlank());
+
+    // todo gwen: remove
+    System.out.println(request.toString());
 
     return switch (settingDescription.settingType()) {
       case BOOLEAN -> renderBoolInput(settingDescription, value);

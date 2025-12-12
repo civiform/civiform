@@ -36,12 +36,12 @@ public abstract class AbstractSettingsManifest {
    * Returns a map containing the names of the settings in the "Feature Flags" section mapped to
    * their current values.
    */
-  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.RequestHeader request) {
+  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted() {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
     for (SettingDescription settingDescription : getAllFeatureFlagsSettingDescriptions()) {
       String name = settingDescription.variableName();
-      map.put(name, getBool(name, request));
+      map.put(name, getBool(name));
     }
 
     return map.build();
@@ -85,16 +85,12 @@ public abstract class AbstractSettingsManifest {
    * Retrieve a string representation of the setting suitable for display in the UI from the request
    * attributes or HOCON config.
    */
-  public Optional<String> getSettingDisplayValue(
-      Http.RequestHeader request, SettingDescription settingDescription) {
+  public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
     return switch (settingDescription.settingType()) {
-      case BOOLEAN ->
-          Optional.of(
-              String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
-      case INT -> getInt(settingDescription, request).map(String::valueOf);
-      case LIST_OF_STRINGS ->
-          getListOfStrings(settingDescription, request).map(list -> String.join(", ", list));
-      case ENUM, STRING -> getString(settingDescription, request).map(String::valueOf);
+      case BOOLEAN -> Optional.of(String.valueOf(getBool(settingDescription)).toUpperCase(Locale.ROOT));
+      case INT -> getInt(settingDescription).map(String::valueOf);
+      case LIST_OF_STRINGS -> getListOfStrings(settingDescription).map(list -> String.join(", ", list));
+      case ENUM, STRING -> getString(settingDescription).map(String::valueOf);
     };
   }
 
@@ -106,161 +102,121 @@ public abstract class AbstractSettingsManifest {
     return switch (settingDescription.settingType()) {
       case BOOLEAN -> getBool(settingDescription).map(String::valueOf);
       case INT -> getInt(settingDescription).map(String::valueOf);
-      case LIST_OF_STRINGS ->
-          getListOfStrings(settingDescription).map(list -> String.join(",", list));
+      case LIST_OF_STRINGS -> getListOfStrings(settingDescription).map(list -> String.join(",", list));
       case ENUM, STRING -> getString(settingDescription).map(String::valueOf);
     };
   }
 
-  /**
-   * Gets the config value for the given setting. If the setting is found in the stored writeable
-   * settings, the value from the database is returned. Otherwise the value from the application
-   * {@link Config} is used..
-   */
-  private boolean getBool(SettingDescription settingDescription, Http.RequestHeader request) {
-    return getBool(settingDescription.variableName(), request);
-  }
-
-  protected boolean getBool(String variableName, Http.RequestHeader request) {
-    return getBool(variableName, true);
-    //    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-    //      logger.warn(
-    //          String.format(
-    //              "Settings not found on request when looking up value for %s", variableName));
-    //      return getBool(variableName);
-    //    }
-    //
-    //    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-    //
-    //    return writableSettings.containsKey(variableName)
-    //        ? writableSettings.get(variableName).equals("true")
-    //        : getBool(variableName);
-  }
-
-  protected boolean getBool(String variableName, Boolean ignored) {
-    Optional<Optional<SettingsGroupModel>> optionalCacheEntry =
-        settingsCache.get("current-settings");
+  public boolean getBool(String variableName) {
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry = settingsCache.get("current-settings");
 
     if (optionalCacheEntry.isEmpty()) {
-      logger.warn(
-          String.format("Settings not found in cache when looking up value for %s", variableName));
-      return getBool(variableName);
+      logger.warn(String.format("Settings not found in cache when looking up value for %s", variableName));
+      return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
     }
 
     Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
 
     if (optionalSettingsGroupModel.isEmpty()) {
-      logger.warn(
-          String.format("Settings not found in model when looking up value for %s", variableName));
-      return getBool(variableName);
+      logger.warn(String.format("Settings not found in model when looking up value for %s", variableName));
+      return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
     }
 
     String settingValue = optionalSettingsGroupModel.get().getSettings().get(variableName);
 
     if (settingValue == null) {
-      return getBool(variableName);
+      return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
     }
 
     return Boolean.parseBoolean(settingValue);
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
-    return getConfigVal(config::getBoolean, getHoconName(settingDescription));
-  }
-
-  public boolean getBool(String variableName) {
-    return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
-  }
-
-  protected Optional<String> getString(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getString(settingDescription.variableName(), request);
-  }
-
-  protected Optional<String> getString(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getString(variableName);
-    }
-
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-
-    return writableSettings.containsKey(variableName)
-        ? Optional.of(writableSettings.get(variableName))
-        : getString(variableName);
-  }
-
-  protected Optional<String> getString(SettingDescription settingDescription) {
-    return getConfigVal(config::getString, getHoconName(settingDescription));
+    return Optional.of(getBool(getHoconName(settingDescription)));
   }
 
   protected Optional<String> getString(String variableName) {
-    return getConfigVal(config::getString, getHoconName(variableName));
-  }
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry = settingsCache.get("current-settings");
 
-  protected Optional<Integer> getInt(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getInt(settingDescription.variableName(), request);
-  }
-
-  protected Optional<Integer> getInt(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getInt(variableName);
+    if (optionalCacheEntry.isEmpty()) {
+      logger.warn(String.format("Settings not found in cache when looking up value for %s", variableName));
+      return getConfigVal(config::getString, getHoconName(variableName));
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
 
-    return writableSettings.containsKey(variableName)
-        ? Optional.of(Integer.parseInt(writableSettings.get(variableName)))
-        : getInt(variableName);
+    if (optionalSettingsGroupModel.isEmpty()) {
+      logger.warn(String.format("Settings not found in model when looking up value for %s", variableName));
+      return getConfigVal(config::getString, getHoconName(variableName));
+    }
+
+    String settingValue = optionalSettingsGroupModel.get().getSettings().get(variableName);
+
+    if (settingValue == null) {
+      return getConfigVal(config::getString, getHoconName(variableName));
+    }
+
+    return Optional.of(settingValue);
   }
 
-  protected Optional<Integer> getInt(SettingDescription settingDescription) {
-    return getConfigVal(config::getInt, getHoconName(settingDescription));
+  private Optional<String> getString(SettingDescription settingDescription) {
+    return getString(getHoconName(settingDescription.variableName()));
   }
 
   protected Optional<Integer> getInt(String variableName) {
-    return getConfigVal(config::getInt, getHoconName(variableName));
-  }
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry = settingsCache.get("current-settings");
 
-  protected Optional<ImmutableList<String>> getListOfStrings(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getListOfStrings(settingDescription.variableName(), request);
-  }
-
-  protected Optional<ImmutableList<String>> getListOfStrings(
-      String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getListOfStrings(variableName);
+    if (optionalCacheEntry.isEmpty()) {
+      logger.warn(String.format("Settings not found in cache when looking up value for %s", variableName));
+      return getConfigVal(config::getInt, getHoconName(variableName));
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
 
-    if (!writableSettings.containsKey(variableName)) {
-      return getListOfStrings(variableName);
+    if (optionalSettingsGroupModel.isEmpty()) {
+      logger.warn(String.format("Settings not found in model when looking up value for %s", variableName));
+      return getConfigVal(config::getInt, getHoconName(variableName));
     }
 
-    return Optional.of(
-        ImmutableList.copyOf(Splitter.on(",").split(writableSettings.get(variableName))));
+    String settingValue = optionalSettingsGroupModel.get().getSettings().get(variableName);
+
+    if (settingValue == null) {
+      return getConfigVal(config::getInt, getHoconName(variableName));
+    }
+
+    return Optional.of(Integer.parseInt(settingValue));
   }
 
-  protected Optional<ImmutableList<String>> getListOfStrings(
-      SettingDescription settingDescription) {
-    return getConfigVal(
-        name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(settingDescription));
+  private Optional<Integer> getInt(SettingDescription settingDescription) {
+    return getInt(getHoconName(settingDescription.variableName()));
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(String variableName) {
-    return getConfigVal(
-        name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+    Optional<Optional<SettingsGroupModel>> optionalCacheEntry = settingsCache.get("current-settings");
+
+    if (optionalCacheEntry.isEmpty()) {
+      logger.warn(String.format("Settings not found in cache when looking up value for %s", variableName));
+      return getConfigVal(name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+    }
+
+    Optional<SettingsGroupModel> optionalSettingsGroupModel = optionalCacheEntry.get();
+
+    if (optionalSettingsGroupModel.isEmpty()) {
+      logger.warn(String.format("Settings not found in model when looking up value for %s", variableName));
+      return getConfigVal(name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+    }
+
+    String settingValue = optionalSettingsGroupModel.get().getSettings().get(variableName);
+
+    if (settingValue == null) {
+      return getConfigVal(name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+    }
+
+    return Optional.of(ImmutableList.copyOf(Splitter.on(",").split(settingValue)));
+  }
+
+  private Optional<ImmutableList<String>> getListOfStrings(SettingDescription settingDescription) {
+    return getConfigVal(name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(settingDescription));
   }
 
   private <T> Optional<T> getConfigVal(Function<String, T> configGetter, String hoconName) {

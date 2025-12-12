@@ -187,7 +187,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
 
-      if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+      if (settingsManifest.getExpandedFormLogicEnabled()) {
         EditPredicatePageViewModel model =
             EditPredicatePageViewModel.builder()
                 .programDefinition(programDefinition)
@@ -556,7 +556,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updatePredicate(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     requestChecker.throwIfProgramNotDraft(programId);
@@ -632,7 +632,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -706,7 +706,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);

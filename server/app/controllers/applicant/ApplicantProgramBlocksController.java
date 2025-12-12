@@ -156,7 +156,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -206,7 +206,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -241,7 +241,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -301,7 +301,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -400,9 +400,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     cleanForm(questionPathToValueMap),
-                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                     false,
-                    settingsManifest.getApiBridgeEnabled(request)),
+                    settingsManifest.getApiBridgeEnabled()),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -462,7 +462,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -590,7 +590,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -731,7 +731,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -774,7 +774,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -869,9 +869,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             programId,
                             blockId,
                             fileUploadQuestionFormData.build(),
-                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                             /* forceUpdate= */ true,
-                            settingsManifest.getApiBridgeEnabled(request));
+                            settingsManifest.getApiBridgeEnabled());
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -928,7 +928,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -968,7 +968,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -1137,10 +1137,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         programId,
                                         blockId,
                                         fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                            request),
+                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                                         false,
-                                        settingsManifest.getApiBridgeEnabled(request)));
+                                        settingsManifest.getApiBridgeEnabled()));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1185,7 +1184,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -1267,10 +1266,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         programId,
                                         blockId,
                                         fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                            request),
+                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                                         false,
-                                        settingsManifest.getApiBridgeEnabled(request)));
+                                        settingsManifest.getApiBridgeEnabled()));
                       },
                       classLoaderExecutionContext.current())
                   .thenComposeAsync(
@@ -1329,7 +1327,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Boolean isFromUrlCall) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -1491,9 +1489,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       programId,
                       blockId,
                       formData,
-                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                       false,
-                      settingsManifest.getApiBridgeEnabled(request))
+                      settingsManifest.getApiBridgeEnabled())
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(
@@ -1632,7 +1630,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // TODO(#7893): When you enter an address that requires correction but then click "Previous",
     // you're still taken forward to the address correction screen which is unexpected.
-    if (settingsManifest.getEsriAddressCorrectionEnabled(request)
+    if (settingsManifest.getEsriAddressCorrectionEnabled()
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
       AddressQuestion addressQuestion =

@@ -11,6 +11,7 @@ import com.jayway.jsonpath.ReadContext;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
+import play.cache.SyncCacheApi;
 import play.libs.Json;
 import repository.ResetPostgres;
 import services.geo.AddressLocation;
@@ -21,7 +22,7 @@ public class FakeEsriClientTest extends ResetPostgres {
   private final EsriTestHelper helper;
 
   public FakeEsriClientTest() throws Exception {
-    helper = new EsriTestHelper(TestType.FAKE, instanceOf(ObjectMapper.class));
+    helper = new EsriTestHelper(TestType.FAKE, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
   }
 
   @Test

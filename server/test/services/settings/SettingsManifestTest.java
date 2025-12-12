@@ -73,12 +73,6 @@ public class SettingsManifestTest {
               "enum_variable",
               "foo"));
 
-  private static Http.Request REQUEST =
-      fakeRequest()
-          .withAttrs(
-              TypedMap.empty()
-                  .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("BOOL_VARIABLE", "true")));
-
   private static ImmutableMap<String, SettingsSection> SECTIONS =
       ImmutableMap.of(
           "TEST_SECTION",
@@ -107,22 +101,22 @@ public class SettingsManifestTest {
 
   @Test
   public void getSettingDisplayValue() {
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, STRING_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(STRING_VARIABLE))
         .isEqualTo(Optional.of("my-var"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, INT_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(INT_VARIABLE))
         .isEqualTo(Optional.of("11"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, LIST_OF_STRINGS_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("one, two, three"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, BOOL_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(BOOL_VARIABLE))
         .isEqualTo(Optional.of("TRUE"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, ENUM_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(ENUM_VARIABLE))
         .isEqualTo(Optional.of("foo"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, UNSET_STRING_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(UNSET_STRING_VARIABLE))
         .isEqualTo(Optional.empty());
   }
 
   @Test
   public void getBool_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getBool("BOOL_VARIABLE", fakeRequest())).isFalse();
+    assertThat(testManifest.getBool("BOOL_VARIABLE")).isFalse();
   }
 }
