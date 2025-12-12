@@ -192,9 +192,9 @@ public final class ProgramService {
 
   /*
    * Looks at the most recent version of each program and returns the program marked as the
-   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   * pre-screener form if it exists. The most recent version may be in the draft or active stage.
    */
-  public Optional<ProgramDefinition> getCommonIntakeForm() {
+  public Optional<ProgramDefinition> getPreScreenerForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
         .filter(ProgramDefinition::isPreScreenerForm)
         .findFirst();
@@ -374,11 +374,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if only logged in applicants can apply to the program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link
-   *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
-   *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
-   *     necessary.
+   *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be changed
+   *     to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if necessary.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -425,8 +424,8 @@ public final class ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
-      clearCommonIntakeForm();
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM) && getPreScreenerForm().isPresent()) {
+      clearPreScreenerForm();
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -552,10 +551,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if an applicant must be logged in before applying to a program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
-   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
-   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
-   *     draft of it if necessary.
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
+   *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM}, that
+   *     program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new draft
+   *     of it if necessary.
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -595,11 +594,11 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()
-          && !programDefinition.adminName().equals(maybeCommonIntakeForm.get().adminName())) {
-        clearCommonIntakeForm();
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
+      Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()
+          && !programDefinition.adminName().equals(maybePreScreenerForm.get().adminName())) {
+        clearPreScreenerForm();
       }
     }
 
@@ -609,7 +608,7 @@ public final class ProgramService {
     applicationSteps =
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)
         && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
@@ -770,26 +769,26 @@ public final class ProgramService {
   }
 
   /**
-   * Clears the common intake form if it exists.
+   * Clears the pre-screener form if it exists.
    *
-   * <p>If there is a program among the most recent versions of all programs marked as the common
-   * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
+   * <p>If there is a program among the most recent versions of all programs marked as the
+   * pre-screener form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
    * necessary.
    */
-  private void clearCommonIntakeForm() {
-    Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
-    if (!maybeCommonIntakeForm.isPresent()) {
+  private void clearPreScreenerForm() {
+    Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
+    if (!maybePreScreenerForm.isPresent()) {
       return;
     }
-    ProgramDefinition draftCommonIntakeProgramDefinition =
+    ProgramDefinition draftPreScreenerProgramDefinition =
         programRepository.getShallowProgramDefinition(
-            programRepository.createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram()));
-    ProgramModel commonIntakeProgram =
-        draftCommonIntakeProgramDefinition.toBuilder()
+            programRepository.createOrUpdateDraft(maybePreScreenerForm.get().toProgram()));
+    ProgramModel preScreenerProgram =
+        draftPreScreenerProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
             .build()
             .toProgram();
-    programRepository.updateProgramSync(commonIntakeProgram);
+    programRepository.updateProgramSync(preScreenerProgram);
   }
 
   /**
@@ -913,8 +912,8 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
-    // Common intake and external programs don't have application steps.
-    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
+    // Pre-screener and external programs don't have application steps.
+    if (programType == ProgramType.PRE_SCREENER_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
 
@@ -1185,7 +1184,7 @@ public final class ProgramService {
   }
 
   /**
-   * If the program is not a common intake program and has application steps, validate that all the
+   * If the program is not a pre-screener program and has application steps, validate that all the
    * existing application steps have translations
    */
   private void validateApplicationSteps(
