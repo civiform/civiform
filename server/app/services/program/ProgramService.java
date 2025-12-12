@@ -1647,7 +1647,7 @@ public final class ProgramService {
     BlockDefinition.Builder blockBuilder =
         blockDefinition.toBuilder().setProgramQuestionDefinitions(newProgramQuestionDefinitions);
 
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()
         && isRemovingEnumeratorQuestion) {
       blockBuilder.setIsEnumerator(Optional.empty());
     }

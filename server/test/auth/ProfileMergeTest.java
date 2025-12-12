@@ -66,7 +66,8 @@ public class ProfileMergeTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            standardClaimsAttributeNames, null);
+            standardClaimsAttributeNames,
+            null);
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration= */ null,

@@ -17,7 +17,9 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-import play.mvc.Http.RequestHeader;
+
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -25,14 +27,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   private final ImmutableMap<String, SettingsSection> settingsSections;
 
   @Inject
-  public SettingsManifest(Config config) {
-    super(config);
+  public SettingsManifest(
+    Config config,
+    @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
+    super(config, settingsCache);
     this.settingsSections = GENERATED_SECTIONS;
   }
 
   @VisibleForTesting
-  public SettingsManifest(ImmutableMap<String, SettingsSection> settingsSections, Config config) {
-    super(config);
+  public SettingsManifest(
+    ImmutableMap<String, SettingsSection> settingsSections,
+    Config config,
+    SyncCacheApi settingsCache) {
+    super(config, settingsCache);
     this.settingsSections = checkNotNull(settingsSections);
   }
 
@@ -43,17 +50,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   {% for method_spec in getter_method_specs %}
-  {% if method_spec.variable.mode == writeable_mode %}
-  /** {{method_spec.doc()}} */
-  public {{method_spec.return_type()}} get{{method_spec.method_name()}}(RequestHeader request) {
-    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}", request);
-  }
-  {% else %}
   /** {{method_spec.doc()}} */
   public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
     return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
   }
-  {% endif %}
   {% endfor %}
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =

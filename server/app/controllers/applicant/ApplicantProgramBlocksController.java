@@ -175,7 +175,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       Optional<String> questionName,
       Boolean isFromUrlCall) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -262,7 +262,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName,
       Boolean isFromUrlCall) {
 
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
@@ -1137,7 +1137,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         programId,
                                         blockId,
                                         fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
+                                        settingsManifest
+                                            .getEsriAddressServiceAreaValidationEnabled(),
                                         false,
                                         settingsManifest.getApiBridgeEnabled()));
                       },
@@ -1266,7 +1267,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                         programId,
                                         blockId,
                                         fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
+                                        settingsManifest
+                                            .getEsriAddressServiceAreaValidationEnabled(),
                                         false,
                                         settingsManifest.getApiBridgeEnabled()));
                       },

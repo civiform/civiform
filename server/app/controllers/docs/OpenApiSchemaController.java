@@ -75,9 +75,7 @@ public final class OpenApiSchemaController {
 
       OpenApiSchemaSettings openApiSchemaSettings =
           new OpenApiSchemaSettings(
-              settingsManifest.getBaseUrl().orElse(""),
-              getEmailAddress(),
-              deploymentType.isDev());
+              settingsManifest.getBaseUrl().orElse(""), getEmailAddress(), deploymentType.isDev());
 
       OpenApiSchemaGenerator openApiSchemaGenerator =
           OpenApiSchemaGeneratorFactory.createGenerator(openApiVersionType, openApiSchemaSettings);

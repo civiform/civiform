@@ -53,8 +53,7 @@ public class PageNotProductionBannerTest {
   public void whenShowBannerSettingEnabled_returnsComponent() {
     String productionUrl = "https://civiform.example.com";
     when(settingsManifest.getShowNotProductionBannerEnabled()).thenReturn(true);
-    when(settingsManifest.getCivicEntityProductionUrl())
-        .thenReturn(Optional.of(productionUrl));
+    when(settingsManifest.getCivicEntityProductionUrl()).thenReturn(Optional.of(productionUrl));
     when(settingsManifest.getWhitelabelCivicEntityFullName())
         .thenReturn(Optional.of("civic-entity-name"));
 

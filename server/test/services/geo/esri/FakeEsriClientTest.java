@@ -22,7 +22,9 @@ public class FakeEsriClientTest extends ResetPostgres {
   private final EsriTestHelper helper;
 
   public FakeEsriClientTest() throws Exception {
-    helper = new EsriTestHelper(TestType.FAKE, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
+    helper =
+        new EsriTestHelper(
+            TestType.FAKE, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
   }
 
   @Test

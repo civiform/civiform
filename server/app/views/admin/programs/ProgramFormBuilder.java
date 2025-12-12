@@ -168,8 +168,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isPreScreenerForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
-    boolean isExternalProgramCardsEnabled =
-        settingsManifest.getExternalProgramCardsEnabled();
+    boolean isExternalProgramCardsEnabled = settingsManifest.getExternalProgramCardsEnabled();
 
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription = isPreScreenerForm || isExternalProgram;

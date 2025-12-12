@@ -16,7 +16,6 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 
@@ -27,17 +26,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   @Inject
   public SettingsManifest(
-    Config config,
-    @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
+      Config config, @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
     super(config, settingsCache);
     this.settingsSections = GENERATED_SECTIONS;
   }
 
   @VisibleForTesting
   public SettingsManifest(
-    ImmutableMap<String, SettingsSection> settingsSections,
-    Config config,
-    SyncCacheApi settingsCache) {
+      ImmutableMap<String, SettingsSection> settingsSections,
+      Config config,
+      SyncCacheApi settingsCache) {
     super(config, settingsCache);
     this.settingsSections = checkNotNull(settingsSections);
   }
@@ -1085,8 +1083,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enable allowing CiviForm admins to add a map question to their programs. */
-  public boolean getMapQuestionEnabled(RequestHeader request) {
-    return getBool("MAP_QUESTION_ENABLED", request);
+  public boolean getMapQuestionEnabled() {
+    return getBool("MAP_QUESTION_ENABLED");
   }
 
   /** Enables reading settings from the cache instead of directly from the database. */
@@ -1140,17 +1138,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("LOGIN_DROPDOWN_ENABLED");
   }
 
-  /** (NOT FOR PRODUCTION USE) Sample. */
-  public boolean getSampleFlagEnabled() {
-    return getBool("SAMPLE_FLAG_ENABLED");
-  }
-
   /**
    * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
    * enumerators.
    */
-  public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
-    return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  public boolean getEnumeratorImprovementsEnabled() {
+    return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Sample. */
+  public boolean getSampleFlagEnabled() {
+    return getBool("SAMPLE_FLAG_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2430,15 +2428,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "SAMPLE_FLAG_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Sample.",
+                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
+                              + " admins to work with enumerators.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
-                              + " admins to work with enumerators.",
+                          "SAMPLE_FLAG_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Sample.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

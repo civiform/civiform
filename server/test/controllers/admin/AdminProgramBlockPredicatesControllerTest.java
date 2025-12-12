@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -113,8 +112,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
                 controller.editVisibility(
@@ -125,8 +123,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withNonExistentProgram_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     assertThatThrownBy(
             () ->
                 controller.editEligibility(
@@ -145,8 +142,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result =
@@ -158,8 +154,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withInvalidBlock_notFound(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result =
@@ -182,8 +177,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editVisibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.editVisibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
@@ -193,8 +187,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"true", "false"})
   public void editEligibility_withActiveProgram_throws(boolean expandedFormLogicEnabled) {
-    when(settingsManifest.getExpandedFormLogicEnabled())
-        .thenReturn(expandedFormLogicEnabled);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(expandedFormLogicEnabled);
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () -> controller.editEligibility(fakeRequest(), programId, /* blockDefinitionId= */ 1))
@@ -286,7 +279,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void update() throws Exception {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.updatePredicate(
             fakeRequestBuilder()
@@ -337,7 +330,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void update_emptyConditions_removesPredicate() throws Exception {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     ProgramModel programWithEligibility =
         ProgramBuilder.newDraftProgram("program with condition")
             .withBlock("Screen 1")
@@ -386,7 +379,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void update_eligibilityMessage_succeeds() throws Exception {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
 
     Result result =
         controller.updatePredicate(
@@ -421,7 +414,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void update_eligibilityMessage_savesEmptyMessage() throws Exception {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     ProgramModel programWithEligibilityMessage =
         ProgramBuilder.newDraftProgram("program with eligibility message")
             .withBlock("Screen 1")
@@ -706,7 +699,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxEditSubcondition_withRadioQuestionId_showsOptions() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxEditSubcondition(
             fakeRequestBuilder()
@@ -737,7 +730,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxDeleteCondition_oneCondition_deleteFirstCondition_displaysAddConditionButton() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createConditionMapWithSelectedQuestions(
             ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
@@ -759,7 +752,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxDeleteCondition_twoConditions_deleteFirstCondition_secondConditionBecomesFirst() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createConditionMapWithSelectedQuestions(
             ImmutableList.of(
@@ -791,7 +784,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxDeleteCondition_twoConditions_deleteSecondCondition_displaysAddConditionButton() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createConditionMapWithSelectedQuestions(
             ImmutableList.of(
@@ -824,7 +817,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void
       hxDeleteSubcondition_oneSubcondition_deleteFirstSubcondition_createsEmptySubcondition() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createSubconditionMapWithSelectedQuestions(
             ImmutableList.of(testQuestionBank.addressApplicantAddress().id));
@@ -848,7 +841,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void
       hxDeleteSubcondition_twoSubconditions_deleteFirstSubcondition_secondSubconditionBecomesFirst() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createSubconditionMapWithSelectedQuestions(
             ImmutableList.of(
@@ -882,7 +875,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   @Test
   public void
       hxDeleteSubcondition_twoSubconditions_deleteSecondSucondition_displaysAddSubconditionButton() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Map<String, String> formData =
         createSubconditionMapWithSelectedQuestions(
             ImmutableList.of(
@@ -915,7 +908,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxDeleteAllConditions_withConditions_clearsAll() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxDeleteAllConditions(
             fakeRequestBuilder()
@@ -954,7 +947,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void hxDeleteAllConditions_withoutConditions_completesSuccessfully() {
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
     Result result =
         controller.hxDeleteAllConditions(
             fakeRequestBuilder().bodyForm(ImmutableMap.of()).build(),
