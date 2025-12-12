@@ -1304,10 +1304,7 @@ test.describe('Trusted intermediaries', () => {
       })
 
       await test.step('verify client info is pre-populated in the application form', async () => {
-        await applicantQuestions.editQuestionFromReviewPage(
-          'Date of birth',
-          true,
-        )
+        await applicantQuestions.editQuestionFromReviewPage('Date of birth')
 
         await expect(page.getByRole('textbox', {name: 'Day'})).toHaveValue('1')
         await expect(page.getByRole('textbox', {name: 'Year'})).toHaveValue(

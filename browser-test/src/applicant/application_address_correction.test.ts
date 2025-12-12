@@ -120,10 +120,7 @@ test.describe('address correction single-block, single-address program', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
         await test.step('Set language to Arabic', async () => {
           await selectApplicantLanguage(page, 'ar')
@@ -690,7 +687,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -720,7 +716,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -750,7 +745,6 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -796,7 +790,6 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -841,7 +834,6 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Bogus Address',
@@ -883,7 +875,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           // Fill out application with address that is contained in findAddressCandidates.json
           // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -923,7 +914,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -949,7 +939,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -979,7 +968,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1021,7 +1009,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1063,7 +1050,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Bogus Address',
@@ -1105,7 +1091,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           // Fill out application with address that is contained in findAddressCandidates.json
           // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -1144,7 +1129,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -1173,7 +1157,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -1202,7 +1185,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1244,7 +1226,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Legit Address',
@@ -1288,7 +1269,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           await applicantQuestions.answerAddressQuestion(
             'Bogus Address',
@@ -1329,7 +1309,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
           // Fill out application with address that is contained in findAddressCandidates.json
           // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -1369,7 +1348,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(
@@ -1403,7 +1381,6 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.editQuestionFromReviewPage(
             addressQuestionText,
-            /* northStarEnabled= */ true,
           )
 
           await applicantQuestions.answerAddressQuestion(

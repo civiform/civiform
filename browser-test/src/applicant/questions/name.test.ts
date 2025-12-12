@@ -306,10 +306,7 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('name question has suffix field available and no default value selected', async () => {
           await expect(page.getByLabel('Suffix')).toBeVisible()
@@ -327,10 +324,7 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion(
@@ -350,10 +344,7 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion('Ann', 'Gates', 'Quiroz')

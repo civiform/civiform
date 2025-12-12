@@ -234,10 +234,7 @@ test.describe('Radio button question for applicant flow', () => {
       )
       await logout(page)
 
-      await applicantQuestions.applyProgram(
-        longTextProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(longTextProgramName)
       await validateScreenshot(
         page.getByTestId('questionRoot'),
         'radio-options-long-text-applicant',

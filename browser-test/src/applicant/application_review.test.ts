@@ -480,7 +480,7 @@ test.describe('Program admin review of submitted applications', () => {
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
     })
 
     await test.step('View application as Program Admin again', async () => {
@@ -565,7 +565,6 @@ test.describe('Program admin review of submitted applications', () => {
         'oneLast',
         'one@email.com',
         '4152321234',
-        true,
       )
       await applicantQuestions.completeApplicationWithPaiQuestions(
         programName,
@@ -574,7 +573,6 @@ test.describe('Program admin review of submitted applications', () => {
         'twoLast',
         'two@email.com',
         '4153231234',
-        true,
       )
       await applicantQuestions.completeApplicationWithPaiQuestions(
         programName,
@@ -583,7 +581,6 @@ test.describe('Program admin review of submitted applications', () => {
         'threeLast',
         'three@email.com',
         '5102321234',
-        true,
       )
     })
 
