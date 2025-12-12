@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -28,6 +31,10 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PROMETHEUS_DATA"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -36,6 +43,15 @@
       },
       "id": 40,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS_DATA"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "General metrics",
       "type": "row"
     },
@@ -50,6 +66,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -61,6 +80,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -105,7 +125,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -127,7 +148,6 @@
         }
       ],
       "title": "Requests per minute (by path)",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -141,6 +161,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -152,6 +175,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -197,7 +221,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -231,6 +256,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -242,6 +270,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -287,7 +316,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -321,6 +351,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -332,6 +365,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -377,7 +411,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -411,6 +446,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -422,6 +460,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -466,7 +505,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -488,7 +528,6 @@
         }
       ],
       "title": "Requests per minute (by action)",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -502,6 +541,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -513,6 +555,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -557,7 +600,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -591,6 +635,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -602,6 +649,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -646,7 +694,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -671,6 +720,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PROMETHEUS_DATA"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -679,6 +732,15 @@
       },
       "id": 28,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS_DATA"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Database metrics",
       "type": "row"
     },
@@ -693,6 +755,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -704,6 +769,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -748,7 +814,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -782,6 +849,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -793,6 +863,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -854,7 +925,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -875,7 +947,6 @@
         }
       ],
       "title": "Total queries per minute (excluding durable job runner)",
-      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -889,6 +960,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -900,6 +974,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -929,7 +1004,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -944,7 +1020,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -957,14 +1034,20 @@
             "type": "prometheus",
             "uid": "PROMETHEUS_DATA"
           },
-          "exemplar": true,
-          "expr": "rate(ebean_queries_mean_latency_micros{}[1m])",
-          "interval": "",
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "rate(ebean_queries_latency_micros_total[5m]) \n/ \nrate(ebean_queries_total[5m])",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
           "legendFormat": "{{name}}",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Mean latency micros per minute",
+      "title": "Average Query Latency",
       "type": "timeseries"
     },
     {
@@ -978,6 +1061,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -989,6 +1075,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1018,7 +1105,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": [
           {
@@ -1050,7 +1138,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1064,7 +1153,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_mean_latency_micros{}[1m])",
+          "expr": "avg_over_time(ebean_queries_mean_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1084,6 +1173,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1095,6 +1187,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1124,7 +1217,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -1139,7 +1233,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1153,7 +1248,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "(rate(ebean_queries_max_latency_micros{}[1m]))",
+          "expr": "max_over_time(ebean_queries_max_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1173,6 +1268,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1184,6 +1282,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1213,7 +1312,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": [
           {
@@ -1245,7 +1345,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1259,7 +1360,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "(rate(ebean_queries_max_latency_micros{}[1m]))",
+          "expr": "max_over_time(ebean_queries_max_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1279,6 +1380,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1290,6 +1394,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1319,7 +1424,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -1334,7 +1440,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1348,7 +1455,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_total_latency_micros{}[1m])",
+          "expr": "rate(ebean_queries_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1368,6 +1475,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1379,6 +1489,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1408,7 +1519,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "µs"
         },
         "overrides": [
           {
@@ -1440,7 +1552,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1454,7 +1567,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_total_latency_micros{}[1m])",
+          "expr": "rate(ebean_queries_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1465,6 +1578,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PROMETHEUS_DATA"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1473,6 +1590,15 @@
       },
       "id": 22,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS_DATA"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Email Metrics",
       "type": "row"
     },
@@ -1488,6 +1614,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1499,6 +1628,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1543,7 +1673,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1577,6 +1708,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1588,6 +1722,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1632,7 +1767,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1666,6 +1802,9 @@
             "mode": "continuous-RdYlGr"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1677,6 +1816,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1721,7 +1861,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -1735,7 +1876,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "email_fail_total{instance=\"0.0.0.0:9000\"}",
+          "expr": "increase(email_fail_total{instance=\"0.0.0.0:9000\"}[$__interval])",
           "interval": "",
           "legendFormat": "Total",
           "refId": "A"
@@ -1745,8 +1886,7 @@
       "type": "timeseries"
     }
   ],
-  "schemaVersion": 35,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
@@ -1759,6 +1899,6 @@
   "timezone": "",
   "title": "CiviForm server",
   "uid": "p5kGWLV4z",
-  "version": 12,
+  "version": 3,
   "weekStart": ""
 }
