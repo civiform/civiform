@@ -24,7 +24,6 @@ import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import play.i18n.MessagesApi;
-import play.mvc.Http;
 import play.twirl.api.Content;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
@@ -113,9 +112,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle)
-        .addHeaderContent(renderNavBar())
-        .setJsBundle(JsBundle.ADMIN);
+    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
   }
 
   /**
@@ -183,8 +180,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     HeaderTag headerAccordion =
         header()
             .withClasses("usa-header", "usa-header--basic", "display-inline-block", "width-full")
-            .with(
-                nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl()));
+            .with(nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl()));
 
     DivTag adminHeader =
         div()

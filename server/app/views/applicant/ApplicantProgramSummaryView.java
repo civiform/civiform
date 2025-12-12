@@ -116,7 +116,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
           "authProviderName",
           // The applicant portal name should always be set (there is a
           // default setting as well).
-          settingsManifest.getApplicantPortalName(request).get());
+          settingsManifest.getApplicantPortalName().get());
     }
 
     // Summary data (List of blocks. Each block contains a list of questions and answers)

@@ -175,8 +175,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(
-            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
+        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
 
     // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
     // buttons to preview or download the application.
@@ -264,8 +263,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      boolean isEditingAllowed) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
     if (isEditingAllowed) {
       if (settingsManifest.getApiBridgeEnabled()) {
         return ImmutableList.of(
@@ -344,14 +342,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     if (viewAllowsEditingProgram()) {
       ret.condWith(
-          !settingsManifest.getEnumeratorImprovementsEnabled(request),
+          !settingsManifest.getEnumeratorImprovementsEnabled(),
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
               .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
               .withType("submit")
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
       ret.condWith(
-          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(),
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
               .withId("add-screen")
               .attr("aria-controls", "add-screen-dropdown")
@@ -394,7 +392,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+      if (settingsManifest.getEnumeratorImprovementsEnabled()
           && blockDefinition.getIsEnumerator()) {
         questionCountText = (level > 0) ? "Nested repeated set" : "Repeated set";
       }

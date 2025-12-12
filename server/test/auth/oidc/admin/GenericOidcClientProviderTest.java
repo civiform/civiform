@@ -53,7 +53,8 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     genericOidcProvider =
         new GenericOidcClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountProvider)), null);
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountProvider)),
+            null);
   }
 
   @Test

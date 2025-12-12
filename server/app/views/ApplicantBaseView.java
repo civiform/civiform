@@ -66,7 +66,7 @@ public abstract class ApplicantBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
+    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled());
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
@@ -84,8 +84,7 @@ public abstract class ApplicantBaseView {
         settingsManifest
             .getCivicEntitySmallLogoUrl()
             .orElse(bundledAssetsFinder.path("Images/civiform-staging.png")));
-    context.setVariable(
-        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader());
+    context.setVariable("hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader());
     context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName().get());
     context.setVariable(
@@ -94,9 +93,11 @@ public abstract class ApplicantBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"));
-    context.setVariable("locationIcon", bundledAssetsFinder.path("Images/uswds/icon-location_on.png"));
     context.setVariable(
-        "selectedLocationIcon", bundledAssetsFinder.path("Images/uswds/icon-location_selected.png"));
+        "locationIcon", bundledAssetsFinder.path("Images/uswds/icon-location_on.png"));
+    context.setVariable(
+        "selectedLocationIcon",
+        bundledAssetsFinder.path("Images/uswds/icon-location_selected.png"));
     context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress().get());
     boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     context.setVariable("userIsAdmin", userIsAdmin);
@@ -182,8 +183,7 @@ public abstract class ApplicantBaseView {
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled();
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
 
-    boolean showDebugTools =
-        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
+    boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
     context.setVariable("showDebugTools", showDebugTools);
     if (showDebugTools) {
       context.setVariable(
@@ -339,8 +339,7 @@ public abstract class ApplicantBaseView {
       return;
     }
     context.setVariable(
-        "showNotProductionBannerEnabled",
-        settingsManifest.getShowNotProductionBannerEnabled());
+        "showNotProductionBannerEnabled", settingsManifest.getShowNotProductionBannerEnabled());
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link

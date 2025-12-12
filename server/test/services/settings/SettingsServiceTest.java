@@ -120,7 +120,8 @@ public class SettingsServiceTest extends ResetPostgres {
                   "test_enum",
                   "test-2",
                   "test_regex_validated_string",
-                  "test")), null);
+                  "test")),
+          null);
 
   private CiviFormProfile testProfile;
 

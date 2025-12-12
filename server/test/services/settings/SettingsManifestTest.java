@@ -1,8 +1,6 @@
 package services.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -10,8 +8,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Optional;
 import org.junit.Test;
-import play.libs.typedmap.TypedMap;
-import play.mvc.Http;
 
 public class SettingsManifestTest {
 
@@ -103,14 +99,11 @@ public class SettingsManifestTest {
   public void getSettingDisplayValue() {
     assertThat(testManifest.getSettingDisplayValue(STRING_VARIABLE))
         .isEqualTo(Optional.of("my-var"));
-    assertThat(testManifest.getSettingDisplayValue(INT_VARIABLE))
-        .isEqualTo(Optional.of("11"));
+    assertThat(testManifest.getSettingDisplayValue(INT_VARIABLE)).isEqualTo(Optional.of("11"));
     assertThat(testManifest.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("one, two, three"));
-    assertThat(testManifest.getSettingDisplayValue(BOOL_VARIABLE))
-        .isEqualTo(Optional.of("TRUE"));
-    assertThat(testManifest.getSettingDisplayValue(ENUM_VARIABLE))
-        .isEqualTo(Optional.of("foo"));
+    assertThat(testManifest.getSettingDisplayValue(BOOL_VARIABLE)).isEqualTo(Optional.of("TRUE"));
+    assertThat(testManifest.getSettingDisplayValue(ENUM_VARIABLE)).isEqualTo(Optional.of("foo"));
     assertThat(testManifest.getSettingDisplayValue(UNSET_STRING_VARIABLE))
         .isEqualTo(Optional.empty());
   }

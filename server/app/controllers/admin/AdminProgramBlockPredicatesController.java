@@ -764,7 +764,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -821,7 +821,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -877,7 +877,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -950,7 +950,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteAllConditions(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 

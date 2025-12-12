@@ -240,7 +240,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private CompletionStage<Result> editInternal(
       Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(

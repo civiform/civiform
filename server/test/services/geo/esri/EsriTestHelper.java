@@ -103,7 +103,6 @@ public class EsriTestHelper {
     this.mapper = checkNotNull(mapper);
     this.settingsManifest = new SettingsManifest(CONFIG, syncCacheApi);
 
-
     ServerSettings serverSettings =
         switch (testType) {
           case STANDARD ->
@@ -157,7 +156,7 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-          settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
+            settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
@@ -180,7 +179,7 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-          settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
+            settingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =

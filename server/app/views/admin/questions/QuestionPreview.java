@@ -78,8 +78,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
-    context.setVariable(
-        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(params.request()));
+    context.setVariable("isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
     context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
     context.setVariable("isPreview", true);
