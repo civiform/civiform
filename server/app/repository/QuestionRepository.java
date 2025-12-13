@@ -23,11 +23,14 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.Path;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.settings.SettingsManifest;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
@@ -40,14 +43,20 @@ public final class QuestionRepository {
   private final Database database;
   private final DatabaseExecutionContext dbExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final Provider<SettingsManifest> settingsManifestProvider;
+  private final SyncCacheApi questionDefCache;
 
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext dbExecutionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      Provider<SettingsManifest> settingsManifestProvider,
+      @NamedCache("question-definition") SyncCacheApi questionDefCache) {
     this.database = DB.getDefault();
     this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.questionDefCache = checkNotNull(questionDefCache);
+    this.settingsManifestProvider = checkNotNull(settingsManifestProvider);
   }
 
   public CompletionStage<Set<QuestionModel>> listQuestions() {
@@ -62,6 +71,11 @@ public final class QuestionRepository {
   }
 
   public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    if (settingsManifestProvider.get().getQuestionCacheEnabled()
+        && !versionRepositoryProvider.get().isDraft(question)) {
+      return questionDefCache.getOrElseUpdate(
+          String.valueOf(question.id), question::getQuestionDefinition);
+    }
     return question.getQuestionDefinition();
   }
 
