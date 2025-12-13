@@ -261,7 +261,8 @@ public class QuestionModel extends BaseModel {
   public QuestionDefinition getQuestionDefinition() {
     if (questionDefinition.getQuestionType() == QuestionType.NULL_QUESTION) {
       io.ebean.DB.getDefault().cacheManager().beanCache(QuestionModel.class).remove(this.id);
-      throw new RuntimeException("Detected invalid NULL_QUESTION in cache. Evicted ID " + this.id + " to force refresh.");
+      throw new RuntimeException(
+          "Detected invalid NULL_QUESTION in cache. Evicted ID " + this.id + " to force refresh.");
     }
     return checkNotNull(questionDefinition);
   }
