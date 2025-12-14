@@ -13,7 +13,7 @@
     "@typescript-eslint/eslint-plugin": "8.48.1",
     "@typescript-eslint/parser": "8.48.1",
     "axe-core": "4.11.0",
-    "eslint": "9.39.1",
+    "eslint": "9.39.2",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
