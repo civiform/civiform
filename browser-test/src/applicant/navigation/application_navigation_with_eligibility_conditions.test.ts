@@ -86,7 +86,7 @@ test.describe('Applicant navigation flow', () => {
       await test.step('fill out application with ineligible answer', async () => {
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+        await applicantQuestions.expectIneligiblePage()
       })
 
       await test.step('Verify no eligibility tags on in-progress application', async () => {
@@ -509,9 +509,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerTextQuestion('bar')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectIneligiblePage()
         await validateScreenshot(page, 'ineligible-page-with-markdown', {
           mobileScreenshot: true,
         })
