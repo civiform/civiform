@@ -39,9 +39,11 @@
       groupName: "guava",
       matchPackageNames: ["com.google.guava{/,}**"],
     },
+    // Keep jackson on v2 until Play supports v3.
     {
       groupName: "jackson",
       matchPackageNames: ["com.fasterxml.jackson{/,}**"],
+      allowedVersions: "< 3.0.0"
     },
     {
       groupName: "jdk and jre",
