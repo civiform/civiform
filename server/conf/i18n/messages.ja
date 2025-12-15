@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=エラーが発生しました
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=申し訳ございません。システムに内部エラーが発生しました。
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=エラー ID {0} を記載のうえ、%s のテクニカル サポートまでお問い合わせください。
+error.internalServerDescription=エラー ID {0} を記載のうえ、{1} のテクニカル サポートまでお問い合わせください。
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=ホームページにアクセス
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500

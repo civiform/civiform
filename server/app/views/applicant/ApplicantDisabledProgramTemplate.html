@@ -9,12 +9,12 @@
     <main id="main-content" tabindex="-1">
       <div
         th:replace="~{errors/ErrorFragment :: error(
-          ${title},
-          ${subtitle},
-          ${additionalInfo},
-          ${buttonText},
+          #{title.programNotAvailable},
+          #{content.disabledProgramInfo},
+          null,
+          #{button.homePage},
           ${homeUrl},
-          ${statusCode}
+          null
         )}"
       ></div>
     </main>

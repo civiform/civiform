@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ພວກເຮົາຂໍອະໄພ, ມີຂໍ້ຜິດພາດພາຍໃນເກີດຂຶ້ນໃນລະບົບຂອງພວກເຮົາ.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ %s ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {0}.
+error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ {0} ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=ເຂົ້າເບິ່ງໜ້າຫຼັກ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500

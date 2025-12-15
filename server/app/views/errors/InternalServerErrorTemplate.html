@@ -5,16 +5,36 @@
   ></head>
   <body>
     <main id="main-content" tabindex="-1">
-      <div
-        th:replace="~{errors/ErrorFragment :: error(
-          #{error.internalServerTitle.v2},
-          #{error.internalServerSubtitle},
-          ${additionalInfo},
-          #{error.internalServerHomeButton},
-          ${homeUrl},
-          ${statusCode}
-        )}"
-      ></div>
+      <div class="usa-section">
+        <div class="grid-container">
+          <div class="grid-row grid-gap">
+            <div id="main-content" class="usa-prose">
+              <h1 class="mb-4" th:text="#{error.internalServerTitle.v2}"></h1>
+              <p
+                class="usa-intro"
+                th:text="#{error.internalServerSubtitle}"
+              ></p>
+              <div>
+                <p
+                  th:with="emailLink='<a href=&quot;mailto:' + ${supportEmail} + '?body=[CiviForm Error ID: ' + ${exceptionId} + ']&quot; class=&quot;usa-link&quot;>' + ${supportEmail} + '</a>'"
+                  th:utext="#{error.internalServerDescription(${emailLink}, ${exceptionId})}"
+                ></p>
+              </div>
+              <div class="margin-y-5">
+                <div class="margin-y-5">
+                  <a
+                    class="usa-button"
+                    id="visit-home-page-button"
+                    th:text="#{error.internalServerHomeButton}"
+                    th:href="${homeUrl}"
+                  ></a>
+                </div>
+                <p th:text="#{error.statusCode('500')}"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"

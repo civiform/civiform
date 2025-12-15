@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على %s للحصول على الدعم وإدراج معرّف الخطأ هذا {0}.
+error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على {0} للحصول على الدعم وإدراج معرّف الخطأ هذا {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=زيارة الصفحة الرئيسية
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500

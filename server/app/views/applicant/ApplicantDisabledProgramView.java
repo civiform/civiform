@@ -13,7 +13,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
-import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
@@ -57,18 +56,7 @@ public final class ApplicantDisabledProgramView extends NorthStarBaseView {
             personalInfo,
             messages);
 
-    String title = messages.at(MessageKey.TITLE_PROGRAM_NOT_AVAILABLE.getKeyName());
-    String subtitle = messages.at(MessageKey.CONTENT_DISABLED_PROGRAM_INFO.getKeyName());
-    String buttonText = messages.at(MessageKey.BUTTON_HOME_PAGE.getKeyName());
-    String homeUrl = routes.HomeController.index().url();
-
-    context.setVariable("title", title);
-    context.setVariable("subtitle", subtitle);
-    context.setVariable("additionalInfo", "");
-    context.setVariable("buttonText", buttonText);
-    context.setVariable("homeUrl", homeUrl);
-    context.setVariable("statusCode", "");
-    context.setVariable("pageTitle", title);
+    context.setVariable("homeUrl", routes.HomeController.index().url());
 
     return templateEngine.process("applicant/ApplicantDisabledProgramTemplate.html", context);
   }

@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=ስህተት ተከስቷል
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ይቅርታ፣ በስርዓታችን ውስጥ ውስጣዊ ስህተት ተከስቷል።
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=እባክዎ ለእርዳታ %s ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {0} ያካትቱ።
+error.internalServerDescription=እባክዎ ለእርዳታ {0} ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {1} ያካትቱ።
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=መነሻ ገጽን ይጎብኙ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
