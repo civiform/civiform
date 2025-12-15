@@ -79,7 +79,7 @@ public final class QuestionRepository {
     return getQuestionDefinitionWithoutCache(question);
   }
 
-    public QuestionDefinition getQuestionDefinitionWithoutCache(QuestionModel question) {
+  public QuestionDefinition getQuestionDefinitionWithoutCache(QuestionModel question) {
     return question.getQuestionDefinition();
   }
 
