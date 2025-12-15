@@ -18,8 +18,9 @@ export enum FormField {
   PROGRAM_DESCRIPTION = 'Program description',
   CONFIRMATION_MESSAGE = 'Custom confirmation screen message',
   SHORT_DESCRIPTION = 'Short program description',
-  APPLICATION_STEP_ONE_TITLE = 'Application step 1 title',
-  APPLICATION_STEP_ONE_DESCRIPTION = 'Application step 1 description',
+  // Application step fields now use simplified labels within their section
+  APPLICATION_STEP_ONE_TITLE = 'Title',
+  APPLICATION_STEP_ONE_DESCRIPTION = 'Description',
   SCREEN_NAME = 'Screen name',
   SCREEN_DESCRIPTION = 'Screen description',
 }
@@ -88,14 +89,16 @@ export class AdminTranslations {
     }
 
     if (programType === 'default') {
-      await this.page.fill(
-        'text=Application step 1 title',
-        applicationStepTitle,
+      // Application step fields are within the "Application step 1" fieldset section
+      const applicationStepSection = this.page.locator(
+        'fieldset:has-text("Application step 1")',
       )
-      await this.page.fill(
-        'text=Application step 1 description',
-        applicationStepDescription,
-      )
+      await applicationStepSection
+        .getByRole('textbox', {name: 'Title'})
+        .fill(applicationStepTitle)
+      await applicationStepSection
+        .getByRole('textbox', {name: 'Description'})
+        .fill(applicationStepDescription)
     }
 
     await this.page.fill('text=Screen name', blockName)
@@ -149,14 +152,20 @@ export class AdminTranslations {
     )
 
     if (programType === 'default') {
-      const applicationStepTitleValue = this.page.getByLabel(
-        'Application step 1 title',
+      // Application step fields are within the "Application step 1" fieldset section
+      const applicationStepSection = this.page.locator(
+        'fieldset:has-text("Application step 1")',
+      )
+      const applicationStepTitleValue = applicationStepSection.getByRole(
+        'textbox',
+        {name: 'Title'},
       )
       await expect(applicationStepTitleValue).toHaveValue(
         expectApplicationStepTitle,
       )
-      const applicationStepDescriptionValue = this.page.getByLabel(
-        'Application step 1 description',
+      const applicationStepDescriptionValue = applicationStepSection.getByRole(
+        'textbox',
+        {name: 'Description'},
       )
       await expect(applicationStepDescriptionValue).toHaveValue(
         expectApplicationStepDescription,

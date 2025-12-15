@@ -114,6 +114,9 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .asAnchorText()),
                     getApplicantVisibleProgramDetailFields(program, updateData)));
 
+    // Add application steps as their own sections
+    addApplicationSteps(result, program, updateData.applicationSteps());
+
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
@@ -239,50 +242,73 @@ public final class ProgramTranslationView extends TranslationFormView {
                 .getInputTag(),
             program.localizedShortDescription()));
 
-    // Add application steps
-    addApplicationSteps(applicantVisibleDetails, program, updateData.applicationSteps());
-
     return applicantVisibleDetails.build();
   }
 
-  private ImmutableList.Builder<DomContent> addApplicationSteps(
-      ImmutableList.Builder<DomContent> newProgramFieldsBuilder,
+  /**
+   * Adds application step translation fields to the program translation form. Each application step
+   * is displayed in its own section with Title and Description fields.
+   *
+   * @param result Builder for accumulating the DOM content that will be rendered in the form
+   * @param program The program definition containing the application steps
+   * @param updatedApplicationSteps List of application step updates containing translation data
+   */
+  private void addApplicationSteps(
+      ImmutableList.Builder<DomContent> result,
       ProgramDefinition program,
       ImmutableList<LocalizationUpdate.ApplicationStepUpdate> updatedApplicationSteps) {
     // Get the application steps from the program data
     // if we have default text, add a box for translations
     ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
+    String programDetailsLink =
+        controllers.admin.routes.AdminProgramController.edit(
+                program.id(), ProgramEditStatus.EDIT.name())
+            .url();
+
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       LocalizationUpdate.ApplicationStepUpdate updatedStep = updatedApplicationSteps.get(i);
       if (!step.getTitle().getDefault().isEmpty()) {
-        newProgramFieldsBuilder.add(
-            fieldWithDefaultLocaleTextHint(
-                FieldWithLabel.input()
-                    .setFieldName(ProgramTranslationForm.localizedApplicationStepTitle(i))
-                    .setLabelText(
-                        String.format("Application step %s title", Integer.toString(i + 1)))
-                    .setScreenReaderText(
-                        String.format("Application step %s title", Integer.toString(i + 1)))
-                    .setValue(updatedStep.localizedTitle())
-                    .setRequired(true)
-                    .getInputTag(),
-                step.getTitle()));
-        newProgramFieldsBuilder.add(
-            fieldWithDefaultLocaleTextHint(
-                FieldWithLabel.input()
-                    .setFieldName(ProgramTranslationForm.localizedApplicationStepDescription(i))
-                    .setLabelText(
-                        String.format("Application step %s description", Integer.toString(i + 1)))
-                    .setScreenReaderText(
-                        String.format("Application step %s description", Integer.toString(i + 1)))
-                    .setValue(updatedStep.localizedDescription())
-                    .setRequired(true)
-                    .getInputTag(),
-                step.getDescription()));
+        ImmutableList.Builder<DomContent> fieldsBuilder =
+            ImmutableList.<DomContent>builder()
+                .add(
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(ProgramTranslationForm.localizedApplicationStepTitle(i))
+                            .setLabelText("Title")
+                            .setScreenReaderText(
+                                String.format("Application step %s title", Integer.toString(i + 1)))
+                            .setValue(updatedStep.localizedTitle())
+                            .setRequired(true)
+                            .getInputTag(),
+                        step.getTitle()))
+                .add(
+                    fieldWithDefaultLocaleTextHint(
+                        FieldWithLabel.input()
+                            .setFieldName(
+                                ProgramTranslationForm.localizedApplicationStepDescription(i))
+                            .setLabelText("Description")
+                            .setScreenReaderText(
+                                String.format(
+                                    "Application step %s description", Integer.toString(i + 1)))
+                            .setValue(updatedStep.localizedDescription())
+                            .setRequired(true)
+                            .getInputTag(),
+                        step.getDescription()));
+
+        result.add(
+            fieldSetForFields(
+                legend()
+                    .with(
+                        span(String.format("Application step %d", i + 1)),
+                        new LinkElement()
+                            .setText("(edit default)")
+                            .setHref(programDetailsLink)
+                            .setStyles("ml-2")
+                            .asAnchorText()),
+                fieldsBuilder.build()));
       }
     }
-    return newProgramFieldsBuilder;
   }
 
   /**
