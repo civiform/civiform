@@ -377,6 +377,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+          && blockDefinition.isEnumerator().isPresent()
+          && blockDefinition.isEnumerator().get()) {
+        questionCountText = (level > 0) ? "Nested repeated set" : "Repeated set";
+      }
       String blockName = blockDefinition.name();
       // indentation value for enums and repeaters
       int listIndentationFactor = level * INDENTATION_FACTOR_INCREASE_ON_LEVEL;

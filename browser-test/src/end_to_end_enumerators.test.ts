@@ -672,6 +672,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(currentBlockTitle).toBeVisible()
       })
 
+      await test.step('Validate that the enumerator block says repeated set', async () => {
+        const enumeratorBlockLink = page
+          .getByRole('link', {name: /^Screen /})
+          .nth(initialBlockCount) // zero-indexed
+
+        await expect(
+          enumeratorBlockLink.getByText('Repeated set'),
+        ).toBeVisible()
+      })
+
       await test.step('Click on the enumerator block in the block order panel', async () => {
         const enumeratorBlockLink = page
           .getByRole('link', {name: /^Screen /})
