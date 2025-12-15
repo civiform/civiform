@@ -76,6 +76,10 @@ public final class QuestionRepository {
       return questionDefCache.getOrElseUpdate(
           String.valueOf(question.id), question::getQuestionDefinition);
     }
+    return getQuestionDefinitionWithoutCache(question);
+  }
+
+    public QuestionDefinition getQuestionDefinitionWithoutCache(QuestionModel question) {
     return question.getQuestionDefinition();
   }
 
@@ -203,7 +207,7 @@ public final class QuestionRepository {
                     throw new RuntimeException(error);
                   }
                 })
-            .map(QuestionModel::getQuestionDefinition)
+            .map(this::getQuestionDefinitionWithoutCache)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return updatedQuestions;
@@ -240,7 +244,7 @@ public final class QuestionRepository {
                       throw new RuntimeException(error);
                     }
                   })
-              .map(QuestionModel::getQuestionDefinition)
+              .map(this::getQuestionDefinitionWithoutCache)
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
       transaction.commit();
@@ -257,7 +261,7 @@ public final class QuestionRepository {
     Stream.concat(
             versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()).stream(),
             versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
-        .map(QuestionModel::getQuestionDefinition)
+        .map(this::getQuestionDefinitionWithoutCache)
         // Find questions that reference the old enumerator ID.
         .filter(qd -> qd.getEnumeratorId().equals(Optional.of(oldEnumeratorId)))
         // Keep only the first QuestionDefinition we encounter for each question. The first one will
@@ -342,7 +346,7 @@ public final class QuestionRepository {
         .asc("id")
         .findList()
         .stream()
-        .map(this::getQuestionDefinition)
+        .map(this::getQuestionDefinitionWithoutCache)
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
@@ -363,7 +367,7 @@ public final class QuestionRepository {
     }
 
     private boolean hasConflict(QuestionModel question) {
-      QuestionDefinition definition = getQuestionDefinition(question);
+      QuestionDefinition definition = getQuestionDefinitionWithoutCache(question);
       boolean isSameName = definition.getName().equals(newQuestionDefinition.getName());
       boolean isSamePath =
           Path.create(definition.getQuestionNameKey())
