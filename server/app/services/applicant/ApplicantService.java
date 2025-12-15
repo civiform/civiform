@@ -1757,7 +1757,7 @@ public final class ApplicantService {
                 areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
     return failedUpdatesBuilder.build();
@@ -2047,7 +2047,7 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
       if (applicantQuestion.getType() != QuestionType.PHONE) {
         continue;
       }
@@ -2086,7 +2086,7 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
       if (applicantQuestion.getType() != QuestionType.DATE) {
         continue;
       }

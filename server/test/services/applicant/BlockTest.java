@@ -70,7 +70,7 @@ public class BlockTest {
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
-    assertThat(block.getQuestions()).isEmpty();
+    assertThat(block.getVisibleQuestions()).isEmpty();
     assertThat(block.hasErrors()).isFalse();
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
@@ -127,7 +127,7 @@ public class BlockTest {
   }
 
   @Test
-  public void getQuestions_returnsCorrectApplicantQuestions() {
+  public void getQuestions_returnsCorrectApplicantVisibleQuestions() {
     BlockDefinition definition = setUpBlockWithQuestions();
     ApplicantModel applicant = new ApplicantModel();
     ApplicantData applicantData = new ApplicantData();
@@ -138,7 +138,7 @@ public class BlockTest {
         ImmutableList.of(
             new ApplicantQuestion(NAME_QUESTION, applicant, applicantData, Optional.empty()),
             new ApplicantQuestion(COLOR_QUESTION, applicant, applicantData, Optional.empty()));
-    assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
+    assertThat(block.getVisibleQuestions()).containsExactlyElementsOf(expected);
   }
 
   @Test
@@ -574,14 +574,14 @@ public class BlockTest {
     Block block =
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId, 1L));
 
     assertThat(block.hasErrors()).isTrue();
     // Check that there is a required error for a question in the block.
     assertThat(
-            block.getQuestions().stream()
+            block.getVisibleQuestions().stream()
                 .anyMatch(
                     q ->
                         q
@@ -616,7 +616,7 @@ public class BlockTest {
     Block block =
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId + 1, 1L));
 
@@ -707,9 +707,9 @@ public class BlockTest {
         new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
     QuestionAnswerer.answerNumberQuestion(
-        applicantData, block.getQuestions().get(0).getContextualizedPath(), "5");
+        applicantData, block.getVisibleQuestions().get(0).getContextualizedPath(), "5");
     QuestionAnswerer.answerTextQuestion(
-        applicantData, block.getQuestions().get(1).getContextualizedPath(), "brown");
+        applicantData, block.getVisibleQuestions().get(1).getContextualizedPath(), "brown");
 
     assertThat(block.hasErrors()).isFalse();
   }
