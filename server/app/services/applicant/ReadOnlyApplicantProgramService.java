@@ -127,7 +127,7 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
-        .flatMap(block -> block.getQuestions().stream())
+        .flatMap(block -> block.getVisibleQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
@@ -155,7 +155,7 @@ public final class ReadOnlyApplicantProgramService {
     return getAllActiveBlocks().stream()
         .anyMatch(
             block ->
-                block.getQuestions().stream()
+                block.getVisibleQuestions().stream()
                     .anyMatch(
                         question ->
                             !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
