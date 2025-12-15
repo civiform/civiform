@@ -217,7 +217,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -244,7 +243,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // A required file upload question should never show a Delete button
@@ -569,7 +567,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -826,7 +823,6 @@ test.describe('file upload applicant flow', () => {
       // Re-open the file upload question
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       // Verify the previously uploaded file name is shown on the block page
@@ -854,7 +850,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       await applicantFileQuestion.expectHasContinueForm()
@@ -877,7 +872,6 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.editQuestionFromReviewPage(
         fileUploadQuestionText,
-        /* northStarEnabled= */ true,
       )
 
       await applicantFileQuestion.removeFileUpload('testFileName.txt')
@@ -961,10 +955,7 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantProgramOverview,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -985,10 +976,7 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantProgramOverview,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -1027,10 +1015,7 @@ test.describe('file upload applicant flow', () => {
       test('clicking back without file redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           emailQuestionText,
         )
@@ -1049,10 +1034,7 @@ test.describe('file upload applicant flow', () => {
       test('clicking back with file saves file and redirects to previous page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.expectQuestionOnReviewPageNorthstar(
           emailQuestionText,
         )
@@ -1088,10 +1070,7 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantProgramOverview,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -1122,10 +1101,7 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantProgramOverview,
       }) => {
-        await applicantQuestions.clickApplyProgramButton(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -1165,10 +1141,7 @@ test.describe('file upload applicant flow', () => {
         // First, open the email block so that the email block is considered answered
         // and we're not taken back to it when we click "Continue".
         // (see test case 'clicking continue button redirects to first unseen block').
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickContinue()
 
         // Answer the file upload question
@@ -1189,7 +1162,6 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
-          /* northStarEnabled= */ true,
         )
 
         // Click "Continue"
@@ -1213,10 +1185,7 @@ test.describe('file upload applicant flow', () => {
         // First, open the email block so that the email block is considered answered
         // and we're not taken back to it when we click "Continue".
         // (see test case 'clicking continue button redirects to first unseen block').
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickContinue()
 
         // Answer the file upload question
@@ -1237,7 +1206,6 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.editQuestionFromReviewPage(
           fileUploadQuestionText,
-          /* northStarEnabled= */ true,
         )
 
         // Upload a new file
@@ -1264,7 +1232,6 @@ test.describe('file upload applicant flow', () => {
 
         const downloadedFileContent =
           await applicantQuestions.downloadSingleQuestionFromReviewPage(
-            /* northStarEnabled= */ true,
             'old.txt',
           )
         expect(downloadedFileContent).toEqual('some old text')

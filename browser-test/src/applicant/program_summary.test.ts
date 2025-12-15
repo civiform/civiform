@@ -213,10 +213,7 @@ test.describe('Applicant navigation flow', () => {
       await expect(page.getByText(fileName)).toBeVisible()
 
       const downloadedFileContent =
-        await applicantQuestions.downloadSingleQuestionFromReviewPage(
-          /* northStarEnabled= */ true,
-          fileName,
-        )
+        await applicantQuestions.downloadSingleQuestionFromReviewPage(fileName)
       expect(downloadedFileContent).toEqual(fileContent)
     })
   })

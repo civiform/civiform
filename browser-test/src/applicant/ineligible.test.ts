@@ -65,7 +65,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page part 1', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -107,7 +107,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     // When North Star is finalized, this test should navigate question -> review -> ineligible
     // Until then, the test must navigate question -> submit -> ineligible -> review -> ineligible
     await test.step('Expect ineligible page', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -117,7 +117,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
   })
@@ -251,7 +251,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -278,7 +278,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -290,7 +290,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -317,7 +317,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 
@@ -327,7 +327,7 @@ test.describe('North Star Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+      await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
 

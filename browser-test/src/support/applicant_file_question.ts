@@ -25,23 +25,7 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
   }
 
-  async expectFileSelectionErrorShown() {
-    await expect(
-      this.page.locator(this.fileSelectionErrorLocator),
-    ).toBeVisible()
-  }
-
   async expectFileSelectionErrorHidden() {
-    await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
-  }
-
-  async expectNorthStarNoFileSelectedErrorShown() {
-    await expect(
-      this.page.locator(this.fileSelectionErrorLocator),
-    ).toBeVisible()
-  }
-
-  async expectNorthStarNoFileSelectedErrorHidden() {
     await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
   }
 

@@ -84,7 +84,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -108,7 +108,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -131,7 +131,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -157,7 +157,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -182,7 +182,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -214,7 +214,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -270,7 +270,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
@@ -307,7 +307,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],

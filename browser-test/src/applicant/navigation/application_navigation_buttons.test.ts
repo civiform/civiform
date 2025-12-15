@@ -204,9 +204,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickBack()
 
         // The date question is required, so expect the error modal.
-        await applicantQuestions.expectErrorOnPreviousModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnPreviousModal()
 
         await validateAccessibility(page)
         await validateScreenshot(page, 'error-on-previous-modal', {
@@ -237,9 +235,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
         await applicantQuestions.clickBack()
-        await applicantQuestions.expectErrorOnPreviousModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnPreviousModal()
 
         await applicantQuestions.clickStayAndFixAnswers()
 
@@ -282,9 +278,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('')
 
         await applicantQuestions.clickBack()
-        await applicantQuestions.expectErrorOnPreviousModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnPreviousModal()
 
         // Proceed to the previous page (which will be the review page,
         // since this is the first block), acknowledging that answers won't be saved
@@ -322,9 +316,7 @@ test.describe('Applicant navigation flow', () => {
           '',
         )
         await applicantQuestions.clickBack()
-        await applicantQuestions.expectErrorOnPreviousModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnPreviousModal()
 
         // Proceed to the previous page and verify the first block answers are present
         await applicantQuestions.clickPreviousWithoutSaving()
@@ -363,9 +355,7 @@ test.describe('Applicant navigation flow', () => {
           // Because the questions were previously answered and the date and email questions are required,
           // we don't let the user save the deletion of answers.
           await applicantQuestions.clickBack()
-          await applicantQuestions.expectErrorOnPreviousModal(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectErrorOnPreviousModal()
         })
       })
 
@@ -746,9 +736,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickReview()
 
         // The date question is required, so expect the error modal.
-        await applicantQuestions.expectErrorOnReviewModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnReviewModal()
       })
 
       test('clicking review with no answers does not show error modal', async ({
@@ -772,9 +760,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectErrorOnReviewModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnReviewModal()
 
         await applicantQuestions.clickStayAndFixAnswers()
 
@@ -814,9 +800,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.answerEmailQuestion('')
 
         await applicantQuestions.clickReview()
-        await applicantQuestions.expectErrorOnReviewModal(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectErrorOnReviewModal()
 
         // Proceed to the Review page, acknowledging that answers won't be saved
         await applicantQuestions.clickReviewWithoutSaving()
@@ -854,9 +838,7 @@ test.describe('Applicant navigation flow', () => {
           // Because the questions were previously answered and the date and email questions are required,
           // we don't let the user save the deletion of answers.
           await applicantQuestions.clickReview()
-          await applicantQuestions.expectErrorOnReviewModal(
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.expectErrorOnReviewModal()
         })
       })
 

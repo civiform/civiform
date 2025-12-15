@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.40.3",
-      "software.amazon.awssdk" % "ses" % "2.40.3",
+      "software.amazon.awssdk" % "s3" % "2.40.8",
+      "software.amazon.awssdk" % "ses" % "2.40.8",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -54,7 +54,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.1",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.21",
+      "ch.qos.logback" % "logback-classic" % "1.5.22",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -132,7 +132,7 @@ lazy val root = (project in file("."))
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.36",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.0",
+      "com.networknt" % "json-schema-validator" % "2.0.1",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"

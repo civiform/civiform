@@ -110,10 +110,7 @@ test.describe('End to end enumerator test', () => {
 
       // Correspondingly, removing an element happens without a page refresh. Remove an
       // element and add another to ensure that element IDs remain unique.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Porky')
       await validateAccessibility(page)
     })
@@ -134,10 +131,7 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.addEnumeratorAnswer('Goofy')
 
       // Remove the middle entry, the remaining entries should re-index
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
     })
 
@@ -197,10 +191,7 @@ test.describe('End to end enumerator test', () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Painter')
       await applicantQuestions.clickContinue()
 
@@ -232,10 +223,7 @@ test.describe('End to end enumerator test', () => {
       await expect(page.locator('.application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
-      await applicantQuestions.editQuestionFromReviewPage(
-        'Household members',
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
 
       await applicantQuestions.deleteEnumeratorEntity('Bugs')
@@ -257,10 +245,7 @@ test.describe('End to end enumerator test', () => {
       )
 
       // Go back and add an enumerator answer.
-      await applicantQuestions.editQuestionFromReviewPage(
-        'Household members',
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
       await applicantQuestions.addEnumeratorAnswer('Tweety')
       await applicantQuestions.clickContinue()

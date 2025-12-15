@@ -48,9 +48,7 @@ test.describe('address applicant flow', () => {
 
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage()
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -179,9 +177,7 @@ test.describe('address applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.submitFromReviewPage()
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -303,9 +299,7 @@ test.describe('address applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.submitFromReviewPage()
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
