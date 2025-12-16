@@ -16,7 +16,7 @@
       },
       "HIDE_CIVIC_ENTITY_NAME_IN_HEADER": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This may be desired if the government name is included in the logo. Since northstar hides the logo on smaller screens, this will only hide the name if the logo is showing.",
+        "description": "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This may be desired if the government name is included in the logo. The logo is hidden on smaller screens, so this will only hide the name if the logo is showing.",
         "type": "bool"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
@@ -906,14 +906,9 @@
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
-      "NORTH_STAR_APPLICANT_UI": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables showing new UI with an updated user experience in Applicant flows",
-        "type": "bool"
-      },
       "CUSTOM_THEME_COLORS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enable using custom theme colors on North Star applicant UI.",
+        "description": "Enable using custom theme colors in the applicant UI.",
         "type": "bool",
         "required": false
       },
@@ -952,7 +947,7 @@
       },
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI.",
+        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
         "type": "bool",
         "required": false
       },
