@@ -55,7 +55,7 @@ GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit               
 POST    /admin/programs/:programId/blocks/:blockDefinitionId                                            controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks                                                               controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/move                                       controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete                                     controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete                                     controllers.admin.AdminProgramBlocksController.delete(programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/edit                  controllers.admin.AdminProgramBlockPredicatesController.editVisibility(request: Request, programId: Long, blockDefinitionId: Long)
@@ -78,7 +78,7 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predica
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                              controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                                 controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                                 controllers.admin.AdminProgramBlockQuestionsController.delete(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                            controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move                                   controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/toggleAddressCorrectionEnabledState    controllers.admin.AdminProgramBlockQuestionsController.toggleAddressCorrectionEnabledState(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)

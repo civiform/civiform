@@ -166,7 +166,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     String blockDeleteAction =
-        controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
+        controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
     Modal blockDeleteScreenModal =
         renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
 
@@ -1249,7 +1249,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 ButtonStyles.OUTLINED_WHITE_WITH_ICON,
                 canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
+        controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
     return form(csrfTag)

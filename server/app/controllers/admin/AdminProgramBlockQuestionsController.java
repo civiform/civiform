@@ -100,7 +100,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
+  public Result delete(long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {

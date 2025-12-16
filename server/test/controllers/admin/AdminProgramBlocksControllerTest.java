@@ -299,15 +299,15 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_withInvalidProgram_notFound() {
-    assertThatThrownBy(() -> controller.destroy(/* programId= */ 1L, /* blockId= */ 1L))
+  public void delete_withInvalidProgram_notFound() {
+    assertThatThrownBy(() -> controller.delete(/* programId= */ 1L, /* blockId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
-  public void destroy_programWithTwoBlocks_redirects() {
+  public void delete_programWithTwoBlocks_redirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().withBlock().build();
-    Result result = controller.destroy(program.id, /* blockId= */ 1L);
+    Result result = controller.delete(program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -315,9 +315,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_lastBlock_notFound() {
+  public void delete_lastBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
-    Result result = controller.destroy(program.id, /* blockId= */ 1L);
+    Result result = controller.delete(program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
