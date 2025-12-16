@@ -378,8 +378,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
       if (settingsManifest.getEnumeratorImprovementsEnabled(request)
-          && blockDefinition.isEnumerator().isPresent()
-          && blockDefinition.isEnumerator().get()) {
+          && blockDefinition.getIsEnumerator()) {
         questionCountText = (level > 0) ? "Nested repeated set" : "Repeated set";
       }
       String blockName = blockDefinition.name();
