@@ -55,6 +55,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programsByVersionCache;
   private final AsyncCacheApi programCache;
   private final AsyncCacheApi programDefCache;
+  private final AsyncCacheApi questionDefCache;
   private final AsyncCacheApi versionsByProgramCache;
   private final AsyncCacheApi settingsCache;
   private final Clock clock;
@@ -75,6 +76,7 @@ public class DevToolsController extends Controller {
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
       @NamedCache("full-program-definition") AsyncCacheApi programDefCache,
+      @NamedCache("question-definition") AsyncCacheApi questionDefCache,
       @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache,
       @NamedCache("civiform-settings") AsyncCacheApi settingsCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
@@ -88,6 +90,7 @@ public class DevToolsController extends Controller {
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
     this.programCache = checkNotNull(programCache);
     this.programDefCache = checkNotNull(programDefCache);
+    this.questionDefCache = checkNotNull(questionDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
     this.settingsCache = checkNotNull(settingsCache);
     this.clock = checkNotNull(clock);
@@ -267,6 +270,7 @@ public class DevToolsController extends Controller {
 
     if (settingsManifest.getQuestionCacheEnabled()) {
       programDefCache.removeAll().toCompletableFuture().join();
+      questionDefCache.removeAll().toCompletableFuture().join();
     }
 
     if (settingsManifest.getSettingsCacheEnabled()) {
