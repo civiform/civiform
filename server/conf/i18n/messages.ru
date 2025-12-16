@@ -757,6 +757,11 @@ alert.predicateNoAvailableQuestionsVisibility=На предыдущих экра
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=На этом экране нет доступных вопросов, с помощью которых можно задать условие соответствия требованиям.
 
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -1009,7 +1014,7 @@ map.locationLinkText=Подробнее
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Показано мест: {0} из {1}.
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Выбрано {0} из максимум {1} местоположений.
 # Alt text for map region

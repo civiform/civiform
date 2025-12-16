@@ -757,6 +757,11 @@ alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su'aalo la heli karo oo 
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
 
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -1009,7 +1014,7 @@ map.locationLinkText=Eeg faahfaahin dheeraad ah
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Eeg faahfaahinada dheeraadka ah ee {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Soo bandhigaya {0} ka mid ah {1} gobood
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ee {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
