@@ -37,7 +37,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
 
@@ -67,7 +66,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(MessagesApi.class),
-            instanceOf(ApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantProgramSummaryView.class),
             instanceOf(NorthStarApplicantIneligibleView.class),
             instanceOf(ProfileUtils.class),
