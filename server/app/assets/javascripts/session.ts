@@ -1,5 +1,17 @@
 import {ToastController} from './toast'
-import {hideUswdsModal} from './modal'
+
+/**
+ * Hides the specified modal by adding the 'is-hidden' class.
+ * Updates visibility tracking flags when hiding a modal.
+ *
+ * @param modalType Type of modal to hide
+ */
+function hideUswdsModal(modalType: string) {
+  const modal = document.getElementById(`${modalType}-modal`)
+  if (modal) {
+    modal.classList.add('is-hidden')
+  }
+}
 
 /**
  * Represents session timeout data with timestamps for various timeout events.

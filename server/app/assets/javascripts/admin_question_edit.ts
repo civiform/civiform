@@ -1,5 +1,15 @@
 import {addEventListenerToElements, assertNotNull} from './util'
-import {ModalController} from './modal'
+
+/**
+ * Shows a legacy modal by removing the 'hidden' class.
+ * @param modalContainer The container holding the modal
+ * @param modal The modal element to show
+ */
+function showModal(modalContainer: Element, modal: HTMLElement) {
+  modalContainer.classList.remove('hidden')
+  modal.classList.remove('hidden')
+  modal.focus()
+}
 
 class AdminQuestionEdit {
   constructor() {
@@ -97,16 +107,18 @@ class AdminQuestionEdit {
     // Get the toggle value on page load so we can compare it to the toggle value on click
     const initialToggleValue = toggleElement.value
 
-    // Remove the default event listener on the modal since we want to show it conditionally
-    ModalController.abortController.abort()
+    // Add a click handler that checks if the toggle went from "on" to "off"
+    // We need to prevent the default behavior (which would be to trigger the modal)
+    // and conditionally show it based on the toggle state
+    modalTriggerButton.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
 
-    // Add a new click handler that checks if the toggle went from "on" to "off"
-    modalTriggerButton.addEventListener('click', () => {
       // Get the toggle value when the user clicks to update the question
       const currentToggleValue = toggleElement.value
       if (initialToggleValue === 'true' && currentToggleValue === 'false') {
         // If they are unsetting the universal question attribute, show a modal to confirm
-        ModalController.showModal(modalContainer, modal)
+        showModal(modalContainer, modal)
       } else {
         // Otherwise, click the hidden "submit" button on the modal to submit the update
         const submitButton = assertNotNull(

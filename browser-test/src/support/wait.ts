@@ -13,13 +13,13 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
 
   await page.waitForLoadState('load')
 
-  // Wait for main.ts and modal.ts to signal that they're done initializing
+  // Wait for main.ts and north_star_modal.ts to signal that they're done initializing
   await page.waitForSelector('body[data-load-main="true"]')
   await page.waitForSelector('body[data-load-modal="true"]')
 }
 
 /**
- * Click on the button to trigger a modal.ts dialog and wait for it to appear.
+ * Click on the button to trigger a modal dialog and wait for it to appear.
  * @param modalId ID of the modal dialog without the leading #
  */
 export const clickAndWaitForModal = async (page: Page, modalId: string) => {

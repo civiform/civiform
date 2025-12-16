@@ -200,7 +200,7 @@ export class NorthStarModalController {
       })
     })
 
-    // Advertise (e.g., for browser tests) that modal.ts initialization is done
+    // Advertise (e.g., for browser tests) that north_star_modal.ts initialization is done
     document.body.dataset.loadModal = 'true'
   }
 }
