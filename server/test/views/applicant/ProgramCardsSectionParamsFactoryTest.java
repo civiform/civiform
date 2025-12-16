@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.program.ProgramType;
-import views.applicant.support.ProgramCardsSectionParamsFactory;
 
 public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   private CiviFormProfile testProfile;

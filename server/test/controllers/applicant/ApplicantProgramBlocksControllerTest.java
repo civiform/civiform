@@ -64,9 +64,9 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.AddressCorrectionBlockView;
-import views.applicant.ApplicantIneligibleView;
-import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.edit.AddressCorrectionBlockView;
+import views.applicant.edit.ApplicantProgramBlockEditView;
+import views.applicant.review.ApplicantIneligibleView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {

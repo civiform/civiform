@@ -42,8 +42,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantIneligibleView;
-import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.review.ApplicantIneligibleView;
+import views.applicant.review.ApplicantProgramSummaryView;
 
 /**
  * Controller for reviewing program responses for an applicant.

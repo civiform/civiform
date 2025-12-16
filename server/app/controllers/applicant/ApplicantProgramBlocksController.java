@@ -66,9 +66,9 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseViewParams;
-import views.applicant.AddressCorrectionBlockView;
-import views.applicant.ApplicantIneligibleView;
-import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.edit.AddressCorrectionBlockView;
+import views.applicant.edit.ApplicantProgramBlockEditView;
+import views.applicant.review.ApplicantIneligibleView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 

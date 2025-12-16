@@ -4,38 +4,31 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div class="usa-section">
         <div class="grid-container">
           <div class="grid-row grid-gap">
             <div class="usa-prose">
-              <h1 class="mb-4" th:text="#{error.internalServerTitle.v2}"></h1>
-              <p
-                class="usa-intro"
-                th:text="#{error.internalServerSubtitle}"
-              ></p>
-              <div>
-                <p
-                  th:with="emailLink='<a href=&quot;mailto:' + ${supportEmail} + '?body=[CiviForm Error ID: ' + ${exceptionId} + ']&quot; class=&quot;usa-link&quot;>' + ${supportEmail} + '</a>'"
-                  th:utext="#{error.internalServerDescription(${emailLink}, ${exceptionId})}"
-                ></p>
-              </div>
+              <h1 class="mb-4" th:text="#{title.programNotAvailable}"></h1>
+              <p class="usa-intro" th:text="#{content.disabledProgramInfo}"></p>
               <div class="margin-y-5">
                 <div class="margin-y-5">
                   <a
                     class="usa-button"
                     id="visit-home-page-button"
-                    th:text="#{error.internalServerHomeButton}"
+                    th:text="#{button.homePage}"
                     th:href="${homeUrl}"
                   ></a>
                 </div>
-                <p th:text="#{error.statusCode('500')}"></p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>
