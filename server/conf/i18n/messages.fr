@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=Une erreur s''est produite
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Malheureusement, une erreur interne s''est produite dans notre système.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse %s pour obtenir de l''aide, en incluant l''ID d''erreur {0}.
+error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse {0} pour obtenir de l''aide, en incluant l''ID d''erreur {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Ouvrir la page d''accueil
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500

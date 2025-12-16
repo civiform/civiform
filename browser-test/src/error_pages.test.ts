@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   loginAsAdmin,
+  logout,
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
@@ -9,8 +10,13 @@ import {
 
 test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
   test('404 page', async ({page}) => {
-    await test.step('Has heading in English', async () => {
+    await test.step('404 page is shown', async () => {
       await page.goto('/bad/path/ezbezzdebashiboozook')
+      await validateScreenshot(page, '404-page')
+      await validateAccessibility(page)
+    })
+
+    await test.step('Has heading in English', async () => {
       await expect(
         page.getByRole('heading', {
           name: 'We were unable to find the page you tried to visit',
@@ -67,6 +73,59 @@ test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
       await expect(
         page.getByRole('link', {
           name: 'support@email.com',
+        }),
+      ).toBeAttached()
+    })
+  })
+
+  test('disabled program page', async ({page, adminPrograms}) => {
+    await test.step('Create and disable a program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addDisabledProgram('Test Program')
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('Disabled program page is shown', async () => {
+      await page.goto('/programs/test-program/disabled')
+      await validateScreenshot(page, 'disabled-program-page')
+      await validateAccessibility(page)
+    })
+
+    await test.step('Has heading in English', async () => {
+      await page.goto('/programs/test-program/disabled')
+      await expect(
+        page.getByRole('heading', {
+          name: 'This program is no longer available',
+        }),
+      ).toBeAttached()
+    })
+
+    await test.step('Home button takes you to the homepage', async () => {
+      await page
+        .getByRole('link', {
+          name: 'Back to homepage',
+        })
+        .click()
+      await waitForPageJsLoad(page)
+      await expect(page).toHaveURL(/.*programs/)
+      await expect(
+        page.getByRole('heading', {
+          name: 'Apply for government programs online',
+        }),
+      ).toBeAttached()
+    })
+
+    await test.step('Change applicant language to Spanish', async () => {
+      await page.goto('/')
+      await selectApplicantLanguage(page, 'es-US')
+    })
+
+    await test.step('Has heading in Spanish', async () => {
+      await page.goto('/programs/test-program/disabled')
+      await expect(
+        page.getByRole('heading', {
+          name: 'Este programa ya no está disponible',
         }),
       ).toBeAttached()
     })

@@ -1113,7 +1113,7 @@ error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=К сожалению, в нашей системе возникла ошибка.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Свяжитесь со службой технической поддержки по адресу %s и сообщите этот идентификатор ошибки: {0}.
+error.internalServerDescription=Свяжитесь со службой технической поддержки по адресу {0} и сообщите этот идентификатор ошибки: {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Перейти на главную страницу
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
