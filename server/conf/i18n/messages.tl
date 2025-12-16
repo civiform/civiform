@@ -1118,7 +1118,7 @@ error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Pasensya na, nagkaroon ng internal error sa aming system.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
+error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Pumunta sa homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
