@@ -2722,7 +2722,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.preScreenerForm().get().program().id()).isEqualTo(preScreenerForm.id);
     assertThat(result.allPrograms().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
-          preScreenerForm.id, program1.id, program2.id, program3.id, programDefinition.id());
+            preScreenerForm.id, program1.id, program2.id, program3.id, programDefinition.id());
   }
 
   @Test
@@ -2834,7 +2834,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicationRepository
         .submitApplication(
             applicant.id,
-          preScreenerForm.id,
+            preScreenerForm.id,
             Optional.empty(),
             EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
@@ -4086,9 +4086,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Allison",
         "Swift",
         "I",
-      preScreenerForm.getProgramDefinition().getBlockDefinitionByIndex(0).orElseThrow().id(),
+        preScreenerForm.getProgramDefinition().getBlockDefinitionByIndex(0).orElseThrow().id(),
         applicant.id,
-      preScreenerForm.id);
+        preScreenerForm.id);
 
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
