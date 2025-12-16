@@ -33,14 +33,14 @@ import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import views.ApplicantBaseView;
 import views.ApplicationBaseViewParams;
-import views.NorthStarBaseView;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
-public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
+public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   /**
    * This fallback should not ever be reached, but it is here in the event that the {@link
    * SettingsManifest} can't find it in the config to allow for basic functionality to continue.
@@ -53,7 +53,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private final GeoJsonDataRepository mapDataRepository;
 
   @Inject
-  NorthStarApplicantProgramBlockEditView(
+  ApplicantProgramBlockEditView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,

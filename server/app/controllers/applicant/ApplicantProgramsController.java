@@ -35,8 +35,8 @@ import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.NorthStarFilteredProgramsViewPartial;
-import views.applicant.NorthStarProgramIndexView;
+import views.applicant.FilteredProgramsViewPartial;
+import views.applicant.ProgramIndexView;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -53,8 +53,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
-  private final NorthStarProgramIndexView northStarProgramIndexView;
-  private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
+  private final ProgramIndexView programIndexView;
+  private final FilteredProgramsViewPartial filteredProgramsViewPartial;
   private final MonitoringMetricCounters metricCounters;
 
   @Inject
@@ -68,8 +68,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView,
-      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial,
+      ProgramIndexView programIndexView,
+      FilteredProgramsViewPartial filteredProgramsViewPartial,
       MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -79,8 +79,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
-    this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
+    this.programIndexView = checkNotNull(programIndexView);
+    this.filteredProgramsViewPartial = checkNotNull(filteredProgramsViewPartial);
     this.metricCounters = checkNotNull(metricCounters);
   }
 
@@ -106,7 +106,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             applicationPrograms -> {
               Result result =
-                  ok(northStarProgramIndexView.render(
+                  ok(programIndexView.render(
                           messagesApi.preferred(request),
                           request,
                           Optional.of(applicantId),
@@ -145,7 +145,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     return programsFuture.thenApplyAsync(
         programs ->
-            ok(northStarProgramIndexView.render(
+            ok(programIndexView.render(
                     messagesApi.preferred(request),
                     request,
                     Optional.empty(),
@@ -362,7 +362,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     return CompletableFuture.supplyAsync(
             () ->
                 Results.ok(
-                        northStarFilteredProgramsViewPartial.render(
+                        filteredProgramsViewPartial.render(
                             messagesApi.preferred(request),
                             request,
                             maybeApplicantId,

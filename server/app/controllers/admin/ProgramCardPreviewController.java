@@ -20,23 +20,23 @@ import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import views.admin.programs.NorthStarProgramCardPreview;
+import views.admin.programs.ProgramCardPreview;
 
 /** Controller for rendering a program card preview. */
-public final class NorthStarProgramCardPreviewController extends CiviFormController {
-  private final NorthStarProgramCardPreview northStarProgramCardPreview;
+public final class ProgramCardPreviewController extends CiviFormController {
+  private final ProgramCardPreview programCardPreview;
   private final Messages messages;
   private final ProgramService programService;
 
   @Inject
-  public NorthStarProgramCardPreviewController(
+  public ProgramCardPreviewController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      NorthStarProgramCardPreview northStarProgramCardPreview,
+      ProgramCardPreview programCardPreview,
       MessagesApi messagesApi,
       ProgramService programService) {
     super(profileUtils, versionRepository);
-    this.northStarProgramCardPreview = checkNotNull(northStarProgramCardPreview);
+    this.programCardPreview = checkNotNull(programCardPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.programService = checkNotNull(programService);
   }
@@ -53,8 +53,8 @@ public final class NorthStarProgramCardPreviewController extends CiviFormControl
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture().get();
     ApplicantProgramData apd = ApplicantProgramData.builder(programDefinition).build();
 
-    NorthStarProgramCardPreview.Params params =
-        NorthStarProgramCardPreview.Params.builder()
+    ProgramCardPreview.Params params =
+        ProgramCardPreview.Params.builder()
             .setRequest(request)
             .setApplicantPersonalInfo(api)
             .setApplicantProgramData(apd)
@@ -62,6 +62,6 @@ public final class NorthStarProgramCardPreviewController extends CiviFormControl
             .setMessages(messages)
             .build();
 
-    return northStarProgramCardPreview.render(params);
+    return programCardPreview.render(params);
   }
 }

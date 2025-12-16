@@ -9,11 +9,11 @@ import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
-public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
+public class ApplicantAnswerData implements Comparable<ApplicantAnswerData> {
   private final AnswerData answerData;
   private final long applicantId;
 
-  public NorthStarAnswerData(AnswerData data, long applicantId) {
+  public ApplicantAnswerData(AnswerData data, long applicantId) {
     this.answerData = checkNotNull(data);
     this.applicantId = applicantId;
   }
@@ -84,7 +84,7 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   }
 
   @Override
-  public int compareTo(NorthStarAnswerData other) {
+  public int compareTo(ApplicantAnswerData other) {
     return Integer.compare(this.questionIndex(), other.questionIndex());
   }
 }

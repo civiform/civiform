@@ -8,15 +8,15 @@ import java.util.Collections;
 import services.applicant.Block;
 
 // Represents a block on the Application Summary page
-public final class NorthStarBlockSummary {
+public final class BlockSummary {
   private final Block block;
   private final String editUrl;
-  private ArrayList<NorthStarAnswerData> answerData;
+  private ArrayList<ApplicantAnswerData> answerData;
 
-  public NorthStarBlockSummary(Block block, String editUrl) {
+  public BlockSummary(Block block, String editUrl) {
     this.block = checkNotNull(block);
     this.editUrl = checkNotNull(editUrl);
-    answerData = new ArrayList<NorthStarAnswerData>();
+    answerData = new ArrayList<ApplicantAnswerData>();
   }
 
   public Block block() {
@@ -27,11 +27,11 @@ public final class NorthStarBlockSummary {
     return editUrl;
   }
 
-  public void addAnswerData(NorthStarAnswerData datum) {
+  public void addAnswerData(ApplicantAnswerData datum) {
     answerData.add(datum);
   }
 
-  public ImmutableList<NorthStarAnswerData> answerData() {
+  public ImmutableList<ApplicantAnswerData> answerData() {
     Collections.sort(answerData);
     return ImmutableList.copyOf(answerData);
   }

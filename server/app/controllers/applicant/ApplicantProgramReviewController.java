@@ -42,8 +42,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.NorthStarApplicantIneligibleView;
-import views.applicant.NorthStarApplicantProgramSummaryView;
+import views.applicant.ApplicantIneligibleView;
+import views.applicant.ApplicantProgramSummaryView;
 
 /**
  * Controller for reviewing program responses for an applicant.
@@ -57,8 +57,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
-  private final NorthStarApplicantProgramSummaryView northStarSummaryView;
-  private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
+  private final ApplicantProgramSummaryView summaryView;
+  private final ApplicantIneligibleView applicantIneligibleView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -71,8 +71,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantService applicantService,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
-      NorthStarApplicantProgramSummaryView northStarSummaryView,
-      NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
+      ApplicantProgramSummaryView summaryView,
+      ApplicantIneligibleView applicantIneligibleView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -85,8 +85,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.applicantService = checkNotNull(applicantService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
-    this.northStarSummaryView = checkNotNull(northStarSummaryView);
-    this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
+    this.summaryView = checkNotNull(summaryView);
+    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
@@ -168,8 +168,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         ImmutableList<AnswerData> summaryData =
                             roApplicantProgramService.getSummaryDataOnlyActive();
 
-                        NorthStarApplicantProgramSummaryView.Params northStarParams =
-                            NorthStarApplicantProgramSummaryView.Params.builder()
+                        ApplicantProgramSummaryView.Params params =
+                            ApplicantProgramSummaryView.Params.builder()
                                 .setProgramTitle(roApplicantProgramService.getProgramTitle())
                                 .setProgramShortDescription(
                                     roApplicantProgramService.getProgramShortDescription())
@@ -190,8 +190,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                 .setLoginOnly(
                                     roApplicantProgramService.isProgramOnlyForLoggedInApplicants())
                                 .build();
-                        return ok(northStarSummaryView.render(request, northStarParams))
-                            .as(Http.MimeTypes.HTML);
+                        return ok(summaryView.render(request, params)).as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
                   .exceptionally(
@@ -385,8 +384,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantPersonalInfo personalInfo,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition) {
-    NorthStarApplicantIneligibleView.Params params =
-        NorthStarApplicantIneligibleView.Params.builder()
+    ApplicantIneligibleView.Params params =
+        ApplicantIneligibleView.Params.builder()
             .setRequest(request)
             .setApplicantId(applicantId)
             .setProfile(profile)
@@ -395,7 +394,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             .setRoApplicantProgramService(roApplicantProgramService)
             .setMessages(messagesApi.preferred(request))
             .build();
-    return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+    return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
   }
 
   /**

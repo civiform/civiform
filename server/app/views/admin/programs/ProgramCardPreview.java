@@ -19,15 +19,15 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
-public class NorthStarProgramCardPreview extends NorthStarBaseView {
+public class ProgramCardPreview extends ApplicantBaseView {
   ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject
-  NorthStarProgramCardPreview(
+  ProgramCardPreview(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -75,7 +75,7 @@ public class NorthStarProgramCardPreview extends NorthStarBaseView {
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarProgramCardPreview_Params.Builder();
+      return new AutoValue_ProgramCardPreview_Params.Builder();
     }
 
     abstract Request request();

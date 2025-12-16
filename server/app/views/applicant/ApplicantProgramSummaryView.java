@@ -23,13 +23,13 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 
 /** Renders a list of sections in the form with their status. */
-public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseView {
+public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
   @Inject
-  NorthStarApplicantProgramSummaryView(
+  ApplicantProgramSummaryView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -121,14 +121,14 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     // Summary data (List of blocks. Each block contains a list of questions and answers)
 
-    ImmutableList<NorthStarAnswerData> northStarSummaryData =
+    ImmutableList<ApplicantAnswerData> northStarSummaryData =
         params.summaryData().stream()
-            .map(datum -> new NorthStarAnswerData(datum, params.applicantId()))
+            .map(datum -> new ApplicantAnswerData(datum, params.applicantId()))
             .collect(ImmutableList.toImmutableList());
 
-    ImmutableList<NorthStarBlockSummary> blockSummaries =
+    ImmutableList<BlockSummary> blockSummaries =
         params.blocks().stream()
-            .map(block -> new NorthStarBlockSummary(block, getBlockEditUrl(params, block)))
+            .map(block -> new BlockSummary(block, getBlockEditUrl(params, block)))
             .collect(ImmutableList.toImmutableList());
 
     blockSummaries.forEach(
@@ -180,7 +180,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarApplicantProgramSummaryView_Params.Builder();
+      return new AutoValue_ApplicantProgramSummaryView_Params.Builder();
     }
 
     abstract String programTitle();
