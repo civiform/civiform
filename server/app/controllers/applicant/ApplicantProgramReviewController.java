@@ -42,10 +42,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
-import views.components.ToastMessage;
 
 /**
  * Controller for reviewing program responses for an applicant.
@@ -59,7 +57,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
-  private final ApplicantProgramSummaryView summaryView;
   private final NorthStarApplicantProgramSummaryView northStarSummaryView;
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final SettingsManifest settingsManifest;
@@ -74,7 +71,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantService applicantService,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
-      ApplicantProgramSummaryView summaryView,
       NorthStarApplicantProgramSummaryView northStarSummaryView,
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       ProfileUtils profileUtils,
@@ -89,7 +85,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.applicantService = checkNotNull(applicantService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
-    this.summaryView = checkNotNull(summaryView);
     this.northStarSummaryView = checkNotNull(northStarSummaryView);
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -151,12 +146,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         }
 
                         Optional<String> flashBannerMessage = request.flash().get(FlashKey.BANNER);
-                        Optional<ToastMessage> flashBanner =
-                            flashBannerMessage.map(m -> ToastMessage.alert(m));
                         Optional<String> flashSuccessBannerMessage =
                             request.flash().get(FlashKey.SUCCESS_BANNER);
-                        Optional<ToastMessage> flashSuccessBanner =
-                            flashSuccessBannerMessage.map(m -> ToastMessage.success(m));
                         Messages messages = messagesApi.preferred(request);
 
                         AlertSettings eligibilityAlertSettings = AlertSettings.empty();
@@ -171,55 +162,36 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                   roApplicantProgramService.getIneligibleQuestions());
                         }
 
-                        ApplicantProgramSummaryView.Params.Builder params =
-                            this.generateParamsBuilder(roApplicantProgramService)
+                        int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+                        int completedBlockCount =
+                            roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
+                        ImmutableList<AnswerData> summaryData =
+                            roApplicantProgramService.getSummaryDataOnlyActive();
+
+                        NorthStarApplicantProgramSummaryView.Params northStarParams =
+                            NorthStarApplicantProgramSummaryView.Params.builder()
+                                .setProgramTitle(roApplicantProgramService.getProgramTitle())
+                                .setProgramShortDescription(
+                                    roApplicantProgramService.getProgramShortDescription())
+                                .setBlocks(roApplicantProgramService.getAllActiveBlocks())
                                 .setApplicantId(applicantId)
                                 .setApplicantPersonalInfo(
                                     applicantStage.toCompletableFuture().join())
-                                .setBannerMessages(
-                                    ImmutableList.of(flashBanner, flashSuccessBanner))
-                                .setEligibilityAlertSettings(eligibilityAlertSettings)
-                                .setMessages(messages)
+                                .setProfile(submittingProfile)
                                 .setProgramId(programId)
-                                .setRequest(request)
-                                .setProfile(submittingProfile);
-
-                        // TODO(#11575): North star clean up
-                        if (settingsManifest.getNorthStarApplicantUi()) {
-                          int totalBlockCount =
-                              roApplicantProgramService.getAllActiveBlocks().size();
-                          int completedBlockCount =
-                              roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
-                          ImmutableList<AnswerData> summaryData =
-                              roApplicantProgramService.getSummaryDataOnlyActive();
-
-                          NorthStarApplicantProgramSummaryView.Params northStarParams =
-                              NorthStarApplicantProgramSummaryView.Params.builder()
-                                  .setProgramTitle(roApplicantProgramService.getProgramTitle())
-                                  .setProgramShortDescription(
-                                      roApplicantProgramService.getProgramShortDescription())
-                                  .setBlocks(roApplicantProgramService.getAllActiveBlocks())
-                                  .setApplicantId(applicantId)
-                                  .setApplicantPersonalInfo(
-                                      applicantStage.toCompletableFuture().join())
-                                  .setProfile(submittingProfile)
-                                  .setProgramId(programId)
-                                  .setCompletedBlockCount(completedBlockCount)
-                                  .setTotalBlockCount(totalBlockCount)
-                                  .setMessages(messages)
-                                  .setAlertBannerMessage(flashBannerMessage)
-                                  .setSuccessBannerMessage(flashSuccessBannerMessage)
-                                  .setEligibilityAlertSettings(eligibilityAlertSettings)
-                                  .setSummaryData(summaryData)
-                                  .setProgramType(roApplicantProgramService.getProgramType())
-                                  .setLoginOnly(
-                                      roApplicantProgramService
-                                          .isProgramOnlyForLoggedInApplicants())
-                                  .build();
-                          return ok(northStarSummaryView.render(request, northStarParams))
-                              .as(Http.MimeTypes.HTML);
-                        }
-                        return ok(summaryView.render(params.build()));
+                                .setCompletedBlockCount(completedBlockCount)
+                                .setTotalBlockCount(totalBlockCount)
+                                .setMessages(messages)
+                                .setAlertBannerMessage(flashBannerMessage)
+                                .setSuccessBannerMessage(flashSuccessBannerMessage)
+                                .setEligibilityAlertSettings(eligibilityAlertSettings)
+                                .setSummaryData(summaryData)
+                                .setProgramType(roApplicantProgramService.getProgramType())
+                                .setLoginOnly(
+                                    roApplicantProgramService.isProgramOnlyForLoggedInApplicants())
+                                .build();
+                        return ok(northStarSummaryView.render(request, northStarParams))
+                            .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
                   .exceptionally(
@@ -323,21 +295,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
         request,
         applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
         programId);
-  }
-
-  private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
-    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryDataOnlyActive();
-    int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
-    int completedBlockCount = roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
-    String programTitle = roApplicantProgramService.getProgramTitle();
-
-    return ApplicantProgramSummaryView.Params.builder()
-        .setCompletedBlockCount(completedBlockCount)
-        .setProgramTitle(programTitle)
-        .setProgramType(roApplicantProgramService.getProgramType())
-        .setSummaryData(summaryData)
-        .setTotalBlockCount(totalBlockCount);
   }
 
   private CompletionStage<Result> submitInternal(
