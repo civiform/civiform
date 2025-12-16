@@ -331,11 +331,12 @@ public final class ApplicantProgramsController extends CiviFormController {
         applicantService.getPersonalInfo(applicantId.get());
     return CompletableFuture.completedFuture(
         Results.notFound(
-            disabledProgramInfoView.render(
-                messagesApi.preferred(request),
-                request,
-                applicantId.orElseThrow(),
-                applicantStage.toCompletableFuture().join())));
+                disabledProgramInfoView.render(
+                    messagesApi.preferred(request),
+                    request,
+                    applicantId.orElseThrow(),
+                    applicantStage.toCompletableFuture().join()))
+            .as(Http.MimeTypes.HTML));
   }
 
   /**
