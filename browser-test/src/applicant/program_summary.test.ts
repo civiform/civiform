@@ -60,11 +60,10 @@ test.describe('Applicant navigation flow', () => {
         questionText: currencyQuestionText,
       })
 
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        programShortDescription,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: programDescription,
+        shortDescription: programShortDescription,
+      })
       await adminPrograms.editProgramBlock(programName, 'first description', [
         'nav-date-q',
         'nav-email-q',
@@ -204,7 +203,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.gotoApplicantHomePage()
     })
 
-    await test.step('Download file in North Star', async () => {
+    await test.step('Download file', async () => {
       await applicantQuestions.applyProgram(
         programName,
         /* showProgramOverviewPage= */ false,

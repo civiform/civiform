@@ -14,7 +14,9 @@ test.describe('Applicant breadcrumb navigation', () => {
       questionText: staticQuestionText,
     })
 
-    await adminPrograms.addProgram(programName, programDescription)
+    await adminPrograms.addProgram(programName, {
+      description: programDescription,
+    })
     await adminPrograms.editProgramBlock(programName, 'first description', [
       'nav-static-q',
     ])

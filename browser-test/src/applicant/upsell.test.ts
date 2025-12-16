@@ -29,17 +29,9 @@ test.describe('Upsell tests', () => {
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {
-      await adminPrograms.addProgram(
-        programName,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        customConfirmationMarkup,
-      )
+      await adminPrograms.addProgram(programName, {
+        confirmationMessage: customConfirmationMarkup,
+      })
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
 

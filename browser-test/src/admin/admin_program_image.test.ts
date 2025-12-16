@@ -6,11 +6,7 @@ import {
   validateToastMessage,
   validateToastHidden,
 } from '../support'
-import {
-  Eligibility,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {Eligibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', () => {
   test.beforeEach(async ({page}) => {
@@ -29,11 +25,10 @@ test.describe('Admin can manage program image', () => {
       const shortDescription = 'Short description'
 
       await test.step('Set up program', async () => {
-        await adminPrograms.addProgram(
-          programName,
-          programDescription,
-          shortDescription,
-        )
+        await adminPrograms.addProgram(programName, {
+          description: programDescription,
+          shortDescription: shortDescription,
+        })
 
         await adminPrograms.goToProgramImagePage(programName)
 
@@ -78,19 +73,12 @@ test.describe('Admin can manage program image', () => {
         await seeding.seedProgramsAndCategories()
         await page.goto('/')
 
-        await adminPrograms.addProgram(
-          'Test program with tags',
-          programDescription,
-          shortDescription,
-          'https://usa.gov',
-          ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.DEFAULT,
-          'selectedTI',
-          'confirmationMessage',
-          Eligibility.IS_GATING,
-          /* submitNewProgram= */ false,
-        )
+        await adminPrograms.addProgram('Test program with tags', {
+          description: programDescription,
+          shortDescription: shortDescription,
+          eligibility: Eligibility.IS_GATING,
+          submitNewProgram: false,
+        })
         await page.getByText('Education').check()
         await page.getByText('Healthcare').check()
 

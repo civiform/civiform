@@ -82,7 +82,7 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.continueButtonLocator)).toBeHidden()
   }
 
-  // In North Star, the Continue button has form="cf-fileupload-continue-form".
+  // The Continue button has form="cf-fileupload-continue-form".
   async expectHasContinueForm() {
     await expect(this.page.locator(this.continueFormLocator)).toBeAttached()
   }

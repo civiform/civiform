@@ -10,7 +10,7 @@ import {
   selectApplicantLanguage,
 } from '../support'
 
-test.describe('North Star Ineligible Page Tests', () => {
+test.describe('Ineligible Page Tests', () => {
   const programName = 'Pet Assistance Program'
   const eligibilityQuestionId = 'eligibility-q'
   const questionText = 'How many pets do you have?'
@@ -104,8 +104,6 @@ test.describe('North Star Ineligible Page Tests', () => {
       await applicantQuestions.clickContinue()
     })
 
-    // When North Star is finalized, this test should navigate question -> review -> ineligible
-    // Until then, the test must navigate question -> submit -> ineligible -> review -> ineligible
     await test.step('Expect ineligible page', async () => {
       await applicantQuestions.expectIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()

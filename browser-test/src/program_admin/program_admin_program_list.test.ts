@@ -37,13 +37,11 @@ test.describe('Program admin program list', () => {
   }) => {
     await test.step('log in as a CiviForm admin and publish multiple programs', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        'Disabled Program Name',
-        'Program Description',
-        'Short Program Description',
-        'https://usa.gov',
-        ProgramVisibility.DISABLED,
-      )
+      await adminPrograms.addProgram('Disabled Program Name', {
+        description: 'Program Description',
+        shortDescription: 'Short Program Description',
+        visibility: ProgramVisibility.DISABLED,
+      })
       await adminPrograms.addProgram('Program Name Two')
       await adminPrograms.addProgram('Program Name Three')
       await adminPrograms.publishAllDrafts()

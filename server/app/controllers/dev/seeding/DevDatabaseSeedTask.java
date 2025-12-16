@@ -179,7 +179,7 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              /* externalLink= */ "https://github.com/civiform/civiform",
+              /* externalLink= */ "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
@@ -227,7 +227,7 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              "https://github.com/civiform/civiform",
+              "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
