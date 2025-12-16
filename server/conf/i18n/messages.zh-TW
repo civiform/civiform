@@ -1118,7 +1118,7 @@ error.internalServerTitle.v2=發生錯誤
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=很抱歉，系統發生內部錯誤。
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=請前往 %s 向技術支援團隊尋求協助，並提供以下錯誤 ID：{0}。
+error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=前往首頁
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
