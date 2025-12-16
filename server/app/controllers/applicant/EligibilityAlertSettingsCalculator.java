@@ -217,7 +217,7 @@ public final class EligibilityAlertSettingsCalculator {
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
 
   /**
-   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
+   * Returns true if eligibility is enabled on the program and it is not a pre-screener form, false
    * otherwise.
    */
   private boolean canShowEligibilitySettings(long programId) {
