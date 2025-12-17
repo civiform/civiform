@@ -11,13 +11,13 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 
 /**
  * Renders a page to handle internal server errors that will be shown to users instead of the
  * unthemed default Play page.
  */
-public final class InternalServerError extends NorthStarBaseView {
+public final class InternalServerError extends ApplicantBaseView {
 
   @Inject
   public InternalServerError(

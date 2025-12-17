@@ -23,14 +23,14 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
-public class NorthStarQuestionPreview extends NorthStarBaseView {
+public class QuestionPreview extends ApplicantBaseView {
 
   @Inject
-  NorthStarQuestionPreview(
+  QuestionPreview(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       ApplicantRoutes applicantRoutes,
@@ -103,7 +103,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarQuestionPreview_Params.Builder();
+      return new AutoValue_QuestionPreview_Params.Builder();
     }
 
     abstract Request request();

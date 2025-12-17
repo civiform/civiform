@@ -28,7 +28,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import views.applicant.NorthStarProgramOverviewView;
+import views.applicant.ProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
@@ -39,7 +39,7 @@ public final class ProgramSlugHandler {
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
-  private final NorthStarProgramOverviewView northStarProgramOverviewView;
+  private final ProgramOverviewView programOverviewView;
   private final MessagesApi messagesApi;
 
   @Inject
@@ -50,7 +50,7 @@ public final class ProgramSlugHandler {
       ProgramService programService,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes,
-      NorthStarProgramOverviewView northStarProgramOverviewView,
+      ProgramOverviewView programOverviewView,
       MessagesApi messagesApi) {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -58,7 +58,7 @@ public final class ProgramSlugHandler {
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
     this.applicantRoutes = checkNotNull(applicantRoutes);
-    this.northStarProgramOverviewView = checkNotNull(northStarProgramOverviewView);
+    this.programOverviewView = checkNotNull(programOverviewView);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -261,7 +261,7 @@ public final class ProgramSlugHandler {
     }
 
     return Results.ok(
-            northStarProgramOverviewView.render(
+            programOverviewView.render(
                 messagesApi.preferred(request),
                 request,
                 applicantId,

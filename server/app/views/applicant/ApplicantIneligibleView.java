@@ -23,13 +23,13 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 
-public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
+public class ApplicantIneligibleView extends ApplicantBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject
-  NorthStarApplicantIneligibleView(
+  ApplicantIneligibleView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -116,7 +116,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_NorthStarApplicantIneligibleView_Params.Builder();
+      return new AutoValue_ApplicantIneligibleView_Params.Builder();
     }
 
     abstract Request request();

@@ -28,7 +28,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
 
-public abstract class NorthStarBaseView {
+public abstract class ApplicantBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final BundledAssetsFinder bundledAssetsFinder;
@@ -39,7 +39,7 @@ public abstract class NorthStarBaseView {
   protected static final String THEME_PRIMARY_HEX = "#005ea2";
   protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
-  protected NorthStarBaseView(
+  protected ApplicantBaseView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,

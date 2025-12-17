@@ -19,21 +19,21 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
-import views.admin.questions.NorthStarQuestionPreview;
+import views.admin.questions.QuestionPreview;
 
 /** Controller for rendering inputs for questions. */
-public final class NorthStarQuestionPreviewController extends CiviFormController {
-  private final NorthStarQuestionPreview northStarQuestionPreview;
+public final class QuestionPreviewController extends CiviFormController {
+  private final QuestionPreview questionPreview;
   private final Messages messages;
 
   @Inject
-  public NorthStarQuestionPreviewController(
+  public QuestionPreviewController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      NorthStarQuestionPreview northStarQuestionPreview,
+      QuestionPreview questionPreview,
       MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
-    this.northStarQuestionPreview = checkNotNull(northStarQuestionPreview);
+    this.questionPreview = checkNotNull(questionPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
@@ -50,8 +50,8 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
       return badRequest("Invalid question type: " + questionType);
     }
 
-    NorthStarQuestionPreview.Params params =
-        NorthStarQuestionPreview.Params.builder()
+    QuestionPreview.Params params =
+        QuestionPreview.Params.builder()
             .setRequest(request)
             .setApplicantId(0l)
             .setApplicantPersonalInfo(api)
@@ -59,7 +59,7 @@ public final class NorthStarQuestionPreviewController extends CiviFormController
             .setType(questionTypeEnum)
             .setMessages(messages)
             .build();
-    String content = northStarQuestionPreview.render(params);
+    String content = questionPreview.render(params);
     return ok(content).as(Http.MimeTypes.HTML);
   }
 }

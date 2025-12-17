@@ -484,7 +484,7 @@ public abstract class QuestionDefinition {
 
   /**
    * Creates a sample question definition for rendering previews in the admin interface. Used by
-   * {@link views.admin.questions.NorthStarQuestionPreview}.
+   * {@link views.admin.questions.QuestionPreview}.
    */
   public static QuestionDefinition questionDefinitionSample(QuestionType questionType)
       throws UnsupportedQuestionTypeException {

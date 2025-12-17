@@ -12,12 +12,12 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.NorthStarBaseView;
+import views.ApplicantBaseView;
 
-public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
+public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 
   @Inject
-  NorthStarApplicantPreScreenerUpsellView(
+  ApplicantPreScreenerUpsellView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
