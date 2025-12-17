@@ -264,7 +264,7 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
-// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// Include Thymeleaf HTML files when running 'sbt dist' when building the prod image.
 // We need these in order for Thymeleaf to be able to use them for templating.
 Universal / mappings ++= {
   val viewsDir = baseDirectory.value / "app" / "views"

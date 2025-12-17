@@ -97,7 +97,7 @@ POST    /admin/questions/:id/archive                                           c
 POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
 POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
-# For rendering North Star question previews on the admin question page
+# For rendering question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.QuestionPreviewController.sampleQuestion(request: Request, questionType: String)
 
 # Routes for editing question localizations

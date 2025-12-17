@@ -72,7 +72,7 @@
 <!--/* Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  */-->
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
-  class="cf-enumerator-field cf-north-star-enumerator-field maxw-mobile-lg"
+  class="cf-enumerator-field maxw-mobile-lg"
   th:classappend="${hidden ? 'hidden' : ''}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"

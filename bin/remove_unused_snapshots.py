@@ -18,12 +18,11 @@ src_dir = "./browser-test/src"
 # Get all .png filenames (without extension)
 filenames = []
 for root, _, files in os.walk(snapshots_dir):
-    # Skip any files in the northstar_question_lifecycle_test or
-    # question_lifecycle_test directories because their filenames
+    # Skip any files in the question_lifecycle_test
+    # directories because their filenames
     # use a replacement value and that makes it hard to find uses
     # of those filenames in the test files.
-    if ("northstar_question_lifecycle_test"
-            in root) or ("question_lifecycle_test" in root):
+    if ("question_lifecycle_test" in root):
         continue
     for f in files:
         if f.lower().endswith(".png"):
