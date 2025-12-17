@@ -722,7 +722,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
 
@@ -747,7 +747,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
 
-    commonIntakeForm = ps.getCommonIntakeForm();
+    commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-two");
     Optional<ProgramDefinition> oldCommonIntake =
@@ -1394,7 +1394,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
 
@@ -1421,7 +1421,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-    commonIntakeForm = ps.getCommonIntakeForm();
+    commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo(program.adminName());
     Optional<ProgramDefinition> oldCommonIntake =
@@ -3538,7 +3538,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
-    assertThat(ps.getCommonIntakeForm()).isNotPresent();
+    assertThat(ps.getPreScreenerForm()).isNotPresent();
   }
 
   @Test
@@ -3548,8 +3548,8 @@ public class ProgramServiceTest extends ResetPostgres {
         .build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
 
-    assertThat(ps.getCommonIntakeForm()).isPresent();
-    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+    assertThat(ps.getPreScreenerForm()).isPresent();
+    assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
   }
 
   @Test
@@ -3560,8 +3560,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
 
-    assertThat(ps.getCommonIntakeForm()).isPresent();
-    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+    assertThat(ps.getPreScreenerForm()).isPresent();
+    assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
   }
 
   @Test

@@ -23,7 +23,7 @@ public final class ProgramForm {
   private String programTypeValue = "default";
 
   // Represents whether or not the user has confirmed that they want to change which program is
-  // marked as the common intake form.
+  // marked as the pre-screener form.
   private Boolean confirmedChangePreScreenerForm = false;
   private Boolean eligibilityIsGating = true;
   private Boolean loginOnly = false;
