@@ -1,7 +1,7 @@
 ---
 name: Oncall rotation
 about: Two week oncall rotation checklist and log
-title: 'Oncall: 2025-XX-XX'
+title: 'Oncall: 2026-XX-XX'
 labels: 'oncall'
 assignees: ''
 ---
