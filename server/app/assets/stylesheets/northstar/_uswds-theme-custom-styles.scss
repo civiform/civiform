@@ -159,11 +159,11 @@ it is around the label */
   padding: 0px;
 }
 
-.cf-north-star-enumerator-field {
+.cf-enumerator-field {
   @include u-padding-y('105');
 }
 
-.cf-north-star-enumerator-field:last-child {
+.cf-enumerator-field:last-child {
   @include u-padding-bottom(0);
 }
 
