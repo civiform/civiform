@@ -82,7 +82,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList<Long> latestQuestionIds = idBuilder.build();
 
     try {
-      programService.addQuestionsToBlock(programId, blockId, latestQuestionIds);
+      // we pass down the boolean here instead of the entire request because it simplifies
+      // DevDatabaseSeedTask
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          latestQuestionIds,
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

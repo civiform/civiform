@@ -12,6 +12,7 @@ import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.ProgramDefinition;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
 public class ProgramBlockValidationTest extends ResetPostgres {
@@ -61,7 +62,8 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             programBlockValidation.canAddQuestion(
                 program,
                 program.getLastBlockDefinition(),
-                questionForTombstone.getQuestionDefinition()))
+                questionForTombstone.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(services.ProgramBlockValidation.AddQuestionResult.QUESTION_TOMBSTONED);
   }
 
@@ -79,7 +81,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), householdMemberNameQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                householdMemberNameQuestion,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(
             services.ProgramBlockValidation.AddQuestionResult
                 .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE);
@@ -92,7 +97,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), question))
+                program,
+                program.getLastBlockDefinition(),
+                question,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -106,7 +114,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), question))
+                program,
+                program.getLastBlockDefinition(),
+                question,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.DUPLICATE);
   }
 
@@ -122,7 +133,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), nameQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                nameQuestion,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
   }
 
@@ -138,7 +152,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), fileQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                fileQuestion,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK);
   }
 
@@ -151,8 +168,26 @@ public class ProgramBlockValidationTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), repeatedQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                repeatedQuestion,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
+  }
+
+  @Test
+  public void canAddQuestion_cantAddEnumeratorQuestionToNonEnumeratorScreen() throws Exception {
+    QuestionDefinition question =
+        QuestionDefinition.questionDefinitionSample(QuestionType.ENUMERATOR);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                question,
+                /* enumeratorImprovementsEnabled= */ true))
+        .isEqualTo(AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK);
   }
 
   @Test
@@ -169,7 +204,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), nameQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                nameQuestion,
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
@@ -185,7 +223,8 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             programBlockValidation.canAddQuestion(
                 program,
                 program.getLastBlockDefinition(),
-                nestedHouseholdMemberWageQuestion.getQuestionDefinition()))
+                nestedHouseholdMemberWageQuestion.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 }
