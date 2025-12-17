@@ -76,11 +76,11 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_withActiveProgram_throws() {
+  public void delete_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
             () ->
-                controller.destroy(
+                controller.delete(
                     programId, /* blockDefinitionId= */ 1, /* questionDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }

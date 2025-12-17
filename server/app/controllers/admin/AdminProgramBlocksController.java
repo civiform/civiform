@@ -257,7 +257,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   /** POST endpoint for deleting a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result destroy(long programId, long blockId) {
+  public Result delete(long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
