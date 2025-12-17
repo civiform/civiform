@@ -26,19 +26,13 @@ test.describe('program creation', () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(page, 'program-creation-page')
 
@@ -57,19 +51,13 @@ test.describe('program creation', () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      '',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(
       page,
@@ -91,19 +79,14 @@ test.describe('program creation', () => {
     await disableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'program name',
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.DISABLED,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram('program name', {
+      description: 'description',
+      visibility: ProgramVisibility.DISABLED,
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     expect(await page.innerText('id=program-details-form')).toContain(
       'Disabled',
@@ -124,19 +107,14 @@ test.describe('program creation', () => {
     await enableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'program name',
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.DISABLED,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram('program name', {
+      description: 'description',
+      visibility: ProgramVisibility.DISABLED,
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     expect(await page.innerText('id=program-details-form')).toContain(
       'Disabled',
@@ -167,24 +145,17 @@ test.describe('program creation', () => {
 
     await test.step('add program with multiple application steps', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ true,
-        [
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        applicationSteps: [
           {title: titleOne, description: descriptionOne},
           {title: titleTwo, description: descriptionTwo},
           {title: titleThree, description: descriptionThree},
         ],
-      )
+      })
       await adminProgramImage.expectProgramImagePage()
     })
 
@@ -225,24 +196,17 @@ test.describe('program creation', () => {
 
     await test.step('add program with blank application step', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ true,
-        [
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        applicationSteps: [
           {title: titleOne, description: descriptionOne},
           {title: '', description: ''}, // step 2 is blank
           {title: titleThree, description: descriptionThree},
         ],
-      )
+      })
       await adminProgramImage.expectProgramImagePage()
     })
 
@@ -281,19 +245,13 @@ test.describe('program creation', () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
 
     await test.step('On program creation, admin can fill in the program slug.', async () => {
       expect(await page.locator('#program-slug').count()).toEqual(1)
@@ -1287,15 +1245,9 @@ test.describe('program creation', () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'cif',
-      'desc',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-    )
+    await adminPrograms.addProgram('cif', {
+      description: 'desc',
+    })
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
     expect(await page.innerText('main')).toContain('Eligibility')
@@ -1380,19 +1332,13 @@ test.describe('program creation', () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        submitNewProgram: false,
+      })
     })
 
     await test.step('add categories to program', async () => {
@@ -1450,19 +1396,13 @@ test.describe('program creation', () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        submitNewProgram: false,
+      })
     })
 
     await test.step('add categories to program', async () => {
@@ -1597,19 +1537,10 @@ test.describe('program creation', () => {
 
     await test.step("start the creation of a 'default' program", async () => {
       // Start creation of a program, without submission.
-      await adminPrograms.addProgram(
-        programName,
-        /* description= */ '',
-        /* shortDescription= */ 'program short description',
-        /* externalLink= */ '',
-        /* visibility= */ undefined,
-        /* adminDescription= */ undefined,
-        /* programType= */ ProgramType.DEFAULT,
-        /* selectedTI= */ undefined,
-        /* confirmationMessage= */ '',
-        /* eligibility= */ undefined,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        shortDescription: 'program short description',
+        submitNewProgram: false,
+      })
       await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
     })
 

@@ -33,7 +33,7 @@ test.describe('Prevent Duplicate Submission', () => {
     })
   })
 
-  test('View Prevent Duplicate Submission modal in North Star', async ({
+  test('View Prevent Duplicate Submission modal', async ({
     applicantQuestions,
     page,
     applicantProgramOverview,

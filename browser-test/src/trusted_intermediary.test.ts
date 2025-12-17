@@ -148,7 +148,6 @@ test.describe('Trusted intermediaries', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -165,7 +164,6 @@ test.describe('Trusted intermediaries', () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -192,7 +190,6 @@ test.describe('Trusted intermediaries', () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
     await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
@@ -208,7 +205,6 @@ test.describe('Trusted intermediaries', () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
   })
@@ -1284,19 +1280,19 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify client info is pre-populated on the application review page', async () => {
         await page.getByRole('button', {name: 'Review and submit'}).click()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Date of birth',
           '01/01/2001',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Name',
           'first middle last',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Phone',
           '+1 917-867-5309',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Email',
           'test@email.com',
         )
@@ -1350,19 +1346,19 @@ test.describe('Trusted intermediaries', () => {
       })
 
       await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Date of birth',
           '01/01/2001',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Name',
           'newfirst middle newlast',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Phone',
           '+1 917-867-5309',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Email',
           'test@email.com',
         )

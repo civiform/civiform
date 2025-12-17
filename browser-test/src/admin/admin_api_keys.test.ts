@@ -42,11 +42,9 @@ test.describe('Managing API keys', () => {
     })
 
     await test.step('Add and publish default program', async () => {
-      await adminPrograms.addProgram(
-        internalProgramName,
-        internalProgramDescription,
-        'https://usa.gov',
-      )
+      await adminPrograms.addProgram(internalProgramName, {
+        description: internalProgramDescription,
+      })
       await adminPrograms.publishAllDrafts()
     })
 

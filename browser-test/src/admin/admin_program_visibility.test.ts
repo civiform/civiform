@@ -10,7 +10,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Validate program visibility is correct for applicants and TIs', () => {
   test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
@@ -21,14 +21,9 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     // Create a hidden program
     const programName = 'Hidden program'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.HIDDEN,
-    )
+    await adminPrograms.addProgram(programName, {
+      visibility: ProgramVisibility.HIDDEN,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant
@@ -50,13 +45,9 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     const programName = 'Public program'
     const programShortDescription = 'Short Description'
-    await adminPrograms.addProgram(
-      programName,
-      'Description',
-      programShortDescription,
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-    )
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant
@@ -81,15 +72,11 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await loginAsAdmin(page)
 
     const programName = 'TI-only program'
-    const programDescription = 'Description'
     const programShortDescription = 'Short description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      programShortDescription,
-      'https://usa.gov',
-      ProgramVisibility.TI_ONLY,
-    )
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.TI_ONLY,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -150,18 +137,12 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await loginAsAdmin(page)
     const programName = 'Select TI program'
-    const programDescription = 'Description'
     const programShortDescription = 'Short description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.SELECT_TI,
-      'admin description',
-      ProgramType.DEFAULT,
-      'groupTwo',
-    )
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.SELECT_TI,
+      selectedTI: 'groupTwo',
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -239,18 +220,12 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await loginAsAdmin(page)
     const programName = 'Select TI to TI Only'
-    const programDescription = 'Description'
     const programShortDescription = 'Short description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      programShortDescription,
-      'https://usa.gov',
-      ProgramVisibility.SELECT_TI,
-      'admin description',
-      ProgramType.DEFAULT,
-      'groupTwo',
-    )
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.SELECT_TI,
+      selectedTI: 'groupTwo',
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -319,14 +294,9 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await test.step('login as a CiviForm admin and publish a disabled program', async () => {
       await loginAsAdmin(page)
 
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'Short description',
-        'https://usa.gov',
-        ProgramVisibility.DISABLED,
-      )
+      await adminPrograms.addProgram(programName, {
+        visibility: ProgramVisibility.DISABLED,
+      })
       await adminPrograms.publishAllDrafts()
     })
 

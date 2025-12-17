@@ -67,7 +67,7 @@ test.describe('Radio button question for applicant flow', () => {
     })
   })
 
-  test.describe('single radio button question with north star flag disabled', () => {
+  test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {

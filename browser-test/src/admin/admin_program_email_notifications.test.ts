@@ -13,16 +13,9 @@ test.describe('program email notifications', () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
         '', // empty string will error
-        'program description',
-        'short program description',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        /* submitNewProgram= */ false,
+        {
+          submitNewProgram: false,
+        },
       )
       await adminPrograms.expectEmailNotificationPreferenceIsChecked(true)
     })

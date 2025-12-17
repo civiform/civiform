@@ -18,13 +18,9 @@ test.describe(
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
-      await adminPrograms.addProgram(
-        hiddenProgramNoQuestions,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.HIDDEN,
-      )
+      await adminPrograms.addProgram(hiddenProgramNoQuestions, {
+        visibility: ProgramVisibility.HIDDEN,
+      })
 
       // Create a new question referenced by a program.
       await adminQuestions.addAddressQuestion({questionName, questionText})

@@ -1,10 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
-import {
-  ProgramLifecycle,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -262,16 +258,10 @@ test.describe('program migration', () => {
       await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
       await adminTiGroups.editGroup('groupOne')
       await adminTiGroups.addGroupMember('groupOne@bar.com')
-      await adminPrograms.addProgram(
-        'New Program',
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.SELECT_TI,
-        'admin description',
-        ProgramType.DEFAULT,
-        'groupOne',
-      )
+      await adminPrograms.addProgram('New Program', {
+        visibility: ProgramVisibility.SELECT_TI,
+        selectedTI: 'groupOne',
+      })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage('New Program', 'DRAFT')
       let downloadedProgram = await adminProgramMigration.downloadJson()

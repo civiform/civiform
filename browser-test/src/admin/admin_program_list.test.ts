@@ -78,11 +78,10 @@ test.describe('Program list page.', () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        programLongDescription,
-        programShortDescription,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
     })
 
     await test.step('check that short description is shown', async () => {
@@ -115,11 +114,10 @@ test.describe('Program list page.', () => {
     await test.step('create new program', async () => {
       await page.goto('/')
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        programLongDescription,
-        programShortDescription,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
     })
 
     await test.step('check that categories show as "None"', async () => {

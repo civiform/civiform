@@ -29,7 +29,7 @@ test.describe('admin preview as applicant', () => {
 
       await validateScreenshot(
         page,
-        'northstar-admin-program-preview-application-overview-page',
+        'admin-program-preview-application-overview-page',
       )
       await page.isVisible('a:has-text("Back to admin view")')
     })
@@ -43,7 +43,7 @@ test.describe('admin preview as applicant', () => {
 
       await validateScreenshot(
         page,
-        'northstar-admin-program-preview-application-block-edit-page',
+        'admin-program-preview-application-block-edit-page',
       )
     })
 

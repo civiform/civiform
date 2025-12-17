@@ -12,7 +12,7 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
-test.describe('North Star Pre-Screener Upsell Tests', () => {
+test.describe('Pre-Screener Upsell Tests', () => {
   const programName = 'Pre-Screener Program'
   const eligibleProgram1 = 'Eligible Program 1'
 
