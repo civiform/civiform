@@ -388,7 +388,6 @@ public final class SampleQuestionDefinitions {
                           ## ما هي متطلبات الأهلية؟
                           يرجى الذهاب إلى [نا](https://www.example.com) لمزيد من المعلومات
                           """)))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
               .build());
 
   @VisibleForTesting
