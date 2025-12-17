@@ -85,7 +85,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
-      'program-visibility-ti-only-hidden-from-applicant-ns',
+      'program-visibility-ti-only-hidden-from-applicant',
     )
 
     // Login as TI, verify program is visible
@@ -110,10 +110,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       programShortDescription,
     )
 
-    await validateScreenshot(
-      page,
-      'program-visibility-ti-only-visible-to-ti-ns',
-    )
+    await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
   })
 
   test('create a program visible only for Selected TIs, verify those TIs can see it and other applicants/TIs cannot', async ({
@@ -151,7 +148,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
-      'program-visibility-select-ti-hidden-from-applicant-ns',
+      'program-visibility-select-ti-hidden-from-applicant',
     )
 
     // Login as any TI, verify program is invisible
@@ -171,10 +168,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.clickOnViewApplications()
     await applicantQuestions.expectProgramHidden(programName)
-    await validateScreenshot(
-      page,
-      'program-visibility-hidden-from-other-tis-ns',
-    )
+    await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
     await logout(page)
 
     await loginAsTestUser(page, 'a:has-text("Log in")', true)
@@ -234,7 +228,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
-      'program-visibility-select-ti-hidden-from-applicant-ns',
+      'program-visibility-select-ti-hidden-from-applicant',
     )
 
     // Login as any TI, verify program is invisible
@@ -254,7 +248,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
-      'program-visibility-hidden-from-other-tis-in-selectti-mode-ns',
+      'program-visibility-hidden-from-other-tis-in-selectti-mode',
     )
     await logout(page)
 
@@ -280,7 +274,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await validateScreenshot(
       page,
-      'program-visibility-changes-all-ti-can-see-program-ns',
+      'program-visibility-changes-all-ti-can-see-program',
     )
   })
 
@@ -305,7 +299,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       await applicantQuestions.expectProgramHidden(programName)
       await validateScreenshot(
         page,
-        'program-visibility-disabled-hidden-from-applicant-ns',
+        'program-visibility-disabled-hidden-from-applicant',
       )
     })
 
@@ -326,7 +320,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       await applicantQuestions.expectProgramHidden(programName)
       await validateScreenshot(
         page,
-        'program-visibility-disabled-hidden-from-ti-ns',
+        'program-visibility-disabled-hidden-from-ti',
       )
     })
   })

@@ -202,7 +202,7 @@ test.describe('Admin question list', () => {
     ])
     await validateScreenshot(
       page,
-      'questions-list-sort-dropdown-last-adminname-asc-ns',
+      'questions-list-sort-dropdown-last-adminname-asc',
     )
     await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.questionBankNames()).toEqual([
@@ -233,10 +233,7 @@ test.describe('Admin question list', () => {
       'b\n',
     ])
 
-    await validateScreenshot(
-      page,
-      'questions-list-sort-dropdown-lastmodified-ns',
-    )
+    await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
   test('shows if questions are marked for archival', async ({

@@ -416,12 +416,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_editWithApplicantId_withMessages_returnsCorrectButtonText() {
+  public void editWithApplicantId_withMessages_returnsCorrectButtonText() {
     String programId = Long.toString(program.id);
 
     Request request =
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
@@ -1091,8 +1090,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      northstar_update_noAnswerToRequiredQuestion_requestedActionNext_staysOnBlockAndShowsErrors() {
+  public void update_noAnswerToRequiredQuestion_requestedActionNext_staysOnBlockAndShowsErrors() {
     ApplicantRequestedActionWrapper requestedAction =
         new ApplicantRequestedActionWrapper(NEXT_BLOCK);
 
@@ -1110,8 +1108,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     ""))
             .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
@@ -1256,7 +1252,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   @Parameters({"NEXT_BLOCK", "REVIEW_PAGE", "PREVIOUS_BLOCK"})
-  public void northstar_update_deletePreviousAnswerToRequiredQuestion_staysOnBlockAndShowsErrors(
+  public void update_deletePreviousAnswerToRequiredQuestion_staysOnBlockAndShowsErrors(
       String action) {
     ApplicantRequestedActionWrapper requestedAction =
         new ApplicantRequestedActionWrapper(ApplicantRequestedAction.valueOf(action));
@@ -1276,8 +1272,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     "InitialLastName"))
             .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     subject
         .updateWithApplicantId(
@@ -1300,8 +1294,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     ""))
             .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
