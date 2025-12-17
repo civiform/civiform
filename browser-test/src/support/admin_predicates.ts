@@ -94,7 +94,7 @@ export class AdminPredicates {
   }
 
   async clickDeleteAllConditionsButton() {
-    await this.page.locator('#delete-all-conditions-button button').click()
+    await this.page.getByRole('button', {name: 'Delete all conditions'}).click()
     await waitForHtmxReady(this.page)
   }
 
@@ -308,6 +308,18 @@ export class AdminPredicates {
     await expect(
       this.page.getByText('We are experiencing a system error'),
     ).toBeVisible()
+  }
+
+  async expectEligibilityNullState() {
+    await expect(
+      this.page.locator('#predicate-operator-node-select-null-state'),
+    ).toBeVisible()
+    await expect(
+      this.page.locator('#predicate-operator-node-select'),
+    ).toBeHidden()
+    await expect(
+      this.page.locator('#predicate-operator-node-select-null-state'),
+    ).toContainText('Applicant is always eligible')
   }
 
   async selectQuestion(

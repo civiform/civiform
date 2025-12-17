@@ -925,14 +925,15 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(StringUtils.deleteWhitespace(content)).doesNotContain("firstname");
-    assertThat(StringUtils.deleteWhitespace(content))
+    String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
+    assertThat(content).doesNotContain("firstname");
+    assertThat(contentWithoutWhitespace)
         .doesNotContain(
             String.format(
                 "<optionvalue=\"%d\"selected=\"selected\">",
                 testQuestionBank.nameApplicantName().id));
     assertThat(content).contains("#predicate-conditions-list");
-    assertThat(StringUtils.deleteWhitespace(content)).doesNotContain("Condition1");
+    assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 

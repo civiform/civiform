@@ -533,10 +533,8 @@ export class AdminPredicateEdit {
     // Otherwise, hide and disable.
     const firstConditionElement = document.querySelector('#condition-1')
     if (firstConditionElement) {
-      deleteAllConditionsContainer.classList.add('display-flex')
       deleteAllConditionsContainer.classList.remove('hidden')
     } else {
-      deleteAllConditionsContainer.classList.remove('display-flex')
       deleteAllConditionsContainer.classList.add('hidden')
     }
   }

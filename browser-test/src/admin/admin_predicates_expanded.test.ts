@@ -170,18 +170,7 @@ test.describe('create and edit predicates', () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
-      await adminPredicates.expectNoDeleteAllConditionsButton()
-      await validateScreenshot(
-        page.locator('#edit-predicate'),
-        'eligibility-predicate-null-state',
-      )
+      await adminPredicates.expectEligibilityNullState()
     })
 
     await test.step('Add condition', async () => {
@@ -912,15 +901,7 @@ test.describe('create and edit predicates', () => {
 
       await waitForHtmxReady(page)
 
-      await adminPredicates.expectNoCondition(1)
-      await adminPredicates.expectAddConditionButton()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
+      await adminPredicates.expectEligibilityNullState()
 
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -989,13 +970,7 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.expectNoCondition(2)
       await adminPredicates.expectNoDeleteAllConditionsButton()
       await adminPredicates.expectAddConditionButton()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
+      await adminPredicates.expectEligibilityNullState()
     })
   })
 

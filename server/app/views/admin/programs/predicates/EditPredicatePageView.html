@@ -158,44 +158,46 @@
     </div>
 
     <div class="border-top border-base-lighter margin-y-2"></div>
-    <div class="display-flex flex-vertical-center flex-gap-sm">
-      <button
-        type="submit"
-        class="usa-button"
-        form="predicate-form"
-        th:text="#{button.saveAndExit}"
-      ></button>
-      <button
-        type="submit"
-        class="usa-button usa-button--outline"
-        th:text="#{button.cancel}"
-      ></button>
-      <div
-        id="delete-all-conditions-button"
-        class="display-flex flex-vertical-center padding-left-4"
-        th:hidden="${!model.screenHasPredicates()}"
-      >
+    <div class="grid-container margin-left-0 padding-left-0 padding-top-2">
+      <div class="grid-row flex-align-left">
         <button
-          type="button"
-          class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
-          th:hx-post="${model.hxDeleteAllConditionsEndpoint()}"
-          hx-target="#predicate-conditions-list"
+          type="submit"
+          class="usa-button tablet:grid-col-auto"
+          form="predicate-form"
+          th:text="#{button.saveAndExit}"
+        ></button>
+        <button
+          type="submit"
+          class="usa-button usa-button--outline tablet:grid-col-auto"
+          th:text="#{button.cancel}"
+        ></button>
+        <div
+          id="delete-all-conditions-button"
+          class="tablet:grid-col-auto padding-left-4"
+          th:hidden="${!model.screenHasPredicates()}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="#b50909"
-            stroke-width="1%"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
+          <button
+            type="button"
+            class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+            th:hx-post="${model.hxDeleteAllConditionsEndpoint()}"
+            hx-target="#predicate-conditions-list"
           >
-            <path
-              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-            ></path>
-          </svg>
-          [[#{button.predicateDeleteAllConditions}]]
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="#b50909"
+              stroke-width="1%"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+            >
+              <path
+                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+              ></path>
+            </svg>
+            [[#{button.predicateDeleteAllConditions}]]
+          </button>
+        </div>
       </div>
     </div>
   </div>
