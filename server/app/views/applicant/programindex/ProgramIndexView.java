@@ -100,7 +100,6 @@ public class ProgramIndexView extends ApplicantBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
                           applicationPrograms.inProgressIncludingPreScreener().stream(),
@@ -119,7 +118,6 @@ public class ProgramIndexView extends ApplicantBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
                   MessageKey.BUTTON_VIEW_AND_APPLY,
                   applicationPrograms.unapplied(),
                   /* preferredLocale= */ messages.lang().toLocale(),
@@ -176,7 +174,6 @@ public class ProgramIndexView extends ApplicantBaseView {
     return programCardsSectionParamsFactory.getSection(
         request,
         messages,
-        Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         MessageKey.BUTTON_START_SURVEY,
         ImmutableList.of(preScreenerForm),
         /* preferredLocale= */ messages.lang().toLocale(),

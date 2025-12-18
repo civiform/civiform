@@ -25,7 +25,6 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.ProgramImageUtils;
-import views.components.Modal;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -65,7 +64,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramSectionParams getSection(
       Request request,
       Messages messages,
-      Optional<MessageKey> title,
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
@@ -85,14 +83,8 @@ public final class ProgramCardsSectionParamsFactory {
             applicantId,
             personalInfo);
 
-    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
-
-    if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
-      sectionBuilder.setId(Modal.randomModalId());
-    }
-
-    sectionBuilder.setSectionType(sectionType);
+    ProgramSectionParams.Builder sectionBuilder =
+        ProgramSectionParams.builder().setCards(cards).setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -321,9 +313,6 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract SectionType sectionType();
 
-    /** The id of the section. Only needs to be specified if a title is also specified. */
-    public abstract Optional<String> id();
-
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramSectionParams.Builder();
     }
@@ -337,8 +326,6 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setTitle(String title);
 
       public abstract Builder setSectionType(SectionType sectionType);
-
-      public abstract Builder setId(String id);
 
       public abstract ProgramSectionParams build();
     }
