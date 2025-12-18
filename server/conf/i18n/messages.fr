@@ -594,6 +594,8 @@ content.and=et
 button.predicateAddCondition=Ajouter la condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Supprimer la condition
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ajouter une sous-condition
 # Link to remove a sub-condition from the form
