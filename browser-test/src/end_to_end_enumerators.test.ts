@@ -653,7 +653,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .count()
       })
 
-      await test.step('Click "Add screen" button and take a screenshot of the dropdown', async () => {
+      await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
         await page.getByRole('button', {name: 'Add screen'}).first().click()
         const addScreenDropdown = page
           .getByRole('list')
