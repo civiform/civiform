@@ -19,6 +19,10 @@ function attachDropdown(elementId: string) {
     element.addEventListener('click', (e) => {
       e.stopPropagation()
       toggleElementVisibility(dropdownId)
+      if (element.hasAttribute('aria-expanded')) {
+        const dropdownIsVisible = !dropdown.classList.contains('hidden')
+        element.setAttribute('aria-expanded', dropdownIsVisible.toString())
+      }
     })
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
