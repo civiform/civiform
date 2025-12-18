@@ -15,7 +15,6 @@ import play.mvc.Http.Request;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.LocalizedStrings;
-import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
@@ -60,7 +59,6 @@ public class ProgramCardPreview extends ApplicantBaseView {
         programCardsSectionParamsFactory.getCard(
             params.request(),
             params.messages(),
-            MessageKey.BUTTON_VIEW_AND_APPLY,
             params.applicantProgramData(),
             LocalizedStrings.DEFAULT_LOCALE, // Admin console is not localized
             Optional.of(params.profile()),
