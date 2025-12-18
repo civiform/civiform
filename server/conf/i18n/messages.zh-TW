@@ -594,6 +594,8 @@ content.and=和
 button.predicateAddCondition=新增條件
 # Button to remove a condition from the form
 button.predicateDeleteCondition=刪除條件
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=新增次要條件
 # Link to remove a sub-condition from the form
