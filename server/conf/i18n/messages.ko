@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=로그아웃
-#  This appears before applicants select their preferred language.
-label.selectLanguage=선호하는 언어를 선택해 주세요.
-button.untranslatedSubmit=제출
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=CiviForm 정보
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -52,16 +46,10 @@ header.userName={0}(으)로 로그인됨
 validation.isRequired=이 질문은 필수입니다.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=유효한 내용을 입력하세요.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=양식에 오류가 있습니다.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=필수 입력란은 별표({0})로 표시됩니다.
 content.optional=(선택사항)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=닫기
@@ -84,10 +72,6 @@ link.skipToMainContent=기본 콘텐츠로 건너뛰기
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=로그인
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt={0} 계정으로 로그인하세요.
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=계정 만들기
 # The text on the button in the login drop down an applicant clicks to log in to their session.
@@ -98,18 +82,10 @@ button.adminLogin=관리자 로그인
 button.login=로그인
 # The text on the button an applicant clicks to sign in to their session.
 button.signIn=로그인
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=계정이 없나요?
 # The text between creating a new account, and becoming a guest
 content.or=또는
 # The text on the button for applicants to create a new account.
 button.createAccount=계정 만들기
-# The text on the button for guests to log in to their session.
-button.guestLogin=게스트로 계속
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=다른 내용을 찾고 있나요?
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=관리자이신가요?
 # The text on the anchor for admins to log in to their session.
@@ -119,8 +95,6 @@ link.adminLogin=관리자 로그인
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=업로드된 파일: {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=파일 1개를 선택하세요.
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -128,10 +102,6 @@ input.singleFileUploadHint=파일 1개를 선택하세요.
 input.multipleFileUploadHint=파일을 1개 이상 선택하세요(최대 {0}개).
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=파일을 1개 이상 선택하세요.
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=삭제
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=계속
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=저장 후 다음으로 이동
 # The button text for navigating to the previous screen in the form.
@@ -140,26 +110,16 @@ button.previousScreen=이전
 button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=검토 및 제출
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=건너뛰기
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={1} 중 {0}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={1}개 중 {0}개 완료됨
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=신청 절차
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=검토 및 제출
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
-# A link that logs out a guest user after they submit an application.
-link.allDone=모두 완료했습니다
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=다른 프로그램 신청
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=계정 만들기 또는 로그인
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=홈
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
@@ -168,20 +128,6 @@ link.applicationForProgram={0} 신청서
 link.removeFile=파일 삭제
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr={0} 파일 삭제
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 이전 페이지로 이동하시겠습니까?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=입력하신 정보에 일부 오류가 있습니다. 현재 페이지에서 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 검토 페이지로 이동하시겠습니까?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=입력하신 정보에 일부 오류가 있습니다. 현재 페이지에서 답변을 수정하시겠습니까? 아니면 답변을 저장하지 않고 이전 질문 페이지로 이동하시겠습니까?
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=저장하지 않고 검토 페이지로 이동
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=저장하지 않고 이전 질문으로 이동
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=현재 페이지에서 답변 수정
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=이 페이지에 있는 일부 답변은 수정해야 합니다.
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
@@ -201,17 +147,8 @@ modal.errorSaving.fixButton=여기에서 답변 수정
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=신청
-# The text read for screen readers.
-button.applySr={0} 신청
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=편집
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr={0}에 제출된 신청서 편집
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr={0} 신청 계속하기
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=여기부터 시작
-# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=설문조사 시작
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=보기 및 신청
@@ -223,27 +160,10 @@ button.viewInNewTab=새 탭에서 보기
 button.viewInNewTabSr=새 탭에서 {0} 보기
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=애플리케이션으로 계속하기
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHerePreScreenerSr={0} 작성
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr={0}에 대해 제출한 정보 수정
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr={0} 계속 작성
-# Text describing the date the application was last submitted.
-content.submittedDate=제출 날짜: {0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=프로그램 찾기
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 해당될 수 있는 프로그램을 확인할 수 있습니다. 먼저 아래에서 신청서를 선택하세요.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
-# Main home page heading
-heading.homepage=여기에서 정부 지원 신청
 # Main home page heading, updated to be more generic
 heading.homepage.v2=온라인으로 정부 프로그램 신청
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
 content.homepageIntro=식품, 교통, 아동 돌봄, 공공 서비스 등에 관한 지원을 받으려면 아래 옵션 중 하나를 클릭하세요. 한 번에 프로그램 한 개만 신청할 수 있습니다.
 # Main home page intro text, updated to be more generic
@@ -264,16 +184,6 @@ link.programDetailsSr={0}의 프로그램 세부정보, 새 탭에서 열림
 title.programs=프로그램 및 서비스
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=시작하기
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=모든 프로그램({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=상태
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=진행 중
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=시작 안 함
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=서비스 찾기
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=내 신청 프로그램({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -286,14 +196,6 @@ title.programsSection.v2=프로그램 및 서비스({0})
 title.availableProgramsSection=프로그램 및 서비스
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=섹션 완료됨
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=제출됨
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
-# Alert banner when an application was already completed
-toast.programCompleted=신청서가 이미 작성되어 있습니다.
 # Informational tag on an in-progress application card
 label.inProgress=아직 제출되지 않음
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -311,14 +213,8 @@ content.externalProgramModal=자세한 내용을 확인하고 신청할 수 있�
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=이 계정을 삭제할 수 없습니다.
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=열려 있는 애플리케이션이 있어 계정을 삭제할 수 없습니다.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=클라이언트 정보를 업데이트했습니다.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted='{0}'의 클라이언트 계정이 삭제되었습니다.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=새 클라이언트를 만들었습니다.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -329,24 +225,16 @@ banner.viewApplication={0}님 대신 신청 중입니다. 고객 이름이 잘�
 button.addNewClient=새 클라이언트 추가
 # Button that brings the user back to the list of their clients.
 button.backToClientList=클라이언트 목록으로 돌아가기
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=수정 페이지로 돌아가기
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=취소
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=검색어 지우기
-# Button for a user to delete their client's account
-button.deleteAcct=계정 삭제
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=계정 유지하기
 # Button to navigate to the next page.
 button.nextPage=다음
 # Button to save information that has been entered.
 button.save=저장
 # Button to execute a search to filter a client list.
 button.search=검색
-# Button to select a client.
-button.select=선택
 # Button to start an application on behalf of a client.
 button.startApp=애플리케이션 시작
 # Button to view the applications belonging to an applicant.
@@ -362,18 +250,6 @@ content.emailTooltip=고객이 신청서에 대한 상태 업데이트를 자동
 content.numberOfAppSubmitted=애플리케이션 {0}개 제출됨
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=신청서 1개가 제출됨
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=이 클라이언트에 대해 제출된 애플리케이션이 없으므로 삭제되는 애플리케이션이 없습니다.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(이메일 주소 없음)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=아직 로그인하지 않음
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=로그인함, 신청을 제출하지 않음
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate={0}에 마지막으로 신청을 제출함
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=이 클라이언트의 계정을 삭제하시겠습니까?
 
 # Header for the page with the Organization Members table.
 header.acctSettings=계정 설정
@@ -420,8 +296,6 @@ label.searchByDob=생일로 검색
 label.searchByName=이름으로 검색
 # The label above the input field for the year of the client birth date.
 label.year=연도
-# Label showing the user when there is no name
-label.unnamedUser=이름이 지정되지 않은 사용자
 
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=새 고객 선택
@@ -460,8 +334,6 @@ button.start=시작
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=신청을 시작하려면 아래 단계를 선택하세요. 언제든지 저장하고 다시 돌아올 수 있습니다.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=자격요건을 충족하지 않음
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -503,16 +375,10 @@ link.startAsGuest=게스트로 신청 시작
 
 # Tab title for ineligible page
 title.ineligible=프로그램 참여 자격 없음
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
 # Section heading
 heading.eligibilityCriteria=자격 요건에 관한 자세한 내용
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램 팀에 직접 문의하려면 {0}을(를) 참고하세요
 content.eligibilityCriteria.v3=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램팀에 직접 문의하려면 {0}을(를) 참고하세요(새 탭에서 열림).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
@@ -522,10 +388,6 @@ content.changeAnswersForEligibility.v2=오류가 있다고 생각되면 이전 �
 button.goBackAndEdit=돌아가서 수정
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=내 답변 수정하기
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=자격요건을 충족할 수 있음
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -534,10 +396,6 @@ tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
 tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
@@ -610,10 +468,6 @@ title.signInModal=계정으로 로그인
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=계정을 만들면 신청 상태를 확인하거나 변경하고 다른 프로그램도 빠르게 신청할 수 있습니다.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 프로그램을 신청할 수 없습니다.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=계속하기 전에 {0} 계정에 로그인하거나 계정을 만드세요. 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # A button for continuing to apply to other programs without an account.
@@ -633,13 +487,10 @@ content.preScreenerConfirmationTi.v2=귀하의 답변에 따라 고객이 다음
 content.preScreenerNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=신청서 다운로드
-button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청
 # Heading above a section showing the user's name, confirmation number, and date
@@ -809,10 +660,8 @@ placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=국가
 label.phoneNumber=전화번호 입력
 validation.phoneNumberRequired=전화번호는 필수 항목입니다.
-validation.phoneCountryCodeRequired=국가는 필수 선택 항목입니다.
 validation.phoneNumberMustContainNumbersOnly=전화번호는 숫자로만 구성되어야 합니다.
 validation.invalidPhoneNumberProvided=잘못된 전화번호입니다.
 validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가에 속하지 않습니다.
@@ -897,7 +746,6 @@ placeholder.entityName={0} 이름
 validation.fileRequired=파일을 선택하세요.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
-button.chooseFile=파일 선택
 # Text shown on a tag while a file is uploading.
 label.uploading=업로드 중
 # Label applied to a list of uploaded files
@@ -933,13 +781,6 @@ label.lastName=성
 label.middleName=중간 이름
 # Label for name suffix field in name question
 label.nameSuffix=접두사
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=이름
-placeholder.lastName=성
-placeholder.middleName=중간 이름
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=접두사
 
 # Option Junior for the name suffix dropdown
 option.junior=주니어
@@ -1188,6 +1029,21 @@ banner.minute=1분
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=육아
 
@@ -1230,7 +1086,7 @@ category.tag.utilities=유틸리티
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=군필
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=카테고리
 
 #------------------------------------------------------------------------------#
