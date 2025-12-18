@@ -938,6 +938,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enable session replay protection, so that a session cookie cannot be replayed if the user logs
+   * out
+   */
+  public boolean getSessionReplayProtectionEnabled() {
+    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
+  }
+
+  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -1064,14 +1072,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enable allowing CiviForm admins to add a map question to their programs. */
   public boolean getMapQuestionEnabled(RequestHeader request) {
     return getBool("MAP_QUESTION_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
-   * replayed if the user logs out
-   */
-  public boolean getSessionReplayProtectionEnabled() {
-    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
@@ -2180,6 +2180,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
+                          "SESSION_REPLAY_PROTECTION_ENABLED",
+                          "Enable session replay protection, so that a session cookie cannot be"
+                              + " replayed if the user logs out",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "MAXIMUM_SESSION_DURATION_MINUTES",
                           "The amount of time, in minutes, that a session lasts. The default is 600"
                               + " minutes, or 10 hours. Note that there isn't yet messaging on the"
@@ -2337,13 +2344,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
-                              + " session cookie cannot be replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
