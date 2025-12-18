@@ -93,6 +93,11 @@ export class AdminPredicates {
       .click()
   }
 
+  async clickDeleteAllConditionsButton() {
+    await this.page.getByRole('button', {name: 'Delete all conditions'}).click()
+    await waitForHtmxReady(this.page)
+  }
+
   async clickAddSubconditionButton(conditionId: number) {
     await this.page
       .getByRole('button', {name: 'Add sub-condition'})
@@ -106,6 +111,18 @@ export class AdminPredicates {
 
   async clickSaveConditionButton() {
     await this.page.getByRole('button', {name: 'Save condition'}).click()
+  }
+
+  async expectDeleteAllConditionsButton() {
+    await expect(
+      this.page.locator('#delete-all-conditions-button'),
+    ).toBeVisible()
+  }
+
+  async expectNoDeleteAllConditionsButton() {
+    await expect(
+      this.page.locator('#delete-all-conditions-button'),
+    ).toBeHidden()
   }
 
   async expectPredicateErrorToast(type: string) {
@@ -291,6 +308,18 @@ export class AdminPredicates {
     await expect(
       this.page.getByText('We are experiencing a system error'),
     ).toBeVisible()
+  }
+
+  async expectEligibilityNullState() {
+    await expect(
+      this.page.locator('#predicate-operator-node-select-null-state'),
+    ).toBeVisible()
+    await expect(
+      this.page.locator('#predicate-operator-node-select'),
+    ).toBeHidden()
+    await expect(
+      this.page.locator('#predicate-operator-node-select-null-state'),
+    ).toContainText('Applicant is always eligible')
   }
 
   async selectQuestion(

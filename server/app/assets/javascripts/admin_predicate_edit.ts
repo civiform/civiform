@@ -61,11 +61,14 @@ export class AdminPredicateEdit {
         el.dispatchEvent(event)
       })
     }
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
     AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
   }
 
   onPageLoad(): void {
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
+
     addEventListenerToElements(
       '.cf-predicate-scalar-select',
       'change',
@@ -516,6 +519,26 @@ export class AdminPredicateEdit {
 
     this.disableAndHideAll(hiddenElements)
     this.enableAndShowAll(shownElements)
+  }
+
+  private static showOrHideDeleteAllConditionsButton() {
+    const deleteAllConditionsContainer = document.getElementById(
+      'delete-all-conditions-button',
+    )
+    if (!deleteAllConditionsContainer) {
+      return
+    }
+
+    // If there's a condition present, show the delete all conditions button.
+    // Otherwise, hide and disable.
+    const firstConditionElement = document.querySelector('#condition-1')
+    if (firstConditionElement) {
+      deleteAllConditionsContainer.classList.add('display-flex')
+      deleteAllConditionsContainer.hidden = false
+    } else {
+      deleteAllConditionsContainer.classList.remove('display-flex')
+      deleteAllConditionsContainer.hidden = true
+    }
   }
 
   /**

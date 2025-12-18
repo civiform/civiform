@@ -170,17 +170,7 @@ test.describe('create and edit predicates', () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
-      await validateScreenshot(
-        page.locator('#edit-predicate'),
-        'eligibility-predicate-null-state',
-      )
+      await adminPredicates.expectEligibilityNullState()
     })
 
     await test.step('Add condition', async () => {
@@ -189,6 +179,7 @@ test.describe('create and edit predicates', () => {
       await waitForHtmxReady(page)
 
       await adminPredicates.expectCondition(1)
+      await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-eligibility-predicate',
@@ -249,6 +240,7 @@ test.describe('create and edit predicates', () => {
       await expect(
         page.locator('#predicate-operator-node-select-null-state'),
       ).toContainText('This screen is always shown')
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'visibility-predicate-null-state',
@@ -259,6 +251,7 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.clickAddConditionButton()
 
       await adminPredicates.expectCondition(1)
+      await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-visibility-predicate',
@@ -908,15 +901,7 @@ test.describe('create and edit predicates', () => {
 
       await waitForHtmxReady(page)
 
-      await adminPredicates.expectNoCondition(1)
-      await adminPredicates.expectAddConditionButton()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
+      await adminPredicates.expectEligibilityNullState()
 
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -974,6 +959,19 @@ test.describe('create and edit predicates', () => {
         page.locator('#condition-1-subcondition-1-ariaAnnounce'),
       ).toHaveAttribute('data-should-announce', 'true')
     })
+
+    await test.step('Add second condition, delete all conditions, and validate null state', async () => {
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(2)
+
+      await adminPredicates.clickDeleteAllConditionsButton()
+
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.expectNoCondition(2)
+      await adminPredicates.expectNoDeleteAllConditionsButton()
+      await adminPredicates.expectAddConditionButton()
+      await adminPredicates.expectEligibilityNullState()
+    })
   })
 
   test('No available questions on screen', async ({
@@ -1002,6 +1000,7 @@ test.describe('create and edit predicates', () => {
 
       // Validate empty state without predicate
       await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await expect(page.locator('#visibility-predicate')).toContainText(
         'This screen is always shown',
       )
@@ -1016,6 +1015,7 @@ test.describe('create and edit predicates', () => {
       )
 
       await adminPredicates.expectNoAddConditionButton()
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(page, 'no-available-eligibility-questions')
     })
 
@@ -1028,6 +1028,7 @@ test.describe('create and edit predicates', () => {
       )
 
       await adminPredicates.expectNoAddConditionButton()
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(page, 'no-available-visibility-questions')
     })
   })
