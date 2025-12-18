@@ -594,6 +594,8 @@ content.and=iyo
 button.predicateAddCondition=Ku dar shuruud
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Tirtir shuruud
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ku dar xaalad-hoosaad
 # Link to remove a sub-condition from the form
