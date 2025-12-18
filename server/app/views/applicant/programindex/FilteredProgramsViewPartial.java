@@ -15,7 +15,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
-import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
@@ -89,7 +88,6 @@ public class FilteredProgramsViewPartial extends ApplicantBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  MessageKey.BUTTON_VIEW_AND_APPLY,
                   filteredPrograms,
                   /* preferredLocale= */ messages.lang().toLocale(),
                   profile,
@@ -106,7 +104,6 @@ public class FilteredProgramsViewPartial extends ApplicantBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  MessageKey.BUTTON_VIEW_AND_APPLY,
                   otherPrograms,
                   /* preferredLocale= */ messages.lang().toLocale(),
                   profile,

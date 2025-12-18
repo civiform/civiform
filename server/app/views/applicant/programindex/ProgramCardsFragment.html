@@ -19,7 +19,7 @@
       <a
         th:href="${card.actionUrl()}"
         class="usa-button usa-button--big cf-apply-button"
-        th:text="${card.actionText()}"
+        th:text="#{button.startSurvey}"
       ></a>
     </div>
   </div>
@@ -50,7 +50,7 @@
     </div>
 
     <div
-      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card}, ${sectionType})}"
     ></div>
   </div>
 </li>
@@ -154,7 +154,7 @@
     </div>
 
     <div
-      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card}, ${sectionType})}"
     ></div>
   </div>
 </li>
@@ -225,7 +225,7 @@
 
 <!-- Standard Card Action button -->
 <div
-  th:fragment="cardActionButton (card)"
+  th:fragment="cardActionButton (card, sectionType)"
   class="usa-card__footer cf-card-footer"
 >
   <th:block th:if="${card.programType().toString() == 'EXTERNAL'}">
@@ -240,7 +240,7 @@
       <svg
         th:replace="~{applicant/ApplicantBaseFragment :: icon(${launchIcon})}"
       ></svg>
-      <span th:text="${card.actionText()}"></span>
+      <span th:text="#{button.viewInNewTab}"></span>
     </a>
 
     <div
@@ -252,7 +252,7 @@
     <a
       th:href="${card.actionUrl()}"
       class="usa-button usa-button--outline cf-apply-button"
-      th:text="${card.actionText()}"
+      th:text="#{${sectionType == 'MY_APPLICATIONS' ? 'button.edit' : 'button.viewAndApply'}}"
       th:aria-label="#{button.viewAndApplySr(${card.title()})}"
     ></a>
   </th:block>
