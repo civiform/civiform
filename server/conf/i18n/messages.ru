@@ -594,6 +594,8 @@ content.and=и
 button.predicateAddCondition=Добавить условие
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Удалить условие
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Добавить подусловие
 # Link to remove a sub-condition from the form
