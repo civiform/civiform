@@ -783,6 +783,21 @@ label.middleName=الاسم الأوسط
 # Label for name suffix field in name question
 label.nameSuffix=اللاحقة
 
+# Option Junior for the name suffix dropdown
+option.junior=الأصغر
+# Option Senior for the name suffix dropdown
+option.senior=الأكبر
+# Option the first for the name suffix dropdown
+option.first=الأول
+# Option the second for the name suffix dropdown
+option.second=الثاني
+# Option the third for the name suffix dropdown
+option.third=الثالث
+# Option the forth for the name suffix dropdown
+option.forth=الرابع
+# Option the fifth for the name suffix dropdown
+option.fifth=الخامس
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=يُرجى إدخال اسمك الأول.
 validation.lastNameRequired=يُرجى إدخال اسم العائلة.

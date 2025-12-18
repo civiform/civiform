@@ -783,6 +783,21 @@ label.middleName=Отчество/второе имя
 # Label for name suffix field in name question
 label.nameSuffix=Суффикс
 
+# Option Junior for the name suffix dropdown
+option.junior=мл.
+# Option Senior for the name suffix dropdown
+option.senior=ст.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=Укажите имя.
 validation.lastNameRequired=Укажите фамилию.

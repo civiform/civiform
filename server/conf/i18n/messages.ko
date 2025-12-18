@@ -783,6 +783,21 @@ label.middleName=중간 이름
 # Label for name suffix field in name question
 label.nameSuffix=접두사
 
+# Option Junior for the name suffix dropdown
+option.junior=주니어
+# Option Senior for the name suffix dropdown
+option.senior=시니어
+# Option the first for the name suffix dropdown
+option.first=1세
+# Option the second for the name suffix dropdown
+option.second=2세
+# Option the third for the name suffix dropdown
+option.third=3세
+# Option the forth for the name suffix dropdown
+option.forth=4세
+# Option the fifth for the name suffix dropdown
+option.fifth=5세
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=이름을 입력하세요.
 validation.lastNameRequired=성을 입력하세요.

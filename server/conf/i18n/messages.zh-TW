@@ -783,6 +783,21 @@ label.middleName=中間名
 # Label for name suffix field in name question
 label.nameSuffix=後綴
 
+# Option Junior for the name suffix dropdown
+option.junior=小
+# Option Senior for the name suffix dropdown
+option.senior=大
+# Option the first for the name suffix dropdown
+option.first=一世
+# Option the second for the name suffix dropdown
+option.second=二世
+# Option the third for the name suffix dropdown
+option.third=三世
+# Option the forth for the name suffix dropdown
+option.forth=四世
+# Option the fifth for the name suffix dropdown
+option.fifth=五世
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=請輸入名字。
 validation.lastNameRequired=請輸入姓氏。

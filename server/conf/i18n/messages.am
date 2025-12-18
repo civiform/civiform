@@ -783,6 +783,21 @@ label.middleName=የአባት ስም
 # Label for name suffix field in name question
 label.nameSuffix=ቅጥያ
 
+# Option Junior for the name suffix dropdown
+option.junior=ወጣት
+# Option Senior for the name suffix dropdown
+option.senior=አዛውንት
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
 validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።

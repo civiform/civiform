@@ -783,6 +783,21 @@ label.middleName=ຊື່ກາງ
 # Label for name suffix field in name question
 label.nameSuffix=ຄຳຕໍ່ທ້າຍ
 
+# Option Junior for the name suffix dropdown
+option.junior=ຈູເນຍຣ໌
+# Option Senior for the name suffix dropdown
+option.senior=ຊີເນຍຣ໌
+# Option the first for the name suffix dropdown
+option.first=ທີ 1
+# Option the second for the name suffix dropdown
+option.second=ທີ 2
+# Option the third for the name suffix dropdown
+option.third=ທີ 3
+# Option the forth for the name suffix dropdown
+option.forth=ທີ 4
+# Option the fifth for the name suffix dropdown
+option.fifth=ທີ 5
+
 # Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=ກະລຸນາໃສ່ຊື່ຂອງທ່ານ.
 validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນຂອງທ່ານ.
