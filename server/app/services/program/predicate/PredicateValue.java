@@ -293,6 +293,8 @@ public abstract class PredicateValue {
         return SelectedValue.single(toValueString(value(), questionType));
       }
       case PAIR_OF_LONGS, PAIR_OF_DATES -> {
+        // Pairs map to operators where we expect exactly two values (e.g. BETWEEN)
+        // Order matters, and we want to allow for repetition, so use a list here.
         ImmutableList<String> values =
             splitListString(value())
                 .map(value -> toValueString(value, questionType))
@@ -302,6 +304,8 @@ public abstract class PredicateValue {
             SelectedValue.pair(new SelectedValue.ValuePair(values.get(0), values.get(1)));
       }
       case LIST_OF_STRINGS, LIST_OF_LONGS -> {
+        // Lists map to multiple-value question types (e.g. checkboxes).
+        // Order doesn't matter and we want unique values, so use a set.
         ImmutableSet<String> values =
             splitListString(value())
                 .map(value -> toValueString(value, questionType))
