@@ -594,6 +594,8 @@ content.and=እና
 button.predicateAddCondition=ሁኔታ አክል
 # Button to remove a condition from the form
 button.predicateDeleteCondition=ሁኔታ ደምስስ
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=ንዑስ-ሁኔታ አክል
 # Link to remove a sub-condition from the form
