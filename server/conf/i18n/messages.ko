@@ -594,6 +594,8 @@ content.and=및
 button.predicateAddCondition=조건 추가
 # Button to remove a condition from the form
 button.predicateDeleteCondition=조건 삭제
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=하위 조건 추가
 # Link to remove a sub-condition from the form
