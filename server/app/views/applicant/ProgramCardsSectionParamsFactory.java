@@ -63,7 +63,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramSectionParams getSection(
       Request request,
       Messages messages,
-      MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -73,14 +72,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     List<ProgramCardParams> cards =
         getCards(
-            request,
-            messages,
-            buttonText,
-            programData,
-            preferredLocale,
-            profile,
-            applicantId,
-            personalInfo);
+            request, messages, programData, preferredLocale, profile, applicantId, personalInfo);
 
     ProgramSectionParams.Builder sectionBuilder =
         ProgramSectionParams.builder().setCards(cards).setSectionType(sectionType);
@@ -92,7 +84,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ImmutableList<ProgramCardParams> getCards(
       Request request,
       Messages messages,
-      MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -105,7 +96,6 @@ public final class ProgramCardsSectionParamsFactory {
           getCard(
               request,
               messages,
-              buttonText,
               programDatum,
               preferredLocale,
               profile,
@@ -119,7 +109,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramCardParams getCard(
       Request request,
       Messages messages,
-      MessageKey buttonText,
       ApplicantProgramData programDatum,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -149,17 +138,12 @@ public final class ProgramCardsSectionParamsFactory {
 
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);
 
-    if (program.programType().equals(ProgramType.EXTERNAL)) {
-      buttonText = MessageKey.BUTTON_VIEW_IN_NEW_TAB;
-    }
-
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
         .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())
-        .setActionText(messages.at(buttonText.getKeyName()))
         .setProgramId(program.id())
         .setProgramType(program.programType());
 
@@ -307,8 +291,6 @@ public final class ProgramCardsSectionParamsFactory {
   public abstract static class ProgramSectionParams {
     public abstract ImmutableList<ProgramCardParams> cards();
 
-    public abstract Optional<String> title();
-
     public abstract SectionType sectionType();
 
     public static Builder builder() {
@@ -321,8 +303,6 @@ public final class ProgramCardsSectionParamsFactory {
     public abstract static class Builder {
       public abstract Builder setCards(List<ProgramCardParams> cards);
 
-      public abstract Builder setTitle(String title);
-
       public abstract Builder setSectionType(SectionType sectionType);
 
       public abstract ProgramSectionParams build();
@@ -332,8 +312,6 @@ public final class ProgramCardsSectionParamsFactory {
   @AutoValue
   public abstract static class ProgramCardParams {
     public abstract String title();
-
-    public abstract String actionText();
 
     public abstract String body();
 
@@ -377,8 +355,6 @@ public final class ProgramCardsSectionParamsFactory {
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setTitle(String title);
-
-      public abstract Builder setActionText(String actionText);
 
       public abstract Builder setBody(String body);
 
