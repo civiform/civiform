@@ -594,6 +594,8 @@ content.and=at
 button.predicateAddCondition=Magdagdag ng kondisyon
 # Button to remove a condition from the form
 button.predicateDeleteCondition=I-delete ang kondisyon
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Magdagdag ng sub-kondisyon
 # Link to remove a sub-condition from the form
