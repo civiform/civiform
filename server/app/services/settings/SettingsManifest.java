@@ -2357,13 +2357,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
-                              + " session cookie cannot be replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
                               + " maximum duration.",
