@@ -29,7 +29,7 @@
 
   /* Counteracts the default button styles above.
     TODO: Remove once we get rid of the defaults. */
-  #add-block-button, #add-enumerator-block-button {
+  li > #add-block-button, #add-enumerator-block-button {
     border-radius: 0;
   }
 
