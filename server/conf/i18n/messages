@@ -162,8 +162,6 @@ button.viewInNewTabSr=View {0} in new tab
 button.continueToApplication=Continue to application
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Find programs
-# Main home page heading
-heading.homepage=Apply for government assistance here
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Apply for government programs online
 # Main home page intro text
@@ -767,6 +765,7 @@ validation.idTooLong=Must contain at most {0} characters.
 validation.idTooShort=Must contain at least {0} characters.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Must contain only numbers.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

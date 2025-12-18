@@ -162,8 +162,6 @@ button.viewInNewTabSr=Xem {0} trong thẻ mới
 button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Tìm chương trình
-# Main home page heading
-heading.homepage=Đăng ký nhận trợ cấp của chính phủ tại đây
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Nộp đơn trực tuyến xin tham gia các chương trình của chính phủ
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.idTooShort=Phải có ít nhất {0} ký tự.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Chỉ được chứa chữ số.
+validation.numberRequired.v2=Chỉ được chứa các số từ 0 đến 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

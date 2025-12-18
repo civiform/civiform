@@ -162,8 +162,6 @@ button.viewInNewTabSr=Открыть "{0}" в новой вкладке
 button.continueToApplication=Заполнить заявку
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Находите программы
-# Main home page heading
-heading.homepage=Подайте заявку на государственную поддержку
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Подавайте онлайн-заявки на участие в государственных программах
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=Максимально допустимое число си
 validation.idTooShort=Минимально допустимое число символов: {0}.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Допускаются только цифры.
+validation.numberRequired.v2=Должно содержать только цифры от 0 до 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

@@ -162,8 +162,6 @@ button.viewInNewTabSr=在新分頁中查看「{0}」
 button.continueToApplication=繼續申請
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=尋找可加入的計畫
-# Main home page heading
-heading.homepage=在這裡申請政府協助
 # Main home page heading, updated to be more generic
 heading.homepage.v2=線上申請政府計畫
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=長度不可超過 {0} 個字元。
 validation.idTooShort=長度不可少於 {0} 個字元。
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=只能輸入數字。
+validation.numberRequired.v2=僅能包含數字 0-9。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

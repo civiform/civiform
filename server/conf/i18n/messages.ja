@@ -162,8 +162,6 @@ button.viewInNewTabSr=新しいタブで {0} を表示
 button.continueToApplication=申請に進む
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=プログラムを探す
-# Main home page heading
-heading.homepage=政府の補助を申請するにはこちらから
 # Main home page heading, updated to be more generic
 heading.homepage.v2=行政サービスをオンラインで申請する
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong={0} 文字以内にしてください。
 validation.idTooShort={0} 文字以上にしてください。
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=数字のみにする必要があります。
+validation.numberRequired.v2=0から9の数字のみを含める必要があります。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

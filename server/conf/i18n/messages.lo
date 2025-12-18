@@ -162,8 +162,6 @@ button.viewInNewTabSr=View {0} ໃນແຖບໃໝ່
 button.continueToApplication=ສືບຕໍ່ສະໝັກ
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=ຊອກຫາໂຄງການ
-# Main home page heading
-heading.homepage=ສະໝັກຮັບຄວາມຊ່ວຍເຫຼືອຈາກລັດຖະບານຢູ່ບ່ອນນີ້
 # Main home page heading, updated to be more generic
 heading.homepage.v2=ນຳໃຊ້ສຳລັບໂປຣແກຣມອອນລາຍຂອງລັດຖະບານ
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັ
 validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
+validation.numberRequired.v2=Must contain only numbers 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

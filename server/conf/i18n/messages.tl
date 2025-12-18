@@ -162,8 +162,6 @@ button.viewInNewTabSr=Tingnan ang {0} sa bagong tab
 button.continueToApplication=Magpatuloy sa application
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Maghanap ng mga program
-# Main home page heading
-heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Mag-apply para sa mga programa ng pamahalaan online
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga characte
 validation.idTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
+validation.numberRequired.v2=Dapat maglaman lamang ng mga numerong 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

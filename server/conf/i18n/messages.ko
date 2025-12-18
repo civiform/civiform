@@ -162,8 +162,6 @@ button.viewInNewTabSr=새 탭에서 {0} 보기
 button.continueToApplication=애플리케이션으로 계속하기
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=프로그램 찾기
-# Main home page heading
-heading.homepage=여기에서 정부 지원 신청
 # Main home page heading, updated to be more generic
 heading.homepage.v2=온라인으로 정부 프로그램 신청
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
 validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=숫자만 포함해야 합니다.
+validation.numberRequired.v2=숫자 0~9만 포함해야 합니다.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

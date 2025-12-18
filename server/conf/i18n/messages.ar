@@ -162,8 +162,6 @@ button.viewInNewTabSr=عرض "{0}" في علامة تبويب جديدة
 button.continueToApplication=المتابعة إلى الطلب
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=البحث عن برامج
-# Main home page heading
-heading.homepage=طلب مساعدة حكومية هنا
 # Main home page heading, updated to be more generic
 heading.homepage.v2=التسجيل في برامج حكومية على الإنترنت
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=الحد الأقصى لعدد الأحرف في الإجا
 validation.idTooShort=الحد الأدنى لعدد الأحرف في الإجابة هو {0}.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=يجب أن تتضمن الإجابة أرقامًا فقط.
+validation.numberRequired.v2=يجب أن يحتوي فقط على الأرقام من 0 إلى 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #

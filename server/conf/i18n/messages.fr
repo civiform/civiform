@@ -162,8 +162,6 @@ button.viewInNewTabSr=Afficher {0} dans un nouvel onglet
 button.continueToApplication=Remplir la demande
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Trouver des programmes
-# Main home page heading
-heading.homepage=Demandez une aide gouvernementale
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Inscrivez-vous en ligne à des programmes gouvernementaux
 # Main home page intro text
@@ -762,6 +760,7 @@ validation.idTooLong=Doit contenir {0} caractères au plus.
 validation.idTooShort=Doit contenir au moins {0} caractère(s).
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Ne doit contenir que des chiffres.
+validation.numberRequired.v2=Doit contenir uniquement des chiffres de 0 à 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
