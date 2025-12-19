@@ -13,6 +13,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
+import views.applicant.support.UpsellParams;
 
 public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 

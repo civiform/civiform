@@ -27,7 +27,8 @@ import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
+import views.applicant.support.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends ApplicantBaseView {
@@ -162,7 +163,7 @@ public class ProgramIndexView extends ApplicantBaseView {
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
 
-    return templateEngine.process("applicant/ProgramIndexTemplate", context);
+    return templateEngine.process("applicant/templates/ProgramIndexTemplate", context);
   }
 
   private ProgramSectionParams getCommonIntakeFormSection(

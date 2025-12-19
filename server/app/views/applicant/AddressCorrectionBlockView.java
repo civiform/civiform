@@ -17,6 +17,7 @@ import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
 import views.ApplicationBaseViewParams;
+import views.applicant.support.ProgressBar;
 
 public class AddressCorrectionBlockView extends ApplicantBaseView {
 

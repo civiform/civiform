@@ -22,6 +22,7 @@ import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
 import views.components.TextFormatter;
 
 /**
@@ -108,7 +109,7 @@ public class ProgramOverviewView extends ApplicantBaseView {
     context.setVariable("actionUrl", actionUrl);
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 
-    return templateEngine.process("applicant/ProgramOverviewTemplate", context);
+    return templateEngine.process("applicant/templates/ProgramOverviewTemplate", context);
   }
 
   private String getProgramDescription(

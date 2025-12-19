@@ -36,7 +36,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.applicant.ApplicantPreScreenerUpsellView;
 import views.applicant.ApplicantUpsellView;
-import views.applicant.UpsellParams;
+import views.applicant.support.UpsellParams;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {

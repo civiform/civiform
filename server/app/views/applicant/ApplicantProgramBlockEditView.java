@@ -35,6 +35,7 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
 import views.ApplicationBaseViewParams;
+import views.applicant.support.ProgressBar;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -136,7 +137,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
-          "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
+          "applicant/templates/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
 
       context.setVariable(
@@ -161,7 +162,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
-      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+      return templateEngine.process("applicant/templates/ApplicantProgramBlockEditTemplate", context);
     }
   }
 
