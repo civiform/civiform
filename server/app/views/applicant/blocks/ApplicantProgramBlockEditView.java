@@ -355,9 +355,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   // individual question, so we leave no focus target to avoid skipping content.
   @VisibleForTesting
   public static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
-    ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-    boolean formHasErrors,
-    int ordinalErrorCount) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      boolean formHasErrors,
+      int ordinalErrorCount) {
     if (formHasErrors
         && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)
         && ordinalErrorCount == 1) {
