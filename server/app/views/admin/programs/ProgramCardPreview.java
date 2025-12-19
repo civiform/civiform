@@ -19,7 +19,7 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
+import views.applicant.ApplicantBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
