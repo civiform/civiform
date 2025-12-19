@@ -162,7 +162,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
-      return templateEngine.process("applicant/templates/ApplicantProgramBlockEditTemplate", context);
+      return templateEngine.process(
+          "applicant/templates/ApplicantProgramBlockEditTemplate", context);
     }
   }
 
