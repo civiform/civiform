@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from '../support/civiform_fixtures'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 import {dismissToast} from '.'
 

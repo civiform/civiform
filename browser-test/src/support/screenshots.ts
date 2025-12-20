@@ -1,4 +1,4 @@
-import {Page, Locator} from 'playwright'
+import {Page, Locator} from '@playwright/test'
 import {test, expect} from './civiform_fixtures'
 import {DISABLE_SCREENSHOTS} from './config'
 import * as path from 'path'

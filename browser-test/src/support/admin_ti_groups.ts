@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 
 export class AdminTIGroups {
   private page!: Page

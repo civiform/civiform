@@ -2,7 +2,7 @@ import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
-import {Locator} from 'playwright'
+import {Locator} from '@playwright/test'
 
 test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
