@@ -1,11 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-require-imports */
-import fs = require('fs')
-import path = require('path')
-import sharp = require('sharp')
+import {readFileSync, mkdirSync, copyFileSync} from 'node:fs'
+import {join, dirname} from 'node:path'
+import sharp, {type Sharp} from 'sharp'
 import type {Reporter} from '@playwright/test/reporter'
 
 /**
@@ -28,17 +23,16 @@ class FilePlacementReporter implements Reporter {
    * Read the json report and kickstart the process of handling the output
    */
   async populateImages() {
-    const jsonObj = JSON.parse(
-      fs.readFileSync('./tmp/json-output/results.json', 'utf8'),
-    )
-    await this.walkSuites(jsonObj['suites'])
+    const fileContent = readFileSync('./tmp/json-output/results.json', 'utf8')
+    const jsonObj = JSON.parse(fileContent) as JsonReport
+    await this.walkSuites(jsonObj.suites)
   }
 
   /**
    * Recurse through nested suites arrays to get to the specs
    * @param suites An array of elements from a suites property from the playwright json report output
    */
-  async walkSuites(suites: any) {
+  async walkSuites(suites: Suite[]) {
     for (const suite of suites) {
       if (suite.suites !== undefined) {
         await this.walkSuites(suite.suites)
@@ -52,7 +46,7 @@ class FilePlacementReporter implements Reporter {
    * Iterate over specs and for ones from failed tests place updated and diff images in desired folders
    * @param specs An array of elements from a specs property from the playwright json report output
    */
-  async processSpecs(specs: any) {
+  async processSpecs(specs: Spec[]) {
     for (const spec of specs) {
       if (spec.ok === true) {
         continue
@@ -61,7 +55,7 @@ class FilePlacementReporter implements Reporter {
       for (const test of spec.tests) {
         for (const result of test.results) {
           const pngAttachmentPartition = this.partitionImagePngAttachments(
-            <Array<Attachment>>result.attachments,
+            result.attachments,
           )
 
           for (const key of pngAttachmentPartition.keys()) {
@@ -104,12 +98,12 @@ class FilePlacementReporter implements Reporter {
   copyActualImageToUpdatedSnapshotsFolder(actual: Attachment) {
     // The file suffix is changed from `-actual.png` to `-received.png`
     // to maintain compatibility with other scripts.
-    const updatedSnapshotPath = path.join(
+    const updatedSnapshotPath = join(
       './updated_snapshots',
       actual.name.replace('-actual.png', '-received.png'),
     )
-    fs.mkdirSync(path.dirname(updatedSnapshotPath), {recursive: true})
-    fs.copyFileSync(actual.path, updatedSnapshotPath)
+    mkdirSync(dirname(updatedSnapshotPath), {recursive: true})
+    copyFileSync(actual.path, updatedSnapshotPath)
   }
 
   /**
@@ -124,9 +118,18 @@ class FilePlacementReporter implements Reporter {
     diff: Attachment,
   ) {
     // Determine the max height based on the three images
-    const expectedMetadata = await sharp(expected.path).metadata()
-    const diffMetadata = await sharp(diff.path).metadata()
-    const actualMetadata = await sharp(actual.path).metadata()
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const expectedSharp: Sharp = sharp(expected.path)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const diffSharp: Sharp = sharp(diff.path)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const actualSharp: Sharp = sharp(actual.path)
+
+    const expectedMetadata = await expectedSharp.metadata()
+    const diffMetadata = await diffSharp.metadata()
+    const actualMetadata = await actualSharp.metadata()
+
     const canvasHeight = Math.max(
       expectedMetadata.height ?? 0,
       diffMetadata.height ?? 0,
@@ -139,15 +142,16 @@ class FilePlacementReporter implements Reporter {
 
     // Make the new file path
     // Path format is: ./diff_output/test-file-name/image-name.png
-    const stitchedImagePath = path.join('./diff_output', diff.name)
+    const stitchedImagePath = join('./diff_output', diff.name)
 
     // Make sure the parent directory structure exists
-    fs.mkdirSync(path.dirname(stitchedImagePath), {recursive: true})
+    mkdirSync(dirname(stitchedImagePath), {recursive: true})
 
     // Stitch images together
     const imageWidth = 1280
 
-    sharp({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const canvas: Sharp = sharp({
       create: {
         width: imageWidth * 3,
         height: canvasHeight,
@@ -155,17 +159,15 @@ class FilePlacementReporter implements Reporter {
         background: {r: 255, g: 255, b: 255, alpha: 1},
       },
     })
+
+    await canvas
       .composite([
         {input: expected.path, left: 0, top: 0},
         {input: diff.path, left: diffFileLeft, top: 0},
         {input: actual.path, left: actualFileLeft, top: 0},
       ])
       .png()
-      .toFile(stitchedImagePath, (err: Error) => {
-        if (err) {
-          console.error('Error merging images:', err)
-        }
-      })
+      .toFile(stitchedImagePath)
   }
 
   /** Attachment types to filter for */
@@ -187,7 +189,7 @@ class FilePlacementReporter implements Reporter {
     const attachmentMap = new Map<string, Attachment[]>()
 
     for (const attachment of attachments) {
-      if (attachment.contentType != 'image/png') {
+      if (attachment.contentType !== 'image/png') {
         continue
       }
 
@@ -244,6 +246,29 @@ enum AttachmentType {
   ACTUAL = 'actual',
   DIFF = 'diff',
   TRACE = 'trace',
+}
+
+/** Playwright JSON report structure */
+interface JsonReport {
+  suites: Suite[]
+}
+
+interface Suite {
+  suites?: Suite[]
+  specs: Spec[]
+}
+
+interface Spec {
+  ok: boolean
+  tests: Test[]
+}
+
+interface Test {
+  results: TestResult[]
+}
+
+interface TestResult {
+  attachments: Attachment[]
 }
 
 export default FilePlacementReporter
