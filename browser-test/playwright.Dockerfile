@@ -16,6 +16,7 @@ RUN apt-get update -y && \
     # Smoke tests
     node --version && \
     npm --version && \
+    npx --yes playwright@latest install-deps chromium && \
     # remove useless files from the current layer
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/lib/apt/lists.d/* && \
@@ -25,12 +26,6 @@ RUN apt-get update -y && \
 
 ENV PROJECT_DIR=/usr/src/civiform-browser-tests
 
-# Store playwright browsers within node_modules directory. This way playwright
-# library and browsers placed together and less likely go out of sync if
-# there are manipulations with docker volumes.
-# https://playwright.dev/docs/browsers#managing-browser-binaries-1
-ENV PLAYWRIGHT_BROWSERS_PATH=0
-
 WORKDIR $PROJECT_DIR
 
 # Copy the node (npm) package files (package.json and package-lock.json)
@@ -39,14 +34,11 @@ WORKDIR $PROJECT_DIR
 # get re-downloaded every time code changes.
 COPY package.json package-lock.json ${PROJECT_DIR}/
 
+# Install npm dependencies and Playwright browsers (without --with-deps)
 RUN npm ci && \
-    npx playwright install --with-deps chromium
+    npx playwright install chromium
 
 COPY . ${PROJECT_DIR}
-
-# Re-run, to install from cache after overwriting it.
-RUN npm ci && \
-    npx playwright install --with-deps chromium
 
 ENTRYPOINT ["/bin/bash"]
 
