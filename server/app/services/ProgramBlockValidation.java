@@ -50,7 +50,11 @@ public final class ProgramBlockValidation {
     // the block is a regular block.
     ENUMERATOR_MISMATCH,
     QUESTION_TOMBSTONED,
-    QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE
+    QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE,
+
+    // Cannot add question to the block because the question is an enumerator type, but the block is
+    // not an enumerator block.
+    ENUMERATOR_ON_NON_ENUMERATOR_BLOCK
   }
 
   /**
@@ -63,15 +67,21 @@ public final class ProgramBlockValidation {
    * tombstoned (marked for deletion) in the current draft.
    */
   public AddQuestionResult canAddQuestion(
-      ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
+      ProgramDefinition program,
+      BlockDefinition block,
+      QuestionDefinition question,
+      boolean enumeratorImprovementsEnabled) {
     if (version.getTombstonedQuestionNames().contains(question.getName())) {
       return AddQuestionResult.QUESTION_TOMBSTONED;
     }
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
-    if (block.hasEnumeratorQuestion() || block.isFileUpload()) {
+    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion()) || block.isFileUpload()) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
+    }
+    if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
+      return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
     if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
