@@ -23,7 +23,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   private QuestionModel questionForEligible;
   private VersionModel version;
   private QuestionModel householdMemberQuestion;
-  private QuestionModel householdMemberNameQuestion;
+  private QuestionModel nestedHouseholdMemberWageQuestion;
 
   @Before
   public void setProgramBlockValidation()
@@ -39,10 +39,11 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     questionForEligible = resourceCreator.insertQuestion("eligible question");
     version.addQuestion(questionForEligible);
     householdMemberQuestion = resourceCreator.insertEnum("householdMemberQuestion");
-    householdMemberNameQuestion =
-        resourceCreator.insertEnumQuestion("householdMemberWageQuestion", householdMemberQuestion);
+    nestedHouseholdMemberWageQuestion =
+        resourceCreator.insertNestedEnumQuestion(
+            "householdMemberWageQuestion", householdMemberQuestion);
     version.addQuestion(householdMemberQuestion);
-    version.addQuestion(householdMemberNameQuestion);
+    version.addQuestion(nestedHouseholdMemberWageQuestion);
     version.save();
     ProgramBlockValidationFactory programBlockValidationFactory =
         new ProgramBlockValidationFactory(versionRepository, questionService);
@@ -142,26 +143,28 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_cantAddEmuratorQuestionToNonEnumeratorBlock() throws Exception {
-    QuestionDefinition question =
+  public void canAddQuestion_cantAddRepeatedQuestionWhenNoEnumeratorQuestionInProgram()
+      throws Exception {
+    QuestionDefinition repeatedQuestion =
         testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), question))
+                program, program.getLastBlockDefinition(), repeatedQuestion))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
   @Test
-  public void canAddQuestion_cantAddNonEmuratorQuestionToEnumeratorBlock() throws Exception {
+  public void canAddQuestion_cantAddRepeatedQuestionThatIsNotAssociatedWithEnumeratorQuestion()
+      throws Exception {
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    QuestionDefinition householdMemberQuestion =
+    QuestionDefinition enumeratorQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredQuestionDefinition(householdMemberQuestion)
+            .withRequiredQuestionDefinition(enumeratorQuestion)
             .withRepeatedBlock()
             .buildDefinition();
     assertThat(
@@ -171,7 +174,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_canAddEmuratorQuestionToEnumeratorBlock() throws Exception {
+  public void canAddQuestion_canAddNestedEnumeratorToRepeatedBlock() throws Exception {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -182,7 +185,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             programBlockValidation.canAddQuestion(
                 program,
                 program.getLastBlockDefinition(),
-                householdMemberNameQuestion.getQuestionDefinition()))
+                nestedHouseholdMemberWageQuestion.getQuestionDefinition()))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 }
