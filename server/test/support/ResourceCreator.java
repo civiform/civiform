@@ -110,8 +110,8 @@ public class ResourceCreator {
     return enumQuestion;
   }
 
-  public QuestionModel insertEnumQuestion(String enumName, QuestionModel question) {
-    QuestionDefinition enumDefinition =
+  public QuestionModel insertNestedEnumQuestion(String enumName, QuestionModel question) {
+    QuestionDefinition nestedEnumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName(enumName)
@@ -121,7 +121,7 @@ public class ResourceCreator {
                 .setEnumeratorId(Optional.of(question.id))
                 .build(),
             LocalizedStrings.empty());
-    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(nestedEnumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
