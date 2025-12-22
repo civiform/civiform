@@ -77,10 +77,10 @@ public final class ProgramBlockValidation {
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
-    if (block.hasEnumeratorQuestion() || block.isFileUpload()) {
+    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion()) || block.isFileUpload()) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
-    if (enumeratorImprovementsEnabled && question.isEnumerator()) {
+    if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
     if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
