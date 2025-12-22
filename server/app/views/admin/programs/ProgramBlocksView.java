@@ -633,7 +633,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
-      if (blockDefinition.getIsEnumerator()) {
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+          && blockDefinition.getIsEnumerator()) {
         return div.with(
             renderEnumeratorScreenContent(
                 blockDefinitionHasEnumeratorQuestion, csrfTag, programQuestions, addQuestion));
