@@ -75,6 +75,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition secondaryAddressQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
+  private QuestionDefinition enumeratorQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
@@ -107,6 +108,8 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     categoryRepository = instanceOf(CategoryRepository.class);
   }
 
@@ -2312,6 +2315,18 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
+  }
+
+  @Test
+  public void addQuestionsToBlock_setsIsEnumeratorOnBlockDefinition_whenQuestionIsEnumerator()
+      throws Exception {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
+
+    program =
+        ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(enumeratorQuestion.getId()));
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
   }
 
   @Test

@@ -1546,9 +1546,18 @@ public final class ProgramService {
       updatedBlockQuestions.add(question);
     }
 
+    ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
+        updatedBlockQuestions.build();
+
     blockDefinition =
         blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(updatedBlockQuestions.build())
+            .setProgramQuestionDefinitions(updatedBlockQuestionsList)
+            .setIsEnumerator(
+                updatedBlockQuestionsList.stream()
+                        .map(ProgramQuestionDefinition::getQuestionDefinition)
+                        .anyMatch(QuestionDefinition::isEnumerator)
+                    ? Optional.of(true)
+                    : Optional.empty())
             .build();
     try {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
