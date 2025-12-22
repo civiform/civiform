@@ -176,7 +176,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_cantAddEnumeratorQuestionToNonEnumeratorBlock() throws Exception {
+  public void
+      canAddQuestion_cantAddEnumeratorQuestionToNonEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+          throws Exception {
     QuestionDefinition question =
         QuestionDefinition.questionDefinitionSample(QuestionType.ENUMERATOR);
     ProgramDefinition program =
