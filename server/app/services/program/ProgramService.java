@@ -2056,16 +2056,28 @@ public final class ProgramService {
   }
 
   private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator) {
+      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator, ProgramDefinition programDefinition) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
             : String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
+
+    String namePrefix = "";
+    if (maybeEnumeratorBlockId.isPresent()) {
+      BlockDefinition enumeratorBlock = programDefinition.getBlockDefinition(maybeEnumeratorBlockId.get());
+      boolean isNested = enumeratorBlock.enumeratorId().isPresent();
+      namePrefix =
+        isNested
+          ? "[parent label] - [child label] - "
+          : "[parent label] - ";
+    }
+
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
+            .setNamePrefix(namePrefix)
             .setDescription(blockDescription)
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))

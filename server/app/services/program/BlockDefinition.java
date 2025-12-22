@@ -49,6 +49,12 @@ public abstract class BlockDefinition {
   @JsonProperty("name")
   public abstract String name();
 
+   /**
+   * Uneditable name prefix of a Block used to show admins where the repeated entity name will be inserted. 
+   */
+  @JsonProperty("namePrefix")
+  public abstract String namePrefix();
+
   /**
    * A human readable description of the Block. The description is only visible to the admin so is
    * not localized.
@@ -249,6 +255,17 @@ public abstract class BlockDefinition {
     return isEnumerator().orElse(false);
   }
 
+  @JsonIgnore
+  public String getFullName() {
+    return namePrefix() + name();
+  }
+
+  @JsonIgnore
+  public String getFullLocalizedName() {
+    // need to figure out how we want to localize the prefix
+    return localizedName();
+  }
+
   /**
    * Returns true if any of the question definitions in this block are QuestionType.NULL_QUESTION
    */
@@ -269,6 +286,9 @@ public abstract class BlockDefinition {
 
     @JsonProperty("name")
     public abstract Builder setName(String value);
+
+    @JsonProperty("namePrefix")
+    public abstract Builder setNamePrefix(String value);
 
     @JsonProperty("description")
     public abstract Builder setDescription(String value);
