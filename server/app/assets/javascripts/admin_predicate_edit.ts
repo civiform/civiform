@@ -1,8 +1,10 @@
+import { get } from 'http'
 import {HtmxAfterSwapEvent} from './htmx_request'
 import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/EditPredicatePageView.html
+  static CANCEL_PREDICATE_EDIT_FORM_ID = 'cancel-predicate-edit-form'
   static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
   static NODE_OPERATOR_SELECT_NULL_STATE_ID =
     'predicate-operator-node-select-null-state'
@@ -19,6 +21,8 @@ export class AdminPredicateEdit {
     /^predicate-condition-(\d+)-subcondition-list$/
 
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
+
+  static INITIAL_PREDICATE_FORM_STATE : String
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     const targetId: string = event.target.id
@@ -66,7 +70,12 @@ export class AdminPredicateEdit {
     AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
   }
 
-  onPageLoad(): void {
+  async onPageLoad(): Promise<void> {
+    const initialFormState = await AdminPredicateEdit.getPredicateFormState()
+    if (initialFormState) {
+      AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE = initialFormState
+    }
+
     AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
 
     addEventListenerToElements(
@@ -78,6 +87,11 @@ export class AdminPredicateEdit {
       '.cf-predicate-operator-select',
       'change',
       AdminPredicateEdit.onOperatorDropdownChange,
+    )
+    addEventListenerToElements(
+      '#cancel-predicate-edit-form',
+      'submit',
+      AdminPredicateEdit.onPredicateCancelEdit,
     )
   }
 
@@ -128,6 +142,35 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static async onPredicateCancelEdit(event: Event) {
+    // Calling preventDefault() here prevents the form from auto-submitting.
+    // We either submit or stay on the page in confirmExitWithoutSaving.
+    event.preventDefault()
+    await AdminPredicateEdit.confirmExitWithoutSaving(event.target as HTMLFormElement)
+  }
+
+  private static async confirmExitWithoutSaving(cancelForm: HTMLFormElement) {
+    const currentPredicateState = await this.getPredicateFormState()
+
+    // Check the initial form state against the current form state.
+    // If they're equal, do nothing and cancel.
+    // If there have been changes, show a confirmation dialog.
+    if (currentPredicateState !== this.INITIAL_PREDICATE_FORM_STATE) {
+      const confirmationMessage = cancelForm.getAttribute('data-cancel-dialog')
+      if (!confirmationMessage) {
+        return
+      }
+
+      if (window.confirm(confirmationMessage)) {
+        cancelForm.submit()
+      } else {
+        return
+      }
+    }
+
+    cancelForm.submit()
   }
 
   /**
@@ -573,6 +616,23 @@ export class AdminPredicateEdit {
         child.hidden = false
       }
     }
+  }
+
+  /**
+   * Gets the current state of the predicate form to track changes.
+   * 
+   * @returns A hashed representation of the contents of the predicate form
+   */
+  private static async getPredicateFormState() : Promise<String | undefined | null> {
+    const predicateForm = document.getElementById('predicate-form') as HTMLFormElement | undefined | null
+    if (!predicateForm) {
+      return null
+    }
+    const innerHTML : string = predicateForm.innerHTML
+
+    const encodedHTML = new TextEncoder().encode(innerHTML)
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", encodedHTML)
+    return new Uint8Array(hashBuffer).toString()
   }
 }
 

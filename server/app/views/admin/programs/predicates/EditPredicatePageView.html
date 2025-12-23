@@ -166,11 +166,18 @@
           form="predicate-form"
           th:text="#{button.saveAndExit}"
         ></button>
-        <button
-          type="submit"
-          class="usa-button usa-button--outline tablet:grid-col-auto"
-          th:text="#{button.cancel}"
-        ></button>
+        <form
+          id="cancel-predicate-edit-form"
+          th:action="${model.blockEditUrl()}"
+          class="tablet:grid-col-auto"
+          th:data-cancel-dialog="#{confirm.leaveWithoutSaving} + '&#10;&#10;' + #{confirm.unsavedChanges}"
+        >
+          <button
+            type="submit"
+            class="usa-button usa-button--outline"
+            th:text="#{button.cancel}"
+          ></button>
+        </form>
         <div
           id="delete-all-conditions-button"
           class="tablet:grid-col-auto padding-left-4 display-flex justify-center"
