@@ -38,6 +38,7 @@ import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
 import repository.CategoryRepository;
@@ -57,6 +58,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 
 /**
@@ -1552,6 +1554,9 @@ public final class ProgramService {
     blockDefinition =
         blockDefinition.toBuilder()
             .setProgramQuestionDefinitions(updatedBlockQuestionsList)
+            // TODO(#11943) Remove this when isEnumeratorImprovementsEnabled feature flag is removed
+            // because it will no longer be possible to add an enumerator question to a block that
+            // isn't already an enumerator block.
             .setIsEnumerator(
                 updatedBlockQuestionsList.stream()
                         .map(ProgramQuestionDefinition::getQuestionDefinition)
@@ -1586,7 +1591,11 @@ public final class ProgramService {
    *     one question to remove
    */
   public ProgramDefinition removeQuestionsFromBlock(
-      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      SettingsManifest settingsManifest,
+      Request request)
       throws QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
@@ -1611,10 +1620,21 @@ public final class ProgramService {
             .filter(pqd -> !questionIds.contains(pqd.id()))
             .collect(ImmutableList.toImmutableList());
 
-    blockDefinition =
-        blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
-            .build();
+    boolean isRemovingEnumeratorQuestion =
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> questionIds.contains(pqd.id()))
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .anyMatch(QuestionDefinition::isEnumerator);
+
+    BlockDefinition.Builder blockBuilder =
+        blockDefinition.toBuilder().setProgramQuestionDefinitions(newProgramQuestionDefinitions);
+
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        && isRemovingEnumeratorQuestion) {
+      blockBuilder.setIsEnumerator(Optional.empty());
+    }
+
+    blockDefinition = blockBuilder.build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
   }

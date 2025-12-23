@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -38,11 +39,13 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
 import play.inject.BindingKey;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -66,6 +69,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -80,6 +84,8 @@ public class ProgramServiceTest extends ResetPostgres {
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
   private TranslationLocales translationLocales;
+  private SettingsManifest mockSettingsManifest;
+  private final Request fakeRequest = fakeRequestBuilder().build();
 
   @Before
   public void setProgramServiceImpl() {
@@ -111,6 +117,7 @@ public class ProgramServiceTest extends ResetPostgres {
     enumeratorQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     categoryRepository = instanceOf(CategoryRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
   }
 
   @Test
@@ -2336,7 +2343,13 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
 
     assertThatThrownBy(
-            () -> ps.removeQuestionsFromBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+            () ->
+                ps.removeQuestionsFromBlock(
+                    program.id,
+                    1L,
+                    ImmutableList.of(questionA.getId()),
+                    mockSettingsManifest,
+                    fakeRequest))
         .isInstanceOf(QuestionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -2355,10 +2368,72 @@ public class ProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(questionB)
             .buildDefinition();
 
-    program = ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(questionB.getId()));
+    program =
+        ps.removeQuestionsFromBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(questionB.getId()),
+            mockSettingsManifest,
+            fakeRequest);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isFalse();
+  }
+
+  @Test
+  public void
+      removeQuestionsFromBlock_setsIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsDisabled()
+          throws Exception {
+    QuestionDefinition enumQuestion = enumeratorQuestion;
+
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(false);
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
+
+    program =
+        ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(enumeratorQuestion.getId()));
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
+
+    program =
+        ps.removeQuestionsFromBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(enumQuestion.getId()),
+            mockSettingsManifest,
+            fakeRequest);
+
+    assertThat(program.hasQuestion(enumQuestion)).isFalse();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isFalse();
+  }
+
+  @Test
+  public void
+      removeQuestionsFromBlock_DoesNotSetIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsEnabled()
+          throws Exception {
+    QuestionDefinition enumQuestion = enumeratorQuestion;
+
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(true);
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
+
+    program =
+        ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(enumeratorQuestion.getId()));
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
+
+    program =
+        ps.removeQuestionsFromBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(enumQuestion.getId()),
+            mockSettingsManifest,
+            fakeRequest);
+
+    assertThat(program.hasQuestion(enumQuestion)).isFalse();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
   }
 
   @Test
@@ -2380,7 +2455,13 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(
-            () -> ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(question.getId())))
+            () ->
+                ps.removeQuestionsFromBlock(
+                    program.id(),
+                    1L,
+                    ImmutableList.of(question.getId()),
+                    mockSettingsManifest,
+                    fakeRequest))
         .withMessage("This action would invalidate a block condition");
   }
 

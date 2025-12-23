@@ -100,12 +100,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result delete(long programId, long blockDefinitionId, long questionDefinitionId) {
+  public Result delete(
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.removeQuestionsFromBlock(
-          programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
+          programId,
+          blockDefinitionId,
+          ImmutableList.of(questionDefinitionId),
+          settingsManifest,
+          request);
     } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(
