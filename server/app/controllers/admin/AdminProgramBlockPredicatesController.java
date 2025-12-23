@@ -946,6 +946,25 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
+  /** HTMX form that re-renders an empty conditions list. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxDeleteAllConditions(
+      Request request, long programId, long blockDefinitionId, String predicateUseCase) {
+    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+      return notFound("Expanded form logic is not enabled.");
+    }
+
+    return ok(conditionListPartialView.render(
+            request,
+            ConditionListPartialViewModel.builder()
+                .programId(programId)
+                .blockId(blockDefinitionId)
+                .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                .conditions(ImmutableList.of())
+                .build()))
+        .as(Http.MimeTypes.HTML);
+  }
+
   /**
    * Converts a list of {@link QuestionDefinition}s to a list of {@link OptionElement}s for use in a
    * select dropdown.

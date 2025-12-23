@@ -1249,7 +1249,11 @@ public class ProgramServiceTest extends ResetPostgres {
   public void updateProgram_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-    ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
+    ps.addQuestionsToBlock(
+        program.id(),
+        1L,
+        ImmutableList.of(question.getId()),
+        /* enumeratorImprovementsEnabled= */ false);
 
     ProgramDefinition found =
         ps.updateProgramDefinition(
@@ -1740,7 +1744,11 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getProgramDefinition_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-    ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
+    ps.addQuestionsToBlock(
+        program.id(),
+        1L,
+        ImmutableList.of(question.getId()),
+        /* enumeratorImprovementsEnabled= */ false);
 
     ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
@@ -2298,7 +2306,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     assertThatThrownBy(
-            () -> ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+            () ->
+                ps.addQuestionsToBlock(
+                    program.id,
+                    1L,
+                    ImmutableList.of(questionA.getId()),
+                    /* enumeratorImprovementsEnabled= */ false))
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
@@ -2318,7 +2331,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(questionA)
             .buildDefinition();
 
-    program = ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(questionB.getId()));
+    program =
+        ps.addQuestionsToBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(questionB.getId()),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();

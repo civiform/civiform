@@ -898,6 +898,63 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
+  @Test
+  public void hxDeleteAllConditions_withConditions_clearsAll() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxDeleteAllConditions(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "conditionId",
+                        "1",
+                        "subconditionId",
+                        "1",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.nameApplicantName().id),
+                        "condition-1-subcondition-1-scalar",
+                        Scalar.FIRST_NAME.name(),
+                        "condition-1-subcondition-1-operator",
+                        Operator.EQUAL_TO.name(),
+                        "condition-1-subcondition-1-value",
+                        "firstname"))
+                .build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
+    assertThat(content).doesNotContain("firstname");
+    assertThat(contentWithoutWhitespace)
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.nameApplicantName().id));
+    assertThat(content).contains("#predicate-conditions-list");
+    assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteAllConditions_withoutConditions_completesSuccessfully() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxDeleteAllConditions(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of()).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).doesNotContain("#condition-1");
+    assertThat(content).contains("#predicate-conditions-list");
+    assertThat(StringUtils.deleteWhitespace(content)).doesNotContain("Condition1");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
   /**
    * Creates a map of HTML subcondition ids to selected questions. Multiple conditions.
    *

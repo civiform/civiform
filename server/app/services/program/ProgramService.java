@@ -1516,7 +1516,10 @@ public final class ProgramService {
    * @throws CantAddQuestionToBlockException if one of the questions can't be added to the block.
    */
   public ProgramDefinition addQuestionsToBlock(
-      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      boolean enumeratorImprovementsEnabled)
       throws CantAddQuestionToBlockException,
           QuestionNotFoundException,
           ProgramNotFoundException,
@@ -1540,7 +1543,11 @@ public final class ProgramService {
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
-              .canAddQuestion(programDefinition, blockDefinition, question.getQuestionDefinition());
+              .canAddQuestion(
+                  programDefinition,
+                  blockDefinition,
+                  question.getQuestionDefinition(),
+                  enumeratorImprovementsEnabled);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);

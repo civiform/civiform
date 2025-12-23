@@ -42,15 +42,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.40.10",
-      "software.amazon.awssdk" % "ses" % "2.40.10",
+      "software.amazon.awssdk" % "s3" % "2.40.14",
+      "software.amazon.awssdk" % "ses" % "2.40.14",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.58.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.59.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.22",
+      "ch.qos.logback" % "logback-classic" % "1.5.23",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -129,7 +129,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.41",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.36",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.37",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",

@@ -27,7 +27,13 @@
     @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
   }
 
-  /* TODO: Remove these extra USWDS button styles once all our buttons use USWDS classes.
+  /* Counteracts the default button styles above.
+    TODO(#12266): Remove once we get rid of the defaults. */
+  li > #add-block-button, #add-enumerator-block-button {
+    border-radius: 0;
+  }
+
+  /* TODO(#12266): Remove these extra USWDS button styles once all our buttons use USWDS classes.
     Right now, the general button styles above interfere with the USWDS button styles, so
     we have to override them explicitly here. */
   .usa-button {

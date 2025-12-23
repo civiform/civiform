@@ -818,6 +818,11 @@
   "Session Management": {
     "group_description": "Configuration options for session management",
     "members": {
+      "SESSION_REPLAY_PROTECTION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
+        "type": "bool"
+      },
       "MAXIMUM_SESSION_DURATION_MINUTES": {
         "mode": "ADMIN_READABLE",
         "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
@@ -934,11 +939,6 @@
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "SESSION_REPLAY_PROTECTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
-        "type": "bool"
-      },
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",

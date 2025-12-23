@@ -62,6 +62,12 @@ public record EditPredicatePageViewModel(
         .url();
   }
 
+  public String hxDeleteAllConditionsEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxDeleteAllConditions(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
+  }
+
   public boolean screenHasPredicates() {
     return this.prePopulatedConditions.size() > 0;
   }
