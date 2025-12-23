@@ -234,7 +234,7 @@ export class AdminPredicates {
   }
 
   /**
-   * Configures a(n expanded form logic) predicate with the given inputs. For the values, populate whatever is present.
+   * Configures an expanded form logic predicate with the given inputs. For the values, populate whatever is present.
    */
   async configureSubcondition({
     conditionId,
@@ -246,7 +246,6 @@ export class AdminPredicates {
   }: SubconditionSpec) {
     await this.selectQuestion(conditionId, subconditionId, questionText)
 
-    // In case we want to populate default scalar and operator values.
     if (scalar) {
       await this.selectScalar(conditionId, subconditionId, scalar)
     }
@@ -271,7 +270,6 @@ export class AdminPredicates {
   }: SubconditionSpec) {
     await this.expectSelectedQuestion(conditionId, subconditionId, questionText)
 
-    // Operator and scalar might just be default values.
     if (scalar) {
       await this.expectSelectedScalar(conditionId, subconditionId, scalar)
     }
