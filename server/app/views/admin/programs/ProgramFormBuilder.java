@@ -198,15 +198,15 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Short description
-            FieldWithLabel.textArea()
-                .setId("program-display-short-description-textarea")
+            FieldWithLabel.input()
+                .setId("program-display-short-description-input")
                 .setFieldName("localizedShortDescription")
                 .setLabelText(
                     "Short description of this program for the public. Maximum 100 characters.")
                 .setMaxLength(100)
                 .setRequired(true)
                 .setValue(shortDescription)
-                .getTextareaTag()
+                .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Program slug
             iffElse(
