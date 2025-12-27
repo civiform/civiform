@@ -391,7 +391,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   public void prepForExport_clearsPreScreenerSetting() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
-            .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .withProgramType(ProgramType.PRE_SCREENER_FORM)
             .build()
             .getProgramDefinition();
 
