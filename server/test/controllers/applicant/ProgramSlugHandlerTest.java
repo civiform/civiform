@@ -49,7 +49,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_programBySlug_showsActiveProgramVersionForExistingApplications() {
+  public void programBySlug_showsActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
