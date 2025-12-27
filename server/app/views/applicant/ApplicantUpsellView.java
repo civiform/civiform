@@ -18,7 +18,9 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
+import views.applicant.support.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.support.UpsellParams;
 import views.components.TextFormatter;
 
 public class ApplicantUpsellView extends ApplicantBaseView {
@@ -135,6 +137,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
         "showProgramsCardsSection",
         cardsSection.isPresent() && cardsSection.get().cards().size() > 0);
 
-    return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
+    return templateEngine.process("applicant/templates/ApplicantUpsellTemplate", context);
   }
 }

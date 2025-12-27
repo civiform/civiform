@@ -20,6 +20,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
+import views.applicant.support.ProgramCardsSectionParamsFactory;
 
 /**
  * Renders the HTMX partial view for programs filtered by category on the landing page. The view has
@@ -123,6 +124,6 @@ public class FilteredProgramsViewPartial extends ApplicantBaseView {
 
     context.setVariable("recommendedSection", recommendedSection);
     context.setVariable("otherProgramsSection", otherProgramsSection);
-    return templateEngine.process("applicant/FilteredProgramsTemplate", context);
+    return templateEngine.process("applicant/templates/FilteredProgramsTemplate", context);
   }
 }

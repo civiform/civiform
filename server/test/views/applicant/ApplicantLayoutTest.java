@@ -29,6 +29,7 @@ import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.PageNotProductionBanner;
 import views.components.SessionTimeoutModalsTest;
+import views.trustedintermediary.ApplicantLayout;
 
 public class ApplicantLayoutTest extends ResetPostgres {
   private ApplicantLayout applicantLayout;

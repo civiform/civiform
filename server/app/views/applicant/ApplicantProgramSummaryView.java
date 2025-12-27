@@ -24,6 +24,9 @@ import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.ApplicantBaseView;
+import views.applicant.support.ApplicantAnswerData;
+import views.applicant.support.BlockSummary;
+import views.applicant.support.ProgressBar;
 
 /** Renders a list of sections in the form with their status. */
 public final class ApplicantProgramSummaryView extends ApplicantBaseView {
@@ -139,7 +142,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     context.setVariable("blockSummaries", blockSummaries);
 
-    return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
+    return templateEngine.process("applicant/templates/ApplicantProgramSummaryTemplate", context);
   }
 
   private String getBlockEditUrl(Params params, Block block) {

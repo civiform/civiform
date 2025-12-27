@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.support;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -230,7 +230,7 @@ public final class ProgramCardsSectionParamsFactory {
    * navigate to where the applicant left off. If the program is submitted, navigate to the review
    * page.
    */
-  static String getActionUrl(
+  public static String getActionUrl(
       ApplicantRoutes applicantRoutes,
       Long programId,
       String programSlug,
@@ -288,7 +288,7 @@ public final class ProgramCardsSectionParamsFactory {
    *
    * <p>Applications that have been started do not show eligibility tags.
    */
-  static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+  public static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
     // This case happens when the applicant hasn't answered the eligibility question
     // on any application or when the program doesn't have eligibility criteria.
     if (!programData.isProgramMaybeEligible().isPresent()) {

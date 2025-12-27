@@ -109,7 +109,7 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
         applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
     context.setVariable("goBackHref", goBackHref);
 
-    return templateEngine.process("applicant/IneligibleTemplate", context);
+    return templateEngine.process("applicant/ApplicantIneligibleTemplate", context);
   }
 
   @AutoValue

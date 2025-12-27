@@ -1,4 +1,4 @@
-package views.applicant;
+package views.trustedintermediary;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
