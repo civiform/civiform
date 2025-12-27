@@ -4,7 +4,6 @@
  */
 
 import * as main from './main'
-import * as radio from './radio'
 import * as toast from './toast'
 import * as toggle from './toggle'
 import * as adminApiKeys from './admin_api_keys'
@@ -57,7 +56,6 @@ function initializeEverything(): void {
   const AZURE_ADMIN_FILEUPLOAD_FORM_ID = 'image-file-upload-form'
 
   main.init()
-  radio.init()
   toast.init()
   toggle.init()
   adminApiKeys.init()
