@@ -179,6 +179,8 @@
           <button
             type="button"
             class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+            th:with="deleteAllConfirmation=#{confirm.deleteAllConditions} + '&#10;&#10;' + #{confirm.actionNotReversable}"
+            th:hx-confirm="${deleteAllConfirmation}"
             th:hx-post="${model.hxDeleteAllConditionsEndpoint()}"
             hx-target="#predicate-conditions-list"
           >
