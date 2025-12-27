@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": ["dom", "dom.iterable", "esnext"],
     "strict": true,
-    "module": "commonjs",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "noEmit": true,
-    "types": ["playwright", "node"],
-    "sourceMap": true
+    "types": ["@playwright/test", "node"],
+    "sourceMap": false
   },
   "include": [".", "../playwright.config.ts"]
 }
