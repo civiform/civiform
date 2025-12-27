@@ -1,0 +1,122 @@
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+
+    <main id="main-content" tabindex="-1">
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+      ></div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
+
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <div
+              th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
+            ></div>
+            <div class="section-external">
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+              ></div>
+            </div>
+
+            <div class="usa-prose">
+              <h2 th:text="#{title.confirmAddress}"></h2>
+            </div>
+            <div class="section usa-prose">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${addressAlertSettings}, headingLevel='H3')}"
+              ></div>
+            </div>
+
+            <form
+              id="cf-block-form"
+              th:action="${confirmAddressAction}"
+              method="POST"
+              th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()}"
+            >
+              <input hidden th:value="${csrfToken}" name="csrfToken" />
+              <fieldset class="cf-no-margin-padding border-0">
+                <!--/* If this question is used for eligibility, we must use the corrected address */-->
+                <div th:if="${!isEligibilityEnabled}" class="usa-prose">
+                  <h4 th:text="#{content.addressEntered}"></h4>
+                  <div
+                    th:replace="~{applicant/blocks/AddressCorrectionOptionFragment :: address-correction-option(
+                        ${addressSuggestionGroup.getOriginalAddress()},
+                        ${!anySuggestions},
+                        ${!anySuggestions},
+                        'USER_KEEPING_ADDRESS_VALUE')}"
+                  ></div>
+                </div>
+
+                <!--/* Render suggested addresses */-->
+                <div
+                  th:if="${anySuggestions}"
+                  class="usa-prose section-internal"
+                >
+                  <h4
+                    th:if="${suggestions.size() == 1}"
+                    th:text="#{content.suggestedAddress}"
+                  ></h4>
+                  <h4
+                    th:if="${suggestions.size() > 1}"
+                    th:text="#{content.suggestedAddresses}"
+                  ></h4>
+
+                  <th:block
+                    th:each="suggestion, iterator: ${suggestions}"
+                    th:if="${iterator.index &lt; 3}"
+                  >
+                    <div
+                      th:replace="~{applicant/blocks/AddressCorrectionOptionFragment :: address-correction-option(
+                        ${suggestions.get(iterator.index).getAddress()},
+                        ${iterator.index == 0},
+                        false,
+                        ${suggestion.getSingleLineAddress()})}"
+                    ></div>
+                  </th:block>
+                </div>
+              </fieldset>
+
+              <!--/* Bottom nav buttons */-->
+              <div class="section-external">
+                <div>
+                  <button
+                    class="usa-button usa-button--outline margin-bottom-1"
+                    th:text="#{button.goBackAndEdit}"
+                    th:attr="data-redirect-to=${goBackAction}"
+                    type="button"
+                  ></button>
+                  <button
+                    type="submit"
+                    class="usa-button margin-bottom-1"
+                    th:text="#{button.confirmAddress}"
+                    th:formaction="${confirmAddressAction}"
+                  ></button>
+                </div>
+                <button
+                  type="submit"
+                  th:formaction="${reviewFormAction}"
+                  id="review-application-button"
+                  class="usa-button usa-button--unstyled margin-top-3 margin-bottom-4"
+                  th:text="#{button.reviewAndExit}"
+                ></button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
+  </body>
+</html>

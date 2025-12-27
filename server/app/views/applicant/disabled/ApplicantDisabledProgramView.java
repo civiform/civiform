@@ -1,8 +1,12 @@
-package views.errors;
+package views.applicant.disabled;
 
-import com.google.inject.Inject;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import auth.ProfileUtils;
 import controllers.LanguageUtils;
+import controllers.routes;
 import java.util.Optional;
+import javax.inject.Inject;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -13,21 +17,21 @@ import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
 
-/**
- * Renders a page to handle internal server errors that will be shown to users instead of the
- * unthemed default Play page.
- */
-public final class InternalServerError extends ApplicantBaseView {
+/** renders a info page for applicants trying to access a disabled program via its deep link */
+public final class ApplicantDisabledProgramView extends ApplicantBaseView {
+
+  private final ProfileUtils profileUtils;
 
   @Inject
-  public InternalServerError(
+  public ApplicantDisabledProgramView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
       controllers.applicant.ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      ProfileUtils profileUtils) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -36,23 +40,24 @@ public final class InternalServerError extends ApplicantBaseView {
         settingsManifest,
         languageUtils,
         deploymentType);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
-  public String render(Http.Request request, Messages messages, String exceptionId) {
+  public String render(
+      Messages messages,
+      Http.Request request,
+      long applicantId,
+      ApplicantPersonalInfo personalInfo) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
-            Optional.empty(),
-            Optional.empty(),
-            ApplicantPersonalInfo.ofGuestUser(),
+            Optional.of(applicantId),
+            Optional.of(profileUtils.currentUserProfile(request)),
+            personalInfo,
             messages);
 
-    String supportEmail = settingsManifest.getSupportEmailAddress(request).orElse("");
+    context.setVariable("homeUrl", routes.HomeController.index().url());
 
-    context.setVariable("exceptionId", exceptionId);
-    context.setVariable("supportEmail", supportEmail);
-    context.setVariable("homeUrl", controllers.routes.HomeController.index().url());
-
-    return templateEngine.process("errors/InternalServerErrorTemplate.html", context);
+    return templateEngine.process("applicant/disabled/ApplicantDisabledProgramTemplate", context);
   }
 }

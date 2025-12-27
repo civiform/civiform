@@ -6,6 +6,7 @@ import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarge
 
 import org.junit.Test;
 import repository.ResetPostgres;
+import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 public class ApplicantProgramBlockEditViewTest extends ResetPostgres {

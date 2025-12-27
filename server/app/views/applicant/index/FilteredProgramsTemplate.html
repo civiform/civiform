@@ -1,0 +1,14 @@
+<!--HTMX partial template for the filtered programs section of the landing page.-->
+
+<th:block th:if="${recommendedSection.isPresent()}">
+  <div
+    th:id="recommended-programs"
+    th:replace="~{applicant/index/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()})}"
+  ></div>
+</th:block>
+<th:block th:if="${otherProgramsSection.isPresent()}">
+  <div
+    th:id="not-started-programs"
+    th:replace="~{applicant/index/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()})}"
+  ></div>
+</th:block>

@@ -34,9 +34,9 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.applicant.ApplicantPreScreenerUpsellView;
-import views.applicant.ApplicantUpsellView;
-import views.applicant.UpsellParams;
+import views.applicant.upsell.ApplicantPreScreenerUpsellView;
+import views.applicant.upsell.ApplicantUpsellView;
+import views.applicant.upsell.UpsellParams;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
