@@ -1,4 +1,4 @@
-import {jest, expect, describe, it, beforeEach, afterEach} from '@jest/globals'
+import {expect, describe, it, beforeEach, afterEach, vi, Mock} from 'vitest'
 import {SessionTimeoutHandler} from './session'
 import {ToastController} from './toast'
 import {WarningType} from './session'
@@ -17,7 +17,7 @@ describe.skip('SessionTimeoutHandler', () => {
   let inactivityModal: HTMLElement
   let lengthModal: HTMLElement
   let extendSessionForm: HTMLFormElement
-  let consoleSpy: ReturnType<typeof jest.spyOn>
+  let consoleSpy: ReturnType<typeof vi.spyOn>
 
   /**
    * Create inactivity warning modal with new structure
@@ -171,10 +171,10 @@ describe.skip('SessionTimeoutHandler', () => {
    */
   function setupMocks() {
     // Mock ToastController
-    jest.spyOn(ToastController, 'showToastMessage').mockImplementation(() => {})
+    vi.spyOn(ToastController, 'showToastMessage').mockImplementation(() => {})
 
     // Mock console.error
-    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Mock window.location
     Object.defineProperty(window, 'location', {
@@ -191,7 +191,7 @@ describe.skip('SessionTimeoutHandler', () => {
   afterEach(() => {
     container.remove()
 
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     SessionTimeoutHandler['inactivityWarningShown'] = false
     SessionTimeoutHandler['totalLengthWarningShown'] = false
@@ -365,14 +365,14 @@ describe.skip('SessionTimeoutHandler', () => {
       const primaryButton = inactivityModal.querySelector(
         '[data-modal-primary][data-modal-type="session-inactivity-warning"]',
       ) as HTMLButtonElement
-      const requestSubmitSpy = jest.spyOn(extendSessionForm, 'requestSubmit')
+      const requestSubmitSpy = vi.spyOn(extendSessionForm, 'requestSubmit')
 
       primaryButton?.click()
       expect(requestSubmitSpy).toHaveBeenCalled()
     })
 
     it('handles primary button click for session length warning', () => {
-      const logoutSpy = jest.spyOn(
+      const logoutSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'logout',
       )
@@ -428,7 +428,7 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('calls logout when handling timeout', () => {
-      const logoutSpy = jest.spyOn(
+      const logoutSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'logout',
       )
@@ -451,7 +451,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
   describe('checkAndSetTimer', () => {
     beforeEach(() => {
-      jest.useFakeTimers()
+      vi.useFakeTimers()
       // Reset static flags
       SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
       SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
@@ -461,12 +461,12 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     afterEach(() => {
-      jest.useRealTimers()
+      vi.useRealTimers()
       document.cookie = `${SessionTimeoutHandler['TIMEOUT_COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     })
 
     it('immediately logs out if timeout is reached', () => {
-      const logoutSpy = jest.spyOn(
+      const logoutSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'handleTimeout',
       )
@@ -487,10 +487,10 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('shows inactivity warning immediately if time has passed and not shown before', () => {
-      const showWarningSpy = jest.spyOn(
+      const showWarningSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      ) as jest.MockedFunction<(type: WarningType) => void>
+      ) as Mock<(type: WarningType) => void>
 
       const now = Math.floor(Date.now() / 1000)
 
@@ -510,7 +510,7 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('does not show inactivity warning if already shown before', () => {
-      const showWarningSpy = jest.spyOn(
+      const showWarningSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
       )
@@ -533,10 +533,10 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('shows total length warning if time has passed and no other warning shown', () => {
-      const showWarningSpy = jest.spyOn(
+      const showWarningSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      ) as jest.MockedFunction<(type: WarningType) => void>
+      ) as Mock<(type: WarningType) => void>
 
       const now = Math.floor(Date.now() / 1000)
 
@@ -556,7 +556,7 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('does not show total length warning if inactivity warning is showing', () => {
-      const showWarningSpy = jest.spyOn(
+      const showWarningSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
       )
@@ -579,10 +579,10 @@ describe.skip('SessionTimeoutHandler', () => {
     })
 
     it('sets timer for future inactivity warning', () => {
-      const showWarningSpy = jest.spyOn(
+      const showWarningSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'showWarning',
-      ) as jest.MockedFunction<(type: WarningType) => void>
+      ) as Mock<(type: WarningType) => void>
 
       const now = Math.floor(Date.now() / 1000)
 
@@ -600,15 +600,14 @@ describe.skip('SessionTimeoutHandler', () => {
       expect(SessionTimeoutHandler['timer']).not.toBeNull()
 
       // Fast forward to warning time
-      jest.advanceTimersByTime(60000)
+      vi.advanceTimersByTime(60000)
       expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
     })
 
     it('clears existing timer before setting new one', () => {
-      const clearTimeoutSpy = jest.spyOn(
-        window,
-        'clearTimeout',
-      ) as jest.MockedFunction<(type: number | null) => void>
+      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout') as Mock<
+        (type: number | null) => void
+      >
       const now = Math.floor(Date.now() / 1000)
 
       // Set initial timer

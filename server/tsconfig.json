@@ -12,7 +12,8 @@
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
-    "strict": true
+    "strict": true,
+    "types": ["vitest"]
   },
   "include": ["app/assets/javascripts/**/*.ts"]
 }

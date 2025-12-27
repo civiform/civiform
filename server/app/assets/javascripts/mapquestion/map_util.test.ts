@@ -1,3 +1,4 @@
+import {describe, it, expect} from 'vitest'
 import {FeatureCollection} from 'geojson'
 import {calculateMapCenter} from './map_util'
 

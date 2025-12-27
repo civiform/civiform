@@ -1,3 +1,4 @@
+import {describe, it, expect, beforeEach, afterEach} from 'vitest'
 import {addEventListenerToElements, assertNotNull, formatTextHtml} from './util'
 
 describe('addEventListenerToElements', () => {
