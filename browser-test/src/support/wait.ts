@@ -1,5 +1,5 @@
-import {ElementHandle, Frame, Page} from 'playwright'
-import {expect, Locator} from 'playwright/test'
+import {ElementHandle, Frame, Page, Locator} from '@playwright/test'
+import {expect} from './civiform_fixtures'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
