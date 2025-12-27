@@ -165,11 +165,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Optional<Long> applicantId) {
     bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
 
-    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
+    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins()) {
       bundle.addModals(DEBUG_CONTENT_MODAL);
     }
 
-    String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
+    String supportEmail = settingsManifest.getSupportEmailAddress().get();
     String language = languageUtils.getPreferredLanguage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages, applicantId));
@@ -228,14 +228,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return nav()
         .condWith(
-            !settingsManifest.getShowNotProductionBannerEnabled(request),
+            !settingsManifest.getShowNotProductionBannerEnabled(),
             getGovBanner(Optional.of(messages)))
         .with(
             div()
                 .withClasses(
                     "bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
                 .with(
-                    div(branding(request))
+                    div(branding())
                         .withClasses(
                             "items-center",
                             "place-items-center",
@@ -244,7 +244,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             StyleUtils.responsiveMedium("grow-0")))
                 .with(maybeRenderTiButton(profile, messages))
                 .condWith(
-                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
+                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(),
                     div()
                         .withClasses("place-content-center")
                         .with(
@@ -351,7 +351,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return request.uri();
   }
 
-  private ATag branding(Http.Request request) {
+  private ATag branding() {
     ImgTag cityImage =
         settingsManifest
             .getCivicEntitySmallLogoUrl()
@@ -359,7 +359,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .orElseGet(() -> this.layout.viewUtils.makeLocalImageTag("civiform-staging"));
 
     cityImage
-        .withAlt(settingsManifest.getWhitelabelCivicEntityFullName(request).get() + " Logo")
+        .withAlt(settingsManifest.getWhitelabelCivicEntityFullName().get() + " Logo")
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
@@ -374,8 +374,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(
                     p(
                         iff(
-                            !settingsManifest.getHideCivicEntityNameInHeader(request),
-                            b(settingsManifest.getWhitelabelCivicEntityShortName(request).get())),
+                            !settingsManifest.getHideCivicEntityNameInHeader(),
+                            b(settingsManifest.getWhitelabelCivicEntityShortName().get())),
                         span(text(" CiviForm")))));
   }
 

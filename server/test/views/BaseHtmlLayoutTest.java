@@ -2,14 +2,13 @@ package views;
 
 import static j2html.TagCreator.link;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.ConfigFactory;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.SectionTag;
-import java.util.HashMap;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +19,6 @@ import services.DeploymentType;
 import services.settings.SettingsManifest;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
-
-  private static final ImmutableMap<String, String> DEFAULT_CONFIG =
-      ImmutableMap.of(
-          "base_url", "http://localhost",
-          "staging_hostname", "localhost",
-          "civiform_image_tag", "image",
-          "favicon_url", "favicon");
-
   private BaseHtmlLayout layout;
 
   @Before
@@ -35,7 +26,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
+            instanceOf(SettingsManifest.class),
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class));
   }
@@ -62,12 +53,14 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void addsGoogleAnalyticsWhenContainsId() {
-    HashMap<String, String> config = new HashMap<>(DEFAULT_CONFIG);
-    config.put("measurement_id", "abcdef");
+    SettingsManifest settingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(settingsManifest.getMeasurementId()).thenReturn(Optional.of("abcdef"));
+
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            new SettingsManifest(ConfigFactory.parseMap(config)),
+            settingsManifest,
+            // new SettingsManifest(ConfigFactory.parseMap(config), null),
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());

@@ -278,7 +278,7 @@ public final class PredicateGenerator {
       SettingsManifest settingsManifest,
       Request request)
       throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       throw new BadRequestException("Expanded form logic is not enabled for this request.");
     }
     final PredicateAction predicateAction;

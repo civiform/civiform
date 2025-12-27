@@ -36,14 +36,14 @@ public final class PageNotProductionBanner {
   }
 
   public Optional<DivTag> render(Http.RequestHeader request, Messages messages) {
-    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+    if (!settingsManifest.getShowNotProductionBannerEnabled()) {
       return Optional.empty();
     }
 
-    String productionUrl = settingsManifest.getCivicEntityProductionUrl(request).orElse("");
+    String productionUrl = settingsManifest.getCivicEntityProductionUrl().orElse("");
 
     ATag link =
-        a(settingsManifest.getWhitelabelCivicEntityFullName(request).orElse("") + " CiviForm")
+        a(settingsManifest.getWhitelabelCivicEntityFullName().orElse("") + " CiviForm")
             .withHref(productionUrl)
             .withClasses("font-bold", "underline", "hover:no-underline");
 

@@ -67,7 +67,8 @@ public class AddressCheckerView extends BaseHtmlView {
                                 BaseStyles.LINK_TEXT, "hover:" + BaseStyles.LINK_HOVER_TEXT))
                     .withClasses("mb-8"),
                 h1("Address Checker").withClasses("mb-4"),
-                renderUrls(request),
+                h2("zzz: " + settingsManifest.getSampleFlagEnabled()),
+                renderUrls(),
                 div()
                     .withClasses("grid", "grid-cols-1", "md:grid-cols-2", "gap-8")
                     .with(
@@ -85,20 +86,20 @@ public class AddressCheckerView extends BaseHtmlView {
     return layout.render(bundle);
   }
 
-  private DivTag renderUrls(Http.Request request) {
+  private DivTag renderUrls() {
     var divTag =
         div(
                 h2("Current Address Settings").withClasses("mb-4"),
                 div(
                     span("Address Correction: ").withClasses("font-bold"),
                     span(
-                        settingsManifest.getEsriAddressCorrectionEnabled(request)
+                        settingsManifest.getEsriAddressCorrectionEnabled()
                             ? "Enabled"
                             : "Disabled")),
                 div(
                         span("Address Validation: ").withClasses("font-bold"),
                         span(
-                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)
+                            settingsManifest.getEsriAddressServiceAreaValidationEnabled()
                                 ? "Enabled"
                                 : "Disabled"))
                     .withClasses("mt-2"))
@@ -125,7 +126,7 @@ public class AddressCheckerView extends BaseHtmlView {
     boolean showForm =
         settingsManifest.getEsriFindAddressCandidatesUrls().isPresent()
             && (long) settingsManifest.getEsriFindAddressCandidatesUrls().get().size() > 0
-            && settingsManifest.getEsriAddressCorrectionEnabled(request);
+            && settingsManifest.getEsriAddressCorrectionEnabled();
 
     if (showForm) {
       return correctAddressFormPartial.render(request);
@@ -144,7 +145,7 @@ public class AddressCheckerView extends BaseHtmlView {
     boolean showForm =
         settingsManifest.getEsriAddressServiceAreaValidationUrls().isPresent()
             && (long) settingsManifest.getEsriAddressServiceAreaValidationUrls().get().size() > 0
-            && settingsManifest.getEsriAddressServiceAreaValidationEnabled(request);
+            && settingsManifest.getEsriAddressServiceAreaValidationEnabled();
 
     if (showForm) {
       return serviceAreaFormPartial.render(request);

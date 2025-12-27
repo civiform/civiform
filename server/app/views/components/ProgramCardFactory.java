@@ -63,8 +63,7 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ false,
-                  cardData.draftProgram().get(),
-                  request));
+                  cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -74,7 +73,6 @@ public final class ProgramCardFactory {
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
-                  request,
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
@@ -141,7 +139,6 @@ public final class ProgramCardFactory {
       boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
-      Http.Request request,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = isActive ? "Published on " : "Edited on ";
@@ -167,7 +164,7 @@ public final class ProgramCardFactory {
             StyleUtils.responsiveXLarge("ml-8"));
 
     boolean isTranslationManagementImprovementEnabled =
-        settingsManifest.getTranslationManagementImprovementEnabled(request);
+        settingsManifest.getTranslationManagementImprovementEnabled();
 
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
