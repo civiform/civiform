@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 public final class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
-  public static String FOCUS_WITHIN = "focus-within";
   public static String HOVER = "hover";
   public static String DISABLED = "disabled";
 
@@ -17,7 +16,6 @@ public final class StyleUtils {
   public static String RESPONSIVE_LG = "lg";
   public static String RESPONSIVE_XL = "xl";
   public static String RESPONSIVE_2XL = "2xl";
-  public static String RESPONSIVE_3XL = "3xl";
 
   public static String applyUtilityClass(String utility, String... styles) {
     return applyUtilityClass(utility, Stream.of(styles));
@@ -31,16 +29,8 @@ public final class StyleUtils {
     return styles.map(entry -> utility + ":" + entry).collect(Collectors.joining(" "));
   }
 
-  public static String disabled(ImmutableList<String> styles) {
-    return applyUtilityClass(DISABLED, styles);
-  }
-
   public static String disabled(String... styles) {
     return applyUtilityClass(DISABLED, styles);
-  }
-
-  public static String even(ImmutableList<String> styles) {
-    return applyUtilityClass(EVEN, styles);
   }
 
   public static String even(String... styles) {
@@ -53,14 +43,6 @@ public final class StyleUtils {
 
   public static String focus(String... styles) {
     return applyUtilityClass(FOCUS, styles);
-  }
-
-  public static String focusWithin(ImmutableList<String> styles) {
-    return applyUtilityClass(FOCUS_WITHIN, styles);
-  }
-
-  public static String focusWithin(String... styles) {
-    return applyUtilityClass(FOCUS_WITHIN, styles);
   }
 
   public static String hover(String... styles) {
@@ -99,19 +81,7 @@ public final class StyleUtils {
     return applyUtilityClass(RESPONSIVE_XL, styles);
   }
 
-  public static String responsiveXLarge(ImmutableList<String> styles) {
-    return applyUtilityClass(RESPONSIVE_XL, styles);
-  }
-
   public static String responsive2XLarge(String... styles) {
-    return applyUtilityClass(RESPONSIVE_2XL, styles);
-  }
-
-  public static String responsive3XLarge(String... styles) {
-    return applyUtilityClass(RESPONSIVE_3XL, styles);
-  }
-
-  public static String responsive2XLarge(ImmutableList<String> styles) {
     return applyUtilityClass(RESPONSIVE_2XL, styles);
   }
 

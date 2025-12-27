@@ -109,11 +109,6 @@ public final class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeaderStyles(String... styles) {
-    headerStyles.addAll(Arrays.asList(styles));
-    return this;
-  }
-
   public HtmlBundle addMainContent(Tag... tags) {
     mainContent.addAll(Arrays.asList(tags));
     return this;
@@ -177,10 +172,6 @@ public final class HtmlBundle {
 
   public String getTitle() {
     return pageTitle;
-  }
-
-  public String getFavicon() {
-    return faviconURL.orElse("");
   }
 
   public HtmlBundle setLanguage(String lang) {

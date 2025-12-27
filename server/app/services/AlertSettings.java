@@ -3,7 +3,6 @@ package services;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import play.i18n.Messages;
-import views.components.TextFormatter;
 
 /**
  * Contains settings
@@ -76,15 +75,6 @@ public record AlertSettings(
         customText,
         ariaLabel,
         isSlim);
-  }
-
-  /** Sanitized HTML for the alert text that processes Markdown. */
-  public String getFormattedAlertText(String text, String ariaLabelForNewTabs) {
-    return TextFormatter.formatTextToSanitizedHTML(
-        text,
-        /* preserveEmptyLines= */ false,
-        /* addRequiredIndicator= */ false,
-        ariaLabelForNewTabs);
   }
 
   public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {
