@@ -39,8 +39,6 @@ public final class BaseStyles {
   public static final String FORM_ERROR_TEXT_COLOR = "text-red-600";
   public static final String FORM_ERROR_TEXT_XS =
       StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, "text-xs");
-  public static final String FORM_ERROR_TEXT_BASE =
-      StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_COLOR, "text-base");
 
   public static final String FORM_FIELD =
       StyleUtils.joinStyles("px-3", "bg-white", "text-black", "text-lg");
@@ -86,22 +84,9 @@ public final class BaseStyles {
   public static final String CHECKBOX_LABEL =
       StyleUtils.joinStyles(INPUT_BASE, "align-middle", "flex", "flex-row");
 
-  /** Same as the above but for radio buttons. */
-  public static final String RADIO_LABEL = CHECKBOX_LABEL;
-
-  public static final String RADIO_LABEL_SELECTED =
-      StyleUtils.removeStyles(RADIO_LABEL, FORM_FIELD_BORDER_COLOR);
-
-  /** For labelling a *group* of checkboxes that are related to the same thing. */
-  public static final String CHECKBOX_GROUP_LABEL =
-      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-base");
-
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX =
       StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle", "self-center", "flex-none");
-
-  /** For use on an `input` of type "radio". */
-  public static final String RADIO = CHECKBOX;
 
   /** For use on a `select` element. */
   public static final String SELECT = StyleUtils.joinStyles(BaseStyles.INPUT, "h-11.5");
@@ -148,51 +133,6 @@ public final class BaseStyles {
    * and sizing.
    */
   public static final String MODAL_CONTENT = StyleUtils.joinStyles("my-5", "mx-6");
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Login style classes
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  public static final String LOGIN_PAGE =
-      StyleUtils.joinStyles(
-          "absolute",
-          "left-1/2",
-          "top-1/2",
-          "transform",
-          "-translate-x-1/2",
-          "-translate-y-1/2",
-          "border",
-          "border-gray-200",
-          "rounded-lg",
-          "shadow-xl",
-          "bg-white",
-          "flex",
-          "flex-col",
-          "gap-2",
-          "place-items-center");
-
-  private static final String LOGIN_REDIRECT_BUTTON_BASE = StyleUtils.joinStyles("rounded-3xl");
-
-  public static final String LOGIN_REDIRECT_BUTTON =
-      StyleUtils.joinStyles(
-          LOGIN_REDIRECT_BUTTON_BASE,
-          "bg-blue-800",
-          "text-white",
-          "w-3/4",
-          StyleUtils.responsiveMedium("w-1/3"));
-
-  public static final String LOGIN_REDIRECT_BUTTON_SECONDARY =
-      StyleUtils.joinStyles(
-          LOGIN_REDIRECT_BUTTON_BASE,
-          "border",
-          "border-blue-800",
-          "text-blue-800",
-          "text-base",
-          "bg-white",
-          StyleUtils.hover("bg-blue-100/90"));
-
-  public static final String ADMIN_LOGIN =
-      StyleUtils.joinStyles(
-          "text-black", "underline", "font-bold", StyleUtils.hover("bg-gray-200", "opacity-90"));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // USWDS Alert style classes
