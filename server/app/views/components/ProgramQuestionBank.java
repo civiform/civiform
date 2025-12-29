@@ -303,7 +303,11 @@ public final class ProgramQuestionBank {
     return params.questions().stream()
         .filter(
             q ->
-                programBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
+                programBlockValidation.canAddQuestion(
+                        params.program(),
+                        params.blockDefinition(),
+                        q,
+                        settingsManifest.getEnumeratorImprovementsEnabled(request))
                     == AddQuestionResult.ELIGIBLE);
   }
 
