@@ -269,22 +269,26 @@ export class AdminTranslations {
     helpText: string,
     configText: string[] = [],
   ) {
-    await this.page.fill('text=Question text', text)
-    await this.page.fill('text=Question help text', helpText)
+    await this.page.getByRole('textbox', {name: 'Question text'}).fill(text)
+    await this.page
+      .getByRole('textbox', {name: 'Question help text'})
+      .fill(helpText)
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
-    const optionInputs = await this.page.$$('[name="options[]"]')
-    for (let index = 0; index < optionInputs.length; index++) {
-      await optionInputs[index].fill(configText[index])
+    const optionInputs = this.page.locator('[name="options[]"]')
+    const optionCount = await optionInputs.count()
+
+    for (let index = 0; index < optionCount; index++) {
+      await optionInputs.nth(index).fill(configText[index])
     }
 
-    const enumeratorInput = await this.page.$('[name="entityType"]')
-    if (enumeratorInput) {
+    const enumeratorInput = this.page.locator('[name="entityType"]')
+    if ((await enumeratorInput.count()) > 0) {
       await enumeratorInput.fill(configText[0])
     }
 
-    await this.page.click('#update-localizations-button')
+    await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
   }
 
