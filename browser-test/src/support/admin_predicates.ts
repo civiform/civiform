@@ -106,16 +106,16 @@ export class AdminPredicates {
   }
 
   async clickDeleteConditionButton(conditionId: number) {
-    this.page.once('dialog', (dialog) => dialog.accept())
-    const dialogEventPromise = this.page.waitForEvent('dialog')
+    this.page.once('dialog', async (dialog) => {
+      expect(dialog.message().toString()).toContain(
+        'Are you sure you would like to delete this condition',
+      )
+      await dialog.accept()
+    })
     await this.page
       .getByRole('button', {name: 'Delete condition'})
       .nth(conditionId - 1)
       .click()
-    const dialogEvent = await dialogEventPromise
-    expect(dialogEvent.message().toString()).toContain(
-      'Are you sure you would like to delete this condition',
-    )
     await waitForHtmxReady(this.page)
   }
 
@@ -140,13 +140,13 @@ export class AdminPredicates {
   }
 
   async clickDeleteAllConditionsButton() {
-    this.page.once('dialog', (dialog) => dialog.accept())
-    const dialogEventPromise = this.page.waitForEvent('dialog')
+    this.page.once('dialog', async (dialog) => {
+      expect(dialog.message().toString()).toContain(
+        'Are you sure you would like to delete all conditions',
+      )
+      await dialog.accept()
+    })
     await this.page.getByRole('button', {name: 'Delete all conditions'}).click()
-    const dialogEvent = await dialogEventPromise
-    expect(dialogEvent.message().toString()).toContain(
-      'Are you sure you would like to delete all conditions',
-    )
     await waitForHtmxReady(this.page)
   }
 
