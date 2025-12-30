@@ -16,7 +16,6 @@
   },
   "license": "CC0-1.0",
   "devDependencies": {
-    "@tailwindcss/line-clamp": "0.4.4",
     "@tsconfig/recommended": "1.0.13",
     "@types/cleave.js": "1.4.12",
     "@types/markdown-it": "14.1.2",
