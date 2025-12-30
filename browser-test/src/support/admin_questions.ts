@@ -1682,25 +1682,18 @@ export class AdminQuestions {
   }
 
   async expectPreviewOptions(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-question-option',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerText()
-      }),
-    )
-    expect(existingOptions).toEqual(options)
+    await expect(optionLocator).toHaveText(options, {useInnerText: true})
   }
 
   async expectPreviewOptionsWithMarkdown(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-value'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-value',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerHTML()
-      }),
+    const existingOptions = await optionLocator.evaluateAll((elements) =>
+      elements.map((el) => el.innerHTML),
     )
     expect(existingOptions).toEqual(options)
   }

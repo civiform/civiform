@@ -306,39 +306,30 @@ export class AdminPredicates {
   ) {
     // Service areas are the only value input that use a select
     if (scalar === 'service area') {
-      const valueSelect = await this.page.$(
+      const valueSelect = this.page.locator(
         `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
       )
-
-      if (valueSelect == null) {
-        throw new Error(
-          `Unable to find select for service area: select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-        )
-      }
-
       await valueSelect.selectOption({label: valueToSet.value})
       return
     }
 
-    const valueInput = await this.page.$(
+    const valueInput = this.page.locator(
       `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
     )
 
-    if (valueInput) {
+    if ((await valueInput.count()) > 0) {
       await valueInput.fill(valueToSet.value || '')
     } else {
-      // We have a checkbox for the value.
       const valueArray = valueToSet.value.split(',')
       for (const value of valueArray) {
-        await this.page.check(`label:has-text("${value}")`)
+        await this.page.getByLabel(value).check()
       }
     }
 
-    const secondValueInput = await this.page.$(
+    const secondValueInput = this.page.locator(
       `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
     )
-    if (secondValueInput) {
-      // second value inputs are always a single input box
+    if ((await secondValueInput.count()) > 0) {
       await secondValueInput.fill(valueToSet.secondValue || '')
     }
   }
