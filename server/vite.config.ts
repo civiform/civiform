@@ -1,4 +1,5 @@
 import {defineConfig} from 'vite'
+import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
 import path from 'path'
 
@@ -172,4 +173,22 @@ export default defineConfig({
       ],
     }),
   ],
+
+  test: {
+    environment: 'jsdom',
+    include: ['app/assets/javascripts/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: [...configDefaults.exclude, 'e2e/*', 'target/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './code-coverage/vitest',
+      include: ['app/assets/javascripts/'],
+      exclude: [
+        ...(configDefaults.coverage.exclude || []),
+        '**/*.config.{js,ts}',
+        '**/mockData/**',
+        '**/*.d.ts',
+      ],
+    },
+  },
 })
