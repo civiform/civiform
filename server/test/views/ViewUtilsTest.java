@@ -2,13 +2,10 @@ package views;
 
 import static j2html.TagCreator.p;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
-import j2html.tags.specialized.LinkTag;
-import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,24 +36,6 @@ public class ViewUtilsTest {
   @Before
   public void setUp() {
     viewUtils = new ViewUtils(assetsFinder, dateConverter);
-  }
-
-  @Test
-  public void makeLocalJsTag_createsAScriptTagWithTheJs() {
-    when(assetsFinder.path("hello.js")).thenReturn("/full/asset/path.js");
-    ScriptTag result = viewUtils.makeLocalJsTag("hello");
-
-    assertThat(result.render())
-        .isEqualTo("<script src=\"/full/asset/path.js\" type=\"text/javascript\"></script>");
-  }
-
-  @Test
-  public void makeLocalCssTag_createsALinkTagWithTheCss() {
-    when(assetsFinder.path("stylesheets/hello.css")).thenReturn("/full/asset/path.css");
-    LinkTag result = viewUtils.makeLocalCssTag("stylesheets/hello");
-
-    assertThat(result.render())
-        .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
   }
 
   @Test

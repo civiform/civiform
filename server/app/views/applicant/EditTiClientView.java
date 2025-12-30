@@ -4,6 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -14,6 +17,8 @@ import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import java.util.stream.Stream;
 import models.AccountModel;
@@ -31,7 +36,6 @@ import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
 import views.AlertComponent;
-import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -134,10 +138,22 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     else {
       return div()
           .with(
-              ApplicationBaseView.requiredFieldsExplanationContent(messages),
+              requiredFieldsExplanationContent(messages),
               renderAddOrEditClientForm(
                   tiGroup, optionalAccountModel, request, tiClientInfoForm, messages));
     }
+  }
+
+  /**
+   * Renders "Note: Fields marked with a * are required."
+   *
+   * @param messages the localized {@link Messages} for the current applicant
+   * @return PTag containing requiredness text.
+   */
+  private static PTag requiredFieldsExplanationContent(Messages messages) {
+    SpanTag redAsterisk = span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR);
+    return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)))
+        .withClasses("text-sm", BaseStyles.FORM_LABEL_TEXT_COLOR, "mb-2");
   }
 
   private String getTiLink() {
