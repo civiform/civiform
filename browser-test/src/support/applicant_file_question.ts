@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 
 /** Class for working with the file upload question that applicants see. */
 export class ApplicantFileQuestion {

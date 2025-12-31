@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,

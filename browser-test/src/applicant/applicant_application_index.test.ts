@@ -15,7 +15,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-import {Locator, Page} from 'playwright'
+import {Locator, Page} from '@playwright/test'
 import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 

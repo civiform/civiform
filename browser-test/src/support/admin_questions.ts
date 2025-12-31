@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {ElementHandle, Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {ElementHandle, Page} from '@playwright/test'
 import {
   dismissModal,
   waitForAnyModal,

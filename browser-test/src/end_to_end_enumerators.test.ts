@@ -9,7 +9,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-import {Locator, Page} from 'playwright'
+import {Locator, Page} from '@playwright/test'
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'

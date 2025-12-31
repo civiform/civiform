@@ -12,7 +12,7 @@ import {
   AdminPrograms,
   ApplicantQuestions,
 } from '../support'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 
 test.describe('Upsell tests', () => {
   const programName = 'Sample program'

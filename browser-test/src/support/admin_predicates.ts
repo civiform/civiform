@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {waitForHtmxReady} from './wait'
 
 // For legacy predicate view.
