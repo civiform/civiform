@@ -9,7 +9,6 @@ import * as toast from './toast'
 import * as toggle from './toggle'
 import * as adminApiKeys from './admin_api_keys'
 import * as adminApplicationView from './admin_application_view'
-import * as adminApplications from './admin_applications'
 import * as legacyAdminPredicates from './admin_predicate_configuration'
 import * as adminPredicateEdit from './admin_predicate_edit'
 import * as adminProgramImage from './admin_program_image'
@@ -62,7 +61,6 @@ function initializeEverything(): void {
   toggle.init()
   adminApiKeys.init()
   adminApplicationView.init()
-  adminApplications.init()
   legacyAdminPredicates.init()
   adminPredicateEdit.init()
   adminProgramImage.init()

@@ -1,7 +1,6 @@
 package views;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -14,12 +13,10 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
-import com.google.common.collect.ImmutableSet;
 import controllers.FlashKey;
 import j2html.TagCreator;
 import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
@@ -27,7 +24,6 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.PTag;
-import j2html.tags.specialized.SpanTag;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +36,6 @@ import play.mvc.Call;
 import play.mvc.Http;
 import services.MessageKey;
 import services.RandomStringUtils;
-import services.applicant.ValidationErrorMessage;
 import views.components.Icons;
 import views.components.ToastMessage;
 import views.html.helper.CSRF;
@@ -61,12 +56,6 @@ public abstract class BaseHtmlView {
 
   public static H2Tag renderSubHeader(String headerText, String... additionalClasses) {
     return h2(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
-  }
-
-  public static DivTag fieldErrors(
-      Messages messages, ImmutableSet<ValidationErrorMessage> errors, String... additionalClasses) {
-    return div(each(errors, error -> div(error.getMessage(messages))))
-        .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
   }
 
   /**
@@ -119,14 +108,6 @@ public abstract class BaseHtmlView {
 
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return ViewUtils.makeSvgTextButton(buttonText, icon);
-  }
-
-  protected static SpanTag spanNowrap(String tag) {
-    return span(tag).withClasses("whitespace-nowrap");
-  }
-
-  protected static SpanTag spanNowrap(Tag... tags) {
-    return span().with(tags).withClasses("whitespace-nowrap");
   }
 
   /**

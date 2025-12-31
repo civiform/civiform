@@ -13,7 +13,7 @@ import {
   ProgramVisibility,
 } from '../support/admin_programs'
 import {dismissModal, waitForAnyModalLocator} from '../support/wait'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 
 test.describe('program creation', () => {
   // TODO(#10363): Remove test once external program cards feature is rolled out
