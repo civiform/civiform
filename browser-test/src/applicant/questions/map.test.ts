@@ -8,7 +8,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import * as path from 'path'
 
 // number of locations expected to be visible per page

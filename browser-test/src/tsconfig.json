@@ -5,7 +5,7 @@
     "strict": true,
     "module": "commonjs",
     "noEmit": true,
-    "types": ["playwright", "node"],
+    "types": ["@playwright/test", "node"],
     "sourceMap": true
   },
   "include": [".", "../playwright.config.ts"]

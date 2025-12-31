@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Page, Locator} from 'playwright'
+import {ElementHandle, Page, Locator} from '@playwright/test'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,

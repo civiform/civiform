@@ -1,5 +1,5 @@
-import {expect, Locator} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page, Locator} from '@playwright/test'
 import {dismissModal, waitForAnyModalLocator, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {

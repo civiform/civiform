@@ -1,5 +1,5 @@
 import {APIRequestContext, expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
 type CreateApiKeyParamsType = {
