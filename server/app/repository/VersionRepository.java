@@ -179,7 +179,7 @@ public final class VersionRepository {
       Predicate<QuestionModel> questionIsDeletedInDraft =
           question ->
               draft.questionIsTombstoned(
-                  questionRepository.getQuestionDefinition(question).getName());
+                  questionRepository.getQuestionDefinitionWithoutCache(question).getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
       getProgramsForVersionWithoutCache(active).stream()
@@ -206,7 +206,9 @@ public final class VersionRepository {
           .filter(
               activeQuestion ->
                   !draftQuestionNames.contains(
-                      questionRepository.getQuestionDefinition(activeQuestion).getName()))
+                      questionRepository
+                          .getQuestionDefinitionWithoutCache(activeQuestion)
+                          .getName()))
           // For each active question not associated with the draft, associate it with the
           // draft.
           // The relationship between Questions and Versions is many-to-may. When updating the
@@ -331,7 +333,7 @@ public final class VersionRepository {
           .filter(
               question ->
                   !questionsToPublishNames.contains(
-                      questionRepository.getQuestionDefinition(question).getName()))
+                      questionRepository.getQuestionDefinitionWithoutCache(question).getName()))
           .forEach(
               question -> {
                 newDraft.addQuestion(question);
@@ -350,7 +352,9 @@ public final class VersionRepository {
           .filter(
               activeQuestion ->
                   !questionsToPublishNames.contains(
-                      questionRepository.getQuestionDefinition(activeQuestion).getName()))
+                      questionRepository
+                          .getQuestionDefinitionWithoutCache(activeQuestion)
+                          .getName()))
           .forEach(existingDraft::addQuestion);
 
       // Move forward the ACTIVE version.
@@ -494,10 +498,10 @@ public final class VersionRepository {
    */
   public boolean addTombstoneForQuestionInVersion(QuestionModel question, VersionModel version)
       throws QuestionNotFoundException {
-    String name = questionRepository.getQuestionDefinition(question).getName();
+    String name = questionRepository.getQuestionDefinitionWithoutCache(question).getName();
     if (!getQuestionNamesForVersion(version).contains(name)) {
       throw new QuestionNotFoundException(
-          questionRepository.getQuestionDefinition(question).getId());
+          questionRepository.getQuestionDefinitionWithoutCache(question).getId());
     }
     return version.addTombstoneForQuestion(name);
   }
@@ -673,7 +677,7 @@ public final class VersionRepository {
             .filter(
                 question ->
                     questionRepository
-                        .getQuestionDefinition(question)
+                        .getQuestionDefinitionWithoutCache(question)
                         .getName()
                         .equals(questionName))
             .findFirst();
@@ -772,7 +776,7 @@ public final class VersionRepository {
           VersionModel activeVersion = getActiveVersion();
           ImmutableList<QuestionDefinition> newActiveQuestions =
               getQuestionsForVersionWithoutCache(activeVersion).stream()
-                  .map(questionRepository::getQuestionDefinition)
+                  .map(questionRepository::getQuestionDefinitionWithoutCache)
                   .collect(ImmutableList.toImmutableList());
           // Check there aren't any duplicate questions in the new active version
           validateNoDuplicateQuestions(newActiveQuestions);
@@ -848,7 +852,8 @@ public final class VersionRepository {
             updatedBlock.addQuestion(
                 question.loadCompletely(
                     programDefinitionId,
-                    questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
+                    questionRepository.getQuestionDefinitionWithoutCache(
+                        updatedQuestion.orElseThrow())));
           }
           // Update questions referenced in this block's predicate(s)
           if (block.visibilityPredicate().isPresent()) {

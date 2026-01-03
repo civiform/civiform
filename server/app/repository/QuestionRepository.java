@@ -23,11 +23,14 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.Path;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.settings.SettingsManifest;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
@@ -40,14 +43,20 @@ public final class QuestionRepository {
   private final Database database;
   private final DatabaseExecutionContext dbExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final Provider<SettingsManifest> settingsManifestProvider;
+  private final SyncCacheApi questionDefCache;
 
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext dbExecutionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      Provider<SettingsManifest> settingsManifestProvider,
+      @NamedCache("question-definition") SyncCacheApi questionDefCache) {
     this.database = DB.getDefault();
     this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.questionDefCache = checkNotNull(questionDefCache);
+    this.settingsManifestProvider = checkNotNull(settingsManifestProvider);
   }
 
   public CompletionStage<Set<QuestionModel>> listQuestions() {
@@ -62,6 +71,15 @@ public final class QuestionRepository {
   }
 
   public QuestionDefinition getQuestionDefinition(QuestionModel question) {
+    if (settingsManifestProvider.get().getQuestionCacheEnabled()
+        && !versionRepositoryProvider.get().isDraft(question)) {
+      return questionDefCache.getOrElseUpdate(
+          String.valueOf(question.id), question::getQuestionDefinition);
+    }
+    return getQuestionDefinitionWithoutCache(question);
+  }
+
+  public QuestionDefinition getQuestionDefinitionWithoutCache(QuestionModel question) {
     return question.getQuestionDefinition();
   }
 
@@ -189,7 +207,7 @@ public final class QuestionRepository {
                     throw new RuntimeException(error);
                   }
                 })
-            .map(QuestionModel::getQuestionDefinition)
+            .map(this::getQuestionDefinitionWithoutCache)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return updatedQuestions;
@@ -226,7 +244,7 @@ public final class QuestionRepository {
                       throw new RuntimeException(error);
                     }
                   })
-              .map(QuestionModel::getQuestionDefinition)
+              .map(this::getQuestionDefinitionWithoutCache)
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
       transaction.commit();
@@ -243,7 +261,7 @@ public final class QuestionRepository {
     Stream.concat(
             versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()).stream(),
             versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
-        .map(QuestionModel::getQuestionDefinition)
+        .map(this::getQuestionDefinitionWithoutCache)
         // Find questions that reference the old enumerator ID.
         .filter(qd -> qd.getEnumeratorId().equals(Optional.of(oldEnumeratorId)))
         // Keep only the first QuestionDefinition we encounter for each question. The first one will
@@ -328,7 +346,7 @@ public final class QuestionRepository {
         .asc("id")
         .findList()
         .stream()
-        .map(this::getQuestionDefinition)
+        .map(this::getQuestionDefinitionWithoutCache)
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
@@ -349,7 +367,7 @@ public final class QuestionRepository {
     }
 
     private boolean hasConflict(QuestionModel question) {
-      QuestionDefinition definition = getQuestionDefinition(question);
+      QuestionDefinition definition = getQuestionDefinitionWithoutCache(question);
       boolean isSameName = definition.getName().equals(newQuestionDefinition.getName());
       boolean isSamePath =
           Path.create(definition.getQuestionNameKey())
