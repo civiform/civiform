@@ -27,7 +27,7 @@ public class DemoModeDisabledActionTest extends ResetPostgres {
   @Test
   public void testDemoModeEnabled_proceedsToAction() {
     Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getStagingDisableDemoModeLogins(request)).thenReturn(false);
+    when(mockSettingsManifest.getStagingDisableDemoModeLogins()).thenReturn(false);
 
     DemoModeDisabledAction action = new DemoModeDisabledAction(mockSettingsManifest);
 
@@ -44,7 +44,7 @@ public class DemoModeDisabledActionTest extends ResetPostgres {
   @Test
   public void testDemoModeDisabled_redirectsToHomePage() {
     Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getStagingDisableDemoModeLogins(request)).thenReturn(true);
+    when(mockSettingsManifest.getStagingDisableDemoModeLogins()).thenReturn(true);
 
     DemoModeDisabledAction action = new DemoModeDisabledAction(mockSettingsManifest);
 

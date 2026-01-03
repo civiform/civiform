@@ -21,6 +21,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.settings.SettingsManifest;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
@@ -33,8 +34,9 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration oidcConfiguration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames) {
-    super(oidcConfiguration, client, params, standardClaimsAttributeNames);
+      StandardClaimsAttributeNames standardClaimsAttributeNames,
+      SettingsManifest settingsManifest) {
+    super(oidcConfiguration, client, params, standardClaimsAttributeNames, settingsManifest);
   }
 
   @Override

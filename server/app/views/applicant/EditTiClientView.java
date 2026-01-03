@@ -214,7 +214,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       Messages messages) {
     Optional<ApplicantModel> optionalApplicant = Optional.empty();
     FormTag formTag;
-    Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled(request);
+    Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled();
     if (optionalAccount.isPresent()) {
       optionalApplicant = optionalAccount.get().representativeApplicant();
 

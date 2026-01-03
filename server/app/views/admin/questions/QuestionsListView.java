@@ -285,7 +285,7 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
 
-    if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+    if (settingsManifest.getTranslationManagementImprovementEnabled()) {
       referencingProgramAndModal
           .getLeft()
           .with(generateTranslationCompleteText(latestDefinition).orElse(div()));
@@ -717,9 +717,7 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
-    if (isActive
-        && isEditable
-        && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+    if (isActive && isEditable && settingsManifest.getTranslationManagementImprovementEnabled()) {
       Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
       maybeTranslationLink.ifPresent(extraActions::add);
     }

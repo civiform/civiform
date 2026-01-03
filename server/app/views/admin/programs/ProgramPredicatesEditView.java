@@ -128,7 +128,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                     predicateUseCase,
                                     /* includeEditFooter= */ false,
                                     /* expanded= */ true,
-                                    settingsManifest.getExpandedFormLogicEnabled(request))))
+                                    settingsManifest.getExpandedFormLogicEnabled())))
                 .orElse(
                     div()
                         .with(
@@ -175,7 +175,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                     predicateUseCase,
                                     /* includeEditFooter= */ false,
                                     /* expanded= */ true,
-                                    settingsManifest.getExpandedFormLogicEnabled(request))))
+                                    settingsManifest.getExpandedFormLogicEnabled())))
                 .orElse(
                     div()
                         .with(

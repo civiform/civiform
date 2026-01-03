@@ -41,7 +41,7 @@ public class PageNotProductionBannerTest {
 
   @Test
   public void whenShowBannerSettingDisabled_returnsEmpty() {
-    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(false);
+    when(settingsManifest.getShowNotProductionBannerEnabled()).thenReturn(false);
 
     PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
@@ -52,10 +52,9 @@ public class PageNotProductionBannerTest {
   @Test
   public void whenShowBannerSettingEnabled_returnsComponent() {
     String productionUrl = "https://civiform.example.com";
-    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
-    when(settingsManifest.getCivicEntityProductionUrl(request))
-        .thenReturn(Optional.of(productionUrl));
-    when(settingsManifest.getWhitelabelCivicEntityFullName(request))
+    when(settingsManifest.getShowNotProductionBannerEnabled()).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl()).thenReturn(Optional.of(productionUrl));
+    when(settingsManifest.getWhitelabelCivicEntityFullName())
         .thenReturn(Optional.of("civic-entity-name"));
 
     PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
@@ -73,8 +72,8 @@ public class PageNotProductionBannerTest {
 
   @Test
   public void whenShowBannerSettingEnabled_andNoProductionUrlSetting_returnsComponent() {
-    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
-    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getShowNotProductionBannerEnabled()).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl()).thenReturn(Optional.empty());
 
     PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
