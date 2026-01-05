@@ -892,7 +892,7 @@ map.switchToMapView=Passer à l''affichage sous forme de carte
 # Button text to switch from map view to list view on mobile
 map.switchToListView=Passer à l''affichage sous forme de liste
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=L'affichage est passé en mode carte
+map.switchToMapViewSr=L''affichage est passé en mode carte
 # Screen reader text announcing that the view has been switched to list view
 map.switchToListViewSr=L'affichage est passé en mode liste.
 # Error message that indicates the applicant has selected too many locations
