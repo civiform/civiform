@@ -410,7 +410,7 @@ alert.eligibility_applicant_not_eligible_title=Waxaa suurtagal ah inaadan u qalm
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah inaadan u qalmin barnaamijkan. Haddii macluumaadkaaga is badalay, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjigaaga.
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, waxaa laga yaabaa inaadan u qalmin barnaamijkan.
+alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su''aalaha soo socda, waxaa laga yaabaa inaadan u qalmin barnaamijkan.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
@@ -432,7 +432,7 @@ alert.eligibility_ti_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qal
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan. Haddii macluumaadka macmiilkaaga la badalo, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjiga.
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, macmiilkaagu waxaa laga yaabaa in aanu u qalmin barnaamijkan.
+alert.eligibilityTiNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su''aalaha soo socda, macmiilkaagu waxaa laga yaabaa in aanu u qalmin barnaamijkan.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
