@@ -931,7 +931,7 @@ map.locationAddressHelpText=Sélectionnez la clé qui représente l'adresse de l
 # Label for location address key field
 map.locationAddressLabel=Clé d''adresse
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l'URL des détails de l'emplacement.
+map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l''URL des détails de l''emplacement.
 # Label for location detail URL key field
 map.locationDetailsUrlLabel=Clé d'URL pour afficher plus de détails
 # Help text for location name field
