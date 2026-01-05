@@ -941,11 +941,11 @@ map.locationNameLabel=Clé de nom
 # Label for maximum number of locations field
 map.maxLocationSelectionsLabel=Sélections maximales d''emplacements
 # Label for setting text field
-map.settingTextLabel=Texte d'alerte
+map.settingTextLabel=Texte d''alerte
 # Label for value field
 map.valueLabel=Valeur
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=La carte s'affichera ici
+map.mapPreviewText=La carte s''affichera ici
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
