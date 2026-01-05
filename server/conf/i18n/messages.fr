@@ -77,7 +77,7 @@ button.createAnAccount=Créer un compte
 # The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Connexion du candidat
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Connexion de l'administrateur
+button.adminLogin=Connexion de l''administrateur
 # The text on the button an applicant clicks to log in to their session.
 button.login=Se connecter
 # The text on the button an applicant clicks to sign in to their session.
