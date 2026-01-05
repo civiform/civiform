@@ -939,7 +939,7 @@ map.locationNameHelpText=Sélectionnez la clé qui représente le nom de l''empl
 # Label for location name key field
 map.locationNameLabel=Clé de nom
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Sélections maximales d'emplacements
+map.maxLocationSelectionsLabel=Sélections maximales d''emplacements
 # Label for setting text field
 map.settingTextLabel=Texte d'alerte
 # Label for value field
