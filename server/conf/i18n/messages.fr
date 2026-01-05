@@ -383,7 +383,7 @@ content.eligibilityCriteria.v3=Pour connaître les critères d''éligibilité à
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Vous pouvez retourner à la page précédente pour modifier vos réponses ou demander votre inscription à un autre programme.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=Si vous pensez qu'il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
+content.changeAnswersForEligibility.v2=Si vous pensez qu''il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
 # Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=Retour pour modifier
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
