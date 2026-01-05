@@ -911,7 +911,7 @@ map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a differe
 # Button for adding a filter
 map.addFilterButton=Ajouter un filtre
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Sélectionnez jusqu'à six filtres à mettre à la disposition des candidats.
+map.addFiltersSubtitle=Sélectionnez jusqu''à six filtres à mettre à la disposition des candidats.
 # Title for filters section
 map.addFiltersTitle=Filtres
 # Button for adding a tag
