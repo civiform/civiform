@@ -62,7 +62,7 @@ link.opensNewTabSr=s''ouvre dans un nouvel onglet
 # Aria-label for the primary navigation
 label.primaryNavigation=Navigation principale
 # Aria-label for agency identifier
-label.agencyIdentifier=Identifiant de l'agence
+label.agencyIdentifier=Identifiant de l''agence
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerte informative de session Invité
 # Link to skip to the main content of the page
