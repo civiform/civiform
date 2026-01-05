@@ -921,7 +921,7 @@ map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où u
 # Title for tag section
 map.addTagTitle=Balise
 # Label for display name field
-map.displayNameLabel=Nom d'affichage
+map.displayNameLabel=Nom d''affichage
 # Label for key field
 map.keyLabel=Clé
 # Error message when a configured key is not found in the GeoJSON data
