@@ -245,7 +245,7 @@ button.viewAndAddClients=Arag oo ku dar macaamiisha
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Macmiilkaaga cusub {0} waxaa lagu daray liiska macmiilkaaga. Hadda waxaad bilaabi kartaa soo gudbinta codsiyada macmiilkan.
 # The tooltip of the email input field.
-content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la''aan, adiga ama ururkaaga bulshada ayaa mas'uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
+content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la''aan, adiga ama ururkaaga bulshada ayaa mas''uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} Codsiyada waa la gudbiyey
 # Shows that a single application has been submitted on behalf of the client.
