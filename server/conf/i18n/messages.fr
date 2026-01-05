@@ -888,9 +888,9 @@ map.selectLocations=Sélectionnez jusqu'à {0} emplacements
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Sélectionner -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Passer à l'affichage sous forme de carte
+map.switchToMapView=Passer à l''affichage sous forme de carte
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Passer à l'affichage sous forme de liste
+map.switchToListView=Passer à l''affichage sous forme de liste
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=L'affichage est passé en mode carte
 # Screen reader text announcing that the view has been switched to list view
