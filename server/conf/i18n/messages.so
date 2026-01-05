@@ -576,7 +576,7 @@ content.predicateConditionIsTrueIf=Shuruudu ay sax tahay haddii:
 content.predicateSubconditionsAreTrue=Shuruudo hoosaadyada ay sax yihiin:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Su'aal
+label.predicateQuestion=Su''aal
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Godka
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
