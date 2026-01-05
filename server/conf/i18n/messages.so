@@ -471,7 +471,7 @@ content.signInModal=Waxaad hubin kartaa heerka codsiga, wax ka beddeli kartaa, o
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 # A button for continuing to apply to other programs without an account.
-button.continueWithoutAnAccount=Sii soco koonto la'aan
+button.continueWithoutAnAccount=Sii soco koonto la''aan
 title.preScreenerConfirmation=Barnaamijyada aad u qalmi karaysid
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
