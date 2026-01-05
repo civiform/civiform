@@ -983,7 +983,7 @@ email.loginToCiviform=Connectez-vous à Civiform : {0}
 # Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Votre demande d''inscription au programme {0} a bien été reçue
 # Body of the email sent automatically on application submission
-email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l'ID de votre demande est {2}.
+email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l''ID de votre demande est {2}.
 # Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Vous avez envoyé une demande d''inscription au programme {0} au nom de {1}
 # Body of the email sent to the TI on application submission
