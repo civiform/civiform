@@ -490,7 +490,7 @@ content.preScreenerNoMatchingProgramsTi=L''outil de présélection n''a trouvé 
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Télécharger votre demande d'inscription
+button.downloadApplication=Télécharger votre demande d''inscription
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
 # Heading above a section showing the user's name, confirmation number, and date
