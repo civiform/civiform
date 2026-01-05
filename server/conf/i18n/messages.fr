@@ -929,7 +929,7 @@ map.keyNotFoundError=Erreur : clé introuvable. Veuillez sélectionner une autre
 # Help text for location address field
 map.locationAddressHelpText=Sélectionnez la clé qui représente l'adresse de l'emplacement.
 # Label for location address key field
-map.locationAddressLabel=Clé d'adresse
+map.locationAddressLabel=Clé d''adresse
 # Help text for location details URL field
 map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l'URL des détails de l'emplacement.
 # Label for location detail URL key field
