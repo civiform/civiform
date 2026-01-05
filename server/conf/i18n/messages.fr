@@ -363,11 +363,11 @@ title.programOverview={0} - Présentation du programme
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Comment envoyer une demande
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=S'inscrire au programme {0}
+heading.programOverview=S''inscrire au programme {0}
 # The text on the button that takes users to the account creation form.
 link.createAccountFromOverview=Commencer la demande avec un compte
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Commencer la demande en tant qu'invité
+link.startAsGuest=Commencer la demande en tant qu''invité
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
