@@ -917,7 +917,7 @@ map.addFiltersTitle=Filtres
 # Button for adding a tag
 map.addTagButton=Ajouter une balise
 # Subtitle text for adding a tag
-map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu'un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
+map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu''un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
 # Title for tag section
 map.addTagTitle=Balise
 # Label for display name field
