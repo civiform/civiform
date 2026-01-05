@@ -1093,10 +1093,10 @@ ariaLabel.categories=Qaybaha
 #------------------------------------------------------------------------------#
 
 # Title of the warning modal that appears when the user has been inactive for a while
-session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La'aanta ku'aadan Kulanka
+session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La''aanta ku''aadan Kulanka
 
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
-session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la'aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
+session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la''aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
 
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Digniinta ku'aadan Dhererka Kulanka
