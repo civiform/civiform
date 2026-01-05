@@ -553,7 +553,7 @@ button.homePage=Retour à la page d''accueil
 link.backToEditProgramBlock=Retour à la modification {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configurez l'affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
+content.predicateVisibilityDescription=Configurez l''affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Ajoutez des conditions d'éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
