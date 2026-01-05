@@ -646,7 +646,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
   describe('init', () => {
     it('initializes only once', () => {
-      const checkAndSetTimerSpy = jest.spyOn(
+      const checkAndSetTimerSpy = vi.spyOn(
         SessionTimeoutHandler as SessionTimeoutHandlerType,
         'checkAndSetTimer',
       )
