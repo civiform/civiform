@@ -615,7 +615,7 @@ confirm.actionNotReversable=This action cannot be undone.
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su''aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejinayo shuruud muujin oo loogu talagalay shaashaddan.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
+alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su''aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
