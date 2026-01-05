@@ -349,7 +349,7 @@ ariaLabel.answer=Jawaab {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Faa'iidooyinka hore u baadhaha oo kooban
+title.preScreenerSummary=Faa''iidooyinka hore u baadhaha oo kooban
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Aan bilowno.
 title.programSummary=Soo koobida barnaamijka codsiga
