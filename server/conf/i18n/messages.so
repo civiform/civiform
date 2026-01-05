@@ -62,7 +62,7 @@ link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
 label.primaryNavigation=Hagitaanka aasasiga ah
 # Aria-label for agency identifier
-label.agencyIdentifier=Aqooonsiga hay'adda,
+label.agencyIdentifier=Aqooonsiga hay''adda,
 # Aria-label for guest session alert
 label.guestSessionAlert=Digniinta warbixineed ee fadhi martiyeedka
 # Link to skip to the main content of the page
