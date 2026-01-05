@@ -560,7 +560,7 @@ content.predicateEligibilityDescription=Ajoutez des conditions d'éligibilité a
 link.programSettings=paramètres du programme
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=L'écran est
+content.predicateScreenIs=L''écran est
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=Le candidat est éligible si
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
