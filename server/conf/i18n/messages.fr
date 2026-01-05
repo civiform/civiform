@@ -613,9 +613,9 @@ confirm.deleteSingleCondition=Are you sure you would like to delete this conditi
 confirm.actionNotReversable=This action cannot be undone.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=Il n'y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
+alert.predicateNoAvailableQuestionsVisibility=Il n''y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=Il n'y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
+alert.predicateNoAvailableQuestionsEligibility=Il n''y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
