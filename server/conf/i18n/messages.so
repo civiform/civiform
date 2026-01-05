@@ -332,7 +332,7 @@ button.continue=Sii wad
 # Button text on a button that will allow the user to start filling out a section of questions.
 button.start=Bilow
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
-toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su''aalaha si aad horay ugu sii socoto
 
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Uma qalmo
