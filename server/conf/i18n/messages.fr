@@ -927,7 +927,7 @@ map.keyLabel=Clé
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Erreur : clé introuvable. Veuillez sélectionner une autre clé.
 # Help text for location address field
-map.locationAddressHelpText=Sélectionnez la clé qui représente l'adresse de l'emplacement.
+map.locationAddressHelpText=Sélectionnez la clé qui représente l''adresse de l''emplacement.
 # Label for location address key field
 map.locationAddressLabel=Clé d''adresse
 # Help text for location details URL field
