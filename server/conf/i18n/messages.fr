@@ -884,7 +884,7 @@ map.selectedLocationsHeading=Lieux sélectionnés
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Sélectionner un lieu
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Sélectionnez jusqu'à {0} emplacements
+map.selectLocations=Sélectionnez jusqu''à {0} emplacements
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Sélectionner -
 # Button text to switch from list view to map view on mobile
@@ -900,7 +900,7 @@ map.validation.tooManySelections=Veuillez sélectionner au maximum {0} emplaceme
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = Nous sommes désolés, nous ne pouvons pas afficher cette question pour le moment. Veuillez réessayer ultérieurement. En attendant, retournez à/au/sur {0} ou {1} et nous vous guiderons dans la bonne direction.
 map.contactUs = nous contacter
-map.homepage = page d'accueil
+map.homepage = page d''accueil
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
 map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
