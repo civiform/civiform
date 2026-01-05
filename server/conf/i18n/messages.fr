@@ -894,7 +894,7 @@ map.switchToListView=Passer à l''affichage sous forme de liste
 # Screen reader text announcing that the view has been switched to map view
 map.switchToMapViewSr=L''affichage est passé en mode carte
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=L'affichage est passé en mode liste.
+map.switchToListViewSr=L''affichage est passé en mode liste.
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Veuillez sélectionner au maximum {0} emplacements.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
