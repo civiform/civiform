@@ -415,7 +415,7 @@ alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabaha
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub mise kuwo la cusbooneysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su'aalaha hoose.
+alert.eligibility_applicant_fastforwarded_eligible_text=Waxaa jiri kara su''aalo cusub mise kuwo la cusbooneysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su''aalaha hoose.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_title=Waxaa suurtagal ah inaadan u qalmin barnaamijkan mar dambe
