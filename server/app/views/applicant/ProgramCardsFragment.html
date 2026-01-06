@@ -128,13 +128,28 @@
         class="text-medium-margin-top"
       >
         <div class="flex-parent">
-          <div class="flex-parent success-state">
+          <div
+            th:if="${card.eligible().get()}"
+            class="flex-parent success-state"
+          >
             <cf:icon type="icon-check-circle" />
             <span
               th:text="${card.eligibilityMessage().get()}"
-              th:classappend="${card.eligible().get()} ? cf-eligible-tag : cf-not-eligible-tag"
+              th:classappend="${cf-eligible-tag}"
             ></span>
           </div>
+
+          <div
+            th:if="${!card.eligible().get()}"
+            class="flex-parent failed-state"
+          >
+            <cf:icon type="icon-block-circle" />
+            <span
+              th:text="${card.eligibilityMessage().get()}"
+              th:classappend="${cf-ineligible-tag}"
+            ></span>
+          </div>
+
           <div class="flex-fill"></div>
         </div>
       </div>

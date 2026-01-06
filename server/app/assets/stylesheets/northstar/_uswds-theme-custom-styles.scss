@@ -479,6 +479,15 @@ main {
   gap: units(1);
 }
 
+.failed-state {
+  border-radius: 2px;
+  background: var(--State-tokens-success-success-lighter, #f87171);
+  @include u-padding-y(0.5);
+  @include u-padding-x(1);
+  align-items: center;
+  gap: units(1);
+}
+
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
 }
