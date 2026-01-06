@@ -192,7 +192,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
         ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
             buildConditionsListFromPredicateDefinition(
-                request,
                 programId,
                 blockDefinitionId,
                 predicateUseCase,
@@ -541,7 +540,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * empty list.
    */
   private ImmutableList<EditConditionPartialViewModel> buildConditionsListFromPredicateDefinition(
-      Request request,
       long programId,
       long blockDefinitionId,
       PredicateUseCase predicateUseCase,
@@ -549,8 +547,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       throws QuestionNotFoundException,
           ProgramBlockDefinitionNotFoundException,
           ProgramNotFoundException {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)
-        || maybePredicateDefinition.isEmpty()) {
+    if (maybePredicateDefinition.isEmpty()) {
       return ImmutableList.of();
     }
     requestChecker.throwIfProgramNotDraft(programId);
