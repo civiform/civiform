@@ -31,7 +31,7 @@ export function addEventListenerToElements<K extends keyof HTMLElementEventMap>(
  * that 100% should be there. This function helps to assert that value is not
  * null or fail quickly if those expectations are false.
  *
- * See TypeScirpt best practices for recommendations for when to use
+ * See TypeScript best practices for recommendations for when to use
  * assertNotNull vs non-null operator `!`:
  * https://github.com/civiform/civiform/wiki/Development-standards#assertnotnull-vs-non-null-expression
  *

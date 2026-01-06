@@ -35,14 +35,26 @@ export class AdminPredicateEdit {
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-scalar-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onScalarDropdownChange)
-          dropdown.addEventListener('change', this.onScalarDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
         })
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-operator-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onOperatorDropdownChange)
-          dropdown.addEventListener('change', this.onOperatorDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
         })
 
       // Trigger change to update operators based on the current scalar selected.
@@ -72,13 +84,29 @@ export class AdminPredicateEdit {
     addEventListenerToElements(
       '.cf-predicate-scalar-select',
       'change',
-      AdminPredicateEdit.onScalarDropdownChange,
+      AdminPredicateEdit.onScalarDropdownChange.bind(this),
     )
     addEventListenerToElements(
       '.cf-predicate-operator-select',
       'change',
-      AdminPredicateEdit.onOperatorDropdownChange,
+      AdminPredicateEdit.onOperatorDropdownChange.bind(this),
     )
+
+    // Trigger change to update operators based on the current scalar selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-scalar-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
+
+    // Trigger change to update values inputs based on the current operator selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-operator-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
   }
 
   private static onScalarDropdownChange(event: Event): void {
