@@ -2,9 +2,155 @@ import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
-import {Locator} from 'playwright'
+import {MultiValueSpec} from '../support/admin_predicates'
 
-test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
+/**
+ * Map of question types to that question type's corresponding testing data
+ *    @param questionName: The (backend, admin) name of the question
+ *    @param questionText: The question text displayed to the applicant
+ *    @param firstValue: The default value to fill in an input field, or to be selected from a dropdown
+ *    @param secondValue: The default value to fill in a second input field. Optional, for question types that support BETWEEN operators.
+ *    @param defaultInputType: The default input type for the question type. Optional, for question types that use input tags.
+ *    @param defaultInputMode: The default inputmode for the question type. Optional, for question types that use input tags.
+ */
+const PROGRAM_SAMPLE_QUESTIONS = new Map<
+  QuestionType,
+  {
+    questionName: string
+    questionText: string
+    firstValue: string
+    secondValue?: string
+    defaultInputType?: string
+    defaultInputMode?: string
+    multiValueOptions?: MultiValueSpec[]
+  }
+>([
+  [
+    QuestionType.ADDRESS,
+    {
+      questionName: 'address-q',
+      questionText: 'address question text',
+      firstValue: 'Seattle',
+    },
+  ],
+  [
+    QuestionType.CHECKBOX,
+    {
+      questionName: 'checkbox-q',
+      questionText: 'checkbox question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {adminName: 'pizza-bagel', text: 'Pizza Bagel', checked: true},
+        {adminName: 'bagel-pizza', text: 'Bagel Pizza', checked: true},
+        {adminName: 'pizza-pizza', text: 'Pizza Pizza', checked: true},
+        {adminName: 'bagel-bagel', text: 'Bagel Bagel', checked: true},
+      ],
+    },
+  ],
+  [
+    QuestionType.CURRENCY,
+    {
+      questionName: 'currency-q',
+      questionText: 'currency question text',
+      firstValue: '3.50',
+      secondValue: '4.75',
+      defaultInputType: 'currency',
+      defaultInputMode: 'decimal',
+    },
+  ],
+  [
+    QuestionType.DATE,
+    {
+      questionName: 'date-q',
+      questionText: 'date question text',
+      firstValue: '1970-01-01',
+      secondValue: '2000-01-01',
+      defaultInputType: 'date',
+      defaultInputMode: 'numeric',
+    },
+  ],
+  [
+    QuestionType.DROPDOWN,
+    {
+      questionName: 'dropdown-q',
+      questionText: 'dropdown question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {adminName: 'pizza-bagel', text: 'Pizza Bagel', checked: true},
+        {adminName: 'bagel-pizza', text: 'Bagel Pizza', checked: true},
+        {adminName: 'pizza-pizza', text: 'Pizza Pizza', checked: true},
+        {adminName: 'bagel-bagel', text: 'Bagel Bagel', checked: true},
+      ],
+    },
+  ],
+  [
+    QuestionType.EMAIL,
+    {
+      questionName: 'email-q',
+      questionText: 'email question text',
+      firstValue: 'email@fake-email.gov',
+      defaultInputType: 'email',
+      defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.ID,
+    {
+      questionName: 'id-q',
+      questionText: 'id question text',
+      firstValue: 'A123456-ID',
+      defaultInputType: 'text',
+      defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.NAME,
+    {
+      questionName: 'name-q',
+      questionText: 'name question text',
+      firstValue: 'Keanu',
+      defaultInputType: 'text',
+      defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.NUMBER,
+    {
+      questionName: 'number-q',
+      questionText: 'number question text',
+      firstValue: '18',
+      secondValue: '25',
+      defaultInputType: 'number',
+      defaultInputMode: 'decimal',
+    },
+  ],
+  [
+    QuestionType.RADIO,
+    {
+      questionName: 'radio-q',
+      questionText: 'radio question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {adminName: 'pizza-bagel', text: 'Pizza Bagel', checked: true},
+        {adminName: 'bagel-pizza', text: 'Bagel Pizza', checked: true},
+        {adminName: 'pizza-pizza', text: 'Pizza Pizza', checked: true},
+        {adminName: 'bagel-bagel', text: 'Bagel Bagel', checked: true},
+      ],
+    },
+  ],
+  [
+    QuestionType.TEXT,
+    {
+      questionName: 'text-q',
+      questionText: 'text question text',
+      firstValue: 'apple',
+      defaultInputType: 'text',
+      defaultInputMode: 'text',
+    },
+  ],
+])
+
+test.describe('create and edit predicates', () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'expanded_form_logic_enabled')
   })
@@ -111,6 +257,13 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
     })
 
+    // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
+    await test.step('refresh page and re-add condition', async () => {
+      await page.reload()
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.expectCondition(1)
+    })
+
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
       await waitForHtmxReady(page)
@@ -163,23 +316,16 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
         /* expandedFormLogicEnabled= */ true,
       )
 
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
-      await validateScreenshot(
-        page.locator('#edit-predicate'),
-        'eligibility-predicate-null-state',
-      )
+      await adminPredicates.expectEligibilityNullState()
     })
 
     await test.step('Add condition', async () => {
       await adminPredicates.clickAddConditionButton()
 
+      await waitForHtmxReady(page)
+
       await adminPredicates.expectCondition(1)
+      await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-eligibility-predicate',
@@ -240,6 +386,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await expect(
         page.locator('#predicate-operator-node-select-null-state'),
       ).toContainText('This screen is always shown')
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'visibility-predicate-null-state',
@@ -250,6 +397,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.clickAddConditionButton()
 
       await adminPredicates.expectCondition(1)
+      await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-visibility-predicate',
@@ -268,154 +416,8 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
     const programName = 'Populate predicate values across question types'
 
-    /**
-     * Map of question types to that question type's corresponding testing data
-     *    @param questionName: The (backend, admin) name of the question
-     *    @param questionText: The question text displayed to the applicant
-     *    @param firstValue: The default value to fill in an input field, or to be selected from a dropdown
-     *    @param secondValue: The default value to fill in a second input field. Optional, for question types that support BETWEEN operators.
-     *    @param defaultInputType: The default input type for the question type. Optional, for question types that use input tags.
-     *    @param defaultInputMode: The default inputmode for the question type. Optional, for question types that use input tags.
-     */
-    const programQuestions = new Map<
-      QuestionType,
-      {
-        questionName: string
-        questionText: string
-        firstValue: string
-        secondValue?: string
-        defaultInputType?: string
-        defaultInputMode?: string
-        multiValueOptions?: {adminName: string; text: string}[]
-      }
-    >([
-      [
-        QuestionType.ADDRESS,
-        {
-          questionName: 'address-q',
-          questionText: 'address question text',
-          firstValue: 'Seattle',
-        },
-      ],
-      [
-        QuestionType.CHECKBOX,
-        {
-          questionName: 'checkbox-q',
-          questionText: 'checkbox question text',
-          firstValue: 'N/A',
-          multiValueOptions: [
-            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
-            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
-            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
-            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
-          ],
-        },
-      ],
-      [
-        QuestionType.CURRENCY,
-        {
-          questionName: 'currency-q',
-          questionText: 'currency question text',
-          firstValue: '3.50',
-          secondValue: '4.75',
-          defaultInputType: 'currency',
-          defaultInputMode: 'decimal',
-        },
-      ],
-      [
-        QuestionType.DATE,
-        {
-          questionName: 'date-q',
-          questionText: 'date question text',
-          firstValue: '1970-01-01',
-          secondValue: '2000-01-01',
-          defaultInputType: 'date',
-          defaultInputMode: 'numeric',
-        },
-      ],
-      [
-        QuestionType.DROPDOWN,
-        {
-          questionName: 'dropdown-q',
-          questionText: 'dropdown question text',
-          firstValue: 'N/A',
-          multiValueOptions: [
-            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
-            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
-            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
-            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
-          ],
-        },
-      ],
-      [
-        QuestionType.EMAIL,
-        {
-          questionName: 'email-q',
-          questionText: 'email question text',
-          firstValue: 'email@fake-email.gov',
-          defaultInputType: 'email',
-          defaultInputMode: 'text',
-        },
-      ],
-      [
-        QuestionType.ID,
-        {
-          questionName: 'id-q',
-          questionText: 'id question text',
-          firstValue: 'A123456-ID',
-          defaultInputType: 'text',
-          defaultInputMode: 'text',
-        },
-      ],
-      [
-        QuestionType.NAME,
-        {
-          questionName: 'name-q',
-          questionText: 'name question text',
-          firstValue: 'Keanu',
-          defaultInputType: 'text',
-          defaultInputMode: 'text',
-        },
-      ],
-      [
-        QuestionType.NUMBER,
-        {
-          questionName: 'number-q',
-          questionText: 'number question text',
-          firstValue: '18',
-          secondValue: '25',
-          defaultInputType: 'number',
-          defaultInputMode: 'decimal',
-        },
-      ],
-      [
-        QuestionType.RADIO,
-        {
-          questionName: 'radio-q',
-          questionText: 'radio question text',
-          firstValue: 'N/A',
-          multiValueOptions: [
-            {adminName: 'pizza-bagel', text: 'Pizza Bagel'},
-            {adminName: 'bagel-pizza', text: 'Bagel Pizza'},
-            {adminName: 'pizza-pizza', text: 'Pizza Pizza'},
-            {adminName: 'bagel-bagel', text: 'Bagel Bagel'},
-          ],
-        },
-      ],
-      [
-        QuestionType.TEXT,
-        {
-          questionName: 'text-q',
-          questionText: 'text question text',
-          firstValue: 'apple',
-          defaultInputType: 'text',
-          defaultInputMode: 'text',
-        },
-      ],
-    ])
-
     await test.step('Create program and add questions', async () => {
-      for (const [questionType, questionData] of programQuestions) {
+      for (const [questionType, questionData] of PROGRAM_SAMPLE_QUESTIONS) {
         await adminQuestions.addQuestionForType(
           questionType,
           questionData.questionName,
@@ -427,8 +429,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
-        questions: programQuestions
-          .values()
+        questions: PROGRAM_SAMPLE_QUESTIONS.values()
           .map((questionData) => ({name: questionData.questionName}))
           .toArray(),
       })
@@ -456,29 +457,31 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.NUMBER,
       QuestionType.TEXT,
     ]) {
+      const singleValueOperator =
+        questionType === QuestionType.DATE ? 'IS_AFTER' : 'EQUAL_TO'
+
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
-        const questionData = programQuestions.get(questionType)!
-        await adminPredicates.selectQuestion(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          questionData.questionText,
-        )
-        await adminPredicates.selectOperator(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          'EQUAL_TO',
-        )
-        await waitForHtmxReady(page)
+        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+
+        await adminPredicates.configureSubcondition({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: singleValueOperator,
+          value: {firstValue: questionData.firstValue},
+        })
+
+        await adminPredicates.expectSubconditionEquals({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: singleValueOperator,
+          value: {firstValue: questionData.firstValue},
+        })
 
         const inputElementLocator = page.locator(
           `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
         )
-        const secondInputElementLocator = page.locator(
-          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
-        )
-
-        await expect(inputElementLocator).toBeVisible()
-        await expect(secondInputElementLocator).toBeHidden()
 
         await expect(inputElementLocator).toHaveAttribute(
           'type',
@@ -488,21 +491,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           'inputmode',
           questionData.defaultInputMode!,
         )
-
-        await inputElementLocator.fill(questionData.firstValue)
-        await expect(inputElementLocator).toHaveValue(questionData.firstValue)
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `single-value-with-${questionType}-question-selected`,
-        )
-      })
-
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
       })
     }
 
@@ -513,96 +501,82 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.NUMBER,
     ]) {
       await test.step(`Select ${questionType} question and validate BETWEEN operator behavior`, async () => {
-        const questionData = programQuestions.get(questionType)!
-        await adminPredicates.selectQuestion(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          questionData.questionText,
-        )
-        await adminPredicates.selectOperator(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          'BETWEEN',
-        )
-        await waitForHtmxReady(page)
+        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+        await adminPredicates.configureSubcondition({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: 'BETWEEN',
+          value: {
+            firstValue: questionData.firstValue,
+            secondValue: questionData.secondValue!,
+          },
+        })
+
+        await adminPredicates.expectSubconditionEquals({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: 'BETWEEN',
+          value: {
+            firstValue: questionData.firstValue,
+            secondValue: questionData.secondValue!,
+          },
+        })
 
         const inputElementLocator = page.locator(
-          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]:enabled`,
         )
         const secondInputElementLocator = page.locator(
-          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
+          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]:enabled`,
         )
 
-        await expect(inputElementLocator).toBeVisible()
-        await expect(secondInputElementLocator).toBeVisible()
-
-        await expect(inputElementLocator).toHaveAttribute(
-          'type',
-          questionData.defaultInputType!,
-        )
         await expect(inputElementLocator).toHaveAttribute(
           'inputmode',
           questionData.defaultInputMode!,
         )
         await expect(secondInputElementLocator).toHaveAttribute(
-          'type',
-          questionData.defaultInputType!,
-        )
-        await expect(secondInputElementLocator).toHaveAttribute(
           'inputmode',
           questionData.defaultInputMode!,
         )
-
-        await inputElementLocator.fill(questionData.firstValue)
-        await secondInputElementLocator.fill(questionData.secondValue!)
-        await expect(inputElementLocator).toHaveValue(questionData.firstValue)
-        await expect(secondInputElementLocator).toHaveValue(
-          questionData.secondValue!,
-        )
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `multiple-values-with-${questionType}-question-selected`,
-        )
-      })
-
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
       })
     }
 
     await test.step('Select date question and validate age operator behavior', async () => {
-      const questionData = programQuestions.get(QuestionType.DATE)!
-      await adminPredicates.selectQuestion(
-        /* conditionId= */ 1,
-        /* subconditionId= */ 1,
-        questionData.questionText,
-      )
-      await adminPredicates.selectOperator(
-        /* conditionId= */ 1,
-        /* subconditionId= */ 1,
-        'AGE_BETWEEN',
-      )
+      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)!
+      await adminPredicates.configureSubcondition({
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: questionData.questionText,
+        operator: 'AGE_BETWEEN',
+        value: {
+          firstValue: '18',
+          secondValue: '25',
+        },
+      })
 
-      const inputElementLocator = page.locator(
-        '#condition-1-subcondition-1-value[type="number"]',
-      )
-      const secondInputElementLocator = page.locator(
-        '#condition-1-subcondition-1-secondValue[type="number"]',
-      )
+      await adminPredicates.expectSubconditionEquals({
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: questionData.questionText,
+        operator: 'AGE_BETWEEN',
+        value: {
+          firstValue: '18',
+          secondValue: '25',
+        },
+      })
 
-      await expect(secondInputElementLocator).toBeVisible()
-      await expect(secondInputElementLocator).toBeVisible()
-      await inputElementLocator.fill('18')
-      await secondInputElementLocator.fill('25')
+      await expect(
+        page.locator(
+          '#condition-1-subcondition-1-value[type="number"]:enabled',
+        ),
+      ).toHaveCount(1)
 
-      await validateScreenshot(
-        page.getByTestId('condition-1'),
-        `multiple-values-with-age-question-selected`,
-      )
+      await expect(
+        page.locator(
+          '#condition-1-subcondition-1-secondValue[type="number"]:enabled',
+        ),
+      ).toHaveCount(1)
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
@@ -614,48 +588,38 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.NUMBER,
       QuestionType.TEXT,
     ]) {
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
-      })
-
       await test.step(`Select ${questionType} question and validate CSV operator behavior`, async () => {
-        const questionData = programQuestions.get(questionType)!
-        await adminPredicates.selectQuestion(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          questionData.questionText,
-        )
+        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+        await adminPredicates.configureSubcondition({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: 'IN',
+          value: {firstValue: 'a,1,b,2,c,3,'},
+        })
 
-        await adminPredicates.selectOperator(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          'IN',
-        )
+        await adminPredicates.expectSubconditionEquals({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          operator: 'IN',
+          value: {firstValue: 'a,1,b,2,c,3,'},
+        })
 
         const valueHintTextLocator = page.locator(
           '#condition-1-subcondition-1-valueHintText',
         )
         const inputElementLocator = page.locator(
-          '#condition-1-subcondition-1-value[type="text"]',
+          '#condition-1-subcondition-1-value[type="text"]:enabled',
         )
 
         await expect(valueHintTextLocator).toBeVisible()
         await expect(valueHintTextLocator).toHaveText(
           'Enter a list of comma-seperated values. For example, "item1,item2,item3".',
         )
-        await expect(inputElementLocator).toHaveAttribute('type', 'text')
         await expect(inputElementLocator).toHaveAttribute('inputmode', 'text')
       })
     }
-
-    await test.step('Validate value hint text screenshot', async () => {
-      await validateScreenshot(
-        page.locator('#condition-1-subcondition-1-valueHintText'),
-        'value-hint-text',
-      )
-    })
 
     await test.step('Trigger address correction toggle and add new condition', async () => {
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
@@ -677,7 +641,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Choosing an address question updates value options', async () => {
-      const questionData = programQuestions.get(QuestionType.ADDRESS)!
+      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.ADDRESS)!
       await adminPredicates.selectQuestion(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,
@@ -688,11 +652,6 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
           .getByLabel('Value(s)', {id: 'condition-1-subcondition-1-value'})
           .locator(`option[value="Seattle"]`),
       ).not.toHaveAttribute('hidden')
-
-      await validateScreenshot(
-        page.getByTestId('condition-1'),
-        'values-with-address-question-selected',
-      )
     })
 
     // Test multiple option question types
@@ -701,48 +660,27 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       QuestionType.DROPDOWN,
       QuestionType.RADIO,
     ]) {
-      // This step is needed, because sequentially changing question types seems to trip up inline-style checkers.
-      await test.step('refresh page and re-add condition', async () => {
-        await page.reload()
-        await adminPredicates.clickAddConditionButton()
-        await adminPredicates.expectCondition(1)
-      })
+      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
 
       await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
-        const questionData = programQuestions.get(questionType)!
-        await adminPredicates.selectQuestion(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          questionData.questionText,
-        )
-        await adminPredicates.selectOperator(
-          /* conditionId= */ 1,
-          /* subconditionId= */ 1,
-          'NONE_OF',
-        )
-        await waitForHtmxReady(page)
+        await adminPredicates.configureSubcondition({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          value: {multiValues: questionData.multiValueOptions!},
+        })
+      })
 
-        const checkboxLabelLocators: Locator[] = [
-          page.locator('label[for="condition-1-subcondition-1-values[1]"]'),
-          page.locator('label[for="condition-1-subcondition-1-values[2]"]'),
-          page.locator('label[for="condition-1-subcondition-1-values[3]"]'),
-          page.locator('label[for="condition-1-subcondition-1-values[4]"]'),
-        ]
+      await test.step('add and delete subcondition and expect no change', async () => {
+        await adminPredicates.addAndExpectSubcondition(1, 2)
+        await adminPredicates.deleteAndExpectNoSubcondition(1, 2)
 
-        for (let i = 0; i < checkboxLabelLocators.length; i++) {
-          const locator = checkboxLabelLocators[i]
-          await expect(locator).toBeVisible()
-          await locator.check()
-          await expect(locator).toBeChecked()
-          await expect(locator).toHaveText(
-            questionData.multiValueOptions![i].text,
-          )
-        }
-
-        await validateScreenshot(
-          page.getByTestId('condition-1'),
-          `multiselect-with-${questionType}-question-selected`,
-        )
+        await adminPredicates.expectSubconditionEquals({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          value: {multiValues: questionData.multiValueOptions!},
+        })
       })
     }
   })
@@ -753,28 +691,29 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
     adminPrograms,
     adminPredicates,
   }) => {
-    const firstQuestionName = 'first-predicate-q'
-    const secondQuestionName = 'second-predicate-q'
-    const firstQuestionText = 'What is your name'
-    const secondQuestionText = 'What is your birthday'
+    const nameQuestionValues = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.NAME)!
+    const dateQuestionValues = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)!
 
     await loginAsAdmin(page)
     const programName = 'Create and edit a new predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      await adminQuestions.addTextQuestion({
-        questionName: firstQuestionName,
-        questionText: firstQuestionText,
+      await adminQuestions.addNameQuestion({
+        questionName: nameQuestionValues.questionName,
+        questionText: nameQuestionValues.questionText,
       })
       await adminQuestions.addDateQuestion({
-        questionName: secondQuestionName,
-        questionText: secondQuestionText,
+        questionName: dateQuestionValues.questionName,
+        questionText: dateQuestionValues.questionText,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
-        questions: [{name: firstQuestionName}, {name: secondQuestionName}],
+        questions: [
+          {name: nameQuestionValues.questionName},
+          {name: dateQuestionValues.questionName},
+        ],
       })
     })
 
@@ -788,6 +727,86 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
+    })
+
+    await test.step('Add second subcondition, select questions, and enter input', async () => {
+      await adminPredicates.addAndExpectSubcondition(1, 2)
+
+      await adminPredicates.configureSubcondition({
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: nameQuestionValues.questionText,
+        scalar: 'LAST_NAME',
+        operator: 'EQUAL_TO',
+        value: {firstValue: nameQuestionValues.firstValue},
+      })
+
+      await adminPredicates.configureSubcondition({
+        conditionId: 1,
+        subconditionId: 2,
+        questionText: dateQuestionValues.questionText,
+        operator: 'EQUAL_TO',
+        value: {firstValue: dateQuestionValues.firstValue},
+      })
+
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Delete second subcondition and no change to first', async () => {
+      await adminPredicates.deleteAndExpectNoSubcondition(1, 2)
+      await adminPredicates.expectSubcondition(1, 1)
+
+      await adminPredicates.expectSubconditionEquals({
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: nameQuestionValues.questionText,
+        scalar: 'LAST_NAME',
+        operator: 'EQUAL_TO',
+        value: {firstValue: nameQuestionValues.firstValue},
+      })
+    })
+
+    await test.step('Add second subcondition, select question, and enter values', async () => {
+      await adminPredicates.addAndExpectSubcondition(1, 2)
+
+      await adminPredicates.configureSubcondition({
+        conditionId: 1,
+        subconditionId: 2,
+        questionText: dateQuestionValues.questionText,
+        operator: 'BETWEEN',
+        value: {
+          firstValue: dateQuestionValues.firstValue,
+          secondValue: dateQuestionValues.secondValue!,
+        },
+      })
+    })
+
+    await test.step('Delete first subcondition - second becomes first', async () => {
+      await adminPredicates.clickDeleteSubconditionButton(1, 1)
+      await adminPredicates.expectSubcondition(1, 1)
+      await adminPredicates.expectNoSubcondition(1, 2)
+      await adminPredicates.expectAddSubconditionButton(1)
+
+      await adminPredicates.expectSubconditionEquals({
+        conditionId: 1,
+        subconditionId: 1,
+        questionText: dateQuestionValues.questionText,
+        operator: 'BETWEEN',
+        value: {
+          firstValue: dateQuestionValues.firstValue,
+          secondValue: dateQuestionValues.secondValue,
+        },
+      })
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
     })
 
     await test.step('Delete condition and validate null state', async () => {
@@ -795,15 +814,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       await waitForHtmxReady(page)
 
-      await adminPredicates.expectNoCondition(1)
-      await adminPredicates.expectAddConditionButton()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toBeVisible()
-      await expect(page.locator('#predicate-operator-node-select')).toBeHidden()
-      await expect(
-        page.locator('#predicate-operator-node-select-null-state'),
-      ).toContainText('Applicant is always eligible')
+      await adminPredicates.expectEligibilityNullState()
 
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -824,7 +835,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.selectQuestion(
         /* conditionId= */ 1,
         /* subconditionId= */ 1,
-        firstQuestionText,
+        nameQuestionValues.questionText,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -832,7 +843,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       await adminPredicates.selectQuestion(
         /* conditionId= */ 2,
         /* subconditionId= */ 1,
-        secondQuestionText,
+        dateQuestionValues.questionText,
       )
     })
 
@@ -853,7 +864,25 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(
         page.locator('#condition-1-subcondition-1-question'),
-      ).toContainText(secondQuestionText)
+      ).toContainText(dateQuestionValues.questionText)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
+      await expect(
+        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
+      ).toHaveAttribute('data-should-announce', 'true')
+    })
+
+    await test.step('Add second condition, delete all conditions, and validate null state', async () => {
+      await adminPredicates.addAndExpectCondition(2)
+
+      await adminPredicates.clickDeleteAllConditionsButton()
+
+      await adminPredicates.expectNoCondition(1)
+      await adminPredicates.expectNoCondition(2)
+      await adminPredicates.expectNoDeleteAllConditionsButton()
+      await adminPredicates.expectAddConditionButton()
+      await adminPredicates.expectEligibilityNullState()
     })
   })
 
@@ -883,6 +912,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
       // Validate empty state without predicate
       await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await expect(page.locator('#visibility-predicate')).toContainText(
         'This screen is always shown',
       )
@@ -897,6 +927,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await adminPredicates.expectNoAddConditionButton()
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(page, 'no-available-eligibility-questions')
     })
 
@@ -909,6 +940,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
       )
 
       await adminPredicates.expectNoAddConditionButton()
+      await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(page, 'no-available-visibility-questions')
     })
   })
@@ -1008,7 +1040,7 @@ test.describe('create and edit predicates', {tag: ['@northstar']}, () => {
 
     await test.step('Submit bad HTMX request', async () => {
       // Reformat the request URL to produce an HTMX failure
-      await page.route('**/hx/editCondition', async (route, request) => {
+      await page.route('**/hx/addCondition', async (route, request) => {
         const newUrl = request
           .url()
           .toString()

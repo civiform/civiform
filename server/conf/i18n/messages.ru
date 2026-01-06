@@ -968,7 +968,7 @@ error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=К сожалению, в нашей системе возникла ошибка.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Свяжитесь со службой технической поддержки по адресу {0} и сообщите этот идентификатор ошибки: {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Перейти на главную страницу
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,6 +1043,21 @@ banner.minute=1 мин.
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Уход за детьми
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=Коммунальные услуги
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Ветеран
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Категории
 
 #------------------------------------------------------------------------------#

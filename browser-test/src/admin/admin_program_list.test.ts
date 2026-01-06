@@ -16,7 +16,7 @@ import {
   ProgramVisibility,
 } from '../support/admin_programs'
 
-test.describe('Program list page.', {tag: ['@northstar']}, () => {
+test.describe('Program list page.', () => {
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -78,11 +78,10 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        programLongDescription,
-        programShortDescription,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
     })
 
     await test.step('check that short description is shown', async () => {
@@ -115,11 +114,10 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
     await test.step('create new program', async () => {
       await page.goto('/')
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        programLongDescription,
-        programShortDescription,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
     })
 
     await test.step('check that categories show as "None"', async () => {
@@ -144,11 +142,9 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
       await expect(
         programCard.getByText('Categories: Education, Internet'),
       ).toBeVisible()
-      await validateScreenshot(
-        programCard,
-        'program-list-with-categories',
-        false,
-      )
+      await validateScreenshot(programCard, 'program-list-with-categories', {
+        fullPage: false,
+      })
     })
   })
 
@@ -238,7 +234,7 @@ test.describe('Program list page.', {tag: ['@northstar']}, () => {
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
 
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerProgram,
       'short program description',
       ProgramVisibility.PUBLIC,

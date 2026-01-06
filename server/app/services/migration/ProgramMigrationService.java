@@ -3,12 +3,12 @@ package services.migration;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProgramAcls;
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -376,7 +376,7 @@ public final class ProgramMigrationService {
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
         // Explicitly set program type to DEFAULT so we don't import program as a
-        // pre-screener/common intake
+        // pre-screener
         .setProgramType(ProgramType.DEFAULT)
         .build();
   }

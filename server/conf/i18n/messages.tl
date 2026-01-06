@@ -968,7 +968,7 @@ error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Pasensya na, nagkaroon ng internal error sa aming system.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa {0} at isama itong error ID na {1}
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Pumunta sa homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,6 +1043,21 @@ banner.minute=1 na minuto
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Pangangalaga ng Bata
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=Mga Utility
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Beterano
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Mga Kategorya
 
 #------------------------------------------------------------------------------#

@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {ElementHandle, Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {ElementHandle, Page} from '@playwright/test'
 import {
   dismissModal,
   waitForAnyModal,
@@ -70,23 +70,6 @@ export enum PrimaryApplicantInfoAlertType {
   NOT_UNIVERSAL = '.cf-pai-not-universal-alert',
   TAG_SET = '.cf-pai-tag-set-alert',
   TAG_SET_NOT_UNIVERSAL = '.cf-pai-tag-set-not-universal-alert',
-}
-
-// New question types are only supported in North Star
-export enum QuestionTypeLegacy {
-  ADDRESS = 'address',
-  CHECKBOX = 'checkbox',
-  CURRENCY = 'currency',
-  DATE = 'date',
-  DROPDOWN = 'dropdown',
-  EMAIL = 'email',
-  ID = 'id',
-  NAME = 'name',
-  NUMBER = 'number',
-  RADIO = 'radio',
-  TEXT = 'text',
-  ENUMERATOR = 'enumerator',
-  FILE_UPLOAD = 'file-upload',
 }
 
 export enum QuestionType {
@@ -162,7 +145,7 @@ export class AdminQuestions {
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }
@@ -584,7 +567,7 @@ export class AdminQuestions {
   }
 
   async addQuestionForType(
-    type: QuestionType | QuestionTypeLegacy,
+    type: QuestionType,
     questionName: string,
     questionText?: string,
     questionOptions?: {adminName: string; text: string}[],
@@ -1699,25 +1682,18 @@ export class AdminQuestions {
   }
 
   async expectPreviewOptions(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-question-option',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerText()
-      }),
-    )
-    expect(existingOptions).toEqual(options)
+    await expect(optionLocator).toHaveText(options, {useInnerText: true})
   }
 
   async expectPreviewOptionsWithMarkdown(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-value'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-value',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerHTML()
-      }),
+    const existingOptions = await optionLocator.evaluateAll((elements) =>
+      elements.map((el) => el.innerHTML),
     )
     expect(existingOptions).toEqual(options)
   }

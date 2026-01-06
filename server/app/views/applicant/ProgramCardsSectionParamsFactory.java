@@ -397,7 +397,7 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setActionUrl(String actionUrl);
 
-      public abstract Builder setIsGuest(Boolean isGuest);
+      public abstract Builder setIsGuest(boolean isGuest);
 
       public abstract Builder setLoginModalId(String loginModalId);
 

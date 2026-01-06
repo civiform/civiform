@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
+test.describe('Id question for applicant flow', () => {
   test.describe('single id question', () => {
     const programName = 'Test program for single id'
 
@@ -23,18 +23,12 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'id',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'id', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -43,17 +37,13 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'id-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
     })
 
     test('attempts to submit', async ({applicantQuestions, page}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('with empty id does not submit', async () => {
         // Click "Continue" without inputting anything
@@ -68,7 +58,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerIdQuestion('12345')
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
     })
 
@@ -76,10 +66,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123')
       await applicantQuestions.clickContinue()
 
@@ -92,10 +79,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123456')
       await applicantQuestions.clickContinue()
 
@@ -108,10 +92,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde')
       await applicantQuestions.clickContinue()
 
@@ -149,39 +130,30 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
     test('with both id inputs submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with first invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
       await applicantQuestions.clickContinue()
@@ -195,10 +167,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 0)
       await applicantQuestions.answerIdQuestion('abcde', 1)
       await applicantQuestions.clickContinue()
@@ -212,10 +181,7 @@ test.describe('Id question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

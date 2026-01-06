@@ -107,7 +107,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* message= */ Optional.empty())
             .url();
 
-    String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
+    String buttonText = activeProgram.isPreScreenerForm() ? "Forms" : "Applications";
     ButtonTag button =
         makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewApplicationsLink);

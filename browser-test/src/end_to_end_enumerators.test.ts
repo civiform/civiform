@@ -2,15 +2,16 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-import {Page} from 'playwright'
+import {Locator, Page} from '@playwright/test'
 
-test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
+test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -75,10 +76,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
       await applicantQuestions.clickContinue()
@@ -92,10 +90,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
       await applicantQuestions.clickContinue()
@@ -115,10 +110,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       // Correspondingly, removing an element happens without a page refresh. Remove an
       // element and add another to ensure that element IDs remain unique.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Porky')
       await validateAccessibility(page)
     })
@@ -127,10 +119,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -142,10 +131,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.addEnumeratorAnswer('Goofy')
 
       // Remove the middle entry, the remaining entries should re-index
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
     })
 
@@ -153,10 +139,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -208,10 +191,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(
-        1,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Painter')
       await applicantQuestions.clickContinue()
 
@@ -243,10 +223,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await expect(page.locator('.application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
-      await applicantQuestions.editQuestionFromReviewPage(
-        'Household members',
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
 
       await applicantQuestions.deleteEnumeratorEntity('Bugs')
@@ -268,16 +245,13 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       )
 
       // Go back and add an enumerator answer.
-      await applicantQuestions.editQuestionFromReviewPage(
-        'Household members',
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
       await applicantQuestions.addEnumeratorAnswer('Tweety')
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+      await applicantQuestions.clickReview()
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
       await expect(page.locator('.application-summary')).toContainText(
@@ -314,10 +288,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Set up application', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerNameQuestion('Porky', 'Pig')
         await applicantQuestions.clickContinue()
@@ -396,10 +367,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -429,10 +397,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -660,4 +625,116 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await logout(page)
     })
   }
+})
+
+test.describe('End to end enumerator test with enumerators feature flag on', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+  })
+  test.describe('Admin', () => {
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('Enumerator test program')
+    })
+    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      let initialBlockCount: number
+      let enumeratorBlockLink: Locator
+      await test.step('Record how many blocks are present in the block order panel', async () => {
+        initialBlockCount = await page
+          .getByRole('link', {name: /^Screen /})
+          .count()
+      })
+
+      await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        const addScreenDropdown = page
+          .getByRole('list')
+          .filter({has: page.getByRole('button', {name: 'Add repeated set'})})
+        await expect(addScreenDropdown).toBeVisible()
+      })
+
+      await test.step('Click "Add repeated set" button', async () => {
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that two new blocks appear in the block order panel', async () => {
+        const newBlockCount = await page
+          .getByRole('link', {name: /^Screen /})
+          .count()
+        expect(newBlockCount).toBe(initialBlockCount + 2)
+      })
+
+      await test.step('Validate that the current block is the newly-created repeated block', async () => {
+        const currentBlockTitle = blockPanel.getByText(
+          'Screen 3 (repeated from 2)',
+        )
+        await expect(currentBlockTitle).toBeVisible()
+      })
+
+      await test.step('Validate that the enumerator block says repeated set', async () => {
+        enumeratorBlockLink = page
+          .getByRole('link', {name: /^Screen /})
+          .nth(initialBlockCount) // zero-indexed
+
+        await expect(
+          enumeratorBlockLink.getByText('Repeated set'),
+        ).toBeVisible()
+      })
+
+      await test.step('Click on the enumerator block in the block order panel', async () => {
+        await enumeratorBlockLink.click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {
+        await expect(
+          blockPanel.getByRole('group', {name: 'Repeated set creation method'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Create new'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Choose existing'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate the "Create new repeated set" text is visible', async () => {
+        await expect(
+          blockPanel.getByText('Create new repeated set'),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that "Create repeated set" button is visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Create repeated set'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that questions section is not visible', async () => {
+        await expect(blockPanel.locator('#questions-section')).toBeHidden()
+      })
+
+      await test.step('Validate that "Add a question" button is not visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Add a question'}),
+        ).toBeHidden()
+      })
+
+      await test.step('Take a screenshot of the block panel', async () => {
+        await validateScreenshot(blockPanel, 'enumerator-block-panel', {
+          fullPage: false,
+        })
+      })
+    })
+  })
 })

@@ -13,7 +13,7 @@ addSbtPlugin("com.github.sbt" % "sbt-digest" % "2.1.0")
 addSbtPlugin("com.github.sbt" % "sbt-gzip" % "2.0.0")
 
 // Code Coverage plugin
-addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.6.0")
 
 // Formatting plugin
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")

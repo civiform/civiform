@@ -65,11 +65,8 @@ import services.question.types.QuestionDefinitionConfig;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
-import views.applicant.ApplicantFileUploadRenderer;
-import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.applicant.NorthStarAddressCorrectionBlockView;
-import views.applicant.NorthStarApplicantIneligibleView;
-import views.applicant.NorthStarApplicantProgramBlockEditView;
+import views.applicant.ApplicantIneligibleView;
+import views.applicant.ApplicantProgramBlockEditView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -104,18 +101,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantService.class),
             instanceOf(MessagesApi.class),
             instanceOf(ClassLoaderExecutionContext.class),
-            instanceOf(ApplicantProgramBlockEditViewFactory.class),
-            instanceOf(NorthStarApplicantProgramBlockEditView.class),
+            instanceOf(ApplicantProgramBlockEditView.class),
             instanceOf(FormFactory.class),
             instanceOf(ApplicantStorageClient.class),
             instanceOf(StoredFileRepository.class),
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(ApplicantFileUploadRenderer.class),
-            instanceOf(NorthStarApplicantIneligibleView.class),
+            instanceOf(ApplicantIneligibleView.class),
             instanceOf(AddressCorrectionBlockView.class),
-            instanceOf(NorthStarAddressCorrectionBlockView.class),
             addressSuggestionJsonSerializer,
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
@@ -424,33 +418,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void editWithApplicantId_withMessages_returnsCorrectButtonText() {
     String programId = Long.toString(program.id);
-    Request request =
-        fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
-
-    Result result =
-        subject
-            .editWithApplicantId(
-                request,
-                applicant.id,
-                programId,
-                /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Guardar y continuar");
-  }
-
-  @Test
-  public void northStar_editWithApplicantId_withMessages_returnsCorrectButtonText() {
-    String programId = Long.toString(program.id);
 
     Request request =
         fakeRequestBuilder().langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()).build();
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject
@@ -1139,48 +1109,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     ""))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
-
-    Result result =
-        subject
-            .updateWithApplicantId(
-                request,
-                applicant.id,
-                program.id,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                requestedAction)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Please enter your first name.");
-    assertThat(contentAsString(result)).contains("Please enter your last name.");
-  }
-
-  @Test
-  public void
-      northstar_update_noAnswerToRequiredQuestion_requestedActionNext_staysOnBlockAndShowsErrors() {
-    ApplicantRequestedActionWrapper requestedAction =
-        new ApplicantRequestedActionWrapper(NEXT_BLOCK);
-
-    program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().nameApplicantName())
-            .build();
-    Request request =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
-                    "",
-                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
-                    ""))
-            .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
-
     Result result =
         subject
             .updateWithApplicantId(
@@ -1345,8 +1273,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "InitialLastName"))
             .build();
 
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
-
     subject
         .updateWithApplicantId(
             requestWithAnswer,
@@ -1368,75 +1294,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
                     ""))
             .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
-
-    Result result =
-        subject
-            .updateWithApplicantId(
-                requestWithoutAnswer,
-                applicant.id,
-                program.id,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                requestedAction)
-            .toCompletableFuture()
-            .join();
-
-    // Verify errors are shown because required questions must be answered
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Please enter your first name.");
-    assertThat(contentAsString(result)).contains("Please enter your last name.");
-  }
-
-  @Test
-  @Parameters({"NEXT_BLOCK", "REVIEW_PAGE", "PREVIOUS_BLOCK"})
-  public void northstar_update_deletePreviousAnswerToRequiredQuestion_staysOnBlockAndShowsErrors(
-      String action) {
-    ApplicantRequestedActionWrapper requestedAction =
-        new ApplicantRequestedActionWrapper(ApplicantRequestedAction.valueOf(action));
-
-    // First, provide an answer
-    program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().nameApplicantName())
-            .build();
-    Request requestWithAnswer =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
-                    "InitialFirstName",
-                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
-                    "InitialLastName"))
-            .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
-
-    subject
-        .updateWithApplicantId(
-            requestWithAnswer,
-            applicant.id,
-            program.id,
-            /* blockId= */ "1",
-            /* inReview= */ false,
-            requestedAction)
-        .toCompletableFuture()
-        .join();
-
-    // Then, try to delete the answer
-    Request requestWithoutAnswer =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
-                    "",
-                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
-                    ""))
-            .build();
-
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     Result result =
         subject

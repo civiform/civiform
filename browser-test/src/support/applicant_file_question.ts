@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 
 /** Class for working with the file upload question that applicants see. */
 export class ApplicantFileQuestion {
@@ -25,23 +25,7 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
   }
 
-  async expectFileSelectionErrorShown() {
-    await expect(
-      this.page.locator(this.fileSelectionErrorLocator),
-    ).toBeVisible()
-  }
-
   async expectFileSelectionErrorHidden() {
-    await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
-  }
-
-  async expectNorthStarNoFileSelectedErrorShown() {
-    await expect(
-      this.page.locator(this.fileSelectionErrorLocator),
-    ).toBeVisible()
-  }
-
-  async expectNorthStarNoFileSelectedErrorHidden() {
     await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
   }
 
@@ -98,7 +82,7 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.continueButtonLocator)).toBeHidden()
   }
 
-  // In North Star, the Continue button has form="cf-fileupload-continue-form".
+  // The Continue button has form="cf-fileupload-continue-form".
   async expectHasContinueForm() {
     await expect(this.page.locator(this.continueFormLocator)).toBeAttached()
   }

@@ -18,13 +18,9 @@ test.describe(
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
-      await adminPrograms.addProgram(
-        hiddenProgramNoQuestions,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.HIDDEN,
-      )
+      await adminPrograms.addProgram(hiddenProgramNoQuestions, {
+        visibility: ProgramVisibility.HIDDEN,
+      })
 
       // Create a new question referenced by a program.
       await adminQuestions.addAddressQuestion({questionName, questionText})
@@ -128,77 +124,77 @@ test.describe(
 )
 
 test.describe('publish all programs -- universal questions', () => {
-  test(
-    'shows a modal with information about universal questions',
-    {tag: ['@northstar']},
-    async ({page, adminPrograms, adminQuestions}) => {
-      const programOne = 'program one'
-      const programTwo = 'program two'
-      const nameQuestion = 'name'
-      const textQuestion = 'text'
-      const addressQuestion = 'address'
+  test('shows a modal with information about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    const programOne = 'program one'
+    const programTwo = 'program two'
+    const nameQuestion = 'name'
+    const textQuestion = 'text'
+    const addressQuestion = 'address'
 
-      await loginAsAdmin(page)
+    await loginAsAdmin(page)
 
-      await test.step('Create programs', async () => {
-        await adminPrograms.addProgram(programOne)
-        await adminPrograms.addProgram(programTwo)
+    await test.step('Create programs', async () => {
+      await adminPrograms.addProgram(programOne)
+      await adminPrograms.addProgram(programTwo)
+    })
+
+    await test.step('Create questions', async () => {
+      await adminQuestions.addNameQuestion({
+        questionName: nameQuestion,
+        universal: true,
       })
 
-      await test.step('Create questions', async () => {
-        await adminQuestions.addNameQuestion({
-          questionName: nameQuestion,
-          universal: true,
-        })
-
-        await adminQuestions.addTextQuestion({
-          questionName: textQuestion,
-          universal: true,
-        })
-
-        await adminQuestions.addAddressQuestion({
-          questionName: addressQuestion,
-          universal: false,
-        })
+      await adminQuestions.addTextQuestion({
+        questionName: textQuestion,
+        universal: true,
       })
 
-      await test.step('Add questions to programs', async () => {
-        await adminPrograms.gotoEditDraftProgramPage(programOne)
-        await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
-        await adminPrograms.addQuestionFromQuestionBank(textQuestion)
-        await adminPrograms.gotoEditDraftProgramPage(programTwo)
-        await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
-        await adminPrograms.addQuestionFromQuestionBank(addressQuestion)
+      await adminQuestions.addAddressQuestion({
+        questionName: addressQuestion,
+        universal: false,
       })
+    })
 
-      await test.step('Trigger the modal', async () => {
-        await adminPrograms.gotoAdminProgramsPage()
+    await test.step('Add questions to programs', async () => {
+      await adminPrograms.gotoEditDraftProgramPage(programOne)
+      await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+      await adminPrograms.addQuestionFromQuestionBank(textQuestion)
+      await adminPrograms.gotoEditDraftProgramPage(programTwo)
+      await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
+      await adminPrograms.addQuestionFromQuestionBank(addressQuestion)
+    })
 
-        await page.locator('#publish-all-programs-modal-button').click()
+    await test.step('Trigger the modal', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
 
-        await expect(page.locator('#publish-all-programs-modal')).toContainText(
-          'program one (Publicly visible) - Contains all universal questions',
-        )
+      await page.locator('#publish-all-programs-modal-button').click()
 
-        await expect(page.locator('#publish-all-programs-modal')).toContainText(
-          'program two (Publicly visible) - Contains 1 of 2 universal questions',
-        )
+      await expect(page.locator('#publish-all-programs-modal')).toContainText(
+        'program one (Publicly visible) - Contains all universal questions',
+      )
 
-        await validateScreenshot(page, 'publish-all-programs-modal-with-uq')
-      })
+      await expect(page.locator('#publish-all-programs-modal')).toContainText(
+        'program two (Publicly visible) - Contains 1 of 2 universal questions',
+      )
 
-      await test.step('Publish the programs', async () => {
-        await adminQuestions.clickSubmitButtonAndNavigate(
-          'Publish all draft programs and questions',
-        )
-      })
+      await validateScreenshot(page, 'publish-all-programs-modal-with-uq')
+    })
 
-      await test.step('Assert program data', async () => {
-        await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
-        await adminPrograms.expectDoesNotHaveDraftProgram(programTwo)
-        await adminPrograms.expectActiveProgram(programOne)
-        await adminPrograms.expectActiveProgram(programTwo)
-      })
-    },
-  )
+    await test.step('Publish the programs', async () => {
+      await adminQuestions.clickSubmitButtonAndNavigate(
+        'Publish all draft programs and questions',
+      )
+    })
+
+    await test.step('Assert program data', async () => {
+      await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
+      await adminPrograms.expectDoesNotHaveDraftProgram(programTwo)
+      await adminPrograms.expectActiveProgram(programOne)
+      await adminPrograms.expectActiveProgram(programTwo)
+    })
+  })
 })

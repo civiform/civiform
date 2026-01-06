@@ -490,7 +490,7 @@ content.preScreenerNoMatchingProgramsTi=L''outil de présélection n''a trouvé 
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Télécharger votre demande d''inscription
+button.downloadApplication=Télécharger votre demande d'inscription
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
 # Heading above a section showing the user's name, confirmation number, and date
@@ -968,7 +968,7 @@ error.internalServerTitle.v2=Une erreur s''est produite
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Malheureusement, une erreur interne s''est produite dans notre système.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse {0} pour obtenir de l''aide, en incluant l''ID d''erreur {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Ouvrir la page d''accueil
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,6 +1043,21 @@ banner.minute=1 minute
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Garde d''enfants
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=Énergie
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Vétéran
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Catégories
 
 #------------------------------------------------------------------------------#

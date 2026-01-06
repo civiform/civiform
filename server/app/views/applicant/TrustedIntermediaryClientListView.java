@@ -54,7 +54,6 @@ import views.ViewUtils;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashboardView {
@@ -207,7 +206,14 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
 
   private ATag renderClearSearchLink(Messages messages) {
     return new LinkElement()
-        .setId(ReferenceClasses.TI_CLEAR_SEARCH)
+        .setHref(
+            routes.TrustedIntermediaryController.dashboard(
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty())
+                .url())
         .setText(messages.at(MessageKey.BUTTON_CLEAR_SEARCH.getKeyName()))
         .asAnchorText();
   }

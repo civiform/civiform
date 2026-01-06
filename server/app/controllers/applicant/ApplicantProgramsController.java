@@ -35,10 +35,8 @@ import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.NorthStarFilteredProgramsViewPartial;
-import views.applicant.NorthStarProgramIndexView;
+import views.applicant.FilteredProgramsViewPartial;
 import views.applicant.ProgramIndexView;
-import views.components.ToastMessage;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must
@@ -51,13 +49,12 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final ProgramIndexView programIndexView;
   private final ApplicantDisabledProgramView disabledProgramInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
-  private final NorthStarProgramIndexView northStarProgramIndexView;
-  private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
+  private final ProgramIndexView programIndexView;
+  private final FilteredProgramsViewPartial filteredProgramsViewPartial;
   private final MonitoringMetricCounters metricCounters;
 
   @Inject
@@ -65,27 +62,25 @@ public final class ApplicantProgramsController extends CiviFormController {
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      ProgramIndexView programIndexView,
       ApplicantDisabledProgramView disabledProgramInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView,
-      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial,
+      ProgramIndexView programIndexView,
+      FilteredProgramsViewPartial filteredProgramsViewPartial,
       MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
-    this.programIndexView = checkNotNull(programIndexView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
-    this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
+    this.programIndexView = checkNotNull(programIndexView);
+    this.filteredProgramsViewPartial = checkNotNull(filteredProgramsViewPartial);
     this.metricCounters = checkNotNull(metricCounters);
   }
 
@@ -98,7 +93,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
-    Optional<ToastMessage> banner = bannerMessage.map(ToastMessage::alert);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
 
@@ -111,32 +105,16 @@ public final class ApplicantProgramsController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              Result result;
-              // TODO(#11577): North star clean up
-              if (settingsManifest.getNorthStarApplicantUi()) {
-                result =
-                    ok(northStarProgramIndexView.render(
-                            messagesApi.preferred(request),
-                            request,
-                            Optional.of(applicantId),
-                            applicantStage.toCompletableFuture().join(),
-                            applicationPrograms,
-                            bannerMessage,
-                            Optional.of(requesterProfile)))
-                        .as(Http.MimeTypes.HTML);
-              } else {
-                result =
-                    ok(
-                        programIndexView.render(
-                            messagesApi.preferred(request),
-                            request,
-                            Optional.of(applicantId),
-                            applicantStage.toCompletableFuture().join(),
-                            applicationPrograms,
-                            ImmutableList.copyOf(categories),
-                            banner,
-                            Optional.of(requesterProfile)));
-              }
+              Result result =
+                  ok(programIndexView.render(
+                          messagesApi.preferred(request),
+                          request,
+                          Optional.of(applicantId),
+                          applicantStage.toCompletableFuture().join(),
+                          applicationPrograms,
+                          bannerMessage,
+                          Optional.of(requesterProfile)))
+                      .as(Http.MimeTypes.HTML);
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
               // logging in.
@@ -166,25 +144,16 @@ public final class ApplicantProgramsController extends CiviFormController {
         applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
 
     return programsFuture.thenApplyAsync(
-        programs -> {
-          // TODO(#11577): North star clean up
-          return settingsManifest.getNorthStarApplicantUi()
-              ? ok(northStarProgramIndexView.render(
-                      messagesApi.preferred(request),
-                      request,
-                      Optional.empty(),
-                      ApplicantPersonalInfo.ofGuestUser(),
-                      programsFuture.join(),
-                      request.flash().get(FlashKey.BANNER),
-                      Optional.empty()))
-                  .as(Http.MimeTypes.HTML)
-              : ok(
-                  programIndexView.renderWithoutApplicant(
-                      messagesApi.preferred(request),
-                      request,
-                      programs,
-                      ImmutableList.copyOf(categories)));
-        });
+        programs ->
+            ok(programIndexView.render(
+                    messagesApi.preferred(request),
+                    request,
+                    Optional.empty(),
+                    ApplicantPersonalInfo.ofGuestUser(),
+                    programsFuture.join(),
+                    request.flash().get(FlashKey.BANNER),
+                    Optional.empty()))
+                .as(Http.MimeTypes.HTML));
   }
 
   public CompletionStage<Result> index(Request request, List<String> categories) {
@@ -362,11 +331,12 @@ public final class ApplicantProgramsController extends CiviFormController {
         applicantService.getPersonalInfo(applicantId.get());
     return CompletableFuture.completedFuture(
         Results.notFound(
-            disabledProgramInfoView.render(
-                messagesApi.preferred(request),
-                request,
-                applicantId.orElseThrow(),
-                applicantStage.toCompletableFuture().join())));
+                disabledProgramInfoView.render(
+                    messagesApi.preferred(request),
+                    request,
+                    applicantId.orElseThrow(),
+                    applicantStage.toCompletableFuture().join()))
+            .as(Http.MimeTypes.HTML));
   }
 
   /**
@@ -392,7 +362,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     return CompletableFuture.supplyAsync(
             () ->
                 Results.ok(
-                        northStarFilteredProgramsViewPartial.render(
+                        filteredProgramsViewPartial.render(
                             messagesApi.preferred(request),
                             request,
                             maybeApplicantId,

@@ -9,6 +9,7 @@
   class="cf-question-name"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <!--/* Title and Help Text */-->
   <div class="cf-question-header">
@@ -143,9 +144,9 @@
         th:selected="${!nameQuestion.getNameSuffixValue.isEmpty()}"
       ></option>
       <option
-        th:each="option,iterator: ${nameSuffixOptions}"
+        th:each="option: ${nameSuffixOptions}"
         th:value="${option.getValue()}"
-        th:text="${option.getValue()}"
+        th:text="#{${option.getTranslationKey()}}"
         th:selected="${!nameQuestion.getNameSuffixValue.isEmpty() && nameQuestion.getNameSuffixValue.get() == option.getValue()}"
       ></option>
     </select>

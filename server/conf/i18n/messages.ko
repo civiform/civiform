@@ -968,7 +968,7 @@ error.internalServerTitle.v2=오류가 발생했습니다
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=죄송합니다. Google 시스템에 내부 오류가 발생했습니다
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=도움이 필요한 경우 오류 ID({0})를 포함하여 기술 지원팀({1})에 문의하세요.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=홈페이지 방문
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,6 +1043,21 @@ banner.minute=1분
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=육아
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=유틸리티
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=군필
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=카테고리
 
 #------------------------------------------------------------------------------#

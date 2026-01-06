@@ -109,7 +109,7 @@ public abstract class AnswerData {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setProgramId(Long programId);
+    public abstract Builder setProgramId(long programId);
 
     public abstract Builder setBlockId(String blockId);
 
@@ -145,7 +145,7 @@ public abstract class AnswerData {
 
     public abstract Builder setFileNames(ImmutableList<String> fileNames);
 
-    public abstract Builder setTimestamp(Long timestamp);
+    public abstract Builder setTimestamp(long timestamp);
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
 

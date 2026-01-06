@@ -210,9 +210,11 @@ public final class AddressQuestion extends AbstractQuestion {
       return serviceAreaValue;
     }
 
-    return applicantQuestion
-        .getApplicantData()
-        .readServiceAreaList(getServiceAreasPath().safeWithoutArrayReference());
+    serviceAreaValue =
+        applicantQuestion
+            .getApplicantData()
+            .readServiceAreaList(getServiceAreasPath().safeWithoutArrayReference());
+    return serviceAreaValue;
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {

@@ -69,7 +69,6 @@ public class CiviFormProfile {
 
     // If the applicant id has not yet been stored in the profile, then get it from the account,
     // which requires an extra db fetch.
-    // TODO(#11304#issuecomment-3233634460): Selecting the oldest account is likely incorrect.
     return this.getAccount()
         .thenApplyAsync(
             (account) ->
@@ -81,7 +80,6 @@ public class CiviFormProfile {
   private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
     // Accounts (should) correspond to a single applicant, but they don't in particular for guests
     // merged into logged in accounts.
-    // TODO(#11304#issuecomment-3233634460): Selecting the oldest account is likely incorrect.
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 

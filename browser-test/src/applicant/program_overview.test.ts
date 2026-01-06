@@ -7,11 +7,12 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
+  waitForPageJsLoad,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
-test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
+test.describe('Applicant program overview', () => {
   const programName = 'test'
   const questionText = 'This is a text question'
 
@@ -76,18 +77,16 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     await page.goto(`/programs/${programName}`)
 
     await applicantProgramOverview.expectProgramOverviewPage(programName)
-    await validateScreenshot(
-      page.locator('main'),
-      'program-overview',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
+    await validateScreenshot(page.locator('main'), 'program-overview', {
+      fullPage: false,
+      mobileScreenshot: true,
+    })
     await validateAccessibility(page)
   })
 
   test.describe('after starting an application', () => {
     test.beforeEach(async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
     })
@@ -104,7 +103,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
       // Exercise test user path
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
 
@@ -208,10 +207,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     // Eligibility is gating by default
@@ -222,10 +221,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as ineligible when the eligibility condition is not met and eligibilty is gating', async () => {
@@ -247,10 +246,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that no alert shows when eligibilty is not gating and the eligibility condition is not met', async () => {
@@ -260,10 +259,10 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as eligible when the eligibility condition is met and eligibilty is not gating', async () => {
@@ -415,82 +414,135 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
   test('renders right to left', async ({page}) => {
     await page.goto(`/programs/${programName}`)
-    await selectApplicantLanguageNorthstar(page, 'ar')
+    await selectApplicantLanguage(page, 'ar')
 
     await validateAccessibility(page)
 
     await validateScreenshot(
       page.locator('main'),
       'program-overview-right-to-left',
-      /* fullPage= */ true,
-      /* mobileScreenshot= */ true,
+      {
+        mobileScreenshot: true,
+      },
     )
   })
 })
 
-test.describe(
-  'Applicant program overview for login only program',
-  {tag: ['@northstar']},
-  () => {
+test.describe('Applicant program overview for login only program', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+  })
+
+  test('login only program has no start application button when entering as guest', async ({
+    page,
+  }) => {
     const programName = 'loginonly'
 
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await test.step('create a new program', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.goToProgramDescriptionPage(programName)
-        await adminPrograms.setProgramToLoginOnly(true)
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
+    await page.goto(`/programs/${programName}`)
+    await expect(
+      page.getByRole('link', {name: 'Start an application'}).first(),
+    ).toBeHidden()
+
+    await expect(
+      page.getByRole('button', {name: 'Start application as a guest'}),
+    ).toBeHidden()
+
+    // there is a link and button with the same name, check both
+    await expect(
+      page
+        .getByRole('button', {name: 'Start application with an account'})
+        .first(),
+    ).toBeVisible()
+
+    await expect(
+      page
+        .getByRole('link', {name: 'Start application with an account'})
+        .first(),
+    ).toBeVisible()
+
+    // login only create account message
+    await expect(
+      page.getByLabel(
+        'For your information: To access your application later, you must create an account',
+      ),
+    ).toBeVisible()
+  })
+  test('login only program has start application button when entering as a logged in user', async ({
+    page,
+  }) => {
+    const programName = 'loginonly'
+
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+
+    await expect(
+      page.getByRole('link', {name: 'Start an application'}).first(),
+    ).toBeVisible()
+  })
+})
+
+test.describe('guest cannot complete applications for login only program', () => {
+  const programName = 'loginonly'
+
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'name',
+        universal: true,
       })
+
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'First block',
+        questions: [{name: 'name', isOptional: false}],
+      })
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.setProgramToLoginOnly(true)
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
+  })
 
-    test('login only program has no start application button when entering as guest', async ({
-      page,
-    }) => {
-      const programName = 'loginonly'
+  test('guest user on landing in the middle of the application, only sees the alert', async ({
+    page,
+  }) => {
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+    await page.getByRole('link', {name: 'Start an application'}).first().click()
+    await waitForPageJsLoad(page)
 
-      await page.goto(`/programs/${programName}`)
-      await expect(
-        page.getByRole('link', {name: 'Start an application'}).first(),
-      ).toBeHidden()
+    // logged in user can see the application page
+    await expect(page.getByText('name question text')).toBeVisible()
 
-      await expect(
-        page.getByRole('button', {name: 'Start application as a guest'}),
-      ).toBeHidden()
+    const applicationURL = page.url()
+    await logout(page)
 
-      // there is a link and button with the same name, check both
-      await expect(
-        page
-          .getByRole('button', {name: 'Start application with an account'})
-          .first(),
-      ).toBeVisible()
-
-      await expect(
-        page
-          .getByRole('link', {name: 'Start application with an account'})
-          .first(),
-      ).toBeVisible()
-
-      // login only create account message
-      await expect(
-        page.getByLabel(
-          'For your information: To access your application later, you must create an account',
-        ),
-      ).toBeVisible()
-    })
-    test('login only program has start application button when entering as a logged in user', async ({
-      page,
-    }) => {
-      const programName = 'loginonly'
-
-      await loginAsTestUser(page)
-      await page.goto(`/programs/${programName}`)
-
-      await expect(
-        page.getByRole('link', {name: 'Start an application'}).first(),
-      ).toBeVisible()
-    })
-  },
-)
+    // go to the the middle of the application as a guest using the same URL
+    await page.goto(applicationURL)
+    await expect(page.getByText('name')).toBeHidden()
+    await expect(
+      page.getByRole('heading', {
+        name: 'You must log in to apply for this program',
+      }),
+    ).toBeVisible()
+    await expect(
+      page.getByText(
+        'Please log in or create an account to continue with this application.',
+      ),
+    ).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
+  })
+})

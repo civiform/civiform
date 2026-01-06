@@ -179,7 +179,7 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              /* externalLink= */ "https://github.com/civiform/civiform",
+              /* externalLink= */ "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
@@ -203,7 +203,11 @@ public final class DevDatabaseSeedTask {
       programService.updateBlock(programId, blockId, blockForm).getResult();
 
       long nameQuestionId = getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(nameQuestionId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(nameQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
@@ -227,7 +231,7 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              "https://github.com/civiform/civiform",
+              "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
@@ -272,10 +276,16 @@ public final class DevDatabaseSeedTask {
               getCreatedId(CURRENCY_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 2");
       blockForm.setDescription("one of each question type - part 2");
       programService.updateBlock(programId, blockId, blockForm);
@@ -287,15 +297,25 @@ public final class DevDatabaseSeedTask {
               getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.of(true))
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
       long enumeratorId = getCreatedId(ENUMERATOR_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(enumeratorId),
+          /* enumeratorImprovementsEnabled= */ false);
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
       blockId =
@@ -318,20 +338,34 @@ public final class DevDatabaseSeedTask {
               questionService
                   .create(dateEnumeratedQuestionDefinition(enumeratorId))
                   .getResult()
-                  .getId()));
+                  .getId()),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 3");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId =
           getCreatedId(RADIO_BUTTON_QUESTION_DEFINITION, createdSampleQuestions);
       programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(radioButtonQuestionId));
+          programId,
+          blockId,
+          ImmutableList.of(radioButtonQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen with Predicate");
       blockForm.setDescription("May be hidden");
       programService.updateBlock(programId, blockId, blockForm);
@@ -340,7 +374,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(
-              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -355,12 +390,21 @@ public final class DevDatabaseSeedTask {
 
       // Add file upload as optional to make local testing easier.
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(programId, Optional.empty())
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
       long fileQuestionId = getCreatedId(FILE_UPLOAD_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(fileQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 

@@ -14,7 +14,6 @@ import static views.BaseHtmlView.asRedirectElement;
 import static views.ViewUtils.makeSvgTextButton;
 
 import auth.CiviFormProfile;
-import controllers.AssetsFinder;
 import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -27,6 +26,7 @@ import java.util.Optional;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
@@ -70,9 +70,9 @@ public final class AdminLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       MessagesApi messagesApi) {
-    super(viewUtils, settingsManifest, deploymentType, assetsFinder);
+    super(viewUtils, settingsManifest, deploymentType, bundledAssetsFinder);
     this.activeNavPage = activeNavPage;
     this.translationLocales = checkNotNull(translationLocales);
     this.messagesApi = checkNotNull(messagesApi);

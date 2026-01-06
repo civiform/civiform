@@ -391,19 +391,32 @@ public class ProgramBuilder {
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, "", "", Optional.empty(), /* isEnumerator= */ Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
   public BlockBuilder withBlock(String name) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name, "", Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, name, "", Optional.empty(), /* isEnumerator= */ Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder}. */
   public BlockBuilder withBlock(String name, String description) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name, description, Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, name, description, Optional.empty(), /* isEnumerator= */ Optional.empty());
+  }
+
+  /**
+   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and description
+   * and isEnumerator set to true.
+   */
+  public BlockBuilder withEnumeratorBlock() {
+    long blockId = Long.valueOf(numBlocks.incrementAndGet());
+    return BlockBuilder.newBlock(
+        this, blockId, "", "", Optional.empty(), /* isEnumerator= */ Optional.of(true));
   }
 
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
@@ -448,7 +461,8 @@ public class ProgramBuilder {
         long id,
         String name,
         String description,
-        Optional<Long> enumeratorId) {
+        Optional<Long> enumeratorId,
+        Optional<Boolean> isEnumerator) {
       BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
       blockBuilder.blockDefBuilder =
           BlockDefinition.builder()
@@ -457,7 +471,8 @@ public class ProgramBuilder {
               .setDescription(description)
               .setLocalizedName(LocalizedStrings.withDefaultValue(name))
               .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
-              .setEnumeratorId(enumeratorId);
+              .setEnumeratorId(enumeratorId)
+              .setIsEnumerator(isEnumerator);
       return blockBuilder;
     }
 
@@ -590,7 +605,13 @@ public class ProgramBuilder {
     public BlockBuilder withBlock(String name, String description) {
       programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
-      return BlockBuilder.newBlock(programBuilder, blockId, name, description, Optional.empty());
+      return BlockBuilder.newBlock(
+          programBuilder,
+          blockId,
+          name,
+          description,
+          Optional.empty(),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**
@@ -618,14 +639,19 @@ public class ProgramBuilder {
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.isEnumerator()) {
+      if (!thisBlock.hasEnumeratorQuestion()) {
         throw new RuntimeException(
             "Cannot create a repeated block if this block is not an enumerator.");
       }
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
       return BlockBuilder.newBlock(
-          programBuilder, blockId, name, description, Optional.of(thisBlock.id()));
+          programBuilder,
+          blockId,
+          name,
+          description,
+          Optional.of(thisBlock.id()),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**
@@ -660,7 +686,12 @@ public class ProgramBuilder {
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
       return BlockBuilder.newBlock(
-          programBuilder, blockId, name, description, thisBlock.enumeratorId());
+          programBuilder,
+          blockId,
+          name,
+          description,
+          thisBlock.enumeratorId(),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**

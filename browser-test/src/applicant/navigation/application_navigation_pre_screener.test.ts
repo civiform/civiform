@@ -6,7 +6,7 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -14,7 +14,7 @@ import {
 import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   test.describe('navigation with pre-screener', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'
@@ -32,7 +32,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         })
 
         // Set up pre-screener form
-        await adminPrograms.addPreScreenerNS(
+        await adminPrograms.addPreScreener(
           preScreenerProgramName,
           'short program description',
           ProgramVisibility.PUBLIC,
@@ -77,7 +77,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -85,7 +84,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -102,7 +101,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -110,7 +108,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -126,7 +124,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -134,18 +131,15 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page', {
+        mobileScreenshot: true,
+      })
       await validateAccessibility(page)
     })
 
@@ -156,7 +150,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -164,7 +157,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -182,7 +175,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -190,19 +182,20 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateAccessibility(page)
 
       await validateScreenshot(
         page.locator('main'),
         'pre-screener-upsell-right-to-left',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+        {
+          mobileScreenshot: true,
+        },
       )
     })
 
@@ -214,7 +207,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -222,7 +214,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -271,7 +263,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -279,7 +270,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
@@ -309,7 +300,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
         preScreenerProgramName,
-        /* northStarEnabled= */ true,
         // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
@@ -317,7 +307,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],

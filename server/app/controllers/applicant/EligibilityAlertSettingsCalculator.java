@@ -217,14 +217,14 @@ public final class EligibilityAlertSettingsCalculator {
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
 
   /**
-   * Returns true if eligibility is enabled on the program and it is not a common intake form, false
+   * Returns true if eligibility is enabled on the program and it is not a pre-screener form, false
    * otherwise.
    */
   private boolean canShowEligibilitySettings(long programId) {
     try {
       var programDefinition = programService.getFullProgramDefinition(programId);
 
-      return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
+      return !programDefinition.isPreScreenerForm() && programDefinition.hasEligibilityEnabled();
     } catch (ProgramNotFoundException ex) {
       // Checked exceptions are the devil and we've already determined that this program exists by
       // this point

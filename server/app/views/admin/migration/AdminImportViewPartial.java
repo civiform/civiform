@@ -38,7 +38,6 @@ import views.admin.QuestionCard;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.questiontypes.RadioButtonQuestionRenderer;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {

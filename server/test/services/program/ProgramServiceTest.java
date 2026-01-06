@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -38,11 +39,13 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
 import play.inject.BindingKey;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -66,6 +69,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -75,10 +79,13 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition secondaryAddressQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
+  private QuestionDefinition enumeratorQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
   private TranslationLocales translationLocales;
+  private SettingsManifest mockSettingsManifest;
+  private final Request fakeRequest = fakeRequestBuilder().build();
 
   @Before
   public void setProgramServiceImpl() {
@@ -107,7 +114,10 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     categoryRepository = instanceOf(CategoryRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
   }
 
   @Test
@@ -456,7 +466,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program slug is required"),
             CiviFormError.of("One or more notification preferences are invalid"));
   }
 
@@ -526,7 +536,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("A program URL of name already exists"));
+        .containsExactly(CiviFormError.of("A program slug of name already exists"));
   }
 
   @Test
@@ -555,7 +565,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsExactly(
             CiviFormError.of(
-                "A program URL may only contain lowercase letters, numbers, and dashes"));
+                "A program slug may only contain lowercase letters, numbers, and dashes"));
   }
 
   @Test
@@ -609,7 +619,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+        .containsExactly(CiviFormError.of("A program slug of name-one already exists"));
   }
 
   @Test
@@ -722,7 +732,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
 
@@ -747,7 +757,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
 
-    commonIntakeForm = ps.getCommonIntakeForm();
+    commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-two");
     Optional<ProgramDefinition> oldCommonIntake =
@@ -776,7 +786,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program slug is required"),
             CiviFormError.of("One or more notification preferences are invalid"));
   }
 
@@ -849,7 +859,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result)
         .containsExactly(
             CiviFormError.of(
-                "A program URL may only contain lowercase letters, numbers, and dashes"));
+                "A program slug may only contain lowercase letters, numbers, and dashes"));
   }
 
   @Test
@@ -871,7 +881,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT);
 
     assertThat(result)
-        .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
+        .containsExactly(CiviFormError.of("A program slug must contain at least one letter"));
   }
 
   @Test
@@ -980,7 +990,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableMap.of(),
             ProgramType.DEFAULT);
     assertThat(result)
-        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+        .containsExactly(CiviFormError.of("A program slug of name-one already exists"));
   }
 
   @Test
@@ -1239,7 +1249,11 @@ public class ProgramServiceTest extends ResetPostgres {
   public void updateProgram_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-    ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
+    ps.addQuestionsToBlock(
+        program.id(),
+        1L,
+        ImmutableList.of(question.getId()),
+        /* enumeratorImprovementsEnabled= */ false);
 
     ProgramDefinition found =
         ps.updateProgramDefinition(
@@ -1394,7 +1408,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
 
@@ -1421,7 +1435,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-    commonIntakeForm = ps.getCommonIntakeForm();
+    commonIntakeForm = ps.getPreScreenerForm();
     assertThat(commonIntakeForm).isPresent();
     assertThat(commonIntakeForm.get().adminName()).isEqualTo(program.adminName());
     Optional<ProgramDefinition> oldCommonIntake =
@@ -1730,7 +1744,11 @@ public class ProgramServiceTest extends ResetPostgres {
   public void getProgramDefinition_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-    ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(question.getId()));
+    ps.addQuestionsToBlock(
+        program.id(),
+        1L,
+        ImmutableList.of(question.getId()),
+        /* enumeratorImprovementsEnabled= */ false);
 
     ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
@@ -1936,7 +1954,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> ps.addBlockToProgram(1L))
+    assertThatThrownBy(
+            () -> ps.addBlockToProgram(/* programId= */ 1L, /* isEnumerator= */ Optional.empty()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -1946,7 +1965,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1978,7 +1998,8 @@ public class ProgramServiceTest extends ResetPostgres {
     long programId = programDefinition.id();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -1992,6 +2013,29 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
     assertThat(found.blockDefinitions().get(1).id()).isEqualTo(addedBlock.id());
+  }
+
+  @Test
+  public void addBlockToProgram_withIsEnumerator_returnsProgramDefinitionWithEnumeratorBlock()
+      throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    long programId = programDefinition.id();
+
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.of(true));
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+
+    ProgramDefinition found = ps.getFullProgramDefinition(programId);
+
+    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+    assertThat(found.blockDefinitions().get(1).getIsEnumerator()).isEqualTo(true);
   }
 
   @Test
@@ -2018,12 +2062,12 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
@@ -2070,17 +2114,17 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition found = ps.getFullProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
-    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition());
 
-    assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().hasEnumeratorQuestion()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
@@ -2262,7 +2306,12 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     assertThatThrownBy(
-            () -> ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+            () ->
+                ps.addQuestionsToBlock(
+                    program.id,
+                    1L,
+                    ImmutableList.of(questionA.getId()),
+                    /* enumeratorImprovementsEnabled= */ false))
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
@@ -2282,10 +2331,31 @@ public class ProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(questionA)
             .buildDefinition();
 
-    program = ps.addQuestionsToBlock(program.id(), 1L, ImmutableList.of(questionB.getId()));
+    program =
+        ps.addQuestionsToBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(questionB.getId()),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
+  }
+
+  @Test
+  public void addQuestionsToBlock_setsIsEnumeratorOnBlockDefinition_whenQuestionIsEnumerator()
+      throws Exception {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
+
+    program =
+        ps.addQuestionsToBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(enumeratorQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
   }
 
   @Test
@@ -2295,7 +2365,13 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
 
     assertThatThrownBy(
-            () -> ps.removeQuestionsFromBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+            () ->
+                ps.removeQuestionsFromBlock(
+                    program.id,
+                    1L,
+                    ImmutableList.of(questionA.getId()),
+                    mockSettingsManifest,
+                    fakeRequest))
         .isInstanceOf(QuestionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -2314,10 +2390,78 @@ public class ProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(questionB)
             .buildDefinition();
 
-    program = ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(questionB.getId()));
+    program =
+        ps.removeQuestionsFromBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(questionB.getId()),
+            mockSettingsManifest,
+            fakeRequest);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isFalse();
+  }
+
+  @Test
+  public void
+      removeQuestionsFromBlock_setsIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsDisabled()
+          throws Exception {
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(false);
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
+
+    program =
+        ps.addQuestionsToBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(enumeratorQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
+
+    program =
+        ps.removeQuestionsFromBlock(
+            program.id(),
+            1L,
+            ImmutableList.of(enumeratorQuestion.getId()),
+            mockSettingsManifest,
+            fakeRequest);
+
+    assertThat(program.hasQuestion(enumeratorQuestion)).isFalse();
+    assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isFalse();
+  }
+
+  @Test
+  public void
+      removeQuestionsFromBlock_doesNotSetIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsEnabled()
+          throws Exception {
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(true);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withEnumeratorBlock().buildDefinition();
+
+    programDefinition =
+        ps.addQuestionsToBlock(
+            programDefinition.id(),
+            1L,
+            ImmutableList.of(enumeratorQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ true);
+
+    assertThat(programDefinition.hasQuestion(enumeratorQuestion)).isTrue();
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
+
+    // Remove the enumerator question as in test above, but expect isEnumerator to stay true
+    programDefinition =
+        ps.removeQuestionsFromBlock(
+            programDefinition.id(),
+            1L,
+            ImmutableList.of(enumeratorQuestion.getId()),
+            mockSettingsManifest,
+            fakeRequest);
+
+    assertThat(programDefinition.hasQuestion(enumeratorQuestion)).isFalse();
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
   }
 
   @Test
@@ -2339,7 +2483,13 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(
-            () -> ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(question.getId())))
+            () ->
+                ps.removeQuestionsFromBlock(
+                    program.id(),
+                    1L,
+                    ImmutableList.of(question.getId()),
+                    mockSettingsManifest,
+                    fakeRequest))
         .withMessage("This action would invalidate a block condition");
   }
 
@@ -2742,7 +2892,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
     Optional<LocalizedStrings> eligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
@@ -2764,7 +2915,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addBlockToProgram(programDefinition.id());
+        ps.addBlockToProgram(
+            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     Optional<LocalizedStrings> secondEligibilityMsg =
@@ -3510,7 +3662,7 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
-    assertThat(ps.getCommonIntakeForm()).isNotPresent();
+    assertThat(ps.getPreScreenerForm()).isNotPresent();
   }
 
   @Test
@@ -3520,8 +3672,8 @@ public class ProgramServiceTest extends ResetPostgres {
         .build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
 
-    assertThat(ps.getCommonIntakeForm()).isPresent();
-    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+    assertThat(ps.getPreScreenerForm()).isPresent();
+    assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
   }
 
   @Test
@@ -3532,8 +3684,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
 
-    assertThat(ps.getCommonIntakeForm()).isPresent();
-    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+    assertThat(ps.getPreScreenerForm()).isPresent();
+    assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
   }
 
   @Test

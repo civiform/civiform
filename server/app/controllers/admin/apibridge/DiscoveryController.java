@@ -1,6 +1,6 @@
 package controllers.admin.apibridge;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;

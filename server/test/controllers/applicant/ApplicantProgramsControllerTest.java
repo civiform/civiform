@@ -48,8 +48,7 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.NorthStarFilteredProgramsViewPartial;
-import views.applicant.NorthStarProgramIndexView;
+import views.applicant.FilteredProgramsViewPartial;
 import views.applicant.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
@@ -73,15 +72,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(MessagesApi.class),
-            instanceOf(ProgramIndexView.class),
             instanceOf(ApplicantDisabledProgramView.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             settingsManifest,
-            instanceOf(NorthStarProgramIndexView.class),
-            instanceOf(NorthStarFilteredProgramsViewPartial.class),
+            instanceOf(ProgramIndexView.class),
+            instanceOf(FilteredProgramsViewPartial.class),
             instanceOf(MonitoringMetricCounters.class));
   }
 
@@ -147,7 +145,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(result.charset()).hasValue("utf-8");
+    // North Star views use .as(Http.MimeTypes.HTML) which doesn't set charset
     assertThat(contentAsString(result)).doesNotContain("program-card");
   }
 
@@ -166,7 +164,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
-    assertThat(contentAsString(result)).doesNotContain("three");
+    // Check that program "three" doesn't appear as a program card.
+    // Use a more specific pattern to avoid false positives from CSS class names
+    // like "padding-section-large-three-sides" which contain "three".
+    assertThat(contentAsString(result)).doesNotContain(">three</");
+    assertThat(contentAsString(result)).doesNotContain("/programs/three");
   }
 
   @Test
@@ -199,12 +201,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 3 times:
+    // In North Star, a program's name appears in the index view page content 2 times:
     //  1) Program card title
     //  2) Apply button aria-label
-    //  3) Info link aria-label
-    // If it appears 9 times, that means there is a duplicate of the program.
-    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(3);
+    // If it appears more times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
   }
 
   /** Returns the number of times a substring appears in the string. */
@@ -227,8 +228,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
+    // North Star uses program slug in URL instead of program ID
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
+        .contains(routes.ApplicantProgramsController.show(program.getSlug()).url());
   }
 
   @Test
@@ -242,8 +244,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
+    // In North Star, unstarted common intake forms use the edit URL with program ID
+    // (not the show URL with slug) to skip the program overview page.
+    // For regular applicants (non-TI), the URL doesn't include the applicant ID prefix.
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
+        .contains(
+            routes.ApplicantProgramsController.edit(
+                    String.valueOf(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test
@@ -349,17 +357,16 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
+    // North Star uses program slug in URL instead of program ID
     assertThat(content)
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(activeProgram.id)).url());
+        .contains(routes.ApplicantProgramsController.show(activeProgram.getSlug()).url());
     assertThat(content)
-        .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(disabledProgram.id)).url());
-    assertThat(content)
-        .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(hiddenInIndexProgram.id)).url());
+        .doesNotContain(routes.ApplicantProgramsController.show(disabledProgram.getSlug()).url());
     assertThat(content)
         .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(tiOnlyProgram.id)).url());
+            routes.ApplicantProgramsController.show(hiddenInIndexProgram.getSlug()).url());
+    assertThat(content)
+        .doesNotContain(routes.ApplicantProgramsController.show(tiOnlyProgram.getSlug()).url());
     assertThat(content).doesNotContain("End session");
     assertThat(content).doesNotContain("You're a guest user");
   }

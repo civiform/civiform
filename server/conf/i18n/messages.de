@@ -1043,6 +1043,21 @@ banner.minute=1 minute
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Childcare
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=Utilities
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Veteran
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Categories
 
 #------------------------------------------------------------------------------#

@@ -38,6 +38,7 @@ import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
 import repository.CategoryRepository;
@@ -57,6 +58,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 
 /**
@@ -76,11 +78,11 @@ public final class ProgramService {
       "A program visibility option must be selected";
   private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
       "One or more notification preferences are invalid";
-  private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
-  private static final String INVALID_ADMIN_NAME_MSG =
-      "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String MISSING_PROGRAM_SLUG_MSG = "A program slug is required";
   private static final String INVALID_PROGRAM_SLUG_MSG =
-      "A program URL must contain at least one letter";
+      "A program slug may only contain lowercase letters, numbers, and dashes";
+  private static final String NUMERIC_PROGRAM_SLUG_MSG =
+      "A program slug must contain at least one letter";
   private static final String INVALID_CATEGORY_MSG = "Only existing category ids are allowed";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
@@ -192,11 +194,11 @@ public final class ProgramService {
 
   /*
    * Looks at the most recent version of each program and returns the program marked as the
-   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   * pre-screener form if it exists. The most recent version may be in the draft or active stage.
    */
-  public Optional<ProgramDefinition> getCommonIntakeForm() {
+  public Optional<ProgramDefinition> getPreScreenerForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(ProgramDefinition::isCommonIntakeForm)
+        .filter(ProgramDefinition::isPreScreenerForm)
         .findFirst();
   }
 
@@ -418,13 +420,15 @@ public final class ProgramService {
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeEmptyBlock =
         createEmptyBlockDefinition(
-            /* blockId= */ 1, /* maybeEnumeratorBlockId= */ Optional.empty());
+            /* blockId= */ 1,
+            /* maybeEnumeratorBlockId= */ Optional.empty(),
+            /* isEnumerator= */ Optional.empty());
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
-      clearCommonIntakeForm();
+    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getPreScreenerForm().isPresent()) {
+      clearPreScreenerForm();
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -508,13 +512,13 @@ public final class ProgramService {
             bridgeDefinitions,
             programType));
     if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
+      errorsBuilder.add(CiviFormError.of(MISSING_PROGRAM_SLUG_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
-    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_SLUG_MSG));
+    } else if (StringUtils.isNumeric(MainModule.SLUGIFIER.slugify(adminName))) {
+      errorsBuilder.add(CiviFormError.of(NUMERIC_PROGRAM_SLUG_MSG));
     } else if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+      errorsBuilder.add(CiviFormError.of("A program slug of " + adminName + " already exists"));
     }
     return errorsBuilder.build();
   }
@@ -594,10 +598,10 @@ public final class ProgramService {
     }
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()
-          && !programDefinition.adminName().equals(maybeCommonIntakeForm.get().adminName())) {
-        clearCommonIntakeForm();
+      Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()
+          && !programDefinition.adminName().equals(maybePreScreenerForm.get().adminName())) {
+        clearPreScreenerForm();
       }
     }
 
@@ -608,7 +612,7 @@ public final class ProgramService {
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programDefinition.isCommonIntakeForm()) {
+        && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
     ImmutableList<ProgramNotificationPreference> notificationPreferencesAsEnums =
@@ -768,26 +772,26 @@ public final class ProgramService {
   }
 
   /**
-   * Clears the common intake form if it exists.
+   * Clears the pre-screener form if it exists.
    *
-   * <p>If there is a program among the most recent versions of all programs marked as the common
-   * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
+   * <p>If there is a program among the most recent versions of all programs marked as the
+   * pre-screener form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
    * necessary.
    */
-  private void clearCommonIntakeForm() {
-    Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
-    if (!maybeCommonIntakeForm.isPresent()) {
+  private void clearPreScreenerForm() {
+    Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
+    if (!maybePreScreenerForm.isPresent()) {
       return;
     }
-    ProgramDefinition draftCommonIntakeProgramDefinition =
+    ProgramDefinition draftPreScreenerProgramDefinition =
         programRepository.getShallowProgramDefinition(
-            programRepository.createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram()));
-    ProgramModel commonIntakeProgram =
-        draftCommonIntakeProgramDefinition.toBuilder()
+            programRepository.createOrUpdateDraft(maybePreScreenerForm.get().toProgram()));
+    ProgramModel preScreenerProgram =
+        draftPreScreenerProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
             .build()
             .toProgram();
-    programRepository.updateProgramSync(commonIntakeProgram);
+    programRepository.updateProgramSync(preScreenerProgram);
   }
 
   /**
@@ -911,7 +915,7 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
-    // Common intake and external programs don't have application steps.
+    // Pre-screener and external programs don't have application steps.
     if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
@@ -1183,15 +1187,14 @@ public final class ProgramService {
   }
 
   /**
-   * If the program is not a common intake program and has application steps, validate that all the
+   * If the program is not a pre-screener program and has application steps, validate that all the
    * existing application steps have translations
    */
   private void validateApplicationSteps(
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       LocalizationUpdate localizationUpdate,
       ProgramDefinition programDefinition) {
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
+    if (!programDefinition.isPreScreenerForm() && !programDefinition.applicationSteps().isEmpty()) {
       IntStream.range(0, programDefinition.applicationSteps().size())
           .forEach(
               i -> {
@@ -1320,10 +1323,10 @@ public final class ProgramService {
    *     succeeded, or a set of errors with the unmodified program and no block if failed.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
-      throws ProgramNotFoundException {
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
+      long programId, Optional<Boolean> isEnumerator) throws ProgramNotFoundException {
     try {
-      return addBlockToProgram(programId, Optional.empty());
+      return addBlockToProgram(programId, Optional.empty(), isEnumerator);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1348,11 +1351,12 @@ public final class ProgramService {
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
+    return addBlockToProgram(
+        programId, Optional.of(enumeratorBlockId), /* isEnumerator= */ Optional.empty());
   }
 
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> enumeratorBlockId)
+      long programId, Optional<Long> enumeratorBlockId, Optional<Boolean> isEnumerator)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
@@ -1361,7 +1365,8 @@ public final class ProgramService {
     }
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
-        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+        createEmptyBlockDefinition(
+            getNextBlockId(programDefinition), enumeratorBlockId, isEnumerator);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
@@ -1511,7 +1516,10 @@ public final class ProgramService {
    * @throws CantAddQuestionToBlockException if one of the questions can't be added to the block.
    */
   public ProgramDefinition addQuestionsToBlock(
-      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      boolean enumeratorImprovementsEnabled)
       throws CantAddQuestionToBlockException,
           QuestionNotFoundException,
           ProgramNotFoundException,
@@ -1535,7 +1543,11 @@ public final class ProgramService {
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
-              .canAddQuestion(programDefinition, blockDefinition, question.getQuestionDefinition());
+              .canAddQuestion(
+                  programDefinition,
+                  blockDefinition,
+                  question.getQuestionDefinition(),
+                  enumeratorImprovementsEnabled);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
@@ -1543,9 +1555,21 @@ public final class ProgramService {
       updatedBlockQuestions.add(question);
     }
 
+    ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
+        updatedBlockQuestions.build();
+
     blockDefinition =
         blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(updatedBlockQuestions.build())
+            .setProgramQuestionDefinitions(updatedBlockQuestionsList)
+            // TODO(#11943) Remove this when isEnumeratorImprovementsEnabled feature flag is removed
+            // because it will no longer be possible to add an enumerator question to a block that
+            // isn't already an enumerator block.
+            .setIsEnumerator(
+                updatedBlockQuestionsList.stream()
+                        .map(ProgramQuestionDefinition::getQuestionDefinition)
+                        .anyMatch(QuestionDefinition::isEnumerator)
+                    ? Optional.of(true)
+                    : Optional.empty())
             .build();
     try {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -1574,7 +1598,11 @@ public final class ProgramService {
    *     one question to remove
    */
   public ProgramDefinition removeQuestionsFromBlock(
-      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      SettingsManifest settingsManifest,
+      Request request)
       throws QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
@@ -1599,10 +1627,21 @@ public final class ProgramService {
             .filter(pqd -> !questionIds.contains(pqd.id()))
             .collect(ImmutableList.toImmutableList());
 
-    blockDefinition =
-        blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
-            .build();
+    boolean isRemovingEnumeratorQuestion =
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> questionIds.contains(pqd.id()))
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .anyMatch(QuestionDefinition::isEnumerator);
+
+    BlockDefinition.Builder blockBuilder =
+        blockDefinition.toBuilder().setProgramQuestionDefinitions(newProgramQuestionDefinitions);
+
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        && isRemovingEnumeratorQuestion) {
+      blockBuilder.setIsEnumerator(Optional.empty());
+    }
+
+    blockDefinition = blockBuilder.build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
   }
@@ -1659,7 +1698,7 @@ public final class ProgramService {
           EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
-    if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
+    if (programDefinition.isPreScreenerForm() && eligibility.isPresent()) {
       throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
     }
 
@@ -2053,7 +2092,7 @@ public final class ProgramService {
   }
 
   private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
@@ -2067,6 +2106,7 @@ public final class ProgramService {
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
             .setEnumeratorId(maybeEnumeratorBlockId)
+            .setIsEnumerator(isEnumerator)
             .build();
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
     return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);

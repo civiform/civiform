@@ -1,8 +1,8 @@
 package views.admin;
 
 import com.google.inject.Inject;
-import controllers.AssetsFinder;
 import play.i18n.MessagesApi;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
@@ -14,7 +14,7 @@ public final class AdminLayoutFactory {
   private final SettingsManifest settingsManifest;
   private final TranslationLocales translationLocales;
   private final DeploymentType deploymentType;
-  private final AssetsFinder assetsFinder;
+  private final BundledAssetsFinder bundledAssetsFinder;
   private final MessagesApi messagesApi;
 
   @Inject
@@ -23,13 +23,13 @@ public final class AdminLayoutFactory {
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder,
+      BundledAssetsFinder bundledAssetsFinder,
       MessagesApi messagesApi) {
     this.viewUtils = viewUtils;
     this.settingsManifest = settingsManifest;
     this.translationLocales = translationLocales;
     this.deploymentType = deploymentType;
-    this.assetsFinder = assetsFinder;
+    this.bundledAssetsFinder = bundledAssetsFinder;
     this.messagesApi = messagesApi;
   }
 
@@ -40,7 +40,7 @@ public final class AdminLayoutFactory {
         settingsManifest,
         translationLocales,
         deploymentType,
-        assetsFinder,
+        bundledAssetsFinder,
         messagesApi);
   }
 }

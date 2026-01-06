@@ -1,105 +1,140 @@
 package views.applicant;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.section;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.CiviFormProfile;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import j2html.tags.DomContent;
-import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SectionTag;
+import controllers.applicant.routes;
+import java.util.Locale;
 import java.util.Optional;
-import models.AccountModel;
-import play.i18n.Messages;
-import play.mvc.Http;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import services.AlertSettings;
+import services.AlertType;
+import services.BundledAssetsFinder;
+import services.DeploymentType;
 import services.MessageKey;
-import views.BaseHtmlView;
-import views.HtmlBundle;
-import views.components.ButtonStyles;
-import views.components.Modal;
-import views.components.ToastMessage;
-import views.style.ApplicantStyles;
-import views.style.StyleUtils;
+import services.settings.SettingsManifest;
+import views.ApplicantBaseView;
+import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.components.TextFormatter;
 
-/** Base class for confirmation pages after application submission. */
-public abstract class ApplicantUpsellView extends BaseHtmlView {
+public class ApplicantUpsellView extends ApplicantBaseView {
+  private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
-  protected static ButtonTag createApplyToProgramsButton(
-      String buttonId,
-      String buttonText,
-      Long applicantId,
-      CiviFormProfile profile,
-      ApplicantRoutes applicantRoutes) {
-    return redirectButton(buttonId, buttonText, applicantRoutes.index(profile, applicantId).url())
-        .withClasses(ButtonStyles.SOLID_BLUE);
+  @Inject
+  ApplicantUpsellView(
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      BundledAssetsFinder bundledAssetsFinder,
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest,
+      LanguageUtils languageUtils,
+      DeploymentType deploymentType,
+      ProgramCardsSectionParamsFactory programCardsSectionParamsFactory) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        bundledAssetsFinder,
+        applicantRoutes,
+        settingsManifest,
+        languageUtils,
+        deploymentType);
+    this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 
-  protected static DivTag createMainContent(
-      String title,
-      SectionTag confirmationSection,
-      Boolean shouldUpsell,
-      Messages messages,
-      String authProviderName,
-      ImmutableList<DomContent> actionButtons) {
-    return div()
-        .withClasses("w-5/6", StyleUtils.responsiveSmall("w-2/3"), "mx-auto")
-        .with(
-            div()
-                .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
-                .with(
-                    h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-                    confirmationSection,
-                    createAccountManagementSection(
-                        shouldUpsell, messages, authProviderName, actionButtons)));
-  }
+  public String render(UpsellParams params) {
+    ThymeleafModule.PlayThymeleafContext context =
+        createThymeleafContext(
+            params.request(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
+            params.applicantPersonalInfo(),
+            params.messages());
 
-  protected static HtmlBundle createHtmlBundle(
-      Http.Request request,
-      ApplicantLayout layout,
-      String title,
-      Optional<ToastMessage> bannerMessage,
-      Modal loginPromptModal,
-      DivTag mainContent) {
-    HtmlBundle bundle = layout.getBundle(request).setTitle(title);
-    bannerMessage.ifPresent(bundle::addToastMessages);
-    bundle
-        .addMainStyles("my-8", StyleUtils.responsiveSmall("my-12"))
-        .addMainContent(mainContent)
-        .addModals(loginPromptModal);
-    return bundle;
-  }
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
-  /** Don't show "create an account" upsell box to TIs, or anyone with an account already. */
-  protected static boolean shouldUpsell(AccountModel account) {
-    return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
-  }
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programShortDescription", params.programShortDescription().orElse(""));
+    context.setVariable("applicationId", params.applicationId());
+    context.setVariable("bannerMessage", params.bannerMessage());
 
-  private static SectionTag createAccountManagementSection(
-      boolean shouldUpsell,
-      Messages messages,
-      String authProviderName,
-      ImmutableList<DomContent> actionButtons) {
-    return section()
-        .condWith(
-            shouldUpsell,
-            h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
-                .withClasses("mb-4", "font-bold"),
-            div(messages.at(
-                    MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(), authProviderName))
-                .withClasses("mb-4"))
-        .with(
-            div()
-                .withClasses(
-                    "flex",
-                    "flex-col",
-                    "gap-4",
-                    "justify-end",
-                    StyleUtils.responsiveLarge("flex-row"))
-                .with(actionButtons));
+    String alertTitle =
+        params
+            .messages()
+            .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
+
+    String ariaLabel =
+        AlertSettings.getTitleAriaLabel(params.messages(), AlertType.SUCCESS, alertTitle);
+    AlertSettings successAlertSettings =
+        new AlertSettings(
+            /* show= */ true,
+            Optional.of(alertTitle),
+            "",
+            AlertType.SUCCESS,
+            ImmutableList.of(),
+            Optional.empty(),
+            Optional.of(ariaLabel),
+            /* isSlim= */ false);
+    context.setVariable("successAlertSettings", successAlertSettings);
+
+    String applicantName =
+        params.profile().getApplicant().join().getAccount().getApplicantDisplayName();
+    context.setVariable("applicantName", applicantName);
+
+    context.setVariable("dateSubmitted", params.dateSubmitted());
+
+    Locale locale = params.messages().lang().toLocale();
+    String customConfirmationMessageHtml =
+        TextFormatter.formatTextToSanitizedHTML(
+            params.customConfirmationMessage().getOrDefault(locale),
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            params
+                .messages()
+                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                .toLowerCase(Locale.ROOT));
+    context.setVariable("customConfirmationMessageHtml", customConfirmationMessageHtml);
+
+    // Info for login modal
+    String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
+    context.setVariable("upsellBypassUrl", applyToProgramsUrl);
+    context.setVariable(
+        "upsellLoginUrl",
+        controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
+
+    String downloadHref =
+        routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
+    context.setVariable("downloadHref", downloadHref);
+
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
+    // Cards section
+    Optional<ProgramSectionParams> cardsSection = Optional.empty();
+    if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(params.request())) {
+      cardsSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  params.request(),
+                  params.messages(),
+                  Optional.empty(),
+                  MessageKey.BUTTON_VIEW_AND_APPLY,
+                  params.eligiblePrograms().get(),
+                  /* preferredLocale= */ params.messages().lang().toLocale(),
+                  Optional.of(params.profile()),
+                  Optional.of(params.applicantId()),
+                  params.applicantPersonalInfo(),
+                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
+    }
+    context.setVariable("cardsSection", cardsSection);
+    context.setVariable(
+        "showProgramsCardsSection",
+        cardsSection.isPresent() && cardsSection.get().cards().size() > 0);
+
+    return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }
 }

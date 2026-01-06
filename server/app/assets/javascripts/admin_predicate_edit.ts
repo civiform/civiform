@@ -6,11 +6,17 @@ export class AdminPredicateEdit {
   static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
   static NODE_OPERATOR_SELECT_NULL_STATE_ID =
     'predicate-operator-node-select-null-state'
+  // Set in server/app/views/admin/programs/predicates/EditSubconditionFragment.html
+  static QUESTION_ID_SUFFIX: string = '-question'
+  static ARIA_ANNOUNCE_ID_SUFFIX: string = '-ariaAnnounce'
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
   static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
+  static FIRST_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-firstValueGroup'
   static SECOND_VALUE_INPUT_ID_SUFFIX: string = '-secondValue'
   static SECOND_VALUE_INPUT_GROUP_ID_SUFFIX: string = '-secondValueGroup'
+  static SUBCONDITION_LIST_ID_REGEX =
+    /^predicate-condition-(\d+)-subcondition-list$/
 
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
 
@@ -20,7 +26,8 @@ export class AdminPredicateEdit {
     // The predicate list refreshes occur when a condition is deleted.
     if (
       event.target.classList.contains('subcondition-container') ||
-      targetId == 'predicate-conditions-list'
+      targetId === 'predicate-conditions-list' ||
+      this.SUBCONDITION_LIST_ID_REGEX.test(targetId)
     ) {
       // Remove existing listeners and bind to new ones after the swap
       // replaces the html to ensure there's only one per element instead of
@@ -54,10 +61,14 @@ export class AdminPredicateEdit {
         el.dispatchEvent(event)
       })
     }
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
+    AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
   }
 
   onPageLoad(): void {
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
+
     addEventListenerToElements(
       '.cf-predicate-scalar-select',
       'change',
@@ -144,6 +155,40 @@ export class AdminPredicateEdit {
     }
   }
 
+  private static focusSubconditionAndTriggerAriaAnnouncement(): void {
+    // Find which subcondition has autofocus set
+    const focusedSubconditionQuestion: HTMLElement | null =
+      document.querySelector(
+        '.cf-predicate-question-select[data-should-autofocus="true"]',
+      )
+    if (focusedSubconditionQuestion === null) {
+      return
+    }
+
+    const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
+      this.QUESTION_ID_SUFFIX,
+      this.ARIA_ANNOUNCE_ID_SUFFIX,
+    )
+    const ariaAnnounceElement: HTMLElement | null = document.querySelector(
+      `#${ariaAnnounceElementId}`,
+    )
+    if (ariaAnnounceElement === null) {
+      return
+    }
+
+    // Focus the question dropdown of the desired subcondition
+    focusedSubconditionQuestion.focus()
+
+    // If we want an aria announcement here, set the text of the aria-live region after a short delay.
+    // This update will trigger screen readers to read the text.
+    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
+      setTimeout(function () {
+        ariaAnnounceElement.textContent =
+          ariaAnnounceElement.getAttribute('data-announce-text')
+      }, 1000)
+    }
+  }
+
   /**
    * Manage visibility of value elements, depending on the currently selected operator.
    * This is used for showing/hiding the second value input for operators that require two values (e.g. BETWEEN),
@@ -180,20 +225,29 @@ export class AdminPredicateEdit {
     selectedOperatorValue: string,
     valueBaseId: string,
   ) {
+    const firstValueInputGroupId =
+      valueBaseId + AdminPredicateEdit.FIRST_VALUE_INPUT_GROUP_ID_SUFFIX
     const secondValueGroupId =
       valueBaseId + AdminPredicateEdit.SECOND_VALUE_INPUT_GROUP_ID_SUFFIX
 
     // Find the HTML elements that are shared across question types:
     // defaultInput is the first input of the default input type (e.g. date-type for dates)
     // csvInput is the text field for multi-value operators (IN, NOT_IN)
-    const defaultInputContainer = assertNotNull(
-      document.querySelector('[data-default-input-type][data-first-input]'),
-    ) as HTMLElement
+    const defaultInputContainer = document.querySelector(
+      `#${firstValueInputGroupId} [data-default-input-type][data-first-input]`,
+    ) as HTMLElement | undefined
+
+    // defaultInputContainer only exists for question types with multiple values inputs.
+    // Return early if it's not found.
+    if (!defaultInputContainer) {
+      return
+    }
+
     const defaultInputField = assertNotNull(
       defaultInputContainer.querySelector('input.usa-input'),
     ) as HTMLElement
     const csvInputContainer = document.querySelector(
-      '[data-csv-input-type]',
+      `#${firstValueInputGroupId} [data-csv-input-type]`,
     ) as HTMLElement | undefined
 
     // For question types that support CSV operators
@@ -205,7 +259,7 @@ export class AdminPredicateEdit {
       this.filterCsvQuestionVisibleInputs(
         selectedOperatorValue,
         defaultInputContainer,
-        csvInputContainer!,
+        assertNotNull(csvInputContainer),
       )
     }
 
@@ -214,7 +268,9 @@ export class AdminPredicateEdit {
     // Date operators vs. age operators vs. csv operators use different input fields.
     if (defaultInputField.hasAttribute('data-date-value')) {
       const ageInputContainer = assertNotNull(
-        document.querySelector('[data-age-input-type][data-first-input]'),
+        document.querySelector(
+          `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
+        ),
       ) as HTMLElement
       const secondDateInputContainer = assertNotNull(
         document.querySelector(
@@ -463,6 +519,26 @@ export class AdminPredicateEdit {
 
     this.disableAndHideAll(hiddenElements)
     this.enableAndShowAll(shownElements)
+  }
+
+  private static showOrHideDeleteAllConditionsButton() {
+    const deleteAllConditionsContainer = document.getElementById(
+      'delete-all-conditions-button',
+    )
+    if (!deleteAllConditionsContainer) {
+      return
+    }
+
+    // If there's a condition present, show the delete all conditions button.
+    // Otherwise, hide and disable.
+    const firstConditionElement = document.querySelector('#condition-1')
+    if (firstConditionElement) {
+      deleteAllConditionsContainer.classList.add('display-flex')
+      deleteAllConditionsContainer.hidden = false
+    } else {
+      deleteAllConditionsContainer.classList.remove('display-flex')
+      deleteAllConditionsContainer.hidden = true
+    }
   }
 
   /**

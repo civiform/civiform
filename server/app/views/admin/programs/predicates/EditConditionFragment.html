@@ -14,6 +14,8 @@
         <button
           type="button"
           class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+          th:with="deleteConditionConfirmation=#{confirm.deleteSingleCondition} + '&#10;&#10;' + #{confirm.actionNotReversable}"
+          th:hx-confirm="${deleteConditionConfirmation}"
           th:hx-post="${model.hxDeleteConditionEndpoint()}"
           th:hx-vals='|{"conditionId": "${conditionId}"}|'
           hx-target="#predicate-conditions-list"
@@ -51,13 +53,9 @@
         </select>
         [[#{content.predicateSubconditionsAreTrue}]]
       </div>
-      <th:block
-        th:each="subcondition, subconditionStat: ${model.subconditions}"
-      >
-        <div
-          th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${conditionId}, ${subconditionStat.count}, ${subcondition})}"
-        ></div>
-      </th:block>
+      <div
+        th:replace="~{admin/programs/predicates/SubconditionListFragment :: subconditionList(${model.subconditionListModel(conditionId)})}"
+      ></div>
     </div>
   </div>
 </th:block>

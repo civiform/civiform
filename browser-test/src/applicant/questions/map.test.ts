@@ -8,7 +8,8 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
+import * as path from 'path'
 
 // number of locations expected to be visible per page
 const EXPECTED_LOCATION_COUNT = 6
@@ -28,6 +29,19 @@ if (isLocalDevEnvironment()) {
           adminPrograms,
           programName,
         )
+
+        await test.step('Set up route intercept', async () => {
+          await page.route(
+            'https://tile.openstreetmap.org/**',
+            async (route) => {
+              await route.fulfill({
+                status: 200,
+                contentType: 'image/png',
+                path: path.join(__dirname, '../../support/mock-tile.png'),
+              })
+            },
+          )
+        })
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -84,7 +98,7 @@ if (isLocalDevEnvironment()) {
 
         await test.step('Verify location count is displayed', async () => {
           const locationCount = page.getByText(
-            `Displaying ${TOTAL_LOCATION_COUNT} of ${TOTAL_LOCATION_COUNT} locations`,
+            `Displaying 1 to 6 of ${TOTAL_LOCATION_COUNT} locations`,
           )
           await expect(locationCount).toBeVisible()
         })
@@ -242,10 +256,12 @@ if (isLocalDevEnvironment()) {
 
           // Verify location has changed
           const locationCount = page.getByText(
-            /Displaying \d+ of \d+ locations/i,
+            /Displaying \d+ to \d+ of \d+ locations/i,
           )
           await locationCount.isVisible()
-          await expect(locationCount).toHaveText('Displaying 1 of 7 locations')
+          await expect(locationCount).toHaveText(
+            'Displaying 1 to 1 of 1 locations',
+          )
         })
 
         await test.step('Apply another filter', async () => {

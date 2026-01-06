@@ -13,9 +13,9 @@ import {
   ProgramVisibility,
 } from '../support/admin_programs'
 import {dismissModal, waitForAnyModalLocator} from '../support/wait'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 
-test.describe('program creation', {tag: ['@northstar']}, () => {
+test.describe('program creation', () => {
   // TODO(#10363): Remove test once external program cards feature is rolled out
   test('create program page', async ({
     page,
@@ -26,19 +26,13 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(page, 'program-creation-page')
 
@@ -57,19 +51,13 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      '',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     await validateScreenshot(
       page,
@@ -91,19 +79,14 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await disableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'program name',
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.DISABLED,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram('program name', {
+      description: 'description',
+      visibility: ProgramVisibility.DISABLED,
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     expect(await page.innerText('id=program-details-form')).toContain(
       'Disabled',
@@ -124,19 +107,14 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'program name',
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.DISABLED,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram('program name', {
+      description: 'description',
+      visibility: ProgramVisibility.DISABLED,
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
     await adminPrograms.expectProgramDetailsSaveAndContinueButton()
     expect(await page.innerText('id=program-details-form')).toContain(
       'Disabled',
@@ -167,24 +145,17 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
 
     await test.step('add program with multiple application steps', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ true,
-        [
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        applicationSteps: [
           {title: titleOne, description: descriptionOne},
           {title: titleTwo, description: descriptionTwo},
           {title: titleThree, description: descriptionThree},
         ],
-      )
+      })
       await adminProgramImage.expectProgramImagePage()
     })
 
@@ -225,24 +196,17 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
 
     await test.step('add program with blank application step', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ true,
-        [
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        applicationSteps: [
           {title: titleOne, description: descriptionOne},
           {title: '', description: ''}, // step 2 is blank
           {title: titleThree, description: descriptionThree},
         ],
-      )
+      })
       await adminProgramImage.expectProgramImagePage()
     })
 
@@ -281,19 +245,13 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
-    await adminPrograms.addProgram(
-      programName,
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
+    await adminPrograms.addProgram(programName, {
+      description: 'description',
+      selectedTI: 'selectedTI',
+      confirmationMessage: 'confirmationMessage',
+      eligibility: Eligibility.IS_GATING,
+      submitNewProgram: false,
+    })
 
     await test.step('On program creation, admin can fill in the program slug.', async () => {
       expect(await page.locator('#program-slug').count()).toEqual(1)
@@ -484,7 +442,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'open-question-search',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -763,7 +721,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-markdown',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -827,7 +785,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-empty',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
     await page.click('#create-question-button')
     await page.click('#create-text-question')
@@ -866,7 +824,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('.cf-question-bank-panel'),
       'question-bank-with-created-question',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
@@ -881,6 +839,25 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await adminPrograms.editProgramBlock(programName, 'new dummy description', [
       universalQuestionName,
     ])
+  })
+
+  test('edit question from program screen', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminProgramImage,
+  }) => {
+    await test.step('setup program with question', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({questionName: 'text-question'})
+      await adminPrograms.addProgram('Test program')
+      await adminProgramImage.clickContinueButton()
+      await adminPrograms.addQuestionFromQuestionBank('text-question')
+    })
+    await test.step('click edit question link', async () => {
+      await adminPrograms.editQuestion('text-question')
+      await adminQuestions.expectQuestionEditPage('text-question')
+    })
   })
 
   test('all questions shown on question bank before filtering, then filters based on different attributes correctly', async ({
@@ -1080,7 +1057,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await validateScreenshot(
       page.locator('#block-delete-modal'),
       'delete-screen-confirmation-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
   })
 
@@ -1187,7 +1164,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const preScreenerFormProgramName = 'Benefits finder'
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerFormProgramName,
       'short program description',
       ProgramVisibility.PUBLIC,
@@ -1204,9 +1181,9 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     // Modal gets re-rendered if needed.
@@ -1215,7 +1192,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
@@ -1229,7 +1206,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     const preScreenerFormProgramName = 'Benefits finder'
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       preScreenerFormProgramName,
       'short program description',
       ProgramVisibility.PUBLIC,
@@ -1246,9 +1223,9 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     await expect(modal).toContainText('Confirm pre-screener change?')
 
     await validateScreenshot(
-      page.locator('#confirm-common-intake-change'),
+      page.locator('#confirm-pre-screener-change'),
       'confirm-pre-screener-change-modal',
-      /* fullPage= */ false,
+      {fullPage: false},
     )
 
     // Modal gets re-rendered if needed.
@@ -1257,7 +1234,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
@@ -1268,15 +1245,9 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.addProgram(
-      'cif',
-      'desc',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.DEFAULT,
-    )
+    await adminPrograms.addProgram('cif', {
+      description: 'desc',
+    })
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
     expect(await page.innerText('main')).toContain('Eligibility')
@@ -1288,7 +1259,7 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
   }) => {
     await loginAsAdmin(page)
 
-    await adminPrograms.addPreScreenerNS(
+    await adminPrograms.addPreScreener(
       'cif',
       'short program description',
       ProgramVisibility.PUBLIC,
@@ -1361,19 +1332,13 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        submitNewProgram: false,
+      })
     })
 
     await test.step('add categories to program', async () => {
@@ -1431,19 +1396,13 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.DEFAULT,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        description: 'description',
+        selectedTI: 'selectedTI',
+        confirmationMessage: 'confirmationMessage',
+        eligibility: Eligibility.IS_GATING,
+        submitNewProgram: false,
+      })
     })
 
     await test.step('add categories to program', async () => {
@@ -1578,19 +1537,10 @@ test.describe('program creation', {tag: ['@northstar']}, () => {
 
     await test.step("start the creation of a 'default' program", async () => {
       // Start creation of a program, without submission.
-      await adminPrograms.addProgram(
-        programName,
-        /* description= */ '',
-        /* shortDescription= */ 'program short description',
-        /* externalLink= */ '',
-        /* visibility= */ undefined,
-        /* adminDescription= */ undefined,
-        /* programType= */ ProgramType.DEFAULT,
-        /* selectedTI= */ undefined,
-        /* confirmationMessage= */ '',
-        /* eligibility= */ undefined,
-        /* submitNewProgram= */ false,
-      )
+      await adminPrograms.addProgram(programName, {
+        shortDescription: 'program short description',
+        submitNewProgram: false,
+      })
       await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
     })
 

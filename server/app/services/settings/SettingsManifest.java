@@ -53,8 +53,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
-   * may be desired if the government name is included in the logo. Since northstar hides the logo
-   * on smaller screens, this will only hide the name if the logo is showing.
+   * may be desired if the government name is included in the logo. The logo is hidden on smaller
+   * screens, so this will only hide the name if the logo is showing.
    */
   public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
     return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
@@ -938,6 +938,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enable session replay protection, so that a session cookie cannot be replayed if the user logs
+   * out
+   */
+  public boolean getSessionReplayProtectionEnabled() {
+    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
+  }
+
+  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -1046,12 +1054,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
-  /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi() {
-    return getBool("NORTH_STAR_APPLICANT_UI");
-  }
-
-  /** Enable using custom theme colors on North Star applicant UI. */
+  /** Enable using custom theme colors in the applicant UI. */
   public boolean getCustomThemeColorsEnabled(RequestHeader request) {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
@@ -1071,20 +1074,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
-   * replayed if the user logs out
-   */
-  public boolean getSessionReplayProtectionEnabled() {
-    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
-  }
-
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
+  /** (NOT FOR PRODUCTION USE) Enable showing external program cards. */
   public boolean getExternalProgramCardsEnabled(RequestHeader request) {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
@@ -1167,8 +1162,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
                           "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
                               + " CiviForm header. This may be desired if the government name is"
-                              + " included in the logo. Since northstar hides the logo on smaller"
-                              + " screens, this will only hide the name if the logo is showing.",
+                              + " included in the logo. The logo is hidden on smaller screens, so"
+                              + " this will only hide the name if the logo is showing.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2185,6 +2180,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
+                          "SESSION_REPLAY_PROTECTION_ENABLED",
+                          "Enable session replay protection, so that a session cookie cannot be"
+                              + " replayed if the user logs out",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "MAXIMUM_SESSION_DURATION_MINUTES",
                           "The amount of time, in minutes, that a session lasts. The default is 600"
                               + " minutes, or 10 hours. Note that there isn't yet messaging on the"
@@ -2310,15 +2312,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "NORTH_STAR_APPLICANT_UI",
-                          "Enables showing new UI with an updated user experience in Applicant"
-                              + " flows",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
-                          "Enable using custom theme colors on North Star applicant UI.",
+                          "Enable using custom theme colors in the applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2350,13 +2345,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
-                              + " session cookie cannot be replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
                               + " maximum duration.",
@@ -2365,8 +2353,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
-                              + " Star applicant UI.",
+                          "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

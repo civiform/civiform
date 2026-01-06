@@ -19,6 +19,10 @@ function attachDropdown(elementId: string) {
     element.addEventListener('click', (e) => {
       e.stopPropagation()
       toggleElementVisibility(dropdownId)
+      if (element.hasAttribute('aria-expanded')) {
+        const dropdownIsVisible = !dropdown.classList.contains('hidden')
+        element.setAttribute('aria-expanded', dropdownIsVisible.toString())
+      }
     })
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
@@ -237,6 +241,18 @@ function attachFormDebouncers() {
 }
 
 /**
+ * Click handler for the admin question add new option button for
+ * multi-option questions (checkboxes, radios, selects)
+ */
+function addNewOptionHandler() {
+  addNewInput(
+    'multi-option-question-answer-template',
+    'add-new-option',
+    'question-settings',
+  )
+}
+
+/**
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
@@ -305,13 +321,8 @@ export function init() {
   // Configure the button on the admin question form to add more answer options
   const questionOptionButton = document.getElementById('add-new-option')
   if (questionOptionButton) {
-    questionOptionButton.addEventListener('click', function () {
-      addNewInput(
-        'multi-option-question-answer-template',
-        'add-new-option',
-        'question-settings',
-      )
-    })
+    questionOptionButton.removeEventListener('click', addNewOptionHandler)
+    questionOptionButton.addEventListener('click', addNewOptionHandler)
   }
 
   // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
@@ -339,7 +350,7 @@ export function init() {
     })
   }
 
-  // Add USWDS checkbox tile CSS class to North Star program filter checkboxes for tablet and mobile
+  // Add USWDS checkbox tile CSS class to program filter checkboxes for tablet and mobile
   const handleMediaQueryChange = () => {
     const mediaQuery = window.matchMedia('(max-width: 63.9em)')
     const checkboxes = document.querySelectorAll('[id*="ns-check-category-"]')

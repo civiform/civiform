@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
+test.describe('Date question for applicant flow', () => {
   test.describe('single date question', () => {
     const programName = 'Test program for single date'
 
@@ -23,18 +23,12 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'date',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'date', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -42,8 +36,9 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'date-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {
+            fullPage: false,
+          },
         )
       })
 
@@ -56,20 +51,12 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         // Return to page.
         await applicantQuestions.clickEdit()
-        await validateScreenshot(
-          page,
-          'date-filled-in',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page, 'date-filled-in')
       })
     })
 
     test('attempts to submit', async ({applicantQuestions, page}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('with no answer does not submit', async () => {
         // Click "Continue" without selecting anything.
@@ -99,7 +86,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         )
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectReviewPage()
       })
     })
 
@@ -107,10 +94,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await expect(page.getByLabel('Day')).toHaveAttribute('aria-required')
       await expect(page.getByLabel('Month')).toHaveAttribute('aria-required')
       await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
@@ -149,10 +133,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     test('with valid dates submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
         '07 - July',
@@ -168,17 +149,14 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
 
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
     }) => {
       // Only answer second question.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerMemorableDateQuestion(
         '1990',
         '10 - October',
@@ -187,17 +165,14 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
 
     test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

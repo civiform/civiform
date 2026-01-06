@@ -53,7 +53,6 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -69,10 +68,8 @@ import views.style.StyleUtils;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
-  private final QuestionPreview questionPreview;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final TemplateEngine templateEngine;
   private final GeoJsonDataRepository geoJsonDataRepository;
@@ -92,9 +89,7 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
-      QuestionPreview questionPreview,
       SettingsManifest settingsManifest,
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
@@ -102,10 +97,8 @@ public final class QuestionEditView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.questionPreview = checkNotNull(questionPreview);
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
@@ -244,23 +237,15 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    // TODO(#11580): North star clean up
-    if (settingsManifest.getNorthStarApplicantUi()) {
-      // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
-      // fragments without using HTMX
-      previewContent =
-          div()
-              .attr("hx-swap", "outerHTML")
-              .attr(
-                  "hx-get",
-                  controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
-                      type.getLabel()))
-              .attr("hx-trigger", "load");
-    } else {
-      previewContent =
-          questionPreview.renderQuestionPreview(
-              type, messages, applicantFileUploadRenderer, request);
-    }
+    // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed Thymeleaf
+    // fragments without using HTMX
+    previewContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.QuestionPreviewController.sampleQuestion(type.getLabel()))
+            .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);

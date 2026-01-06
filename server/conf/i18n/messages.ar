@@ -968,7 +968,7 @@ error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على {0} للحصول على الدعم وإدراج معرّف الخطأ هذا {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=زيارة الصفحة الرئيسية
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,6 +1043,21 @@ banner.minute=دقيقة واحدة
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=رعاية الأطفال
 
@@ -1085,7 +1100,7 @@ category.tag.utilities=شركات الطاقة
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=المحاربين القدامى
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=الفئات
 
 #------------------------------------------------------------------------------#

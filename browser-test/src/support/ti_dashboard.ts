@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
 /*
@@ -226,7 +226,7 @@ export class TIDashboard {
   async expectSuccessToast(successToastMessage: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successToastMessage)
   }
 

@@ -56,8 +56,14 @@ public record EditPredicatePageViewModel(
     return PredicateAction.ELIGIBLE_BLOCK;
   }
 
-  public String hxEditConditionEndpoint() {
-    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+  public String hxAddConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxAddCondition(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
+  }
+
+  public String hxDeleteAllConditionsEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxDeleteAllConditions(
             programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
         .url();
   }

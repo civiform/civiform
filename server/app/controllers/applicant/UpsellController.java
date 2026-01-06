@@ -34,13 +34,9 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
-import views.applicant.ApplicantPreScreenerUpsellCreateAccountView;
-import views.applicant.ApplicantUpsellCreateAccountView;
-import views.applicant.NorthStarApplicantPreScreenerUpsellView;
-import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.ApplicantPreScreenerUpsellView;
+import views.applicant.ApplicantUpsellView;
 import views.applicant.UpsellParams;
-import views.components.ToastMessage;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
@@ -49,14 +45,10 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
-  private final ApplicantUpsellCreateAccountView upsellView;
-  private final ApplicantPreScreenerUpsellCreateAccountView cifUpsellView;
-  private final NorthStarApplicantUpsellView northStarUpsellView;
-  private final NorthStarApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
+  private final ApplicantUpsellView upsellView;
+  private final ApplicantPreScreenerUpsellView preScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
-  private final SettingsManifest settingsManifest;
-  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public UpsellController(
@@ -65,28 +57,20 @@ public final class UpsellController extends CiviFormController {
       ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
-      ApplicantUpsellCreateAccountView upsellView,
-      ApplicantPreScreenerUpsellCreateAccountView cifUpsellView,
-      NorthStarApplicantUpsellView northStarApplicantUpsellView,
-      NorthStarApplicantPreScreenerUpsellView northStarApplicantPreScreenerUpsellView,
+      ApplicantUpsellView applicantUpsellView,
+      ApplicantPreScreenerUpsellView applicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
-      SettingsManifest settingsManifest,
-      VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
-    this.upsellView = checkNotNull(upsellView);
-    this.cifUpsellView = checkNotNull(cifUpsellView);
-    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
-    this.northStarPreScreenerUpsellView = checkNotNull(northStarApplicantPreScreenerUpsellView);
+    this.upsellView = checkNotNull(applicantUpsellView);
+    this.preScreenerUpsellView = checkNotNull(applicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
-    this.settingsManifest = checkNotNull(settingsManifest);
-    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   @Secure
@@ -102,7 +86,7 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<Boolean> isCommonIntake =
         programService
             .getFullProgramDefinitionAsync(programId)
-            .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
+            .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
@@ -150,82 +134,46 @@ public final class UpsellController extends CiviFormController {
         .thenApplyAsync(
             maybeEligiblePrograms -> {
               Optional<String> toastMessageValue = request.flash().get(FlashKey.BANNER);
-              Optional<ToastMessage> toastMessage =
-                  toastMessageValue.map(m -> ToastMessage.alert(m));
 
-              // TODO(#11583): North star clean up
-              if (settingsManifest.getNorthStarApplicantUi()) {
-                Instant instant = Instant.parse(submitTime);
-                Date submitDate = Date.from(instant);
-                DateFormat dateFormat =
-                    DateFormat.getDateInstance(
-                        DateFormat.LONG,
-                        roApplicantProgramService.join().getApplicantData().preferredLocale());
-                String formattedDate = dateFormat.format(submitDate);
+              Instant instant = Instant.parse(submitTime);
+              Date submitDate = Date.from(instant);
+              DateFormat dateFormat =
+                  DateFormat.getDateInstance(
+                      DateFormat.LONG,
+                      roApplicantProgramService.join().getApplicantData().preferredLocale());
+              String formattedDate = dateFormat.format(submitDate);
 
-                UpsellParams.Builder paramsBuilder =
-                    UpsellParams.builder()
-                        .setRequest(request)
-                        .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
-                        .setProgramShortDescription(
-                            roApplicantProgramService.join().getProgramShortDescription())
-                        .setProfile(profile)
-                        .setApplicantPersonalInfo(applicantPersonalInfo.join())
-                        .setApplicationId(applicationId)
-                        .setMessages(messagesApi.preferred(request))
-                        .setBannerMessage(toastMessageValue)
-                        .setCompletedProgramId(programId)
-                        .setCustomConfirmationMessage(
-                            roApplicantProgramService.join().getCustomConfirmationMessage())
-                        .setApplicantId(applicantId)
-                        .setDateSubmitted(formattedDate);
+              UpsellParams.Builder paramsBuilder =
+                  UpsellParams.builder()
+                      .setRequest(request)
+                      .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                      .setProgramShortDescription(
+                          roApplicantProgramService.join().getProgramShortDescription())
+                      .setProfile(profile)
+                      .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                      .setApplicationId(applicationId)
+                      .setMessages(messagesApi.preferred(request))
+                      .setBannerMessage(toastMessageValue)
+                      .setCompletedProgramId(programId)
+                      .setCustomConfirmationMessage(
+                          roApplicantProgramService.join().getCustomConfirmationMessage())
+                      .setApplicantId(applicantId)
+                      .setDateSubmitted(formattedDate);
 
-                if (isCommonIntake.join()) {
-                  UpsellParams upsellParams =
-                      paramsBuilder
-                          .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
-                          .build();
-                  return ok(northStarPreScreenerUpsellView.render(upsellParams))
-                      .as(Http.MimeTypes.HTML);
-                } else {
-                  UpsellParams upsellParams =
-                      paramsBuilder
-                          .setEligiblePrograms(
-                              relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
-                          .build();
-                  return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
-                }
-              } else if (isCommonIntake.join()) {
-                return ok(
-                    cifUpsellView.render(
-                        request,
-                        redirectTo,
-                        account.join(),
-                        applicantPersonalInfo.join(),
-                        applicantId,
-                        programId,
-                        profile,
-                        maybeEligiblePrograms.orElseGet(ImmutableList::of),
-                        messagesApi.preferred(request),
-                        toastMessage,
-                        applicantRoutes));
+              if (isCommonIntake.join()) {
+                UpsellParams upsellParams =
+                    paramsBuilder
+                        .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                        .build();
+                return ok(preScreenerUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+              } else {
+                UpsellParams upsellParams =
+                    paramsBuilder
+                        .setEligiblePrograms(
+                            relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
+                        .build();
+                return ok(upsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
               }
-              return ok(
-                  upsellView.render(
-                      request,
-                      relevantProgramsFuture.join(),
-                      redirectTo,
-                      account.join(),
-                      roApplicantProgramService.join().getApplicantData().preferredLocale(),
-                      roApplicantProgramService.join().getProgramTitle(),
-                      roApplicantProgramService.join().getCustomConfirmationMessage(),
-                      applicantPersonalInfo.join(),
-                      applicantId,
-                      profile,
-                      applicationId,
-                      messagesApi.preferred(request),
-                      toastMessage,
-                      applicantRoutes));
             },
             classLoaderExecutionContext.current())
         .exceptionally(

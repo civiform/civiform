@@ -55,7 +55,7 @@ GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit               
 POST    /admin/programs/:programId/blocks/:blockDefinitionId                                            controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks                                                               controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/move                                       controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete                                     controllers.admin.AdminProgramBlocksController.destroy(programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/delete                                     controllers.admin.AdminProgramBlocksController.delete(programId: Long, blockDefinitionId: Long)
 
 # A controller for pages for an admin to configure show/hide logic on blocks for a program
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/visibilityPredicates/edit                  controllers.admin.AdminProgramBlockPredicatesController.editVisibility(request: Request, programId: Long, blockDefinitionId: Long)
@@ -70,13 +70,16 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicat
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/delete               controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage        controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase               controllers.admin.AdminProgramBlockPredicatesController.updatePredicate(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/editCondition                                                              controllers.admin.AdminProgramBlockPredicatesController.hxEditCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/addCondition                                                              controllers.admin.AdminProgramBlockPredicatesController.hxAddCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/addSubcondition                                                            controllers.admin.AdminProgramBlockPredicatesController.hxAddSubcondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/editSubcondition                                                           controllers.admin.AdminProgramBlockPredicatesController.hxEditSubcondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/deleteCondition                                           controllers.admin.AdminProgramBlockPredicatesController.hxDeleteCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/deleteCondition                                                            controllers.admin.AdminProgramBlockPredicatesController.hxDeleteCondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/deleteSubcondition                                                         controllers.admin.AdminProgramBlockPredicatesController.hxDeleteSubcondition(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predicateUseCase/hx/deleteAllConditions                                                        controllers.admin.AdminProgramBlockPredicatesController.hxDeleteAllConditions(request: Request, programId: Long, blockDefinitionId: Long, predicateUseCase: String)
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                              controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
-POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                                 controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                                 controllers.admin.AdminProgramBlockQuestionsController.delete(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                            controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move                                   controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/toggleAddressCorrectionEnabledState    controllers.admin.AdminProgramBlockQuestionsController.toggleAddressCorrectionEnabledState(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
@@ -95,8 +98,8 @@ POST    /admin/questions/:id/archive                                           c
 POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
 POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 
-# For rendering North Star question previews on the admin question page
-GET     /admin/preview/:questionType                                           controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
+# For rendering question previews on the admin question page
+GET     /admin/preview/:questionType                                           controllers.admin.QuestionPreviewController.sampleQuestion(request: Request, questionType: String)
 
 # Routes for editing question localizations
 GET     /admin/questions/:questionName/translations/edit                       controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)

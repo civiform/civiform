@@ -6,7 +6,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
+test.describe('Text question for applicant flow', () => {
   test.describe('single text question', () => {
     const programName = 'Test program for single text q'
 
@@ -28,18 +28,12 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'text',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'text', {
+          fullPage: false,
+        })
       })
 
       await test.step('Screenshot with errors', async () => {
@@ -47,8 +41,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'text-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {fullPage: false},
         )
       })
     })
@@ -57,35 +50,24 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
 
     test('with text submits successfully', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with empty text does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Click "Continue" without inputting anything
       await applicantQuestions.clickContinue()
@@ -99,10 +81,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
       await applicantQuestions.clickContinue()
 
@@ -115,10 +94,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
       )
@@ -133,10 +109,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
 
       // Ensure that clicking enter while on text input doesn't trigger form
@@ -148,14 +121,14 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       // Check that pressing Enter on button works.
       await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
       await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
-      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      await applicantQuestions.expectReviewPage()
     })
   })
 
@@ -183,10 +156,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       let largeString = ''
       for (let i = 0; i < 1000; i++) {
         largeString += '1234567890'
@@ -204,9 +174,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(page.locator('main'), 'text-max')
 
       // Form should submit with partial text entry.
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
   })
 
@@ -242,43 +210,30 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
     test('with both selections submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
       await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.submitFromReviewPage()
     })
 
     test('with first invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
         0,
@@ -296,10 +251,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
@@ -317,10 +269,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

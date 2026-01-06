@@ -1,6 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  AuthStrategy,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -9,10 +9,9 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from './support'
-import {TEST_USER_AUTH_STRATEGY} from './support/config'
 import {CardSectionName} from './support/applicant_program_list'
 
-test.describe('Applicant auth', {tag: ['@northstar']}, () => {
+test.describe('Applicant auth', () => {
   const endYourSessionText = 'end your session'
 
   test('Applicant can login', async ({page}) => {
@@ -46,10 +45,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await applicantQuestions.applyProgram(
-      'Minimal Sample Program',
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram('Minimal Sample Program')
     await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
       page.getByRole('button', {name: endYourSessionText}),
@@ -62,10 +58,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
-    test.skip(
-      TEST_USER_AUTH_STRATEGY !== AuthStrategy.FAKE_OIDC,
-      'Only runs in test environment',
-    )
+    test.skip(!isLocalDevEnvironment(), 'Only runs in test environment')
     // so far only fake-oidc provider requires user to click "Yes" to confirm
     // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
     // IDCS which at the moment doesn't have central logout enabled.
@@ -123,11 +116,8 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await adminPrograms.publishAllDrafts()
 
     await logout(page)
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page)
 
     // Check that program is marked as submitted.

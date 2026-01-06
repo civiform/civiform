@@ -16,9 +16,8 @@ import {
   DATA_FEATURE_ID,
   DATA_FILTER_KEY,
   DATA_MAP_ID,
-  localizeString,
   queryLocationCheckboxes,
-  getMessages,
+  updateLocationCountForMap,
 } from './map_util'
 import {resetPagination} from './map_question_pagination'
 
@@ -105,40 +104,8 @@ const applyLocationFilters = (
     }
   })
 
-  updateLocationCountForMap(
-    mapId,
-    visibleCount,
-    locationCheckboxContainers.length,
-  )
+  updateLocationCountForMap(mapId, visibleCount)
   resetPagination(mapId)
-}
-
-const updateLocationCountForMap = (
-  mapId: string,
-  visibleCount: number,
-  totalCount: number,
-): void => {
-  const noResultsFoundDiv = document.querySelector(
-    `[data-map-id="${mapId}"][data-no-results-found]`,
-  )
-  if (noResultsFoundDiv) {
-    if (visibleCount === 0) {
-      noResultsFoundDiv.classList.remove(CF_FILTER_HIDDEN)
-    } else {
-      noResultsFoundDiv.classList.add(CF_FILTER_HIDDEN)
-    }
-  }
-
-  const countText = mapQuerySelector(
-    mapId,
-    CF_LOCATION_COUNT,
-  ) as HTMLElement | null
-  if (countText) {
-    countText.textContent = localizeString(getMessages().locationsCount, [
-      visibleCount.toString(),
-      totalCount.toString(),
-    ])
-  }
 }
 
 const featureMatchesFilters = (

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.typesafe.config.ConfigFactory;
-import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
 import controllers.applicant.ApplicantRoutes;
@@ -23,6 +22,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import repository.AccountRepository;
+import services.BundledAssetsFinder;
 import services.DateConverter;
 import services.DeploymentType;
 import services.MessageKey;
@@ -72,7 +72,7 @@ public class EditTiClientViewTest extends WithMockedProfiles {
             languageUtils,
             settingsManifest,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class),
+            instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             mock(MessagesApi.class),
             instanceOf(ApplicantRoutes.class));

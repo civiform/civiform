@@ -141,15 +141,15 @@ public final class AdminProgramController extends CiviFormController {
       return ok(newOneView.render(request, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()) {
         return ok(
-            newOneView.renderChangeCommonIntakeConfirmation(
-                request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
+            newOneView.renderChangePreScreenerConfirmation(
+                request, programData, maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 
@@ -283,20 +283,20 @@ public final class AdminProgramController extends CiviFormController {
           editView.render(request, programDefinition, programEditStatus, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
-        && !programData.getConfirmedChangeCommonIntakeForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()
-          && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
+        && !programData.getConfirmedChangePreScreenerForm()) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()
+          && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
         return ok(
-            editView.renderChangeCommonIntakeConfirmation(
+            editView.renderChangePreScreenerConfirmation(
                 request,
                 programDefinition,
                 programEditStatus,
                 programData,
-                maybeCommonIntakeForm.get().localizedName().getDefault()));
+                maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 

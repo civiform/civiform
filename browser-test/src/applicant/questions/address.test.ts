@@ -9,7 +9,7 @@ import {
   validateScreenshot,
 } from '../../support'
 
-test.describe('address applicant flow', {tag: ['@northstar']}, () => {
+test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
@@ -26,20 +26,14 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Validate page', async () => {
         await expectQuestionHasNoErrors(page, 0)
 
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'address',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
-        )
+        await validateScreenshot(page.getByTestId('questionRoot'), 'address', {
+          fullPage: false,
+        })
         await validateAccessibility(page)
       })
 
@@ -53,12 +47,8 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         )
 
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -66,10 +56,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       // Answers intentionally left blank
       await applicantQuestions.clickContinue()
 
@@ -79,8 +66,9 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'address-errors',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ false,
+          {
+            fullPage: false,
+          },
         )
 
         await validateAccessibility(page)
@@ -92,10 +80,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -133,10 +118,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Partially fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '43568')
         await applicantQuestions.clickContinue()
       })
@@ -172,10 +154,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
 
     test('with valid addresses does submit', async ({applicantQuestions}) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -197,12 +176,8 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -211,10 +186,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
@@ -239,10 +211,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -278,10 +247,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -318,10 +284,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           'Unit B',
@@ -335,12 +298,8 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       await test.step('Verify user can submit', async () => {
         await applicantQuestions.clickContinue()
 
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectConfirmationPage(
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -349,10 +308,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await test.step('Fill out form', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion(
           '1234 St',
           '',
@@ -391,10 +347,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('invalid required address', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Intentionally do not answer any questions
       await applicantQuestions.clickContinue()

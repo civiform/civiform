@@ -1,4 +1,3 @@
-import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -43,19 +42,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.39.2",
-      "software.amazon.awssdk" % "ses" % "2.39.2",
+      "software.amazon.awssdk" % "s3" % "2.41.1",
+      "software.amazon.awssdk" % "ses" % "2.41.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.57.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.59.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.1",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -67,7 +66,7 @@ lazy val root = (project in file("."))
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.6" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.27.6" % Test,
+
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
@@ -80,24 +79,24 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.3.0",
+      "org.pac4j" % "pac4j-core" % "6.3.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.3.0",
+      "org.pac4j" % "pac4j-http" % "6.3.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.3.0",
+      "org.pac4j" % "pac4j-oidc" % "6.3.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.3.0",
+      "org.pac4j" % "pac4j-saml" % "6.3.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.11.0",
-      "com.google.auto.value" % "auto-value" % "1.11.0",
+      "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
+      "com.google.auto.value" % "auto-value" % "1.11.1",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.52.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.52.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -106,7 +105,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.19",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.21",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -117,9 +116,9 @@ lazy val root = (project in file("."))
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
-      // Override defaul Play logback version. We need to use logback
+      // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.21",
+      "ch.qos.logback" % "logback-classic" % "1.5.23",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -129,11 +128,11 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.40",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.35",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.41",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.37",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.0",
+      "com.networknt" % "json-schema-validator" % "2.0.1",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
@@ -175,17 +174,17 @@ lazy val root = (project in file("."))
     },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >30% files have changed, to help avoid infinate
+    // Recompile everything if >30% files have changed, to help avoid infinite
     // incremental compilation.
     // (but still allow some incremental building for speed.)
     incOptions := incOptions.value.withRecompileAllFraction(.3),
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
-    // Enable digest for local dev so that files can be served çached improving
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    // Enable digest for local dev so that files can be served cached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Allow tests to print to stdout when running in forking mode (default)
     Test / outputStrategy := Some(StdoutOutput),
@@ -265,7 +264,7 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
-// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// Include Thymeleaf HTML files when running 'sbt dist' when building the prod image.
 // We need these in order for Thymeleaf to be able to use them for templating.
 Universal / mappings ++= {
   val viewsDir = baseDirectory.value / "app" / "views"
@@ -309,7 +308,18 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.20.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.20"
 )
+
+// Play run hooks only run when the app starts with sbt run (dev/test). They
+// are not called when the app is precompiled with sbt dist (prod).
 playRunHooks += TailwindBuilder(baseDirectory.value)
+playRunHooks ++= {
+  if (sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean) {
+    Seq(BundlerDevServer(baseDirectory.value))
+  } else {
+    Seq(BundledAssetBuilder(baseDirectory.value))
+  }
+}
+
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
 // uncomment to show debug logging.
@@ -325,32 +335,6 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
-
-// Define a custom command to add custom asset files. These are files that need to be
-// added to the `public` folder prior to the asset jar generation which occurs early
-// in the dist pipeline.
-//
-// During development webpack manages the files, but webpack doesn't run early
-// enough during the dist pipeline.
-val addCustomAssets = taskKey[Unit]("Add custom assets")
-addCustomAssets := {
-
-  // The swagger-ui-dist files already come minified. These are getting
-  // manually copied to the `public` folder instead of running through
-  // the webpack minifier/bundler because they cause webpack to fail with
-  // multiple errors. Doing it this way the files get put into `public`
-  // then the asset builder adds them to the internal assets jar file
-  // so they still get the url versioned hash prepended.
-  val sourceDir = baseDirectory.value / "node_modules" / "swagger-ui-dist"
-  val targetDir = baseDirectory.value / "public" / "swagger-ui"
-
-  if (!sourceDir.exists) {
-    throw new IllegalStateException(s"Source directory not found: $sourceDir")
-  }
-
-  IO.createDirectory(targetDir) // Create target directory if it doesn't exist
-  IO.copyDirectory(sourceDir, targetDir)
-}
 
 // scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
 // removes the .z component and returns the path to the generated source file directory.

@@ -71,9 +71,9 @@ export default defineConfig([{
         "public/**",
         "node_modules/**",
         "eslint.config.mjs",
-        "jest.config.js",
+        "vitest.setup.ts",
         "postcss.config.js",
         "tailwind.config.js",
-        "webpack.config.js"
+        "vite.config.ts"
     ]
 }]);
