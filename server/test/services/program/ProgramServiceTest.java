@@ -1131,8 +1131,8 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void checkApplicationStepErrors_defaultProgram_returnsErrorWhenTitleTooLong() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    // Create a title longer than 1000 characters
-    String tooLongTitle = "a".repeat(1001);
+    // Create a title longer than 100 characters
+    String tooLongTitle = "a".repeat(101);
     ImmutableList<ApplicationStep> applicationSteps =
         ImmutableList.of(
             new ApplicationStep("valid title", "description one"),
@@ -1141,7 +1141,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
 
     assertThat(errors.size()).isEqualTo(1);
-    assertThat(errors.contains(CiviFormError.of("Step 2 title must be 1000 characters or less")))
+    assertThat(errors.contains(CiviFormError.of("Step 2 title must be 100 characters or less")))
         .isTrue();
   }
 

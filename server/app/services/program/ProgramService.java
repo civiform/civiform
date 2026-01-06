@@ -945,11 +945,11 @@ public final class ProgramService {
             CiviFormError.of(
                 String.format("Application step %s is missing a title", Integer.toString(i + 1))));
       }
-      if (title.length() > 1000) {
+      if (title.length() > 100) {
         errorsBuilder.add(
             CiviFormError.of(
                 String.format(
-                    "Step %s title must be 1000 characters or less", Integer.toString(i + 1))));
+                    "Step %s title must be 100 characters or less", Integer.toString(i + 1))));
       }
     }
 
