@@ -12,13 +12,13 @@ type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   isInitialized: boolean
 }
 
-// TODO: GH10925 Fix and re-enable
-describe.skip('SessionTimeoutHandler', () => {
+describe('SessionTimeoutHandler', () => {
   let container: HTMLElement
   let inactivityModal: HTMLElement
   let lengthModal: HTMLElement
   let extendSessionForm: HTMLFormElement
   let consoleSpy: ReturnType<typeof vi.spyOn>
+  let showToastSpy: ReturnType<typeof vi.spyOn>
 
   /**
    * Create inactivity warning modal with new structure
@@ -172,7 +172,9 @@ describe.skip('SessionTimeoutHandler', () => {
    */
   function setupMocks() {
     // Mock ToastController
-    vi.spyOn(ToastController, 'showToastMessage').mockImplementation(() => {})
+    showToastSpy = vi
+      .spyOn(ToastController, 'showToastMessage')
+      .mockImplementation(() => {})
 
     // Mock console.error
     consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -273,7 +275,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
 
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
+      expect(showToastSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'session-extended-toast',
           type: 'success',
@@ -298,7 +300,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
       expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
 
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
+      expect(showToastSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'session-extend-error-toast',
           type: 'error',
@@ -429,7 +431,7 @@ describe.skip('SessionTimeoutHandler', () => {
 
       document.dispatchEvent(successEvent)
 
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
+      expect(showToastSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           content: 'Session successfully extended',
           type: 'success',
