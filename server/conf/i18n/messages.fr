@@ -62,7 +62,7 @@ link.opensNewTabSr=s''ouvre dans un nouvel onglet
 # Aria-label for the primary navigation
 label.primaryNavigation=Navigation principale
 # Aria-label for agency identifier
-label.agencyIdentifier=Identifiant de l'agence
+label.agencyIdentifier=Identifiant de l''agence
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerte informative de session Invité
 # Link to skip to the main content of the page
@@ -77,7 +77,7 @@ button.createAnAccount=Créer un compte
 # The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Connexion du candidat
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Connexion de l'administrateur
+button.adminLogin=Connexion de l''administrateur
 # The text on the button an applicant clicks to log in to their session.
 button.login=Se connecter
 # The text on the button an applicant clicks to sign in to their session.
@@ -123,7 +123,7 @@ link.applyToAnotherProgram=S''inscrire à un autre programme
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=Accueil
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
-link.applicationForProgram=Demande d'inscription à {0}
+link.applicationForProgram=Demande d''inscription à {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Supprimer un fichier
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
@@ -326,7 +326,7 @@ title.tiAccountSettings=Intermédiaire de confiance - Afficher les paramètres 
 # Submit application button
 button.submit=Envoyer
 # Submit application button
-button.submitApplication=Envoyer la demande d'inscription
+button.submitApplication=Envoyer la demande d''inscription
 # Continue application button
 button.continue=Continuer
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -363,11 +363,11 @@ title.programOverview={0} - Présentation du programme
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Comment envoyer une demande
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=S'inscrire au programme {0}
+heading.programOverview=S''inscrire au programme {0}
 # The text on the button that takes users to the account creation form.
 link.createAccountFromOverview=Commencer la demande avec un compte
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Commencer la demande en tant qu'invité
+link.startAsGuest=Commencer la demande en tant qu''invité
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -383,7 +383,7 @@ content.eligibilityCriteria.v3=Pour connaître les critères d''éligibilité à
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Vous pouvez retourner à la page précédente pour modifier vos réponses ou demander votre inscription à un autre programme.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=Si vous pensez qu'il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
+content.changeAnswersForEligibility.v2=Si vous pensez qu''il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
 # Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=Retour pour modifier
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
@@ -445,9 +445,9 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Votre client n''est peut-�
 alert.eligibility_ti_fastforwarded_not_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant les réponses ou l''éligibilité de votre client. Veuillez vérifier toutes les questions ci-dessous.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=D'après les réponses apportées à une autre demande, il est probable que vous soyez éligible à ce programme.
+alert.likelyEligible=D''après les réponses apportées à une autre demande, il est probable que vous soyez éligible à ce programme.
 # Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
-alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n'êtes peut-être pas éligible à ce programme.
+alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n''êtes peut-être pas éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
 alert.clientLikelyEligible=D''après les réponses apportées à une autre demande, il est probable que votre client soit éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
@@ -553,14 +553,14 @@ button.homePage=Retour à la page d''accueil
 link.backToEditProgramBlock=Retour à la modification {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configurez l'affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
+content.predicateVisibilityDescription=Configurez l''affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Ajoutez des conditions d'éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
+content.predicateEligibilityDescription=Ajoutez des conditions d''éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=paramètres du programme
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=L'écran est
+content.predicateScreenIs=L''écran est
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=Le candidat est éligible si
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
@@ -594,6 +594,8 @@ content.and=et
 button.predicateAddCondition=Ajouter la condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Supprimer la condition
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ajouter une sous-condition
 # Link to remove a sub-condition from the form
@@ -603,10 +605,22 @@ link.backToTop=Retour en haut
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Enregistrer et quitter
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=Il n'y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
+alert.predicateNoAvailableQuestionsVisibility=Il n''y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=Il n'y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
+alert.predicateNoAvailableQuestionsEligibility=Il n''y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -850,7 +864,7 @@ map.locationLinkText=Voir plus de détails
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Afficher plus de détails pour {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Affichage de {0} lieu(x) sur {1}
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} emplacements sur {1} maximum sélectionnés.
 # Alt text for map region
@@ -870,23 +884,23 @@ map.selectedLocationsHeading=Lieux sélectionnés
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Sélectionner un lieu
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Sélectionnez jusqu'à {0} emplacements
+map.selectLocations=Sélectionnez jusqu''à {0} emplacements
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Sélectionner -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Passer à l'affichage sous forme de carte
+map.switchToMapView=Passer à l''affichage sous forme de carte
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Passer à l'affichage sous forme de liste
+map.switchToListView=Passer à l''affichage sous forme de liste
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=L'affichage est passé en mode carte
+map.switchToMapViewSr=L''affichage est passé en mode carte
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=L'affichage est passé en mode liste.
+map.switchToListViewSr=L''affichage est passé en mode liste.
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Veuillez sélectionner au maximum {0} emplacements.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = Nous sommes désolés, nous ne pouvons pas afficher cette question pour le moment. Veuillez réessayer ultérieurement. En attendant, retournez à/au/sur {0} ou {1} et nous vous guiderons dans la bonne direction.
 map.contactUs = nous contacter
-map.homepage = page d'accueil
+map.homepage = page d''accueil
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
 map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
@@ -897,41 +911,41 @@ map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a differe
 # Button for adding a filter
 map.addFilterButton=Ajouter un filtre
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Sélectionnez jusqu'à six filtres à mettre à la disposition des candidats.
+map.addFiltersSubtitle=Sélectionnez jusqu''à six filtres à mettre à la disposition des candidats.
 # Title for filters section
 map.addFiltersTitle=Filtres
 # Button for adding a tag
 map.addTagButton=Ajouter une balise
 # Subtitle text for adding a tag
-map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu'un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
+map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu''un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
 # Title for tag section
 map.addTagTitle=Balise
 # Label for display name field
-map.displayNameLabel=Nom d'affichage
+map.displayNameLabel=Nom d''affichage
 # Label for key field
 map.keyLabel=Clé
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Erreur : clé introuvable. Veuillez sélectionner une autre clé.
 # Help text for location address field
-map.locationAddressHelpText=Sélectionnez la clé qui représente l'adresse de l'emplacement.
+map.locationAddressHelpText=Sélectionnez la clé qui représente l''adresse de l''emplacement.
 # Label for location address key field
-map.locationAddressLabel=Clé d'adresse
+map.locationAddressLabel=Clé d''adresse
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l'URL des détails de l'emplacement.
+map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l''URL des détails de l''emplacement.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=Clé d'URL pour afficher plus de détails
+map.locationDetailsUrlLabel=Clé d''URL pour afficher plus de détails
 # Help text for location name field
-map.locationNameHelpText=Sélectionnez la clé qui représente le nom de l'emplacement.
+map.locationNameHelpText=Sélectionnez la clé qui représente le nom de l''emplacement.
 # Label for location name key field
 map.locationNameLabel=Clé de nom
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Sélections maximales d'emplacements
+map.maxLocationSelectionsLabel=Sélections maximales d''emplacements
 # Label for setting text field
-map.settingTextLabel=Texte d'alerte
+map.settingTextLabel=Texte d''alerte
 # Label for value field
 map.valueLabel=Valeur
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=La carte s'affichera ici
+map.mapPreviewText=La carte s''affichera ici
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -969,7 +983,7 @@ email.loginToCiviform=Connectez-vous à Civiform : {0}
 # Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Votre demande d''inscription au programme {0} a bien été reçue
 # Body of the email sent automatically on application submission
-email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l'ID de votre demande est {2}.
+email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l''ID de votre demande est {2}.
 # Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Vous avez envoyé une demande d''inscription au programme {0} au nom de {1}
 # Body of the email sent to the TI on application submission
@@ -1045,7 +1059,7 @@ banner.minute=1 minute
 
 # An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Garde d'enfants
+category.tag.childcare=Garde d''enfants
 
 # A tag used to filter the list of programs down to those that are related to economy.
 category.tag.economic=Économie
