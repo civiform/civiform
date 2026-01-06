@@ -362,7 +362,7 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill(
-      '#program-display-short-description-textarea',
+      '#program-display-short-description-input',
       shortDescription,
     )
 

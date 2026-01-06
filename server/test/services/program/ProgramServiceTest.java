@@ -497,6 +497,34 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createProgramWithTooLongShortDescription_returnsError() {
+    // Create a string longer than 100 characters
+    String tooLongShortDescription = "a".repeat(101);
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "test-program",
+            "description",
+            "name",
+            "description",
+            tooLongShortDescription,
+            "confirm",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            ProgramType.DEFAULT,
+            /* tiGroup */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("Short description must be 100 characters or less"));
+  }
+
+  @Test
   public void createProgram_protectsAgainstProgramNameCollisions() {
     ps.createProgramDefinition(
         "name",
@@ -1108,6 +1136,23 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkApplicationStepErrors_defaultProgram_returnsErrorWhenTitleTooLong() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    // Create a title longer than 100 characters
+    String tooLongTitle = "a".repeat(101);
+    ImmutableList<ApplicationStep> applicationSteps =
+        ImmutableList.of(
+            new ApplicationStep("valid title", "description one"),
+            new ApplicationStep(tooLongTitle, "description two"));
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
+
+    assertThat(errors.size()).isEqualTo(1);
+    assertThat(errors.contains(CiviFormError.of("Step 2 title must be 100 characters or less")))
+        .isTrue();
   }
 
   @Test
