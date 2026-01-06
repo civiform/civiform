@@ -140,6 +140,7 @@ export class SessionTimeoutHandler {
       })
     }
 
+    // Only add total length warning if it hasn't been shown yet
     if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
       timeouts.push({
         time: data.totalWarning,
