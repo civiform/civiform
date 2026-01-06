@@ -121,7 +121,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Summary data (List of blocks. Each block contains a list of questions and answers)
 
-    ImmutableList<ApplicantAnswerData> northStarSummaryData =
+    ImmutableList<ApplicantAnswerData> summaryData =
         params.summaryData().stream()
             .map(datum -> new ApplicantAnswerData(datum, params.applicantId()))
             .collect(ImmutableList.toImmutableList());
@@ -133,7 +133,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     blockSummaries.forEach(
         blockSummary ->
-            northStarSummaryData.stream()
+            summaryData.stream()
                 .filter(datum -> blockSummary.block().getId().equals(datum.blockId()))
                 .forEach(blockSummary::addAnswerData));
 
