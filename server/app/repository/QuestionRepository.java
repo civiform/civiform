@@ -313,6 +313,18 @@ public final class QuestionRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
+  /** Get the ids for all enumerator questions. */
+  public ImmutableList<Long> getAllQuestionIdsWithEnumeratorType() {
+    return database
+        .find(QuestionModel.class)
+        .where()
+        .eq("questionType", "ENUMERATOR")
+        .findList()
+        .stream()
+        .map(q -> q.id)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public ImmutableMap<String, QuestionDefinition> getExistingQuestions(
       ImmutableSet<String> questionNames) {
     // We need to retrieve the latest id for each question since multiple versions of a question
