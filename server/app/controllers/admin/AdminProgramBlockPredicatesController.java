@@ -189,16 +189,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
-      ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
-          buildConditionsListFromPredicateDefinition(
-              request,
-              programId,
-              blockDefinitionId,
-              predicateUseCase,
-              getAvailablePredicateDefinition(
-                  programDefinition, blockDefinitionId, predicateUseCase));
-
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+        ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
+            buildConditionsListFromPredicateDefinition(
+                request,
+                programId,
+                blockDefinitionId,
+                predicateUseCase,
+                getAvailablePredicateDefinition(
+                    programDefinition, blockDefinitionId, predicateUseCase));
+
         EditPredicatePageViewModel model =
             EditPredicatePageViewModel.builder()
                 .programDefinition(programDefinition)
@@ -482,17 +482,21 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     SelectedValue userEnteredValue =
         leafNode.comparedValue().toSelectedValue(selectedQuestion.getQuestionType());
-    String firstValue =
+
+    // Grab user-entered text to populate text fields.
+    // For cases where we expect multi-value inputs (like checkbox questions),
+    // we use "valueOptions" below and the text fields aren't shown.
+    Optional<String> firstValueOptional =
         switch (userEnteredValue.getKind()) {
-          case SINGLE -> userEnteredValue.single();
-          case PAIR -> userEnteredValue.pair().first();
-          case MULTIPLE -> "";
+          case SINGLE -> Optional.of(userEnteredValue.single());
+          case PAIR -> Optional.of(userEnteredValue.pair().first());
+          case MULTIPLE -> Optional.empty();
         };
 
-    String secondValue =
+    Optional<String> secondValueOptional =
         switch (userEnteredValue.getKind()) {
-          case PAIR -> userEnteredValue.pair().second();
-          case SINGLE, MULTIPLE -> "";
+          case PAIR -> Optional.of(userEnteredValue.pair().second());
+          case SINGLE, MULTIPLE -> Optional.empty();
         };
 
     return model.toBuilder()
@@ -501,8 +505,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .scalarOptions(
             getScalarOptionsForQuestion(selectedQuestion, Optional.of(leafNode.scalar())))
         .selectedQuestionType(Optional.of(selectedQuestion.getQuestionType().getLabel()))
-        .userEnteredValue(firstValue)
-        .secondUserEnteredValue(secondValue)
+        .userEnteredValue(firstValueOptional.orElse(""))
+        .secondUserEnteredValue(secondValueOptional.orElse(""))
         .valueOptions(getValueOptionsForQuestion(selectedQuestion, userEnteredValue))
         .build();
   }
@@ -523,14 +527,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     return model.toBuilder()
         .questionOptions(getQuestionOptions(availableQuestions, Optional.of(selectedQuestion)))
         .operatorOptions(getOperatorOptions(Optional.of(addressNode.operator())))
-        .scalarOptions(getScalarOptionsForQuestion(selectedQuestion, Optional.empty()))
+        .scalarOptions(
+            getScalarOptionsForQuestion(selectedQuestion, /* selectedScalar= */ Optional.empty()))
         .selectedQuestionType(Optional.of(selectedQuestion.getQuestionType().getLabel()))
         .valueOptions(getValueOptionsForQuestion(selectedQuestion, userEnteredValue))
         .build();
   }
 
   /**
-   * Builds a list of condition view models from an (optional) saved {@link PredicateDefinition}.
+   * Builds a list of condition view models from an saved {@link PredicateDefinition}.
    *
    * <p>If expanded form logic is not enabled, or there is no saved predicate definition, returns an
    * empty list.
@@ -555,17 +560,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     ImmutableList<PredicateExpressionNode> conditionExpressionNodes =
         getLeafNodeOrChildren(maybePredicateDefinition.get().rootNode());
 
-    ArrayList<EditConditionPartialViewModel> conditionsList = new ArrayList<>();
     ImmutableList<QuestionDefinition> availableQuestions =
         getAvailablePredicateQuestionDefinitions(programId, blockDefinitionId, predicateUseCase);
 
     // Iterate through top-level condition nodes (children of root AND/OR) to build view models.
+    // Nested for-loop: iterate through each top-level condition and all of their subconditions.
+    ArrayList<EditConditionPartialViewModel> conditionsList = new ArrayList<>();
     for (PredicateExpressionNode conditionExpressionNode : conditionExpressionNodes) {
       EditConditionPartialViewModel conditionViewModel =
           createBaseConditionModel(
               programId, blockDefinitionId, predicateUseCase, availableQuestions);
 
-      // Subconditions will be leaf nodes here.
+      // Inner for-loop: subconditions will be leaf nodes here.
       // If the conditionExpressionNode is a leaf node, treat it as a single subcondition.
       ArrayList<EditSubconditionPartialViewModel> subconditionsList = new ArrayList<>();
       ImmutableList<PredicateExpressionNode> subconditionExpressionNodes =
@@ -595,6 +601,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         }
         subconditionsList.add(subconditionViewModel);
       }
+
+      // Add this condition to the conditions list and iterate to the next condition.
       conditionsList.add(
           conditionViewModel.toBuilder()
               .subconditions(ImmutableList.copyOf(subconditionsList))

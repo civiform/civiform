@@ -3,6 +3,7 @@ import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
 import {MultiValueSpec, SubconditionSpec} from '../support/admin_predicates'
+import {assertNotNull} from '../support/helpers'
 
 /**
  * Map of question types to that question type's corresponding testing data
@@ -909,18 +910,26 @@ test.describe('create and edit predicates', () => {
         questionValue: PROGRAM_SAMPLE_QUESTIONS.get(key)!,
       }))
 
-    const addressValues = testQuestionData.find(
-      (question) => question.questionType === QuestionType.ADDRESS,
-    )!.questionValue
-    const checkboxValues = testQuestionData.find(
-      (question) => question.questionType === QuestionType.CHECKBOX,
-    )!.questionValue
-    const dateValues = testQuestionData.find(
-      (question) => question.questionType === QuestionType.DATE,
-    )!.questionValue
-    const nameValues = testQuestionData.find(
-      (question) => question.questionType === QuestionType.NAME,
-    )!.questionValue
+    const addressValues = assertNotNull(
+      testQuestionData.find(
+        (question) => question.questionType === QuestionType.ADDRESS,
+      ),
+    ).questionValue
+    const checkboxValues = assertNotNull(
+      testQuestionData.find(
+        (question) => question.questionType === QuestionType.CHECKBOX,
+      ),
+    ).questionValue
+    const dateValues = assertNotNull(
+      testQuestionData.find(
+        (question) => question.questionType === QuestionType.DATE,
+      ),
+    ).questionValue
+    const nameValues = assertNotNull(
+      testQuestionData.find(
+        (question) => question.questionType === QuestionType.NAME,
+      ),
+    ).questionValue
 
     const subconditionConfigs: SubconditionSpec[] = [
       {
@@ -1005,7 +1014,6 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
 
       // Checking values
-      // Address value checked manually
       await expect(
         page
           .getByLabel('Value(s)', {id: 'condition-2-subcondition-2-value'})
@@ -1029,7 +1037,6 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
 
       // Checking values
-      // Address value checked manually
       await expect(
         page
           .getByLabel('Value(s)', {id: 'condition-2-subcondition-2-value'})
