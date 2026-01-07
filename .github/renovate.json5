@@ -107,6 +107,10 @@
       allowedVersions: "<17.0.0",
     },
     {
+      matchPackageNames: ["prometheus"],
+      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
+    },
+    {
       groupName: "tailwindcss",
       matchPackageNames: ["tailwindcss"],
       allowedVersions: "<4.0.0",
