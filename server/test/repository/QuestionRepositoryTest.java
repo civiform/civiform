@@ -239,14 +239,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getAllQuestionIdsWithEnumeratorType() {
-    QuestionModel questionModel = resourceCreator.insertEnum("enum-question");
-    ImmutableList<Long> enumQuestionIds = repo.getAllQuestionIdsWithEnumeratorType();
-    assertThat(enumQuestionIds.size()).isEqualTo(1);
-    assertThat(enumQuestionIds.get(0)).isEqualTo(questionModel.id);
-  }
-
-  @Test
   public void updateQuestion() throws UnsupportedQuestionTypeException {
     QuestionModel initialQuestion = resourceCreator.insertQuestion();
     QuestionDefinition initialQuestionDefinition = initialQuestion.getQuestionDefinition();

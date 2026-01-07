@@ -596,35 +596,4 @@ public final class ProgramRepository {
 
     return Optional.ofNullable(latestProgramId);
   }
-
-  /* Find any program where the block_definitions's questionDefinitions includes
-  an item with an id that is in the given enumerator question id list. */
-  public ImmutableList<ProgramModel> getAllProgramsWithAnEnumeratorQuestion(
-      ImmutableList<Long> enumeratorQuestionIds) {
-
-    if (enumeratorQuestionIds.isEmpty()) {
-      return ImmutableList.of();
-    }
-
-    // Build a SQL WHERE clause to check if any of the enumeratorQuestionIds exist in the
-    // block_definitions JSON.
-    StringBuilder whereClause = new StringBuilder("(");
-    for (int i = 0; i < enumeratorQuestionIds.size(); i++) {
-      if (i > 0) {
-        whereClause.append(" OR ");
-      }
-      // Adjust the JSON path as needed for your schema.
-      whereClause
-          .append("block_definitions::jsonb @> ")
-          .append("'[{\"questionDefinitions\":[{\"id\":")
-          .append(enumeratorQuestionIds.get(i))
-          .append("}]}]'");
-    }
-    whereClause.append(")");
-
-    List<ProgramModel> matchingPrograms =
-        database.find(ProgramModel.class).where().raw(whereClause.toString()).findList();
-
-    return ImmutableList.copyOf(matchingPrograms);
-  }
 }

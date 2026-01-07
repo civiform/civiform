@@ -1,6 +1,7 @@
 package durablejobs.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import durablejobs.DurableJobName;
 import java.time.Instant;
@@ -10,17 +11,17 @@ import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.cache.AsyncCacheApi;
 import repository.ProgramRepository;
-import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class SetIsEnumeratorOnBlocksWithEnumeratorQuestionJobTest extends ResetPostgres {
   ProgramRepository programRepository;
-  QuestionRepository questionRepository;
   ProgramService programService;
   PersistedDurableJobModel jobModel =
       new PersistedDurableJobModel(
@@ -30,17 +31,20 @@ public class SetIsEnumeratorOnBlocksWithEnumeratorQuestionJobTest extends ResetP
   QuestionModel enumQuestion;
   QuestionModel nonEnumQuestion;
   SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob job;
+  SettingsManifest settingsManifest;
+  AsyncCacheApi asyncCacheApi;
 
   @Before
   public void setUp() {
     programRepository = instanceOf(ProgramRepository.class);
-    questionRepository = instanceOf(QuestionRepository.class);
     programService = instanceOf(ProgramService.class);
     enumQuestion = resourceCreator.insertEnum("enum-question");
     nonEnumQuestion = resourceCreator.insertQuestion("non-enum-question");
+    settingsManifest = mock(SettingsManifest.class);
+    asyncCacheApi = instanceOf(AsyncCacheApi.class);
     job =
         new SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob(
-            jobModel, programRepository, questionRepository);
+            jobModel, programRepository, asyncCacheApi, settingsManifest);
   }
 
   // Verifies that blocks with enumerator questions are updated to have isEnumerator = true.

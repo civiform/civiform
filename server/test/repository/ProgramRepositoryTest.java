@@ -40,7 +40,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.question.QuestionAnswerer;
-import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
@@ -1192,26 +1191,5 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     .build()));
 
     assertThat(updatedProgramModel.getCategories().size()).isEqualTo(0);
-  }
-
-  @Test
-  public void getAllProgramsWithAnEnumeratorQuestion() {
-    ProgramModel programWithoutEnumeratorQuestion =
-        resourceCreator.insertActiveProgram("program-without-enumerator-question");
-
-    QuestionDefinition enumQuestion =
-        resourceCreator.insertEnum("enum-question").getQuestionDefinition();
-
-    ProgramDefinition programWithEnumeratorQuestion =
-        ProgramBuilder.newDraftProgram()
-            .withBlock()
-            .withRequiredQuestionDefinition(enumQuestion)
-            .buildDefinition();
-
-    ImmutableList<ProgramModel> programsWithEnumeratorQuestions =
-        repo.getAllProgramsWithAnEnumeratorQuestion(ImmutableList.of(enumQuestion.getId()));
-
-    assertThat(programsWithEnumeratorQuestions).contains(programWithEnumeratorQuestion.toProgram());
-    assertThat(programsWithEnumeratorQuestions).doesNotContain(programWithoutEnumeratorQuestion);
   }
 }

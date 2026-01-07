@@ -23,7 +23,6 @@ import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
-import durablejobs.jobs.SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
@@ -39,8 +38,6 @@ import repository.AccountRepository;
 import repository.CategoryRepository;
 import repository.GeoJsonDataRepository;
 import repository.PersistedDurableJobRepository;
-import repository.ProgramRepository;
-import repository.QuestionRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
@@ -188,8 +185,6 @@ public final class DurableJobModule extends AbstractModule {
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
       CategoryRepository categoryRepository,
-      ProgramRepository programRepository,
-      QuestionRepository questionRepository,
       CategoryTranslationFileParser categoryTranslationFileParser,
       Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
@@ -209,13 +204,6 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825,
         JobType.RUN_ONCE,
         UpdateLastActivityTimeForAccounts::new);
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.SET_IS_ENUMERATOR_ON_BLOCKS_WITH_ENUMERATOR_QUESTION_20260106,
-        JobType.RUN_ONCE,
-        persistedDurableJob ->
-            new SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob(
-                persistedDurableJob, programRepository, questionRepository));
 
     return durableJobRegistry;
   }
