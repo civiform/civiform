@@ -705,7 +705,8 @@ public final class ProgramService {
       }
 
       for (BlockDefinition block : programDefinition.blockDefinitions()) {
-        if (isTranslationMissingForLocale(block.localizedName(), locale)) {
+        if (block.localizedName().maybeGet(locale).isEmpty()
+            || block.localizedDescription().maybeGet(locale).isEmpty()) {
           return false;
         }
         if (block.localizedEligibilityMessage().isPresent()) {
