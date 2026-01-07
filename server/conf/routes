@@ -208,6 +208,7 @@ GET     /programs/:programParam/blocks/:blockId/updateFile/:inReview/:applicantR
 GET     /programs/:programParam/blocks/:blockId/addFile/:inReview                                                                 controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programParam: String, blockId: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 GET     /programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programParam: String, blockId: String, fileKey: String, inReview: Boolean, isFromUrlCall: Boolean ?= true)
 POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+POST     /programs/:programId/blocks/:blockId/spikeUpload                                                                         controllers.applicant.ApplicantProgramBlocksController.spikeUpload(request: Request, programId: Long, blockId: String, applicantId: Long)
 
 # Routes for handling GeoJSON
 POST    /geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)

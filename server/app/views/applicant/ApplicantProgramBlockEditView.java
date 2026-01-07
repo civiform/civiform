@@ -47,9 +47,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
    * This should be kept in sync with the config value `file_upload_allowed_file_type_specifiers` in
    * the application.conf file.
    */
-  private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
-
   private final FileUploadViewStrategy fileUploadViewStrategy;
+
   private final GeoJsonDataRepository mapDataRepository;
 
   @Inject
@@ -102,6 +101,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
+    context.setVariable("applicantId", applicationParams.applicantId());
 
     // Progress bar
     ProgressBar progressBar =
@@ -131,38 +131,29 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         questionParams.values().stream().anyMatch(param -> param.shouldShowErrorsWithModal());
     context.setVariable("showErrorModal", showErrorModal);
 
-    // Include file upload specific parameters.
-    if (applicationParams.block().isFileUpload()) {
-      this.addFileUploadParameters(request, applicationParams, context);
+    context.setVariable(
+        "previousFormAction",
+        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
+    context.setVariable(
+        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
 
-      return templateEngine.process(
-          "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
+    if (applicationParams.errorDisplayMode()
+        == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+      setErrorContextForReview(context, applicationParams);
     } else {
-
-      context.setVariable(
-          "previousFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
-      context.setVariable(
-          "reviewFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
-
-      if (applicationParams.errorDisplayMode()
-          == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams);
-      } else {
-        setErrorContextForPrevious(context, applicationParams);
-      }
-
-      // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
-      context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
-      context.setVariable("nameSuffixOptions", Suffix.values());
-      context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
-      context.setVariable(
-          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
-      context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
-      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+      setErrorContextForPrevious(context, applicationParams);
     }
+
+    // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
+    context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("nameSuffixOptions", Suffix.values());
+    context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
+    return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
   // Helper function to set the modal context
@@ -363,36 +354,5 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
-  }
-
-  private void addFileUploadParameters(
-      Request request,
-      ApplicationBaseViewParams params,
-      ThymeleafModule.PlayThymeleafContext context) {
-    context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
-    context.setVariable("fileUploadFooterTags", fileUploadViewStrategy.footerTags(request));
-    context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
-    context.setVariable(
-        "fileUploadAllowedFileTypeSpecifiers",
-        settingsManifest
-            .getFileUploadAllowedFileTypeSpecifiers()
-            .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
-    context.setVariable(
-        "previousBlockWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .blockPreviousOrReview(
-                    params.profile(),
-                    params.applicantId(),
-                    params.programId(),
-                    params.blockIndex(),
-                    params.inReview())
-                .url());
-    context.setVariable(
-        "reviewPageWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .review(params.profile(), params.applicantId(), params.programId())
-                .url());
   }
 }

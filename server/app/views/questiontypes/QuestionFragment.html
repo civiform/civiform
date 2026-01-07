@@ -40,6 +40,11 @@
         th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question}, ${enumMaxEntityCount})}"
       ></div>
     </th:block>
+    <th:block th:case="'File Upload'">
+      <div
+        th:replace="~{questiontypes/SpikeFileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams}, ${applicationParams.programId()}, ${applicationParams.block().getId()}, ${applicationParams.applicantId()})}"
+      ></div>
+    </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"

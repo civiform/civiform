@@ -46,9 +46,12 @@
           >
             <form
               id="cf-block-form"
+              enctype="multipart/form-data"
               th:action="${submitFormAction}"
               method="POST"
               class="usa-form usa-form--large cf-block-form"
+              th:hx-post="${fileUploadViewStrategy.spikeUploadUrl(applicationParams.programId(), applicationParams.block().getId(), applicationParams.applicantId())}"
+              hx-target="#the-one-file-upload"
             >
               <input hidden th:value="${csrfToken}" name="csrfToken" />
 

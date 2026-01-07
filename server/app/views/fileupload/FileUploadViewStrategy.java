@@ -10,6 +10,7 @@ import static j2html.TagCreator.p;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
@@ -55,6 +56,10 @@ public abstract class FileUploadViewStrategy {
   /** Returns the action attribute appended to the <form> element for a file upload question. */
   public String formAction(StorageUploadRequest request) {
     return null;
+  }
+
+  public String spikeUploadUrl(Long programId, String blockId, Long applicantId) {
+    return routes.ApplicantProgramBlocksController.spikeUpload(programId, blockId, applicantId).url();
   }
 
   /** Returns the file name for a given file key. */

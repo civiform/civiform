@@ -77,7 +77,7 @@ public final class ProgramBlockValidation {
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
-    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion()) || block.isFileUpload()) {
+    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion())) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {

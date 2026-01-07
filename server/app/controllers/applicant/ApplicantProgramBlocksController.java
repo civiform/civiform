@@ -24,10 +24,14 @@ import controllers.geo.AddressSuggestionJsonSerializer;
 import helpers.Pair;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import models.StoredFileModel;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +75,8 @@ import views.applicant.ApplicantIneligibleView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.SpikeFileUploadQuestionPartialView;
+import play.libs.Files.TemporaryFile;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
@@ -97,6 +103,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
   private final MonitoringMetricCounters metricCounters;
+  private final SpikeFileUploadQuestionPartialView spikeFileUploadView;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -114,6 +121,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       SettingsManifest settingsManifest,
       ApplicantIneligibleView applicantIneligibleView,
       AddressCorrectionBlockView addressCorrectionBlockView,
+      SpikeFileUploadQuestionPartialView spikeFileUploadView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -139,6 +147,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
+    this.spikeFileUploadView = checkNotNull(spikeFileUploadView);
   }
 
   /**
@@ -956,6 +965,61 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     blockId,
                     inReview,
                     /* isFromUrlCall= */ false));
+  }
+
+  @Secure
+  public CompletionStage<Result> spikeUpload(Request request, long programId, String blockId, long applicantId) {
+    System.out.println("Hi Alvin");
+    Http.MultipartFormData<TemporaryFile> formData = request.body().asMultipartFormData();
+
+    List<File> files = formData.getFiles().stream()
+            .map(filePart -> filePart.getRef().path().toFile())
+            .collect(Collectors.toList());
+    System.out.println(files);
+
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
+        applicantStage
+            .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                classLoaderExecutionContext.current())
+            .toCompletableFuture();
+
+    return applicantProgramServiceCompletableFuture.thenComposeAsync(
+        (roApplicantProgramService) -> {
+          Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+          if (!block.isPresent()) {
+            return supplyAsync(() -> notFound());
+          }
+
+          ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
+          ApplicationBaseViewParams applicationParams =
+              buildApplicationBaseViewParams(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  true,
+                  roApplicantProgramService,
+                  block.get(),
+                  personalInfo,
+                  ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                  applicantRoutes,
+                  profile);
+
+          final String programSlug;
+          try {
+            programSlug = programService.getSlug(programId);
+          } catch (ProgramNotFoundException e) {
+            return supplyAsync(() -> notFound(e.toString()));
+          }
+          return supplyAsync(() -> ok(spikeFileUploadView.render(request, applicationParams, programSlug))
+              .as(Http.MimeTypes.HTML));
+        },
+        classLoaderExecutionContext.current());
   }
 
   @Secure
