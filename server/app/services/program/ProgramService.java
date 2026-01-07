@@ -654,6 +654,25 @@ public final class ProgramService {
             .join());
   }
 
+  /**
+   * Checks if a localized string is missing a required translation for a given locale. A
+   * translation is considered "missing" if a default (English) translation exists, but a non-empty
+   * translation for the specified locale does not. If no default translation exists, translations
+   * for other locales are not required.
+   *
+   * @param localizedStrings The LocalizedStrings to check.
+   * @param locale The locale to check for a translation.
+   * @return true if a translation is required and missing, false otherwise.
+   */
+  private boolean isTranslationMissingForLocale(LocalizedStrings localizedStrings, Locale locale) {
+    // A translation is required only if the default string is non-empty.
+    if (localizedStrings.getDefault().isEmpty()) {
+      return false; // Translation not required, so it's not "missing".
+    }
+    // A translation is required. It's missing if a non-empty string for the locale isn't present.
+    return !localizedStrings.maybeGet(locale).filter(s -> !s.isEmpty()).isPresent();
+  }
+
   public boolean isTranslationComplete(ProgramDefinition programDefinition)
       throws ProgramNotFoundException {
     ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
@@ -669,34 +688,29 @@ public final class ProgramService {
       if (locale.equals(DEFAULT_LOCALE)) {
         continue;
       }
-
-      if (programDefinition.localizedName().maybeGet(locale).isEmpty()
-          || programDefinition.localizedDescription().maybeGet(locale).isEmpty()
-          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()
-          || programDefinition.localizedShortDescription().maybeGet(locale).isEmpty()
+      if (isTranslationMissingForLocale(programDefinition.localizedName(), locale)
+          || isTranslationMissingForLocale(programDefinition.localizedDescription(), locale)
+          || isTranslationMissingForLocale(programDefinition.localizedConfirmationMessage(), locale)
+          || isTranslationMissingForLocale(programDefinition.localizedShortDescription(), locale)
           || (programDefinition.localizedSummaryImageDescription().isPresent()
-              && programDefinition
-                  .localizedSummaryImageDescription()
-                  .get()
-                  .maybeGet(locale)
-                  .isEmpty())) {
+              && isTranslationMissingForLocale(
+                  programDefinition.localizedSummaryImageDescription().get(), locale))) {
         return false;
       }
 
       for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
-        if (status.localizedStatusText().maybeGet(locale).isEmpty()) {
+        if (isTranslationMissingForLocale(status.localizedStatusText(), locale)) {
           return false;
         }
       }
 
       for (BlockDefinition block : programDefinition.blockDefinitions()) {
-        if (block.localizedName().maybeGet(locale).isEmpty()
-            || block.localizedDescription().maybeGet(locale).isEmpty()) {
+        if (isTranslationMissingForLocale(block.localizedName(), locale)) {
           return false;
         }
         if (block.localizedEligibilityMessage().isPresent()) {
           LocalizedStrings localizedEligibilityMessage = block.localizedEligibilityMessage().get();
-          if (localizedEligibilityMessage.maybeGet(locale).isEmpty()) {
+          if (isTranslationMissingForLocale(localizedEligibilityMessage, locale)) {
             return false;
           }
         }
