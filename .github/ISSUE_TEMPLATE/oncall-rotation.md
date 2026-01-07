@@ -38,6 +38,7 @@ Resources:
 - [ ] Check Security lists daily
 - [ ] Check #eng-ci Slack channel daily to monitor failed pushes and e2e test runs
 - [ ] Check [needs triage bugs](https://github.com/orgs/civiform/projects/1/views/50) daily to ensure there aren't any P0s
+- [ ] Once per shift, check Transifex to see if strings are ready to be sent for translation. See [Managing Translations](https://github.com/civiform/civiform/wiki/Exygy-Admin-Info#managing-translations) for detailed instructions.
 - [ ] Make some progress (< 2 days) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95) or a broken dependency update (see below)
 - [ ] Check for dependency updates
   - Resolve mergeable dependency updates a few times per shift in batches of 3-5.

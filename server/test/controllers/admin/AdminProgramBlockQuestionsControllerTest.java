@@ -81,7 +81,10 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 controller.delete(
-                    programId, /* blockDefinitionId= */ 1, /* questionDefinitionId= */ 1))
+                    fakeRequest(),
+                    programId,
+                    /* blockDefinitionId= */ 1,
+                    /* questionDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
   }
 

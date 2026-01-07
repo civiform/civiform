@@ -594,6 +594,8 @@ content.and=и
 button.predicateAddCondition=Добавить условие
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Удалить условие
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Добавить подусловие
 # Link to remove a sub-condition from the form
@@ -603,10 +605,22 @@ link.backToTop=В начало страницы
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Сохранить и выйти
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=На предыдущих экранах нет доступных вопросов, с помощью которых можно задать условие видимости для этого экрана.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=На этом экране нет доступных вопросов, с помощью которых можно задать условие соответствия требованиям.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -850,7 +864,7 @@ map.locationLinkText=Подробнее
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Показано мест: {0} из {1}.
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Выбрано {0} из максимум {1} местоположений.
 # Alt text for map region

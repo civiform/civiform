@@ -274,6 +274,15 @@ export class AdminPredicates {
   }
 
   /**
+   * Configures multiple subconditions at once using the given inputs.
+   */
+  async configureSubconditions(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.configureSubcondition(subcondition)
+    }
+  }
+
+  /**
    * Asserts the state of a given subcondition, checking selected question, scalar, operator, and value(s).
    */
   async expectSubconditionEquals({
@@ -295,6 +304,15 @@ export class AdminPredicates {
     }
 
     await this.expectFilledValue(conditionId, subconditionId, value)
+  }
+
+  /**
+   * Assert the state of multiple subconditions at once, using the given inputs.
+   */
+  async expectSubconditionsEqual(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.expectSubconditionEquals(subcondition)
+    }
   }
 
   coalesceValueOptions(

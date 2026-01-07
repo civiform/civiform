@@ -23,17 +23,21 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.Path;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
  * other EBean models or asynchronous handling.
  */
 public final class QuestionRepository {
+  private static final Logger logger = LoggerFactory.getLogger(QuestionRepository.class);
   private final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("QuestionRepository");
 
@@ -62,7 +66,14 @@ public final class QuestionRepository {
   }
 
   public QuestionDefinition getQuestionDefinition(QuestionModel question) {
-    return question.getQuestionDefinition();
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+    if (questionDefinition.getQuestionType() == QuestionType.NULL_QUESTION) {
+      logger.error(
+          "Question with id {} has a NULL_QUESTION type. This could indicate an issue with the L2"
+              + " Cache.",
+          question.id);
+    }
+    return questionDefinition;
   }
 
   public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {

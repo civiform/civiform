@@ -38,6 +38,7 @@ import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
 import repository.CategoryRepository;
@@ -57,6 +58,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 
 /**
@@ -88,6 +90,8 @@ public final class ProgramService {
       "One or more TI Org must be selected for program visibility";
   private static final String MISSING_APPLICATION_STEP_MSG =
       "The program must contain at least one application step";
+  private static final String SHORT_DESCRIPTION_TOO_LONG_MSG =
+      "Short description must be 100 characters or less";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -858,7 +862,10 @@ public final class ProgramService {
     }
     if (shortDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+    } else if (shortDescription.length() > 100) {
+      errorsBuilder.add(CiviFormError.of(SHORT_DESCRIPTION_TOO_LONG_MSG));
+    }
+    if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
       errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
     }
     if (displayMode.isBlank()) {
@@ -939,6 +946,12 @@ public final class ProgramService {
         errorsBuilder.add(
             CiviFormError.of(
                 String.format("Application step %s is missing a title", Integer.toString(i + 1))));
+      }
+      if (title.length() > 100) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Step %s title must be 100 characters or less", Integer.toString(i + 1))));
       }
     }
 
@@ -1553,9 +1566,21 @@ public final class ProgramService {
       updatedBlockQuestions.add(question);
     }
 
+    ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
+        updatedBlockQuestions.build();
+
     blockDefinition =
         blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(updatedBlockQuestions.build())
+            .setProgramQuestionDefinitions(updatedBlockQuestionsList)
+            // TODO(#11943) Remove this when isEnumeratorImprovementsEnabled feature flag is removed
+            // because it will no longer be possible to add an enumerator question to a block that
+            // isn't already an enumerator block.
+            .setIsEnumerator(
+                updatedBlockQuestionsList.stream()
+                        .map(ProgramQuestionDefinition::getQuestionDefinition)
+                        .anyMatch(QuestionDefinition::isEnumerator)
+                    ? Optional.of(true)
+                    : Optional.empty())
             .build();
     try {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -1584,7 +1609,11 @@ public final class ProgramService {
    *     one question to remove
    */
   public ProgramDefinition removeQuestionsFromBlock(
-      long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      SettingsManifest settingsManifest,
+      Request request)
       throws QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException,
@@ -1609,10 +1638,21 @@ public final class ProgramService {
             .filter(pqd -> !questionIds.contains(pqd.id()))
             .collect(ImmutableList.toImmutableList());
 
-    blockDefinition =
-        blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
-            .build();
+    boolean isRemovingEnumeratorQuestion =
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> questionIds.contains(pqd.id()))
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .anyMatch(QuestionDefinition::isEnumerator);
+
+    BlockDefinition.Builder blockBuilder =
+        blockDefinition.toBuilder().setProgramQuestionDefinitions(newProgramQuestionDefinitions);
+
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        && isRemovingEnumeratorQuestion) {
+      blockBuilder.setIsEnumerator(Optional.empty());
+    }
+
+    blockDefinition = blockBuilder.build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
   }
