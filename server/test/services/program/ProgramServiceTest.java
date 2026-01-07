@@ -286,6 +286,17 @@ public class ProgramServiceTest extends ResetPostgres {
             .withBlock("Screen 1", "Screen 1 description")
             .build();
     ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    // Create an updated LocalizedStrings for the confirmation message that has a non-empty default
+    LocalizedStrings updatedConfirmationMessage =
+        programDefinition
+            .localizedConfirmationMessage()
+            .updateTranslation(DEFAULT_LOCALE, "Default confirmation message");
+
+    // Create a new ProgramDefinition that includes our updated confirmation message
+    programDefinition =
+        programDefinition.toBuilder()
+            .setLocalizedConfirmationMessage(updatedConfirmationMessage)
+            .build();
     BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
     BlockDefinition translatedBlock =
         block.toBuilder()
