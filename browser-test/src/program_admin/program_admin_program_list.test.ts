@@ -111,12 +111,6 @@ test.describe('Translation tag showing as expected', () => {
           statuses: [],
         })
       }
-      /*
-      await validateScreenshot(
-        page,
-        'hi-temp-pic',
-      )
-        */
     })
 
     await test.step('Tag translation complete is visible', async () => {
