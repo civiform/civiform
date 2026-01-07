@@ -17,7 +17,6 @@ import play.cache.AsyncCacheApi;
 import repository.ProgramRepository;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.settings.SettingsManifest;
 
@@ -102,13 +101,6 @@ public class SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob extends DurableJob
       log.info(
           "Successfully completed SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob for job id:"
               + " '{}'",
-          persistedDurableJob.id);
-    } catch (ProgramNotFoundException e) {
-      log.error("Program not found during job execution: " + e.getMessage(), e);
-      jobTransaction.rollback();
-      log.info(
-          "SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob for job id: '{}' rolled back due to"
-              + " error.",
           persistedDurableJob.id);
     } catch (RuntimeException e) {
       log.error(e.getMessage(), e);
