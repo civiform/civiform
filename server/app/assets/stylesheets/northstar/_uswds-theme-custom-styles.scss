@@ -481,7 +481,7 @@ main {
 
 .failed-state {
   border-radius: 2px;
-  background: var(--State-tokens-success-success-lighter, #f87171);
+  background: var(--theme-color-error-lighter, #F4E3DB);
   @include u-padding-y(0.5);
   @include u-padding-x(1);
   align-items: center;
@@ -489,6 +489,7 @@ main {
 }
 
 .cf-eligible-tag {
+
   @include u-font('sans', 'xs');
 }
 
