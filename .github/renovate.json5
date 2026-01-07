@@ -64,6 +64,10 @@
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
     },
     {
+      matchPackageNames: ["ch.qos.logback:logback-classic"],
+      prHeader: "Release Notes: https://logback.qos.ch/news.html",
+    },
+    {
       groupName: "microsoft graph",
       matchPackageNames: ["com.microsoft.graph:{/,}**"],
       prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
@@ -107,7 +111,7 @@
       allowedVersions: "<17.0.0",
     },
     {
-      matchPackageNames: ["prometheus"],
+      matchPackageNames: ["prom/prometheus"],
       prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
     },
     {
