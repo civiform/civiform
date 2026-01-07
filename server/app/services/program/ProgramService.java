@@ -688,7 +688,7 @@ public final class ProgramService {
       if (locale.equals(DEFAULT_LOCALE)) {
         continue;
       }
-      if (isTranslationMissingForLocale(programDefinition.localizedName(), locale)
+      if (programDefinition.localizedName().maybeGet(locale).isEmpty()
           || isTranslationMissingForLocale(programDefinition.localizedDescription(), locale)
           || isTranslationMissingForLocale(programDefinition.localizedConfirmationMessage(), locale)
           || isTranslationMissingForLocale(programDefinition.localizedShortDescription(), locale)
