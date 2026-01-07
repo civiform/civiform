@@ -30,6 +30,7 @@ import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 /**
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
@@ -68,7 +69,8 @@ public final class QuestionRepository {
     QuestionDefinition questionDefinition = question.getQuestionDefinition();
     if (questionDefinition.getQuestionType() == QuestionType.NULL_QUESTION) {
       logger.error(
-          "Question with id {} has a NULL_QUESTION type. This could indicate an issue with the L2 Cache.",
+          "Question with id {} has a NULL_QUESTION type. This could indicate an issue with the L2"
+              + " Cache.",
           question.id);
     }
     return questionDefinition;
