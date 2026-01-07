@@ -699,7 +699,7 @@ public final class ProgramService {
       }
 
       for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
-        if (isTranslationMissingForLocale(status.localizedStatusText(), locale)) {
+        if (status.localizedStatusText().maybeGet(locale).isEmpty()) {
           return false;
         }
       }

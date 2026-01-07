@@ -107,9 +107,16 @@ test.describe('Translation tag showing as expected', () => {
           description: `${language} description`,
           blockName: `${language} block name`,
           blockDescription: `${language} block description`,
+          confirmationMsg: `${language} confirmation message`,
           statuses: [],
         })
       }
+      /*
+      await validateScreenshot(
+        page,
+        'hi-temp-pic',
+      )
+        */
     })
 
     await test.step('Tag translation complete is visible', async () => {
