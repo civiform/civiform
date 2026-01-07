@@ -36,6 +36,10 @@
       prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
     },
     {
+      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
+      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
       groupName: "guava",
       matchPackageNames: ["com.google.guava{/,}**"],
     },
