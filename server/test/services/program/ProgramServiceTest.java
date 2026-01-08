@@ -283,7 +283,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedDescription(Locale.CHINESE, "描述")
             .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
             // Confirmation message is not translated.
-            .withBlock("Screen 1", "Screen 1 description")
             .build();
     ProgramDefinition programDefinition = programModel.getProgramDefinition();
     // Create an updated LocalizedStrings for the confirmation message that has a non-empty default
@@ -322,7 +321,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedDescription(Locale.CHINESE, "描述")
             .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
             .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
-            .withBlock("Screen 1", "Screen 1 description")
             .build();
     ProgramDefinition programDefinition = programModel.getProgramDefinition();
     BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();

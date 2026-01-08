@@ -691,7 +691,7 @@ public final class ProgramService {
       if (programDefinition.localizedName().maybeGet(locale).isEmpty()
           || isTranslationMissingForLocale(programDefinition.localizedDescription(), locale)
           || isTranslationMissingForLocale(programDefinition.localizedConfirmationMessage(), locale)
-          || isTranslationMissingForLocale(programDefinition.localizedShortDescription(), locale)
+          || programDefinition.localizedShortDescription().maybeGet(locale).isEmpty()
           || (programDefinition.localizedSummaryImageDescription().isPresent()
               && isTranslationMissingForLocale(
                   programDefinition.localizedSummaryImageDescription().get(), locale))) {
