@@ -56,8 +56,6 @@ test.describe('Applicant auth', () => {
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'auth-end-session-toast')
-    await validateToastLayoutCentered(page)
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
@@ -103,6 +101,8 @@ test.describe('Applicant auth', () => {
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
     await validateToastMessage(page, 'Your session has ended.')
+    await validateScreenshot(page, 'auth-end-session-toast')
+    await validateToastLayoutCentered(page)
 
     await validateAccessibility(page)
   })
