@@ -213,6 +213,7 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+      await validateScreenshot(page.getByTestId('condition-1'), 'new-condition')
     })
 
     await test.step('Choosing a question updates scalar and operator options', async () => {

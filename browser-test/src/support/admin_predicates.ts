@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test'
-import {Page, Locator} from '@playwright/test'
+import {Page} from '@playwright/test'
 import {waitForHtmxReady} from './wait'
 
 // For legacy predicate view.
@@ -176,10 +176,11 @@ export class AdminPredicates {
   }
 
   async expectRootLogicalOperatorValues(logicalOperatorValue: string) {
-    const conditionLogicSeparatorsText = await this.page
-      .locator('.cf-predicate-condition-separator span')
+    const conditionLogicSeparatorsText = this.page.locator(
+      '.cf-predicate-condition-separator span',
+    )
 
-    expect(conditionLogicSeparatorsText.count() > 0)
+    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
 
     for (const separatorText of await conditionLogicSeparatorsText.all()) {
       await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
