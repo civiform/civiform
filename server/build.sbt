@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.1",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.42.0",
+      "com.google.errorprone" % "error_prone_core" % "2.46.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.53.0",
 
       // Apache libraries for export
