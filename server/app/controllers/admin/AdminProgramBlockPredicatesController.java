@@ -59,7 +59,9 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateGenerator;
+import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 import services.program.predicate.SelectedValue;
 import services.question.QuestionService;
@@ -190,13 +192,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
       if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+        Optional<PredicateDefinition> maybePredicateDefinition =
+            getAvailablePredicateDefinition(programDefinition, blockDefinitionId, predicateUseCase);
+
         ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
             buildConditionsListFromPredicateDefinition(
-                programId,
-                blockDefinitionId,
-                predicateUseCase,
-                getAvailablePredicateDefinition(
-                    programDefinition, blockDefinitionId, predicateUseCase));
+                programId, blockDefinitionId, predicateUseCase, maybePredicateDefinition);
 
         EditPredicatePageViewModel model =
             EditPredicatePageViewModel.builder()
@@ -206,6 +207,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .operatorScalarMap(getOperatorScalarMap())
                 .prePopulatedConditions(populatedConditionsList)
                 .hasAvailableQuestions(!predicateQuestions.isEmpty())
+                .rootLogicalOperator(getRootLogicalOperator(maybePredicateDefinition))
                 .eligibilityMessage(
                     blockDefinition
                         .localizedEligibilityMessage()
@@ -465,6 +467,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  // Gets the {@link PredicateLogicalOperator} of the root node, defaulting to "AND".
+  private PredicateLogicalOperator getRootLogicalOperator(
+      Optional<PredicateDefinition> maybePredicateDefinition) {
+    return maybePredicateDefinition
+        .map(
+            predicateDefinition ->
+                predicateDefinition.rootNode().getType().equals(PredicateExpressionNodeType.OR)
+                    ? PredicateLogicalOperator.OR
+                    : PredicateLogicalOperator.AND)
+        .orElse(PredicateLogicalOperator.AND);
   }
 
   // Builds a subcondition model from a LeafOperationExpressionNode.
@@ -812,7 +826,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
-    if (form.rawData().get("conditionId") == null) {
+    ImmutableMap<String, String> formData = ImmutableMap.copyOf(form.rawData());
+    if (formData.get("conditionId") == null) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
           .as(Http.MimeTypes.HTML);
     }
@@ -830,10 +845,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ArrayList<EditConditionPartialViewModel> currentConditions =
           new ArrayList<>(
               buildConditionsListFromFormData(
-                  programId,
-                  blockDefinitionId,
-                  predicateUseCase,
-                  ImmutableMap.copyOf(form.rawData())));
+                  programId, blockDefinitionId, predicateUseCase, formData));
       EditConditionPartialViewModel condition =
           EditConditionPartialViewModel.builder()
               .programId(programId)
@@ -862,6 +874,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(useCase)
+                  .predicateLogicalOperator(getLogicalOperatorFromFormData("root", formData))
                   .conditions(ImmutableList.copyOf(currentConditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
@@ -1037,6 +1050,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                   .programId(programId)
                   .blockId(blockDefinitionId)
                   .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                  .predicateLogicalOperator(
+                      getLogicalOperatorFromFormData("root", ImmutableMap.copyOf(formData)))
                   .conditions(ImmutableList.copyOf(conditions))
                   .build()))
           .as(Http.MimeTypes.HTML);
@@ -1420,6 +1435,21 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .userEnteredValue(inputFieldValue)
         .secondUserEnteredValue(secondInputFieldValue)
         .build();
+  }
+
+  /**
+   * Given form data from a dynamic form, find the logical operator under the node specified by
+   * fieldNamePrefix.
+   */
+  private PredicateLogicalOperator getLogicalOperatorFromFormData(
+      String fieldNamePrefix, ImmutableMap<String, String> formData) {
+    String nodeTypeId = fieldNamePrefix + "-nodeType";
+    // NodeType should always be present in the form data.
+    checkState(formData.containsKey(nodeTypeId));
+
+    String logicalOperatorString = formData.get(nodeTypeId);
+
+    return PredicateLogicalOperator.valueOf(logicalOperatorString);
   }
 
   /**

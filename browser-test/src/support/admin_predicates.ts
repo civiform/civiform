@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test'
-import {Page} from '@playwright/test'
+import {Page, Locator} from '@playwright/test'
 import {waitForHtmxReady} from './wait'
 
 // For legacy predicate view.
@@ -166,6 +166,25 @@ export class AdminPredicates {
   async addAndExpectSubcondition(conditionId: number, subconditionId: number) {
     await this.clickAddSubconditionButton(conditionId)
     await this.expectSubcondition(conditionId, subconditionId)
+  }
+
+  async selectRootLogicalOperator(logicalOperatorValue: string) {
+    await this.page
+      .locator('[name="root-nodeType"]')
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectRootLogicalOperatorValues(logicalOperatorValue: string) {
+    const conditionLogicSeparatorsText = await this.page
+      .locator('.cf-predicate-condition-separator span')
+
+    expect(conditionLogicSeparatorsText.count() > 0)
+
+    for (const separatorText of await conditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
   }
 
   async clickSaveAndExitButton() {

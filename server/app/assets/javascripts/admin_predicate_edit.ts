@@ -91,6 +91,11 @@ export class AdminPredicateEdit {
       'change',
       AdminPredicateEdit.onOperatorDropdownChange.bind(this),
     )
+    addEventListenerToElements(
+      '[name="root-nodeType"]',
+      'change',
+      AdminPredicateEdit.onConditionLogicDropdownChange,
+    )
 
     // Trigger change to update operators based on the current scalar selected.
     Array.from(
@@ -156,6 +161,33 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static onConditionLogicDropdownChange(this: void, event: Event) {
+    AdminPredicateEdit.handleConditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleConditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Set inner text of all condition separators to the desired value.
+    // Applies to all separators on the page.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(`.cf-predicate-condition-separator`),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
   }
 
   /**
