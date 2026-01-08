@@ -1234,4 +1234,102 @@ test.describe('create and edit predicates', () => {
       )
     })
   })
+
+  test('Exit predicate edit without saving', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Create and edit an eligibility predicate'
+
+    await test.step('create a program with a question to use in the predicate', async () => {
+      const questionName = 'predicate-q'
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    const editBlockURL = page.url()
+
+    await test.step('enter empty predicate and exit without making changes', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        /* blockName= */ 'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      // Cancel button shouldn't show a dialog, and should navigate us back automatically
+      await adminPredicates.clickCancelButton()
+      // Expect us to navigate back, allowing for arbitrary query strings
+      await expect(page).toHaveURL(new RegExp(`.*${editBlockURL}?.*`))
+    })
+
+    await test.step('enter empty predicate, add condition, and confirm to exit', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        /* blockName= */ 'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      page.once('dialog', (dialog) => dialog.accept())
+      const dialogEventPromise = page.waitForEvent('dialog')
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.clickCancelButton()
+
+      const dialogEvent = await dialogEventPromise
+      expect(dialogEvent.message().toString()).toContain(
+        'You have unsaved changes that will be lost.',
+      )
+      // Expect us to navigate back, allowing for arbitrary query strings
+      await expect(page).toHaveURL(new RegExp(`.*${editBlockURL}?.*`))
+    })
+
+    await test.step('enter empty predicate, add condition, and dismiss confirmation', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        /* blockName= */ 'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      const editEligibilityURL = page.url()
+
+      page.once('dialog', (dialog) => dialog.dismiss())
+      const dialogEventPromise = page.waitForEvent('dialog')
+
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.clickCancelButton()
+
+      const dialogEvent = await dialogEventPromise
+      expect(dialogEvent.message().toString()).toContain(
+        'You have unsaved changes that will be lost.',
+      )
+
+      // We should stay on the edit eligibility predicate.
+      await page.waitForURL(editEligibilityURL)
+    })
+
+    await test.step('enter empty predicate, add and then delete condition, no confirmation needed', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        /* blockName= */ 'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.clickAddConditionButton()
+      await adminPredicates.clickDeleteConditionButton(1)
+
+      // Cancel button shouldn't show a dialog, and should navigate us back automatically
+      await adminPredicates.clickCancelButton()
+      // Expect us to navigate back, allowing for arbitrary query strings
+      await expect(page).toHaveURL(new RegExp(`.*${editBlockURL}?.*`))
+    })
+  })
 })
