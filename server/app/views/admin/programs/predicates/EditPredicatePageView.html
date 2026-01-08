@@ -37,12 +37,7 @@
         </p>
       </div>
 
-      <form
-        id="predicate-form"
-        class="usa-form"
-        th:action="${model.updatePredicateEndpoint()}"
-        method="post"
-      >
+      <form id="predicate-form" class="usa-form">
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -161,15 +156,23 @@
     <div class="grid-container margin-left-0 padding-left-0 padding-top-2">
       <div class="grid-row flex-align-left">
         <button
+          id="submit-predicate"
           type="submit"
           class="usa-button tablet:grid-col-auto"
           form="predicate-form"
+          th:formaction="${model.updatePredicateEndpoint()}"
+          formmethod="post"
           th:text="#{button.saveAndExit}"
         ></button>
         <button
+          id="cancel-predicate-edit"
           type="submit"
           class="usa-button usa-button--outline tablet:grid-col-auto"
+          form="predicate-form"
+          th:formaction="${model.blockEditUrl()}"
+          formmethod="get"
           th:text="#{button.cancel}"
+          th:data-cancel-dialog="#{confirm.leaveWithoutSaving} + '&#10;&#10;' + #{confirm.unsavedChanges}"
         ></button>
         <div
           id="delete-all-conditions-button"
