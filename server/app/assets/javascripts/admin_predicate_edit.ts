@@ -191,7 +191,9 @@ export class AdminPredicateEdit {
     // Check the initial form state against the current form state.
     // If they're equal, do nothing and cancel.
     // If there have been changes, show a confirmation dialog.
-    if (currentPredicateState !==  AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE) {
+    if (
+      currentPredicateState !== AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE
+    ) {
       const confirmationMessage =
         cancelButton.getAttribute('data-cancel-dialog')
       if (!confirmationMessage) {
