@@ -40,6 +40,7 @@ export {
   normalizeElements,
   validateToastHidden,
   validateToastMessage,
+  validateToastLayoutCentered,
   throttle,
 } from './helpers'
 
