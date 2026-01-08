@@ -79,11 +79,13 @@ public abstract class ApplicantBaseView {
     context.setVariable("cspNonce", CspUtil.getNonce(request));
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("optionalMeasurementId", settingsManifest.getMeasurementId());
-    context.setVariable(
-        "smallLogoUrl",
+    String smallLogoUrl =
         settingsManifest
             .getCivicEntitySmallLogoUrl()
-            .orElse(bundledAssetsFinder.path("Images/civiform-staging.png")));
+            .orElse(bundledAssetsFinder.path("Images/civiform-staging.png"));
+    context.setVariable("smallLogoUrl", smallLogoUrl);
+    context.setVariable(
+        "footerLogoUrl", settingsManifest.getCivicEntityFooterLogoUrl().orElse(smallLogoUrl));
     context.setVariable(
         "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
     context.setVariable(
