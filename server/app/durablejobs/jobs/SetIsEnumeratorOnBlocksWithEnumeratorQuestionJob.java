@@ -57,7 +57,6 @@ public class SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob extends DurableJob
         persistedDurableJob.id);
     Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
     jobTransaction.setBatchMode(true);
-    jobTransaction.setBatchSize(10);
 
     try (jobTransaction) {
       // Get the ids of all questions that have an enumerator type
