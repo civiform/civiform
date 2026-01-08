@@ -3,7 +3,6 @@ import {addEventListenerToElements, assertNotNull} from './util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/EditPredicatePageView.html
-  static CANCEL_PREDICATE_EDIT_FORM_ID = 'cancel-predicate-edit-form'
   static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
   static NODE_OPERATOR_SELECT_NULL_STATE_ID =
     'predicate-operator-node-select-null-state'
@@ -187,12 +186,12 @@ export class AdminPredicateEdit {
     predicateForm: HTMLFormElement,
     cancelButton: HTMLButtonElement,
   ) {
-    const currentPredicateState = this.getPredicateFormState()
+    const currentPredicateState = AdminPredicateEdit.getPredicateFormState()
 
     // Check the initial form state against the current form state.
     // If they're equal, do nothing and cancel.
     // If there have been changes, show a confirmation dialog.
-    if (currentPredicateState !== this.INITIAL_PREDICATE_FORM_STATE) {
+    if (currentPredicateState !==  AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE) {
       const confirmationMessage =
         cancelButton.getAttribute('data-cancel-dialog')
       if (!confirmationMessage) {
