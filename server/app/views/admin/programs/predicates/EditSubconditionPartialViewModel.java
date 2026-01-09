@@ -42,6 +42,7 @@ public record EditSubconditionPartialViewModel(
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
     ImmutableList<OptionElement> valueOptions,
+    ImmutableList<String> invalidInputIds,
     boolean autofocus,
     boolean shouldAnnounceChanges)
     implements BaseViewModel {
@@ -71,6 +72,7 @@ public record EditSubconditionPartialViewModel(
         .secondUserEnteredValue(secondUserEnteredValue)
         .valueOptions(valueOptions)
         .hasSelectedQuestion(hasSelectedQuestion())
+        .invalidInputIds(invalidInputIds)
         .build();
   }
 }
