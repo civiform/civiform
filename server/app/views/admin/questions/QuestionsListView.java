@@ -285,12 +285,6 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
         renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
 
-    if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
-      referencingProgramAndModal
-          .getLeft()
-          .with(generateTranslationCompleteText(latestDefinition).orElse(div()));
-    }
-
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -382,7 +376,10 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(
                 div()
                     .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
-                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime())))
+                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
+                    .condWith(
+                        settingsManifest.getTranslationManagementImprovementEnabled(request),
+                        generateTranslationCompleteText(question).orElse(div())))
             .with(actionsCellAndModal.getLeft());
 
     asRedirectElement(
