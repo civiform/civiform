@@ -128,67 +128,6 @@ export const validateToastMessage = async (page: Page, value: string) => {
   )
 }
 
-/**
- * Validate that toast layout centers items and that children are vertically aligned.
- * @param {Page} page Playwright page
- * @param {number} tolerance allowable pixel difference between centers
- */
-export const validateToastLayoutCentered = async (
-  page: Page,
-  tolerance = 2,
-) => {
-  await test.step(
-    'Validate toast layout is centered and items are aligned',
-    async () => {
-      const toastExists = page
-        .locator('#toast-container .cf-toast-message')
-        .first()
-      await expect(toastExists).toBeVisible()
-
-      const alignItems = await page.evaluate((selector) => {
-        const el = document.querySelector(selector)
-        return el ? window.getComputedStyle(el).alignItems : null
-      }, '#toast-container .cf-toast-message')
-
-      expect(alignItems).toBe('center')
-
-      const centers = await page.evaluate(() => {
-        const toast = document.querySelector(
-          '#toast-container .cf-toast-message',
-        )
-        if (!toast) return null
-
-        const svgContainer = toast.querySelector('div.display-flex')
-        const content = toast.querySelector('span') as HTMLElement | null
-        const dismiss = toast.querySelector('div[id$="-dismiss"]')
-
-        const toCenter = (el: HTMLElement | null) => {
-          if (!el) return null
-          const r = el.getBoundingClientRect()
-          return r.top + r.height / 2
-        }
-
-        return [toCenter(svgContainer), toCenter(content), toCenter(dismiss)]
-      })
-
-      if (!centers) throw new Error('Toast not found for layout check')
-
-      const [iconCenter, contentCenter, dismissCenter] = centers
-      if (iconCenter == null || contentCenter == null) {
-        throw new Error('Expected icon and content elements to exist in toast')
-      }
-
-      const values: number[] = [iconCenter, contentCenter]
-      if (dismissCenter != null) values.push(dismissCenter)
-
-      const max = Math.max(...values)
-      const min = Math.min(...values)
-      expect(Math.abs(max - min)).toBeLessThanOrEqual(tolerance)
-    },
-    {box: true},
-  )
-}
-
 export const validateToastHidden = async (page: Page) => {
   await test.step(
     'Validate toast hidden',

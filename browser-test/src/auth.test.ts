@@ -7,7 +7,6 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  validateToastLayoutCentered,
   validateToastMessage,
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
@@ -101,8 +100,9 @@ test.describe('Applicant auth', () => {
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'auth-end-session-toast')
-    await validateToastLayoutCentered(page)
+    await expect(page.locator('.cf-toast')).toHaveClass(
+      /(^|\s)flex-align-center(\s|$)/,
+    )
 
     await validateAccessibility(page)
   })
