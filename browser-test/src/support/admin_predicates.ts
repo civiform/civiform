@@ -168,6 +168,26 @@ export class AdminPredicates {
     await this.expectSubcondition(conditionId, subconditionId)
   }
 
+  async selectRootLogicalOperator(logicalOperatorValue: string) {
+    await this.page
+      .getByRole('combobox', {name: 'root-nodeType'})
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectRootLogicalOperatorValues(logicalOperatorValue: string) {
+    const conditionLogicSeparatorsText = this.page.locator(
+      '.cf-predicate-condition-separator span',
+    )
+
+    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await conditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
+  }
+
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
   }
