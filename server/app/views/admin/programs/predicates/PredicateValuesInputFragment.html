@@ -1,6 +1,15 @@
 <th:block
   th:fragment="predicateValues(model)"
-  th:with="subconditionPrefix=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId}, valueInputId=${subconditionPrefix + '-value'}, secondValueInputId=${subconditionPrefix + '-secondValue'}, firstValueInputGroupId=${subconditionPrefix + '-firstValueGroup'}, secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'}, valueInputHintId=${subconditionPrefix + '-valueHintText'}, multiValueInputId=${subconditionPrefix + '-values'}"
+  th:with="subconditionPrefix=${'condition-' + model.conditionId + '-subcondition-' + model.subconditionId},
+  valueInputId=${subconditionPrefix + '-value'},
+  secondValueInputId=${subconditionPrefix + '-secondValue'},
+  errorMessageId=${subconditionPrefix + '-errorMessage'},
+  firstValueInputGroupId=${subconditionPrefix + '-firstValueGroup'},
+  secondValueInputGroupId=${subconditionPrefix + '-secondValueGroup'},
+  valueInputHintId=${subconditionPrefix + '-valueHintText'},
+  multiValueInputId=${subconditionPrefix + '-values'},
+  firstInputInvalid=${model.invalidInputIds.contains(valueInputId)},
+  secondInputInvalid=${model.invalidInputIds.contains(secondValueInputId)}"
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
@@ -8,6 +17,13 @@
         >*</span
       ></label
     >
+    <span
+      class="usa-error-message"
+      th:id="${errorMessageId}"
+      th:if="${!model.invalidInputIds.isEmpty() && !model.isMultiValueQuestion()}"
+    >
+      [[#{validation.fieldIsRequired}]]
+    </span>
     <th:block
       th:if="${model.questionType.isPresent()}"
       th:switch="${model.questionType.get()}"
@@ -19,7 +35,7 @@
       </th:block>
       <th:block th:case="'Checkbox'">
         <div
-          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Currency'">
@@ -34,7 +50,7 @@
       </th:block>
       <th:block th:case="'Dropdown'">
         <div
-          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Email'">
@@ -59,7 +75,7 @@
       </th:block>
       <th:block th:case="'Radio Button'">
         <div
-          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId})}"
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Text'">
@@ -95,6 +111,8 @@
       th:value="${valueOption.value()}"
       th:text="${valueOption.displayText()}"
       th:selected="${valueOption.selected()}"
+      aria-required="true"
+      th:aria-invalid="${firstInputInvalid}"
       address-value
     ></option>
   </select>
@@ -104,16 +122,19 @@
 <th:block
   th:fragment="currencyValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
 >
-  <div class="usa-input-group">
+  <div
+    class="usa-input-group"
+    th:classappend="${firstInputInvalid} ? 'usa-input-group--error'"
+  >
     <div class="usa-input-prefix">$</div>
     <input
       class="usa-input"
       inputmode="decimal"
-      type="currency"
+      type="number"
       th:id="${valueInputId}"
       th:name="${valueInputId}"
-      required
-      aria-invalid="false"
+      aria-required="true"
+      th:aria-invalid="${firstInputInvalid}"
       th:value="${model.userEnteredValue}"
       data-currency-value
     />
@@ -121,16 +142,19 @@
 
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
     <span class="margin-left-1" th:text="#{content.and}"></span>
-    <div class="usa-input-group">
+    <div
+      class="usa-input-group"
+      th:classappend="${secondInputInvalid} ? 'usa-input-group--error'"
+    >
       <div class="usa-input-prefix">$</div>
       <input
         class="usa-input"
         inputmode="decimal"
-        type="currency"
+        type="number"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${secondInputInvalid}"
         th:value="${model.secondUserEnteredValue}"
         data-currency-value
       />
@@ -152,39 +176,42 @@
     <div data-default-input-type data-first-input>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="date"
         inputmode="numeric"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
         data-date-value
       />
     </div>
     <div data-age-input-type data-first-input>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="number"
         inputmode="numeric"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
       />
     </div>
     <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
     <div data-csv-input-type>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="text"
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
       />
     </div>
   </div>
@@ -194,25 +221,27 @@
     <div data-default-input-type>
       <input
         class="usa-input"
+        th:classappend="${secondInputInvalid} ? 'usa-input--error'"
         type="date"
         inputmode="numeric"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
         th:value="${model.secondUserEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${secondInputInvalid}"
       />
     </div>
     <div data-age-input-type>
       <input
         class="usa-input"
+        th:classappend="${secondInputInvalid} ? 'usa-input--error'"
         type="number"
         inputmode="numeric"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
         th:value="${model.secondUserEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${secondInputInvalid}"
       />
     </div>
   </div>
@@ -229,54 +258,71 @@
     <div data-default-input-type data-first-input>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="email"
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
         data-email-value
       />
     </div>
     <div data-csv-input-type>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="text"
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
       />
     </div>
   </div>
 </th:block>
 
 <!-- Multi-select question type -->
-<th:block th:fragment="multiValuesInput(valueOptions, multiValueInputId)">
-  <fieldset class="usa-fieldset">
-    <th:block th:each="valueOption, valueStat: ${valueOptions}">
-      <div class="usa-checkbox">
-        <input
-          class="usa-checkbox__input usa-checkbox__input--tile"
-          type="checkbox"
-          th:value="${valueOption.value}"
-          th:name="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
-          th:id="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
-          th:checked="${valueOption.selected}"
-          data-multi-input-value
-        />
-        <label
-          class="usa-checkbox__label"
-          th:for="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
-          th:text="${valueOption.displayText()}"
-        >
-        </label>
-      </div>
-    </th:block>
-  </fieldset>
+<th:block
+  th:fragment="multiValuesInput(valueOptions, multiValueInputId, errorMessageId)"
+>
+  <div
+    class="usa-form-group margin-y-0"
+    th:classappend="${!model.invalidInputIds.isEmpty()} ? 'usa-form-group--error'"
+  >
+    <fieldset class="usa-fieldset">
+      <span
+        class="usa-error-message"
+        th:id="${errorMessageId}"
+        th:if="${!model.invalidInputIds.isEmpty()}"
+      >
+        [[#{validation.selectionRequired}]]
+      </span>
+      <th:block th:each="valueOption, valueStat: ${valueOptions}">
+        <div class="usa-checkbox">
+          <input
+            class="usa-checkbox__input usa-checkbox__input--tile"
+            type="checkbox"
+            th:value="${valueOption.value}"
+            th:name="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+            th:id="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+            th:checked="${valueOption.selected}"
+            th:aria-invalid="${!model.invalidInputIds.isEmpty()}"
+            data-multi-input-value
+          />
+          <label
+            class="usa-checkbox__label"
+            th:for="${multiValueInputId} + '[' + ${valueStat.count} + ']'"
+            th:text="${valueOption.displayText()}"
+          >
+          </label>
+        </div>
+      </th:block>
+    </fieldset>
+  </div>
 </th:block>
 
 <!-- Number question type -->
@@ -292,13 +338,14 @@
     <div data-default-input-type data-first-input>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="number"
         inputmode="decimal"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
         data-number-value
       />
     </div>
@@ -306,13 +353,14 @@
     <div data-csv-input-type>
       <input
         class="usa-input"
+        th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="text"
         inputmode="text"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
-        required
-        aria-invalid="false"
+        aria-required="true"
+        th:aria-invalid="${firstInputInvalid}"
       />
     </div>
   </div>
@@ -321,13 +369,14 @@
     <span class="margin-left-1" th:text="#{content.and}"></span>
     <input
       class="usa-input"
+      th:classappend="${secondInputInvalid} ? 'usa-input--error'"
       type="number"
       inputmode="decimal"
       th:id="${secondValueInputId}"
       th:name="${secondValueInputId}"
       th:value="${model.secondUserEnteredValue}"
-      required
-      aria-invalid="false"
+      aria-required="true"
+      th:aria-invalid="${secondInputInvalid}"
     />
   </div>
 </th:block>
@@ -342,13 +391,14 @@
   <div data-default-input-type data-first-input>
     <input
       class="usa-input"
+      th:classappend="${firstInputInvalid} ? 'usa-input--error'"
       type="text"
       inputmode="text"
       th:id="${valueInputId}"
       th:name="${valueInputId}"
       th:value="${model.userEnteredValue}"
-      required
-      aria-invalid="false"
+      aria-required="true"
+      th:aria-invalid="${firstInputInvalid}"
     />
   </div>
 </th:block>
