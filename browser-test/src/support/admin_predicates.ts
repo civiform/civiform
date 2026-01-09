@@ -170,7 +170,7 @@ export class AdminPredicates {
 
   async selectRootLogicalOperator(logicalOperatorValue: string) {
     await this.page
-      .locator('[name="root-nodeType"]')
+      .getByRole('combobox', { name: 'root-nodeType' })
       .selectOption(logicalOperatorValue)
     await waitForHtmxReady(this.page)
   }
