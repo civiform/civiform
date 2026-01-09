@@ -933,6 +933,12 @@
         "description": "Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
+      },
+      "SETTINGS_CACHE_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables reading settings from the cache instead of directly from the database.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -966,12 +972,6 @@
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the database.",
         "type": "bool",
         "required": false
       },
