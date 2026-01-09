@@ -140,23 +140,27 @@ export const validateToastLayoutCentered = async (
   await test.step(
     'Validate toast layout is centered and items are aligned',
     async () => {
-      const toastExists = await page.locator('#toast-container .cf-toast-message').first()
+      const toastExists = page
+        .locator('#toast-container .cf-toast-message')
+        .first()
       await expect(toastExists).toBeVisible()
 
       const alignItems = await page.evaluate((selector) => {
-        const el = document.querySelector(selector) as HTMLElement | null
+        const el = document.querySelector(selector)
         return el ? window.getComputedStyle(el).alignItems : null
       }, '#toast-container .cf-toast-message')
 
       expect(alignItems).toBe('center')
 
       const centers = await page.evaluate(() => {
-        const toast = document.querySelector('#toast-container .cf-toast-message') as HTMLElement | null
+        const toast = document.querySelector(
+          '#toast-container .cf-toast-message',
+        )
         if (!toast) return null
 
-        const svgContainer = toast.querySelector('div.display-flex') as HTMLElement | null
+        const svgContainer = toast.querySelector('div.display-flex')
         const content = toast.querySelector('span') as HTMLElement | null
-        const dismiss = toast.querySelector('div[id$="-dismiss"]') as HTMLElement | null
+        const dismiss = toast.querySelector('div[id$="-dismiss"]')
 
         const toCenter = (el: HTMLElement | null) => {
           if (!el) return null
@@ -169,7 +173,7 @@ export const validateToastLayoutCentered = async (
 
       if (!centers) throw new Error('Toast not found for layout check')
 
-      const [iconCenter, contentCenter, dismissCenter] = centers as Array<number | null>
+      const [iconCenter, contentCenter, dismissCenter] = centers
       if (iconCenter == null || contentCenter == null) {
         throw new Error('Expected icon and content elements to exist in toast')
       }

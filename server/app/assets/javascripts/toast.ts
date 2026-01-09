@@ -68,9 +68,9 @@ export class ToastController {
       'cf-toast-message',
       'opacity-90',
       'maxw-mobile-lg',
-      'margin-y-105',
+      'margin-top-105',
+      'margin-bottom-105',
       'display-flex',
-      'flex-align-center',
       'flex-row',
       'padding-x-1',
       'padding-y-1',
@@ -85,7 +85,6 @@ export class ToastController {
     // Add the content string.
     const contentContainer = document.createElement('span')
     contentContainer.textContent = message.content
-    contentContainer.classList.add('display-flex', 'flex-align-center')
     toastMessage.appendChild(contentContainer)
 
     // Maybe add dismiss button.
