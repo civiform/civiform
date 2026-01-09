@@ -183,7 +183,7 @@ export class ToastController {
    *  Hide warning message and throw an indicator in local storage to not show.
    *  @param {Event} event The event that triggered this action.
    *  */
-  private static dismissClicked(event: Event) {
+  private static dismissClicked(this: void, event: Event) {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.MESSAGE_CLASS)
     if (toast && toast.id) {
@@ -198,7 +198,11 @@ export class ToastController {
    * @param {string} toastId The html id of the toast message
    * @param {boolean} dismissClicked Whether to add indicator in local storage to not show
    *  */
-  private static dismissToast(toastId: string, dismissClicked: boolean) {
+  private static dismissToast(
+    this: void,
+    toastId: string,
+    dismissClicked: boolean,
+  ) {
     const toastMessage = document.getElementById(toastId)
     if (!toastMessage) {
       return
