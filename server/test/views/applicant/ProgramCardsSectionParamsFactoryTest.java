@@ -134,14 +134,14 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntake() {
+  public void getActionUrl_returnsEditUrlWhenPreScreener() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
@@ -151,14 +151,14 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntakeWithApplicantIdWhenPresent() {
+  public void getActionUrl_returnsEditUrlWhenPreScreenerWithApplicantIdWhenPresent() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),

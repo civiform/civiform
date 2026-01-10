@@ -229,15 +229,15 @@ public class ProgramBuilder {
 
   /**
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with the
-   * type ProgramType.COMMON_INTAKE_FORM.
+   * type ProgramType.PRE_SCREENER_FORM.
    */
-  public static ProgramBuilder newActiveCommonIntakeForm(String name) {
+  public static ProgramBuilder newActivePreScreenerForm(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
         /* displayMode= */ DisplayMode.PUBLIC,
-        ProgramType.COMMON_INTAKE_FORM);
+        ProgramType.PRE_SCREENER_FORM);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */

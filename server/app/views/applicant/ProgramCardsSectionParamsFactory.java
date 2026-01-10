@@ -40,7 +40,7 @@ public final class ProgramCardsSectionParamsFactory {
   /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
     MY_APPLICATIONS,
-    COMMON_INTAKE,
+    PRE_SCREENER,
     UNFILTERED_PROGRAMS,
     RECOMMENDED, // Once filters are applied, these are programs that match the filters
     DEFAULT; // Used when the card section doesn't have any special style requirements.
@@ -271,7 +271,7 @@ public final class ProgramCardsSectionParamsFactory {
       }
       // If they are completing the pre-screener form for the first time, skip the program overview
       // page
-    } else if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+    } else if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
       actionUrl =
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
