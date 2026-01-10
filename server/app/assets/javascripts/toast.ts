@@ -68,9 +68,9 @@ export class ToastController {
       'cf-toast-message',
       'opacity-90',
       'maxw-mobile-lg',
-      'margin-top-105',
-      'margin-bottom-105',
+      'margin-y-105',
       'display-flex',
+      'flex-align-center',
       'flex-row',
       'padding-x-1',
       'padding-y-1',
@@ -102,7 +102,9 @@ export class ToastController {
         'padding-right-1',
       )
       dismissButton.textContent = 'x'
-      dismissButton.addEventListener('click', ToastController.dismissClicked)
+      dismissButton.addEventListener('click', (event) =>
+        ToastController.dismissClicked(event),
+      )
       toastMessage.appendChild(dismissButton)
     }
 
@@ -112,10 +114,12 @@ export class ToastController {
       toastContainer.classList.remove('display-none')
       if (message.duration > 0) {
         setTimeout(
-          ToastController.dismissToast,
+          () =>
+            ToastController.dismissToast(
+              message.id,
+              /* dismissClicked = */ false,
+            ),
           message.duration,
-          message.id,
-          /* dismissClicked = */ false,
         )
       }
     }
