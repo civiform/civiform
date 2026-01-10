@@ -85,7 +85,6 @@ export class ToastController {
     // Add the content string.
     const contentContainer = document.createElement('span')
     contentContainer.textContent = message.content
-    contentContainer.classList.add('display-flex', 'flex-align-center')
     toastMessage.appendChild(contentContainer)
 
     // Maybe add dismiss button.
