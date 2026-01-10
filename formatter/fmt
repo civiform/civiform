@@ -160,6 +160,7 @@ else
   # prefixing each line itself which is why this sed command is needed.
   eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+  eslint_mockwebservices_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^mock-web-services" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
   if [[ -z "${eslint_app_file_list}" ]]; then
     echo "No modified files for /server. Skipping eslint."
@@ -172,6 +173,21 @@ else
     # we want word splitting to occur so eslint will operate in each file. If
     # quoted it gets treated as a single path.
     npx --silent eslint --fix ${eslint_app_file_list[@]}
+
+    cd ..
+  fi
+
+  if [[ -z "${eslint_mockwebservices_file_list}" ]]; then
+    echo "No modified files for /mock-web-services. Skipping eslint."
+  else
+    echo "Run eslint on /mock-web-services"
+    cd mock-web-services
+    npm ci --silent
+
+    # The eslint_app_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx --silent eslint --fix ${eslint_mockwebservices_file_list[@]}
 
     cd ..
   fi
