@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
@@ -25,6 +27,8 @@ import services.settings.SettingsManifest;
  * when the account is deleted from the database which almost will never happen in prod database.
  */
 public class ValidAccountFilter extends EssentialFilter {
+
+  private static final Logger logger = LoggerFactory.getLogger(ValidAccountFilter.class);
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
@@ -58,7 +62,7 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
+              shouldLogoutUser(profile.get(), request)
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
@@ -73,7 +77,25 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
+  private CompletionStage<Boolean> shouldLogoutUser(
+      CiviFormProfile profile, Http.RequestHeader request) {
+    // TEST ONLY: Check for special header to simulate filter rejection
+    // This check happens INSIDE the async flow so DB queries execute first
+    Optional<String> triggerHeader = request.header("X-Test-Trigger-Filter");
+    if (triggerHeader.isPresent() && !triggerHeader.get().trim().isEmpty()) {
+      // Still execute the DB queries, but force rejection after
+      return profileUtils
+          .validCiviFormProfile(profile)
+          .thenComposeAsync(
+              profileValid -> isValidSession(profile), databaseExecutionContext.get())
+          .thenApplyAsync(
+              isValidProfileAndSession -> {
+                logger.warn(
+                    "ValidAccountFilter: DB queries completed, now rejecting due to test header");
+                return true; // Force logout
+              },
+              databaseExecutionContext.get());
+    }
 
     return profileUtils
         .validCiviFormProfile(profile)

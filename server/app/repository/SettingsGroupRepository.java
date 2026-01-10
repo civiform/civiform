@@ -52,6 +52,7 @@ public final class SettingsGroupRepository {
   }
 
   private Optional<SettingsGroupModel> findCurrentSettingsFromDb() {
+    System.out.println("Fetching current settings from DB");
     return database
         .find(SettingsGroupModel.class)
         .orderBy()
