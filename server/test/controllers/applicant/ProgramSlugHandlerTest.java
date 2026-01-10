@@ -411,7 +411,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   @Test
   public void showProgramPreview_withPreScreener_loadsFirstBlockPage() {
     ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveCommonIntakeForm("test pre-screener").buildDefinition();
+        ProgramBuilder.newActivePreScreenerForm("test pre-screener").buildDefinition();
 
     ApplicantModel applicant = createApplicantWithMockedProfile();
 
