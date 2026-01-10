@@ -352,6 +352,51 @@ public final class PdfExporter {
       document.add(
           new Paragraph(
               programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
+      if (!programDefinition.getStatuses().isEmpty()) {
+
+        document.add(new Paragraph("Statuses", H2_FONT));
+
+        for (StatusDefinitions.StatusDefinition status : programDefinition.getStatuses()) {
+
+          document.add(new Paragraph(status.statusText().getDefault(), H3_FONT));
+
+          document.add(new Paragraph(status.statusMessage().getDefault(), PARAGRAPH_FONT));
+
+          if (status.description().isPresent()) {
+
+            document.add(new Paragraph(status.description().get().getDefault(), PARAGRAPH_FONT));
+
+          }
+
+          document.add(Chunk.NEWLINE);
+
+        }
+
+        document.add(new LineSeparator());
+
+      }
+
+
+
+      if (programDefinition.getEligibilityDefinition().hasCustomEligibilityMessage()) {
+
+        document.add(new Paragraph("Custom eligibility message", H2_FONT));
+
+        document.add(new Paragraph(
+
+          programDefinition.getEligibilityDefinition()
+
+            .getCustomEligibilityMessage()
+
+            .getDefault(),
+
+          PARAGRAPH_FONT));
+
+        document.add(Chunk.NEWLINE);
+
+        document.add(new LineSeparator());
+
+      }
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(
