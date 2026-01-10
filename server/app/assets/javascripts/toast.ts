@@ -102,7 +102,9 @@ export class ToastController {
         'padding-right-1',
       )
       dismissButton.textContent = 'x'
-      dismissButton.addEventListener('click', ToastController.dismissClicked)
+      dismissButton.addEventListener('click', (event) =>
+        ToastController.dismissClicked(event),
+      )
       toastMessage.appendChild(dismissButton)
     }
 
@@ -112,10 +114,12 @@ export class ToastController {
       toastContainer.classList.remove('display-none')
       if (message.duration > 0) {
         setTimeout(
-          ToastController.dismissToast,
+          () =>
+            ToastController.dismissToast(
+              message.id,
+              /* dismissClicked = */ false,
+            ),
           message.duration,
-          message.id,
-          /* dismissClicked = */ false,
         )
       }
     }
@@ -182,7 +186,7 @@ export class ToastController {
    *  Hide warning message and throw an indicator in local storage to not show.
    *  @param {Event} event The event that triggered this action.
    *  */
-  private static dismissClicked(this: void, event: Event) {
+  private static dismissClicked(event: Event) {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.MESSAGE_CLASS)
     if (toast && toast.id) {
@@ -197,11 +201,7 @@ export class ToastController {
    * @param {string} toastId The html id of the toast message
    * @param {boolean} dismissClicked Whether to add indicator in local storage to not show
    *  */
-  private static dismissToast(
-    this: void,
-    toastId: string,
-    dismissClicked: boolean,
-  ) {
+  private static dismissToast(toastId: string, dismissClicked: boolean) {
     const toastMessage = document.getElementById(toastId)
     if (!toastMessage) {
       return
