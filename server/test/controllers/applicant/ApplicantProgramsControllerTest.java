@@ -235,7 +235,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
-    ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
+    ProgramModel program = resourceCreator().insertActivePreScreenerForm("benefits");
 
     Result result =
         controller

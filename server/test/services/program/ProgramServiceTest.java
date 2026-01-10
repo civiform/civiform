@@ -714,7 +714,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createProgram_clearsExistingCommonIntakeForm() {
+  public void createProgram_clearsExistingPreScreenerForm() {
     ps.createProgramDefinition(
         "name-one",
         "description",
@@ -732,9 +732,9 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+    Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-one");
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -757,13 +757,13 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
 
-    commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-two");
-    Optional<ProgramDefinition> oldCommonIntake =
+    preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-two");
+    Optional<ProgramDefinition> oldPreScreener =
         ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
-    assertThat(oldCommonIntake).isPresent();
-    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(oldPreScreener).isPresent();
+    assertThat(oldPreScreener.get().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
@@ -1037,7 +1037,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void
-      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForCommonIntakeForm() {
+      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForPreScreenerForm() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
@@ -1099,7 +1099,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_commonIntakeProgram_returnsNoErrors() {
+  public void checkApplicationStepErrors_preScreenerProgram_returnsNoErrors() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
     ImmutableSet<CiviFormError> errors =
@@ -1390,7 +1390,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
+  public void updateProgram_clearsExistingPreScreenerForm() throws Exception {
     ps.createProgramDefinition(
         "name-one",
         "description",
@@ -1408,9 +1408,9 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+    Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-one");
 
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1435,18 +1435,18 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-    commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo(program.adminName());
-    Optional<ProgramDefinition> oldCommonIntake =
+    preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo(program.adminName());
+    Optional<ProgramDefinition> oldPreScreener =
         ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
-    assertThat(oldCommonIntake).isPresent();
-    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(oldPreScreener).isPresent();
+    assertThat(oldPreScreener.get().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
-  public void updateProgram_allowsUpdatingCommonIntakeForm() throws Exception {
-    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+  public void updateProgram_allowsUpdatingPreScreenerForm() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> preScreenerForm =
         ps.createProgramDefinition(
             "name-one",
             "description",
@@ -1466,7 +1466,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            commonIntakeForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -1488,8 +1488,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_allowsUpdatingCommonIntakeFormToDefaultProgram() throws Exception {
-    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+  public void updateProgram_allowsUpdatingPreScreenerFormToDefaultProgram() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> preScreenerForm =
         ps.createProgramDefinition(
             "name-one",
             "description",
@@ -1509,7 +1509,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            commonIntakeForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -1532,7 +1532,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_clearsEligibilityConditionsWhenSettingCommonIntakeForm()
+  public void updateProgram_clearsEligibilityConditionsWhenSettingPreScreenerForm()
       throws Exception {
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =
@@ -3273,9 +3273,9 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateLocalizations_applicationStepValidationIsSkippedForCommonIntakeProgram()
+  public void updateLocalizations_applicationStepValidationIsSkippedForPreScreenerProgram()
       throws Exception {
-    ProgramModel program = ProgramBuilder.newActiveCommonIntakeForm("prescreener").build();
+    ProgramModel program = ProgramBuilder.newActivePreScreenerForm("prescreener").build();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -3653,9 +3653,9 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getCommonIntakeForm_ignoresObsoletePrograms() {
-    // No common intake form in the most recent version of any program, although some programs
-    // were previously marked as common intake.
+  public void getPreScreenerForm_ignoresObsoletePrograms() {
+    // No pre-screener form in the most recent version of any program, although some programs
+    // were previously marked as pre-screener.
     ProgramBuilder.newObsoleteProgram("one")
         .withProgramType(ProgramType.COMMON_INTAKE_FORM)
         .build();
@@ -3666,7 +3666,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getCommonIntakeForm_activeCommonIntake() {
+  public void getPreScreenerForm_activePreScreener() {
     ProgramBuilder.newObsoleteProgram("one")
         .withProgramType(ProgramType.COMMON_INTAKE_FORM)
         .build();
@@ -3677,7 +3677,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getCommonIntakeForm_draftCommonIntake() {
+  public void getPreScreenerForm_draftPreScreener() {
     ProgramBuilder.newObsoleteProgram("one")
         .withProgramType(ProgramType.COMMON_INTAKE_FORM)
         .build();
