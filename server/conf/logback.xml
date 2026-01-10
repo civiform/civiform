@@ -66,6 +66,7 @@
   <logger name="controllers" level="INFO" />
   <logger name="repository" level="INFO" />
   <logger name="services" level="INFO" />
+  <logger name="filters" level="WARN" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
