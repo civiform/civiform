@@ -1,4 +1,4 @@
-package views;
+package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -25,6 +25,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
+import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
 

@@ -11,7 +11,7 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
+import views.applicant.ApplicantBaseView;
 
 /**
  * Renders a page to handle internal server errors that will be shown to users instead of the

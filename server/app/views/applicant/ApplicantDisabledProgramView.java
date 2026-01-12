@@ -15,7 +15,6 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
 
 /** renders a info page for applicants trying to access a disabled program via its deep link */
 public final class ApplicantDisabledProgramView extends ApplicantBaseView {

@@ -33,11 +33,10 @@ import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
-import views.ApplicationBaseViewParams;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.trustedintermediary.ApplicationBaseViewParams;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
