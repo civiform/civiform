@@ -311,14 +311,14 @@
             type="checkbox"
             th:value="${valueOption.value}"
             th:name="${checkboxInputId}"
-            th:id="{checkboxInputId}"
+            th:id="${checkboxInputId}"
             th:checked="${valueOption.selected}"
             th:aria-invalid="${!model.invalidInputIds.isEmpty()}"
             data-multi-input-value
           />
           <label
             class="usa-checkbox__label"
-            th:for="{checkboxInputId}"
+            th:for="${checkboxInputId}"
             th:text="${valueOption.displayText()}"
           >
           </label>
