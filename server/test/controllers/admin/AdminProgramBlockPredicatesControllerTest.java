@@ -53,8 +53,10 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
-  private static final Request EDIT_CONDITION_REQUEST =
-      fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build();
+  private static final Request ADD_CONDITION_REQUEST =
+      fakeRequestBuilder()
+          .bodyForm(ImmutableMap.of("conditionId", "1", "root-nodeType", "AND"))
+          .build();
   private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
           .bodyForm(
@@ -474,7 +476,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     Result result =
         controller.hxAddCondition(
-            EDIT_CONDITION_REQUEST,
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -488,7 +490,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxAddCondition(
-            EDIT_CONDITION_REQUEST,
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -503,7 +505,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
         controller.hxAddCondition(
-            EDIT_CONDITION_REQUEST,
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
@@ -966,6 +968,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private Map<String, String> createConditionMapWithSelectedQuestions(
       ImmutableList<Long> questionIds) {
     Map<String, String> conditionMap = new HashMap<>();
+    conditionMap.put("root-nodeType", "AND");
     for (int i = 1; i <= questionIds.size(); ++i) {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),

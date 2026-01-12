@@ -956,6 +956,7 @@ test.describe('create and edit predicates', () => {
         /* subconditionId= */ 1,
         dateQuestionValues.questionText,
       )
+      await adminPredicates.selectRootLogicalOperator('OR')
     })
 
     await test.step('Delete first condition - second condition should become first', async () => {
@@ -986,6 +987,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Add second condition, delete all conditions, and validate null state', async () => {
       await adminPredicates.addAndExpectCondition(2)
+      await adminPredicates.expectRootLogicalOperatorValues('OR')
 
       await adminPredicates.clickDeleteAllConditionsButton()
 
@@ -1119,9 +1121,14 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.configureSubconditions(subconditionConfigs)
     })
 
+    await test.step('select logical operators', async () => {
+      await adminPredicates.selectRootLogicalOperator('OR')
+    })
+
     await test.step('validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+      await adminPredicates.expectRootLogicalOperatorValues('OR')
 
       // Checking values
       await expect(
@@ -1145,6 +1152,7 @@ test.describe('create and edit predicates', () => {
     await test.step('re-validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+      await adminPredicates.expectRootLogicalOperatorValues('OR')
 
       // Checking values
       await expect(

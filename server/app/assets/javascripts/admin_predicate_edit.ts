@@ -99,6 +99,11 @@ export class AdminPredicateEdit {
       AdminPredicateEdit.onOperatorDropdownChange.bind(this),
     )
     addEventListenerToElements(
+      '[name="root-nodeType"]',
+      'change',
+      AdminPredicateEdit.onConditionLogicDropdownChange,
+    )
+    addEventListenerToElements(
       '#predicate-form',
       'submit',
       AdminPredicateEdit.onPredicateFormSubmit.bind(this),
@@ -168,6 +173,33 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static onConditionLogicDropdownChange(this: void, event: Event) {
+    AdminPredicateEdit.handleConditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleConditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Set inner text of all condition separators to the desired value.
+    // Applies to all separators on the page.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(`.cf-predicate-condition-separator`),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
   }
 
   private static onPredicateFormSubmit(event: SubmitEvent) {
