@@ -427,3 +427,17 @@ button.usa-button.usa-button--unstyled.htmx-request {
 .opacity-40:hover {
   opacity: 1;
 }
+
+.cf-predicate-condition-separator {
+  display: flex;
+  align-items: center;
+  vertical-align: center;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 0 1 100%;
+    border-bottom: 1px dashed #1b1b1b;
+    margin: 0 0.5rem;
+  }
+}
