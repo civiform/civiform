@@ -46,7 +46,8 @@ public enum MessageKey {
   ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
-  ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"), // North Star only
+  ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
+  ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
@@ -77,6 +78,8 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT("button.nextPage"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
+  BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
+  BUTTON_REPEATED_SET_SUBMIT_NEW("button.repeatedSet.submitNew"),
   BUTTON_REVIEW("button.review"),
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
@@ -142,12 +145,20 @@ public enum MessageKey {
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
+  HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
+  INPUT_LISTED_ENTITY("input.repeatedSet.listedEntity"),
+  INPUT_REPEATED_SET_ADMIN_ID("input.repeatedSet.adminId"),
+  INPUT_REPEATED_SET_HINT_TEXT("input.repeatedSet.hintText"),
+  INPUT_REPEATED_SET_MIN_ENTITIES("input.repeatedSet.minEntities"),
+  INPUT_REPEATED_SET_MAX_ENTITIES("input.repeatedSet.maxEntities"),
+  INPUT_REPEATED_SET_QUESTION_TEXT("input.repeatedSet.questionText"),
   INVALID_INPUT("validation.invalidInput"),
+  LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_EDIT("link.edit"),
@@ -184,6 +195,8 @@ public enum MessageKey {
   OPTION_MEMORABLE_DATE_OCTOBER("option.memorableDate.October"),
   OPTION_MEMORABLE_DATE_NOVEMBER("option.memorableDate.November"),
   OPTION_MEMORABLE_DATE_DECEMBER("option.memorableDate.December"),
+  OPTION_REPEATED_SET_CHOOSE_EXISTING("option.repeatedSet.chooseExisting"),
+  OPTION_REPEATED_SET_CREATE_NEW("option.repeatedSet.createNew"),
   OPTION_YES("option.yes"),
   OPTION_NO("option.no"),
   OPTION_NOT_SURE("option.notSure"),
@@ -208,6 +221,8 @@ public enum MessageKey {
   TAG_MAY_NOT_QUALIFY_TI("tag.mayNotQualifyTi"),
   TAG_MAY_QUALIFY("tag.mayQualify"),
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
+  TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
+  TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_ALL_CLIENTS("title.allClients"),
