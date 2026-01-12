@@ -1418,6 +1418,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    *     "condition-{conditionId}-subcondition-{subconditionId}".
    * @param availableQuestions All questions available in this program.
    * @param formData The dynamic form data, containing user-entered values for this subcondition.
+   * @param validateInputFields Whether or not to validate the presence of form inputs.
    */
   private EditSubconditionPartialViewModel getParsedSubconditionFromFormData(
       EditSubconditionPartialViewModel emptyModel,
@@ -1473,26 +1474,24 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     if (validateInputFields) {
       // First input field
       // Ignore cases where the user selected a multi-value question.
-      if (inputFieldValue.trim().equals("")
-          && selectedQuestion
-              .map(question -> !question.getQuestionType().isMultiOptionType())
-              .orElse(false)) {
+      if (selectedQuestion.isPresent()
+          && !selectedQuestion.get().getQuestionType().isMultiOptionType()
+          && inputFieldValue.trim().isBlank()) {
         invalidFieldIds.add(inputFieldId);
       }
       // Second input field
       // Ignore cases where we're not expecting a pair of inputs.
-      if (secondInputFieldValue.trim().equals("")
-          && selectedOperatorOptional
-              .map(operator -> INPUT_PAIR_OPERATOR_TYPES.contains(operator))
-              .orElse(false)) {
+      if (selectedOperatorOptional.isPresent()
+          && INPUT_PAIR_OPERATOR_TYPES.contains(selectedOperatorOptional.get())
+          && secondInputFieldValue.trim().isBlank()) {
         invalidFieldIds.add(secondInputFieldId);
       }
       // Multi-value checkboxes
-      // If there's nothing entered in multi-value selections, add an arbitrary string.
-      // We can invalidate the list of checkboxes based on the presence of a value.
+      // If there's nothing entered in multi-value selections, mark the whole field as invalid.
+      // If any value is present in invalidInputIds, we invalidate the multivalue question.
       if (multiValueSelections.isEmpty()
           && selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE)) {
-        invalidFieldIds.add("multiValueQuestion");
+        invalidFieldIds.add(fieldNamePrefix);
       }
     }
 

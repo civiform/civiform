@@ -33,16 +33,10 @@ public record PredicateValuesInputPartialViewModel(
     ImmutableList<String> invalidInputIds,
     boolean hasSelectedQuestion)
     implements BaseViewModel {
-  public boolean isMultiValueQuestion() {
-    return questionType
-        .map(
-            questionType -> {
-              try {
-                return QuestionType.fromLabel(questionType).isMultiOptionType();
-              } catch (InvalidQuestionTypeException e) {
-                return false;
-              }
-            })
-        .orElse(false);
+  public boolean isMultiValueQuestion() throws InvalidQuestionTypeException {
+    if (questionType.isPresent()) {
+      return QuestionType.fromLabel(questionType.get()).isMultiOptionType();
+    }
+    return false;
   }
 }

@@ -1226,6 +1226,7 @@ test.describe('create and edit predicates', () => {
 
   test('Eligibility message', async ({
     page,
+    adminQuestions,
     adminPrograms,
     adminPredicates,
   }) => {
@@ -1233,12 +1234,20 @@ test.describe('create and edit predicates', () => {
     const programName = 'Eligibility message'
     const eligibilityMessageLabel =
       'Display message shown to ineligible applicants'
+    const questionValues = assertNotNull(
+      PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE),
+    )
 
     await test.step('Create a program', async () => {
+      await adminQuestions.addDateQuestion({
+        questionName: questionValues.questionName,
+        questionText: questionValues.questionText,
+      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
+        questions: [{name: questionValues.questionName}],
       })
     })
 

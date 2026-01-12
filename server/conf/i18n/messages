@@ -45,7 +45,7 @@ header.userName=Logged in as {0}
 # Error message to answer a required question
 validation.isRequired=This question is required.
 # Error message to fill a required field
-validation.fieldIsRequired=Error: This field is required.
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 content.requiredFieldsNote=Note: Fields marked with a {0} are required.
@@ -629,7 +629,7 @@ label.predicateEligibilityMessageField=Display message shown to ineligible appli
 content.markdownSupported=Markdown is supported
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=Error: You must select at least one option.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
