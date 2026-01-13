@@ -889,6 +889,45 @@ test.describe('create and edit predicates', () => {
     })
   })
 
+  test('Eligibility message shows only shows program settings link in draft mode', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Eligibility message state test'
+
+    await test.step('Create a program and verify draft message/link', async () => {
+      const questionName = 'predicate-q'
+      await adminQuestions.addTextQuestion({questionName: questionName})
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+
+      await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+      // Draft mode should show an edit link to program settings
+      await expect(page.locator('#eligibility-predicate')).toContainText(
+        'You can change this in the program settings.',
+      )
+      // Also assert the program settings link is visible
+      await expect(page.getByTestId('goto-program-settings-link')).toBeVisible()
+    })
+
+    await test.step('Publish program and verify active message', async () => {
+      await adminPrograms.publishProgram(programName)
+
+      // Open the active program view (read-only) to verify the message
+      await adminPrograms.gotoViewActiveProgramPage(programName)
+      // After publishing, editing is not allowed and text mentions draft mode
+      await expect(page.locator('#eligibility-predicate')).toContainText(
+        'You can change this in the program settings if your program is in draft mode',
+      )
+    })
+  })
+
   test('Save and restore predicate values', async ({
     page,
     adminQuestions,
