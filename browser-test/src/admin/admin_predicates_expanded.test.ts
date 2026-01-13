@@ -288,11 +288,13 @@ test.describe('create and edit predicates', () => {
   }) => {
     await loginAsAdmin(page)
     const programName = 'Create and edit an eligibility predicate'
+    const questionName = 'predicate-q'
+    const questionText = 'Text question'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
       await adminQuestions.addTextQuestion({
         questionName: questionName,
+        questionText: questionText,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
@@ -334,6 +336,20 @@ test.describe('create and edit predicates', () => {
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-eligibility-predicate',
+      )
+    })
+
+    await test.step('Select question, save, and check predicate validation', async() => {
+      await adminPredicates.selectQuestion(1, 1, questionText)
+
+      await adminPredicates.clickSaveAndExitButton()
+
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Error: This field is required.'
+      )
+      await validateScreenshot(
+        page.locator('#condition-1'),
+        'edit-eligibility-predicate-with-validation-error',
       )
     })
   })
