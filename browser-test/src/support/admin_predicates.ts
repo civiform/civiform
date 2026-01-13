@@ -170,7 +170,7 @@ export class AdminPredicates {
 
   async selectRootLogicalOperator(logicalOperatorValue: string) {
     await this.page
-      .getByRole('combobox', {name: 'root-nodeType'})
+      .getByRole('combobox', {name: 'Root condition node type'})
       .selectOption(logicalOperatorValue)
     await waitForHtmxReady(this.page)
   }
@@ -193,7 +193,7 @@ export class AdminPredicates {
     logicalOperatorValue: string,
   ) {
     await this.page
-      .getByRole('combobox', {name: `condition-${conditionId}-nodeType`})
+      .getByRole('combobox', {name: `Condition ${conditionId} node type`})
       .selectOption(logicalOperatorValue)
     await waitForHtmxReady(this.page)
   }

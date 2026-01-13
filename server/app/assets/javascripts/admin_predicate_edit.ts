@@ -116,7 +116,7 @@ export class AdminPredicateEdit {
       AdminPredicateEdit.onSubconditionLogicDropdownChange.bind(this),
     )
     addEventListenerToElements(
-      '[name="root-nodeType"]',
+      '[name="root-node-type"]',
       'change',
       AdminPredicateEdit.onConditionLogicDropdownChange,
     )

@@ -300,7 +300,7 @@ public final class PredicateGenerator {
           leafNodes.values().iterator().next().values().iterator().next(), predicateAction);
     }
     // Predicate with conditions and subcondition layers
-    PredicateExpressionNodeType rootNodeType = getNodeType(predicateForm, "root-nodeType");
+    PredicateExpressionNodeType rootNodeType = getNodeType(predicateForm, "root-node-type");
     ImmutableList<PredicateExpressionNode> conditionNodes =
         leafNodes.keySet().stream()
             .sorted()
@@ -310,7 +310,7 @@ public final class PredicateGenerator {
                       leafNodes.get(conditionId);
                   PredicateExpressionNodeType conditionNodeType =
                       getNodeType(
-                          predicateForm, String.format("condition-%d-nodeType", conditionId));
+                          predicateForm, String.format("condition-%d-node-type", conditionId));
                   return createAndOrNode(
                       conditionNodeType,
                       subconditionMap.values().stream().collect(toImmutableList()),
@@ -471,13 +471,14 @@ public final class PredicateGenerator {
     String rawNodeType = predicateForm.get(nodeTypeKey);
     if (rawNodeType == null) {
       throw new BadRequestException(
-          String.format("Missing nodeType for predicate update form: %s", predicateForm.rawData()));
+          String.format(
+              "Missing node type for predicate update form: %s", predicateForm.rawData()));
     }
     try {
       return PredicateExpressionNodeType.valueOf(rawNodeType);
     } catch (IllegalArgumentException e) {
       throw new BadRequestException(
-          String.format("Bad nodeType for predicate update form: %s", predicateForm.rawData()));
+          String.format("Bad node type for predicate update form: %s", predicateForm.rawData()));
     }
   }
 

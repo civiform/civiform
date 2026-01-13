@@ -4,7 +4,7 @@
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
     th:id="${'condition-' + conditionId}"
     th:data-testid="|condition-${conditionId}|"
-    th:with="subconditionLogicSelectorId=${'condition-' + conditionId + '-nodeType'}"
+    th:with="subconditionLogicSelectorId=${'condition-' + conditionId + '-node-type'}"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
@@ -44,9 +44,9 @@
         [[#{content.predicateConditionIsTrueIf}]]
         <select
           class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="|condition-${conditionId}-nodeType|"
+          th:name="|condition-${conditionId}-node-type|"
           th:id="${subconditionLogicSelectorId}"
-          th:aria-label="|condition-${conditionId}-nodeType|"
+          th:aria-label="|Condition ${conditionId} node type|"
           th:data-condition-id="${conditionId}"
         >
           <option

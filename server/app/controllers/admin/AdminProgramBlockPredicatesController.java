@@ -1482,7 +1482,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   private PredicateLogicalOperator getLogicalOperatorFromFormData(
       String fieldNamePrefix, ImmutableMap<String, String> formData) {
-    String nodeTypeId = fieldNamePrefix + "-nodeType";
+    String nodeTypeId = fieldNamePrefix + "-node-type";
     // NodeType should always be present in the form data.
     checkState(formData.containsKey(nodeTypeId));
 
