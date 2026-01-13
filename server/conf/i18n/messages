@@ -1158,3 +1158,7 @@ button.repeatedSet.addNew=Add repeated set
 text.repeatedSet=Repeated set
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested repeated set
+# An uneditable prefix for enumerator questions representing the repeated object that will be enumerated
+text.repeatedSet.prefix=parent label
+# An uneditable prefix for enumerator questions representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=child label

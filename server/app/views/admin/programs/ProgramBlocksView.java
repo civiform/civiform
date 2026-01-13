@@ -136,7 +136,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         request,
         program,
         blockDefinition.id(),
-        new BlockForm(blockDefinition.name(), blockDefinition.description()),
+        new BlockForm(blockDefinition.getFullName(), blockDefinition.description()),
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
@@ -160,14 +160,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String title =
         viewAllowsEditingProgram()
-            ? String.format("Edit %s", blockDefinition.name())
-            : String.format("View %s", blockDefinition.name());
+            ? String.format("Edit %s", blockDefinition.getFullName())
+            : String.format("View %s", blockDefinition.getFullName());
     Long programId = programDefinition.id();
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
-        renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+        renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction, blockDefinition);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -411,7 +411,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 ? messages.at(MessageKey.TEXT_NESTED_REPEATED_SET.getKeyName())
                 : messages.at(MessageKey.TEXT_REPEATED_SET.getKeyName());
       }
-      String blockName = blockDefinition.name();
+      String blockName = blockDefinition.getFullName();
       // indentation value for enums and repeaters
       int listIndentationFactor = level * INDENTATION_FACTOR_INCREASE_ON_LEVEL;
       DivTag blockContent =
@@ -583,7 +583,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
-            blockDefinition.name(),
+            blockDefinition.getFullName(),
             allQuestions,
             settingsManifest.getExpandedFormLogicEnabled(request));
 
@@ -595,7 +595,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   program,
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
-                  blockDefinition.name(),
+                  blockDefinition.getFullName(),
                   allQuestions,
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
@@ -1466,7 +1466,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                  div(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                  div(join(blockDefinition.getFullName(), " includes ", b(listItemsInBlock + ".")))
                       .withClasses("mb-2"),
                   div("Are you sure you want to delete this screen?").withClasses("mb-4")),
               submitButton("Delete")
@@ -1482,7 +1482,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .setModalId("block-delete-modal")
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(deleteBlockForm)
-        .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
+        .setModalTitle(String.format("Delete %s?", blockDefinition.getFullName()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
         .build();
@@ -1493,7 +1493,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * block.
    */
   private Modal renderBlockDescriptionModal(
-      InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
+      InputTag csrfTag,
+      BlockForm blockForm,
+      String blockUpdateAction,
+      BlockDefinition blockDefinition) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
@@ -1508,7 +1511,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .setId("block-name-input")
                         .setFieldName("name")
                         .setLabelText("Screen name")
-                        .setValue(blockForm.getName())
+                        .setValue(blockDefinition.name())
                         .getInputTag(),
                     FieldWithLabel.textArea()
                         .setId("block-description-textarea")

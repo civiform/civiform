@@ -26,6 +26,7 @@ import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -55,6 +56,7 @@ public class DevToolsController extends Controller {
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
+  private final MessagesApi messagesApi;
 
   @Inject
   public DevToolsController(
@@ -64,6 +66,7 @@ public class DevToolsController extends Controller {
       SettingsManifest settingsManifest,
       Clock clock,
       FormFactory formFactory,
+      MessagesApi messagesApi,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -83,6 +86,7 @@ public class DevToolsController extends Controller {
     this.settingsCache = checkNotNull(settingsCache);
     this.clock = checkNotNull(clock);
     this.formFactory = checkNotNull(formFactory);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -114,15 +118,15 @@ public class DevToolsController extends Controller {
     }
   }
 
-  public Result seedPrograms() {
+  public Result seedPrograms(Request request) {
     Result result = redirect(routes.DevToolsController.index().url());
-    return seedProgramsInternal()
+    return seedProgramsInternal(request)
         ? result.flashing(FlashKey.SUCCESS, "The database has been seeded")
         : result.flashing(FlashKey.ERROR, "Failed to seed programs");
   }
 
-  public Result seedProgramsHeadless() {
-    return seedProgramsInternal() ? ok() : internalServerError();
+  public Result seedProgramsHeadless(Request request) {
+    return seedProgramsInternal(request) ? ok() : internalServerError();
   }
 
   public Result seedApplicationsHeadless(Request request) {
@@ -132,14 +136,20 @@ public class DevToolsController extends Controller {
     return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
   }
 
-  private boolean seedProgramsInternal() {
+  private boolean seedProgramsInternal(Request request) {
     try {
       // TODO: Check whether test program already exists to prevent error.
       ImmutableList<QuestionDefinition> createdSampleQuestions =
           devDatabaseSeedTask.seedQuestions();
       devDatabaseSeedTask.seedProgramCategories();
-      devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
-      devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+      devDatabaseSeedTask.insertMinimalSampleProgram(
+          createdSampleQuestions,
+          messagesApi.preferred(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
+      devDatabaseSeedTask.insertComprehensiveSampleProgram(
+          createdSampleQuestions,
+          messagesApi.preferred(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
 
       return true;
     } catch (RuntimeException ex) {
