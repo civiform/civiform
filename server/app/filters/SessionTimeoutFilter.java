@@ -109,7 +109,8 @@ public class SessionTimeoutFilter extends Filter {
                       .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
 
               logger.info(
-                  "Created session timeout cookie | Inactivity warning: {} | Inactivity timeout: {} | Total warning: {} | Total timeout: {} | Current: {}",
+                  "Created session timeout cookie | Inactivity warning: {} | Inactivity timeout: {}"
+                      + " | Total warning: {} | Total timeout: {} | Current: {}",
                   PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.inactivityWarning())),
                   PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.inactivityTimeout())),
                   PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.totalWarning())),

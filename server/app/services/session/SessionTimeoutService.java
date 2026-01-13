@@ -94,7 +94,9 @@ public final class SessionTimeoutService {
                       sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes);
 
               logger.info(
-                  "Calculated timeout data | Current time: {} | Session start: {} | Last activity: {} | Inactivity warning: {} (in {}s) | Inactivity timeout: {} (in {}s) | Total warning: {} (in {}s) | Total timeout: {} (in {}s)",
+                  "Calculated timeout data | Current time: {} | Session start: {} | Last activity:"
+                      + " {} | Inactivity warning: {} (in {}s) | Inactivity timeout: {} (in {}s) |"
+                      + " Total warning: {} (in {}s) | Total timeout: {} (in {}s)",
                   PST_FORMATTER.format(Instant.ofEpochSecond(currentTime)),
                   PST_FORMATTER.format(Instant.ofEpochSecond(sessionStartTimeInSeconds)),
                   PST_FORMATTER.format(Instant.ofEpochSecond(lastActivityTimeInSeconds)),
