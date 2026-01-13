@@ -9,6 +9,7 @@ import lombok.Builder;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramHeader;
@@ -20,6 +21,7 @@ public record EditPredicatePageViewModel(
     PredicateUseCase predicateUseCase,
     ImmutableMap<String, ImmutableList<String>> operatorScalarMap,
     ImmutableList<EditConditionPartialViewModel> prePopulatedConditions,
+    PredicateLogicalOperator rootLogicalOperator,
     boolean hasAvailableQuestions,
     String eligibilityMessage)
     implements EditPredicateBaseViewModel {
@@ -56,8 +58,14 @@ public record EditPredicatePageViewModel(
     return PredicateAction.ELIGIBLE_BLOCK;
   }
 
-  public String hxEditConditionEndpoint() {
-    return routes.AdminProgramBlockPredicatesController.hxEditCondition(
+  public String hxAddConditionEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxAddCondition(
+            programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
+        .url();
+  }
+
+  public String hxDeleteAllConditionsEndpoint() {
+    return routes.AdminProgramBlockPredicatesController.hxDeleteAllConditions(
             programDefinition.id(), blockDefinition.id(), predicateUseCase.name())
         .url();
   }
@@ -71,6 +79,7 @@ public record EditPredicatePageViewModel(
         .programId(programDefinition.id())
         .blockId(blockDefinition.id())
         .predicateUseCase(predicateUseCase)
+        .predicateLogicalOperator(rootLogicalOperator)
         .conditions(prePopulatedConditions)
         .build();
   }

@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Se déconnecter
-#  This appears before applicants select their preferred language.
-label.selectLanguage=Veuillez sélectionner votre langue préférée.
-button.untranslatedSubmit=Envoyer
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=À propos de CiviForm
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Pour contacter l''assistance technique, envoyez un message à
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -52,16 +46,10 @@ header.userName=Connecté en tant que {0}
 validation.isRequired=Réponse obligatoire.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Veuillez effectuer une saisie valide.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=Le formulaire contient des erreurs. Veuillez les corriger avant de continuer.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=Remarque : Les champs marqués d''un astérisque (*) sont obligatoires.
 content.requiredFieldsNote=Remarque : Les champs marqués d''un {0} sont obligatoires.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Les champs marqués d''un astérisque ({0}) sont obligatoires.
 content.optional=(facultatif)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=Vous êtes sur votre téléphone ? L''option "Choisir un fichier" vous permet d''utiliser l''appareil photo de votre téléphone pour importer des documents.
 toast.errorMessageOutline=Erreur : {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Fermer
@@ -74,7 +62,7 @@ link.opensNewTabSr=s''ouvre dans un nouvel onglet
 # Aria-label for the primary navigation
 label.primaryNavigation=Navigation principale
 # Aria-label for agency identifier
-label.agencyIdentifier=Identifiant de l'agence
+label.agencyIdentifier=Identifiant de l''agence
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerte informative de session Invité
 # Link to skip to the main content of the page
@@ -84,32 +72,20 @@ link.skipToMainContent=Passer au contenu principal
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=Connexion
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=Veuillez vous connecter avec votre compte {0}.
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Créer un compte
 # The text on the button in the login drop down an applicant clicks to log in to their session.
 button.applicantLogin=Connexion du candidat
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Connexion de l'administrateur
+button.adminLogin=Connexion de l''administrateur
 # The text on the button an applicant clicks to log in to their session.
 button.login=Se connecter
 # The text on the button an applicant clicks to sign in to their session.
 button.signIn=Se connecter
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=Vous n''avez pas de compte ?
 # The text between creating a new account, and becoming a guest
 content.or=ou
 # The text on the button for applicants to create a new account.
 button.createAccount=Créer un compte
-# The text on the button for guests to log in to their session.
-button.guestLogin=Continuer en tant qu''invité
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=Connexion au compte actuellement désactivée
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=Vous recherchez autre chose ?
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=Vous êtes administrateur ?
 # The text on the anchor for admins to log in to their session.
@@ -119,8 +95,6 @@ link.adminLogin=Connexion administrateur
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=Fichier importé : {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=Sélectionnez un fichier
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -128,10 +102,6 @@ input.singleFileUploadHint=Sélectionnez un fichier
 input.multipleFileUploadHint=Sélectionnez un ou plusieurs fichiers ({0} maximum)
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Sélectionnez un ou plusieurs fichiers
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=Supprimer
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=Continuer
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Enregistrer et suivant
 # The button text for navigating to the previous screen in the form.
@@ -140,48 +110,24 @@ button.previousScreen=Précédent
 button.back=Retour
 # The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=Vérifier et envoyer
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=Passer
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0} sur {1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull=Vous avez répondu à {0} question(s) sur {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Progression de la demande
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Examiner et envoyer
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Malheureusement, ce programme n''est pas entièrement traduit dans votre langue préférée.
-# A link that logs out a guest user after they submit an application.
-link.allDone=J''ai terminé
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=S''inscrire à un autre programme
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=Créer un compte ou se connecter
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=Accueil
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
-link.applicationForProgram=Demande d'inscription à {0}
+link.applicationForProgram=Demande d''inscription à {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Supprimer un fichier
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr=Supprimer le fichier {0}
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=Vous n''avez pas répondu à certaines questions de cette page. Voulez-vous quand même la quitter et passer à la page de vérification ?
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=Vous n''avez pas répondu à certaines questions de cette page. Voulez-vous quand même la quitter et retourner à la page précédente ?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=Les informations que vous avez fournies contiennent des erreurs. Voulez-vous rester sur cette page pour les corriger ou accéder à la page de vérification sans enregistrer vos réponses ?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=Les informations que vous avez fournies contiennent des erreurs. Voulez-vous rester sur cette page pour les corriger ou retourner à la page de questions précédente sans enregistrer vos réponses ?
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Accéder à la page de vérification sans enregistrer
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Retourner aux questions précédentes sans enregistrer
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Rester sur la page et corriger
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=Certaines réponses sur cette page doivent être corrigées
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
@@ -201,17 +147,8 @@ modal.errorSaving.fixButton=Rester et corriger les réponses
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=S''inscrire
-# The text read for screen readers.
-button.applySr=S''inscrire au {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Modifier
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr=Modifier la demande d'inscription au {0} envoyée
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr=Continuer la demande d'inscription au {0}
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=Commencer
-# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=Répondre à l''enquête
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Afficher et faire une demande
@@ -223,27 +160,10 @@ button.viewInNewTab=Afficher dans un nouvel onglet
 button.viewInNewTabSr=Afficher {0} dans un nouvel onglet
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Remplir la demande
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHerePreScreenerSr=Commencer ici en remplissant {0}
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=Modifier les informations fournies pour {0}
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Continuer à remplir {0}
-# Text describing the date the application was last submitted.
-content.submittedDate=Date d''envoi : {0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Trouver des programmes
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=CiviForm vous aide à trouver des programmes auxquels vous pourriez être éligible dans l''État suivant : {0}. Pour commencer, choisissez un formulaire d'inscription ci-dessous.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
-# Main home page heading
-heading.homepage=Demandez une aide gouvernementale
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Inscrivez-vous en ligne à des programmes gouvernementaux
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
 # Main home page intro text
 content.homepageIntro=Pour obtenir de l''aide pour l''alimentation, les transports, la garde d''enfants, l''énergie et plus, cliquez sur une des options ci-dessous. Vous ne pouvez demander votre inscription qu''à un programme à la fois.
 # Main home page intro text, updated to be more generic
@@ -264,16 +184,6 @@ link.programDetailsSr=Détails du programme {0}, s''ouvre dans un nouvel onglet
 title.programs=Programmes et services
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=Commencer
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=Tous les programmes ({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=État
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=En cours
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=Demandes non commencées
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Trouver des services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mes demandes ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -286,14 +196,6 @@ title.programsSection.v2=Programmes et services ({0})
 title.availableProgramsSection=Programmes et services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programmes correspondant à vos choix ({0})
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Section terminée
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=Demandes d''inscription envoyées
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=Demande d''inscription enregistrée (ID de la demande : {0})
-# Alert banner when an application was already completed
-toast.programCompleted=La demande d''inscription a déjà été remplie.
 # Informational tag on an in-progress application card
 label.inProgress=Pas encore envoyée
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -311,14 +213,8 @@ content.externalProgramModal=Cliquez sur "Continuer" pour accéder au site Web d
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=Ce compte ne peut pas être supprimé.
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=Ce compte ne peut pas être supprimé, car il contient des demandes d''inscription ouvertes.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=Les informations du client ont été mises à jour.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=Le compte client "{0}" a bien été supprimé.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Client créé.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -329,24 +225,16 @@ banner.viewApplication=Vous effectuez une demande d''inscription pour {0}. Essay
 button.addNewClient=Ajouter un client
 # Button that brings the user back to the list of their clients.
 button.backToClientList=Retour à la liste des clients
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=Retour aux modifications
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=Annuler
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=Effacer la recherche
-# Button for a user to delete their client's account
-button.deleteAcct=Supprimer le compte
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=Conserver le compte
 # Button to navigate to the next page.
 button.nextPage=Suivant
 # Button to save information that has been entered.
 button.save=Enregistrer
 # Button to execute a search to filter a client list.
 button.search=Rechercher
-# Button to select a client.
-button.select=Sélectionner
 # Button to start an application on behalf of a client.
 button.startApp=Commencer une demande d''inscription
 # Button to view the applications belonging to an applicant.
@@ -362,18 +250,6 @@ content.emailTooltip=Ajoutez une adresse e-mail pour que votre client reçoive a
 content.numberOfAppSubmitted={0} demandes d''inscription envoyées
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=1 demande d''inscription envoyée
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=Aucune demande d''inscription n''a été envoyée pour ce client. Aucune demande ne sera donc perdue.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(aucune adresse e-mail)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Pas encore connecté
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Connecté, aucune demande d''inscription envoyée
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Dernière demande d''inscription envoyée le {0}
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=Voulez-vous vraiment supprimer le compte de ce client ?
 
 # Header for the page with the Organization Members table.
 header.acctSettings=Paramètres du compte
@@ -420,8 +296,6 @@ label.searchByDob=Rechercher par date de naissance
 label.searchByName=Rechercher par nom(s)
 # The label above the input field for the year of the client birth date.
 label.year=Année
-# Label showing the user when there is no name
-label.unnamedUser=Utilisateur sans nom
 
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Sélectionner un autre client
@@ -452,7 +326,7 @@ title.tiAccountSettings=Intermédiaire de confiance - Afficher les paramètres 
 # Submit application button
 button.submit=Envoyer
 # Submit application button
-button.submitApplication=Envoyer la demande d'inscription
+button.submitApplication=Envoyer la demande d''inscription
 # Continue application button
 button.continue=Continuer
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -460,8 +334,6 @@ button.start=Commencer
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=La demande d''inscription a été modifiée. Veuillez la vérifier et répondre aux questions pour continuer.
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Sélectionnez une étape ci-dessous pour commencer votre demande d''inscription. Vous pouvez l''enregistrer et y revenir à tout moment.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Non éligible
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -491,11 +363,11 @@ title.programOverview={0} - Présentation du programme
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Comment envoyer une demande
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=S'inscrire au programme {0}
+heading.programOverview=S''inscrire au programme {0}
 # The text on the button that takes users to the account creation form.
 link.createAccountFromOverview=Commencer la demande avec un compte
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Commencer la demande en tant qu'invité
+link.startAsGuest=Commencer la demande en tant qu''invité
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -503,29 +375,19 @@ link.startAsGuest=Commencer la demande en tant qu'invité
 
 # Tab title for ineligible page
 title.ineligible=Pas éligible au programme
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=D''après vos réponses aux questions ci-dessous, il se peut que votre client ne soit pas éligible au {0}.
 # Section heading
 heading.eligibilityCriteria=En savoir plus sur les critères d''éligibilité
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Pour connaître les critères d''éligibilité, consultez {0}
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=Pour connaître les critères d''éligibilité à ce programme ou contacter directement l''équipe du programme, veuillez consulter les {0}.
 content.eligibilityCriteria.v3=Pour connaître les critères d''éligibilité à ce programme ou contacter directement l''équipe du programme, veuillez consulter les {0} (s''ouvre dans un nouvel onglet).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Vous pouvez retourner à la page précédente pour modifier vos réponses ou demander votre inscription à un autre programme.
 # Text shown on a webpage when the applicant is ineligible for a program.
-content.changeAnswersForEligibility.v2=Si vous pensez qu'il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
+content.changeAnswersForEligibility.v2=Si vous pensez qu''il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
 # Button for the applicant to go back and edit their responses.
 button.goBackAndEdit=Retour pour modifier
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=Modifier mes réponses
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=D''après vos réponses, il se peut que votre client soit éligible au {0}. Pour continuer, poursuivez la demande d''inscription.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=D''après vos réponses, il se peut que vous soyez éligible au {0}. Pour continuer, poursuivez la demande d''inscription.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=Vous êtes peut-être éligible
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -534,10 +396,6 @@ tag.mayQualifyTi=Votre client est peut-être éligible
 tag.mayNotQualify=Vous n''êtes peut-être pas éligible
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Votre client n''est peut-être pas éligible
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=D''après vos réponses, il se peut que vous ne soyez pas éligible au {0}. Si vos informations ont changé, vous pouvez modifier vos réponses et poursuivre votre demande d''inscription.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=D''après vos réponses, il se peut que votre client ne soit pas éligible au {0}. Si les informations de votre client ont changé, vous pouvez modifier vos réponses et poursuivre votre demande d''inscription.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=Erreur lors de l''enregistrement de la demande d''inscription
@@ -587,9 +445,9 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Votre client n''est peut-�
 alert.eligibility_ti_fastforwarded_not_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant les réponses ou l''éligibilité de votre client. Veuillez vérifier toutes les questions ci-dessous.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=D'après les réponses apportées à une autre demande, il est probable que vous soyez éligible à ce programme.
+alert.likelyEligible=D''après les réponses apportées à une autre demande, il est probable que vous soyez éligible à ce programme.
 # Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
-alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n'êtes peut-être pas éligible à ce programme.
+alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n''êtes peut-être pas éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
 alert.clientLikelyEligible=D''après les réponses apportées à une autre demande, il est probable que votre client soit éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
@@ -610,10 +468,6 @@ title.signInModal=Connectez-vous avec un compte
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=Un compte vous permet de consulter l''état d''une demande, de la modifier et de vous inscrire rapidement à d''autres programmes.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=Connectez-vous à votre compte {0} ou créez-en un pour pouvoir enregistrer vos informations. Vous pourrez revenir à tout moment pour terminer vos futures demandes d''inscription. Si vous n''avez pas encore de compte, vous pourrez en créer un à la page de connexion pour ne pas perdre les données que vous avez déjà saisies.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=Vous n''êtes connecté à aucun compte. Sans compte, vous ne pourrez pas modifier votre demande d''inscription, vérifier son état, ni vous inscrire rapidement à d''autres programmes.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Avant de continuer, connectez-vous à votre compte {0} ou créez-en un. Vous pourrez vous inscrire à plusieurs programmes sans avoir à saisir de nouveau les mêmes informations. Vous pourrez également modifier vos demandes et vérifier leur état.
 # A button for continuing to apply to other programs without an account.
@@ -633,13 +487,10 @@ content.preScreenerConfirmationTi.v2=Selon vos réponses, votre client est peut-
 content.preScreenerNoMatchingPrograms=L''outil de présélection n''a trouvé aucun programme auquel vous pourriez être éligible pour le moment. Vous pouvez cependant vous inscrire à des programmes à tout moment en cliquant sur "S''inscrire à des programmes". Vous trouverez d''autres programmes ici : {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=L''outil de présélection n''a trouvé aucun programme auquel votre client pourrait être éligible pour le moment. Vous pouvez cependant l''inscrire à des programmes à tout moment en cliquant sur "S''inscrire à des programmes". Vous trouverez d''autres programmes ici : {0}.
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=Vous pouvez également retourner à la page précédente pour modifier vos réponses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=Télécharger votre demande d'inscription
-button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
 # Heading above a section showing the user's name, confirmation number, and date
@@ -702,14 +553,14 @@ button.homePage=Retour à la page d''accueil
 link.backToEditProgramBlock=Retour à la modification {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configurez l'affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
+content.predicateVisibilityDescription=Configurez l''affichage ou le masquage de cet écran pour les candidats en fonction des réponses aux questions des écrans précédents.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Ajoutez des conditions d'éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
+content.predicateEligibilityDescription=Ajoutez des conditions d''éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=paramètres du programme
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=L'écran est
+content.predicateScreenIs=L''écran est
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
 content.predicateApplicantIsEligible=Le candidat est éligible si
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
@@ -743,6 +594,8 @@ content.and=et
 button.predicateAddCondition=Ajouter la condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Supprimer la condition
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ajouter une sous-condition
 # Link to remove a sub-condition from the form
@@ -752,10 +605,22 @@ link.backToTop=Retour en haut
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Enregistrer et quitter
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=Il n'y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
+alert.predicateNoAvailableQuestionsVisibility=Il n''y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=Il n'y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
+alert.predicateNoAvailableQuestionsEligibility=Il n''y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -809,10 +674,8 @@ placeholder.noDropdownSelection=Sélectionnez une option :
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=Pays
 label.phoneNumber=Saisissez un numéro de téléphone
 validation.phoneNumberRequired=Le numéro de téléphone est obligatoire
-validation.phoneCountryCodeRequired=Vous devez sélectionner un pays
 validation.phoneNumberMustContainNumbersOnly=Le numéro de téléphone ne doit contenir que des chiffres
 validation.invalidPhoneNumberProvided=Ce numéro de téléphone n''est pas valide
 validation.phoneMustBeLocalToCountry=Le numéro de téléphone que vous avez saisi ne correspond pas au pays sélectionné
@@ -897,7 +760,6 @@ placeholder.entityName={0} (nom)
 validation.fileRequired=Veuillez sélectionner un fichier.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Le fichier est trop volumineux. Veuillez en choisir un de moins de {0} Mo.
-button.chooseFile=Choisir un fichier
 # Text shown on a tag while a file is uploading.
 label.uploading=Importation
 # Label applied to a list of uploaded files
@@ -933,13 +795,6 @@ label.lastName=Nom
 label.middleName=Deuxième prénom
 # Label for name suffix field in name question
 label.nameSuffix=Suffixe
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=Prénom
-placeholder.lastName=Nom
-placeholder.middleName=Deuxième prénom
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffixe
 
 # Option Junior for the name suffix dropdown
 option.junior=Jr.
@@ -1009,7 +864,7 @@ map.locationLinkText=Voir plus de détails
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Afficher plus de détails pour {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Affichage de {0} lieu(x) sur {1}
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} emplacements sur {1} maximum sélectionnés.
 # Alt text for map region
@@ -1029,23 +884,23 @@ map.selectedLocationsHeading=Lieux sélectionnés
 # Placeholder text for map question select button in popups
 map.selectLocationButtonText=Sélectionner un lieu
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Sélectionnez jusqu'à {0} emplacements
+map.selectLocations=Sélectionnez jusqu''à {0} emplacements
 # Placeholder text for map question select option dropdown
 map.selectOptionPlaceholderText=- Sélectionner -
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Passer à l'affichage sous forme de carte
+map.switchToMapView=Passer à l''affichage sous forme de carte
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Passer à l'affichage sous forme de liste
+map.switchToListView=Passer à l''affichage sous forme de liste
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=L'affichage est passé en mode carte
+map.switchToMapViewSr=L''affichage est passé en mode carte
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=L'affichage est passé en mode liste.
+map.switchToListViewSr=L''affichage est passé en mode liste.
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Veuillez sélectionner au maximum {0} emplacements.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
 map.geoJsonErrorText = Nous sommes désolés, nous ne pouvons pas afficher cette question pour le moment. Veuillez réessayer ultérieurement. En attendant, retournez à/au/sur {0} ou {1} et nous vous guiderons dans la bonne direction.
 map.contactUs = nous contacter
-map.homepage = page d'accueil
+map.homepage = page d''accueil
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
 map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
 
@@ -1056,41 +911,41 @@ map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a differe
 # Button for adding a filter
 map.addFilterButton=Ajouter un filtre
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Sélectionnez jusqu'à six filtres à mettre à la disposition des candidats.
+map.addFiltersSubtitle=Sélectionnez jusqu''à six filtres à mettre à la disposition des candidats.
 # Title for filters section
 map.addFiltersTitle=Filtres
 # Button for adding a tag
 map.addTagButton=Ajouter une balise
 # Subtitle text for adding a tag
-map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu'un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
+map.addTagSubtitle=Ajoutez une balise à afficher à certains emplacements où une clé sélectionnée correspond à une certaine valeur. Lorsqu''un candidat sélectionne au moins un de ces emplacements, affichez éventuellement une alerte dans la zone « Emplacements sélectionnés ».
 # Title for tag section
 map.addTagTitle=Balise
 # Label for display name field
-map.displayNameLabel=Nom d'affichage
+map.displayNameLabel=Nom d''affichage
 # Label for key field
 map.keyLabel=Clé
 # Error message when a configured key is not found in the GeoJSON data
 map.keyNotFoundError=Erreur : clé introuvable. Veuillez sélectionner une autre clé.
 # Help text for location address field
-map.locationAddressHelpText=Sélectionnez la clé qui représente l'adresse de l'emplacement.
+map.locationAddressHelpText=Sélectionnez la clé qui représente l''adresse de l''emplacement.
 # Label for location address key field
-map.locationAddressLabel=Clé d'adresse
+map.locationAddressLabel=Clé d''adresse
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l'URL des détails de l'emplacement.
+map.locationDetailsUrlHelpText=Sélectionnez la clé qui représente l''URL des détails de l''emplacement.
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=Clé d'URL pour afficher plus de détails
+map.locationDetailsUrlLabel=Clé d''URL pour afficher plus de détails
 # Help text for location name field
-map.locationNameHelpText=Sélectionnez la clé qui représente le nom de l'emplacement.
+map.locationNameHelpText=Sélectionnez la clé qui représente le nom de l''emplacement.
 # Label for location name key field
 map.locationNameLabel=Clé de nom
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Sélections maximales d'emplacements
+map.maxLocationSelectionsLabel=Sélections maximales d''emplacements
 # Label for setting text field
-map.settingTextLabel=Texte d'alerte
+map.settingTextLabel=Texte d''alerte
 # Label for value field
 map.valueLabel=Valeur
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=La carte s'affichera ici
+map.mapPreviewText=La carte s''affichera ici
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1113,7 +968,7 @@ error.internalServerTitle.v2=Une erreur s''est produite
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Malheureusement, une erreur interne s''est produite dans notre système.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse %s pour obtenir de l''aide, en incluant l''ID d''erreur {0}.
+error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse {0} pour obtenir de l''aide, en incluant l''ID d''erreur {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Ouvrir la page d''accueil
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1128,7 +983,7 @@ email.loginToCiviform=Connectez-vous à Civiform : {0}
 # Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Votre demande d''inscription au programme {0} a bien été reçue
 # Body of the email sent automatically on application submission
-email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l'ID de votre demande est {2}.
+email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l''ID de votre demande est {2}.
 # Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Vous avez envoyé une demande d''inscription au programme {0} au nom de {1}
 # Body of the email sent to the TI on application submission
@@ -1188,8 +1043,23 @@ banner.minute=1 minute
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Garde d'enfants
+category.tag.childcare=Garde d''enfants
 
 # A tag used to filter the list of programs down to those that are related to economy.
 category.tag.economic=Économie
@@ -1230,7 +1100,7 @@ category.tag.utilities=Énergie
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Vétéran
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Catégories
 
 #------------------------------------------------------------------------------#

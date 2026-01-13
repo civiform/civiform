@@ -7,7 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   waitForPageJsLoad,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
@@ -86,7 +86,7 @@ test.describe('Applicant program overview', () => {
 
   test.describe('after starting an application', () => {
     test.beforeEach(async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
     })
@@ -103,7 +103,7 @@ test.describe('Applicant program overview', () => {
 
       // Exercise test user path
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
 
@@ -207,10 +207,10 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     // Eligibility is gating by default
@@ -221,10 +221,10 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as ineligible when the eligibility condition is not met and eligibilty is gating', async () => {
@@ -246,10 +246,10 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an ineligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('not eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that no alert shows when eligibilty is not gating and the eligibility condition is not met', async () => {
@@ -259,10 +259,10 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step('apply to first program in an eligible way', async () => {
-      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('eligible')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
     })
 
     await test.step('verify that the alert shows as eligible when the eligibility condition is met and eligibilty is not gating', async () => {
@@ -414,7 +414,7 @@ test.describe('Applicant program overview', () => {
 
   test('renders right to left', async ({page}) => {
     await page.goto(`/programs/${programName}`)
-    await selectApplicantLanguageNorthstar(page, 'ar')
+    await selectApplicantLanguage(page, 'ar')
 
     await validateAccessibility(page)
 

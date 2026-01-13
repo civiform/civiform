@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Page, Locator} from 'playwright'
+import {ElementHandle, Page, Locator} from '@playwright/test'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -236,13 +236,11 @@ export class AdminPrograms {
    * Creates a disabled program with given name.
    */
   async addDisabledProgram(programName: string) {
-    await this.addProgram(
-      programName,
-      'program description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.DISABLED,
-    )
+    await this.addProgram(programName, {
+      description: 'program description',
+      shortDescription: 'short program description',
+      visibility: ProgramVisibility.DISABLED,
+    })
   }
 
   async getApplicationId() {
@@ -259,28 +257,23 @@ export class AdminPrograms {
    * @param {string} shortDescription - Short description of the program
    * @param {ProgramVisibility} programVisibility - Visibility of the program
    */
-  async addPreScreenerNS(
+  async addPreScreener(
     programName: string,
     shortDescription: string,
     programVisibility: ProgramVisibility,
   ) {
-    // Only add values for fields that are required on North Star. Disabled
+    // Only add values for fields that are required. Disabled
     // fields must have an empty or undefined value, since disabled elements
     // are readonly and cannot be edited
-    return this.addProgram(
-      programName,
-      /* description =*/ '',
+    return this.addProgram(programName, {
+      description: '',
       shortDescription,
-      /* externalLink= */ '',
-      programVisibility,
-      /* adminDescription= */ '',
-      ProgramType.PRE_SCREENER,
-      /* selectedTI= */ 'none',
-      /* confirmationMessage= */ '',
-      /* eligibility= */ undefined,
-      /* submitNewProgram= */ true,
-      /* applicationSteps= */ [],
-    )
+      visibility: programVisibility,
+      adminDescription: '',
+      programType: ProgramType.PRE_SCREENER,
+      confirmationMessage: '',
+      applicationSteps: [],
+    })
   }
 
   /**
@@ -300,20 +293,16 @@ export class AdminPrograms {
     // Only add values for fields that are required. Disabled fields must not
     // have an empty or undefined value, since disabled elements are readonly
     // and cannot be edited
-    return this.addProgram(
-      programName,
-      /* description= */ '',
+    return this.addProgram(programName, {
+      description: '',
       shortDescription,
       externalLink,
-      programVisibility,
-      /* adminDescription= */ '',
-      ProgramType.EXTERNAL,
-      /* selectedTI= */ 'none',
-      /* confirmationMessage= */ '',
-      /* eligibility= */ undefined,
-      /* submitNewProgram= */ true,
-      /* applicationSteps= */ [],
-    )
+      visibility: programVisibility,
+      adminDescription: '',
+      programType: ProgramType.EXTERNAL,
+      confirmationMessage: '',
+      applicationSteps: [],
+    })
   }
 
   /**
@@ -329,26 +318,40 @@ export class AdminPrograms {
    */
   async addProgram(
     programName: string,
-    description = 'program description',
-    shortDescription = 'short program description',
-    externalLink = 'https://usa.gov',
-    visibility = ProgramVisibility.PUBLIC,
-    adminDescription = 'admin description',
-    programType: ProgramType = ProgramType.DEFAULT,
-    selectedTI = 'none',
-    confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
-      '[This is a link](https://www.example.com)\n' +
-      'This is a list:\n' +
-      '* Item 1\n' +
-      '* Item 2\n' +
-      '\n' +
-      'There are some empty lines below this that should be preserved\n' +
-      '\n' +
-      '\n' +
-      'This link should be autodetected: https://www.example.com\n',
-    eligibility = undefined,
-    submitNewProgram = true,
-    applicationSteps = [{title: 'title', description: 'description'}],
+    {
+      description = 'program description',
+      shortDescription = 'short program description',
+      externalLink = null,
+      visibility = ProgramVisibility.PUBLIC,
+      adminDescription = 'admin description',
+      programType = ProgramType.DEFAULT,
+      selectedTI = 'none',
+      confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
+        '[This is a link](https://www.example.com)\n' +
+        'This is a list:\n' +
+        '* Item 1\n' +
+        '* Item 2\n' +
+        '\n' +
+        'There are some empty lines below this that should be preserved\n' +
+        '\n' +
+        '\n' +
+        'This link should be autodetected: https://www.example.com\n',
+      eligibility = undefined,
+      submitNewProgram = true,
+      applicationSteps = [{title: 'title', description: 'description'}],
+    }: {
+      description?: string
+      shortDescription?: string
+      externalLink?: string | null
+      visibility?: ProgramVisibility
+      adminDescription?: string
+      programType?: ProgramType
+      selectedTI?: string
+      confirmationMessage?: string
+      eligibility?: Eligibility
+      submitNewProgram?: boolean
+      applicationSteps?: {title: string; description: string}[]
+    } = {},
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -359,7 +362,7 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill(
-      '#program-display-short-description-textarea',
+      '#program-display-short-description-input',
       shortDescription,
     )
 
@@ -386,19 +389,9 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    // This method adds an external link by default. The external link field is
-    // disabled for default programs and pre-screeners in North Star. Therefore,
-    // tests will fail if we try to add default external link to a disabled
-    // field.
-    // TODO(#10630): Ideally, this method should not have a default value for
-    // the external link (or any field, for that matter) but that would require
-    // updating lots of tests. Thus, for now we will fix this by only adding the
-    // external link if its field is enabled. We can fix this when we clean up
-    // the tests for North Star, since there will be less tests to migrate.
-    const externalLinkEnabled = await this.page
-      .getByRole('textbox', {name: 'Link to program website'})
-      .isEnabled()
-    if (externalLinkEnabled) {
+    // The external link field is disabled for default programs and pre-screeners,
+    // so only fill it if a value is provided.
+    if (externalLink !== null) {
       await this.page.fill('#program-external-link-input', externalLink)
     }
 
@@ -616,13 +609,8 @@ export class AdminPrograms {
         const externalLink = this.getExternalLinkField()
         await expect(externalLink).toBeEnabled()
         expect(await externalLink.getAttribute('readonly')).toBeNull()
-        // In pre - North Star, the external link field is optional for
-        // 'default' and 'pre-screeners'. In North Star, the external link field
-        // is disabled for 'default' and 'pre-screeners' and required for
-        // 'external programs'. Therefore, required indicator is dependent on
-        // program type. This condition can be removed once North Star is fully
-        // launched, since the required indicator will always be present if the
-        // field is enabled.
+        // The external link field is only required for external programs,
+        // so only check for the required indicator for that program type.
         if (programType && programType === ProgramType.EXTERNAL) {
           const requiredIndicator = this.getRequiredIndicatorFor(
             'program-external-link-input',
@@ -2088,7 +2076,7 @@ export class AdminPrograms {
         programId = 'default-program-option'
         break
       case ProgramType.PRE_SCREENER:
-        programId = 'common-intake-program-option'
+        programId = 'pre-screener-program-option'
         break
       case ProgramType.EXTERNAL:
         programId = 'external-program-option'
@@ -2104,7 +2092,7 @@ export class AdminPrograms {
     // because USWDS styling hides the actual checkbox input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
     // off-screen, making it inaccessible to Playwright's direct interactions.
-    await this.page.locator('label[for="common-intake-checkbox"]').click()
+    await this.page.locator('label[for="pre-screener-checkbox"]').click()
   }
 
   /**

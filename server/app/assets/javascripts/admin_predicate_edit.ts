@@ -6,6 +6,9 @@ export class AdminPredicateEdit {
   static NODE_OPERATOR_SELECT_ID = 'predicate-operator-node-select'
   static NODE_OPERATOR_SELECT_NULL_STATE_ID =
     'predicate-operator-node-select-null-state'
+  // Set in server/app/views/admin/programs/predicates/EditSubconditionFragment.html
+  static QUESTION_ID_SUFFIX: string = '-question'
+  static ARIA_ANNOUNCE_ID_SUFFIX: string = '-ariaAnnounce'
   // Set in server/app/views/admin/programs/predicates/PredicateValuesInputFragment.html
   static VALUE_INPUT_ID_SUFFIX: string = '-value'
   static VALUE_INPUT_HINT_ID_SUFFIX: string = '-valueHintText'
@@ -16,6 +19,8 @@ export class AdminPredicateEdit {
     /^predicate-condition-(\d+)-subcondition-list$/
 
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
+
+  static INITIAL_PREDICATE_FORM_STATE: string
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     const targetId: string = event.target.id
@@ -32,14 +37,38 @@ export class AdminPredicateEdit {
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-scalar-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onScalarDropdownChange)
-          dropdown.addEventListener('change', this.onScalarDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
         })
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-operator-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onOperatorDropdownChange)
-          dropdown.addEventListener('change', this.onOperatorDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
+        })
+      document
+        .querySelectorAll<HTMLSelectElement>('.cf-subcondition-logic-select')
+        .forEach((dropdown: HTMLSelectElement) => {
+          dropdown.removeEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onSubconditionLogicDropdownChange.bind(this),
+          )
         })
 
       // Trigger change to update operators based on the current scalar selected.
@@ -58,20 +87,60 @@ export class AdminPredicateEdit {
         el.dispatchEvent(event)
       })
     }
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
+    AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
   }
 
   onPageLoad(): void {
+    const initialFormState = AdminPredicateEdit.getPredicateFormState()
+    if (initialFormState) {
+      AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE = initialFormState
+    }
+
+    AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
+
     addEventListenerToElements(
       '.cf-predicate-scalar-select',
       'change',
-      AdminPredicateEdit.onScalarDropdownChange,
+      AdminPredicateEdit.onScalarDropdownChange.bind(this),
     )
     addEventListenerToElements(
       '.cf-predicate-operator-select',
       'change',
-      AdminPredicateEdit.onOperatorDropdownChange,
+      AdminPredicateEdit.onOperatorDropdownChange.bind(this),
     )
+    addEventListenerToElements(
+      '.cf-subcondition-logic-select',
+      'change',
+      AdminPredicateEdit.onSubconditionLogicDropdownChange.bind(this),
+    )
+    addEventListenerToElements(
+      '[name="root-node-type"]',
+      'change',
+      AdminPredicateEdit.onConditionLogicDropdownChange,
+    )
+    addEventListenerToElements(
+      '#predicate-form',
+      'submit',
+      AdminPredicateEdit.onPredicateFormSubmit.bind(this),
+    )
+
+    // Trigger change to update operators based on the current scalar selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-scalar-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
+
+    // Trigger change to update values inputs based on the current operator selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-operator-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
   }
 
   private static onScalarDropdownChange(event: Event): void {
@@ -123,6 +192,110 @@ export class AdminPredicateEdit {
     )
   }
 
+  private static onSubconditionLogicDropdownChange(event: Event) {
+    AdminPredicateEdit.handleSubconditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleSubconditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Only change separators for this condition.
+    const conditionId: string | null =
+      predicateLogicDropdown.getAttribute('data-condition-id')
+    if (conditionId === null) {
+      return
+    }
+
+    // Set inner text of all subcondition separators to the desired value.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(
+        `#condition-${conditionId} .cf-predicate-subcondition-separator`,
+      ),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
+  }
+
+  private static onConditionLogicDropdownChange(this: void, event: Event) {
+    AdminPredicateEdit.handleConditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleConditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Set inner text of all condition separators to the desired value.
+    // Applies to all separators on the page.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(`.cf-predicate-condition-separator`),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
+  }
+
+  private static onPredicateFormSubmit(event: SubmitEvent) {
+    // If this is a submit, do nothing and let it go through.
+    // If this is a cancel, handle submit manually.
+    if (event.submitter && event.submitter.id === 'cancel-predicate-edit') {
+      event.preventDefault()
+      AdminPredicateEdit.confirmExitWithoutSaving(
+        event.target as HTMLFormElement,
+        event.submitter as HTMLButtonElement,
+      )
+    }
+  }
+
+  private static confirmExitWithoutSaving(
+    predicateForm: HTMLFormElement,
+    cancelButton: HTMLButtonElement,
+  ) {
+    const currentPredicateState = AdminPredicateEdit.getPredicateFormState()
+
+    // Check the initial form state against the current form state.
+    // If they're equal, do nothing and cancel.
+    // If there have been changes, show a confirmation dialog.
+    if (
+      currentPredicateState !== AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE
+    ) {
+      const confirmationMessage =
+        cancelButton.getAttribute('data-cancel-dialog')
+      if (!confirmationMessage) {
+        return
+      }
+
+      if (window.confirm(confirmationMessage)) {
+        predicateForm.action = cancelButton.formAction
+        predicateForm.submit()
+      } else {
+        return
+      }
+    }
+
+    predicateForm.action = cancelButton.formAction
+    predicateForm.submit()
+  }
+
   /**
    * Depending on whether the user has added conditions in the predicate screen:
    *    * If yes, then show the normal "Applicant is eligible / Screen is visible if any/all conditions are true" text
@@ -145,6 +318,40 @@ export class AdminPredicateEdit {
         nodeOperatorSelect.hidden = true
         nodeOperatorSelectNullState.hidden = false
       }
+    }
+  }
+
+  private static focusSubconditionAndTriggerAriaAnnouncement(): void {
+    // Find which subcondition has autofocus set
+    const focusedSubconditionQuestion: HTMLElement | null =
+      document.querySelector(
+        '.cf-predicate-question-select[data-should-autofocus="true"]',
+      )
+    if (focusedSubconditionQuestion === null) {
+      return
+    }
+
+    const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
+      this.QUESTION_ID_SUFFIX,
+      this.ARIA_ANNOUNCE_ID_SUFFIX,
+    )
+    const ariaAnnounceElement: HTMLElement | null = document.querySelector(
+      `#${ariaAnnounceElementId}`,
+    )
+    if (ariaAnnounceElement === null) {
+      return
+    }
+
+    // Focus the question dropdown of the desired subcondition
+    focusedSubconditionQuestion.focus()
+
+    // If we want an aria announcement here, set the text of the aria-live region after a short delay.
+    // This update will trigger screen readers to read the text.
+    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
+      setTimeout(function () {
+        ariaAnnounceElement.textContent =
+          ariaAnnounceElement.getAttribute('data-announce-text')
+      }, 1000)
     }
   }
 
@@ -480,6 +687,26 @@ export class AdminPredicateEdit {
     this.enableAndShowAll(shownElements)
   }
 
+  private static showOrHideDeleteAllConditionsButton() {
+    const deleteAllConditionsContainer = document.getElementById(
+      'delete-all-conditions-button',
+    )
+    if (!deleteAllConditionsContainer) {
+      return
+    }
+
+    // If there's a condition present, show the delete all conditions button.
+    // Otherwise, hide and disable.
+    const firstConditionElement = document.querySelector('#condition-1')
+    if (firstConditionElement) {
+      deleteAllConditionsContainer.classList.add('display-flex')
+      deleteAllConditionsContainer.hidden = false
+    } else {
+      deleteAllConditionsContainer.classList.remove('display-flex')
+      deleteAllConditionsContainer.hidden = true
+    }
+  }
+
   /**
    * Hide the given HTMLElements from display and set disabled to true.
    * Also hides and all child elements, if present.
@@ -512,6 +739,28 @@ export class AdminPredicateEdit {
         child.hidden = false
       }
     }
+  }
+
+  /**
+   * Gets the current state of the predicate form to track changes.
+   *
+   * @returns A serialized representation of the form state.
+   */
+  private static getPredicateFormState(): string | undefined | null {
+    const predicateForm = document.getElementById('predicate-form') as
+      | HTMLFormElement
+      | undefined
+      | null
+    if (!predicateForm) {
+      return null
+    }
+    const formData = new FormData(predicateForm)
+    const params = new URLSearchParams()
+    formData.forEach((value, key) => {
+      params.append(key, JSON.stringify(value))
+    })
+
+    return params.toString()
   }
 }
 

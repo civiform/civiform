@@ -159,11 +159,11 @@ it is around the label */
   padding: 0px;
 }
 
-.cf-north-star-enumerator-field {
+.cf-enumerator-field {
   @include u-padding-y('105');
 }
 
-.cf-north-star-enumerator-field:last-child {
+.cf-enumerator-field:last-child {
   @include u-padding-bottom(0);
 }
 
@@ -473,6 +473,15 @@ main {
 .success-state {
   border-radius: 2px;
   background: var(--State-tokens-success-success-lighter, #ecf3ec);
+  @include u-padding-y(0.5);
+  @include u-padding-x(1);
+  align-items: center;
+  gap: units(1);
+}
+
+.failed-state {
+  border-radius: 2px;
+  background: var(--theme-color-error-lighter, #f4e3db);
   @include u-padding-y(0.5);
   @include u-padding-x(1);
   align-items: center;

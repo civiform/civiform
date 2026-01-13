@@ -144,9 +144,9 @@
         th:selected="${!nameQuestion.getNameSuffixValue.isEmpty()}"
       ></option>
       <option
-        th:each="option,iterator: ${nameSuffixOptions}"
+        th:each="option: ${nameSuffixOptions}"
         th:value="${option.getValue()}"
-        th:text="${option.getValue()}"
+        th:text="#{${option.getTranslationKey()}}"
         th:selected="${!nameQuestion.getNameSuffixValue.isEmpty() && nameQuestion.getNameSuffixValue.get() == option.getValue()}"
       ></option>
     </select>

@@ -2,7 +2,7 @@
 <th:block
   th:fragment="editSubcondition(conditionId, subconditionId, disableDeletion, model)"
 >
-  <div class="subcondition-container">
+  <div class="subcondition-container margin-bottom-2">
     <!-- Define input ids in the expected format: 
     questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
     scalarDropdownId:   conditionId-<conditionId>-subconditionId-<subconditionId>-scalar
@@ -11,9 +11,17 @@
     -->
     <div
       class="border-left-05 border-base-lighter padding-left-3"
-      th:with="questionDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-question'}, scalarDropDownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-scalar'},operatorDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'}"
+      th:with="questionDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-question'}, scalarDropDownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-scalar'},operatorDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'},ariaAnnounceId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-ariaAnnounce'}"
     >
       <div class="usa-form-group margin-top-2">
+        <span
+          class="usa-sr-only"
+          th:id="${ariaAnnounceId}"
+          aria-live="polite"
+          aria-atomic="true"
+          th:data-should-announce="${model.shouldAnnounceChanges}"
+          th:data-announce-text="${'Condition ' + conditionId + ' subcondition ' + subconditionId + ' selected.'}"
+        ></span>
         <label class="usa-label" th:for="${questionDropdownId}"
           >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
             >*</span
@@ -28,6 +36,7 @@
           th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
           th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
           hx-swap="outerHTML"
+          th:data-should-autofocus="${model.autofocus}"
         >
           <option
             th:selected="${!model.hasSelectedQuestion}"

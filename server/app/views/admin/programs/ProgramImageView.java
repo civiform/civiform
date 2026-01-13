@@ -10,7 +10,7 @@ import static j2html.TagCreator.text;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.admin.NorthStarProgramCardPreviewController;
+import controllers.admin.ProgramCardPreviewController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -67,7 +67,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final MessagesApi messagesApi;
   private final PublicStorageClient publicStorageClient;
-  private final NorthStarProgramCardPreviewController northStarProgramCardPreviewController;
+  private final ProgramCardPreviewController programCardPreviewController;
 
   @Inject
   public ProgramImageView(
@@ -77,15 +77,14 @@ public final class ProgramImageView extends BaseHtmlView {
       FileUploadViewStrategy fileUploadViewStrategy,
       MessagesApi messagesApi,
       PublicStorageClient publicStorageClient,
-      NorthStarProgramCardPreviewController northStarProgramCardPreviewController) {
+      ProgramCardPreviewController programCardPreviewController) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.messagesApi = checkNotNull(messagesApi);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.northStarProgramCardPreviewController =
-        checkNotNull(northStarProgramCardPreviewController);
+    this.programCardPreviewController = checkNotNull(programCardPreviewController);
   }
 
   /**
@@ -128,8 +127,7 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag cardPreview;
     try {
-      String content =
-          northStarProgramCardPreviewController.cardPreview(request, programDefinition.id());
+      String content = programCardPreviewController.cardPreview(request, programDefinition.id());
       cardPreview = div(rawHtml(content));
     } catch (InterruptedException | ExecutionException e) {
       logger.error("Error generating card preview: " + e.getLocalizedMessage());

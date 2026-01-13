@@ -12,7 +12,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    crossScalaVersions := Seq("2.13.16", "3.3.3"),
+    crossScalaVersions := Seq("2.13.18", "3.3.3"),
     scalaVersion := crossScalaVersions.value.head,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
@@ -42,19 +42,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.40.3",
-      "software.amazon.awssdk" % "ses" % "2.40.3",
+      "software.amazon.awssdk" % "s3" % "2.41.6",
+      "software.amazon.awssdk" % "ses" % "2.41.6",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.58.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.60.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.8",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.27.1",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -96,7 +96,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.52.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.53.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -105,7 +105,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.20",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.21",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.21",
+      "ch.qos.logback" % "logback-classic" % "1.5.24",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -129,10 +129,10 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.41",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.36",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.37",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.0",
+      "com.networknt" % "json-schema-validator" % "2.0.1",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
@@ -264,7 +264,7 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
-// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// Include Thymeleaf HTML files when running 'sbt dist' when building the prod image.
 // We need these in order for Thymeleaf to be able to use them for templating.
 Universal / mappings ++= {
   val viewsDir = baseDirectory.value / "app" / "views"

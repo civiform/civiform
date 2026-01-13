@@ -11,7 +11,7 @@ import {
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
 
-test.describe('Applicant auth', {tag: ['@northstar']}, () => {
+test.describe('Applicant auth', () => {
   const endYourSessionText = 'end your session'
 
   test('Applicant can login', async ({page}) => {
@@ -45,10 +45,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
 
-    await applicantQuestions.applyProgram(
-      'Minimal Sample Program',
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram('Minimal Sample Program')
     await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
       page.getByRole('button', {name: endYourSessionText}),
@@ -103,6 +100,9 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
     await validateToastMessage(page, 'Your session has ended.')
+    await expect(page.locator('.cf-toast')).toHaveClass(
+      /(^|\s)flex-align-center(\s|$)/,
+    )
 
     await validateAccessibility(page)
   })
@@ -119,11 +119,8 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await adminPrograms.publishAllDrafts()
 
     await logout(page)
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await applicantQuestions.submitFromReviewPage(/* northStarEnabled= */ true)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page)
 
     // Check that program is marked as submitted.

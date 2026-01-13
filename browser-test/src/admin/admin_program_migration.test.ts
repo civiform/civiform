@@ -1,10 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
-import {
-  ProgramLifecycle,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -205,11 +201,11 @@ test.describe('program migration', () => {
       )
     })
 
-    await test.step('error: invalid program admin name', async () => {
+    await test.step('error: invalid program slug', async () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-      // replace the program admin name with an invalid admin name to trigger an error
+      // replace the program slug with an invalid slug to trigger an error
       const comprehensiveProgramBadName =
         downloadedComprehensiveProgram.replace(
           'comprehensive-sample-program',
@@ -221,7 +217,7 @@ test.describe('program migration', () => {
         ALERT_ERROR,
       )
       await adminProgramMigration.expectAlert(
-        'A program admin name may only contain lowercase letters, numbers, and dashes.',
+        'A program slug may only contain lowercase letters, numbers, and dashes.',
         ALERT_ERROR,
       )
     })
@@ -262,16 +258,10 @@ test.describe('program migration', () => {
       await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
       await adminTiGroups.editGroup('groupOne')
       await adminTiGroups.addGroupMember('groupOne@bar.com')
-      await adminPrograms.addProgram(
-        'New Program',
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.SELECT_TI,
-        'admin description',
-        ProgramType.DEFAULT,
-        'groupOne',
-      )
+      await adminPrograms.addProgram('New Program', {
+        visibility: ProgramVisibility.SELECT_TI,
+        selectedTI: 'groupOne',
+      })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage('New Program', 'DRAFT')
       let downloadedProgram = await adminProgramMigration.downloadJson()

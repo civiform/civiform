@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import lombok.Getter;
 import play.data.validation.Constraints;
 import services.CfJsonDocumentContext;
 import services.applicant.ApplicantData;
@@ -45,18 +46,21 @@ import services.applicant.ApplicantData;
 @Table(name = "applicants")
 public class ApplicantModel extends BaseModel {
   public enum Suffix {
-    JR("Jr."),
-    SR("Sr."),
-    I("I"),
-    II("II"),
-    III("III"),
-    IV("IV"),
-    V("V");
+    // translationKey must match the key in messages
+    JR("Jr.", "option.junior"),
+    SR("Sr.", "option.senior"),
+    I("I", "option.first"),
+    II("II", "option.second"),
+    III("III", "option.third"),
+    IV("IV", "option.forth"),
+    V("V", "option.fifth");
 
     private final String suffixName;
+    @Getter private final String translationKey;
 
-    Suffix(String suffixName) {
+    Suffix(String suffixName, String translationKey) {
       this.suffixName = suffixName;
+      this.translationKey = translationKey;
     }
 
     @DbEnumValue(storage = DbEnumType.VARCHAR)

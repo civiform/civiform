@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from '../support/civiform_fixtures'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 import {dismissToast} from '.'
 
@@ -193,7 +193,7 @@ export class AdminProgramImage {
   ) {
     await expect(this.page.getByText(programName)).toBeVisible()
     if (shortDescription !== '') {
-      // In North Star short description is rendered on the program card if we have it
+      // Short description is rendered on the program card if we have it
       await expect(this.page.getByText(shortDescription)).toBeVisible()
     } else {
       await expect(this.page.getByText(programDescription)).toBeVisible()

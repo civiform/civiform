@@ -39,7 +39,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.NorthStarProgramOverviewView;
+import views.applicant.ProgramOverviewView;
 
 public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
@@ -49,7 +49,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_programBySlug_showsActiveProgramVersionForExistingApplications() {
+  public void programBySlug_showsActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -174,7 +174,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -212,7 +212,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -236,7 +236,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
@@ -259,7 +258,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -283,7 +282,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     LanguageUtils languageUtils =
         new LanguageUtils(
@@ -302,7 +300,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -327,7 +325,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -350,7 +347,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -375,7 +372,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    when(mockSettingsManifest.getNorthStarApplicantUi()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -398,7 +394,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler
@@ -445,7 +441,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProgramService.class),
             languageUtils,
             applicantRoutes,
-            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(ProgramOverviewView.class),
             instanceOf(MessagesApi.class));
     Result result =
         handler

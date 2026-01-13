@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=تسجيل الخروج
-#  This appears before applicants select their preferred language.
-label.selectLanguage=يُرجى اختيار لغتك المفضّلة.
-button.untranslatedSubmit=إرسال
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=لمحة حول تطبيق CiviForm
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=للحصول على الدعم الفني، يُرجى التواصل مع
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -52,16 +46,10 @@ header.userName=مُسجَّل الدخول باسم المستخدم {0}
 validation.isRequired=يجب الإجابة عن هذا السؤال.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=يُرجى إدخال معلومات صالحة.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=هناك أخطاء في النموذج. يُرجى تصحيحها قبل المتابعة.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=ملاحظة: يجب ملء الحقول التي تحمل العلامة "*".
 content.requiredFieldsNote=ملاحظة: يجب ملء الحقول التي تحمل العلامة {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=الحقول المطلوبة تحمل علامة نجمة ({0}).
 content.optional=(اختياري)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=في حال استخدام الهاتف، يتيح لك خيار "اختيار ملف" استخدام كاميرا الهاتف لتحميل المستندات.
 toast.errorMessageOutline=خطأ: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=إغلاق
@@ -84,10 +72,6 @@ link.skipToMainContent=التخطّي إلى المحتوى الرئيسي
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=تسجيل الدخول
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=يُرجى تسجيل الدخول باستخدام حسابك على "{0}"
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=إنشاء حساب
 # The text on the button in the login drop down an applicant clicks to log in to their session.
@@ -98,18 +82,10 @@ button.adminLogin=تسجيل دخول المسؤول
 button.login=تسجيل الدخول
 # The text on the button an applicant clicks to sign in to their session.
 button.signIn=تسجيل الدخول
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=أليس لديك حساب؟
 # The text between creating a new account, and becoming a guest
 content.or=أو
 # The text on the button for applicants to create a new account.
 button.createAccount=إنشاء حساب جديد
-# The text on the button for guests to log in to their session.
-button.guestLogin=المتابعة كضيف
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=تم إيقاف تسجيل الدخول إلى الحساب حاليًا
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=هل يهمّك البحث عن أمر آخر؟
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=هل أنت مشرف؟
 # The text on the anchor for admins to log in to their session.
@@ -119,8 +95,6 @@ link.adminLogin=تسجيل الدخول كمشرف
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=الملف الذي تمّ تحميله: {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=اختيار ملف
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -128,10 +102,6 @@ input.singleFileUploadHint=اختيار ملف
 input.multipleFileUploadHint=اختيار ملف واحد أو أكثر (الحد الأقصى لعدد الملفات هو {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=اختيار ملف واحد أو أكثر
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=حذف
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=متابعة
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=حفظ البيانات والانتقال إلى الشاشة التالية
 # The button text for navigating to the previous screen in the form.
@@ -140,26 +110,16 @@ button.previousScreen=الشاشة السابقة
 button.back=الرجوع
 # The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=المراجعة والإرسال
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=التخطّي
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress=‫{0} من {1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull=تم إكمال {0} من {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=مستوى تقدُّم الطلب
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=المراجعة والإرسال
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel=‏{0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=عذرًا، لم تتم ترجمة هذا البرنامج بشكل كامل إلى اللغة المفضّلة لديك.
-# A link that logs out a guest user after they submit an application.
-link.allDone=لقد انتهيت
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=إرسال طلب للانضمام إلى برنامج آخر
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=إنشاء حساب أو تسجيل الدخول
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=الصفحة الرئيسية
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
@@ -168,20 +128,6 @@ link.applicationForProgram=طلب خاص ببرنامج {0}
 link.removeFile=حذف الملف
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr=إزالة الملف {0}
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=الأسئلة على هذه الصفحة غير مكتملة. هل يزال يهمّك المغادرة وبدء المراجعة؟
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=الأسئلة على هذه الصفحة غير مكتملة. هل يزال يهمّك المغادرة والرجوع إلى الصفحة السابقة؟
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=هناك بعض الأخطاء في المعلومات المعبأة. هل يهمّك البقاء في هذه الصفحة وتصحيح إجاباتك أو الانتقال إلى صفحة المراجعة بدون حفظ هذه الإجابات؟
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=هناك بعض الأخطاء في المعلومات المعبأة. هل يهمّك البقاء في هذه الصفحة وتصحيح أجوبتك، أو الرجوع إلى صفحة الأسئلة السابقة بدون حفظ هذه الأجوبة؟
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=المتابعة إلى صفحة المراجعة بدون حفظ الإجابات
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=المتابعة إلى صفحة الأسئلة السابقة بدون حفظ الإجابات
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=البقاء في الصفحة وتصحيح الإجابات
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=بعض الإجابات على هذه الصفحة تحتاج إلى تصحيح
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
@@ -201,17 +147,8 @@ modal.errorSaving.fixButton=البقاء في الصفحة وتصحيح الإج
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=إرسال طلب
-# The text read for screen readers.
-button.applySr=إرسال طلب للانضمام إلى "{0}"
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=تعديل
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr=تعديل الطلب المُرسل للانضمام إلى "{0}"
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr=متابعة إرسال طلب للانضمام إلى "{0}"
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=البدء هنا
-# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=بدء الاستطلاع
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=عرض طلب الانضمام وإرساله
@@ -223,27 +160,10 @@ button.viewInNewTab=العرض في علامة تبويب جديدة
 button.viewInNewTabSr=عرض "{0}" في علامة تبويب جديدة
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=المتابعة إلى الطلب
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHerePreScreenerSr=البدء هنا من خلال ملء {0}
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=تعديل المعلومات المُرسلة إلى {0}
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=متابعة ملء {0}
-# Text describing the date the application was last submitted.
-content.submittedDate=تم إرسال الطلب في ‎{0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=البحث عن برامج
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=يساعدك CiviForm في العثور على برامج مناسبة لك في "{0}". يمكنك البدء من خلال اختيار طلب من الطلبات المُدرجة أدناه.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
-# Main home page heading
-heading.homepage=طلب مساعدة حكومية هنا
 # Main home page heading, updated to be more generic
 heading.homepage.v2=التسجيل في برامج حكومية على الإنترنت
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
 content.homepageIntro=للحصول على مساعدة بشأن الطعام والنقل ورعاية الأطفال والمرافق والمزيد، يُرجى النقر على أحد الخيارات أدناه. يمكنك إرسال طلب للانضمام إلى برنامج واحد في كل مرة.
 # Main home page intro text, updated to be more generic
@@ -264,16 +184,6 @@ link.programDetailsSr=تفاصيل برنامج "{0}"، يفتح الرابط ف
 title.programs=البرامج والخدمات
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=البدء
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=جميع البرامج ({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=الحالة
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=قيد المعالجة
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=لم تبدأ المعالجة
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=البحث عن خدمات
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=طلباتي ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -286,14 +196,6 @@ title.programsSection.v2=البرامج والخدمات ({0})
 title.availableProgramsSection=البرامج والخدمات
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=الأقسام المكتملة
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=الطلبات المُرسَلة
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=تم حفظ الطلب بنجاح. معرّف الطلب: {0}
-# Alert banner when an application was already completed
-toast.programCompleted=سبق أن تمّ إكمال الطلب.
 # Informational tag on an in-progress application card
 label.inProgress=لم يتم إرسال الطلب بعد
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -311,14 +213,8 @@ content.externalProgramModal=للانتقال إلى موقع البرنامج �
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=لا يمكن حذف هذا الحساب.
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=لا يمكن حذف هذا الحساب لأنّه يتضمن طلبات مفتوحة.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=تم تعديل معلومات العميل بنجاح.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=لقد تم حذف حساب العميل الخاص بـ "{0}" بنجاح.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=تم إنشاء حساب عميل جديد بنجاح.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -329,24 +225,16 @@ banner.viewApplication=يتم إرسال الطلب نيابةً عن "{0}". ه�
 button.addNewClient=إضافة عميل جديد
 # Button that brings the user back to the list of their clients.
 button.backToClientList=الرجوع إلى قائمة العملاء
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=الرجوع إلى صفحة التعديل
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=إلغاء
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=محو البحث
-# Button for a user to delete their client's account
-button.deleteAcct=حذف الحساب
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=إبقاء الحساب
 # Button to navigate to the next page.
 button.nextPage=التالي
 # Button to save information that has been entered.
 button.save=حفظ
 # Button to execute a search to filter a client list.
 button.search=بحث
-# Button to select a client.
-button.select=اختيار
 # Button to start an application on behalf of a client.
 button.startApp=بدء الطلب
 # Button to view the applications belonging to an applicant.
@@ -362,18 +250,6 @@ content.emailTooltip=يمكنك إضافة عنوان البريد الإلكت�
 content.numberOfAppSubmitted=عدد الطلبات المُرسلة: {0}
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=تم إرسال طلب واحد
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=لم يتم إرسال أي طلبات نيابةً عن هذا العميل، بالتالي لن تُفقد أي طلبات.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(ما مِن عنوان بريد إلكتروني)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=لم يتم تسجيل الدخول بعد
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=تم تسجيل الدخول بدون إرسال أي طلبات
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=تم إرسال آخر طلب في ‎{0}
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=هل المطلوب فعلاً حذف حساب هذا العميل؟
 
 # Header for the page with the Organization Members table.
 header.acctSettings=إعدادات الحساب
@@ -420,8 +296,6 @@ label.searchByDob=البحث باستخدم تاريخ الميلاد
 label.searchByName=البحث باستخدام الأسماء
 # The label above the input field for the year of the client birth date.
 label.year=السنة
-# Label showing the user when there is no name
-label.unnamedUser=مستخدم بدون اسم
 
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=اختيار عميل جديد
@@ -460,8 +334,6 @@ button.start=بدء
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=لقد تم تعديل الطلب. يُرجى مراجعته والإجابة عن الأسئلة للمتابعة
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=يُرجى اختيار خطوة أدناه لبدء الطلب. يمكنك حفظه والعودة إليه في أي وقت.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=لا يستوفي شروط الأهلية
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -503,16 +375,10 @@ link.startAsGuest=بدء الطلب كضيف
 
 # Tab title for ineligible page
 title.ineligible=غير مؤهلة للبرنامج
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون حسابك مؤهلاً للانضمام إلى "{0}".
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون عميلك مؤهلاً للانضمام إلى "{0}".
 # Section heading
 heading.eligibilityCriteria=المزيد حول متطلبات الأهلية
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=للاطّلاع على معايير الأهلية، يُرجى الانتقال إلى {0}
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=لمزيد من المعلومات حول شروط الأهلية للانضمام إلى هذا البرنامج أو للتواصل مع الفريق المسؤول عنه مباشرةً، يُرجى الانتقال إلى {0}.
 content.eligibilityCriteria.v3=لمزيد من المعلومات حول شروط الأهلية للانضمام إلى هذا البرنامج أو للتواصل مع الفريق المسؤول عنه مباشرةً، يُرجى الانتقال إلى {0} (يفتح الرابط في علامة تبويب جديدة).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=يمكنك الرجوع إلى الصفحة السابقة لتعديل إجاباتك أو إرسال طلب للانضمام إلى برنامج آخر.
@@ -522,10 +388,6 @@ content.changeAnswersForEligibility.v2=إذا كان برأيك أنّ هناك 
 button.goBackAndEdit=رجوع وتعديل
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=تعديل إجاباتي
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=بناءً على إجاباتك، قد يكون عميلك مؤهلاً للانضمام إلى "{0}". للمتابعة، يُرجى إكمال الطلب.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=بناءً على إجاباتك، قد يكون حسابك مؤهلاً للانضمام إلى "{0}". للمتابعة، يُرجى إكمال الطلب.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=قد يكون حسابك مؤهلاً
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -534,10 +396,6 @@ tag.mayQualifyTi=قد يكون عميلك مؤهلاً
 tag.mayNotQualify=قد لا يكون حسابك مؤهلاً
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=قد لا يكون عميلك مؤهلاً
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=بناءً على إجاباتك، قد لا يكون حسابك مؤهلاً للانضمام إلى "{0}". إذا كانت معلوماتك قد تغيّرت، يمكنك تعديل إجاباتك وإرسال الطلب.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=بناءً على إجاباتك، قد لا يكون عميلك مؤهلاً للانضمام إلى "{0}". إذا كانت معلومات عميلك قد تغيّرت، يمكنك تعديل إجاباتك وإرسال الطلب.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=حدث خطأ أثناء حفظ الطلب
@@ -610,10 +468,6 @@ title.signInModal=تسجيل الدخول باستخدام حساب
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=عند إنشاء حساب، يمكنك التحقّق من حالة الطلب أو إجراء تغييرات عليه أو إرسال طلبات إلى برامج أخرى بسرعة.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد لحفظ معلوماتك. سيكون بإمكانك العودة في أي وقت لإكمال الطلبات المستقبلية. وإذا لم يسبق لك إنشاء حساب، تتيح لك صفحة "تسجيل الدخول" الاشتراك للحفاظ على أي بيانات تم إدخالها.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=لم يتم تسجيل الدخول إلى حساب. إذا لم يكن لديك حساب، لن يكون بإمكانك تعديل أي طلب أو التحقق من حالته أو تقديم طلب للانضمام إلى برامج أخرى بسرعة.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=قبل المتابعة، يُرجى تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد. سيتيح لك ذلك إرسال طلبات للانضمام إلى عدة برامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات والاطّلاع على حالتها.
 # A button for continuing to apply to other programs without an account.
@@ -633,13 +487,10 @@ content.preScreenerConfirmationTi.v2=بناءً على ردودك، قد يكو�
 content.preScreenerNoMatchingPrograms=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون حسابك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون عميلك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=تنزيل الطلب
-button.downloadPdf=تنزيل ملف PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
 # Heading above a section showing the user's name, confirmation number, and date
@@ -743,6 +594,8 @@ content.and=و
 button.predicateAddCondition=إضافة شرط
 # Button to remove a condition from the form
 button.predicateDeleteCondition=حذف الشرط
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=إضافة شرط فرعي
 # Link to remove a sub-condition from the form
@@ -752,10 +605,22 @@ link.backToTop=العودة إلى الأعلى
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=حفظ وخروج
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=لا توجد أسئلة متاحة في الشاشات السابقة يمكن استخدامها لتعيين شرط الرؤية لهذه الشاشة.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=لا توجد أسئلة متاحة في هذه الشاشة يمكن استخدامها لتعيين شرط الأهلية.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -809,10 +674,8 @@ placeholder.noDropdownSelection=تحديد خيار:
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=البلد
 label.phoneNumber=إدخال رقم الهاتف
 validation.phoneNumberRequired=يجب إدخال رقم الهاتف
-validation.phoneCountryCodeRequired=يجب اختيار بلد
 validation.phoneNumberMustContainNumbersOnly=لا يمكن أن يحتوي رقم الهاتف على أحرف
 validation.invalidPhoneNumberProvided=رقم الهاتف هذا ليس صالحًا
 validation.phoneMustBeLocalToCountry=رقم الهاتف الذي تم تقديمه لا ينتمي إلى البلد
@@ -897,7 +760,6 @@ placeholder.entityName=‏{0} اسم
 validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
-button.chooseFile=اختيار ملف
 # Text shown on a tag while a file is uploading.
 label.uploading=جارٍ التحميل
 # Label applied to a list of uploaded files
@@ -933,13 +795,6 @@ label.lastName=اسم العائلة
 label.middleName=الاسم الأوسط
 # Label for name suffix field in name question
 label.nameSuffix=اللاحقة
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=الاسم الأول
-placeholder.lastName=اسم العائلة
-placeholder.middleName=الاسم الأوسط
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=اللاحقة
 
 # Option Junior for the name suffix dropdown
 option.junior=الأصغر
@@ -1009,7 +864,7 @@ map.locationLinkText=عرض مزيد من التفاصيل
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=عرض مزيد من التفاصيل لـ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=جارٍ عرض مواقع جغرافية عددها {0} من {1}
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=تم تحديد {0} من {1} موقعًا كحد أقصى.
 # Alt text for map region
@@ -1113,7 +968,7 @@ error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على %s للحصول على الدعم وإدراج معرّف الخطأ هذا {0}.
+error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على {0} للحصول على الدعم وإدراج معرّف الخطأ هذا {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=زيارة الصفحة الرئيسية
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1188,6 +1043,21 @@ banner.minute=دقيقة واحدة
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=رعاية الأطفال
 
@@ -1230,7 +1100,7 @@ category.tag.utilities=شركات الطاقة
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=المحاربين القدامى
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=الفئات
 
 #------------------------------------------------------------------------------#

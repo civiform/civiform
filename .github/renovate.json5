@@ -36,12 +36,18 @@
       prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
     },
     {
+      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
+      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
       groupName: "guava",
       matchPackageNames: ["com.google.guava{/,}**"],
     },
+    // Keep jackson on v2 until Play supports v3.
     {
       groupName: "jackson",
       matchPackageNames: ["com.fasterxml.jackson{/,}**"],
+      allowedVersions: "< 3.0.0"
     },
     {
       groupName: "jdk and jre",
@@ -60,6 +66,10 @@
     {
       groupName: "jupiter",
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
+    },
+    {
+      matchPackageNames: ["ch.qos.logback:logback-classic"],
+      prHeader: "Release Notes: https://logback.qos.ch/news.html",
     },
     {
       groupName: "microsoft graph",
@@ -103,6 +113,10 @@
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
+    },
+    {
+      matchPackageNames: ["prom/prometheus"],
+      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
     },
     {
       groupName: "tailwindcss",

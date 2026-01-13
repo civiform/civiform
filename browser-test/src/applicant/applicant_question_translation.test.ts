@@ -2,11 +2,11 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   validateScreenshot,
 } from '../support'
 
-test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
+test.describe('Admin can manage translations', () => {
   test('Expect single-answer question is translated for applicant', async ({
     page,
     adminPrograms,
@@ -41,12 +41,11 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Go to the home page and select Spanish as the language
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     await applicantQuestions.applyProgram(
       programName,
-      /* northStarEnabled= */ true,
       /* showProgramOverviewPage= */ false, // in this case, the application is unstarted, but we pass in false so that we can use the translated version of the program overview page below
     )
     await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
@@ -56,7 +55,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     )
 
     // TODO(#9203): When the bug is fixed, we don't need to select Español again.
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -99,11 +98,8 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'es-US')
     await applicantQuestions.validateHeader('es-US')
 
     await validateScreenshot(
@@ -150,11 +146,8 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('uno')
     expect(await page.innerText('main form')).toContain('dos')
@@ -189,11 +182,8 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
   })

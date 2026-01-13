@@ -46,6 +46,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
+  /**
+   * Logo for the civic entity used in the footer. If not set, falls back to
+   * CIVIC_ENTITY_SMALL_LOGO_URL.
+   */
+  public Optional<String> getCivicEntityFooterLogoUrl() {
+    return getString("CIVIC_ENTITY_FOOTER_LOGO_URL");
+  }
+
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
@@ -53,8 +61,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
-   * may be desired if the government name is included in the logo. Since northstar hides the logo
-   * on smaller screens, this will only hide the name if the logo is showing.
+   * may be desired if the government name is included in the logo. The logo is hidden on smaller
+   * screens, so this will only hide the name if the logo is showing.
    */
   public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
     return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
@@ -938,6 +946,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enable session replay protection, so that a session cookie cannot be replayed if the user logs
+   * out
+   */
+  public boolean getSessionReplayProtectionEnabled() {
+    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
+  }
+
+  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -1046,12 +1062,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
-  /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi() {
-    return getBool("NORTH_STAR_APPLICANT_UI");
-  }
-
-  /** Enable using custom theme colors on North Star applicant UI. */
+  /** Enable using custom theme colors in the applicant UI. */
   public boolean getCustomThemeColorsEnabled(RequestHeader request) {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
@@ -1071,12 +1082,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
-   * replayed if the user logs out
-   */
-  public boolean getSessionReplayProtectionEnabled() {
-    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
+  /** Enables reading settings from the cache instead of directly from the database. */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
@@ -1084,7 +1092,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
+  /** (NOT FOR PRODUCTION USE) Enable showing external program cards. */
   public boolean getExternalProgramCardsEnabled(RequestHeader request) {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
@@ -1102,14 +1110,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
-   * database.
-   */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -1157,6 +1157,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
+                          "CIVIC_ENTITY_FOOTER_LOGO_URL",
+                          "Logo for the civic entity used in the footer. If not set, falls back to"
+                              + " CIVIC_ENTITY_SMALL_LOGO_URL.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                           "The short display name of the civic entity, will use 'TestCity' if not"
                               + " set.",
@@ -1167,8 +1174,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
                           "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
                               + " CiviForm header. This may be desired if the government name is"
-                              + " included in the logo. Since northstar hides the logo on smaller"
-                              + " screens, this will only hide the name if the logo is showing.",
+                              + " included in the logo. The logo is hidden on smaller screens, so"
+                              + " this will only hide the name if the logo is showing.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2185,6 +2192,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
+                          "SESSION_REPLAY_PROTECTION_ENABLED",
+                          "Enable session replay protection, so that a session cookie cannot be"
+                              + " replayed if the user logs out",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "MAXIMUM_SESSION_DURATION_MINUTES",
                           "The amount of time, in minutes, that a session lasts. The default is 600"
                               + " minutes, or 10 hours. Note that there isn't yet messaging on the"
@@ -2310,15 +2324,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "NORTH_STAR_APPLICANT_UI",
-                          "Enables showing new UI with an updated user experience in Applicant"
-                              + " flows",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
-                          "Enable using custom theme colors on North Star applicant UI.",
+                          "Enable using custom theme colors in the applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2340,7 +2347,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "Enables reading settings from the cache instead of directly from the"
+                              + " database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2350,13 +2364,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a"
-                              + " session cookie cannot be replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
                               + " maximum duration.",
@@ -2365,8 +2372,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
-                              + " Star applicant UI.",
+                          "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2388,13 +2394,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
-                              + " of directly from the database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),

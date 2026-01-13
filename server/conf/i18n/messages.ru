@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Выйти
-#  This appears before applicants select their preferred language.
-label.selectLanguage=Выберите язык.
-button.untranslatedSubmit=Отправить
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=О сервисе
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Служба технической поддержки:
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -52,16 +46,10 @@ header.userName=Вы вошли в аккаунт: {0}
 validation.isRequired=Ответ на этот вопрос обязателен.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Введите действительные данные.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=В форме есть ошибки. Чтобы продолжить, исправьте их.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=Примечание. Поля, отмеченные знаком "*", должны быть заполнены.
 content.requiredFieldsNote=Примечание. Поля, отмеченные знаком "{0}", должны быть заполнены.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Обязательные поля отмечены звездочкой ({0}).
 content.optional=(необязательно)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=Если вы используете телефон, кнопка "Выбрать файл" также позволяет загружать документы с помощью камеры устройства.
 toast.errorMessageOutline=Ошибка: {0}.
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Закрыть
@@ -84,10 +72,6 @@ link.skipToMainContent=Перейти к основному контенту
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=Вход
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=Войдите в свой аккаунт, зарегистрированный на портале "{0}"
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Создать аккаунт
 # The text on the button in the login drop down an applicant clicks to log in to their session.
@@ -98,18 +82,10 @@ button.adminLogin=Вход администратора
 button.login=Войти
 # The text on the button an applicant clicks to sign in to their session.
 button.signIn=Войти
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=Нет аккаунта?
 # The text between creating a new account, and becoming a guest
 content.or=или
 # The text on the button for applicants to create a new account.
 button.createAccount=Создать аккаунт
-# The text on the button for guests to log in to their session.
-button.guestLogin=Продолжить в качестве гостя
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=Вход в аккаунт сейчас недоступен
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=Не нашли подходящий вариант?
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=Вы администратор?
 # The text on the anchor for admins to log in to their session.
@@ -119,8 +95,6 @@ link.adminLogin=Войти как администратор
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=Загружен файл "{0}".
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=Выберите файл
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -128,10 +102,6 @@ input.singleFileUploadHint=Выберите файл
 input.multipleFileUploadHint=Выберите один или несколько файлов (не более {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Выберите один или несколько файлов
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=Удалить
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=Продолжить
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Сохранить и продолжить
 # The button text for navigating to the previous screen in the form.
@@ -140,26 +110,16 @@ button.previousScreen=Перейти к предыдущему экрану
 button.back=Назад
 # The label on a button that will save user answers and navigate to the summary of the application.
 button.reviewAndExit=Проверить и подать заявку
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=Пропустить
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0} из {1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull=Дано ответов: {0} из {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Прогресс заполнения заявки
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Проверка и отправка заявки
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=К сожалению, эта программа не полностью переведена на выбранный вами язык.
-# A link that logs out a guest user after they submit an application.
-link.allDone=Завершить сеанс
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Подать заявку на участие в другой программе
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=Создать аккаунт или войти
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=Главная
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
@@ -168,20 +128,6 @@ link.applicationForProgram=Заявка: "{0}"
 link.removeFile=Удалить файл
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
 link.removeFileSr=Удалить файл "{0}"
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=На этой странице заполнены не все поля. Вы все равно хотите покинуть ее и проверить свои ответы?
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=На этой странице заполнены не все поля. Вы все равно хотите покинуть ее и открыть предыдущую страницу?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=В информации есть ошибки. Хотите их исправить или перейти на страницу проверки, не сохраняя ответы?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=В информации есть ошибки. Хотите их исправить или перейти на предыдущую страницу, не сохраняя ответы?
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Не сохранять и перейти на страницу проверки
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Не сохранять и перейти на предыдущую страницу формы
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Остаться и исправить
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
 modal.errorSaving.title=Исправьте ошибки в ответах на этой странице
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
@@ -201,17 +147,8 @@ modal.errorSaving.fixButton=Исправить ошибки на этой стр
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Подать заявку
-# The text read for screen readers.
-button.applySr=Подать заявку на участие в программе "{0}"
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Изменить
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr=Изменить отправленную заявку на участие в программе "{0}"
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr=Продолжить заполнять заявку на участие в программе "{0}"
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=Начать
-# The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startSurvey=Пройти опрос
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Узнать больше и подать заявку
@@ -223,27 +160,10 @@ button.viewInNewTab=Открыть в новой вкладке
 button.viewInNewTabSr=Открыть "{0}" в новой вкладке
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHerePreScreenerSr=Заполнить форму "{0}"
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=Изменить сведения, указанные в форме "{0}"
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Продолжить заполнять форму "{0}"
-# Text describing the date the application was last submitted.
-content.submittedDate=Вы отправили заявку {0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Находите программы
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=CiviForm позволяет находить программы, которые могут быть доступны для вас в этом регионе ({0}). Чтобы приступить к заполнению данных, выберите форму или программу ниже.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
-# Main home page heading
-heading.homepage=Подайте заявку на государственную поддержку
 # Main home page heading, updated to be more generic
 heading.homepage.v2=Подавайте онлайн-заявки на участие в государственных программах
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
 content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
 # Main home page intro text, updated to be more generic
@@ -264,16 +184,6 @@ link.programDetailsSr=Сведения о программе "{0}", страни
 title.programs=Программы и услуги
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=С чего начать
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=Все программы ({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=Статус
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=Вы начали заполнять заявку
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=Вы не заполняли заявку
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Находите услуги
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Мои заявки ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -286,14 +196,6 @@ title.programsSection.v2=Программы и услуги ({0})
 title.availableProgramsSection=Программы и услуги
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Программы по фильтрам ({0})
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Вы заполнили этот раздел
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=Вы отправили заявку
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=Заявка с идентификатором {0} сохранена.
-# Alert banner when an application was already completed
-toast.programCompleted=Заявка уже заполнена.
 # Informational tag on an in-progress application card
 label.inProgress=Заявка не подана
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -311,14 +213,8 @@ content.externalProgramModal=Чтобы перейти на сайт прогр�
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=Нельзя удалить этот аккаунт
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=В нем есть открытые заявки.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=Информация клиента обновлена.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=Аккаунт клиента {0} удален.
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Аккаунт клиента создан
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -329,24 +225,16 @@ banner.viewApplication=Вы подаете заявку от имени клие
 button.addNewClient=Добавить клиента
 # Button that brings the user back to the list of their clients.
 button.backToClientList=Вернуться к списку клиентов
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=Вернуться на страницу изменения сведений
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=Отмена
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=Очистить параметры поиска
-# Button for a user to delete their client's account
-button.deleteAcct=Удалить аккаунт
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=Оставить аккаунт
 # Button to navigate to the next page.
 button.nextPage=Далее
 # Button to save information that has been entered.
 button.save=Сохранить
 # Button to execute a search to filter a client list.
 button.search=Искать
-# Button to select a client.
-button.select=Выбрать
 # Button to start an application on behalf of a client.
 button.startApp=Заполнить заявку
 # Button to view the applications belonging to an applicant.
@@ -362,18 +250,6 @@ content.emailTooltip=Укажите электронный адрес, на ко
 content.numberOfAppSubmitted=Отправлено заявок: {0}
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=Отправлено заявок: 1
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=Вы не отправляли заявок от этого клиента, поэтому ничего не будет утеряно.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(электронный адрес не указан)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Пользователь не входил в аккаунт
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Пользователь входил в аккаунт, но не подавал заявок
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=В последний раз пользователь подал заявку {0}
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=Вы действительно хотите удалить аккаунт этого клиента?
 
 # Header for the page with the Organization Members table.
 header.acctSettings=Настройки аккаунта
@@ -420,8 +296,6 @@ label.searchByDob=Поиск по дате рождения
 label.searchByName=Поиск по имени
 # The label above the input field for the year of the client birth date.
 label.year=Год
-# Label showing the user when there is no name
-label.unnamedUser=Пользователь без имени
 
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Выбрать
@@ -460,8 +334,6 @@ button.start=Начать
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Форма заявки изменилась. Чтобы продолжить, проверьте заполненные данные и ответьте на все вопросы.
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Чтобы приступить к подаче заявки, выберите шаг ниже. Вы можете сохранять свои ответы и возвращаться к заполнению в любое время.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Указанные данные не отвечают требованиям программы
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -503,16 +375,10 @@ link.startAsGuest=Подать заявку в качестве гостя
 
 # Tab title for ineligible page
 title.ineligible=Вы не подпадаете под условия программы
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Судя по ответам на следующие вопросы, вы не подходите под требования программы "{0}"
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=Судя по ответам на следующие вопросы, ваш клиент не подходит под требования программы "{0}"
 # Section heading
 heading.eligibilityCriteria=Подробнее о критериях допуска
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Чтобы ознакомиться с требованиями, перейдите на страницу {0}
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0}.
 content.eligibilityCriteria.v3=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0} (откроется в новой вкладке).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Вы можете вернуться на предыдущую страницу, чтобы изменить предоставленные сведения, или подать заявку на участие в другой программе.
@@ -522,10 +388,6 @@ content.changeAnswersForEligibility.v2=Если вы считаете, что п
 button.goBackAndEdit=Вернуться и изменить сведения
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=Изменить мои ответы
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=Судя по ответам, ваш клиент подходит под требования программы "{0}". Чтобы продолжить, ответьте на остальные вопросы в заявке.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=Судя по ответам, вы подходите под требования программы "{0}". Чтобы продолжить, ответьте на остальные вопросы в заявке.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=Похоже, вы соответствуете условиям
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -534,10 +396,6 @@ tag.mayQualifyTi=Похоже, ваш клиент соответствует у
 tag.mayNotQualify=Похоже, вы не соответствуете условиям
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Похоже, ваш клиент не соответствует условиям
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=Судя по ответам, вы не подходите под требования программы "{0}". Если сведения изменились, обновите форму и продолжите подачу заявки.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=Судя по ответам, ваш клиент не подходит под требования программы "{0}". Если его сведения изменились, обновите форму и продолжите подачу заявки.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=При сохранении заявки возникла ошибка.
@@ -610,10 +468,6 @@ title.signInModal=Войдите в аккаунт
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
 content.signInModal=Создав аккаунт, вы сможете проверять статус заявки, изменять ее и быстро подавать новые.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=Чтобы вся указанная вами информация сохранилась и вы могли в любое время использовать ее для подачи будущих заявок, войдите в ваш аккаунт, зарегистрированный в сервисе "{0}". Если у вас нет аккаунта, вы можете создать его на странице входа.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=Вы не вошли в аккаунт. Без него вы не сможете изменять созданные заявки и проверять их статус, а также быстро подавать новые для участия в других программах.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Прежде чем продолжить, войдите в свой аккаунт, зарегистрированный в сервисе "{0}". Тогда вам не придется повторно вводить свою информацию при подаче нескольких заявок. Вы также сможете изменять заполненные заявки и проверять их статус. Если у вас нет аккаунта, вы можете его создать.
 # A button for continuing to apply to other programs without an account.
@@ -633,13 +487,10 @@ content.preScreenerConfirmationTi.v2=На основе ваших ответов
 content.preScreenerNoMatchingPrograms=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть вам доступны. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть доступны вашему клиенту. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=Вы также можете вернуться на предыдущую страницу и изменить свои ответы.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Другие программы, которые могут быть вам интересны
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=Скачать заявку
-button.downloadPdf=Скачать в формате PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Зарегистрироваться в программах
 # Heading above a section showing the user's name, confirmation number, and date
@@ -743,6 +594,8 @@ content.and=и
 button.predicateAddCondition=Добавить условие
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Удалить условие
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Добавить подусловие
 # Link to remove a sub-condition from the form
@@ -752,10 +605,22 @@ link.backToTop=В начало страницы
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Сохранить и выйти
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=На предыдущих экранах нет доступных вопросов, с помощью которых можно задать условие видимости для этого экрана.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=На этом экране нет доступных вопросов, с помощью которых можно задать условие соответствия требованиям.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -809,10 +674,8 @@ placeholder.noDropdownSelection=Выбрать вариант
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=Страна
 label.phoneNumber=Введите номер телефона
 validation.phoneNumberRequired=Укажите номер телефона.
-validation.phoneCountryCodeRequired=Выберите страну.
 validation.phoneNumberMustContainNumbersOnly=Номер телефона должен состоять только из цифр.
 validation.invalidPhoneNumberProvided=Недействительный номер телефона.
 validation.phoneMustBeLocalToCountry=Указанный номер телефона не относится к выбранной стране.
@@ -897,7 +760,6 @@ placeholder.entityName=Название записи ({0})
 validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
-button.chooseFile=Выбрать файл
 # Text shown on a tag while a file is uploading.
 label.uploading=Загрузка
 # Label applied to a list of uploaded files
@@ -933,13 +795,6 @@ label.lastName=Фамилия
 label.middleName=Отчество/второе имя
 # Label for name suffix field in name question
 label.nameSuffix=Суффикс
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=Имя
-placeholder.lastName=Фамилия
-placeholder.middleName=Отчество/второе имя
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=Суффикс
 
 # Option Junior for the name suffix dropdown
 option.junior=мл.
@@ -1009,7 +864,7 @@ map.locationLinkText=Подробнее
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Показано мест: {0} из {1}.
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Выбрано {0} из максимум {1} местоположений.
 # Alt text for map region
@@ -1113,7 +968,7 @@ error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=К сожалению, в нашей системе возникла ошибка.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Свяжитесь со службой технической поддержки по адресу %s и сообщите этот идентификатор ошибки: {0}.
+error.internalServerDescription=Свяжитесь со службой технической поддержки по адресу {0} и сообщите этот идентификатор ошибки: {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Перейти на главную страницу
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1188,6 +1043,21 @@ banner.minute=1 мин.
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Уход за детьми
 
@@ -1230,7 +1100,7 @@ category.tag.utilities=Коммунальные услуги
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Ветеран
 
-# An aria-label for screen readers that helps provide context for the category tags.
+
 ariaLabel.categories=Категории
 
 #------------------------------------------------------------------------------#

@@ -8,6 +8,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_FOOTER_LOGO_URL": {
+        "mode": "ADMIN_READABLE",
+        "description": "Logo for the civic entity used in the footer. If not set, falls back to CIVIC_ENTITY_SMALL_LOGO_URL.",
+        "type": "string",
+        "required": false
+      },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
@@ -16,7 +22,7 @@
       },
       "HIDE_CIVIC_ENTITY_NAME_IN_HEADER": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This may be desired if the government name is included in the logo. Since northstar hides the logo on smaller screens, this will only hide the name if the logo is showing.",
+        "description": "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This may be desired if the government name is included in the logo. The logo is hidden on smaller screens, so this will only hide the name if the logo is showing.",
         "type": "bool"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
@@ -818,6 +824,11 @@
   "Session Management": {
     "group_description": "Configuration options for session management",
     "members": {
+      "SESSION_REPLAY_PROTECTION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
+        "type": "bool"
+      },
       "MAXIMUM_SESSION_DURATION_MINUTES": {
         "mode": "ADMIN_READABLE",
         "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
@@ -906,14 +917,9 @@
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
-      "NORTH_STAR_APPLICANT_UI": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables showing new UI with an updated user experience in Applicant flows",
-        "type": "bool"
-      },
       "CUSTOM_THEME_COLORS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enable using custom theme colors on North Star applicant UI.",
+        "description": "Enable using custom theme colors in the applicant UI.",
         "type": "bool",
         "required": false
       },
@@ -933,17 +939,18 @@
         "description": "Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
+      },
+      "SETTINGS_CACHE_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables reading settings from the cache instead of directly from the database.",
+        "type": "bool",
+        "required": false
       }
     }
   },
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "SESSION_REPLAY_PROTECTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
-        "type": "bool"
-      },
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
@@ -952,7 +959,7 @@
       },
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI.",
+        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
         "type": "bool",
         "required": false
       },
@@ -971,12 +978,6 @@
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the database.",
         "type": "bool",
         "required": false
       },

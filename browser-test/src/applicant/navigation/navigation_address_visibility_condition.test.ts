@@ -7,7 +7,7 @@ import {
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
 
-test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+test.describe('Applicant navigation flow', () => {
   if (isLocalDevEnvironment()) {
     test.describe('using address as visibility condition', () => {
       const programName = 'Test program for address as visibility condition'
@@ -117,10 +117,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -153,10 +150,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(

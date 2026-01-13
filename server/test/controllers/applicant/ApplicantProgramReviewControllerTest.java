@@ -37,9 +37,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.ApplicantIneligibleView;
 import views.applicant.ApplicantProgramSummaryView;
-import views.applicant.NorthStarApplicantIneligibleView;
-import views.applicant.NorthStarApplicantProgramSummaryView;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
@@ -68,8 +67,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(MessagesApi.class),
             instanceOf(ApplicantProgramSummaryView.class),
-            instanceOf(NorthStarApplicantProgramSummaryView.class),
-            instanceOf(NorthStarApplicantIneligibleView.class),
+            instanceOf(ApplicantIneligibleView.class),
             instanceOf(ProfileUtils.class),
             settingsManifest,
             instanceOf(ProgramService.class),
@@ -447,45 +445,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result noEditsResult = this.submit(applicant.id, activeProgram.id);
     // Error is handled and applicant is redirected to review page with flash message
     assertThat(noEditsResult.status()).isEqualTo(FOUND);
-
-    // Edit the application but re-enter the same values
-    answer(activeProgram.id);
-    Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
-    // Error is handled and applicant is redirected to review page with flash message
-    assertThat(sameValuesResult.status()).isEqualTo(FOUND);
-
-    // There is only one application saved in the db
-    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<ApplicationModel> applications =
-        applicationRepository
-            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
-            .toCompletableFuture()
-            .join();
-    assertThat(applications).hasSize(1);
-    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
-  }
-
-  @Test
-  public void northstar_submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram()
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().nameApplicantName())
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().staticContent())
-            .build();
-    answer(activeProgram.id);
-    this.northstarSubmit(applicant.id, activeProgram.id);
-
-    // Submit the application again without editing
-    Result noEditsResult = this.northstarSubmit(applicant.id, activeProgram.id);
-    // Error is handled and applicant is redirected to review page with flash message
-    assertThat(noEditsResult.status()).isEqualTo(FOUND);
     assertThat(noEditsResult.redirectLocation().get()).contains("/review");
 
     // Edit the application but re-enter the same values
     answer(activeProgram.id);
-    Result sameValuesResult = this.northstarSubmit(applicant.id, activeProgram.id);
+    Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
     // Error is handled and applicant is redirected to review page with flash message
     assertThat(sameValuesResult.status()).isEqualTo(FOUND);
     assertThat(sameValuesResult.redirectLocation().get()).contains("/review");
@@ -524,22 +488,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
                     applicantId, programId))
             .header(skipUserProfile, "false")
             .build();
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(false);
-    return subject
-        .submitWithApplicantId(request, applicantId, programId)
-        .toCompletableFuture()
-        .join();
-  }
-
-  public Result northstarSubmit(long applicantId, long programId) {
-    Request request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramReviewController.submitWithApplicantId(
-                    applicantId, programId))
-            .header(skipUserProfile, "false")
-            .build();
-    when(settingsManifest.getNorthStarApplicantUi()).thenReturn(true);
     return subject
         .submitWithApplicantId(request, applicantId, programId)
         .toCompletableFuture()

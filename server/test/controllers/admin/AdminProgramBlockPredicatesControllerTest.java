@@ -54,8 +54,10 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
-  private static final Request EDIT_CONDITION_REQUEST =
-      fakeRequestBuilder().bodyForm(ImmutableMap.of("conditionId", "1")).build();
+  private static final Request ADD_CONDITION_REQUEST =
+      fakeRequestBuilder()
+          .bodyForm(ImmutableMap.of("conditionId", "1", "root-node-type", "AND"))
+          .build();
   private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
           .bodyForm(
@@ -65,7 +67,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                   "subconditionId",
                   "1",
                   "condition-1-subcondition-1-question",
-                  "-Select-"))
+                  "-Select-",
+                  "condition-1-node-type",
+                  "AND"))
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
@@ -291,7 +295,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.nameApplicantName().id),
@@ -358,7 +362,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR"))
                 .build(),
             programWithEligibility.id,
@@ -388,7 +392,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         "New eligibility message"))
@@ -428,7 +432,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         ""))
@@ -466,12 +470,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_expandedLogicDisabled_notFound() {
+  public void hxAddCondition_expandedLogicDisabled_notFound() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(false);
 
     Result result =
-        controller.hxEditCondition(
-            EDIT_CONDITION_REQUEST,
+        controller.hxAddCondition(
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -481,11 +485,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
+  public void hxAddCondition_eligibility_withFirstBlock_displaysFirstBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
-            EDIT_CONDITION_REQUEST,
+        controller.hxAddCondition(
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
@@ -496,11 +500,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
+  public void hxAddCondition_visibility_withThirdBlock_displaysFirstAndSecondBlockQuestions() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
-            EDIT_CONDITION_REQUEST,
+        controller.hxAddCondition(
+            ADD_CONDITION_REQUEST,
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
             PredicateUseCase.VISIBILITY.name());
@@ -561,10 +565,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_noForm_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_noForm_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequestBuilder().build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
@@ -576,10 +580,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidProgramId_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             /* programId= */ 1,
             /* blockDefinitionId= */ 3L,
@@ -591,10 +595,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidBlockId_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 543L,
@@ -606,10 +610,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxEditCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
+  public void hxAddCondition_invalidPredicateUseCase_returnsOkAndDisplaysAlert() {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     Result result =
-        controller.hxEditCondition(
+        controller.hxAddCondition(
             fakeRequest(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 3L,
@@ -632,6 +636,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -666,6 +672,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-INVALIDQuestionId",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -703,6 +711,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.checkboxApplicantKitchenTools().id)))
                 .build(),
@@ -898,6 +908,63 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
+  @Test
+  public void hxDeleteAllConditions_withConditions_clearsAll() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxDeleteAllConditions(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "conditionId",
+                        "1",
+                        "subconditionId",
+                        "1",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.nameApplicantName().id),
+                        "condition-1-subcondition-1-scalar",
+                        Scalar.FIRST_NAME.name(),
+                        "condition-1-subcondition-1-operator",
+                        Operator.EQUAL_TO.name(),
+                        "condition-1-subcondition-1-value",
+                        "firstname"))
+                .build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
+    assertThat(content).doesNotContain("firstname");
+    assertThat(contentWithoutWhitespace)
+        .doesNotContain(
+            String.format(
+                "<optionvalue=\"%d\"selected=\"selected\">",
+                testQuestionBank.nameApplicantName().id));
+    assertThat(content).contains("#predicate-conditions-list");
+    assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
+  @Test
+  public void hxDeleteAllConditions_withoutConditions_completesSuccessfully() {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    Result result =
+        controller.hxDeleteAllConditions(
+            fakeRequestBuilder().bodyForm(ImmutableMap.of()).build(),
+            programWithThreeBlocks.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = Helpers.contentAsString(result);
+    assertThat(content).doesNotContain("#condition-1");
+    assertThat(content).contains("#predicate-conditions-list");
+    assertThat(StringUtils.deleteWhitespace(content)).doesNotContain("Condition1");
+    assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
+  }
+
   /**
    * Creates a map of HTML subcondition ids to selected questions. Multiple conditions.
    *
@@ -906,10 +973,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private Map<String, String> createConditionMapWithSelectedQuestions(
       ImmutableList<Long> questionIds) {
     Map<String, String> conditionMap = new HashMap<>();
+    conditionMap.put("root-node-type", "AND");
     for (int i = 1; i <= questionIds.size(); ++i) {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),
           String.valueOf(questionIds.get(i - 1)));
+      conditionMap.put(String.format("condition-%d-node-type", i), "AND");
     }
 
     return conditionMap;
@@ -927,7 +996,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       conditionMap.put(
           String.format("condition-1-subcondition-%d-question", i),
           String.valueOf(questionIds.get(i - 1)));
-      conditionMap.put("condition-1-nodeType", "AND");
+      conditionMap.put("condition-1-node-type", "AND");
     }
 
     return conditionMap;

@@ -5,16 +5,16 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
   AdminPrograms,
   ApplicantQuestions,
 } from '../support'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 
-test.describe('Upsell tests', {tag: ['@northstar']}, () => {
+test.describe('Upsell tests', () => {
   const programName = 'Sample program'
   const customConfirmationMarkup =
     '**Custom** confirmation message for sample program'
@@ -29,17 +29,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {
-      await adminPrograms.addProgram(
-        programName,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        customConfirmationMarkup,
-      )
+      await adminPrograms.addProgram(programName, {
+        confirmationMessage: customConfirmationMarkup,
+      })
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
 
@@ -188,7 +180,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Validate page renders right to left on desktop', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await validateScreenshot(page, 'upsell-right-to-left-desktop', {
         mask: [page.locator('.cf-bt-date')],
       })
@@ -197,7 +189,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     // This is here because the standard way of passing the `mobileScreenshot` flag
     // to `validateScreenshot` results in a mobile view 12k px wide for some reason.
     await test.step('validate screenshot mobile', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
+      await selectApplicantLanguage(page, 'ar')
       await page.setViewportSize({width: 360, height: 800})
       await validateScreenshot(page, 'upsell-right-to-left-mobile', {
         fullPage: false,
@@ -286,9 +278,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
           name: "You've submitted your " + programName + ' application',
         }),
       ).toBeVisible()
-      await applicantQuestions.expectConfirmationPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.expectConfirmationPage()
       await expect(
         page.getByText(customConfirmationMarkupMatcher),
       ).toBeVisible()

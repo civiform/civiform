@@ -27,6 +27,8 @@ import views.admin.BaseViewModel;
  *     question and scalar.
  * @param valueOptions Selectable values, for question types that allow users to select from a set
  *     of pre-configured values. Determined by the selected question.
+ * @param autofocus Controls whether this subcondition will be focused on population.
+ * @param shouldAnnounceChanges Controls whether the focus change will be announced via aria-live.
  */
 @Builder(toBuilder = true)
 public record EditSubconditionPartialViewModel(
@@ -39,7 +41,9 @@ public record EditSubconditionPartialViewModel(
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
-    ImmutableList<OptionElement> valueOptions)
+    ImmutableList<OptionElement> valueOptions,
+    boolean autofocus,
+    boolean shouldAnnounceChanges)
     implements BaseViewModel {
   public String hxEditSubconditionEndpoint() {
     return routes.AdminProgramBlockPredicatesController.hxEditSubcondition(

@@ -14,7 +14,6 @@ import static j2html.TagCreator.link;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
-import static j2html.TagCreator.script;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
@@ -29,9 +28,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.ImgTag;
-import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
-import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
 import java.util.Locale;
@@ -57,26 +54,6 @@ public final class ViewUtils {
   ViewUtils(AssetsFinder assetsFinder, DateConverter dateConverter) {
     this.assetsFinder = checkNotNull(assetsFinder);
     this.dateConverter = checkNotNull(dateConverter);
-  }
-
-  /**
-   * Generates an HTML script tag for loading the javascript file found at public/main/[path].js.
-   */
-  public ScriptTag makeLocalJsTag(String path) {
-    return script().withSrc(assetsFinder.path(path + ".js")).withType("text/javascript");
-  }
-
-  /**
-   * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
-   * at the given asset route. TODO(#2349): Start using this.
-   */
-  public ScriptTag makeWebJarsTag(String assetsRoute) {
-    return script().withSrc(assetsFinder.path(assetsRoute));
-  }
-
-  /** Generates an HTML link tag for loading the CSS file found at public/main/[filePath].css. */
-  public LinkTag makeLocalCssTag(String filePath) {
-    return link().withHref(assetsFinder.path(filePath + ".css")).withRel("stylesheet");
   }
 
   public ImgTag makeLocalImageTag(String filename) {

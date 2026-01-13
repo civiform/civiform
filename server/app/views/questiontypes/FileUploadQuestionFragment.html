@@ -2,9 +2,11 @@
   th:fragment="file-upload(question, questionRendererParams)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
-    inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+    inputId=${'id-' + #strings.randomAlphanumeric(8)},
+    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
   class="cf-question-fileupload cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
   <!--/* Title and Help Text */-->
@@ -65,7 +67,8 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${questionId} + (${hasErrors} ? '-error' : '-description')"
+    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"

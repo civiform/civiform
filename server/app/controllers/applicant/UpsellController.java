@@ -34,8 +34,8 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.applicant.NorthStarApplicantPreScreenerUpsellView;
-import views.applicant.NorthStarApplicantUpsellView;
+import views.applicant.ApplicantPreScreenerUpsellView;
+import views.applicant.ApplicantUpsellView;
 import views.applicant.UpsellParams;
 
 /** Controller for handling methods for upselling applicants. */
@@ -45,8 +45,8 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
   private final ProgramService programService;
-  private final NorthStarApplicantUpsellView northStarUpsellView;
-  private final NorthStarApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
+  private final ApplicantUpsellView upsellView;
+  private final ApplicantPreScreenerUpsellView preScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
 
@@ -57,8 +57,8 @@ public final class UpsellController extends CiviFormController {
       ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
-      NorthStarApplicantUpsellView northStarApplicantUpsellView,
-      NorthStarApplicantPreScreenerUpsellView northStarApplicantPreScreenerUpsellView,
+      ApplicantUpsellView applicantUpsellView,
+      ApplicantPreScreenerUpsellView applicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       VersionRepository versionRepository) {
@@ -67,8 +67,8 @@ public final class UpsellController extends CiviFormController {
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
-    this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
-    this.northStarPreScreenerUpsellView = checkNotNull(northStarApplicantPreScreenerUpsellView);
+    this.upsellView = checkNotNull(applicantUpsellView);
+    this.preScreenerUpsellView = checkNotNull(applicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
   }
@@ -165,15 +165,14 @@ public final class UpsellController extends CiviFormController {
                     paramsBuilder
                         .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
                         .build();
-                return ok(northStarPreScreenerUpsellView.render(upsellParams))
-                    .as(Http.MimeTypes.HTML);
+                return ok(preScreenerUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
               } else {
                 UpsellParams upsellParams =
                     paramsBuilder
                         .setEligiblePrograms(
                             relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
                         .build();
-                return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
+                return ok(upsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
               }
             },
             classLoaderExecutionContext.current())

@@ -9,12 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Random;
 import java.util.UUID;
 import models.QuestionDisplayMode;
@@ -29,6 +31,8 @@ import services.question.LocalizedQuestionSetting;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
 import services.question.QuestionSetting;
+import services.question.YesNoQuestionOption;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 
 /**
  * Superclass for all question types.
@@ -476,6 +480,71 @@ public abstract class QuestionDefinition {
    */
   QuestionDefinitionConfig getConfig() {
     return config;
+  }
+
+  /**
+   * Creates a sample question definition for rendering previews in the admin interface. Used by
+   * {@link views.admin.questions.QuestionPreview}.
+   */
+  public static QuestionDefinition questionDefinitionSample(QuestionType questionType)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setId(1L)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
+            .setQuestionType(questionType);
+
+    if (questionType.isMultiOptionType()) {
+      if (questionType == QuestionType.YES_NO) {
+        ImmutableList<QuestionOption> yesNoOptions =
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.YES.getId())
+                    .setAdminName(YesNoQuestionOption.YES.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Yes"))
+                    .setDisplayOrder(OptionalLong.of(0L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NO.getId())
+                    .setAdminName(YesNoQuestionOption.NO.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "No"))
+                    .setDisplayOrder(OptionalLong.of(1L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NOT_SURE.getId())
+                    .setAdminName(YesNoQuestionOption.NOT_SURE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Not sure"))
+                    .setDisplayOrder(OptionalLong.of(2L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.MAYBE.getId())
+                    .setAdminName(YesNoQuestionOption.MAYBE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Maybe"))
+                    .setDisplayOrder(OptionalLong.of(3L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build());
+        builder.setQuestionOptions(yesNoOptions);
+      } else {
+        builder.setQuestionOptions(
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L,
+                    1L,
+                    "sample option admin name",
+                    LocalizedStrings.of(Locale.US, "Sample question option"))));
+      }
+    }
+
+    if (questionType.equals(QuestionType.ENUMERATOR)) {
+      builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
+    }
+
+    return builder.build();
   }
 
   /**

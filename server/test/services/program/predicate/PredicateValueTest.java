@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.test.WithApplication;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
@@ -224,6 +226,93 @@ public class PredicateValueTest extends WithApplication {
   public void valueWithoutSurroundingQuotes_string() {
     PredicateValue value = PredicateValue.of("hello");
     assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("hello");
+  }
+
+  @Test
+  public void toSelectedValue_singleLong_formatsCurrencyWithoutDollarSign() {
+    PredicateValue predicateValue = PredicateValue.of(10000L);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.CURRENCY);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.SINGLE);
+    assertThat(selectedValue.single()).isEqualTo("100.00");
+  }
+
+  @Test
+  public void toSelectedValue_singleLong_formatsNumberAsString() {
+    PredicateValue predicateValue = PredicateValue.of(10000L);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.NUMBER);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.SINGLE);
+    assertThat(selectedValue.single()).isEqualTo("10000");
+  }
+
+  @Test
+  public void toSelectedValue_singleDate_formatsDateString() {
+    LocalDate date = LocalDate.of(2025, 1, 1);
+    PredicateValue predicateValue = PredicateValue.of(date);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.DATE);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.SINGLE);
+    assertThat(selectedValue.single()).isEqualTo("2025-01-01");
+  }
+
+  @Test
+  public void toSelectedValue_incorrectQuestionType_correctlyFormatsDateString() {
+    LocalDate date = LocalDate.of(2025, 1, 1);
+    PredicateValue predicateValue = PredicateValue.of(date);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.CURRENCY);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.SINGLE);
+    assertThat(selectedValue.single()).isEqualTo("2025-01-01");
+  }
+
+  @Test
+  public void toSelectedValue_pairOfDates_formatsBothDateStrings() {
+    LocalDate date1 = LocalDate.of(2025, 1, 1);
+    LocalDate date2 = LocalDate.of(1900, 1, 1);
+    PredicateValue predicateValue = PredicateValue.pairOfDates(date1, date2);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.DATE);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.PAIR);
+    assertThat(selectedValue.pair())
+        .isEqualTo(new SelectedValue.ValuePair("2025-01-01", "1900-01-01"));
+  }
+
+  @Test
+  public void toSelectedValue_pairOfLongs_formatsBothCurrencyStrings() {
+    PredicateValue predicateValue = PredicateValue.pairOfLongs(100, 200);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.CURRENCY);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.PAIR);
+    assertThat(selectedValue.pair()).isEqualTo(new SelectedValue.ValuePair("1.00", "2.00"));
+  }
+
+  @Test
+  public void toSelectedValue_listOfStrings_createsMultipleValues() {
+    ImmutableList<String> values = ImmutableList.of("A", "B", "C");
+    PredicateValue predicateValue = PredicateValue.listOfStrings(values);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.CHECKBOX);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.MULTIPLE);
+    assertThat(selectedValue.multiple()).isEqualTo(ImmutableSet.copyOf(values));
+  }
+
+  @Test
+  public void toSelectedValue_listOfLongs_createsMultipleValues() {
+    ImmutableList<Long> values = ImmutableList.of(100L, 200L, 300L);
+    PredicateValue predicateValue = PredicateValue.listOfLongs(values);
+
+    SelectedValue selectedValue = predicateValue.toSelectedValue(QuestionType.CHECKBOX);
+
+    assertThat(selectedValue.getKind()).isEqualTo(SelectedValue.Kind.MULTIPLE);
+    assertThat(selectedValue.multiple()).isEqualTo(ImmutableSet.of("100", "200", "300"));
   }
 
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below

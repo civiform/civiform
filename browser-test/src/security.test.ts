@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {test, expect} from './support/civiform_fixtures'
 import {loginAsAdmin} from './support'
 import {loginAsProgramAdmin} from './support'
@@ -26,122 +26,114 @@ async function expectTiDashboard(page: Page) {
   ).toBeAttached()
 }
 
-test.describe(
-  'applicant security',
-  {tag: ['@parallel-candidate', '@northstar']},
-  () => {
-    test('applicant cannot access admin pages', async ({request}) => {
-      const response = await request.get('/admin/programs')
-      await expect(response).toBeOK()
-      // Redirected to a non-admin page
-      expect(response.url()).not.toContain('/admin')
-    })
+test.describe('applicant security', {tag: ['@parallel-candidate']}, () => {
+  test('applicant cannot access admin pages', async ({request}) => {
+    const response = await request.get('/admin/programs')
+    await expect(response).toBeOK()
+    // Redirected to a non-admin page
+    expect(response.url()).not.toContain('/admin')
+  })
 
-    test('redirects to program index page when not logged in (guest)', async ({
-      page,
-    }) => {
-      await page.goto('/')
-      await expect(
-        page.getByRole('heading', {
-          name: 'Apply for government programs online',
-        }),
-      ).toBeAttached()
-    })
-  },
-)
+  test('redirects to program index page when not logged in (guest)', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await expect(
+      page.getByRole('heading', {
+        name: 'Apply for government programs online',
+      }),
+    ).toBeAttached()
+  })
+})
 
-test.describe(
-  'non applicant security',
-  {tag: ['@parallel-candidate', '@northstar']},
-  () => {
-    const programName = 'Test program 1'
+test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
+  const programName = 'Test program 1'
 
-    test.beforeEach('Setup program', async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
+  test.beforeEach('Setup program', async ({page, adminPrograms}) => {
+    await loginAsAdmin(page)
+    await adminPrograms.addProgram(programName)
 
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.publishProgram(programName)
-      await logout(page)
-    })
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishProgram(programName)
+    await logout(page)
+  })
 
-    test('/ redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
-      page,
-    }) => {
-      await loginAsAdmin(page)
-      await page.goto('/')
+  test('/ redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
+    page,
+  }) => {
+    await loginAsAdmin(page)
+    await page.goto('/')
 
-      await expectAdminDashboard(page)
-    })
+    await expectAdminDashboard(page)
+  })
 
-    test('/programs redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
-      page,
-    }) => {
-      await loginAsAdmin(page)
-      await page.goto('/programs')
+  test('/programs redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
+    page,
+  }) => {
+    await loginAsAdmin(page)
+    await page.goto('/programs')
 
-      await expectAdminDashboard(page)
-    })
+    await expectAdminDashboard(page)
+  })
 
-    test('program deeplink redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
-      page,
-    }) => {
-      await loginAsAdmin(page)
-      await page.goto('/programs/' + programName)
+  test('program deeplink redirects to CiviForm admin dashboard when logged in as CiviForm admin', async ({
+    page,
+  }) => {
+    await loginAsAdmin(page)
+    await page.goto('/programs/' + programName)
 
-      await expectAdminDashboard(page)
-    })
+    await expectAdminDashboard(page)
+  })
 
-    test('/ redirects to program admin dashboard when logged in as Program admin', async ({
-      page,
-    }) => {
-      await loginAsProgramAdmin(page)
-      await page.goto('/')
+  test('/ redirects to program admin dashboard when logged in as Program admin', async ({
+    page,
+  }) => {
+    await loginAsProgramAdmin(page)
+    await page.goto('/')
 
-      await expectProgramAdminDashboard(page)
-    })
+    await expectProgramAdminDashboard(page)
+  })
 
-    test('/programs redirects to program admin dashboard when logged in as Program admin', async ({
-      page,
-    }) => {
-      await loginAsProgramAdmin(page)
-      await page.goto('/programs')
+  test('/programs redirects to program admin dashboard when logged in as Program admin', async ({
+    page,
+  }) => {
+    await loginAsProgramAdmin(page)
+    await page.goto('/programs')
 
-      await expectProgramAdminDashboard(page)
-    })
+    await expectProgramAdminDashboard(page)
+  })
 
-    test('program deeplink redirects to program admin dashboard when logged in as Program admin', async ({
-      page,
-    }) => {
-      await loginAsProgramAdmin(page)
-      await page.goto('/programs/' + programName)
+  test('program deeplink redirects to program admin dashboard when logged in as Program admin', async ({
+    page,
+  }) => {
+    await loginAsProgramAdmin(page)
+    await page.goto('/programs/' + programName)
 
-      await expectProgramAdminDashboard(page)
-    })
+    await expectProgramAdminDashboard(page)
+  })
 
-    test('/ redirects to TI dashboard when logged in as TI', async ({page}) => {
-      await loginAsTrustedIntermediary(page)
-      await page.goto('/')
+  test('/ redirects to TI dashboard when logged in as TI', async ({page}) => {
+    await loginAsTrustedIntermediary(page)
+    await page.goto('/')
 
-      await expectTiDashboard(page)
-    })
+    await expectTiDashboard(page)
+  })
 
-    test('/programs redirects to TI dashboard when logged in as TI', async ({
-      page,
-    }) => {
-      await loginAsTrustedIntermediary(page)
-      await page.goto('/programs')
+  test('/programs redirects to TI dashboard when logged in as TI', async ({
+    page,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await page.goto('/programs')
 
-      await expectTiDashboard(page)
-    })
+    await expectTiDashboard(page)
+  })
 
-    test('program deeplink redirects to TI dashboard when logged in as TI', async ({
-      page,
-    }) => {
-      await loginAsTrustedIntermediary(page)
-      await page.goto('/programs/' + programName)
+  test('program deeplink redirects to TI dashboard when logged in as TI', async ({
+    page,
+  }) => {
+    await loginAsTrustedIntermediary(page)
+    await page.goto('/programs/' + programName)
 
-      await expectTiDashboard(page)
-    })
-  },
-)
+    await expectTiDashboard(page)
+  })
+})

@@ -1,7 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
-test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
+test.describe('admin preview as applicant', () => {
   test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
   })
@@ -29,7 +29,7 @@ test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page,
-        'northstar-admin-program-preview-application-overview-page',
+        'admin-program-preview-application-overview-page',
       )
       await page.isVisible('a:has-text("Back to admin view")')
     })
@@ -43,7 +43,7 @@ test.describe('admin preview as applicant', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page,
-        'northstar-admin-program-preview-application-block-edit-page',
+        'admin-program-preview-application-block-edit-page',
       )
     })
 

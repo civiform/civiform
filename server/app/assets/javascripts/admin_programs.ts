@@ -3,7 +3,7 @@ import {addEventListenerToElements} from './util'
 
 enum ProgramType {
   DEFAULT = 'CiviForm program',
-  COMMON_INTAKE_FORM = 'Pre-screener',
+  PRE_SCREENER_FORM = 'Pre-screener',
   EXTERNAL = 'External program',
 }
 
@@ -13,13 +13,13 @@ class AdminPrograms {
   private static DISABLED_TEXT_CLASS = 'read-only:text-gray-500'
   private static DISABLED_BACKGROUND_CLASS = 'read-only:bg-gray-100'
 
-  static attachConfirmCommonIntakeChangeListener() {
+  static attachConfirmPreScreenerChangeListener() {
     addEventListenerToElements(
-      '#confirm-common-intake-change-button',
+      '#confirm-pre-screener-change-button',
       'click',
       () => {
         const confirmationCheckbox = <HTMLInputElement>(
-          document.querySelector('#confirmed-change-common-intake-checkbox')
+          document.querySelector('#confirmed-change-pre-screener-checkbox')
         )
         if (!confirmationCheckbox) {
           return
@@ -35,16 +35,16 @@ class AdminPrograms {
    * manage the disabled state of related form elements.
    */
   static attachProgramTypeChangeListener() {
-    // Listens for changes to the common intake checkbox.
+    // Listens for changes to the pre-screener checkbox.
     // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
     // is enabled by default, which is handled by the next listener.
-    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
-      const commonIntakeCheckbox = <HTMLInputElement>(
-        document.querySelector('#common-intake-checkbox')
+    addEventListenerToElements('#pre-screener-checkbox', 'click', () => {
+      const preScreenerCheckbox = <HTMLInputElement>(
+        document.querySelector('#pre-screener-checkbox')
       )
 
-      const programType = commonIntakeCheckbox.checked
-        ? ProgramType.COMMON_INTAKE_FORM
+      const programType = preScreenerCheckbox.checked
+        ? ProgramType.PRE_SCREENER_FORM
         : ProgramType.DEFAULT
       this.updateDisabledStateFields(programType)
     })
@@ -52,16 +52,16 @@ class AdminPrograms {
     // Listen for changes to the program type radio button, which is only used
     // when EXTERNAL_PROGRAM_CARDS feature is enabled.
     addEventListenerToElements('#program-type', 'click', () => {
-      const commonIntakeCheckbox = <HTMLInputElement>(
-        document.querySelector('#common-intake-program-option')
+      const preScreenerCheckbox = <HTMLInputElement>(
+        document.querySelector('#pre-screener-program-option')
       )
       const externalProgramCheckbox = <HTMLInputElement>(
         document.querySelector('#external-program-option')
       )
 
       let programType = ProgramType.DEFAULT
-      if (commonIntakeCheckbox.checked) {
-        programType = ProgramType.COMMON_INTAKE_FORM
+      if (preScreenerCheckbox.checked) {
+        programType = ProgramType.PRE_SCREENER_FORM
       } else if (externalProgramCheckbox.checked) {
         programType = ProgramType.EXTERNAL
       }
@@ -77,7 +77,7 @@ class AdminPrograms {
   static updateDisabledStateFields(programType: ProgramType) {
     // Program categories
     const disableProgramCategories =
-      programType === ProgramType.COMMON_INTAKE_FORM
+      programType === ProgramType.PRE_SCREENER_FORM
     this.updateUSWDSCheckboxesDisabledState(
       /* fieldSelectors= */ '[id^="checkbox-category"]',
       /* shouldDisable= */ disableProgramCategories,
@@ -85,7 +85,7 @@ class AdminPrograms {
 
     // Program eligibility
     const disableProgramEligibility =
-      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.PRE_SCREENER_FORM ||
       programType === ProgramType.EXTERNAL
     this.updateUSWDSCheckboxesDisabledState(
       /* fieldSelectors= */ '[id^="program-eligibility"]',
@@ -102,7 +102,7 @@ class AdminPrograms {
     ) as HTMLInputElement
     const disableExternalLink =
       programType === ProgramType.DEFAULT ||
-      programType === ProgramType.COMMON_INTAKE_FORM
+      programType === ProgramType.PRE_SCREENER_FORM
     this.updateTextFieldElementDisabledState(
       /* fieldElement= */ externalLink,
       /* shouldDisable= */ disableExternalLink,
@@ -121,7 +121,7 @@ class AdminPrograms {
 
     // Long program description
     const disableLongDescription =
-      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.PRE_SCREENER_FORM ||
       programType === ProgramType.EXTERNAL
     this.updateTextFieldSelectorsDisabledState(
       'textarea[id="program-display-description-textarea"]',
@@ -130,7 +130,7 @@ class AdminPrograms {
 
     // Application steps
     const disableApplicationSteps =
-      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.PRE_SCREENER_FORM ||
       programType === ProgramType.EXTERNAL
     this.updateTextFieldSelectorsDisabledState(
       /* fieldSelectors= */ 'input[id^="apply-step"]',
@@ -343,7 +343,7 @@ class AdminPrograms {
 
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
-  AdminPrograms.attachConfirmCommonIntakeChangeListener()
+  AdminPrograms.attachConfirmPreScreenerChangeListener()
   AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()

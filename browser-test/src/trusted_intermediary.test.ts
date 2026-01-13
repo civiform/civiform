@@ -8,11 +8,11 @@ import {
   waitForPageJsLoad,
   validateScreenshot,
   validateToastMessage,
-  selectApplicantLanguageNorthstar,
+  selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
 
-test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
+test.describe('Trusted intermediaries', () => {
   test('sees client name and link in sub-banner while applying on behalf of applicant', async ({
     page,
     tiDashboard,
@@ -131,7 +131,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       await tiDashboard.clickOnViewApplications()
     })
     await test.step('Apply to a program and verify that applied program is under my applicatins section of view application page', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
@@ -148,7 +148,6 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
 
@@ -165,20 +164,18 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
 
     await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
       await applicantQuestions.applyProgram(
         primaryProgramName,
-        /* northStarEnabled= */ true,
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerTextQuestion('second answer')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.expectConfirmationPage(true)
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectConfirmationPage()
       await applicantQuestions.clickBackToHomepageButton()
       await tiDashboard.clickOnViewApplications()
       await applicantQuestions.expectProgramsinCorrectSections(
@@ -193,7 +190,6 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
           expectedProgramsInOtherProgramsSection: [],
         },
         /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
       )
     })
     await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
@@ -209,7 +205,6 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
           ],
         },
         /* filtersOn= */ true,
-        /* northStarEnabled= */ true,
       )
     })
   })
@@ -701,7 +696,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
     await tiDashboard.clickOnViewApplications()
 
     await applicantQuestions.applyProgram(programName, true)
-    await selectApplicantLanguageNorthstar(page, 'es-US')
+    await selectApplicantLanguage(page, 'es-US')
 
     await validateScreenshot(page, 'applicant-program-spanish')
   })
@@ -1080,10 +1075,10 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       // Apply to first program
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program1, true)
+      await applicantQuestions.applyProgram(program1)
       await applicantQuestions.answerEmailQuestion('fake@sample.com')
       await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('1')
@@ -1092,8 +1087,8 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       // Apply to second program
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program2, true)
-      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.applyProgram(program2)
+      await applicantQuestions.submitFromReviewPage()
 
       await tiDashboard.gotoTIDashboardPage(page, true)
       await tiDashboard.expectClientContainsNumberOfApplications('2')
@@ -1105,7 +1100,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       // Start application to third program, but don't submit
       await tiDashboard.clickOnViewApplications()
 
-      await applicantQuestions.applyProgram(program3, true)
+      await applicantQuestions.applyProgram(program3)
       await applicantQuestions.clickContinue()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
@@ -1280,34 +1275,31 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       await test.step('login as TI, add a client, and apply', async () => {
         await loginAsTrustedIntermediary(page)
         await tiDashboard.createClientAndApply(clientInfo)
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('verify client info is pre-populated on the application review page', async () => {
         await page.getByRole('button', {name: 'Review and submit'}).click()
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Date of birth',
           '01/01/2001',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Name',
           'first middle last',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Phone',
           '+1 917-867-5309',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Email',
           'test@email.com',
         )
       })
 
       await test.step('verify client info is pre-populated in the application form', async () => {
-        await applicantQuestions.editQuestionFromReviewPage(
-          'Date of birth',
-          true,
-        )
+        await applicantQuestions.editQuestionFromReviewPage('Date of birth')
 
         await expect(page.getByRole('textbox', {name: 'Day'})).toHaveValue('1')
         await expect(page.getByRole('textbox', {name: 'Year'})).toHaveValue(
@@ -1332,8 +1324,8 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
 
       await test.step('submitting the application without changing any values succeeds', async () => {
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -1345,7 +1337,7 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       await test.step('login as TI, add a client, and apply', async () => {
         await loginAsTrustedIntermediary(page)
         await tiDashboard.createClientAndApply(clientInfo)
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('fill in the name question with different values', async () => {
@@ -1354,27 +1346,27 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
       })
 
       await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Date of birth',
           '01/01/2001',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Name',
           'newfirst middle newlast',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Phone',
           '+1 917-867-5309',
         )
-        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'Email',
           'test@email.com',
         )
       })
 
       await test.step('submitting the application with changed values succeeds', async () => {
-        await applicantQuestions.submitFromReviewPage(true)
-        await applicantQuestions.expectConfirmationPage(true)
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -1398,14 +1390,14 @@ test.describe('Trusted intermediaries', {tag: ['@northstar']}, () => {
 
       await test.step('apply to program on behalf of client', async () => {
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.applyProgram('PAI Program', true)
+        await applicantQuestions.applyProgram('PAI Program')
       })
 
       await test.step('fill out the phone and email questions and submit the application', async () => {
         await applicantQuestions.answerPhoneQuestion('7188675309')
         await applicantQuestions.answerEmailQuestion('email@example.com')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.submitFromReviewPage()
       })
 
       const newClientInfo: ClientInformation = {
