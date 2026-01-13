@@ -56,7 +56,7 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private static final Request ADD_CONDITION_REQUEST =
       fakeRequestBuilder()
-          .bodyForm(ImmutableMap.of("conditionId", "1", "root-nodeType", "AND"))
+          .bodyForm(ImmutableMap.of("conditionId", "1", "root-node-type", "AND"))
           .build();
   private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
@@ -67,7 +67,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                   "subconditionId",
                   "1",
                   "condition-1-subcondition-1-question",
-                  "-Select-"))
+                  "-Select-",
+                  "condition-1-node-type",
+                  "AND"))
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
@@ -293,7 +295,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.nameApplicantName().id),
@@ -360,7 +362,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR"))
                 .build(),
             programWithEligibility.id,
@@ -390,7 +392,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         "New eligibility message"))
@@ -430,7 +432,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         ""))
@@ -634,6 +636,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -668,6 +672,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-INVALIDQuestionId",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -705,6 +711,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.checkboxApplicantKitchenTools().id)))
                 .build(),
@@ -965,11 +973,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private Map<String, String> createConditionMapWithSelectedQuestions(
       ImmutableList<Long> questionIds) {
     Map<String, String> conditionMap = new HashMap<>();
-    conditionMap.put("root-nodeType", "AND");
+    conditionMap.put("root-node-type", "AND");
     for (int i = 1; i <= questionIds.size(); ++i) {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),
           String.valueOf(questionIds.get(i - 1)));
+      conditionMap.put(String.format("condition-%d-node-type", i), "AND");
     }
 
     return conditionMap;
@@ -987,7 +996,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       conditionMap.put(
           String.format("condition-1-subcondition-%d-question", i),
           String.valueOf(questionIds.get(i - 1)));
-      conditionMap.put("condition-1-nodeType", "AND");
+      conditionMap.put("condition-1-node-type", "AND");
     }
 
     return conditionMap;

@@ -170,7 +170,7 @@ export class AdminPredicates {
 
   async selectRootLogicalOperator(logicalOperatorValue: string) {
     await this.page
-      .getByRole('combobox', {name: 'root-nodeType'})
+      .getByRole('combobox', {name: 'Root condition node type'})
       .selectOption(logicalOperatorValue)
     await waitForHtmxReady(this.page)
   }
@@ -183,6 +183,32 @@ export class AdminPredicates {
     expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
 
     for (const separatorText of await conditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
+  }
+
+  async selectConditionLogicalOperator(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    await this.page
+      .getByRole('combobox', {name: `Condition ${conditionId} node type`})
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectConditionLogicalOperatorValues(
+    conditionId: number,
+    logicalOperatorValue: string,
+  ) {
+    const subconditionLogicSeparatorsText = this.page.locator(
+      `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
+    )
+
+    expect(subconditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await subconditionLogicSeparatorsText.all()) {
       await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
       await expect(separatorText).toBeVisible()
     }

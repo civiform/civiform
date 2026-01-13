@@ -727,9 +727,9 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 ImmutableMap.of(
                     "predicateAction",
                     "HIDE_BLOCK",
-                    "root-nodeType",
+                    "root-node-type",
                     "OR",
-                    "condition-1-nodeType",
+                    "condition-1-node-type",
                     "AND",
                     "condition-1-subcondition-1-question",
                     testQuestionBank.dateApplicantBirthdate().id.toString(),
@@ -786,8 +786,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
             ? buildForm(
                 ImmutableMap.<String, String>builder()
                     .put("predicateAction", "SHOW_BLOCK")
-                    .put("root-nodeType", "OR")
-                    .put("condition-1-nodeType", "AND")
+                    .put("root-node-type", "OR")
+                    .put("condition-1-node-type", "AND")
                     .put(
                         "condition-1-subcondition-1-question",
                         testQuestionBank.dateApplicantBirthdate().id.toString())
@@ -800,7 +800,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                     .put("condition-1-subcondition-2-scalar", "NUMBER")
                     .put("condition-1-subcondition-2-operator", "EQUAL_TO")
                     .put("condition-1-subcondition-2-value", "1")
-                    .put("condition-2-nodeType", "AND")
+                    .put("condition-2-node-type", "AND")
                     .put(
                         "condition-2-subcondition-1-question",
                         testQuestionBank.dateApplicantBirthdate().id.toString())
@@ -908,8 +908,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
         buildForm(
             ImmutableMap.<String, String>builder()
                 .put("predicateAction", "SHOW_BLOCK")
-                .put("root-nodeType", "AND")
-                .put("condition-1-nodeType", "AND")
+                .put("root-node-type", "AND")
+                .put("condition-1-node-type", "AND")
                 .put(
                     "condition-1-subcondition-1-question",
                     testQuestionBank.dateApplicantBirthdate().id.toString())
@@ -922,7 +922,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 .put("condition-1-subcondition-2-scalar", "NUMBER")
                 .put("condition-1-subcondition-2-operator", "EQUAL_TO")
                 .put("condition-1-subcondition-2-value", "1")
-                .put("condition-2-nodeType", "OR")
+                .put("condition-2-node-type", "OR")
                 .put(
                     "condition-2-subcondition-1-question",
                     testQuestionBank.dateApplicantBirthdate().id.toString())
@@ -994,8 +994,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
         buildForm(
             ImmutableMap.<String, String>builder()
                 .put("predicateAction", "SHOW_BLOCK")
-                .put("root-nodeType", "AND")
-                .put("condition-1-nodeType", "OR")
+                .put("root-node-type", "AND")
+                .put("condition-1-node-type", "OR")
                 .put(
                     "condition-1-subcondition-1-question",
                     testQuestionBank.dateApplicantBirthdate().id.toString())
@@ -1050,15 +1050,15 @@ public class PredicateGeneratorTest extends ResetPostgres {
         buildForm(
             ImmutableMap.<String, String>builder()
                 .put("predicateAction", "SHOW_BLOCK")
-                .put("root-nodeType", "OR")
-                .put("condition-1-nodeType", "AND")
+                .put("root-node-type", "OR")
+                .put("condition-1-node-type", "AND")
                 .put(
                     "condition-1-subcondition-1-question",
                     testQuestionBank.dateApplicantBirthdate().id.toString())
                 .put("condition-1-subcondition-1-scalar", "DATE")
                 .put("condition-1-subcondition-1-operator", "EQUAL_TO")
                 .put("condition-1-subcondition-1-value", "2023-01-01")
-                .put("condition-2-nodeType", "AND")
+                .put("condition-2-node-type", "AND")
                 .put(
                     "condition-2-subcondition-1-question",
                     testQuestionBank.numberApplicantJugglingNumber().id.toString())
@@ -1499,8 +1499,8 @@ public class PredicateGeneratorTest extends ResetPostgres {
   private ImmutableMap.Builder<String, String> getExpandedFormBuilder(String action) {
     return ImmutableMap.<String, String>builder()
         .put("predicateAction", action)
-        .put("root-nodeType", "OR")
-        .put("condition-1-nodeType", "AND");
+        .put("root-node-type", "OR")
+        .put("condition-1-node-type", "AND");
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
