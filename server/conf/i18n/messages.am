@@ -1122,7 +1122,7 @@ session.extended.error=ክፍለ-ጊዜን ማራዘም አልተሳካም
 #------------------------------------------------------------------------------#
 
 # Heading for the repeated set creation method radio buttons
-heading.repeatedSet.creationMethod=Repeated set creation method
+heading.repeatedSet.creationMethod=
 # Option for allowing an admin to create a new repeated set
 option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing repeated set
