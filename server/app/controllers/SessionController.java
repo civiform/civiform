@@ -54,7 +54,8 @@ public class SessionController extends Controller {
               profile.getProfileData().updateLastActivityTime(clock);
               long newActivityTime = profile.getProfileData().getLastActivityTime(clock);
               logger.info(
-                  "Session extended | Old activity time: {} | New activity time: {} | Current time: {}",
+                  "Session extended | Old activity time: {} | New activity time: {} | Current time:"
+                      + " {}",
                   PST_FORMATTER.format(Instant.ofEpochMilli(oldActivityTime)),
                   PST_FORMATTER.format(Instant.ofEpochMilli(newActivityTime)),
                   PST_FORMATTER.format(Instant.ofEpochMilli(clock.millis())));
