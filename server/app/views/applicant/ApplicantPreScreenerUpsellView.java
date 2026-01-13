@@ -12,7 +12,6 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
 
 public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 

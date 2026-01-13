@@ -23,7 +23,6 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
 
 public class ApplicantIneligibleView extends ApplicantBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;

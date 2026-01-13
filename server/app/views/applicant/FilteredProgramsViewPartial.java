@@ -19,7 +19,6 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
 
 /**
  * Renders the HTMX partial view for programs filtered by category on the landing page. The view has

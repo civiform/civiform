@@ -1,4 +1,4 @@
-package views;
+package views.trustedintermediary;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;

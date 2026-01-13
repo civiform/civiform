@@ -15,8 +15,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
-import views.ApplicationBaseViewParams;
+import views.trustedintermediary.ApplicationBaseViewParams;
 
 public class AddressCorrectionBlockView extends ApplicantBaseView {
 

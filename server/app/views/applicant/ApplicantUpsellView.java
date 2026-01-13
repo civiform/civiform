@@ -17,7 +17,6 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
 
