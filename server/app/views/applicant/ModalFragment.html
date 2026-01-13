@@ -293,7 +293,7 @@
   <div id="session-timeout-container">
     <div id="session-timeout-modals">
       <div
-        class="usa-modal hidden"
+        class="usa-modal"
         id="session-inactivity-warning-modal"
         aria-labelledby="session-inactivity-warning-heading"
         aria-describedby="session-inactivity-description"
@@ -347,7 +347,7 @@
       </div>
 
       <div
-        class="usa-modal hidden"
+        class="usa-modal"
         id="session-length-warning-modal"
         aria-labelledby="session-length-warning-heading"
         aria-describedby="session-length-description"
@@ -368,6 +368,7 @@
                     <button
                       type="button"
                       class="usa-button"
+                      data-testid="modal-logout-button"
                       data-modal-primary
                       data-modal-type="session-length-warning"
                       th:text="#{button.logout}"

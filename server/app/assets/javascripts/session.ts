@@ -63,8 +63,6 @@ export class SessionTimeoutHandler {
   private static isInitialized = false
 
   /** Used for testing. Stores the next timeout action and time. */
-  private static nextTimeoutAction: (() => void) | null = null
-  private static nextTimeoutTime: number | null = null
   private static initialClockSkew: number | null = null
 
   static init() {
@@ -74,8 +72,6 @@ export class SessionTimeoutHandler {
 
     void this.checkAndSetTimer()
     this.setupModalEventHandlers()
-    // Add listener for timechange event to support testing with mocked time
-    window.addEventListener('timechange', () => this.handleTimeChange())
     this.isInitialized = true
   }
 
@@ -102,8 +98,14 @@ export class SessionTimeoutHandler {
 
     const now = Math.floor(Date.now() / 1000)
 
+    console.log('=== Session Timeout Check ===')
+    console.log('Current time:', now, new Date(now * 1000).toISOString())
+    console.log('Inactivity timeout at:', data.inactivityTimeout, new Date(data.inactivityTimeout * 1000).toISOString(), `(in ${data.inactivityTimeout - now}s)`)
+    console.log('Total session timeout at:', data.totalTimeout, new Date(data.totalTimeout * 1000).toISOString(), `(in ${data.totalTimeout - now}s)`)
+
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
+      console.log('TIMEOUT REACHED - logging out')
       this.handleTimeout()
       return
     }
@@ -115,12 +117,14 @@ export class SessionTimeoutHandler {
 
     // 2 & 3. Show warnings if they haven't been shown before and their time has passed
     if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
+      console.log('Inactivity warning time reached - showing modal')
       this.showWarning(WarningType.INACTIVITY)
       this.hasInactivityWarningBeenShown = true
       return
     }
 
     if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
+      console.log('Total length warning time reached - showing modal')
       this.showWarning(WarningType.TOTAL_LENGTH)
       this.hasTotalLengthWarningBeenShown = true
       return
@@ -169,13 +173,12 @@ export class SessionTimeoutHandler {
     const nextTimeout = timeouts[0]
     const delay = (nextTimeout.time - now) * 1000
 
-    // Store the next timeout action and time for handling timechange event.
-    this.nextTimeoutAction = nextTimeout.action
-    this.nextTimeoutTime = nextTimeout.time
+    console.log('Next timeout event at:', nextTimeout.time, new Date(nextTimeout.time * 1000).toISOString())
+    console.log(`Setting timer for ${delay}ms (${Math.floor(delay / 1000)}s / ${Math.floor(delay / 60000)}m)`)
+    console.log('===========================')
 
     this.timer = window.setTimeout(() => {
-      this.nextTimeoutAction = null
-      this.nextTimeoutTime = null
+      console.log('Timer fired - executing timeout action')
       nextTimeout.action()
 
       // Check for next timeout after handling this one
@@ -384,6 +387,7 @@ export class SessionTimeoutHandler {
    * @param type Type of warning to show (inactivity or total length)
    */
   private static showWarning(type: WarningType) {
+    console.log(`Showing ${type} warning modal`)
     // Check if any warning is already shown to prevent showing multiple dialogs
     if (this.inactivityWarningShown || this.totalLengthWarningShown) return
 
@@ -397,6 +401,7 @@ export class SessionTimeoutHandler {
       console.error(`Modal with ID ${modalId} not found`)
       return
     }
+    console.log(modal)
     // Show the modal by removing the hidden class
     modal.classList.remove('is-hidden')
     // Set the flag to indicate that the warning is shown
@@ -419,35 +424,5 @@ export class SessionTimeoutHandler {
    */
   private static logout() {
     window.location.href = '/logout'
-  }
-
-  /**
-   * Handles time change events. Currently only used by tests to simulate time advancement.
-   * Checks if any timeouts have been reached and executes appropriate actions.
-   */
-  private static handleTimeChange() {
-    // First check if we need to immediately logout due to timeout
-    const data = this.getTimeoutData()
-    if (data) {
-      const now = Math.floor(Date.now() / 1000)
-      // Check for timeout conditions first
-      if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
-        this.handleTimeout()
-        return
-      }
-    }
-
-    // If we have stored the next timeout action and time, check if it should fire
-    if (this.nextTimeoutAction && this.nextTimeoutTime) {
-      const now = Math.floor(Date.now() / 1000)
-      if (now >= this.nextTimeoutTime) {
-        const action = this.nextTimeoutAction
-        this.nextTimeoutAction = null
-        this.nextTimeoutTime = null
-        action()
-      }
-    }
-    // Always recheck timeouts after time change
-    void this.checkAndSetTimer()
   }
 }
