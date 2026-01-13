@@ -46,6 +46,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
+  /**
+   * Logo for the civic entity used in the footer. If not set, falls back to
+   * CIVIC_ENTITY_SMALL_LOGO_URL.
+   */
+  public Optional<String> getCivicEntityFooterLogoUrl() {
+    return getString("CIVIC_ENTITY_FOOTER_LOGO_URL");
+  }
+
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
@@ -1146,6 +1154,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "CIVIC_ENTITY_SMALL_LOGO_URL",
                           "Small logo for the civic entity used on the login page.",
                           /* isRequired= */ true,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "CIVIC_ENTITY_FOOTER_LOGO_URL",
+                          "Logo for the civic entity used in the footer. If not set, falls back to"
+                              + " CIVIC_ENTITY_SMALL_LOGO_URL.",
+                          /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(

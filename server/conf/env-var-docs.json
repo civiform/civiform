@@ -8,6 +8,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_FOOTER_LOGO_URL": {
+        "mode": "ADMIN_READABLE",
+        "description": "Logo for the civic entity used in the footer. If not set, falls back to CIVIC_ENTITY_SMALL_LOGO_URL.",
+        "type": "string",
+        "required": false
+      },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
