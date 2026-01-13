@@ -1130,7 +1130,7 @@ option.repeatedSet.chooseExisting=
 # Label for the new repeated set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=Listed entity
+input.repeatedSet.listedEntity=
 # Label for the text input field asking for the admin identifier of the repeated set
 input.repeatedSet.adminId=Repeated set admin ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
