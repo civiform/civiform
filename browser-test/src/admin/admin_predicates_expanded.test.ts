@@ -339,13 +339,13 @@ test.describe('create and edit predicates', () => {
       )
     })
 
-    await test.step('Select question, save, and check predicate validation', async() => {
+    await test.step('Select question, save, and check predicate validation', async () => {
       await adminPredicates.selectQuestion(1, 1, questionText)
 
       await adminPredicates.clickSaveAndExitButton()
 
       await expect(page.locator('#edit-predicate')).toContainText(
-        'Error: This field is required.'
+        'Error: This field is required.',
       )
       await validateScreenshot(
         page.locator('#condition-1'),

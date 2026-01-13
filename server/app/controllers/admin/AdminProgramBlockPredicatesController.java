@@ -1419,7 +1419,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * @param availableQuestions All questions available in this program.
    * @param formData The dynamic form data, containing user-entered values for this subcondition.
    * @param validateInputFields Whether or not to validate the presence of form inputs. Validation
-   *      data is stored in the returned EditSubconditionPartialViewModel.
+   *     data is stored in the returned EditSubconditionPartialViewModel.
    */
   private EditSubconditionPartialViewModel getParsedSubconditionFromFormData(
       EditSubconditionPartialViewModel emptyModel,
