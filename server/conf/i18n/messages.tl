@@ -1136,11 +1136,11 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
-input.repeatedSet.minEntities=Minimum entity count
+input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
-input.repeatedSet.maxEntities=Maximum entity count
+input.repeatedSet.maxEntities=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
