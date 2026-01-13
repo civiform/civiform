@@ -1148,6 +1148,6 @@ button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=Repeated set
+text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested repeated set
+text.nestedRepeatedSet=
