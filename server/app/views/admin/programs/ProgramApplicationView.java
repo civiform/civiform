@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -132,7 +131,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                renderBackLink(programId),
+                renderBackLink(),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -182,23 +181,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderBackLink(Long programId) {
-    String backUrl =
-        routes.AdminApplicationController.index(
-                programId,
-                /* search= */ Optional.empty(),
-                /* page= */ Optional.empty(),
-                /* fromDate= */ Optional.empty(),
-                /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty(),
-                /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal= */ Optional.empty(),
-                /* message= */ Optional.empty())
-            .url();
-
+  private ATag renderBackLink() {
     return new LinkElement()
         .setId("application-table-view-")
-        .setHref(backUrl)
+        .setId("back-to-applications-link")
         .setText("Back")
         .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
         .asAnchorText();
