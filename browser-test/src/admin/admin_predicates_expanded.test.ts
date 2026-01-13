@@ -551,6 +551,7 @@ test.describe('create and edit predicates', () => {
       QuestionType.NUMBER,
     ]) {
       const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+
       await test.step(`Select ${questionType} question and validate BETWEEN operator behavior`, async () => {
         await adminPredicates.configureSubcondition({
           conditionId: 1,
