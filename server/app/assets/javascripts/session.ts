@@ -100,8 +100,18 @@ export class SessionTimeoutHandler {
 
     console.log('=== Session Timeout Check ===')
     console.log('Current time:', now, new Date(now * 1000).toISOString())
-    console.log('Inactivity timeout at:', data.inactivityTimeout, new Date(data.inactivityTimeout * 1000).toISOString(), `(in ${data.inactivityTimeout - now}s)`)
-    console.log('Total session timeout at:', data.totalTimeout, new Date(data.totalTimeout * 1000).toISOString(), `(in ${data.totalTimeout - now}s)`)
+    console.log(
+      'Inactivity timeout at:',
+      data.inactivityTimeout,
+      new Date(data.inactivityTimeout * 1000).toISOString(),
+      `(in ${data.inactivityTimeout - now}s)`,
+    )
+    console.log(
+      'Total session timeout at:',
+      data.totalTimeout,
+      new Date(data.totalTimeout * 1000).toISOString(),
+      `(in ${data.totalTimeout - now}s)`,
+    )
 
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
@@ -173,8 +183,14 @@ export class SessionTimeoutHandler {
     const nextTimeout = timeouts[0]
     const delay = (nextTimeout.time - now) * 1000
 
-    console.log('Next timeout event at:', nextTimeout.time, new Date(nextTimeout.time * 1000).toISOString())
-    console.log(`Setting timer for ${delay}ms (${Math.floor(delay / 1000)}s / ${Math.floor(delay / 60000)}m)`)
+    console.log(
+      'Next timeout event at:',
+      nextTimeout.time,
+      new Date(nextTimeout.time * 1000).toISOString(),
+    )
+    console.log(
+      `Setting timer for ${delay}ms (${Math.floor(delay / 1000)}s / ${Math.floor(delay / 60000)}m)`,
+    )
     console.log('===========================')
 
     this.timer = window.setTimeout(() => {
@@ -401,7 +417,6 @@ export class SessionTimeoutHandler {
       console.error(`Modal with ID ${modalId} not found`)
       return
     }
-    console.log(modal)
     // Show the modal by removing the hidden class
     modal.classList.remove('is-hidden')
     // Set the flag to indicate that the warning is shown
