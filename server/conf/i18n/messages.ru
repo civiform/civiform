@@ -1122,13 +1122,13 @@ session.extended.error=Не удалось продлить сеанс.
 #------------------------------------------------------------------------------#
 
 # Heading for the repeated set creation method radio buttons
-heading.repeatedSet.creationMethod=Repeated set creation method
+heading.repeatedSet.creationMethod=
 # Option for allowing an admin to create a new repeated set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=
 # Option for allowing an admin to choose an existing repeated set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=
 # Label for the new repeated set form
-label.repeatedSet.newSetForm=Create new repeated set
+label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=Listed entity
 # Label for the text input field asking for the admin identifier of the repeated set
