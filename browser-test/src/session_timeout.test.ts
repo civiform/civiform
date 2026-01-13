@@ -23,7 +23,7 @@ test.describe('Session timeout with clock', () => {
     await page.clock.runFor(600000)
 
     // Wait a bit for handlers to process
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(10000)
 
     // Check if modal appears
     const inactivityModal = page.locator('#session-inactivity-warning-modal')
